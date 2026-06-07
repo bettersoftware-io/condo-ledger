@@ -1,0 +1,11 @@
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); }
+.content { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  background: var(--surface-panel); border-radius: var(--radius-md); box-shadow: var(--shadow-pop);
+  width: 520px; max-width: 90vw; padding: var(--sp-6); }
+.title { font-weight: var(--fw-bold); font-size: var(--fs-lg); margin-bottom: var(--sp-4); }
+.steps { display: flex; gap: var(--sp-2); margin-bottom: var(--sp-5); }
+.step { padding: var(--sp-2) var(--sp-4); border-radius: var(--radius-sm); background: var(--surface-group); font-size: var(--fs-sm); }
+.stepActive { background: var(--accent); color: #fff; }
+.note { color: var(--text-muted); font-size: var(--fs-sm); }
+.actions { display: flex; justify-content: flex-end; gap: var(--sp-3); margin-top: var(--sp-6); }
+.btn { padding: var(--sp-3) var(--sp-5); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface-panel); cursor: pointer; }
