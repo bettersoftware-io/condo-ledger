@@ -1,0 +1,10 @@
+.bar {
+  height: var(--topbar-h); background: var(--surface-header); color: var(--text-on-header);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 var(--sp-6);
+}
+.brand { display: flex; align-items: center; gap: var(--sp-4); font-weight: var(--fw-bold); letter-spacing: 0.5px; }
+.subtitle { color: var(--text-muted); font-weight: var(--fw-regular); font-size: var(--fs-sm); }
+.right { display: flex; align-items: center; gap: var(--sp-6); font-size: var(--fs-sm); }
+.item { display: flex; align-items: center; gap: var(--sp-2); color: var(--text-on-header); }
+.label { color: var(--text-muted); }
+.logout { display: flex; align-items: center; gap: var(--sp-2); background: none; border: none; color: var(--text-on-header); cursor: pointer; }
