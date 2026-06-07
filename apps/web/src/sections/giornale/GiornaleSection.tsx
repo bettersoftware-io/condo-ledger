@@ -40,7 +40,7 @@ export function GiornaleSection() {
     <SectionPanel
       title="Libro Giornale e Prima Nota" actions={actions}
       count={txns.length} countNoun="scritture"
-      legend={<div>Ogni scrittura ha righe Dare/Avere bilanciate. Espandi per vedere le righe.</div>}
+      legend={<div>Ogni scrittura ha righe Dare/Avere bilanciate, elencate sotto la scrittura.</div>}
     >
       <TreeTable
         rows={txns} columns={columns} getRowKind={() => "row"}

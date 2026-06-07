@@ -49,8 +49,6 @@ export interface TreeColumn<Row> {
   align?: "left" | "right";
   /** render a cell; receives the row */
   cell: (row: Row) => React.ReactNode;
-  /** optional inline editor; when present cell is editable */
-  editor?: (row: Row, commit: (next: Row) => void) => React.ReactNode;
 }
 export interface TreeTableProps<Row extends { id: string; children?: Row[] }> {
   rows: Row[];

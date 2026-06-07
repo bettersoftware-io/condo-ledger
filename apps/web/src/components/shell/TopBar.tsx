@@ -20,7 +20,7 @@ export function TopBar() {
             el.dataset.theme = el.dataset.theme === "dark" ? "" : "dark";
           }}
         >
-          <Icon name="lang" /> Tema
+          <Icon name="theme" /> Tema
         </button>
         <button className={styles.logout}><Icon name="logout" /> Esci</button>
       </div>

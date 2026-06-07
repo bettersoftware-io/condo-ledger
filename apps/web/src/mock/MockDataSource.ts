@@ -13,5 +13,5 @@ export function createMockDataSource(): MockDataSource {
     ledgerAccountsTree: (periodId: Id) => of(fx.ledgerAccountsByPeriod[periodId] ?? []),
     ledgerTransactions: (periodId: Id) => of(fx.ledgerTxnsByPeriod[periodId] ?? []),
     installments: (periodId: Id) => of(fx.installmentsByPeriod[periodId] ?? { columns: [], rows: [] }),
-  } satisfies MockDataSource as unknown as MockDataSource;
+  } satisfies MockDataSource;
 }

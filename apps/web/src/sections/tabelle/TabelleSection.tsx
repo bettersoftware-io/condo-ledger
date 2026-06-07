@@ -5,7 +5,7 @@ import { SplitPane } from "../../components/layout/SplitPane";
 import { TreeTable } from "../../components/grid/TreeTable";
 import { InlineNumber } from "../../components/grid/inlineEditors";
 import { STANDARD_ACTIONS } from "../../components/common/ActionToolbar";
-import { MoneyText, Coefficient } from "../../format";
+import { MoneyText } from "../../format";
 import { useAppRuntime } from "../../runtime/useAppRuntime";
 import styles from "./TabelleSection.module.css";
 

@@ -13,7 +13,7 @@ export function WizardDialog({
           <div className={styles.steps}>
             {steps.map((s, i) => <span key={i} className={`${styles.step} ${i === 0 ? styles.stepActive : ""}`}>{i + 1}. {s}</span>)}
           </div>
-          <p className={styles.note}>Prototipo: i passi della procedura guidata sono illustrati ma non eseguono salvataggi.</p>
+          <Dialog.Description className={styles.note}>Prototipo: i passi della procedura guidata sono illustrati ma non eseguono salvataggi.</Dialog.Description>
           <div className={styles.actions}>
             <button className={styles.btn} onClick={() => onOpenChange(false)}>Chiudi</button>
           </div>

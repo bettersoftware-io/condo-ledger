@@ -16,9 +16,7 @@ export function TreeTable<Row extends { id: string; children?: Row[] }>(
     id: c.id,
     header: c.header,
     cell: ({ row }) => {
-      const node = c.editor
-        ? c.editor(row.original, (next) => { /* commit handled by caller via onSelect-less port */ void next; })
-        : c.cell(row.original);
+      const node = c.cell(row.original);
       if (idx === 0) {
         return (
           <span className={styles.tree} style={{ paddingLeft: row.depth * 14 }}>
