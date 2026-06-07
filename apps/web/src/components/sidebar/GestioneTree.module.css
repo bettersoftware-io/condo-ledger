@@ -1,0 +1,8 @@
+.panel { display: flex; flex-direction: column; min-height: 0; }
+.title { font-size: var(--fs-sm); font-weight: var(--fw-bold); padding: var(--sp-4) var(--sp-5);
+  background: var(--surface-panel-header); border-bottom: 1px solid var(--border-subtle); }
+.list { overflow: auto; padding: var(--sp-3); }
+.cond { font-weight: var(--fw-medium); padding: var(--sp-2) var(--sp-3); display: flex; align-items: center; gap: var(--sp-2); }
+.period { padding: var(--sp-2) var(--sp-3) var(--sp-2) var(--sp-7); cursor: pointer; border-radius: var(--radius-sm); }
+.period:hover { background: var(--surface-row-hover); }
+.selected { background: var(--surface-row-selected); }

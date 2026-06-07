@@ -1,0 +1,9 @@
+.panel { border-top: 1px solid var(--border-strong); display: flex; flex-direction: column; }
+.title { font-size: var(--fs-sm); font-weight: var(--fw-bold); padding: var(--sp-4) var(--sp-5);
+  background: var(--surface-panel-header); border-bottom: 1px solid var(--border-subtle); }
+.item { display: flex; align-items: center; justify-content: space-between; padding: var(--sp-4) var(--sp-5);
+  background: none; border: none; width: 100%; text-align: left; cursor: pointer; color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-subtle); font-size: var(--fs-md); }
+.item:hover { background: var(--surface-row-hover); color: var(--text-primary); }
+.active { color: var(--accent); font-weight: var(--fw-medium); background: var(--surface-row-selected); }
+.disabled { color: var(--text-muted); cursor: not-allowed; }
