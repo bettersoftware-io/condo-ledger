@@ -1,3 +1,10 @@
+import { AppRuntimeProvider } from "./runtime/AppRuntimeProvider";
+import { AppShell } from "./components/layout/AppShell";
+
 export function App() {
-  return <div>CondoLedger</div>;
+  return (
+    <AppRuntimeProvider>
+      <AppShell />
+    </AppRuntimeProvider>
+  );
 }
