@@ -9,7 +9,7 @@ test("tree has Saturno and Pozzetto", async () => {
 test("units cascade from period id", async () => {
   const ds = createMockDataSource();
   const units = await firstValueFrom(ds.unitsTree("sat-2011"));
-  expect(units[0].children?.length).toBeGreaterThan(0);
+  expect(units[0]!.children?.length).toBeGreaterThan(0);
 });
 test("unknown period yields empty", async () => {
   const ds = createMockDataSource();

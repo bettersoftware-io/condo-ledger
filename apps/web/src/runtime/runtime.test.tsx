@@ -39,7 +39,7 @@ test("two providers do NOT share state (no singletons)", async () => {
   }
   render(<App />);
   const [btnA] = screen.getAllByText("pick");
-  await act(async () => { btnA.click(); });
+  await act(async () => { btnA!.click(); });
   const sels = screen.getAllByTestId("sel");
   expect(sels[0]).toHaveTextContent("sat-2011");
   expect(sels[1]).toHaveTextContent("none"); // second instance untouched
