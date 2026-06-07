@@ -1,0 +1,20 @@
+:root[data-theme="dark"] {
+  --surface-app: #0f1115;
+  --surface-panel: #161a20;
+  --surface-panel-header: #1b2027;
+  --surface-row: #161a20;
+  --surface-row-alt: #1a1f26;
+  --surface-row-hover: #1f2630;
+  --surface-row-selected: #243044;
+  --surface-header: #0b0d10;
+  --surface-group: #1d232b;
+  --border-subtle: #262c34;
+  --border-strong: #333b45;
+  --text-primary: #e5e7eb;
+  --text-secondary: #b6bcc4;
+  --text-muted: #7b828c;
+  --text-on-header: #e5e7eb;
+  --accent: #3b82f6;
+  --money-positive: #60a5fa;
+  --money-negative: #f87171;
+}
