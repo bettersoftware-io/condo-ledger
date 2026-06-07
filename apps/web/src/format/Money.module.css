@@ -1,0 +1,4 @@
+.cell { font-family: var(--font-num); font-variant-numeric: tabular-nums; text-align: right; }
+.positive { color: var(--money-positive); }
+.negative { color: var(--money-negative); }
+.zero { color: var(--text-muted); }
