@@ -1,0 +1,9 @@
+.bar { height: var(--toolbar-h); display: flex; align-items: center; gap: var(--sp-2);
+  padding: 0 var(--sp-4); border-bottom: 1px solid var(--border-subtle); background: var(--surface-panel-header); }
+.btn { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px;
+  border: 1px solid transparent; border-radius: var(--radius-sm); background: none; color: var(--text-secondary); cursor: pointer; }
+.btn:hover { background: var(--surface-row-hover); color: var(--text-primary); }
+.btn:disabled { color: var(--text-muted); cursor: not-allowed; }
+.primary { color: var(--status-active); }
+.sep { width: 1px; height: 18px; background: var(--border-subtle); margin: 0 var(--sp-2); }
+.spacer { flex: 1; }

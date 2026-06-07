@@ -1,0 +1,6 @@
+.root { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.list { display: flex; gap: var(--sp-1); border-bottom: 1px solid var(--border-strong); padding: 0 var(--sp-5); background: var(--surface-panel-header); }
+.trigger { padding: var(--sp-3) var(--sp-5); background: none; border: none; border-bottom: 2px solid transparent;
+  color: var(--text-secondary); cursor: pointer; font-size: var(--fs-md); }
+.trigger[data-state="active"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: var(--fw-medium); }
+.content { flex: 1; min-height: 0; overflow: auto; }
