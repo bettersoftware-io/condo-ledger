@@ -1,0 +1,9 @@
+.top { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4); height: 100%; min-height: 0; }
+.pane { display: flex; flex-direction: column; min-height: 0; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); overflow: auto; }
+.paneTitle { font-weight: var(--fw-bold); font-size: var(--fs-sm); padding: var(--sp-3) var(--sp-4); background: var(--surface-panel-header); border-bottom: 1px solid var(--border-subtle); }
+.tableItem { padding: var(--sp-3) var(--sp-4); cursor: pointer; display: flex; justify-content: space-between; }
+.tableItem:hover { background: var(--surface-row-hover); }
+.selected { background: var(--surface-row-selected); }
+.toggle { display: flex; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4); }
+.toggleBtn { padding: var(--sp-2) var(--sp-4); border: 1px solid var(--border-strong); background: var(--surface-panel); border-radius: var(--radius-sm); cursor: pointer; }
+.toggleActive { background: var(--accent); color: #fff; border-color: var(--accent); }
