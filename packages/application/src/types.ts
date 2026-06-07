@@ -1,0 +1,94 @@
+import type { Money } from "@cl/domain";
+
+export type Id = string;
+export type Module = "calendario" | "condomini" | "anagrafiche";
+export type CondominiSection =
+  | "dati" | "unita" | "tabelle" | "conti" | "giornale" | "rate";
+
+export type AccountingPeriodType = "ordinary" | "extra" | "auxiliary";
+
+export interface AccountingPeriodNode {
+  id: Id;
+  name: string;            // "2010 (Ordinario)"
+  type: AccountingPeriodType;
+  closed: boolean;
+  start: string;           // ISO date
+  end: string;             // ISO date
+}
+export interface CondominiumNode {
+  id: Id;
+  code: string;            // "SAT"
+  name: string;            // "Saturno (Piazza del Duomo, 39, 33100 Udine)"
+  type: "regular" | "super" | "residence";
+  periods: AccountingPeriodNode[];
+}
+
+export interface Selection { condominiumId?: Id; accountingPeriodId?: Id; }
+
+export interface CondominiumDetail {
+  intestazione: string;
+  codice: string;
+  status: "active" | "inactive";
+  tipo: string;
+  indirizzo: string;
+  codiceFiscale: string;
+  dataCostruzione: string | null;
+  datiCatastali: string | null;
+  idSistema: string;
+  creatoIl: string;
+  modificatoIl: string;
+  suppliers: SupplierRow[];
+}
+export interface SupplierRow { id: Id; nominativo: string; categoria: string; }
+
+export type UnitRowKind = "group" | "unit" | "resident";
+export interface UnitRow {
+  id: Id;
+  kind: UnitRowKind;
+  label: string;           // group/unit/resident display
+  unitType?: string;       // "Appartamento"
+  floor?: string;
+  inner?: string;
+  sub?: string;
+  restriction?: string;    // competenza date range
+  saldoPrec: Money;
+  preventivo: Money;
+  consuntivo: Money;
+  totDovuto: Money;
+  versato: Money;
+  children?: UnitRow[];
+}
+
+export interface DistributionTable {
+  id: Id; name: string; restriction: string | null; total: number;
+  items: DistributionTableItem[];
+}
+export interface DistributionTableItem { unitId: Id; unitLabel: string; coefficient: number; competenza: string; }
+
+export type DistributionType = "estimate" | "current";
+export interface DistributionRow {
+  id: Id; kind: "group" | "unit"; label: string;
+  amounts: Record<Id /*expenseAccountId*/, Money>;
+  total: Money; children?: DistributionRow[];
+}
+export interface DistributionColumn { accountId: Id; header: string; }
+
+export type LedgerAccountKind = "grouping" | "regular" | "subsidiary" | "control";
+export interface LedgerAccountRow {
+  id: Id; kind: LedgerAccountKind; label: string;
+  dare: Money; avere: Money; saldo: Money; preventivo: Money | null;
+  children?: LedgerAccountRow[];
+}
+
+export interface LedgerTxnRow {
+  id: Id; date: string; code: number; description: string;
+  dare: Money; avere: Money;
+  entries: { account: string; dare: Money; avere: Money }[];
+}
+
+export interface InstallmentColumn { id: Id; header: string; }
+export interface InstallmentRow {
+  id: Id; kind: "group" | "unit" | "resident"; label: string; role?: string;
+  restriction?: string; saldoPrec: Money; totPreventivo: Money; totDovuto: Money;
+  byInstallment: Record<Id, Money>; children?: InstallmentRow[];
+}
