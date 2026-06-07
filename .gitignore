@@ -1,2 +1,6 @@
 .idea/*
 **/.svn/
+node_modules/
+dist/
+*.tsbuildinfo
+.DS_Store
