@@ -13,6 +13,15 @@ export function TopBar() {
         <span className={styles.item}><span className={styles.label}>Profilo:</span> Amministratore</span>
         <span className={styles.item}><span className={styles.label}>Studio:</span> Studio Bertoli Amministrazioni</span>
         <span className={styles.item}><Icon name="lang" /> IT</span>
+        <button
+          className={styles.logout}
+          onClick={() => {
+            const el = document.documentElement;
+            el.dataset.theme = el.dataset.theme === "dark" ? "" : "dark";
+          }}
+        >
+          <Icon name="lang" /> Tema
+        </button>
         <button className={styles.logout}><Icon name="logout" /> Esci</button>
       </div>
     </header>
