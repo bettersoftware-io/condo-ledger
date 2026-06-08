@@ -1,5 +1,5 @@
 {
   "extends": "../../tsconfig.base.json",
-  "compilerOptions": { "types": ["node", "vitest/globals"], "outDir": "dist" },
+  "compilerOptions": { "types": ["node", "vitest/globals"], "outDir": "dist", "allowImportingTsExtensions": true },
   "include": ["src", "etl", "test", "drizzle.config.ts", "vitest.config.ts"]
 }
