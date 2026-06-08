@@ -1,0 +1,11 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: condo
+      POSTGRES_PASSWORD: condo
+      POSTGRES_DB: condo
+    ports: ["5432:5432"]
+    volumes: ["condo_pg:/var/lib/postgresql/data"]
+volumes:
+  condo_pg:
