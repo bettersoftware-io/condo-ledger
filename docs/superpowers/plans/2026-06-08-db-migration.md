@@ -12,8 +12,55 @@
 
 **Reference invariants (measured from `old/db/it-jtime-condominium.structure.sql`):**
 - 95 tables, 6 views, 3 functions, 188 triggers, 29 enum columns (**23 distinct value-sets**), 24 `tinyint(1)`, 320 `unsigned`, 22 `decimal`, 190 `datetime`, 90 `AUTO_INCREMENT`, 249 FKs.
-- FK closure of the 19 operational tables = **41 tables** (operational + 22 parents). The graph has cycles and 4 self-referential tables (`condominium`, `ledgerAccount`, `masterData`, `unitGroup`).
-- The reserved-word column is `default` (`tinyint(1)`) on `accountingPeriodInstallmentDefaultSettings` (structure.sql:1936) → renamed `is_default`.
+- FK closure of the 19 operational tables = **41 tables** (operational + 22 parents). The graph has cycles and self-referential tables.
+
+---
+
+## ⚠️ Plan Corrections (measured from the DDL — these SUPERSEDE any conflicting text or code below)
+
+The original worked examples / test assertions below were drafted from memory. The following were
+re-measured directly from `old/db/it-jtime-condominium.structure.sql` and are authoritative. Where the
+task bodies below disagree, **these win**.
+
+1. **Timestamp columns.** Every data table has `created` + **`lastModified`** (datetime). **None** has
+   `updated`. Decision: **normalize `lastModified` → `updated`** in the new schema (the schema column is
+   `updated timestamptz`; the ETL maps the legacy `lastModified` value into it — a column rename, like
+   `default`→`is_default`). The `set_timestamps()` trigger in Task 9 (which operates on
+   `created`/`updated`) is therefore **correct as written**. Authoring rule #10 stands as written
+   (`created`/`updated` in the new schema); just remember the *source* column is `lastModified`.
+
+2. **Self-reference (hierarchy) columns are entity-specific**, not a generic `parentId`:
+   - `condominium.parentCondominiumId` → `parent_condominium_id`
+   - `ledgerAccount.parentLedgerAccountId` → `parent_ledger_account_id`
+   - `unitGroup.parentUnitGroupId` → `parent_unit_group_id`
+   Update Task 4/7 test assertions and worked examples accordingly (replace every `parent_id`).
+
+3. **`masterData` has NO hierarchy parent**, and **`qualification` does NOT self-reference.** Instead,
+   `masterData` (and ~10 tables total) carry **audit FK columns** `createdMasterDataId` /
+   `lastModifiedMasterDataId`, both referencing `masterData(id)`. Keep these **faithful**:
+   `created_master_data_id` / `last_modified_master_data_id` (they are FK columns, distinct from the
+   `updated` timestamp — do NOT normalize these to `updated`). The Task-5 claim that `masterData`/
+   `qualification` self-reference via `parentId` is wrong; drop it. (These audit self-FKs are why those
+   tables still count as self-referential for the replica-mode load.)
+
+4. **The `default` reserved-word column is on `masterDataTaxTreatment`** (structure.sql:1936), **not**
+   `accountingPeriodInstallmentDefaultSettings`. Decision: **rename `default` → `is_default` boolean on
+   `masterDataTaxTreatment`.** Fix the Task-7 assertion (it targets the wrong table) and the Task-13 ETL
+   rename map.
+
+5. **`order` is also a reserved word used as a column name (×11).** No rename needed — Drizzle
+   double-quotes all identifiers, so `integer("order")` emits a valid `"order"` column. (Same reason a
+   rename of `default` is optional, not required; we rename it anyway for ergonomics per #4.)
+
+6. **New authoring rule — `date` type.** 29 columns are `date` (not `datetime`), e.g. `birthDate`,
+   `endDate`, `expiryDate`, `paymentDate`, `manufacturedDate`. Translate `date` → drizzle **`date()`**
+   (date-only, no timezone). The ETL must NOT apply Europe/Rome→UTC datetime conversion to these — they
+   are calendar dates, copied verbatim.
+
+7. **Author every table strictly from the DDL.** For each table run
+   `awk '/^CREATE TABLE `<name>`/,/^\) ENGINE/' old/db/it-jtime-condominium.structure.sql` and translate
+   **every** column (no omissions) per the authoring rules. The worked examples below are *illustrative
+   skeletons*, not complete column lists.
 
 ---
 
