@@ -82,3 +82,59 @@ describe("MockStore inline-edit commands", () => {
     expect(JSON.stringify(rows)).not.toContain("11111");
   });
 });
+
+describe("MockStore transaction commands", () => {
+  it("addTransaction appends a balanced txn and applies balance deltas", () => {
+    const s = new MockStore();
+    s.addTransaction("sat-2011", {
+      date: "2011-05-01", description: "Prova scrittura",
+      entries: [
+        { accountId: "cassa", label: "Cassa Contanti", dareCents: 1000, avereCents: 0 },
+        { accountId: "banca", label: "Banca", dareCents: 0, avereCents: 1000 },
+      ],
+    });
+    const txns = latest(s.ledgerTransactions("sat-2011"));
+    expect(txns).toHaveLength(4);
+    expect(txns[3]!.code).toBe(4);
+    expect(txns[3]!.dare.cents).toBe(1000);
+    const cassa = JSON.stringify(latest(s.ledgerAccountsTree("sat-2011")));
+    expect(cassa).toContain('"cents":' + (13552 + 1000)); // cassa dare bumped
+  });
+  it("addTransaction rejects unbalanced entries", () => {
+    const s = new MockStore();
+    expect(() => s.addTransaction("sat-2011", {
+      date: "2011-05-01", description: "Sbilanciata",
+      entries: [{ accountId: "cassa", label: "Cassa", dareCents: 10, avereCents: 0 }],
+    })).toThrow(/bilanciata/);
+  });
+  it("registerInvoice posts gross to expense, net to payable, ritenuta to its account", () => {
+    const s = new MockStore();
+    s.registerInvoice("sat-2011", {
+      date: "2011-06-01", supplierName: "Acme", invoiceNumber: "F-77",
+      grossCents: 50000, withholdingCents: 10000,
+      expenseAccountId: "cassa", expenseAccountLabel: "Pulizie",        // fixture leaf ids suffice
+      payableAccountId: "banca", payableAccountLabel: "Fornitori",
+      withholdingAccountId: "banca", withholdingAccountLabel: "Erario c/ritenute",
+    });
+    const txns = latest(s.ledgerTransactions("sat-2011"));
+    const inv = txns[txns.length - 1]!;
+    expect(inv.description).toContain("F-77");
+    expect(inv.entries.map((e) => [e.dare.cents, e.avere.cents])).toEqual([
+      [50000, 0], [0, 40000], [0, 10000],
+    ]);
+  });
+  it("recordTaking posts the incasso and bumps versato on resident + ancestors", () => {
+    const s = new MockStore();
+    s.recordTaking("sat-2011", {
+      date: "2011-07-01", residentId: "r-a01-1", residentLabel: "Alberi Dina",
+      liquidAccountId: "banca", liquidAccountLabel: "Banca",
+      creditAccountId: "cassa", creditAccountLabel: "Condòmini c/rate",
+      settlements: [{ installmentId: "r1", amountCents: 49576 }],
+    });
+    const units = latest(s.unitsTree("sat-2011"));
+    expect(units[0]!.versato.cents).toBe(49576);                       // group rollup
+    expect(units[0]!.children![0]!.versato.cents).toBe(49576);          // unit u-a01
+    expect(units[0]!.children![0]!.children![0]!.versato.cents).toBe(49576); // resident
+    expect(units[0]!.children![1]!.versato.cents).toBe(0);              // untouched sibling
+  });
+});

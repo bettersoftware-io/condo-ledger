@@ -3,12 +3,14 @@ import type {
   MockDataSource, Id, DistributionType, CondominiumNode, CondominiumDetail,
   UnitRow, DistributionTable, DistributionColumn, DistributionRow,
   LedgerAccountRow, LedgerTxnRow, InstallmentColumn, InstallmentRow,
+  TransactionInput, InvoiceInput, TakingInput,
 } from "@cl/application";
 import { fromCents } from "@cl/domain";
 import * as fx from "./fixtures";
 import { mapRow } from "./treeRows";
 import { recomputeDistribution } from "../recompute/distribution";
 import { redistributeOverride } from "../recompute/installments";
+import { applyEntryDeltas } from "../recompute/balances";
 
 type Dist = { columns: DistributionColumn[]; rows: DistributionRow[] };
 type Installments = { columns: InstallmentColumn[]; rows: InstallmentRow[] };
@@ -90,5 +92,63 @@ export class MockStore implements MockDataSource {
       }));
       return { ...data, rows };
     });
+  }
+
+  addTransaction(periodId: Id, input: TransactionInput): void {
+    const totDare = input.entries.reduce((a, e) => a + e.dareCents, 0);
+    const totAvere = input.entries.reduce((a, e) => a + e.avereCents, 0);
+    if (totDare !== totAvere) throw new Error("Scrittura non bilanciata: dare ≠ avere");
+    const existing = this.txns$.getValue()[periodId] ?? [];
+    const code = existing.reduce((m, t) => Math.max(m, t.code), 0) + 1;
+    this.patch(this.txns$, periodId, [], (txns) => [...txns, {
+      id: `tx-${periodId}-${code}`,
+      date: input.date, code, description: input.description,
+      dare: fromCents(totDare), avere: fromCents(totAvere),
+      entries: input.entries.map((e) => ({ account: e.label, dare: fromCents(e.dareCents), avere: fromCents(e.avereCents) })),
+    }]);
+    this.patch(this.accounts$, periodId, [], (rows) =>
+      applyEntryDeltas(rows, input.entries.map((e) => ({
+        accountId: e.accountId, dareCents: e.dareCents, avereCents: e.avereCents,
+      }))));
+  }
+
+  openBalances(periodId: Id, input: TransactionInput): void {
+    this.addTransaction(periodId, input); // same balanced-posting rule; wizard differs, command doesn't
+  }
+
+  registerInvoice(periodId: Id, inv: InvoiceInput): void {
+    const net = inv.grossCents - inv.withholdingCents;
+    this.addTransaction(periodId, {
+      date: inv.date,
+      description: `Registrazione fattura ${inv.invoiceNumber} ${inv.supplierName}`,
+      entries: [
+        { accountId: inv.expenseAccountId, label: inv.expenseAccountLabel, dareCents: inv.grossCents, avereCents: 0 },
+        { accountId: inv.payableAccountId, label: inv.payableAccountLabel, dareCents: 0, avereCents: net },
+        ...(inv.withholdingCents > 0
+          ? [{ accountId: inv.withholdingAccountId, label: inv.withholdingAccountLabel, dareCents: 0, avereCents: inv.withholdingCents }]
+          : []),
+      ],
+    });
+  }
+
+  recordTaking(periodId: Id, t: TakingInput): void {
+    const total = t.settlements.reduce((a, s) => a + s.amountCents, 0);
+    this.addTransaction(periodId, {
+      date: t.date,
+      description: `Incasso ${t.residentLabel}`,
+      entries: [
+        { accountId: t.liquidAccountId, label: t.liquidAccountLabel, dareCents: total, avereCents: 0 },
+        { accountId: t.creditAccountId, label: t.creditAccountLabel, dareCents: 0, avereCents: total },
+      ],
+    });
+    const addVersato = (rows: UnitRow[]): UnitRow[] => {
+      const contains = (r: UnitRow): boolean =>
+        r.id === t.residentId || (r.children ?? []).some(contains);
+      const walk = (r: UnitRow): UnitRow => contains(r)
+        ? { ...r, versato: fromCents(r.versato.cents + total), children: r.children?.map(walk) }
+        : r;
+      return rows.map(walk);
+    };
+    this.patch(this.units$, periodId, [], addVersato);
   }
 }
