@@ -8,7 +8,7 @@ describe("allocate (largest remainder)", () => {
   });
   it("preserves the total for millesimal weights", () => {
     const out = allocate(200000, [312.5, 687.5]);
-    expect(out[0] + out[1]).toBe(200000);
+    expect(out[0]! + out[1]!).toBe(200000);
     expect(out).toEqual([62500, 137500]);
   });
   it("handles negative totals symmetrically", () => {

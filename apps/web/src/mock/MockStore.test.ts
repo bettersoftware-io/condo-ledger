@@ -12,7 +12,7 @@ describe("MockStore reads", () => {
   it("serves the fixture tree and per-period collections", () => {
     const s = new MockStore();
     expect(latest(s.condominiumTree()).map((n) => n.id)).toEqual(["poz", "sat"]);
-    expect(latest(s.unitsTree("sat-2011"))[0].id).toBe("g-sat");
+    expect(latest(s.unitsTree("sat-2011"))[0]!.id).toBe("g-sat");
     expect(latest(s.unitsTree("unknown"))).toEqual([]);
     expect(latest(s.condominiumDetail("unknown"))).toBeNull();
     expect(latest(s.installments("poz-2010")).columns).toHaveLength(2);

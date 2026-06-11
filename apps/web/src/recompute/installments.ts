@@ -13,11 +13,11 @@ export function distributeInstallments(
  * rounding adjustments. Editing the last cell simply changes the row total. */
 export function redistributeOverride(cells: number[], index: number, newValue: number): number[] {
   const out = [...cells];
-  const delta = out[index] - newValue;
+  const delta = out[index]! - newValue; // index is a valid cell index per caller contract
   out[index] = newValue;
   const later = out.map((_, i) => i).filter((i) => i > index);
   if (later.length === 0 || delta === 0) return out;
   const split = allocate(delta, later.map(() => 1));
-  later.forEach((cellIdx, k) => { out[cellIdx] += split[k]; });
+  later.forEach((cellIdx, k) => { out[cellIdx] = out[cellIdx]! + split[k]!; }); // cellIdx/k are valid indices
   return out;
 }

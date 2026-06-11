@@ -15,8 +15,8 @@ const tree: LedgerAccountRow[] = [
 describe("applyEntryDeltas", () => {
   it("updates the touched leaf and re-derives its ancestors", () => {
     const out = applyEntryDeltas(tree, [{ accountId: "cassa", dareCents: 50, avereCents: 0 }]);
-    const tot = out[0];
-    const cassa = tot.children![0];
+    const tot = out[0]!;
+    const cassa = tot.children![0]!;
     expect(cassa.dare.cents).toBe(250);
     expect(cassa.saldo.cents).toBe(250);
     expect(tot.dare.cents).toBe(350);
@@ -24,7 +24,7 @@ describe("applyEntryDeltas", () => {
   });
   it("leaves untouched subtrees referentially identical", () => {
     const out = applyEntryDeltas(tree, [{ accountId: "cassa", dareCents: 50, avereCents: 0 }]);
-    expect(out[0].children![1]).toBe(tree[0].children![1]); // banca untouched
+    expect(out[0]!.children![1]!).toBe(tree[0]!.children![1]!); // banca untouched
   });
   it("is the identity for unknown accounts", () => {
     expect(applyEntryDeltas(tree, [{ accountId: "nope", dareCents: 1, avereCents: 0 }])[0]).toBe(tree[0]);
