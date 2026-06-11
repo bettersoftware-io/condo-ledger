@@ -46,19 +46,10 @@ export class MockStore implements MockDataSource {
 
   setCoefficient(periodId: Id, tableId: Id, unitId: Id, coefficient: number): void {
     this.patch(this.tables$, periodId, [], (tables) =>
-      tables.map((t) => {
-        if (t.id !== tableId) return t;
-        const others = t.items.filter((it) => it.unitId !== unitId);
-        const othersSum = others.reduce((a, it) => a + it.coefficient, 0);
-        const remainder = t.total - coefficient;
-        const items = t.items.map((it) => {
-          if (it.unitId === unitId) return { ...it, coefficient };
-          // scale other items proportionally to fill remainder
-          const scaled = othersSum > 0 ? (it.coefficient / othersSum) * remainder : 0;
-          return { ...it, coefficient: scaled };
-        });
-        return { ...t, items };
-      }));
+      tables.map((t) => t.id !== tableId ? t : ({
+        ...t,
+        items: t.items.map((it) => (it.unitId === unitId ? { ...it, coefficient } : it)),
+      })));
     const table = (this.tables$.getValue()[periodId] ?? []).find((t) => t.id === tableId);
     if (!table) return;
     const coeffByUnit = new Map(table.items.map((i) => [i.unitId, i.coefficient]));

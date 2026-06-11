@@ -39,9 +39,13 @@ describe("MockStore inline-edit commands", () => {
     s.setCoefficient("sat-2011", "t-prop", "u-a01", 500);
     const table = latest(s.distributionTables("sat-2011")).find((t) => t.id === "t-prop")!;
     expect(table.items.find((i) => i.unitId === "u-a01")!.coefficient).toBe(500);
+    expect(table.items.find((i) => i.unitId === "u-a02")!.coefficient).toBe(687.5);
     const dist = latest(s.distribution("sat-2011", "estimate"));
     const a01 = dist.rows[0]!.children!.find((r) => r.unitId === "u-a01")!;
-    expect(a01.amounts["e-pul"]!.cents).toBe(60000); // 120000 split 500/500
+    const a02 = dist.rows[0]!.children!.find((r) => r.unitId === "u-a02")!;
+    expect(a01.amounts["e-pul"]!.cents).toBe(50526); // 120000 split 500/687.5 (largest remainder)
+    expect(a02.amounts["e-pul"]!.cents).toBe(69474);
+    expect(a01.amounts["e-pul"]!.cents + a02.amounts["e-pul"]!.cents).toBe(120000);
   });
   it("setPreventivo updates the account row", () => {
     const s = new MockStore();
