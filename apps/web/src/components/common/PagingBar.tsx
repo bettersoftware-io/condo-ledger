@@ -3,6 +3,7 @@ import styles from "./SmallControls.module.css";
 export function PagingBar({ page, pageCount, onPage }: {
   page: number; pageCount: number; onPage: (p: number) => void;
 }) {
+  if (pageCount < 1) return null;
   const first = page <= 1, last = page >= pageCount;
   return (
     <div className={styles.paging}>

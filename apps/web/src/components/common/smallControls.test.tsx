@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import { PagingBar } from "./PagingBar";
 import { SearchBox } from "./SearchBox";
@@ -20,6 +20,10 @@ describe("PagingBar", () => {
     expect(screen.getByLabelText("Prima pagina")).toBeDisabled();
     expect(screen.getByLabelText("Pagina precedente")).toBeDisabled();
   });
+  it("renders nothing when there are no pages", () => {
+    const { container } = render(<PagingBar page={1} pageCount={0} onPage={() => {}} />);
+    expect(container).toBeEmptyDOMElement();
+  });
 });
 
 describe("SearchBox / ToolbarToggle", () => {
@@ -38,6 +42,7 @@ describe("SearchBox / ToolbarToggle", () => {
 });
 
 describe("Toast", () => {
+  afterEach(() => { vi.useRealTimers(); });
   it("shows a message and auto-dismisses", () => {
     vi.useFakeTimers();
     function Trigger() {
@@ -46,9 +51,9 @@ describe("Toast", () => {
     }
     render(<ToastProvider><Trigger /></ToastProvider>);
     fireEvent.click(screen.getByText("go"));
+    expect(screen.getByRole("status")).toBeInTheDocument();
     expect(screen.getByText("Funzione non inclusa nel prototipo")).toBeInTheDocument();
     act(() => { vi.advanceTimersByTime(3500); });
     expect(screen.queryByText("Funzione non inclusa nel prototipo")).toBeNull();
-    vi.useRealTimers();
   });
 });
