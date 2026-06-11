@@ -14,10 +14,17 @@ export function mapRow<R extends TreeRowLike>(rows: R[], id: string, fn: (r: R) 
 }
 
 export function removeRow<R extends TreeRowLike>(rows: R[], id: string): R[] {
-  const filtered = rows.filter((r) => r.id !== id);
-  return filtered.map((r): R =>
-    r.children?.length ? { ...r, children: removeRow(r.children as R[], id) } : r,
-  );
+  let changed = false;
+  const out: R[] = [];
+  for (const r of rows) {
+    if (r.id === id) { changed = true; continue; }
+    if (r.children?.length) {
+      const children = removeRow(r.children as R[], id);
+      if (children !== r.children) { changed = true; out.push({ ...r, children }); continue; }
+    }
+    out.push(r);
+  }
+  return changed ? out : rows;
 }
 
 export function insertChild<R extends TreeRowLike>(rows: R[], parentId: string | null, child: R): R[] {
