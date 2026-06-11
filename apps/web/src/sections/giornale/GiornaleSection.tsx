@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { LedgerTxnRow, TreeColumn } from "@cl/application";
 import { SectionPanel } from "../../components/layout/SectionPanel";
 import { TreeTable } from "../../components/grid/TreeTable";
-import { WizardDialog } from "../../components/common/WizardDialog";
+import { WizardDialog, shellSteps } from "../../components/common/WizardDialog";
 import { MoneyText, DateText } from "../../format";
 import { useAppRuntime } from "../../runtime/useAppRuntime";
 import styles from "./GiornaleSection.module.css";
@@ -59,7 +59,7 @@ export function GiornaleSection() {
         ))}
       </div>
       <WizardDialog open={wizard !== null} onOpenChange={(o) => !o && setWizard(null)}
-        title={wizard ?? ""} steps={wizard ? stepsByWizard[wizard] ?? [] : []} />
+        title={wizard ?? ""} steps={shellSteps(wizard ? stepsByWizard[wizard] ?? [] : [])} />
     </SectionPanel>
   );
 }

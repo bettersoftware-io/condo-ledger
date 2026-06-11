@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { InstallmentRow, TreeColumn } from "@cl/application";
 import { SectionPanel } from "../../components/layout/SectionPanel";
 import { TreeTable } from "../../components/grid/TreeTable";
-import { WizardDialog } from "../../components/common/WizardDialog";
+import { WizardDialog, shellSteps } from "../../components/common/WizardDialog";
 import { MoneyText } from "../../format";
 import { useAppRuntime } from "../../runtime/useAppRuntime";
 
@@ -40,7 +40,7 @@ export function RateSection() {
       <TreeTable rows={rows} columns={columns} getRowKind={(r) => (r.kind === "group" ? "group" : "row")} />
       <WizardDialog open={wizard} onOpenChange={setWizard}
         title="Crea Rate da Preventivo"
-        steps={["Numero e periodo", "Distribuzione", "Revisione", "Conto liquidità"]} />
+        steps={shellSteps(["Numero e periodo", "Distribuzione", "Revisione", "Conto liquidità"])} />
     </SectionPanel>
   );
 }
