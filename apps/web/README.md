@@ -19,4 +19,8 @@ pnpm --filter @cl/web test
   `<AppRuntimeProvider>` context (composition root — no module singletons).
 - Styling: CSS Modules + design tokens (`src/styles/tokens.css`); dark theme via `data-theme="dark"`
   (toggle "Tema" in the top bar). Behavior primitives: Radix. Grid: TanStack behind `TreeTable`.
-- Data: `src/mock/MockDataSource.ts` (Saturno/Pozzetto fixtures).
+- Data: `src/mock/MockStore.ts` — stateful in-memory store (BehaviorSubjects) behind the
+  `MockDataSource` port: reads are derivations, commands (inline edits, fattura/incasso/saldi,
+  rate creation, registry CRUD) mutate immutably and propagate through the selection cascade.
+  Derived values recompute in `src/recompute/` (largest-remainder rounding) — the naive stand-in
+  for the future `@cl/domain` engine.
