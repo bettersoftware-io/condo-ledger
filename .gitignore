@@ -6,3 +6,8 @@ dist/
 .DS_Store
 .pnpm-store/
 .claude/
+
+# Local env files (e.g. packages/db/.env holds the dev DATABASE_URL). Keep .env.example tracked.
+.env
+.env.*
+!.env.example
