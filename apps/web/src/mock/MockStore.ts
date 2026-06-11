@@ -3,13 +3,14 @@ import type {
   MockDataSource, Id, DistributionType, CondominiumNode, CondominiumDetail,
   UnitRow, DistributionTable, DistributionColumn, DistributionRow,
   LedgerAccountRow, LedgerTxnRow, InstallmentColumn, InstallmentRow,
-  TransactionInput, InvoiceInput, TakingInput,
+  TransactionInput, InvoiceInput, TakingInput, CreateInstallmentsInput,
 } from "@cl/application";
 import { fromCents } from "@cl/domain";
 import * as fx from "./fixtures";
 import { mapRow } from "./treeRows";
 import { recomputeDistribution } from "../recompute/distribution";
-import { redistributeOverride } from "../recompute/installments";
+import { distributeInstallments, redistributeOverride } from "../recompute/installments";
+import { addMonths, formatItDate } from "../recompute/dates";
 import { applyEntryDeltas } from "../recompute/balances";
 
 type Dist = { columns: DistributionColumn[]; rows: DistributionRow[] };
@@ -155,5 +156,32 @@ export class MockStore implements MockDataSource {
       return rows.map(walk);
     };
     this.patch(this.units$, periodId, [], addVersato);
+  }
+
+  createInstallments(periodId: Id, input: CreateInstallmentsInput): void {
+    const table = (this.tables$.getValue()[periodId] ?? []).find((t) => t.id === input.tableId);
+    if (!table) throw new Error("Tabella di riparto inesistente");
+    const columns: InstallmentColumn[] = Array.from({ length: input.count }, (_, i) => ({
+      id: `r${i + 1}`,
+      header: `Rata ${i + 1} (${formatItDate(addMonths(input.firstExpiry, i * input.cadenceMonths))})`,
+    }));
+    const split = distributeInstallments(input.totalCents, table.items.map((it) => it.coefficient), input.count);
+    const children: InstallmentRow[] = table.items.map((item, idx) => {
+      const totale = split[idx]!.reduce((a, b) => a + b, 0);
+      return {
+        id: `i-${item.unitId}`, kind: "unit", label: item.unitLabel, role: "Proprietario",
+        saldoPrec: fromCents(0), totPreventivo: fromCents(totale), totDovuto: fromCents(totale),
+        byInstallment: Object.fromEntries(columns.map((c, k) => [c.id, fromCents(split[idx]![k]!)])),
+      };
+    });
+    const group: InstallmentRow = {
+      id: "i-group", kind: "group", label: "Rate da preventivo",
+      saldoPrec: fromCents(0), totPreventivo: fromCents(input.totalCents), totDovuto: fromCents(input.totalCents),
+      byInstallment: Object.fromEntries(columns.map((c) => [
+        c.id, fromCents(children.reduce((a, ch) => a + ch.byInstallment[c.id]!.cents, 0)),
+      ])),
+      children,
+    };
+    this.patch(this.installments$, periodId, { columns: [], rows: [] }, () => ({ columns, rows: [group] }));
   }
 }

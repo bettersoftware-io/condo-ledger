@@ -83,6 +83,29 @@ describe("MockStore inline-edit commands", () => {
   });
 });
 
+describe("createInstallments", () => {
+  it("builds N rate columns from the coefficient table, totals preserved", () => {
+    const s = new MockStore();
+    s.createInstallments("sat-2011", {
+      count: 4, firstExpiry: "2011-02-01", cadenceMonths: 3, totalCents: 380000, tableId: "t-prop",
+    });
+    const data = latest(s.installments("sat-2011"));
+    expect(data.columns.map((c) => c.header)).toEqual([
+      "Rata 1 (01/02/2011)", "Rata 2 (01/05/2011)", "Rata 3 (01/08/2011)", "Rata 4 (01/11/2011)",
+    ]);
+    const group = data.rows[0]!;
+    const grand = data.columns.reduce((a, c) => a + group.byInstallment[c.id]!.cents, 0);
+    expect(grand).toBe(380000);
+    expect(group.children).toHaveLength(2); // one row per coefficient item
+  });
+  it("throws for an unknown table", () => {
+    const s = new MockStore();
+    expect(() => s.createInstallments("sat-2011", {
+      count: 2, firstExpiry: "2011-01-01", cadenceMonths: 1, totalCents: 100, tableId: "nope",
+    })).toThrow(/[Tt]abella/);
+  });
+});
+
 describe("MockStore transaction commands", () => {
   it("addTransaction appends a balanced txn and applies balance deltas", () => {
     const s = new MockStore();
