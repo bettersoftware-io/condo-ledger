@@ -39,12 +39,16 @@ d("migrated schema", () => {
     // Scope to BASE TABLE: information_schema.columns also lists view columns,
     // and the 6 views surface a `created` column from their base table. Views
     // cannot carry this trigger, so they must not count as "missing" it.
+    // Also exclude leading-underscore scratch tables (e.g. _l_demo from
+    // load.test.ts) that other parallel suites transiently create with a
+    // `created` column but no trigger — they would flake this count otherwise.
     const r = await pool.query(`
       SELECT count(*)::int n FROM information_schema.columns c
       JOIN information_schema.tables t
         ON t.table_schema=c.table_schema AND t.table_name=c.table_name
       WHERE c.table_schema='public' AND c.column_name='created'
       AND t.table_type='BASE TABLE'
+      AND t.table_name NOT LIKE '\\_%'
       AND NOT EXISTS (
         SELECT 1 FROM information_schema.triggers tg
         WHERE tg.event_object_table=c.table_name AND tg.trigger_name='set_timestamps')`);
