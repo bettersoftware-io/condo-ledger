@@ -22,9 +22,15 @@ DO $$
 DECLARE r record;
 BEGIN
   FOR r IN
-    SELECT table_name FROM information_schema.columns
-    WHERE table_schema='public' AND column_name='created'
+    SELECT c.table_name FROM information_schema.columns c
+    JOIN information_schema.tables t
+      ON t.table_schema=c.table_schema AND t.table_name=c.table_name
+    WHERE c.table_schema='public' AND c.column_name='created'
+      AND t.table_type='BASE TABLE'
   LOOP
+    -- DROP-then-CREATE so the block is hand-replayable (matches test/triggers.test.ts);
+    -- the BASE TABLE filter also keeps it safe if replayed after the views exist.
+    EXECUTE format('DROP TRIGGER IF EXISTS set_timestamps ON %I', r.table_name);
     EXECUTE format(
       'CREATE TRIGGER set_timestamps BEFORE INSERT OR UPDATE ON %I
        FOR EACH ROW EXECUTE FUNCTION set_timestamps()', r.table_name);
