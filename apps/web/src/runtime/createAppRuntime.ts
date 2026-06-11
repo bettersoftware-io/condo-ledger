@@ -13,6 +13,11 @@ export function createAppRuntime(deps: { data: MockDataSource }): AppRuntime {
   const selection$ = new BehaviorSubject<Selection>({});
   const selectedTable$ = new BehaviorSubject<Id | null>(null);
 
+  const emptyRows: Record<CondominiSection, string | null> =
+    { dati: null, unita: null, tabelle: null, conti: null, giornale: null, rate: null };
+  const selectedRows$ = new BehaviorSubject<Record<CondominiSection, string | null>>(emptyRows);
+  const [useSelectedRows] = bind(selectedRows$, emptyRows);
+
   const periodId$ = selection$.pipe(map((s) => s.accountingPeriodId ?? null));
 
   // bound hooks scoped to THIS factory call (no module singletons).
@@ -76,5 +81,9 @@ export function createAppRuntime(deps: { data: MockDataSource }): AppRuntime {
     useLedgerAccountsTree,
     useLedgerTransactions,
     useInstallments,
+    commands: data,
+    useSelectedRow: (section) => useSelectedRows()[section] ?? null,
+    selectRow: (section, id) =>
+      selectedRows$.next({ ...selectedRows$.getValue(), [section]: id }),
   };
 }

@@ -2,6 +2,8 @@ import { render, screen, act } from "@testing-library/react";
 import { Suspense } from "react";
 import { AppRuntimeProvider } from "./AppRuntimeProvider";
 import { useAppRuntime } from "./useAppRuntime";
+import { createAppRuntime } from "./createAppRuntime";
+import { createMockDataSource } from "../mock/MockDataSource";
 
 function TreeProbe() {
   const rt = useAppRuntime();
@@ -43,4 +45,19 @@ test("two providers do NOT share state (no singletons)", async () => {
   const sels = screen.getAllByTestId("sel");
   expect(sels[0]).toHaveTextContent("sat-2011");
   expect(sels[1]).toHaveTextContent("none"); // second instance untouched
+});
+
+it("exposes store commands and per-section row selection", () => {
+  const data = createMockDataSource();
+  const rt = createAppRuntime({ data });
+  expect(typeof rt.commands.addTransaction).toBe("function");
+
+  function Probe() {
+    const sel = rt.useSelectedRow("conti");
+    return <span data-testid="sel">{sel ?? "none"}</span>;
+  }
+  render(<Probe />);
+  expect(screen.getByTestId("sel").textContent).toBe("none");
+  act(() => rt.selectRow("conti", "cassa"));
+  expect(screen.getByTestId("sel").textContent).toBe("cassa");
 });

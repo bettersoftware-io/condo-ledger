@@ -7,8 +7,41 @@ import type {
   TransactionInput, InvoiceInput, TakingInput, CreateInstallmentsInput,
 } from "./types";
 
+/** Accounting + inline-edit commands. Synchronous: mock store mutates in memory. */
+export interface DataCommands {
+  setCoefficient(periodId: Id, tableId: Id, unitId: Id, coefficient: number): void;
+  setPreventivo(periodId: Id, accountId: Id, cents: number): void;
+  setInstallmentAmount(periodId: Id, rowId: Id, installmentId: Id, cents: number): void;
+  addTransaction(periodId: Id, input: TransactionInput): void;
+  openBalances(periodId: Id, input: TransactionInput): void;
+  registerInvoice(periodId: Id, input: InvoiceInput): void;
+  recordTaking(periodId: Id, input: TakingInput): void;
+  createInstallments(periodId: Id, input: CreateInstallmentsInput): void;
+}
+
+/** Registry CRUD commands (dialogs call these). */
+export interface CrudCommands {
+  addCondominium(node: CondominiumNode): void;
+  editCondominium(id: Id, patch: Partial<CondominiumNode>): void;
+  removeCondominium(id: Id): void;
+  addPeriod(condominiumId: Id, period: AccountingPeriodNode): void;
+  addSupplier(periodId: Id, supplier: SupplierRow): void;
+  removeSupplier(periodId: Id, supplierId: Id): void;
+  addUnitRow(periodId: Id, parentId: Id | null, row: UnitRow): void;
+  editUnitRow(periodId: Id, id: Id, patch: Partial<UnitRow>): void;
+  removeUnitRow(periodId: Id, id: Id): void;
+  addTable(periodId: Id, table: DistributionTable): void;
+  editTable(periodId: Id, id: Id, patch: Partial<DistributionTable>): void;
+  removeTable(periodId: Id, id: Id): void;
+  addTableItem(periodId: Id, tableId: Id, item: DistributionTableItem): void;
+  removeTableItem(periodId: Id, tableId: Id, unitId: Id): void;
+  addAccountRow(periodId: Id, parentId: Id | null, row: LedgerAccountRow): void;
+  editAccountRow(periodId: Id, id: Id, patch: Partial<LedgerAccountRow>): void;
+  removeAccountRow(periodId: Id, id: Id): void;
+}
+
 /** Data port. Mock today; HTTP/tRPC adapter later. Returns observables. */
-export interface MockDataSource {
+export interface MockDataSource extends DataCommands, CrudCommands {
   condominiumTree(): Observable<CondominiumNode[]>;
   condominiumDetail(periodId: Id): Observable<CondominiumDetail | null>;
   unitsTree(periodId: Id): Observable<UnitRow[]>;
@@ -42,6 +75,12 @@ export interface AppRuntime {
   useLedgerAccountsTree(): LedgerAccountRow[];
   useLedgerTransactions(): LedgerTxnRow[];
   useInstallments(): { columns: InstallmentColumn[]; rows: InstallmentRow[] };
+
+  /** Store commands, surfaced through the runtime so components never import the store. */
+  commands: DataCommands & CrudCommands;
+  /** Per-section selected row (grid row id), promoted from section-local state. */
+  useSelectedRow(section: CondominiSection): string | null;
+  selectRow(section: CondominiSection, id: string | null): void;
 }
 
 /** Grid adapter contract — independent of TanStack. */
@@ -58,37 +97,4 @@ export interface TreeTableProps<Row extends { id: string; children?: Row[] }> {
   getRowKind?: (row: Row) => string; // for group/subtotal styling
   selectedId?: string | null;
   onSelect?: (row: Row) => void;
-}
-
-/** Accounting + inline-edit commands. Synchronous: mock store mutates in memory. */
-export interface DataCommands {
-  setCoefficient(periodId: Id, tableId: Id, unitId: Id, coefficient: number): void;
-  setPreventivo(periodId: Id, accountId: Id, cents: number): void;
-  setInstallmentAmount(periodId: Id, rowId: Id, installmentId: Id, cents: number): void;
-  addTransaction(periodId: Id, input: TransactionInput): void;
-  openBalances(periodId: Id, input: TransactionInput): void;
-  registerInvoice(periodId: Id, input: InvoiceInput): void;
-  recordTaking(periodId: Id, input: TakingInput): void;
-  createInstallments(periodId: Id, input: CreateInstallmentsInput): void;
-}
-
-/** Registry CRUD commands (dialogs call these). */
-export interface CrudCommands {
-  addCondominium(node: CondominiumNode): void;
-  editCondominium(id: Id, patch: Partial<CondominiumNode>): void;
-  removeCondominium(id: Id): void;
-  addPeriod(condominiumId: Id, period: AccountingPeriodNode): void;
-  addSupplier(periodId: Id, supplier: SupplierRow): void;
-  removeSupplier(periodId: Id, supplierId: Id): void;
-  addUnitRow(periodId: Id, parentId: Id | null, row: UnitRow): void;
-  editUnitRow(periodId: Id, id: Id, patch: Partial<UnitRow>): void;
-  removeUnitRow(periodId: Id, id: Id): void;
-  addTable(periodId: Id, table: DistributionTable): void;
-  editTable(periodId: Id, id: Id, patch: Partial<DistributionTable>): void;
-  removeTable(periodId: Id, id: Id): void;
-  addTableItem(periodId: Id, tableId: Id, item: DistributionTableItem): void;
-  removeTableItem(periodId: Id, tableId: Id, unitId: Id): void;
-  addAccountRow(periodId: Id, parentId: Id | null, row: LedgerAccountRow): void;
-  editAccountRow(periodId: Id, id: Id, patch: Partial<LedgerAccountRow>): void;
-  removeAccountRow(periodId: Id, id: Id): void;
 }
