@@ -123,6 +123,16 @@ describe("MockStore transaction commands", () => {
       [50000, 0], [0, 40000], [0, 10000],
     ]);
   });
+  it("recordTaking throws for an unknown resident, posting nothing", () => {
+    const s = new MockStore();
+    expect(() => s.recordTaking("sat-2011", {
+      date: "2011-07-01", residentId: "nope", residentLabel: "Nessuno",
+      liquidAccountId: "banca", liquidAccountLabel: "Banca",
+      creditAccountId: "cassa", creditAccountLabel: "Condòmini c/rate",
+      settlements: [{ installmentId: "r1", amountCents: 100 }],
+    })).toThrow(/inesistente/);
+    expect(latest(s.ledgerTransactions("sat-2011"))).toHaveLength(3); // nothing posted
+  });
   it("recordTaking posts the incasso and bumps versato on resident + ancestors", () => {
     const s = new MockStore();
     s.recordTaking("sat-2011", {

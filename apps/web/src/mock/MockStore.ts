@@ -132,6 +132,11 @@ export class MockStore implements MockDataSource {
   }
 
   recordTaking(periodId: Id, t: TakingInput): void {
+    const containsResident = (rows: UnitRow[]): boolean =>
+      rows.some((r) => r.id === t.residentId || containsResident(r.children ?? []));
+    if (!containsResident(this.units$.getValue()[periodId] ?? [])) {
+      throw new Error(`Residente inesistente: ${t.residentId}`);
+    }
     const total = t.settlements.reduce((a, s) => a + s.amountCents, 0);
     this.addTransaction(periodId, {
       date: t.date,
