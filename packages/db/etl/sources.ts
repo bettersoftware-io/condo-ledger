@@ -36,6 +36,10 @@ export const TIER_B = new Set([
   "taxRelief",
   "consumptionMeter",
   "unitResidentAccount",
+  // bankAccount: parent of condominium.bankAccountId. Absent from the per-condo
+  // operational dumps but present in the full dump (row 7, studio 1, with NULL
+  // bankId/bankBranchId), so loading it resolves the FK with no new orphans.
+  "bankAccount",
 ]);
 
 // Tier C is derived dynamically from the operational dumps — do NOT hardcode.

@@ -63,7 +63,11 @@ function readTuples(s: string, i: number): { rows: Array<Array<string | null>>; 
         let tok = "";
         while (i < n && s[i] !== "," && s[i] !== ")") { tok += s[i]; i++; }
         tok = tok.trim();
-        row.push(tok === "NULL" ? null : tok);
+        // Unquoted NULL keyword -> SQL NULL. mysqldump normally emits uppercase
+        // `NULL`, but the country/locale reference dump emits lowercase `null`;
+        // match case-insensitively. Real string data is always single-quoted
+        // (handled above), so this can never swallow a legitimate "null" value.
+        row.push(/^null$/i.test(tok) ? null : tok);
       }
       while (i < n && /\s/.test(s[i]!)) i++;
       if (s[i] === ",") { i++; continue; }

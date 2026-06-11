@@ -33,6 +33,7 @@ export const LOAD_ORDER: string[] = [
   "taxRelief",
   "consumptionMeter",
   "unitResidentAccount",
+  "bankAccount",
   // Tier C
   "condominium",
   "condominiumSupplier",

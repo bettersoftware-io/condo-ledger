@@ -41,6 +41,15 @@ export function makeTransform(
         row[key] = null;
         continue;
       }
+      // ISO-3166-1 alpha-2 country codes are canonically UPPERCASE (the `country`
+      // reference table keys on 'IT', 'FR', ...). Legacy master-data stores them
+      // lowercase ('it'), which orphans the country FK. Canonicalize to uppercase
+      // so the FK resolves to the existing parent — a lossless normalization (the
+      // code still denotes the same country), not a data invention.
+      if (key === "country_iso3166_1_a2" || key === "citizenship_iso3166_1_a2") {
+        row[key] = v.toUpperCase();
+        continue;
+      }
       const sqlType = types.get(col);
       // Unknown column (not in DDL): pass through raw. Shouldn't happen for real
       // data, but we never crash on it.
