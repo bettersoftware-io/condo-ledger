@@ -14,6 +14,13 @@ describe("parseItMoney", () => {
     expect(parseItMoney("abc")).toBeNull();
     expect(parseItMoney("")).toBeNull();
   });
+  it("accepts dots only as 3-digit thousands separators", () => {
+    expect(parseItMoney("1.000")).toBe(100000);
+    expect(parseItMoney("1.234.567,89")).toBe(123456789);
+    expect(parseItMoney("1.23")).toBeNull();      // stray dot: not thousands
+    expect(parseItMoney("1,234.56")).toBeNull();  // US format
+    expect(parseItMoney("12.3456")).toBeNull();
+  });
 });
 
 describe("fields", () => {
@@ -46,6 +53,19 @@ describe("fields", () => {
     fireEvent.change(input, { target: { value: "boh" } });
     fireEvent.blur(input);
     expect(onChange).not.toHaveBeenCalled();
+  });
+  it("MoneyField commits on Enter", () => {
+    const onChange = vi.fn();
+    render(<MoneyField label="Importo" cents={0} onChange={onChange} />);
+    const input = screen.getByLabelText("Importo");
+    fireEvent.change(input, { target: { value: "10,50" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(onChange).toHaveBeenCalledWith(1050);
+  });
+  it("MoneyField syncs the display when the cents prop changes (unfocused)", () => {
+    const { rerender } = render(<MoneyField label="Importo" cents={100} onChange={() => {}} />);
+    rerender(<MoneyField label="Importo" cents={2500} onChange={() => {}} />);
+    expect((screen.getByLabelText("Importo") as HTMLInputElement).value).toBe("25,00");
   });
   it("CheckboxField and DateField round-trip", () => {
     const onCheck = vi.fn(); const onDate = vi.fn();

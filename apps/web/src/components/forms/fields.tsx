@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { fromCents, formatEUR } from "@cl/domain";
 import { parseItMoney } from "./parse";
 import styles from "./fields.module.css";
@@ -47,6 +47,10 @@ export function MoneyField({ label, cents, onChange }: {
 }) {
   const id = useId();
   const [draft, setDraft] = useState(formatEUR(fromCents(cents)));
+  const focused = useRef(false);
+  useEffect(() => {
+    if (!focused.current) setDraft(formatEUR(fromCents(cents)));
+  }, [cents]);
   const commit = () => {
     const parsed = parseItMoney(draft);
     if (parsed === null) { setDraft(formatEUR(fromCents(cents))); return; }
@@ -56,7 +60,9 @@ export function MoneyField({ label, cents, onChange }: {
   return (
     <Field label={label} id={id}>
       <input id={id} className={`${styles.input} ${styles.money}`} inputMode="decimal"
-        value={draft} onChange={(e) => setDraft(e.target.value)} onBlur={commit}
+        value={draft} onChange={(e) => setDraft(e.target.value)}
+        onFocus={() => { focused.current = true; }}
+        onBlur={() => { focused.current = false; commit(); }}
         onKeyDown={(e) => { if (e.key === "Enter") commit(); }} />
     </Field>
   );
