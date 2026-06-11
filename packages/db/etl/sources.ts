@@ -39,3 +39,37 @@ export const TIER_B = new Set([
 ]);
 
 // Tier C is derived dynamically from the operational dumps — do NOT hardcode.
+
+// --- studioId reconciliation (dumps predate the multi-tenancy column) ---
+//
+// The operational dumps were taken before the `studioId` column existed, and ALL
+// of this operational data belongs to studio 1 (evidence: every child table of
+// Saturno (condom. 1) and Pozzetto (condom. 19) carries studioId=1; studios 1 and
+// 2 both exist but only 1 is referenced here). This surfaces two ways:
+//
+//   A. Four tables' column-LESS dumps OMIT the `studioId` column entirely. Their
+//      tuples are positionally one column short of the DDL, which (left as-is)
+//      shifts every value right and throws 22P02 type errors. For these we resolve
+//      columns as the DDL list MINUS `studioId`. The `order` column on
+//      condominiumSupplier (nullable) is the one that reads NULL in the dump.
+export const DROP_STUDIO_ID = new Set([
+  "condominiumSupplier",
+  "f24",
+  "installmentItem",
+  "ledgerInvoice2F24",
+]);
+
+//   B. `condominium` DOES carry a studioId slot but its value is literally NULL,
+//      while the schema column `studio_id` is NOT NULL.
+//
+// STUDIO_BACKFILL: every table whose loaded rows must get `studio_id = 1` — the 4
+// above (where studioId is absent post-resolve) plus `condominium` (NULL -> 1).
+// Applied post-transform via `studio_id ??= 1` (snake_case key), so it covers both
+// the absent and the NULL-valued cases uniformly.
+export const STUDIO_BACKFILL = new Set([
+  "condominium",
+  "condominiumSupplier",
+  "f24",
+  "installmentItem",
+  "ledgerInvoice2F24",
+]);

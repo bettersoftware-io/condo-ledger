@@ -24,6 +24,25 @@ export async function loadTable(client: PoolClient, table: string, rows: Row[]):
 }
 
 export async function resyncSequence(client: PoolClient, table: string, idCol = "id"): Promise<void> {
+  // Not every loaded table has a serial `id`: many use natural or composite primary
+  // keys (junction tables like condominium_supplier / ledger_invoice_2_f24, and
+  // reference tables keyed by code). Those have no sequence to resync — skip them.
+  // The column must exist first: pg_get_serial_sequence THROWS 42703 (not NULL) when
+  // the column is absent, so guard with a catalog check, then bail if there's no
+  // owned sequence (a plain non-serial id column).
+  const colCheck = await client.query<{ exists: boolean }>(
+    `SELECT EXISTS (
+       SELECT 1 FROM information_schema.columns
+       WHERE table_schema = 'public' AND table_name = $1 AND column_name = $2
+     ) AS exists`,
+    [table, idCol],
+  );
+  if (!colCheck.rows[0]?.exists) return;
+  const seq = await client.query<{ sequence: string | null }>(
+    `SELECT pg_get_serial_sequence($1, $2) AS sequence`,
+    [table, idCol],
+  );
+  if (!seq.rows[0]?.sequence) return;
   await client.query(
     `SELECT setval(
        pg_get_serial_sequence($1, $2),

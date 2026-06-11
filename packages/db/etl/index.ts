@@ -17,7 +17,7 @@ import { parseInserts, type InsertStmt } from "./parse.ts";
 import { makeTransform } from "./transform.ts";
 import { loadTable, resyncSequence } from "./load.ts";
 import { referencedBankBranchIds } from "./bankClosure.ts";
-import { FILES, TIER_A, TIER_B } from "./sources.ts";
+import { FILES, TIER_A, TIER_B, DROP_STUDIO_ID, STUDIO_BACKFILL } from "./sources.ts";
 import { LOAD_ORDER } from "./order.ts";
 import { toSnake } from "../src/naming.ts";
 import { makePool } from "../src/db.ts";
@@ -27,7 +27,13 @@ const structureUrl = new URL("../../../old/db/it-jtime-condominium.structure.sql
 async function main(): Promise<void> {
   // 1. DDL: names + types for the column-less dumps.
   const ddl = parseDdl(readFileSync(structureUrl, "utf8"));
-  const resolve = (t: string): string[] => tableColumns(ddl, t);
+  // Column resolver for the column-LESS dumps. Tables whose dump predates the
+  // studioId column (DROP_STUDIO_ID) must resolve to the DDL list MINUS studioId,
+  // so positional tuples line up; studio_id is backfilled later (STUDIO_BACKFILL).
+  const resolve = (t: string): string[] =>
+    DROP_STUDIO_ID.has(t)
+      ? tableColumns(ddl, t).filter((c) => c !== "studioId")
+      : tableColumns(ddl, t);
   const transformRow = makeTransform(ddl);
 
   // Read + parse a file once. The full dump is 46MB — never re-read per table.
@@ -111,6 +117,13 @@ async function main(): Promise<void> {
 
       const rows = stmts.flatMap((s) => s.rows.map((r) => transformRow(s.table, s.columns, r)));
       if (rows.length === 0) continue;
+
+      // studioId reconciliation: the dumps predate multi-tenancy and all this data
+      // is studio 1. Backfill the post-transform snake_case key, covering both the
+      // absent case (DROP_STUDIO_ID tables) and the present-but-NULL case (condominium).
+      if (STUDIO_BACKFILL.has(table)) {
+        for (const r of rows) r.studio_id ??= 1;
+      }
 
       await loadTable(client, toSnake(table), rows);
       loaded.push(table);
