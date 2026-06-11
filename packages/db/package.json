@@ -9,6 +9,8 @@
     "migrate": "drizzle-kit migrate",
     "generate": "drizzle-kit generate",
     "seed": "tsx etl/index.ts",
+    "reset": "node scripts/reset.mjs",
+    "rebuild": "pnpm reset && pnpm migrate && pnpm seed",
     "test": "vitest",
     "typecheck": "tsc --noEmit"
   },
