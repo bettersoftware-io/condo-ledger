@@ -6,13 +6,6 @@ import { makePool } from "../src/db.ts";
 const url = process.env.DATABASE_URL;
 const d = url ? describe : describe.skip; // skip when no DB configured
 
-// Always-runnable assertion so the file never collects zero tests (vitest
-// treats a fully-skipped file as an error without passWithNoTests). When no
-// DB is configured the trigger suite below is skipped instead.
-it("records whether the DB integration suite ran", () => {
-  expect(typeof url === "string" || url === undefined).toBe(true);
-});
-
 d("set_timestamps trigger", () => {
   // Lazily created in beforeAll: constructing the pool at collection time would
   // throw "DATABASE_URL is not set" and crash the file even on the skipped path,
@@ -35,12 +28,15 @@ d("set_timestamps trigger", () => {
   });
 
   it("sets created on insert when null, leaves it on update", async () => {
-    const ins = await pool.query(`INSERT INTO _t_demo DEFAULT VALUES RETURNING id, created`);
-    const { id, created } = ins.rows[0];
+    const ins = await pool.query(`INSERT INTO _t_demo DEFAULT VALUES RETURNING id, created, updated`);
+    const { id, created, updated } = ins.rows[0];
     expect(created).not.toBeNull();
     await pool.query(`UPDATE _t_demo SET id = id WHERE id = $1`, [id]);
-    const after = await pool.query(`SELECT created FROM _t_demo WHERE id = $1`, [id]);
+    const after = await pool.query(`SELECT created, updated FROM _t_demo WHERE id = $1`, [id]);
     expect(new Date(after.rows[0].created).getTime()).toBe(new Date(created).getTime());
+    expect(new Date(after.rows[0].updated).getTime()).toBeGreaterThan(
+      new Date(updated).getTime(),
+    );
   });
 
   it("preserves an explicitly provided created (COALESCE semantics)", async () => {
