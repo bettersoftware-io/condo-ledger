@@ -1,13 +1,14 @@
 import { BehaviorSubject, map, type Observable } from "rxjs";
 import type {
   MockDataSource, Id, DistributionType, CondominiumNode, CondominiumDetail,
-  UnitRow, DistributionTable, DistributionColumn, DistributionRow,
+  AccountingPeriodNode, SupplierRow,
+  UnitRow, DistributionTable, DistributionTableItem, DistributionColumn, DistributionRow,
   LedgerAccountRow, LedgerTxnRow, InstallmentColumn, InstallmentRow,
   TransactionInput, InvoiceInput, TakingInput, CreateInstallmentsInput,
 } from "@cl/application";
 import { fromCents } from "@cl/domain";
 import * as fx from "./fixtures";
-import { mapRow } from "./treeRows";
+import { mapRow, removeRow, insertChild } from "./treeRows";
 import { recomputeDistribution } from "../recompute/distribution";
 import { distributeInstallments, redistributeOverride } from "../recompute/installments";
 import { addMonths, formatItDate } from "../recompute/dates";
@@ -45,6 +46,68 @@ export class MockStore implements MockDataSource {
   ): void {
     const cur = subject.getValue();
     subject.next({ ...cur, [periodId]: fn(cur[periodId] ?? empty) });
+  }
+
+  // --- registry CRUD ---
+  addCondominium(node: CondominiumNode): void { this.tree$.next([...this.tree$.getValue(), node]); }
+  editCondominium(id: Id, patchNode: Partial<CondominiumNode>): void {
+    this.tree$.next(this.tree$.getValue().map((n) => (n.id === id ? { ...n, ...patchNode } : n)));
+  }
+  removeCondominium(id: Id): void { this.tree$.next(this.tree$.getValue().filter((n) => n.id !== id)); }
+  addPeriod(condominiumId: Id, period: AccountingPeriodNode): void {
+    this.tree$.next(this.tree$.getValue().map((n) =>
+      n.id === condominiumId ? { ...n, periods: [...n.periods, period] } : n));
+  }
+
+  addSupplier(periodId: Id, supplier: SupplierRow): void {
+    const cur = this.details$.getValue();
+    const d = cur[periodId];
+    if (!d) return;
+    this.details$.next({ ...cur, [periodId]: { ...d, suppliers: [...d.suppliers, supplier] } });
+  }
+  removeSupplier(periodId: Id, supplierId: Id): void {
+    const cur = this.details$.getValue();
+    const d = cur[periodId];
+    if (!d) return;
+    this.details$.next({ ...cur, [periodId]: { ...d, suppliers: d.suppliers.filter((s) => s.id !== supplierId) } });
+  }
+
+  addUnitRow(periodId: Id, parentId: Id | null, row: UnitRow): void {
+    this.patch(this.units$, periodId, [], (rows) => insertChild(rows, parentId, row));
+  }
+  editUnitRow(periodId: Id, id: Id, patchRow: Partial<UnitRow>): void {
+    this.patch(this.units$, periodId, [], (rows) => mapRow(rows, id, (r) => ({ ...r, ...patchRow })));
+  }
+  removeUnitRow(periodId: Id, id: Id): void {
+    this.patch(this.units$, periodId, [], (rows) => removeRow(rows, id));
+  }
+
+  addTable(periodId: Id, table: DistributionTable): void {
+    this.patch(this.tables$, periodId, [], (ts) => [...ts, table]);
+  }
+  editTable(periodId: Id, id: Id, patchTable: Partial<DistributionTable>): void {
+    this.patch(this.tables$, periodId, [], (ts) => ts.map((t) => (t.id === id ? { ...t, ...patchTable } : t)));
+  }
+  removeTable(periodId: Id, id: Id): void {
+    this.patch(this.tables$, periodId, [], (ts) => ts.filter((t) => t.id !== id));
+  }
+  addTableItem(periodId: Id, tableId: Id, item: DistributionTableItem): void {
+    this.patch(this.tables$, periodId, [], (ts) => ts.map((t) =>
+      t.id === tableId ? { ...t, items: [...t.items, item] } : t));
+  }
+  removeTableItem(periodId: Id, tableId: Id, unitId: Id): void {
+    this.patch(this.tables$, periodId, [], (ts) => ts.map((t) =>
+      t.id === tableId ? { ...t, items: t.items.filter((i) => i.unitId !== unitId) } : t));
+  }
+
+  addAccountRow(periodId: Id, parentId: Id | null, row: LedgerAccountRow): void {
+    this.patch(this.accounts$, periodId, [], (rows) => insertChild(rows, parentId, row));
+  }
+  editAccountRow(periodId: Id, id: Id, patchRow: Partial<LedgerAccountRow>): void {
+    this.patch(this.accounts$, periodId, [], (rows) => mapRow(rows, id, (r) => ({ ...r, ...patchRow })));
+  }
+  removeAccountRow(periodId: Id, id: Id): void {
+    this.patch(this.accounts$, periodId, [], (rows) => removeRow(rows, id));
   }
 
   setCoefficient(periodId: Id, tableId: Id, unitId: Id, coefficient: number): void {

@@ -106,6 +106,60 @@ describe("createInstallments", () => {
   });
 });
 
+describe("MockStore CRUD commands", () => {
+  it("condominium add/edit/remove and addPeriod", () => {
+    const s = new MockStore();
+    s.addCondominium({ id: "new", code: "NEW", name: "Nuovo", type: "regular", periods: [] });
+    s.addPeriod("new", { id: "new-2012", name: "2012 (Ordinario)", type: "ordinary", closed: false, start: "2012-01-01", end: "2012-12-31" });
+    s.editCondominium("new", { name: "Nuovo Rinominato" });
+    let tree = latest(s.condominiumTree());
+    const node = tree.find((n) => n.id === "new")!;
+    expect(node.name).toBe("Nuovo Rinominato");
+    expect(node.periods).toHaveLength(1);
+    s.removeCondominium("new");
+    tree = latest(s.condominiumTree());
+    expect(tree.find((n) => n.id === "new")).toBeUndefined();
+  });
+  it("supplier add/remove on the period detail", () => {
+    const s = new MockStore();
+    s.addSupplier("sat-2011", { id: "s9", nominativo: "Idraulica Blu", categoria: "Idraulico" });
+    expect(latest(s.condominiumDetail("sat-2011"))!.suppliers.map((x) => x.id)).toContain("s9");
+    s.removeSupplier("sat-2011", "s9");
+    expect(latest(s.condominiumDetail("sat-2011"))!.suppliers.map((x) => x.id)).not.toContain("s9");
+  });
+  it("unit-tree add/edit/remove", () => {
+    const s = new MockStore();
+    const zero = { cents: 0 };
+    s.addUnitRow("sat-2011", "u-a01", {
+      id: "r-new", kind: "resident", label: "Nuovo Residente (PR 100%)",
+      saldoPrec: zero, preventivo: zero, consuntivo: zero, totDovuto: zero, versato: zero,
+    });
+    expect(JSON.stringify(latest(s.unitsTree("sat-2011")))).toContain("r-new");
+    s.editUnitRow("sat-2011", "r-new", { label: "Residente Rinominato" });
+    expect(JSON.stringify(latest(s.unitsTree("sat-2011")))).toContain("Residente Rinominato");
+    s.removeUnitRow("sat-2011", "r-new");
+    expect(JSON.stringify(latest(s.unitsTree("sat-2011")))).not.toContain("r-new");
+  });
+  it("table + item CRUD and account-tree CRUD", () => {
+    const s = new MockStore();
+    s.addTable("sat-2011", { id: "t-new", name: "Acqua", restriction: null, total: 1000, items: [] });
+    s.addTableItem("sat-2011", "t-new", { unitId: "u-a01", unitLabel: "A01", coefficient: 1000, competenza: "intero" });
+    expect(latest(s.distributionTables("sat-2011")).find((t) => t.id === "t-new")!.items).toHaveLength(1);
+    s.removeTableItem("sat-2011", "t-new", "u-a01");
+    s.editTable("sat-2011", "t-new", { name: "Acqua Fredda" });
+    expect(latest(s.distributionTables("sat-2011")).find((t) => t.id === "t-new")!.name).toBe("Acqua Fredda");
+    s.removeTable("sat-2011", "t-new");
+    expect(latest(s.distributionTables("sat-2011")).find((t) => t.id === "t-new")).toBeUndefined();
+
+    const zero = { cents: 0 };
+    s.addAccountRow("sat-2011", "liq", { id: "posta", kind: "regular", label: "C/C Postale", dare: zero, avere: zero, saldo: zero, preventivo: null });
+    expect(JSON.stringify(latest(s.ledgerAccountsTree("sat-2011")))).toContain("C/C Postale");
+    s.editAccountRow("sat-2011", "posta", { label: "Conto BancoPosta" });
+    s.removeAccountRow("sat-2011", "posta");
+    expect(JSON.stringify(latest(s.ledgerAccountsTree("sat-2011")))).not.toContain("posta");
+  });
+});
+
 describe("MockStore transaction commands", () => {
   it("addTransaction appends a balanced txn and applies balance deltas", () => {
     const s = new MockStore();
