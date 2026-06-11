@@ -46,6 +46,10 @@ describe("MockStore inline-edit commands", () => {
     expect(a01.amounts["e-pul"]!.cents).toBe(50526); // 120000 split 500/687.5 (largest remainder)
     expect(a02.amounts["e-pul"]!.cents).toBe(69474);
     expect(a01.amounts["e-pul"]!.cents + a02.amounts["e-pul"]!.cents).toBe(120000);
+    // e-asc belongs to t-scale, not t-prop — must survive the coefficient edit unchanged
+    expect(a01.amounts["e-asc"]!.cents).toBe(32000);
+    // unit total must equal new e-pul + preserved e-asc
+    expect(a01.total.cents).toBe(a01.amounts["e-pul"]!.cents + a01.amounts["e-asc"]!.cents);
   });
   it("setPreventivo updates the account row", () => {
     const s = new MockStore();

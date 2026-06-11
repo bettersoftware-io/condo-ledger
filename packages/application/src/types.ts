@@ -72,7 +72,7 @@ export interface DistributionRow {
   amounts: Record<Id /*expenseAccountId*/, Money>;
   total: Money; children?: DistributionRow[];
 }
-export interface DistributionColumn { accountId: Id; header: string; }
+export interface DistributionColumn { accountId: Id; header: string; tableId?: Id /* owning riparto table; columns from other tables are untouched by coefficient edits */; }
 
 export type LedgerAccountKind = "grouping" | "regular" | "subsidiary" | "control";
 export interface LedgerAccountRow {

@@ -125,8 +125,8 @@ export class MockStore implements MockDataSource {
     this.distributions$.next({
       ...cur,
       [periodId]: {
-        estimate: recomputeDistribution(dist.estimate, coeffByUnit),
-        current: recomputeDistribution(dist.current, coeffByUnit),
+        estimate: recomputeDistribution(dist.estimate, coeffByUnit, tableId),
+        current: recomputeDistribution(dist.current, coeffByUnit, tableId),
       },
     });
   }

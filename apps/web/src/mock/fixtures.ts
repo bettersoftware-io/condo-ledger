@@ -104,7 +104,7 @@ export const distributionTablesByPeriod: Record<Id, DistributionTable[]> = {
 export const distributionByPeriod: Record<Id, Record<"estimate" | "current", { columns: DistributionColumn[]; rows: DistributionRow[] }>> = {
   "sat-2011": {
     estimate: {
-      columns: [{ accountId: "e-pul", header: "Pulizie" }, { accountId: "e-asc", header: "Ascensore" }],
+      columns: [{ accountId: "e-pul", header: "Pulizie", tableId: "t-prop" }, { accountId: "e-asc", header: "Ascensore", tableId: "t-scale" }],
       rows: [
         { id: "d-g", kind: "group", label: "Totale", amounts: { "e-pul": c(120000), "e-asc": c(80000) }, total: c(200000),
           children: [
@@ -114,7 +114,7 @@ export const distributionByPeriod: Record<Id, Record<"estimate" | "current", { c
       ],
     },
     current: {
-      columns: [{ accountId: "e-pul", header: "Pulizie" }, { accountId: "e-asc", header: "Ascensore" }],
+      columns: [{ accountId: "e-pul", header: "Pulizie", tableId: "t-prop" }, { accountId: "e-asc", header: "Ascensore", tableId: "t-scale" }],
       rows: [
         { id: "d-g", kind: "group", label: "Totale", amounts: { "e-pul": c(118000), "e-asc": c(81000) }, total: c(199000),
           children: [
@@ -125,10 +125,10 @@ export const distributionByPeriod: Record<Id, Record<"estimate" | "current", { c
     },
   },
   "poz-2010": {
-    estimate: { columns: [{ accountId: "e-pul", header: "Pulizie" }],
+    estimate: { columns: [{ accountId: "e-pul", header: "Pulizie", tableId: "t-prop-p" }],
       rows: [{ id: "d-gp", kind: "group", label: "Totale", amounts: { "e-pul": c(60000) }, total: c(60000),
         children: [{ id: "d-p01", kind: "unit", unitId: "u-p01", label: "P01 - Floreani Tiziano", amounts: { "e-pul": c(60000) }, total: c(60000) }] }] },
-    current: { columns: [{ accountId: "e-pul", header: "Pulizie" }],
+    current: { columns: [{ accountId: "e-pul", header: "Pulizie", tableId: "t-prop-p" }],
       rows: [{ id: "d-gp", kind: "group", label: "Totale", amounts: { "e-pul": c(59000) }, total: c(59000),
         children: [{ id: "d-p01", kind: "unit", unitId: "u-p01", label: "P01 - Floreani Tiziano", amounts: { "e-pul": c(59000) }, total: c(59000) }] }] },
   },
