@@ -6,6 +6,7 @@ import {
   text,
   timestamp,
   primaryKey,
+  unique,
   type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { masterData } from "./masterData.ts";
@@ -267,6 +268,14 @@ export const postCode = pgTable(
   },
   (t) => ({
     pk: primaryKey({ columns: [t.code, t.countryIso31661A2] }),
+    // cityPostCode.postCode FKs to post_code.code alone. Legacy MySQL allowed
+    // this because `code` is the leftmost prefix of the composite PK; Postgres
+    // requires the referenced columns to carry their own unique constraint, so
+    // we add UNIQUE(code). NOTE: this is slightly stronger than the legacy PK
+    // (code,country) — it forbids the same postal code under two countries.
+    // Current data is Italy-only so codes are de-facto unique; flagged for
+    // schema-owner ratification.
+    codeUnique: unique("post_code_code_unique").on(t.code),
   }),
 );
 
