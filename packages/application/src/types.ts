@@ -68,6 +68,7 @@ export interface DistributionTableItem { unitId: Id; unitLabel: string; coeffici
 export type DistributionType = "estimate" | "current";
 export interface DistributionRow {
   id: Id; kind: "group" | "unit"; label: string;
+  unitId?: Id;             // set on kind === "unit"; links riparto rows to coefficient items
   amounts: Record<Id /*expenseAccountId*/, Money>;
   total: Money; children?: DistributionRow[];
 }
@@ -91,4 +92,25 @@ export interface InstallmentRow {
   id: Id; kind: "group" | "unit" | "resident"; label: string; role?: string;
   restriction?: string; saldoPrec: Money; totPreventivo: Money; totDovuto: Money;
   byInstallment: Record<Id, Money>; children?: InstallmentRow[];
+}
+
+/** ---- Command inputs (Plan 1 foundations) ---- */
+export interface LedgerEntryInput { accountId: Id; label: string; dareCents: number; avereCents: number; }
+export interface TransactionInput { date: string; description: string; entries: LedgerEntryInput[]; }
+export interface InvoiceInput {
+  date: string; supplierName: string; invoiceNumber: string;
+  grossCents: number; withholdingCents: number;
+  expenseAccountId: Id; expenseAccountLabel: string;
+  payableAccountId: Id; payableAccountLabel: string;
+  withholdingAccountId: Id; withholdingAccountLabel: string;
+}
+export interface TakingInput {
+  date: string; residentId: Id; residentLabel: string;
+  liquidAccountId: Id; liquidAccountLabel: string;
+  creditAccountId: Id; creditAccountLabel: string;
+  settlements: { installmentId: Id; amountCents: number }[];
+}
+export interface CreateInstallmentsInput {
+  count: number; firstExpiry: string /* ISO date */; cadenceMonths: number;
+  totalCents: number; tableId: Id;
 }

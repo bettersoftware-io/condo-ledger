@@ -108,8 +108,8 @@ export const distributionByPeriod: Record<Id, Record<"estimate" | "current", { c
       rows: [
         { id: "d-g", kind: "group", label: "Totale", amounts: { "e-pul": c(120000), "e-asc": c(80000) }, total: c(200000),
           children: [
-            { id: "d-a01", kind: "unit", label: "A01 - Alberi Dina", amounts: { "e-pul": c(37500), "e-asc": c(32000) }, total: c(69500) },
-            { id: "d-a02", kind: "unit", label: "A02 - Mauri/Picech", amounts: { "e-pul": c(82500), "e-asc": c(48000) }, total: c(130500) },
+            { id: "d-a01", kind: "unit", unitId: "u-a01", label: "A01 - Alberi Dina", amounts: { "e-pul": c(37500), "e-asc": c(32000) }, total: c(69500) },
+            { id: "d-a02", kind: "unit", unitId: "u-a02", label: "A02 - Mauri/Picech", amounts: { "e-pul": c(82500), "e-asc": c(48000) }, total: c(130500) },
           ] },
       ],
     },
@@ -118,8 +118,8 @@ export const distributionByPeriod: Record<Id, Record<"estimate" | "current", { c
       rows: [
         { id: "d-g", kind: "group", label: "Totale", amounts: { "e-pul": c(118000), "e-asc": c(81000) }, total: c(199000),
           children: [
-            { id: "d-a01", kind: "unit", label: "A01 - Alberi Dina", amounts: { "e-pul": c(36875), "e-asc": c(32400) }, total: c(69275) },
-            { id: "d-a02", kind: "unit", label: "A02 - Mauri/Picech", amounts: { "e-pul": c(81125), "e-asc": c(48600) }, total: c(129725) },
+            { id: "d-a01", kind: "unit", unitId: "u-a01", label: "A01 - Alberi Dina", amounts: { "e-pul": c(36875), "e-asc": c(32400) }, total: c(69275) },
+            { id: "d-a02", kind: "unit", unitId: "u-a02", label: "A02 - Mauri/Picech", amounts: { "e-pul": c(81125), "e-asc": c(48600) }, total: c(129725) },
           ] },
       ],
     },
@@ -127,10 +127,10 @@ export const distributionByPeriod: Record<Id, Record<"estimate" | "current", { c
   "poz-2010": {
     estimate: { columns: [{ accountId: "e-pul", header: "Pulizie" }],
       rows: [{ id: "d-gp", kind: "group", label: "Totale", amounts: { "e-pul": c(60000) }, total: c(60000),
-        children: [{ id: "d-p01", kind: "unit", label: "P01 - Floreani Tiziano", amounts: { "e-pul": c(60000) }, total: c(60000) }] }] },
+        children: [{ id: "d-p01", kind: "unit", unitId: "u-p01", label: "P01 - Floreani Tiziano", amounts: { "e-pul": c(60000) }, total: c(60000) }] }] },
     current: { columns: [{ accountId: "e-pul", header: "Pulizie" }],
       rows: [{ id: "d-gp", kind: "group", label: "Totale", amounts: { "e-pul": c(59000) }, total: c(59000),
-        children: [{ id: "d-p01", kind: "unit", label: "P01 - Floreani Tiziano", amounts: { "e-pul": c(59000) }, total: c(59000) }] }] },
+        children: [{ id: "d-p01", kind: "unit", unitId: "u-p01", label: "P01 - Floreani Tiziano", amounts: { "e-pul": c(59000) }, total: c(59000) }] }] },
   },
 };
 

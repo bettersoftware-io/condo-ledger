@@ -4,7 +4,11 @@ import type {
   UnitRow, DistributionTable, DistributionColumn, DistributionRow,
   LedgerAccountRow, LedgerTxnRow, InstallmentColumn, InstallmentRow,
 } from "@cl/application";
+import { fromCents } from "@cl/domain";
 import * as fx from "./fixtures";
+import { mapRow } from "./treeRows";
+import { recomputeDistribution } from "../recompute/distribution";
+import { redistributeOverride } from "../recompute/installments";
 
 type Dist = { columns: DistributionColumn[]; rows: DistributionRow[] };
 type Installments = { columns: InstallmentColumn[]; rows: InstallmentRow[] };
@@ -38,5 +42,59 @@ export class MockStore implements MockDataSource {
   ): void {
     const cur = subject.getValue();
     subject.next({ ...cur, [periodId]: fn(cur[periodId] ?? empty) });
+  }
+
+  setCoefficient(periodId: Id, tableId: Id, unitId: Id, coefficient: number): void {
+    this.patch(this.tables$, periodId, [], (tables) =>
+      tables.map((t) => {
+        if (t.id !== tableId) return t;
+        const others = t.items.filter((it) => it.unitId !== unitId);
+        const othersSum = others.reduce((a, it) => a + it.coefficient, 0);
+        const remainder = t.total - coefficient;
+        const items = t.items.map((it) => {
+          if (it.unitId === unitId) return { ...it, coefficient };
+          // scale other items proportionally to fill remainder
+          const scaled = othersSum > 0 ? (it.coefficient / othersSum) * remainder : 0;
+          return { ...it, coefficient: scaled };
+        });
+        return { ...t, items };
+      }));
+    const table = (this.tables$.getValue()[periodId] ?? []).find((t) => t.id === tableId);
+    if (!table) return;
+    const coeffByUnit = new Map(table.items.map((i) => [i.unitId, i.coefficient]));
+    const cur = this.distributions$.getValue();
+    const dist = cur[periodId];
+    if (!dist) return;
+    this.distributions$.next({
+      ...cur,
+      [periodId]: {
+        estimate: recomputeDistribution(dist.estimate, coeffByUnit),
+        current: recomputeDistribution(dist.current, coeffByUnit),
+      },
+    });
+  }
+
+  setPreventivo(periodId: Id, accountId: Id, cents: number): void {
+    this.patch(this.accounts$, periodId, [], (rows) =>
+      mapRow(rows, accountId, (r) => ({ ...r, preventivo: fromCents(cents) })));
+  }
+
+  setInstallmentAmount(periodId: Id, rowId: Id, installmentId: Id, cents: number): void {
+    this.patch(this.installments$, periodId, { columns: [], rows: [] }, (data) => {
+      const order = data.columns.map((c) => c.id);
+      const edited = mapRow(data.rows, rowId, (r) => {
+        const cells = order.map((id) => r.byInstallment[id]?.cents ?? 0);
+        const next = redistributeOverride(cells, order.indexOf(installmentId), cents);
+        return { ...r, byInstallment: Object.fromEntries(order.map((id, i) => [id, fromCents(next[i]!)])) };
+      });
+      const rows = edited.map((g) => !g.children?.length ? g : ({
+        ...g,
+        byInstallment: Object.fromEntries(order.map((id) => [
+          id,
+          fromCents(g.children!.reduce((a, ch) => a + (ch.byInstallment[id]?.cents ?? 0), 0)),
+        ])),
+      }));
+      return { ...data, rows };
+    });
   }
 }
