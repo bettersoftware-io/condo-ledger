@@ -18,8 +18,20 @@ export function makeTransform(
   columns: string[],
   values: Array<string | null>,
 ) => Record<string, TransformValue> {
+  // Per-table name->sqlType lookup, built once on first use (the ETL hot loop
+  // runs this per column per row over the full dump — avoid a linear find each time).
+  const typeByTable = new Map<string, Map<string, string>>();
+  const typesFor = (table: string): Map<string, string> => {
+    let m = typeByTable.get(table);
+    if (!m) {
+      m = new Map((ddl[table] ?? []).map((c) => [c.name, c.sqlType]));
+      typeByTable.set(table, m);
+    }
+    return m;
+  };
+
   return function transformRow(table, columns, values) {
-    const ddlCols = ddl[table];
+    const types = typesFor(table);
     const row: Record<string, TransformValue> = {};
     for (let i = 0; i < columns.length; i++) {
       const col = columns[i]!;
@@ -29,7 +41,7 @@ export function makeTransform(
         row[key] = null;
         continue;
       }
-      const sqlType = ddlCols?.find((c) => c.name === col)?.sqlType;
+      const sqlType = types.get(col);
       // Unknown column (not in DDL): pass through raw. Shouldn't happen for real
       // data, but we never crash on it.
       const kind = sqlType ? classify(sqlType) : "raw";
@@ -66,18 +78,22 @@ function renameColumn(col: string): string {
 
 // Interpret a 'YYYY-MM-DD HH:MM:SS' string as Europe/Rome wall-clock and return
 // the equivalent instant as an ISO UTC string. CEST (+02:00) applies from the
-// last Sunday of March 01:00 UTC to the last Sunday of October 01:00 UTC; CET
-// (+01:00) otherwise.
+// last Sunday of March to the last Sunday of October; CET (+01:00) otherwise.
+// Contract: callers route only `datetime`/`timestamp` columns here (via classify),
+// so `s` is always a full date+time — date-only strings would yield NaN.
 function romeToUtcIso(s: string): string {
   const [d, t] = s.split(" ");
   const [Y, Mo, Da] = d!.split("-").map(Number);
   const [H, Mi, Se] = t!.split(":").map(Number);
-  const offsetH = isCEST(Y!, Mo!, Da!, H!) ? 2 : 1;
+  const offsetH = isCEST(Y!, Mo!, Da!) ? 2 : 1;
   const ms = Date.UTC(Y!, Mo! - 1, Da!, H! - offsetH, Mi!, Se!);
   return new Date(ms).toISOString();
 }
 
-function isCEST(Y: number, Mo: number, Da: number, _H: number): boolean {
+// Day-granularity DST decision. The sub-day transition windows (~1h on the two
+// changeover Sundays) are intentionally not special-cased — out of scope for this
+// migration dataset (Module 0), per the plan.
+function isCEST(Y: number, Mo: number, Da: number): boolean {
   const lastSun = (y: number, m: number) => {
     const d = new Date(Date.UTC(y, m, 0));
     return d.getUTCDate() - d.getUTCDay();
