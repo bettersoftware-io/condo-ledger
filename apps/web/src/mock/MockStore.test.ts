@@ -68,6 +68,12 @@ describe("MockStore inline-edit commands", () => {
     expect(a01.byInstallment.r3!.cents).toBe(49575 + 4788);
     expect(data.rows[0]!.byInstallment.r1!.cents).toBe(40000 + 71608); // group re-derived
   });
+  it("setInstallmentAmount is a no-op for an unknown installment id", () => {
+    const s = new MockStore();
+    const before = latest(s.installments("sat-2011"));
+    s.setInstallmentAmount("sat-2011", "i-a01", "nope", 40000);
+    expect(latest(s.installments("sat-2011"))).toBe(before);
+  });
   it("two stores do not share state", () => {
     const a = new MockStore();
     const b = new MockStore();

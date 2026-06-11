@@ -71,13 +71,16 @@ export class MockStore implements MockDataSource {
   }
 
   setInstallmentAmount(periodId: Id, rowId: Id, installmentId: Id, cents: number): void {
+    const order = (this.installments$.getValue()[periodId]?.columns ?? []).map((c) => c.id);
+    const idx = order.indexOf(installmentId);
+    if (idx === -1) return; // unknown installment id: no-op
     this.patch(this.installments$, periodId, { columns: [], rows: [] }, (data) => {
-      const order = data.columns.map((c) => c.id);
       const edited = mapRow(data.rows, rowId, (r) => {
         const cells = order.map((id) => r.byInstallment[id]?.cents ?? 0);
-        const next = redistributeOverride(cells, order.indexOf(installmentId), cents);
+        const next = redistributeOverride(cells, idx, cents);
         return { ...r, byInstallment: Object.fromEntries(order.map((id, i) => [id, fromCents(next[i]!)])) };
       });
+      // single-level re-derivation: assumes group → leaf rows (current fixture shape)
       const rows = edited.map((g) => !g.children?.length ? g : ({
         ...g,
         byInstallment: Object.fromEntries(order.map((id) => [
