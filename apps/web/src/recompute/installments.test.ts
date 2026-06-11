@@ -1,0 +1,23 @@
+import { describe, it, expect } from "vitest";
+import { distributeInstallments, redistributeOverride } from "./installments";
+
+describe("distributeInstallments", () => {
+  it("allocates total by coefficient, then per resident across N rate", () => {
+    const out = distributeInstallments(200000, [312.5, 687.5], 3);
+    expect(out).toEqual([
+      [20834, 20833, 20833],   // 62500 over 3
+      [45834, 45833, 45833],   // 137500 over 3
+    ]);
+    const grand = out.flat().reduce((a, b) => a + b, 0);
+    expect(grand).toBe(200000);
+  });
+});
+
+describe("redistributeOverride", () => {
+  it("keeps the row total constant by spreading the delta over later cells", () => {
+    expect(redistributeOverride([300, 300, 400], 0, 250)).toEqual([250, 325, 425]);
+  });
+  it("leaves earlier cells untouched and absorbs into nothing when last cell edited", () => {
+    expect(redistributeOverride([300, 300, 400], 2, 350)).toEqual([300, 300, 350]);
+  });
+});
