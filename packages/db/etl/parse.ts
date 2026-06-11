@@ -1,18 +1,38 @@
 export interface InsertStmt {
   table: string;
+  // Column names for the row tuples. mysqldump emits two INSERT forms:
+  //   - column-LIST form:  INSERT INTO `t` (`a`,`b`) VALUES ...  -> columns taken
+  //     verbatim from the inline list.
+  //   - column-LESS form:  INSERT INTO `t` VALUES ...            -> no inline list;
+  //     real dumps in old/db/*.sql use THIS form, with tuples positionally aligned
+  //     to the table's CREATE TABLE column order. Pass a `resolveColumns` hook to
+  //     parseInserts to supply that DDL-derived order; without one, columns is [].
   columns: string[];
   rows: Array<Array<string | null>>;
 }
 
 // Tolerant reader for mysqldump extended INSERTs. Values come back as raw
 // strings (or null); type coercion happens in transform.ts.
-export function parseInserts(sql: string): InsertStmt[] {
+//
+// `resolveColumns` is consulted only for the column-LESS INSERT form (no inline
+// column list). When the inline list is present it always wins and the resolver
+// is ignored. With no resolver, column-less statements get columns: [].
+export function parseInserts(
+  sql: string,
+  resolveColumns?: (table: string) => string[],
+): InsertStmt[] {
   const out: InsertStmt[] = [];
-  const re = /INSERT INTO `(\w+)`\s*\(([^)]*)\)\s*VALUES\s*/gi;
+  const re = /INSERT INTO `(\w+)`\s*(?:\(([^)]*)\))?\s*VALUES\s*/gi;
   let m: RegExpExecArray | null;
   while ((m = re.exec(sql))) {
     const table = m[1]!;
-    const columns = m[2]!.split(",").map((c) => c.trim().replace(/`/g, ""));
+    const inlineList = m[2];
+    const columns =
+      inlineList !== undefined
+        ? inlineList.split(",").map((c) => c.trim().replace(/`/g, ""))
+        : resolveColumns
+          ? resolveColumns(table)
+          : [];
     const { rows, end } = readTuples(sql, re.lastIndex);
     out.push({ table, columns, rows });
     re.lastIndex = end;

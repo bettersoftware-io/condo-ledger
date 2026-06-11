@@ -20,3 +20,46 @@ describe("parseInserts", () => {
     expect(stmts[1]!.rows).toEqual([["10", "A1"]]);
   });
 });
+
+describe("parseInserts column-less form", () => {
+  const colless = "INSERT INTO `accountingPeriod` VALUES (1,'2011',NULL),(2,'2012','x');";
+
+  it("resolves columns via the resolver hook when the inline list is absent", () => {
+    const r = parseInserts(colless, (t) =>
+      t === "accountingPeriod" ? ["id", "year", "note"] : [],
+    );
+    expect(r).toHaveLength(1);
+    expect(r[0]!.table).toBe("accountingPeriod");
+    expect(r[0]!.columns).toEqual(["id", "year", "note"]);
+    expect(r[0]!.rows).toEqual([
+      ["1", "2011", null],
+      ["2", "2012", "x"],
+    ]);
+  });
+
+  it("yields columns: [] without a resolver but still parses rows", () => {
+    const r = parseInserts(colless);
+    expect(r).toHaveLength(1);
+    expect(r[0]!.table).toBe("accountingPeriod");
+    expect(r[0]!.columns).toEqual([]);
+    expect(r[0]!.rows).toEqual([
+      ["1", "2011", null],
+      ["2", "2012", "x"],
+    ]);
+  });
+});
+
+describe("parseInserts real mysqldump smoke test", () => {
+  const dump = readFileSync(
+    new URL("../../../old/db/it-jtime-condominium-saturno-only.data.sql", import.meta.url),
+    "utf8",
+  );
+
+  it("finds all 19 column-less INSERT statements in the real dump", () => {
+    const stmts = parseInserts(dump);
+    expect(stmts).toHaveLength(19);
+    const ap = stmts.find((s) => s.table === "accountingPeriod");
+    expect(ap).toBeDefined();
+    expect(ap!.rows[0]![0]).toBe("1");
+  });
+});
