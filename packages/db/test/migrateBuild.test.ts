@@ -16,10 +16,14 @@ d("migrated schema", () => {
   afterAll(() => pool.end());
 
   it("has 94 base tables", async () => {
+    // Exclude leading-underscore tables: drizzle's `__drizzle_migrations` and the
+    // transient `_`-prefixed scratch tables other integration suites create/drop
+    // (e.g. `_t_demo`, `_l_demo`). Real schema tables are all snake_case starting
+    // with a letter, so this keeps the count stable under parallel test files.
     const r = await pool.query(
       `SELECT count(*)::int n FROM information_schema.tables
        WHERE table_schema='public' AND table_type='BASE TABLE'
-       AND table_name <> '__drizzle_migrations'`);
+       AND table_name NOT LIKE '\\_%'`);
     expect(r.rows[0].n).toBe(94);
   });
   it("has 23 enum types", async () => {
