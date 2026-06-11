@@ -18,10 +18,17 @@ describe("MockStore reads", () => {
     expect(latest(s.installments("poz-2010")).columns).toHaveLength(2);
   });
   it("re-emits on subject change (reactive reads)", () => {
-    const s = new MockStore();
+    class TestStore extends MockStore {
+      clearTxns(periodId: string): void {
+        this.patch(this.txns$, periodId, [], () => []);
+      }
+    }
+    const s = new TestStore();
     const seen: number[] = [];
     const sub = s.ledgerTransactions("sat-2011").subscribe((t) => seen.push(t.length));
     expect(seen).toEqual([3]);
+    s.clearTxns("sat-2011");
+    expect(seen).toEqual([3, 0]);
     sub.unsubscribe();
   });
 });

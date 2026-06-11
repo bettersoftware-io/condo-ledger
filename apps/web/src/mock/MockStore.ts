@@ -16,7 +16,7 @@ export class MockStore implements MockDataSource {
   private tables$ = new BehaviorSubject<Record<Id, DistributionTable[]>>(fx.distributionTablesByPeriod);
   private distributions$ = new BehaviorSubject<Record<Id, Record<DistributionType, Dist>>>(fx.distributionByPeriod);
   private accounts$ = new BehaviorSubject<Record<Id, LedgerAccountRow[]>>(fx.ledgerAccountsByPeriod);
-  private txns$ = new BehaviorSubject<Record<Id, LedgerTxnRow[]>>(fx.ledgerTxnsByPeriod);
+  protected txns$ = new BehaviorSubject<Record<Id, LedgerTxnRow[]>>(fx.ledgerTxnsByPeriod);
   private installments$ = new BehaviorSubject<Record<Id, Installments>>(fx.installmentsByPeriod);
 
   condominiumTree(): Observable<CondominiumNode[]> { return this.tree$.asObservable(); }
