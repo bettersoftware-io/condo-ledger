@@ -1,5 +1,4 @@
 import { render, screen } from "@testing-library/react";
-import { vi } from "vitest";
 import type { Anagrafica } from "@cl/application";
 import { AnagraficaDetails } from "./AnagraficaDetails";
 
