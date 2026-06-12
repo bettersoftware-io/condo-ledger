@@ -1,0 +1,44 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--border, #cfd6dd);
+  border: 1px solid var(--border, #cfd6dd);
+  flex: 1;
+  min-width: 0;
+}
+.weekday {
+  background: var(--panel-header, #e8edf2);
+  padding: 4px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+.cell {
+  background: #fff;
+  min-height: 84px;
+  padding: 2px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  cursor: pointer;
+  overflow: hidden;
+}
+.cell:hover { background: #f4f8fc; }
+.outside { background: #f4f4f4; color: #9aa3ab; }
+.weekend { background: #fdf3ee; }
+.weekend.outside { background: #f6efec; }
+.today { box-shadow: inset 0 0 0 2px #e3a008; }
+.selected { box-shadow: inset 0 0 0 2px var(--accent, #2e6da4); background: #e9f2fa; }
+.dayNum { font-size: 12px; font-weight: 600; align-self: flex-end; }
+.chip {
+  color: #fff;
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.more { font-size: 11px; color: #5a6570; }

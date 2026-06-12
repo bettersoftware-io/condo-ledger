@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { monthCells, shiftMonth, MONTHS, WEEKDAYS } from "./monthGrid";
+import { monthCells, shiftMonth, MONTHS, WEEKDAYS } from "./monthGridHelpers";
 
 describe("monthCells", () => {
   it("April 2011 grid starts Monday 28 March and holds 42 cells", () => {
