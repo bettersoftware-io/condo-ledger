@@ -5,7 +5,7 @@ import { Breadcrumb } from "../shell/Breadcrumb";
 import { Sidebar } from "../sidebar/Sidebar";
 import { CondominiModule } from "../../modules/CondominiModule";
 import { CalendarioModule } from "../../modules/calendario/CalendarioModule";
-import { AnagraficheStub } from "../../modules/AnagraficheStub";
+import { AnagraficheModule } from "../../modules/anagrafiche/AnagraficheModule";
 import { useAppRuntime } from "../../runtime/useAppRuntime";
 import styles from "./AppShell.module.css";
 
@@ -39,7 +39,7 @@ export function AppShell() {
           <Suspense fallback={<div style={{ padding: 16 }}>Caricamento…</div>}>
             {module === "condomini" && <CondominiModule />}
             {module === "calendario" && <CalendarioModule />}
-            {module === "anagrafiche" && <AnagraficheStub />}
+            {module === "anagrafiche" && <AnagraficheModule />}
           </Suspense>
         </main>
       </div>

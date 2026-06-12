@@ -11,7 +11,7 @@ test("end-to-end: pick period → navigate sections", async () => {
   // navigate to Tabelle via the section menu
   await userEvent.click(screen.getByText("Tabelle Millesimali e Riparto"));
   expect(await screen.findByText("Proprietà")).toBeInTheDocument();
-  // switch module to the Anagrafiche stub
+  // switch to the Anagrafiche module — real grid is now mounted
   await userEvent.click(screen.getByText("Anagrafiche"));
-  expect(await screen.findByText(/non incluso nel prototipo/)).toBeInTheDocument();
+  expect(await screen.findByText("Filtro Anagrafiche")).toBeInTheDocument();
 });
