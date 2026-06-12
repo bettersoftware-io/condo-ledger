@@ -6,6 +6,7 @@ import type {
   AccountingPeriodNode, SupplierRow,
   TransactionInput, InvoiceInput, TakingInput, CreateInstallmentsInput,
   F24Row, FunctionalRole, PeriodSummary, WithholdingPaymentInput,
+  CalendarLayer, CalendarEvent,
 } from "./types";
 
 /** Accounting + inline-edit commands. Synchronous: mock store mutates in memory. */
@@ -44,6 +45,9 @@ export interface CrudCommands {
   editF24(periodId: Id, id: Id, patch: Partial<F24Row>): void;
   editInstallment(periodId: Id, installmentId: Id, patch: Partial<InstallmentColumn>): void;
   setFunctionalAccount(periodId: Id, role: FunctionalRole, accountId: Id): void;
+  addCalendarEvent(event: CalendarEvent): void;
+  editCalendarEvent(id: Id, patch: Partial<CalendarEvent>): void;
+  removeCalendarEvent(id: Id): void;
 }
 
 /** Data port. Mock today; HTTP/tRPC adapter later. Returns observables. */
@@ -62,6 +66,10 @@ export interface MockDataSource extends DataCommands, CrudCommands {
   functionalAccounts(periodId: Id): Observable<Partial<Record<FunctionalRole, Id>>>;
   /** keyed by accounting-period id; feeds the Dati grid money columns (Task 15) */
   periodSummaries(): Observable<Record<Id, PeriodSummary>>;
+  /** static layer registry (legacy calendarLayer); no CRUD in the prototype */
+  calendarLayers(): Observable<CalendarLayer[]>;
+  /** studio-wide event list; month filtering happens in the runtime */
+  calendarEvents(): Observable<CalendarEvent[]>;
 }
 
 /** The reactive runtime, exposed as bound hooks (DI via context). */
@@ -94,6 +102,15 @@ export interface AppRuntime {
   /** Per-section selected row (grid row id), promoted from section-local state. */
   useSelectedRow(section: CondominiSection): string | null;
   selectRow(section: CondominiSection, id: string | null): void;
+  /** ---- Calendario slice (Plan 3) ---- */
+  useCalendarMonth(): string;            // visible month, "yyyy-mm"
+  setCalendarMonth(ym: string): void;    // also clears the selected day
+  useSelectedDay(): string | null;       // ISO date of the picked day cell
+  selectDay(iso: string | null): void;
+  useCalendarLayers(): CalendarLayer[];
+  useCalendarEvents(): CalendarEvent[];  // events of the visible month, date+time sorted
+  /** unfiltered list — id-uniqueness pool for the add dialog (month slice would miss collisions) */
+  useAllCalendarEvents(): CalendarEvent[];
 }
 
 /** Grid adapter contract — independent of TanStack. */

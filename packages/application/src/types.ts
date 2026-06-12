@@ -133,3 +133,19 @@ export interface WithholdingPaymentInput {
   withholdingAccountId: Id; withholdingAccountLabel: string;
   liquidAccountId: Id; liquidAccountLabel: string;
 }
+
+/** ---- Calendario (Plan 3) ---- */
+export type CalendarPriority = "idle" | "low" | "medium" | "high" | "critical"; // legacy enum
+export type CalendarStatus = "new" | "closed" | "cancelled";                    // values seen in the dump
+export interface CalendarLayer { id: Id; name: string; color: string /* CSS color for chips */; }
+export interface CalendarEvent {
+  id: Id;
+  date: string;            // ISO yyyy-mm-dd
+  time?: string;           // "HH:mm"; omitted = all-day (legacy ignoreTime)
+  description: string;
+  layerId: Id;
+  status: CalendarStatus;
+  priority: CalendarPriority;
+  notes?: string;
+  periodId?: Id;           // competenza link to an accounting period (drives the Competenza filter)
+}
