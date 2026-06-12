@@ -41,3 +41,20 @@ pnpm --filter @cl/web test
 
 Cross-cutting: per-section row selection tracked in the runtime; every toolbar button either
 performs its action or shows an honest stub toast — no silent no-ops.
+
+## Calendario (Plan 3)
+
+Studio-wide agenda replacing the former stub (legacy `Calendar.mxml`):
+
+- **Month grid** — 6 fixed weeks, Monday-first; events as chips coloured by calendar layer
+  (Scadenze / Assemblee / Manutenzioni / Studio); weekend, today and selected-day tinting.
+- **Right panel** — per-day list (Ora, Descrizione, Stato, Priorità) and a read-only
+  "Dettagli scadenza" card for the selected event.
+- **Toolbar** — Aggiungi / Modifica / Rimuovi scadenza (add/edit via single-step dialog with
+  veto-close on errors), month prev/next plus Mese/Anno selects, and the
+  Tutte/Competenza filter (Competenza = only events linked to the accounting period
+  currently selected in Condomini).
+- **Fixtures read true across modules** — calendar dates mirror the F24 deadlines (Dati)
+  and the installment expiries (Rate); `fixtures.test.ts` guards the alignment.
+- Default visible month is **April 2011** (the fixture era's richest month) — a real
+  adapter would default to the current month.
