@@ -24,7 +24,8 @@ export function EditInstallmentDialog({ open, onOpenChange }: {
 
   const submit = () => {
     if (!periodId || !colId) return;
-    const header = expiry ? `${name.replace(/\s*\(.*\)$/, "")} (${formatItDate(expiry)})` : name;
+    const baseName = name.replace(/\s*\(.*\)$/, "");
+    const header = (!locked && expiry) ? `${baseName} (${formatItDate(expiry)})` : baseName || name;
     rt.commands.editInstallment(periodId, colId, { header, expiry: expiry || undefined, locked });
   };
 

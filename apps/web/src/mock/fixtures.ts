@@ -3,6 +3,7 @@ import type {
   CondominiumNode, CondominiumDetail, UnitRow, DistributionTable,
   DistributionColumn, DistributionRow, LedgerAccountRow, LedgerTxnRow,
   InstallmentColumn, InstallmentRow, Id, F24Row, FunctionalRole, SupplierRow,
+  CalendarLayer, CalendarEvent,
 } from "@cl/application";
 
 const c = fromCents;
@@ -221,7 +222,11 @@ export const ledgerTxnsByPeriod: Record<Id, LedgerTxnRow[]> = {
 
 export const installmentsByPeriod: Record<Id, { columns: InstallmentColumn[]; rows: InstallmentRow[] }> = {
   "sat-2011": {
-    columns: [{ id: "r1", header: "Rata 1" }, { id: "r2", header: "Rata 2" }, { id: "r3", header: "Rata 3" }],
+    columns: [
+      { id: "r1", header: "Rata 1", expiry: "2011-02-28" },
+      { id: "r2", header: "Rata 2", expiry: "2011-04-30" },
+      { id: "r3", header: "Rata 3", expiry: "2011-08-31" },
+    ],
     rows: [
       { id: "i-g", kind: "group", label: "Saturno / 2011", saldoPrec: c(-625099), totPreventivo: c(3800000), totDovuto: c(2814766),
         byInstallment: { r1: c(1266667), r2: c(1266667), r3: c(1266666) },
@@ -236,7 +241,10 @@ export const installmentsByPeriod: Record<Id, { columns: InstallmentColumn[]; ro
     ],
   },
   "poz-2010": {
-    columns: [{ id: "r1", header: "Rata 1" }, { id: "r2", header: "Rata 2" }],
+    columns: [
+      { id: "r1", header: "Rata 1", expiry: "2010-03-31" },
+      { id: "r2", header: "Rata 2", expiry: "2010-09-30" },
+    ],
     rows: [
       { id: "i-gp", kind: "group", label: "Pozzetto / 2010", saldoPrec: c(0), totPreventivo: c(1200000), totDovuto: c(1180000),
         byInstallment: { r1: c(600000), r2: c(600000) },
@@ -270,4 +278,49 @@ export const supplierCandidates: SupplierRow[] = [
   { id: "cand-1", nominativo: "Idraulica Blu S.n.c.", categoria: "Idraulico" },
   { id: "cand-2", nominativo: "Elettrosistemi Friuli", categoria: "Elettricista" },
   { id: "cand-3", nominativo: "Studio Rag. Bianchi", categoria: "Commercialista" },
+];
+
+/** ---- Calendario (Plan 3) ---- */
+export const calendarLayers: CalendarLayer[] = [
+  { id: "lay-scad", name: "Scadenze", color: "#c0392b" },
+  { id: "lay-assem", name: "Assemblee", color: "#2e6da4" },
+  { id: "lay-manut", name: "Manutenzioni", color: "#3d8b40" },
+  { id: "lay-studio", name: "Studio", color: "#7f8c8d" },
+];
+
+/** Studio-wide agenda. Dates mirror f24sByPeriod scadenze and installment expiries
+ * (guarded by fixtures.test.ts) so Calendario, Dati and Rate tell one story.
+ * Several descriptions echo the legacy dump (old/db/calendarEvent.sql). */
+export const calendarEvents: CalendarEvent[] = [
+  // — Saturno 2011 —
+  { id: "ev-f24-sat-1", date: "2011-01-16", description: "F24 Ritenute d'acconto 2010 conguaglio",
+    layerId: "lay-scad", status: "closed", priority: "high", periodId: "sat-2011" },
+  { id: "ev-f24-sat-2", date: "2011-04-16", description: "F24 Ritenute d'acconto 1° trim.",
+    layerId: "lay-scad", status: "new", priority: "critical", periodId: "sat-2011" },
+  { id: "ev-rata1-sat", date: "2011-02-28", description: "Scadenza Rata 1 — Condominio Saturno",
+    layerId: "lay-scad", status: "closed", priority: "medium", periodId: "sat-2011" },
+  { id: "ev-rata2-sat", date: "2011-04-30", description: "Scadenza Rata 2 — Condominio Saturno",
+    layerId: "lay-scad", status: "new", priority: "medium", periodId: "sat-2011" },
+  { id: "ev-rata3-sat", date: "2011-08-31", description: "Scadenza Rata 3 — Condominio Saturno",
+    layerId: "lay-scad", status: "new", priority: "medium", periodId: "sat-2011" },
+  { id: "ev-assem-sat", date: "2011-04-21", time: "18:00", description: "Assemblea ordinaria — Condominio Saturno",
+    layerId: "lay-assem", status: "new", priority: "critical", periodId: "sat-2011",
+    notes: "Ordine del giorno: approvazione bilancio preventivo 2011, nomina revisore." },
+  { id: "ev-cald-sat", date: "2011-04-05", time: "09:30", description: "Revisione caldaia — Condominio Saturno",
+    layerId: "lay-manut", status: "new", priority: "medium", periodId: "sat-2011" },
+  // — Pozzetto 2010 —
+  { id: "ev-f24-poz", date: "2010-07-16", description: "F24 Ritenute d'acconto",
+    layerId: "lay-scad", status: "closed", priority: "high", periodId: "poz-2010" },
+  { id: "ev-rata1-poz", date: "2010-03-31", description: "Scadenza Rata 1 — Condominio Pozzetto",
+    layerId: "lay-scad", status: "closed", priority: "medium", periodId: "poz-2010" },
+  { id: "ev-rata2-poz", date: "2010-09-30", description: "Scadenza Rata 2 — Condominio Pozzetto",
+    layerId: "lay-scad", status: "closed", priority: "medium", periodId: "poz-2010" },
+  { id: "ev-assem-poz", date: "2010-09-24", time: "18:30", description: "Assemblea del condominio Pozzetto",
+    layerId: "lay-assem", status: "closed", priority: "critical", periodId: "poz-2010" },
+  // — Studio-wide (nessuna competenza) —
+  { id: "ev-polizza", date: "2011-04-12", description: "Scadenza polizza assicurativa n. 8274 Assicurazioni del Varmo S.p.A.",
+    layerId: "lay-studio", status: "new", priority: "critical" },
+  { id: "ev-ferie", date: "2011-08-13", description: "Chiusura studio per ferie",
+    layerId: "lay-studio", status: "new", priority: "low",
+    notes: "Lo studio resterà chiuso dal 13/8 al 26/8. Per urgenze: 347-2115474." },
 ];

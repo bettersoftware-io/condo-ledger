@@ -36,3 +36,30 @@ describe("fixture consistency", () => {
     }
   });
 });
+
+describe("calendar fixtures", () => {
+  it("event ids are unique and every event references a known layer", () => {
+    const ids = fx.calendarEvents.map((e) => e.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const e of fx.calendarEvents)
+      expect(fx.calendarLayers.some((l) => l.id === e.layerId), e.id).toBe(true);
+  });
+  it("every F24 deadline has a calendar event on the same date and period", () => {
+    for (const [periodId, rows] of Object.entries(fx.f24sByPeriod))
+      for (const f of rows)
+        expect(
+          fx.calendarEvents.some((e) => e.date === f.scadenza && e.periodId === periodId),
+          `${periodId} ${f.scadenza}`,
+        ).toBe(true);
+  });
+  it("every installment expiry has a calendar event on the same date and period", () => {
+    for (const [periodId, inst] of Object.entries(fx.installmentsByPeriod))
+      for (const col of inst.columns) {
+        expect(col.expiry, `${periodId} ${col.id} needs an expiry`).toBeTruthy();
+        expect(
+          fx.calendarEvents.some((e) => e.date === col.expiry && e.periodId === periodId),
+          `${periodId} ${col.expiry}`,
+        ).toBe(true);
+      }
+  });
+});
