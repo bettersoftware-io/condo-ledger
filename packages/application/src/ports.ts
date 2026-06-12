@@ -5,6 +5,7 @@ import type {
   LedgerAccountRow, LedgerTxnRow, InstallmentRow, InstallmentColumn, Id,
   AccountingPeriodNode, SupplierRow,
   TransactionInput, InvoiceInput, TakingInput, CreateInstallmentsInput,
+  F24Row, FunctionalRole, PeriodSummary, WithholdingPaymentInput,
 } from "./types";
 
 /** Accounting + inline-edit commands. Synchronous: mock store mutates in memory. */
@@ -17,6 +18,7 @@ export interface DataCommands {
   registerInvoice(periodId: Id, input: InvoiceInput): void;
   recordTaking(periodId: Id, input: TakingInput): void;
   createInstallments(periodId: Id, input: CreateInstallmentsInput): void;
+  payWithholding(periodId: Id, input: WithholdingPaymentInput): void;
 }
 
 /** Registry CRUD commands (dialogs call these). */
@@ -38,6 +40,10 @@ export interface CrudCommands {
   addAccountRow(periodId: Id, parentId: Id | null, row: LedgerAccountRow): void;
   editAccountRow(periodId: Id, id: Id, patch: Partial<LedgerAccountRow>): void;
   removeAccountRow(periodId: Id, id: Id): void;
+  addF24(periodId: Id, f24: F24Row): void;
+  editF24(periodId: Id, id: Id, patch: Partial<F24Row>): void;
+  editInstallment(periodId: Id, installmentId: Id, patch: Partial<InstallmentColumn>): void;
+  setFunctionalAccount(periodId: Id, role: FunctionalRole, accountId: Id): void;
 }
 
 /** Data port. Mock today; HTTP/tRPC adapter later. Returns observables. */
@@ -52,6 +58,10 @@ export interface MockDataSource extends DataCommands, CrudCommands {
   ledgerTransactions(periodId: Id): Observable<LedgerTxnRow[]>;
   installments(periodId: Id):
     Observable<{ columns: InstallmentColumn[]; rows: InstallmentRow[] }>;
+  f24s(periodId: Id): Observable<F24Row[]>;
+  functionalAccounts(periodId: Id): Observable<Partial<Record<FunctionalRole, Id>>>;
+  /** keyed by accounting-period id; feeds the Dati grid money columns (Task 15) */
+  periodSummaries(): Observable<Record<Id, PeriodSummary>>;
 }
 
 /** The reactive runtime, exposed as bound hooks (DI via context). */
@@ -75,6 +85,9 @@ export interface AppRuntime {
   useLedgerAccountsTree(): LedgerAccountRow[];
   useLedgerTransactions(): LedgerTxnRow[];
   useInstallments(): { columns: InstallmentColumn[]; rows: InstallmentRow[] };
+  useF24s(): F24Row[];
+  useFunctionalAccounts(): Partial<Record<FunctionalRole, Id>>;
+  usePeriodSummaries(): Record<Id, PeriodSummary>;
 
   /** Store commands, surfaced through the runtime so components never import the store. */
   commands: DataCommands & CrudCommands;

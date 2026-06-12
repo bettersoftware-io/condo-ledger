@@ -5,6 +5,7 @@ import type {
   UnitRow, DistributionTable, DistributionTableItem, DistributionColumn, DistributionRow,
   LedgerAccountRow, LedgerTxnRow, InstallmentColumn, InstallmentRow,
   TransactionInput, InvoiceInput, TakingInput, CreateInstallmentsInput,
+  F24Row, FunctionalRole, PeriodSummary, WithholdingPaymentInput,
 } from "@cl/application";
 import { fromCents } from "@cl/domain";
 import * as fx from "./fixtures";
@@ -26,6 +27,8 @@ export class MockStore implements MockDataSource {
   private accounts$ = new BehaviorSubject<Record<Id, LedgerAccountRow[]>>(fx.ledgerAccountsByPeriod);
   protected txns$ = new BehaviorSubject<Record<Id, LedgerTxnRow[]>>(fx.ledgerTxnsByPeriod);
   private installments$ = new BehaviorSubject<Record<Id, Installments>>(fx.installmentsByPeriod);
+  private f24s$ = new BehaviorSubject<Record<Id, F24Row[]>>(fx.f24sByPeriod);
+  private functional$ = new BehaviorSubject<Record<Id, Partial<Record<FunctionalRole, Id>>>>(fx.functionalByPeriod);
 
   condominiumTree(): Observable<CondominiumNode[]> { return this.tree$.asObservable(); }
   condominiumDetail(periodId: Id) { return this.details$.pipe(map((d) => d[periodId] ?? null)); }
@@ -39,6 +42,9 @@ export class MockStore implements MockDataSource {
   installments(periodId: Id): Observable<Installments> {
     return this.installments$.pipe(map((i) => i[periodId] ?? { columns: [], rows: [] }));
   }
+  f24s(periodId: Id) { return this.f24s$.pipe(map((f) => f[periodId] ?? [])); }
+  functionalAccounts(periodId: Id) { return this.functional$.pipe(map((f) => f[periodId] ?? {})); }
+  periodSummaries(): Observable<Record<Id, PeriodSummary>> { return new BehaviorSubject({}).asObservable(); } // real derivation in Task 15
 
   /** Immutable per-period patch; commands in later tasks build on this. */
   protected patch<K>(
@@ -110,6 +116,32 @@ export class MockStore implements MockDataSource {
     this.patch(this.accounts$, periodId, [], (rows) => removeRow(rows, id));
   }
 
+  addF24(periodId: Id, f24: F24Row): void {
+    this.patch(this.f24s$, periodId, [], (fs) => [...fs, f24]);
+  }
+  editF24(periodId: Id, id: Id, patchF24: Partial<F24Row>): void {
+    this.patch(this.f24s$, periodId, [], (fs) => fs.map((f) => (f.id === id ? { ...f, ...patchF24 } : f)));
+  }
+  editInstallment(periodId: Id, installmentId: Id, patchCol: Partial<InstallmentColumn>): void {
+    this.patch(this.installments$, periodId, { columns: [], rows: [] }, (data) => ({
+      ...data,
+      columns: data.columns.map((col) => (col.id === installmentId ? { ...col, ...patchCol } : col)),
+    }));
+  }
+  setFunctionalAccount(periodId: Id, role: FunctionalRole, accountId: Id): void {
+    const cur = this.functional$.getValue();
+    this.functional$.next({ ...cur, [periodId]: { ...cur[periodId], [role]: accountId } });
+  }
+  payWithholding(periodId: Id, input: WithholdingPaymentInput): void {
+    this.addTransaction(periodId, {
+      date: input.date, description: "Pagamento ritenuta d'acconto", partita: "F24",
+      entries: [
+        { accountId: input.withholdingAccountId, label: input.withholdingAccountLabel, dareCents: input.amountCents, avereCents: 0 },
+        { accountId: input.liquidAccountId, label: input.liquidAccountLabel, dareCents: 0, avereCents: input.amountCents },
+      ],
+    });
+  }
+
   setCoefficient(periodId: Id, tableId: Id, unitId: Id, coefficient: number): void {
     this.patch(this.tables$, periodId, [], (tables) =>
       tables.map((t) => t.id !== tableId ? t : ({
@@ -162,13 +194,20 @@ export class MockStore implements MockDataSource {
     const totDare = input.entries.reduce((a, e) => a + e.dareCents, 0);
     const totAvere = input.entries.reduce((a, e) => a + e.avereCents, 0);
     if (totDare !== totAvere) throw new Error("Scrittura non bilanciata: dare ≠ avere");
+    const accounts = this.accounts$.getValue()[periodId] ?? [];
+    const exists = (rows: LedgerAccountRow[], id: Id): boolean =>
+      rows.some((r) => r.id === id || exists(r.children ?? [], id));
+    for (const e of input.entries) {
+      if (!exists(accounts, e.accountId)) throw new Error(`Conto inesistente: ${e.accountId}`);
+    }
     const existing = this.txns$.getValue()[periodId] ?? [];
     const code = existing.reduce((m, t) => Math.max(m, t.code), 0) + 1;
     this.patch(this.txns$, periodId, [], (txns) => [...txns, {
       id: `tx-${periodId}-${code}`,
       date: input.date, code, description: input.description,
+      partita: input.partita,
       dare: fromCents(totDare), avere: fromCents(totAvere),
-      entries: input.entries.map((e) => ({ account: e.label, dare: fromCents(e.dareCents), avere: fromCents(e.avereCents) })),
+      entries: input.entries.map((e) => ({ accountId: e.accountId, account: e.label, dare: fromCents(e.dareCents), avere: fromCents(e.avereCents) })),
     }]);
     this.patch(this.accounts$, periodId, [], (rows) =>
       applyEntryDeltas(rows, input.entries.map((e) => ({

@@ -60,6 +60,11 @@ export function createAppRuntime(deps: { data: MockDataSource }): AppRuntime {
     periodId$.pipe(switchMap((id) => (id ? data.installments(id) : of({ columns: [], rows: [] })))),
     { columns: [], rows: [] },
   );
+  const [useF24s] = bind(
+    periodId$.pipe(switchMap((id) => (id ? data.f24s(id) : of([])))), []);
+  const [useFunctionalAccounts] = bind(
+    periodId$.pipe(switchMap((id) => (id ? data.functionalAccounts(id) : of({})))), {});
+  const [usePeriodSummaries] = bind(data.periodSummaries(), {});
 
   return {
     useModule, setModule: (m) => module$.next(m),
@@ -81,6 +86,7 @@ export function createAppRuntime(deps: { data: MockDataSource }): AppRuntime {
     useLedgerAccountsTree,
     useLedgerTransactions,
     useInstallments,
+    useF24s, useFunctionalAccounts, usePeriodSummaries,
     commands: data,
     useSelectedRow: (section) => useSelectedRows()[section] ?? null,
     selectRow: (section, id) =>

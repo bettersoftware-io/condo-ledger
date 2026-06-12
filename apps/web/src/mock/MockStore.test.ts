@@ -229,3 +229,49 @@ describe("MockStore transaction commands", () => {
     expect(units[0]!.children![1]!.versato.cents).toBe(0);              // untouched sibling
   });
 });
+
+describe("Plan 2 store extensions", () => {
+  it("serves and mutates F24s per period", () => {
+    const s = new MockStore();
+    expect(latest(s.f24s("sat-2011")).map((f) => f.id)).toEqual(["f24-1", "f24-2"]);
+    s.addF24("sat-2011", { id: "f24-9", descrizione: "Nuovo F24", scadenza: "2011-10-16", importo: { cents: 5000 }, stato: "da pagare" });
+    s.editF24("sat-2011", "f24-9", { stato: "pagato" });
+    expect(latest(s.f24s("sat-2011")).find((f) => f.id === "f24-9")!.stato).toBe("pagato");
+  });
+  it("serves and updates functional accounts", () => {
+    const s = new MockStore();
+    expect(latest(s.functionalAccounts("sat-2011")).payable).toBe("forn");
+    s.setFunctionalAccount("sat-2011", "payable", "erar");
+    expect(latest(s.functionalAccounts("sat-2011")).payable).toBe("erar");
+  });
+  it("payWithholding posts dare-withholding / avere-liquid", () => {
+    const s = new MockStore();
+    s.payWithholding("sat-2011", {
+      date: "2011-04-16", amountCents: 10000,
+      withholdingAccountId: "erar", withholdingAccountLabel: "Erario c/ritenute",
+      liquidAccountId: "banca", liquidAccountLabel: "Banca",
+    });
+    const txns = latest(s.ledgerTransactions("sat-2011"));
+    const last = txns[txns.length - 1]!;
+    expect(last.description).toContain("ritenuta");
+    expect(last.entries.map((e) => [e.accountId, e.dare.cents, e.avere.cents]))
+      .toEqual([["erar", 10000, 0], ["banca", 0, 10000]]);
+  });
+  it("editInstallment patches a rata column (lock + header)", () => {
+    const s = new MockStore();
+    s.editInstallment("sat-2011", "r1", { locked: true, header: "Rata 1 (31/01/2011)" });
+    const { columns } = latest(s.installments("sat-2011"));
+    expect(columns.find((c) => c.id === "r1")).toMatchObject({ locked: true, header: "Rata 1 (31/01/2011)" });
+  });
+  it("addTransaction throws for an unknown accountId, posting nothing", () => {
+    const s = new MockStore();
+    expect(() => s.addTransaction("sat-2011", {
+      date: "2011-05-01", description: "Conto fantasma",
+      entries: [
+        { accountId: "ghost", label: "Fantasma", dareCents: 100, avereCents: 0 },
+        { accountId: "cassa", label: "Cassa", dareCents: 0, avereCents: 100 },
+      ],
+    })).toThrow(/Conto inesistente: ghost/);
+    expect(latest(s.ledgerTransactions("sat-2011"))).toHaveLength(3);
+  });
+});
