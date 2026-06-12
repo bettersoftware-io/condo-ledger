@@ -7,6 +7,7 @@ import type {
   TransactionInput, InvoiceInput, TakingInput, CreateInstallmentsInput,
   F24Row, FunctionalRole, PeriodSummary, WithholdingPaymentInput,
   CalendarLayer, CalendarEvent,
+  Anagrafica, AnagraficaLink,
 } from "@cl/application";
 import { fromCents } from "@cl/domain";
 import * as fx from "./fixtures";
@@ -32,6 +33,7 @@ export class MockStore implements MockDataSource {
   private f24s$ = new BehaviorSubject<Record<Id, F24Row[]>>(fx.f24sByPeriod);
   private functional$ = new BehaviorSubject<Record<Id, Partial<Record<FunctionalRole, Id>>>>(fx.functionalByPeriod);
   private calendar$ = new BehaviorSubject<CalendarEvent[]>(fx.calendarEvents);
+  private anagrafiche$ = new BehaviorSubject<Anagrafica[]>(fx.anagrafiche);
 
   condominiumTree(): Observable<CondominiumNode[]> { return this.tree$.asObservable(); }
   condominiumDetail(periodId: Id) { return this.details$.pipe(map((d) => d[periodId] ?? null)); }
@@ -57,6 +59,29 @@ export class MockStore implements MockDataSource {
   }
   calendarLayers(): Observable<CalendarLayer[]> { return of(fx.calendarLayers); } // static registry
   calendarEvents(): Observable<CalendarEvent[]> { return this.calendar$.asObservable(); }
+  anagrafiche(): Observable<Anagrafica[]> { return this.anagrafiche$.asObservable(); }
+  anagraficaCategories(): Observable<string[]> { return of(fx.anagraficaCategories); } // static registry
+  anagraficaLinks(anagraficaId: Id): Observable<AnagraficaLink[]> {
+    return combineLatest([this.anagrafiche$, this.tree$, this.details$, this.units$]).pipe(
+      map(([anas, tree, details, units]) => {
+        const a = anas.find((x) => x.id === anagraficaId);
+        if (!a) return [];
+        const links: AnagraficaLink[] = [];
+        for (const cond of tree) {
+          const condominio = cond.name.split(" (")[0] ?? cond.name;
+          for (const p of cond.periods) {
+            const supplier = (details[p.id]?.suppliers ?? []).find((s) => s.nominativo === a.nominativo);
+            if (supplier) {
+              links.push({ condominio, esercizio: p.name, ruolo: "Fornitore", dettaglio: supplier.categoria });
+            }
+            const row = findRowLabel(units[p.id] ?? [], a.nominativo);
+            if (row) links.push({ condominio, esercizio: p.name, ruolo: "Condòmino", dettaglio: row });
+          }
+        }
+        return links;
+      }),
+    );
+  }
 
   /** Immutable per-period patch; commands in later tasks build on this. */
   protected patch<K>(
@@ -153,6 +178,17 @@ export class MockStore implements MockDataSource {
   }
   removeCalendarEvent(id: Id): void {
     this.calendar$.next(this.calendar$.getValue().filter((e) => e.id !== id));
+  }
+  addAnagrafica(a: Anagrafica): void {
+    if (!fx.anagraficaCategories.includes(a.categoria))
+      throw new Error(`Categoria sconosciuta: ${a.categoria}`);
+    this.anagrafiche$.next([...this.anagrafiche$.getValue(), a]);
+  }
+  editAnagrafica(id: Id, patch: Partial<Anagrafica>): void {
+    this.anagrafiche$.next(this.anagrafiche$.getValue().map((a) => (a.id === id ? { ...a, ...patch } : a)));
+  }
+  removeAnagrafica(id: Id): void {
+    this.anagrafiche$.next(this.anagrafiche$.getValue().filter((a) => a.id !== id));
   }
   payWithholding(periodId: Id, input: WithholdingPaymentInput): void {
     this.addTransaction(periodId, {
@@ -315,4 +351,15 @@ export class MockStore implements MockDataSource {
     };
     this.patch(this.installments$, periodId, { columns: [], rows: [] }, () => ({ columns, rows: [group] }));
   }
+}
+
+/** First unit-tree row whose label mentions the nominativo (prototype-grade
+ * name matching: fixtures guarantee supplier/resident names match the registry). */
+function findRowLabel(rows: UnitRow[], nominativo: string): string | null {
+  for (const r of rows) {
+    if (r.label.includes(nominativo)) return r.label;
+    const inChild = findRowLabel(r.children ?? [], nominativo);
+    if (inChild) return inChild;
+  }
+  return null;
 }

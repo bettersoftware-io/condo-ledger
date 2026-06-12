@@ -369,3 +369,45 @@ describe("calendar slice", () => {
     expect(latest(s.calendarEvents()).some((e) => e.id === "ev-ferie")).toBe(false);
   });
 });
+
+describe("anagrafiche slice", () => {
+  it("serves the fixture registry and the static categories", () => {
+    const s = new MockStore();
+    expect(latest(s.anagrafiche())).toHaveLength(23);
+    expect(latest(s.anagraficaCategories())).toContain("Istituto di credito");
+  });
+  it("addAnagrafica rejects an unknown categoria and leaves state untouched", () => {
+    const s = new MockStore();
+    expect(() => s.addAnagrafica({
+      id: "ana-x", kind: "company", nominativo: "X", categoria: "Categoria inventata", stato: "active",
+    })).toThrow("Categoria sconosciuta");
+    expect(latest(s.anagrafiche())).toHaveLength(23);
+  });
+  it("add, edit and remove round-trip; edit merges without dropping fields", () => {
+    const s = new MockStore();
+    s.addAnagrafica({ id: "ana-zorzi", kind: "person", nominativo: "Zorzi Anna",
+      categoria: "Condòmino", stato: "active", nome: "Anna", cognome: "Zorzi" });
+    s.editAnagrafica("ana-zorzi", { professione: "Architetto" });
+    const z = latest(s.anagrafiche()).find((a) => a.id === "ana-zorzi")!;
+    expect(z.professione).toBe("Architetto");
+    expect(z.nominativo).toBe("Zorzi Anna"); // merge preserves untouched fields
+    s.removeAnagrafica("ana-zorzi");
+    expect(latest(s.anagrafiche()).some((a) => a.id === "ana-zorzi")).toBe(false);
+  });
+  it("anagraficaLinks finds supplier and condòmino cross-references", () => {
+    const s = new MockStore();
+    // ana-bper: supplier of Saturno 2011 (detail fixture s3 has the same nominativo)
+    expect(latest(s.anagraficaLinks("ana-bper"))).toEqual([{
+      condominio: "Saturno", esercizio: "2011 (Ordinario)",
+      ruolo: "Fornitore", dettaglio: "Istituto di credito",
+    }]);
+    // ana-alberi: resident in the Saturno unit tree
+    const alberi = latest(s.anagraficaLinks("ana-alberi"));
+    expect(alberi).toHaveLength(1);
+    expect(alberi[0]).toMatchObject({ condominio: "Saturno", ruolo: "Condòmino" });
+    expect(alberi[0]!.dettaglio).toContain("Alberi Dina");
+    // Lloyd has no link anywhere; unknown ids yield []
+    expect(latest(s.anagraficaLinks("ana-lloyd"))).toEqual([]);
+    expect(latest(s.anagraficaLinks("nope"))).toEqual([]);
+  });
+});
