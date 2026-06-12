@@ -103,13 +103,13 @@ export interface AnagraficaLink {
   ruolo: "Fornitore" | "Condòmino";
   dettaglio: string;        // supplier categoria, or the matched unit-tree row label
 }
-export type AnagraficaTypeFilter = "tutte" | "person" | "company";
+export type AnagraficaKindFilter = "tutte" | "person" | "company";
 export type AnagraficaStatusFilter = "tutte" | AnagraficaStatus;
 ```
 
 - [ ] **Step 2: Extend `ports.ts`**
 
-Add to the type-import list in `ports.ts`: `Anagrafica, AnagraficaLink, AnagraficaTypeFilter, AnagraficaStatusFilter`.
+Add to the type-import list in `ports.ts`: `Anagrafica, AnagraficaLink, AnagraficaKindFilter, AnagraficaStatusFilter`.
 
 Append to `CrudCommands` (after `removeCalendarEvent`):
 
@@ -136,8 +136,8 @@ Append to `AppRuntime` (after `useAllCalendarEvents`):
   /** ---- Anagrafiche slice (Plan 4) ---- */
   useAnagSearch(): string;
   setAnagSearch(q: string): void;
-  useAnagKind(): AnagraficaTypeFilter;
-  setAnagKind(k: AnagraficaTypeFilter): void;
+  useAnagKind(): AnagraficaKindFilter;
+  setAnagKind(k: AnagraficaKindFilter): void;
   useAnagStato(): AnagraficaStatusFilter;   // legacy "Status Anagrafiche" filter
   setAnagStato(s: AnagraficaStatusFilter): void;
   useAnagCategory(): string | null;     // null = all categories
@@ -562,14 +562,14 @@ Expected: FAIL — `rt.useAnagrafiche` is not a function.
 
 - [ ] **Step 3: Implement the slice in `createAppRuntime.ts`**
 
-Extend the type import with `AnagraficaTypeFilter, AnagraficaStatusFilter`. After the Calendario slice block, add:
+Extend the type import with `AnagraficaKindFilter, AnagraficaStatusFilter`. After the Calendario slice block, add:
 
 ```ts
   // Anagrafiche slice. Studio-wide like the calendar (legacy masterData has no
   // condominium FK); search + tipo + stato + categoria compose as ONE derived
   // stream (spec §5.2) so the grid, paging and counts all read consistent state.
   const anagSearch$ = new BehaviorSubject<string>("");
-  const anagKind$ = new BehaviorSubject<AnagraficaTypeFilter>("tutte");
+  const anagKind$ = new BehaviorSubject<AnagraficaKindFilter>("tutte");
   const anagStato$ = new BehaviorSubject<AnagraficaStatusFilter>("tutte");
   const anagCategory$ = new BehaviorSubject<string | null>(null);
   const selectedAnagrafica$ = new BehaviorSubject<Id | null>(null);
@@ -730,7 +730,7 @@ Expected: FAIL — module not found.
 - [ ] **Step 4: Implement `FilterPane.tsx`**
 
 ```tsx
-import type { AnagraficaTypeFilter, AnagraficaStatusFilter } from "@cl/application";
+import type { AnagraficaKindFilter, AnagraficaStatusFilter } from "@cl/application";
 import { SearchBox } from "../../components/common/SearchBox";
 import styles from "./FilterPane.module.css";
 
@@ -740,7 +740,7 @@ export function FilterPane({
   search, onSearch, kind, onKind, stato, onStato, category, onCategory, categories, counts,
 }: {
   search: string; onSearch: (q: string) => void;
-  kind: AnagraficaTypeFilter; onKind: (k: AnagraficaTypeFilter) => void;
+  kind: AnagraficaKindFilter; onKind: (k: AnagraficaKindFilter) => void;
   stato: AnagraficaStatusFilter; onStato: (s: AnagraficaStatusFilter) => void;
   category: string | null; onCategory: (c: string | null) => void;
   categories: string[]; counts: Record<string, number>;
@@ -754,7 +754,7 @@ export function FilterPane({
         </label>
         <label className={styles.field}>Tipo
           <select aria-label="Tipo" value={kind}
-            onChange={(e) => onKind(e.target.value as AnagraficaTypeFilter)}>
+            onChange={(e) => onKind(e.target.value as AnagraficaKindFilter)}>
             <option value="tutte">Tutte</option>
             <option value="person">Persone fisiche</option>
             <option value="company">Società</option>
