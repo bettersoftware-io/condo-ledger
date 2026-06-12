@@ -38,6 +38,7 @@ export interface CondominiumDetail {
   creatoIl: string;
   modificatoIl: string;
   suppliers: SupplierRow[];
+  publicDocs: string[]; privateDocs: string[];
 }
 export interface SupplierRow { id: Id; nominativo: string; categoria: string; }
 
@@ -78,25 +79,30 @@ export type LedgerAccountKind = "grouping" | "regular" | "subsidiary" | "control
 export interface LedgerAccountRow {
   id: Id; kind: LedgerAccountKind; label: string;
   dare: Money; avere: Money; saldo: Money; preventivo: Money | null;
+  rd?: "R" | "d";          // Ripartito / diretto
+  tabelle?: string;        // riparto table names, comma-joined
+  restriction?: string;    // restr. competenza display range
   children?: LedgerAccountRow[];
 }
 
+export interface LedgerTxnEntry { accountId?: Id; account: string; dare: Money; avere: Money; }
 export interface LedgerTxnRow {
   id: Id; date: string; code: number; description: string;
+  partita?: string;        // legacy "Partita" matching reference
   dare: Money; avere: Money;
-  entries: { account: string; dare: Money; avere: Money }[];
+  entries: LedgerTxnEntry[];
 }
 
-export interface InstallmentColumn { id: Id; header: string; }
+export interface InstallmentColumn { id: Id; header: string; expiry?: string; locked?: boolean; }
 export interface InstallmentRow {
   id: Id; kind: "group" | "unit" | "resident"; label: string; role?: string;
   restriction?: string; saldoPrec: Money; totPreventivo: Money; totDovuto: Money;
-  byInstallment: Record<Id, Money>; children?: InstallmentRow[];
+  byInstallment: Record<Id, Money>; overridden?: Record<Id, boolean>; children?: InstallmentRow[];
 }
 
 /** ---- Command inputs (Plan 1 foundations) ---- */
 export interface LedgerEntryInput { accountId: Id; label: string; dareCents: number; avereCents: number; }
-export interface TransactionInput { date: string; description: string; entries: LedgerEntryInput[]; }
+export interface TransactionInput { date: string; description: string; entries: LedgerEntryInput[]; partita?: string; }
 export interface InvoiceInput {
   date: string; supplierName: string; invoiceNumber: string;
   grossCents: number; withholdingCents: number;
@@ -113,4 +119,16 @@ export interface TakingInput {
 export interface CreateInstallmentsInput {
   count: number; firstExpiry: string /* ISO date */; cadenceMonths: number;
   totalCents: number; tableId: Id;
+}
+
+export interface F24Row { id: Id; descrizione: string; scadenza: string /* ISO */; importo: Money; stato: "da pagare" | "pagato"; }
+export type FunctionalRole = "liquid" | "payable" | "withholding" | "credit";
+export interface PeriodSummary {
+  liquidita: Money; fondi: Money; preventivo: Money;
+  consuntivo: Money; saldoPrec: Money; totDovuto: Money;
+}
+export interface WithholdingPaymentInput {
+  date: string; amountCents: number;
+  withholdingAccountId: Id; withholdingAccountLabel: string;
+  liquidAccountId: Id; liquidAccountLabel: string;
 }
