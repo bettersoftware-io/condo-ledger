@@ -29,8 +29,9 @@ export function InvoiceWizard({ open, onOpenChange }: { open: boolean; onOpenCha
   };
   const close = (o: boolean) => { if (!o) reset(); onOpenChange(o); };
 
-  const suppliers = (detail?.suppliers ?? []).map((s) => ({ value: s.nominativo, label: s.nominativo }));
+  const suppliers = (detail?.suppliers ?? []).map((s) => ({ value: s.id, label: s.nominativo }));
   const net = grossCents - withholdingCents;
+  const supplierName = detail?.suppliers.find((s) => s.id === supplier)?.nominativo ?? supplier;
 
   const submit = (): boolean => {
     if (!periodId || !functional.payable || !functional.withholding) {
@@ -38,7 +39,7 @@ export function InvoiceWizard({ open, onOpenChange }: { open: boolean; onOpenCha
     }
     try {
       rt.commands.registerInvoice(periodId, {
-        date, supplierName: supplier, invoiceNumber, grossCents, withholdingCents,
+        date, supplierName, invoiceNumber, grossCents, withholdingCents,
         expenseAccountId, expenseAccountLabel: accountLabel(allOpts, expenseAccountId),
         payableAccountId: functional.payable, payableAccountLabel: accountLabel(allOpts, functional.payable),
         withholdingAccountId: functional.withholding, withholdingAccountLabel: accountLabel(allOpts, functional.withholding),
@@ -86,7 +87,7 @@ export function InvoiceWizard({ open, onOpenChange }: { open: boolean; onOpenCha
           title: "Conferma",
           content: (
             <div>
-              <p>Fattura {invoiceNumber} — {supplier} — {date}</p>
+              <p>Fattura {invoiceNumber} — {supplierName} — {date}</p>
               <p>Lordo {formatEUR(fromCents(grossCents))}, ritenuta {formatEUR(fromCents(withholdingCents))},
                  netto {formatEUR(fromCents(net))} su {accountLabel(allOpts, expenseAccountId)}</p>
             </div>

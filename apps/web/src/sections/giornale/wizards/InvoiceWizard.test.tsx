@@ -16,7 +16,7 @@ test("invoice wizard posts a balanced invoice into the journal", async () => {
   await userEvent.click(screen.getByLabelText("Registra fattura"));
 
   // step 1: supplier, invoice number, date, gross amount
-  await userEvent.selectOptions(screen.getByLabelText("Fornitore"), "Banca Pop. Emilia Romagna");
+  await userEvent.selectOptions(screen.getByLabelText("Fornitore"), "s3");
   await userEvent.type(screen.getByLabelText("Numero fattura"), "F-99");
   await userEvent.type(screen.getByLabelText("Data"), "2011-09-15");
   const gross = screen.getByLabelText("Importo lordo");
@@ -35,5 +35,5 @@ test("invoice wizard posts a balanced invoice into the journal", async () => {
 
   // step 3: confirm — use getByRole to disambiguate from the step-strip title "Conferma"
   await userEvent.click(screen.getByRole("button", { name: "Conferma" }));
-  expect(await screen.findByText(/Registrazione fattura F-99/)).toBeInTheDocument();
+  expect(await screen.findByText(/Registrazione fattura F-99 Banca Pop\. Emilia Romagna/)).toBeInTheDocument();
 });
