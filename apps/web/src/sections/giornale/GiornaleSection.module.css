@@ -1,2 +1,0 @@
-.entries { padding: var(--sp-2) var(--sp-7); color: var(--text-secondary); font-size: var(--fs-sm); }
-.entryRow { display: grid; grid-template-columns: 1fr 120px 120px; gap: var(--sp-4); padding: var(--sp-1) 0; }
