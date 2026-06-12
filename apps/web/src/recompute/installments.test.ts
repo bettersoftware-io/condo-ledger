@@ -26,4 +26,8 @@ describe("redistributeOverride", () => {
     expect(redistributeOverride(cells, 0, -5)).toBe(cells);  // negative cell value itself rejected
     expect(redistributeOverride(cells, 0, 80)).toEqual([80, 20, 20]); // legal spread still works
   });
+  it("returns the original reference for identity edits (delta 0)", () => {
+    const cells = [100, 50, 50];
+    expect(redistributeOverride(cells, 0, 100)).toBe(cells);
+  });
 });
