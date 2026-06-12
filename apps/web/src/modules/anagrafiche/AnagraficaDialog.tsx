@@ -83,7 +83,7 @@ export function AnagraficaDialog({ open, onOpenChange, kind, editing, categories
     return null;
   };
 
-  const submit = (): void | boolean => {
+  const submit = (): boolean => {
     const nominativo = effKind === "person"
       ? `${cognome.trim()} ${nome.trim()}`.trim()
       : ragioneSociale.trim();
@@ -94,7 +94,7 @@ export function AnagraficaDialog({ open, onOpenChange, kind, editing, categories
       indirizzo: opt(indirizzo), note: opt(note),
       ...(effKind === "person"
         ? { nome: opt(nome), cognome: cognome.trim(),
-            sesso: (sesso || undefined) as "m" | "f" | undefined,
+            sesso: sesso === "m" || sesso === "f" ? sesso : undefined,
             dataNascita: dataNascita || undefined,
             luogoNascita: opt(luogoNascita), professione: opt(professione) }
         : { banca: opt(banca), iban: opt(iban) }),
@@ -110,6 +110,7 @@ export function AnagraficaDialog({ open, onOpenChange, kind, editing, categories
       toast(e instanceof Error ? e.message : String(e));
       return false;
     }
+    return true;
   };
 
   const noun = effKind === "person" ? "Persona" : "Azienda";
