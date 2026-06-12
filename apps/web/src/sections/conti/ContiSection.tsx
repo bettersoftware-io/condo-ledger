@@ -5,14 +5,16 @@ import { SplitPane } from "../../components/layout/SplitPane";
 import { DetailPanel } from "../../components/layout/DetailPanel";
 import { FormCard, FieldGroup, Field } from "../../components/layout/FormCard";
 import { TreeTable } from "../../components/grid/TreeTable";
-import { STANDARD_ACTIONS } from "../../components/common/ActionToolbar";
 import { SearchBox } from "../../components/common/SearchBox";
 import { ToolbarToggle } from "../../components/common/ToolbarToggle";
+import { useToast } from "../../components/common/Toast";
 import { InlineMoney } from "../../components/grid/inlineEditors";
 import { MoneyText, DateText } from "../../format";
 import { useAppRuntime } from "../../runtime/useAppRuntime";
 import { mastrino } from "./mastrino";
 import { filterAccounts } from "./filterAccounts";
+import { AccountDialog } from "./AccountDialog";
+import { FunctionalAccountsDialog } from "./FunctionalAccountsDialog";
 
 function find(rows: LedgerAccountRow[], id: string): LedgerAccountRow | null {
   for (const r of rows) { if (r.id === id) return r; if (r.children) { const f = find(r.children, id); if (f) return f; } }
@@ -21,9 +23,11 @@ function find(rows: LedgerAccountRow[], id: string): LedgerAccountRow | null {
 
 export function ContiSection() {
   const rt = useAppRuntime();
+  const toast = useToast();
   const periodId = rt.useSelection().accountingPeriodId ?? null;
   const [query, setQuery] = useState("");
   const [hideEmpty, setHideEmpty] = useState(false);
+  const [dialog, setDialog] = useState<"add" | "edit" | "functional" | null>(null);
   const allRows = rt.useLedgerAccountsTree();
   const rows = filterAccounts(allRows, query, hideEmpty);
   const selId = rt.useSelectedRow("conti");
@@ -31,6 +35,21 @@ export function ContiSection() {
   const sel = selId ? find(allRows, selId) : null;
   const txns = rt.useLedgerTransactions();
   const card = sel ? mastrino(txns, sel.id) : [];
+
+  const stub = () => toast("Non disponibile nel prototipo");
+  const actions = [
+    { icon: "add", label: "Aggiungi", primary: true, onClick: () => setDialog("add") },
+    { icon: "edit", label: "Modifica", disabled: !sel, onClick: () => setDialog("edit") },
+    { icon: "remove", label: "Rimuovi", disabled: !sel || !!sel?.children?.length,
+      onClick: () => { if (periodId && selId) { rt.commands.removeAccountRow(periodId, selId); rt.selectRow("conti", null); } } },
+    { sep: true, icon: "", label: "" },
+    { icon: "edit", label: "Conti funzionali", onClick: () => setDialog("functional") },
+    { sep: true, icon: "", label: "" },
+    { icon: "print", label: "Stampa", onClick: stub }, { icon: "pdf", label: "PDF", onClick: stub },
+    { icon: "excel", label: "Excel", onClick: stub },
+    { sep: true, icon: "", label: "" },
+    { icon: "refresh", label: "Aggiorna", onClick: () => {} },
+  ];
 
   const columns: TreeColumn<LedgerAccountRow>[] = [
     { id: "label", header: "Conti", cell: (r) => r.label },
@@ -79,7 +98,7 @@ export function ContiSection() {
 
   return (
     <SectionPanel
-      title="Conti, Mastrini e Bilancio" actions={STANDARD_ACTIONS}
+      title="Conti, Mastrini e Bilancio" actions={actions}
       legend={<div>Albero del piano dei conti. Raggruppamenti in grassetto con subtotali.</div>}
       toolbarRight={
         <>
@@ -92,6 +111,10 @@ export function ContiSection() {
         top={<TreeTable rows={rows} columns={columns} getRowKind={(r) => (r.kind === "grouping" ? "group" : "row")} selectedId={selId} onSelect={(r) => rt.selectRow("conti", r.id)} />}
         bottom={<DetailPanel tabs={tabs} />}
       />
+      <AccountDialog open={dialog === "add" || dialog === "edit"}
+        editing={dialog === "edit" ? sel : null}
+        onOpenChange={(o) => !o && setDialog(null)} />
+      <FunctionalAccountsDialog open={dialog === "functional"} onOpenChange={(o) => !o && setDialog(null)} />
     </SectionPanel>
   );
 }

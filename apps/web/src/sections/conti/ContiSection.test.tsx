@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AppRuntimeProvider } from "../../runtime/AppRuntimeProvider";
+import { ToastProvider } from "../../components/common/Toast";
 import { useAppRuntime } from "../../runtime/useAppRuntime";
 import { ContiSection } from "./ContiSection";
 
@@ -10,7 +11,7 @@ function Inner() {
 }
 
 test("shows chart of accounts and account detail", async () => {
-  render(<AppRuntimeProvider><Inner /></AppRuntimeProvider>);
+  render(<AppRuntimeProvider><ToastProvider><Inner /></ToastProvider></AppRuntimeProvider>);
   await userEvent.click(screen.getByText("sel"));
   expect(await screen.findByText("Patrimoniali")).toBeInTheDocument();
   await userEvent.click(screen.getByText("Cassa Contanti"));
@@ -18,7 +19,7 @@ test("shows chart of accounts and account detail", async () => {
 });
 
 test("mastrino tab lists the selected account's movements with running saldo", async () => {
-  render(<AppRuntimeProvider><Inner /></AppRuntimeProvider>);
+  render(<AppRuntimeProvider><ToastProvider><Inner /></ToastProvider></AppRuntimeProvider>);
   await userEvent.click(screen.getByText("sel"));
   await userEvent.click(await screen.findByText("Pulizie"));
   await userEvent.click(screen.getByText("Mastrino"));
@@ -28,7 +29,7 @@ test("mastrino tab lists the selected account's movements with running saldo", a
 });
 
 test("search narrows the tree and hide-empty drops zero accounts", async () => {
-  render(<AppRuntimeProvider><Inner /></AppRuntimeProvider>);
+  render(<AppRuntimeProvider><ToastProvider><Inner /></ToastProvider></AppRuntimeProvider>);
   await userEvent.click(screen.getByText("sel"));
   await userEvent.type(await screen.findByPlaceholderText("Cerca conto…"), "banca");
   expect(screen.queryByText("Cassa Contanti")).not.toBeInTheDocument();
@@ -39,7 +40,7 @@ test("search narrows the tree and hide-empty drops zero accounts", async () => {
 });
 
 test("preventivo is inline-editable on expense accounts and persists to the store", async () => {
-  render(<AppRuntimeProvider><Inner /></AppRuntimeProvider>);
+  render(<AppRuntimeProvider><ToastProvider><Inner /></ToastProvider></AppRuntimeProvider>);
   await userEvent.click(screen.getByText("sel"));
   // "1.200,00" appears in multiple cells: MoneyText renders <span class="cell positive">
   // while InlineMoney renders a plain <span> (no class). We target the last match because
@@ -62,4 +63,25 @@ test("preventivo is inline-editable on expense accounts and persists to the stor
   // that is then replaced by a re-render before toBeInTheDocument() can check it.
   await screen.findByText("1.300,00", {}, { timeout: 3000 });
   expect(screen.queryByText("1.300,00")).toBeInTheDocument();
+});
+
+test("adds an account via the dialog under a chosen group", async () => {
+  render(<AppRuntimeProvider><ToastProvider><Inner /></ToastProvider></AppRuntimeProvider>);
+  await userEvent.click(screen.getByText("sel"));
+  await userEvent.click(screen.getByLabelText("Aggiungi"));
+  await userEvent.type(screen.getByLabelText("Nome conto"), "C/C Postale");
+  await userEvent.selectOptions(screen.getByLabelText("Raggruppamento padre"), "liq");
+  await userEvent.click(screen.getByRole("button", { name: "Salva" }));
+  expect(await screen.findByText("C/C Postale")).toBeInTheDocument();
+});
+
+test("functional accounts dialog persists role changes", async () => {
+  render(<AppRuntimeProvider><ToastProvider><Inner /></ToastProvider></AppRuntimeProvider>);
+  await userEvent.click(screen.getByText("sel"));
+  await userEvent.click(screen.getByLabelText("Conti funzionali"));
+  await userEvent.selectOptions(screen.getByLabelText("Conto di liquidità"), "cassa");
+  await userEvent.click(screen.getByRole("button", { name: "Salva" }));
+  // reopen: the persisted value is shown
+  await userEvent.click(screen.getByLabelText("Conti funzionali"));
+  expect(screen.getByLabelText("Conto di liquidità")).toHaveValue("cassa");
 });
