@@ -62,7 +62,7 @@ export function createAppRuntime(deps: { data: MockDataSource }): AppRuntime {
           .filter((a) => !q ||
             [a.nominativo, a.codice, a.codiceFiscale, a.partitaIva, a.indirizzo]
               .some((f) => f?.toLowerCase().includes(q)))
-          .sort((a, b) => a.nominativo.localeCompare(b.nominativo));
+          .sort((a, b) => a.nominativo.localeCompare(b.nominativo, "it", { sensitivity: "base" })); // pinned locale: default-locale sort varies across CI environments
       }),
     ),
     [],
