@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { LedgerAccountRow, TreeColumn } from "@cl/application";
 import { SectionPanel } from "../../components/layout/SectionPanel";
 import { SplitPane } from "../../components/layout/SplitPane";
@@ -5,20 +6,13 @@ import { DetailPanel } from "../../components/layout/DetailPanel";
 import { FormCard, FieldGroup, Field } from "../../components/layout/FormCard";
 import { TreeTable } from "../../components/grid/TreeTable";
 import { STANDARD_ACTIONS } from "../../components/common/ActionToolbar";
+import { SearchBox } from "../../components/common/SearchBox";
+import { ToolbarToggle } from "../../components/common/ToolbarToggle";
+import { InlineMoney } from "../../components/grid/inlineEditors";
 import { MoneyText, DateText } from "../../format";
 import { useAppRuntime } from "../../runtime/useAppRuntime";
 import { mastrino } from "./mastrino";
-
-const columns: TreeColumn<LedgerAccountRow>[] = [
-  { id: "label", header: "Conti", cell: (r) => r.label },
-  { id: "dare", header: "Dare", align: "right", cell: (r) => <MoneyText value={r.dare} /> },
-  { id: "avere", header: "Avere", align: "right", cell: (r) => <MoneyText value={r.avere} /> },
-  { id: "saldo", header: "Saldo", align: "right", cell: (r) => <MoneyText value={r.saldo} /> },
-  { id: "rd", header: "R/d", cell: (r) => r.rd ?? "" },
-  { id: "tabelle", header: "Tabelle di riparto", cell: (r) => r.tabelle ?? "" },
-  { id: "restr", header: "Restr. competenza", cell: (r) => r.restriction ?? "" },
-  { id: "preventivo", header: "Preventivo", align: "right", cell: (r) => (r.preventivo ? <MoneyText value={r.preventivo} /> : <span>—</span>) },
-];
+import { filterAccounts } from "./filterAccounts";
 
 function find(rows: LedgerAccountRow[], id: string): LedgerAccountRow | null {
   for (const r of rows) { if (r.id === id) return r; if (r.children) { const f = find(r.children, id); if (f) return f; } }
@@ -27,11 +21,30 @@ function find(rows: LedgerAccountRow[], id: string): LedgerAccountRow | null {
 
 export function ContiSection() {
   const rt = useAppRuntime();
-  const rows = rt.useLedgerAccountsTree();
+  const periodId = rt.useSelection().accountingPeriodId ?? null;
+  const [query, setQuery] = useState("");
+  const [hideEmpty, setHideEmpty] = useState(false);
+  const allRows = rt.useLedgerAccountsTree();
+  const rows = filterAccounts(allRows, query, hideEmpty);
   const selId = rt.useSelectedRow("conti");
-  const sel = selId ? find(rows, selId) : null;
+  // detail lookup uses allRows so selection survives filtering
+  const sel = selId ? find(allRows, selId) : null;
   const txns = rt.useLedgerTransactions();
   const card = sel ? mastrino(txns, sel.id) : [];
+
+  const columns: TreeColumn<LedgerAccountRow>[] = [
+    { id: "label", header: "Conti", cell: (r) => r.label },
+    { id: "dare", header: "Dare", align: "right", cell: (r) => <MoneyText value={r.dare} /> },
+    { id: "avere", header: "Avere", align: "right", cell: (r) => <MoneyText value={r.avere} /> },
+    { id: "saldo", header: "Saldo", align: "right", cell: (r) => <MoneyText value={r.saldo} /> },
+    { id: "rd", header: "R/d", cell: (r) => r.rd ?? "" },
+    { id: "tabelle", header: "Tabelle di riparto", cell: (r) => r.tabelle ?? "" },
+    { id: "restr", header: "Restr. competenza", cell: (r) => r.restriction ?? "" },
+    { id: "preventivo", header: "Preventivo", align: "right", cell: (r) =>
+        r.kind === "regular" && r.preventivo !== null && periodId
+          ? <InlineMoney value={r.preventivo} onCommit={(cents) => rt.commands.setPreventivo(periodId, r.id, cents)} />
+          : (r.preventivo ? <MoneyText value={r.preventivo} /> : <span>—</span>) },
+  ];
 
   const tabs = sel ? [
     { id: "scheda", label: "Scheda Conto", content: (
@@ -68,6 +81,12 @@ export function ContiSection() {
     <SectionPanel
       title="Conti, Mastrini e Bilancio" actions={STANDARD_ACTIONS}
       legend={<div>Albero del piano dei conti. Raggruppamenti in grassetto con subtotali.</div>}
+      toolbarRight={
+        <>
+          <ToolbarToggle label="Nascondi conti vuoti" checked={hideEmpty} onChange={setHideEmpty} />
+          <SearchBox value={query} onChange={setQuery} placeholder="Cerca conto…" />
+        </>
+      }
     >
       <SplitPane
         top={<TreeTable rows={rows} columns={columns} getRowKind={(r) => (r.kind === "grouping" ? "group" : "row")} selectedId={selId} onSelect={(r) => rt.selectRow("conti", r.id)} />}
