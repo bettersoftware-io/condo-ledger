@@ -57,3 +57,16 @@ describe("Toast", () => {
     expect(screen.queryByText("Funzione non inclusa nel prototipo")).toBeNull();
   });
 });
+
+test("toast timer is cleared on provider unmount (no setState after unmount)", () => {
+  vi.useFakeTimers();
+  const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+  function Fire() { const t = useToast(); return <button onClick={() => t("ciao")}>go</button>; }
+  const { unmount } = render(<ToastProvider><Fire /></ToastProvider>);
+  fireEvent.click(screen.getByText("go"));
+  unmount();
+  vi.advanceTimersByTime(3500);
+  expect(spy).not.toHaveBeenCalled();
+  spy.mockRestore();
+  vi.useRealTimers();
+});

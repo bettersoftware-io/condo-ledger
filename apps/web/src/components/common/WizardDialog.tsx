@@ -19,30 +19,31 @@ export function WizardDialog({
   const [idx, setIdx] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const close = (o: boolean) => { setIdx(0); setError(null); onOpenChange(o); };
-  const step = steps[idx] ?? { title: "" };
-  const last = steps.length === 0 || idx === steps.length - 1;
+  const safeIdx = Math.min(idx, Math.max(0, steps.length - 1));
+  const step = steps[safeIdx] ?? { title: "" };
+  const last = steps.length === 0 || safeIdx === steps.length - 1;
   const forward = () => {
     const err = step.validate?.() ?? null;
     setError(err);
     if (err) return;
-    if (last) { onSubmit?.(); close(false); } else setIdx(idx + 1);
+    if (last) { onSubmit?.(); close(false); } else setIdx(safeIdx + 1);
   };
   return (
     <Dialog.Root open={open} onOpenChange={close}>
       <Dialog.Portal>
         <Dialog.Overlay className={styles.overlay} />
-        <Dialog.Content className={styles.content}>
+        <Dialog.Content className={styles.content} aria-describedby={step.content ? undefined : "wizard-shell-note"}>
           <Dialog.Title className={styles.title}>{title}</Dialog.Title>
           <div className={styles.steps}>
             {steps.map((s, i) => (
-              <span key={i} className={`${styles.step} ${i === idx ? styles.stepActive : ""}`}>
+              <span key={i} className={`${styles.step} ${i === safeIdx ? styles.stepActive : ""}`}>
                 {i + 1}. {s.title}
               </span>
             ))}
           </div>
           <div className={styles.body}>
             {step.content ?? (
-              <Dialog.Description className={styles.note}>
+              <Dialog.Description id="wizard-shell-note" className={styles.note}>
                 Prototipo: contenuto del passo non ancora implementato.
               </Dialog.Description>
             )}
@@ -51,8 +52,8 @@ export function WizardDialog({
           <div className={styles.actions}>
             <button className={styles.btn} onClick={() => close(false)}>Annulla</button>
             <span className={styles.actionsSpacer} />
-            {idx > 0 && (
-              <button className={styles.btn} onClick={() => { setError(null); setIdx(idx - 1); }}>
+            {safeIdx > 0 && (
+              <button className={styles.btn} onClick={() => { setError(null); setIdx(safeIdx - 1); }}>
                 Indietro
               </button>
             )}

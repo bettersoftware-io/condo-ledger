@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { parseItMoney } from "./parse";
 import { TextField, SelectField, MoneyField, CheckboxField, DateField } from "./fields";
 
@@ -66,6 +67,16 @@ describe("fields", () => {
     const { rerender } = render(<MoneyField label="Importo" cents={100} onChange={() => {}} />);
     rerender(<MoneyField label="Importo" cents={2500} onChange={() => {}} />);
     expect((screen.getByLabelText("Importo") as HTMLInputElement).value).toBe("25,00");
+  });
+  it("MoneyField commits once on Enter followed by blur", async () => {
+    const onChange = vi.fn();
+    render(<MoneyField label="Importo" cents={0} onChange={onChange} />);
+    const input = screen.getByLabelText("Importo");
+    await userEvent.clear(input);
+    await userEvent.type(input, "12,50{Enter}");
+    await userEvent.tab(); // blur without further edits
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith(1250);
   });
   it("CheckboxField and DateField round-trip", () => {
     const onCheck = vi.fn(); const onDate = vi.fn();

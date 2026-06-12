@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { useState } from "react";
 import { WizardDialog } from "./WizardDialog";
 
 const steps = [
@@ -29,4 +31,22 @@ describe("WizardDialog", () => {
     expect(screen.getByText("Campo obbligatorio")).toBeInTheDocument();
     expect(screen.getByText("uno")).toBeInTheDocument();
   });
+});
+
+test("clamps the step index when the steps array shrinks", async () => {
+  function Host() {
+    const [n, setN] = useState(2);
+    const steps = Array.from({ length: n }, (_, i) => ({ title: `S${i + 1}`, content: <div>body {i + 1}</div> }));
+    return (
+      <>
+        <button onClick={() => setN(1)}>shrink</button>
+        <WizardDialog open onOpenChange={() => {}} title="T" steps={steps} />
+      </>
+    );
+  }
+  render(<Host />);
+  await userEvent.click(screen.getByText("Avanti")); // now on step 2
+  expect(screen.getByText("body 2")).toBeInTheDocument();
+  fireEvent.click(screen.getByText("shrink"));
+  expect(screen.getByText("body 1")).toBeInTheDocument(); // idx clamped, no crash
 });

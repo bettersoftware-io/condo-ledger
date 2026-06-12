@@ -20,4 +20,10 @@ describe("redistributeOverride", () => {
   it("leaves earlier cells untouched and absorbs into nothing when last cell edited", () => {
     expect(redistributeOverride([300, 300, 400], 2, 350)).toEqual([300, 300, 350]);
   });
+  it("rejects overrides that would drive later cells negative", () => {
+    const cells = [100, 10, 10];
+    expect(redistributeOverride(cells, 0, 300)).toBe(cells); // delta -200 → r2/r3 would go negative
+    expect(redistributeOverride(cells, 0, -5)).toBe(cells);  // negative cell value itself rejected
+    expect(redistributeOverride(cells, 0, 80)).toEqual([80, 20, 20]); // legal spread still works
+  });
 });

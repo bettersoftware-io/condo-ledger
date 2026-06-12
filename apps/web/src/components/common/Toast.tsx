@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import styles from "./SmallControls.module.css";
 
 const ToastContext = createContext<((msg: string) => void) | null>(null);
@@ -11,6 +11,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     clearTimeout(timer.current);
     timer.current = setTimeout(() => setMsg(null), 3000);
   }, []);
+  useEffect(() => () => clearTimeout(timer.current), []);
   return (
     <ToastContext.Provider value={show}>
       {children}

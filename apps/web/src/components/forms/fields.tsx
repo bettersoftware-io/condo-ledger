@@ -48,6 +48,8 @@ export function MoneyField({ label, cents, onChange }: {
   const id = useId();
   const [draft, setDraft] = useState(formatEUR(fromCents(cents)));
   const focused = useRef(false);
+  const lastCommitted = useRef(cents);
+  useEffect(() => { lastCommitted.current = cents; }, [cents]);
   useEffect(() => {
     if (!focused.current) setDraft(formatEUR(fromCents(cents)));
   }, [cents]);
@@ -55,7 +57,7 @@ export function MoneyField({ label, cents, onChange }: {
     const parsed = parseItMoney(draft);
     if (parsed === null) { setDraft(formatEUR(fromCents(cents))); return; }
     setDraft(formatEUR(fromCents(parsed)));
-    onChange(parsed);
+    if (parsed !== lastCommitted.current) { lastCommitted.current = parsed; onChange(parsed); }
   };
   return (
     <Field label={label} id={id}>
