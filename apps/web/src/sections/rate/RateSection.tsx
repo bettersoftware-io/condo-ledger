@@ -32,7 +32,11 @@ export function RateSection() {
         const value = r.byInstallment[c.id] ?? { cents: 0 };
         const mark = r.overridden?.[c.id] ? " •" : "";
         if (r.kind === "group" || !periodId) return <><MoneyText value={value} />{mark}</>;
-        return <><InlineMoney value={value} onCommit={(cents) => rt.commands.setInstallmentAmount(periodId, r.id, c.id, cents)} />{mark}</>;
+        if (c.locked) return <><MoneyText value={value} />{mark}</>;
+        return <><InlineMoney value={value} onCommit={(cents) => {
+          try { rt.commands.setInstallmentAmount(periodId, r.id, c.id, cents); }
+          catch (e) { toast(e instanceof Error ? e.message : "Importo non valido"); }
+        }} />{mark}</>;
       },
     })),
   ];

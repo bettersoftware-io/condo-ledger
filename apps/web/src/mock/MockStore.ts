@@ -182,8 +182,10 @@ export class MockStore implements MockDataSource {
     this.patch(this.installments$, periodId, { columns: [], rows: [] }, (data) => {
       const edited = mapRow(data.rows, rowId, (r) => {
         const cells = order.map((id) => r.byInstallment[id]?.cents ?? 0);
+        const current = cells[idx]!;
+        if (cents === current) return r; // identity edit: silent no-op
         const next = redistributeOverride(cells, idx, cents);
-        if (next === cells) return r;
+        if (next === cells) throw new Error("Importo non valido: le rate successive diverrebbero negative");
         return {
           ...r,
           byInstallment: Object.fromEntries(order.map((id, i) => [id, fromCents(next[i]!)])),

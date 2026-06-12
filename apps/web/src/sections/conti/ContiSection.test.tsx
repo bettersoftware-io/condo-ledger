@@ -97,6 +97,14 @@ test("adding the same account label twice produces two distinct rows without bre
   expect(matches).toHaveLength(2);
 });
 
+test("Rimuovi is disabled when the selected account is mapped as a functional account", async () => {
+  render(<AppRuntimeProvider><ToastProvider><Inner /></ToastProvider></AppRuntimeProvider>);
+  await userEvent.click(screen.getByText("sel"));
+  // "forn" (Fornitori c/acquisti) is mapped as payable in the sat-2011 fixtures
+  await userEvent.click(await screen.findByText("Fornitori c/acquisti"));
+  expect(screen.getByLabelText("Rimuovi")).toBeDisabled();
+});
+
 test("functional accounts dialog persists role changes", async () => {
   render(<AppRuntimeProvider><ToastProvider><Inner /></ToastProvider></AppRuntimeProvider>);
   await userEvent.click(screen.getByText("sel"));

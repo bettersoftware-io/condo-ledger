@@ -72,15 +72,29 @@ describe("MockStore inline-edit commands", () => {
     expect(a01.byInstallment.r3!.cents).toBe(49575 + 4788);
     expect(data.rows[0]!.byInstallment.r1!.cents).toBe(40000 + 71608); // group re-derived
   });
-  it("setInstallmentAmount flags the edited cell as overridden; rejected edits flag nothing", () => {
+  it("setInstallmentAmount flags the edited cell as overridden", () => {
     const s = new MockStore();
     s.setInstallmentAmount("sat-2011", "i-a01", "r1", 40000);
-    let a01 = latest(s.installments("sat-2011")).rows[0]!.children!.find((r) => r.id === "i-a01")!;
+    const a01 = latest(s.installments("sat-2011")).rows[0]!.children!.find((r) => r.id === "i-a01")!;
     expect(a01.overridden).toEqual({ r1: true });
-    s.setInstallmentAmount("sat-2011", "i-a01", "r2", 99999999); // would drive r3 negative → rejected
-    a01 = latest(s.installments("sat-2011")).rows[0]!.children!.find((r) => r.id === "i-a01")!;
-    expect(a01.overridden).toEqual({ r1: true });
-    expect(a01.byInstallment.r2!.cents).toBe(49576 + 4788); // unchanged by the rejected edit
+  });
+  it("setInstallmentAmount throws on rejection and leaves state unchanged", () => {
+    const s = new MockStore();
+    s.setInstallmentAmount("sat-2011", "i-a01", "r1", 40000); // valid edit first
+    const before = latest(s.installments("sat-2011"));
+    expect(() => s.setInstallmentAmount("sat-2011", "i-a01", "r2", 99999999)).toThrow(/negative/);
+    // state must be unchanged after the throw
+    expect(latest(s.installments("sat-2011"))).toBe(before);
+    const a01 = before.rows[0]!.children!.find((r) => r.id === "i-a01")!;
+    expect(a01.byInstallment.r2!.cents).toBe(49576 + 4788); // unchanged
+  });
+  it("setInstallmentAmount identity edit does not throw and does not set the overridden flag", () => {
+    const s = new MockStore();
+    const before = latest(s.installments("sat-2011"));
+    const r1Current = before.rows[0]!.children!.find((r) => r.id === "i-a01")!.byInstallment.r1!.cents;
+    expect(() => s.setInstallmentAmount("sat-2011", "i-a01", "r1", r1Current)).not.toThrow();
+    const a01 = latest(s.installments("sat-2011")).rows[0]!.children!.find((r) => r.id === "i-a01")!;
+    expect(a01.overridden?.r1).toBeUndefined(); // identity edit must not set overridden
   });
   it("setInstallmentAmount is a no-op for an unknown installment id", () => {
     const s = new MockStore();

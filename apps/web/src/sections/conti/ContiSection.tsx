@@ -25,6 +25,7 @@ export function ContiSection() {
   const rt = useAppRuntime();
   const toast = useToast();
   const periodId = rt.useSelection().accountingPeriodId ?? null;
+  const selection = rt.useSelection();
   const [query, setQuery] = useState("");
   const [hideEmpty, setHideEmpty] = useState(false);
   const [dialog, setDialog] = useState<"add" | "edit" | "functional" | null>(null);
@@ -33,6 +34,8 @@ export function ContiSection() {
   const selId = rt.useSelectedRow("conti");
   // detail lookup uses allRows so selection survives filtering
   const sel = selId ? find(allRows, selId) : null;
+  const functional = rt.useFunctionalAccounts();
+  const isFunctional = !!selId && Object.values(functional).includes(selId);
   const txns = rt.useLedgerTransactions();
   const card = sel ? mastrino(txns, sel.id) : [];
 
@@ -40,7 +43,7 @@ export function ContiSection() {
   const actions = [
     { icon: "add", label: "Aggiungi", primary: true, onClick: () => setDialog("add") },
     { icon: "edit", label: "Modifica", disabled: !sel, onClick: () => setDialog("edit") },
-    { icon: "remove", label: "Rimuovi", disabled: !sel || !!sel?.children?.length,
+    { icon: "remove", label: "Rimuovi", disabled: !sel || !!sel?.children?.length || isFunctional,
       onClick: () => { if (periodId && selId) { rt.commands.removeAccountRow(periodId, selId); rt.selectRow("conti", null); } } },
     { sep: true, icon: "", label: "" },
     { icon: "edit", label: "Conti funzionali", onClick: () => setDialog("functional") },
@@ -48,7 +51,7 @@ export function ContiSection() {
     { icon: "print", label: "Stampa", onClick: stub }, { icon: "pdf", label: "PDF", onClick: stub },
     { icon: "excel", label: "Excel", onClick: stub },
     { sep: true, icon: "", label: "" },
-    { icon: "refresh", label: "Aggiorna", onClick: () => {} },
+    { icon: "refresh", label: "Aggiorna", onClick: () => rt.select({ ...selection }) },
   ];
 
   const columns: TreeColumn<LedgerAccountRow>[] = [

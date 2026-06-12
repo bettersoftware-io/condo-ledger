@@ -54,6 +54,37 @@ test("modifica rata locks a rata: name disabled, header flagged", async () => {
   expect(await screen.findByText("Rata 1 (bloccata)")).toBeInTheDocument();
 });
 
+test("editing a rata to a value that drives later rates negative shows a toast and does not change the cell", async () => {
+  setup();
+  await userEvent.click(screen.getByText("sel"));
+  // r1 = 495,76 (first occurrence); setting it to 999.999,99 would drive r2/r3 negative → rejected
+  const cells = await screen.findAllByText("495,76");
+  const r1Cell = cells[0]!;
+  fireEvent.doubleClick(r1Cell);
+  const input = screen.getByRole("textbox");
+  fireEvent.change(input, { target: { value: "999.999,99" } });
+  fireEvent.keyDown(input, { key: "Enter" });
+  // toast must appear with "rate successive" in the message
+  expect(await screen.findByRole("status", {}, { timeout: 3000 })).toHaveTextContent(/rate successive/);
+  // the cell value must be unchanged: 495,76 still present (appears in multiple cells — r1 and r2)
+  expect(screen.getAllByText("495,76").length).toBeGreaterThan(0);
+});
+
+test("locked rata cell is not inline-editable (double-click produces no textbox)", async () => {
+  setup();
+  await userEvent.click(screen.getByText("sel"));
+  // lock r1 via the dialog
+  await userEvent.click(screen.getByLabelText("Modifica rata"));
+  await userEvent.selectOptions(screen.getByLabelText("Rata"), "r1");
+  await userEvent.click(screen.getByLabelText("Bloccata"));
+  await userEvent.click(screen.getByRole("button", { name: "Salva" }));
+  expect(await screen.findByText("Rata 1 (bloccata)")).toBeInTheDocument();
+  // now double-click the A01 r1 cell — must NOT open an editor
+  const cells = screen.getAllByText("495,76");
+  fireEvent.doubleClick(cells[0]!); // first 495,76 is the locked r1 cell
+  expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+});
+
 test("crea rate wizard warns about overwrite and replaces the installment set", async () => {
   setup();
   await userEvent.click(screen.getByText("sel"));
