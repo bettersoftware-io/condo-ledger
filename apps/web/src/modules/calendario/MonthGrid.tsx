@@ -7,7 +7,7 @@ const MAX_CHIPS = 3;
 export function MonthGrid({ ym, events, layers, selectedDay, onSelectDay, todayIso }: {
   ym: string; events: CalendarEvent[]; layers: CalendarLayer[];
   selectedDay: string | null; onSelectDay: (iso: string) => void;
-  /** injectable for tests; defaults to the real current date */
+  /** injectable for tests; defaults to UTC today (codebase is UTC-based) */
   todayIso?: string;
 }) {
   const today = todayIso ?? new Date().toISOString().slice(0, 10);
