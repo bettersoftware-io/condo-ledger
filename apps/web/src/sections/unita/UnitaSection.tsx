@@ -50,7 +50,7 @@ export function UnitaSection() {
     { icon: "add", label: "Aggiungi condòmino", disabled: !selIsUnit, onClick: () => setDialog("resident") },
     { icon: "edit", label: "Modifica", disabled: !selIsUnit, onClick: () => setDialog("editUnit") },
     { icon: "edit", label: "Subentro", disabled: !selIsUnit, onClick: () => setDialog("subentro") },
-    { icon: "remove", label: "Rimuovi", disabled: !sel,
+    { icon: "remove", label: "Rimuovi", disabled: !sel || !!sel.children?.length,
       onClick: () => { if (periodId && selId) { rt.commands.removeUnitRow(periodId, selId); rt.selectRow("unita", null); } } },
     { sep: true, icon: "", label: "" },
     { icon: "print", label: "Stampa", onClick: stub }, { icon: "pdf", label: "PDF", onClick: stub },
