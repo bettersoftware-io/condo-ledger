@@ -48,6 +48,7 @@ export function PeriodDialog({ open, onOpenChange, condominiumId }: {
   open: boolean; onOpenChange: (o: boolean) => void; condominiumId: string | null;
 }) {
   const rt = useAppRuntime();
+  const tree = rt.useCondominiumTree();
   const [year, setYear] = useState("");
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
@@ -63,7 +64,10 @@ export function PeriodDialog({ open, onOpenChange, condominiumId }: {
     <WizardDialog open={open} onOpenChange={onOpenChange} onSubmit={submit} submitLabel="Salva" title="Aggiungi Gestione"
       steps={[{
         title: "Gestione",
-        validate: () => (!/^\d{4}$/.test(year) ? "Anno non valido" : !start || !end ? "Inserisci il periodo" : null),
+        validate: () =>
+          !/^\d{4}$/.test(year) ? "Anno non valido"
+          : tree.find((c) => c.id === condominiumId)?.periods.some((p) => p.id === `${condominiumId}-${year}`) ? "Gestione già presente per quell'anno"
+          : !start || !end ? "Inserisci il periodo" : null,
         content: (
           <div>
             <TextField label="Anno" value={year} onChange={setYear} type="number" />
@@ -80,6 +84,7 @@ export function SupplierDialog({ open, onOpenChange, periodId }: {
   open: boolean; onOpenChange: (o: boolean) => void; periodId: string | null;
 }) {
   const rt = useAppRuntime();
+  const detail = rt.useCondominiumDetail();
   const [candidateId, setCandidateId] = useState("");
   useEffect(() => { if (open) setCandidateId(""); }, [open]);
   const submit = () => {
@@ -91,7 +96,9 @@ export function SupplierDialog({ open, onOpenChange, periodId }: {
     <WizardDialog open={open} onOpenChange={onOpenChange} onSubmit={submit} submitLabel="Salva" title="Aggiungi Fornitore"
       steps={[{
         title: "Fornitore",
-        validate: () => (!candidateId ? "Seleziona il fornitore" : null),
+        validate: () =>
+          !candidateId ? "Seleziona il fornitore"
+          : detail?.suppliers.some((s) => s.id === `s-${candidateId}`) ? "Fornitore già presente" : null,
         content: (
           <SelectField label="Anagrafica" value={candidateId} onChange={setCandidateId}
             options={[{ value: "", label: "—" }, ...supplierCandidates.map((c) => ({ value: c.id, label: `${c.nominativo} (${c.categoria})` }))]} />
