@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { InstallmentRow, TreeColumn } from "@cl/application";
 import { SectionPanel } from "../../components/layout/SectionPanel";
 import { TreeTable } from "../../components/grid/TreeTable";
-import { WizardDialog, shellSteps } from "../../components/common/WizardDialog";
+import { CreateInstallmentsWizard } from "./CreateInstallmentsWizard";
 import { MoneyText } from "../../format";
 import { InlineMoney } from "../../components/grid/inlineEditors";
 import { useAppRuntime } from "../../runtime/useAppRuntime";
@@ -52,9 +52,7 @@ export function RateSection() {
       legend={<div>Doppio-click su una rata per modificarla; • = importo modificato a mano.</div>}
     >
       <TreeTable rows={rows} columns={columns} getRowKind={(r) => (r.kind === "group" ? "group" : "row")} />
-      <WizardDialog open={wizard} onOpenChange={setWizard}
-        title="Crea Rate da Preventivo"
-        steps={shellSteps(["Numero e periodo", "Distribuzione", "Revisione", "Conto liquidità"])} />
+      <CreateInstallmentsWizard open={wizard} onOpenChange={setWizard} />
       <EditInstallmentDialog open={editDialog} onOpenChange={setEditDialog} />
     </SectionPanel>
   );

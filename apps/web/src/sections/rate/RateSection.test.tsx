@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AppRuntimeProvider } from "../../runtime/AppRuntimeProvider";
 import { ToastProvider } from "../../components/common/Toast";
@@ -52,4 +52,31 @@ test("modifica rata locks a rata: name disabled, header flagged", async () => {
   expect(screen.getByLabelText("Nome")).toBeDisabled();
   await userEvent.click(screen.getByRole("button", { name: "Salva" }));
   expect(await screen.findByText("Rata 1 (bloccata)")).toBeInTheDocument();
+});
+
+test("crea rate wizard warns about overwrite and replaces the installment set", async () => {
+  setup();
+  await userEvent.click(screen.getByText("sel"));
+  await userEvent.click(screen.getByLabelText("Crea rate da preventivo"));
+
+  const dialog = await screen.findByRole("dialog");
+  await userEvent.selectOptions(within(dialog).getByLabelText("Tabella di riparto"), "t-prop");
+  const tot = within(dialog).getByLabelText("Totale preventivo");
+  await userEvent.clear(tot); await userEvent.type(tot, "38.000,00{Enter}");
+  await userEvent.type(within(dialog).getByLabelText("Prima scadenza"), "2011-02-01");
+  await userEvent.click(within(dialog).getByText("Avanti"));
+
+  // Preview step: "A01 - Alberi Dina" appears in the dialog (distribution table item label).
+  // The same string also exists in the grid behind the dialog, so we scope to the dialog.
+  expect(await screen.findByRole("dialog")).toBeInTheDocument();
+  expect(within(screen.getByRole("dialog")).getByText("A01 - Alberi Dina")).toBeInTheDocument();
+  await userEvent.click(within(screen.getByRole("dialog")).getByText("Avanti"));
+
+  // Revisione step: overwrite warning must appear.
+  expect(await screen.findByRole("alert")).toHaveTextContent("verranno sostituite");
+  await userEvent.click(screen.getByRole("button", { name: "Conferma" }));
+
+  // After submission the dialog closes and the grid shows the new installment columns.
+  expect(await screen.findByText("Rata 1 (01/02/2011)")).toBeInTheDocument();
+  expect(screen.getByText("Rata 4 (01/11/2011)")).toBeInTheDocument();
 });
