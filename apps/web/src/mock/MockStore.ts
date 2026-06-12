@@ -1,4 +1,4 @@
-import { BehaviorSubject, combineLatest, map, type Observable } from "rxjs";
+import { BehaviorSubject, combineLatest, map, of, type Observable } from "rxjs";
 import type {
   MockDataSource, Id, DistributionType, CondominiumNode, CondominiumDetail,
   AccountingPeriodNode, SupplierRow,
@@ -6,6 +6,7 @@ import type {
   LedgerAccountRow, LedgerTxnRow, InstallmentColumn, InstallmentRow,
   TransactionInput, InvoiceInput, TakingInput, CreateInstallmentsInput,
   F24Row, FunctionalRole, PeriodSummary, WithholdingPaymentInput,
+  CalendarLayer, CalendarEvent,
 } from "@cl/application";
 import { fromCents } from "@cl/domain";
 import * as fx from "./fixtures";
@@ -30,6 +31,7 @@ export class MockStore implements MockDataSource {
   private installments$ = new BehaviorSubject<Record<Id, Installments>>(fx.installmentsByPeriod);
   private f24s$ = new BehaviorSubject<Record<Id, F24Row[]>>(fx.f24sByPeriod);
   private functional$ = new BehaviorSubject<Record<Id, Partial<Record<FunctionalRole, Id>>>>(fx.functionalByPeriod);
+  private calendar$ = new BehaviorSubject<CalendarEvent[]>(fx.calendarEvents);
 
   condominiumTree(): Observable<CondominiumNode[]> { return this.tree$.asObservable(); }
   condominiumDetail(periodId: Id) { return this.details$.pipe(map((d) => d[periodId] ?? null)); }
@@ -53,6 +55,8 @@ export class MockStore implements MockDataSource {
       );
     }));
   }
+  calendarLayers(): Observable<CalendarLayer[]> { return of(fx.calendarLayers); } // static registry
+  calendarEvents(): Observable<CalendarEvent[]> { return this.calendar$.asObservable(); }
 
   /** Immutable per-period patch; commands in later tasks build on this. */
   protected patch<K>(
@@ -138,6 +142,17 @@ export class MockStore implements MockDataSource {
   }
   setFunctionalAccount(periodId: Id, role: FunctionalRole, accountId: Id): void {
     this.patch(this.functional$, periodId, {}, (cur) => ({ ...cur, [role]: accountId }));
+  }
+  addCalendarEvent(event: CalendarEvent): void {
+    if (!fx.calendarLayers.some((l) => l.id === event.layerId))
+      throw new Error(`Calendario sconosciuto: ${event.layerId}`);
+    this.calendar$.next([...this.calendar$.getValue(), event]);
+  }
+  editCalendarEvent(id: Id, patch: Partial<CalendarEvent>): void {
+    this.calendar$.next(this.calendar$.getValue().map((e) => (e.id === id ? { ...e, ...patch } : e)));
+  }
+  removeCalendarEvent(id: Id): void {
+    this.calendar$.next(this.calendar$.getValue().filter((e) => e.id !== id));
   }
   payWithholding(periodId: Id, input: WithholdingPaymentInput): void {
     this.addTransaction(periodId, {

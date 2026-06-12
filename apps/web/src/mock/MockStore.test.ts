@@ -330,3 +330,41 @@ describe("Plan 2 store extensions", () => {
     expect(latest(s.ledgerTransactions("sat-2011"))).toHaveLength(3);
   });
 });
+
+describe("calendar slice", () => {
+  it("serves layers and events from fixtures", () => {
+    const s = new MockStore();
+    expect(latest(s.calendarLayers()).map((l) => l.id))
+      .toEqual(["lay-scad", "lay-assem", "lay-manut", "lay-studio"]);
+    expect(latest(s.calendarEvents()).some((e) => e.id === "ev-assem-sat")).toBe(true);
+  });
+  it("addCalendarEvent appends and re-emits", () => {
+    const s = new MockStore();
+    const seen: number[] = [];
+    const sub = s.calendarEvents().subscribe((e) => seen.push(e.length));
+    s.addCalendarEvent({ id: "ev-x", date: "2011-04-09", description: "Sopralluogo tetto",
+      layerId: "lay-manut", status: "new", priority: "low" });
+    sub.unsubscribe();
+    expect(seen.at(-1)).toBe(seen[0]! + 1);
+  });
+  it("addCalendarEvent rejects an unknown layer and leaves state untouched", () => {
+    const s = new MockStore();
+    const before = latest(s.calendarEvents()).length;
+    expect(() => s.addCalendarEvent({ id: "ev-bad", date: "2011-04-09", description: "X",
+      layerId: "lay-nope", status: "new", priority: "low" })).toThrow("Calendario sconosciuto");
+    expect(latest(s.calendarEvents())).toHaveLength(before);
+  });
+  it("editCalendarEvent merges the patch and keeps the competenza link", () => {
+    const s = new MockStore();
+    s.editCalendarEvent("ev-assem-sat", { description: "Assemblea straordinaria", status: "cancelled" });
+    const e = latest(s.calendarEvents()).find((x) => x.id === "ev-assem-sat")!;
+    expect(e.description).toBe("Assemblea straordinaria");
+    expect(e.status).toBe("cancelled");
+    expect(e.periodId).toBe("sat-2011"); // patch without periodId must not drop it
+  });
+  it("removeCalendarEvent drops the event", () => {
+    const s = new MockStore();
+    s.removeCalendarEvent("ev-ferie");
+    expect(latest(s.calendarEvents()).some((e) => e.id === "ev-ferie")).toBe(false);
+  });
+});
