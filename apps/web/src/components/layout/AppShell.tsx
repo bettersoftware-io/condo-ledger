@@ -4,7 +4,7 @@ import { MainNav } from "../shell/MainNav";
 import { Breadcrumb } from "../shell/Breadcrumb";
 import { Sidebar } from "../sidebar/Sidebar";
 import { CondominiModule } from "../../modules/CondominiModule";
-import { CalendarioStub } from "../../modules/CalendarioStub";
+import { CalendarioModule } from "../../modules/calendario/CalendarioModule";
 import { AnagraficheStub } from "../../modules/AnagraficheStub";
 import { useAppRuntime } from "../../runtime/useAppRuntime";
 import styles from "./AppShell.module.css";
@@ -38,7 +38,7 @@ export function AppShell() {
         <main className={styles.main}>
           <Suspense fallback={<div style={{ padding: 16 }}>Caricamento…</div>}>
             {module === "condomini" && <CondominiModule />}
-            {module === "calendario" && <CalendarioStub />}
+            {module === "calendario" && <CalendarioModule />}
             {module === "anagrafiche" && <AnagraficheStub />}
           </Suspense>
         </main>
