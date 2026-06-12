@@ -3,7 +3,7 @@ import { WizardDialog } from "../../../components/common/WizardDialog";
 import { TextField, DateField } from "../../../components/forms/fields";
 import { useToast } from "../../../components/common/Toast";
 import { useAppRuntime } from "../../../runtime/useAppRuntime";
-import { accountOptions, accountLabel } from "./accountOptions";
+import { accountOptions, accountLabel } from "../../../components/forms/accountOptions";
 import { EntriesForm, validateEntries, type EntryDraft } from "./EntriesForm";
 import { fromCents, formatEUR } from "@cl/domain";
 

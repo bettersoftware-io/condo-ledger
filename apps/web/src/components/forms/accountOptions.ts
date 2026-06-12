@@ -1,5 +1,5 @@
 import type { LedgerAccountRow } from "@cl/application";
-import { flattenRows } from "../../../mock/treeRows";
+import { flattenRows } from "../../mock/treeRows";
 
 export interface AccountOption { value: string; label: string; }
 

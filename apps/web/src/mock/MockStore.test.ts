@@ -230,6 +230,22 @@ describe("MockStore transaction commands", () => {
   });
 });
 
+describe("editAccountRow expense-flag clearing", () => {
+  it("editAccountRow clears expense fields when patch sets them undefined/null", () => {
+    const s = new MockStore();
+    s.editAccountRow("sat-2011", "e-pul", { rd: undefined, tabelle: undefined, preventivo: null });
+    const rows = latest(s.ledgerAccountsTree("sat-2011"));
+    const find = (rs: typeof rows, id: string): (typeof rows)[number] | null => {
+      for (const r of rs) { if (r.id === id) return r; const hit = r.children ? find(r.children, id) : null; if (hit) return hit; }
+      return null;
+    };
+    const epul = find(rows, "e-pul")!;
+    expect(epul.rd).toBeUndefined();
+    expect(epul.tabelle).toBeUndefined();
+    expect(epul.preventivo).toBeNull();
+  });
+});
+
 describe("Plan 2 store extensions", () => {
   it("serves and mutates F24s per period", () => {
     const s = new MockStore();

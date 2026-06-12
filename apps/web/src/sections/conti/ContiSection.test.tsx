@@ -75,6 +75,28 @@ test("adds an account via the dialog under a chosen group", async () => {
   expect(await screen.findByText("C/C Postale")).toBeInTheDocument();
 });
 
+test("adding the same account label twice produces two distinct rows without breaking the grid", async () => {
+  render(<AppRuntimeProvider><ToastProvider><Inner /></ToastProvider></AppRuntimeProvider>);
+  await userEvent.click(screen.getByText("sel"));
+
+  // Add "Conto Doppio" the first time
+  await userEvent.click(screen.getByLabelText("Aggiungi"));
+  await userEvent.type(screen.getByLabelText("Nome conto"), "Conto Doppio");
+  await userEvent.selectOptions(screen.getByLabelText("Raggruppamento padre"), "liq");
+  await userEvent.click(screen.getByRole("button", { name: "Salva" }));
+  expect(await screen.findByText("Conto Doppio")).toBeInTheDocument();
+
+  // Add "Conto Doppio" a second time
+  await userEvent.click(screen.getByLabelText("Aggiungi"));
+  await userEvent.type(screen.getByLabelText("Nome conto"), "Conto Doppio");
+  await userEvent.selectOptions(screen.getByLabelText("Raggruppamento padre"), "liq");
+  await userEvent.click(screen.getByRole("button", { name: "Salva" }));
+
+  // Both rows must be present — findAllByText returns them; if ids collided one would be replaced
+  const matches = await screen.findAllByText("Conto Doppio");
+  expect(matches).toHaveLength(2);
+});
+
 test("functional accounts dialog persists role changes", async () => {
   render(<AppRuntimeProvider><ToastProvider><Inner /></ToastProvider></AppRuntimeProvider>);
   await userEvent.click(screen.getByText("sel"));

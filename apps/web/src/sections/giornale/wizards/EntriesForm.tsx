@@ -1,6 +1,6 @@
 import { fromCents, formatEUR } from "@cl/domain";
 import { SelectField, MoneyField } from "../../../components/forms/fields";
-import type { AccountOption } from "./accountOptions";
+import type { AccountOption } from "../../../components/forms/accountOptions";
 
 export interface EntryDraft { accountId: string; dareCents: number; avereCents: number; }
 

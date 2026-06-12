@@ -3,7 +3,7 @@ import type { FunctionalRole } from "@cl/application";
 import { WizardDialog } from "../../components/common/WizardDialog";
 import { SelectField } from "../../components/forms/fields";
 import { useAppRuntime } from "../../runtime/useAppRuntime";
-import { accountOptions } from "../giornale/wizards/accountOptions";
+import { accountOptions } from "../../components/forms/accountOptions";
 
 const ROLES: { role: FunctionalRole; label: string }[] = [
   { role: "liquid", label: "Conto di liquidità" },

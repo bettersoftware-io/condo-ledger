@@ -6,7 +6,7 @@ import { DateField, SelectField, CheckboxField } from "../../../components/forms
 import { useToast } from "../../../components/common/Toast";
 import { useAppRuntime } from "../../../runtime/useAppRuntime";
 import { flattenRows } from "../../../mock/treeRows";
-import { accountOptions, accountLabel } from "./accountOptions";
+import { accountOptions, accountLabel } from "../../../components/forms/accountOptions";
 
 /** resident id → its parent unit (residents are direct children of units). */
 function unitOfResident(units: UnitRow[], residentId: string): UnitRow | null {

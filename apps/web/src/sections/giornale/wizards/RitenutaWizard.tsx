@@ -4,7 +4,7 @@ import { WizardDialog } from "../../../components/common/WizardDialog";
 import { DateField, MoneyField } from "../../../components/forms/fields";
 import { useToast } from "../../../components/common/Toast";
 import { useAppRuntime } from "../../../runtime/useAppRuntime";
-import { accountOptions, accountLabel } from "./accountOptions";
+import { accountOptions, accountLabel } from "../../../components/forms/accountOptions";
 
 export function RitenutaWizard({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
   const rt = useAppRuntime();

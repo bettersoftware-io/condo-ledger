@@ -4,7 +4,7 @@ import { WizardDialog } from "../../../components/common/WizardDialog";
 import { TextField, DateField, SelectField, MoneyField } from "../../../components/forms/fields";
 import { useToast } from "../../../components/common/Toast";
 import { useAppRuntime } from "../../../runtime/useAppRuntime";
-import { accountOptions, expenseOptions, accountLabel } from "./accountOptions";
+import { accountOptions, expenseOptions, accountLabel } from "../../../components/forms/accountOptions";
 
 export function InvoiceWizard({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) {
   const rt = useAppRuntime();

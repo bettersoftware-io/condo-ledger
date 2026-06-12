@@ -37,13 +37,17 @@ export function AccountDialog({ open, onOpenChange, editing }: {
     if (!periodId) return;
     const expense = isExpense
       ? { rd: "R" as const, tabelle: tableName, preventivo: fromCents(preventivoCents) }
-      : {};
+      : { rd: undefined, tabelle: undefined, preventivo: null };
     if (editing) {
       rt.commands.editAccountRow(periodId, editing.id, { label, ...expense });
     } else {
+      const slug = `acc-${label.toLowerCase().replace(/\W+/g, "-")}`;
+      const taken = new Set(flattenRows(accounts).map((r) => r.id));
+      let id = slug;
+      for (let n = 2; taken.has(id); n++) id = `${slug}-${n}`;
       const zero = fromCents(0);
       rt.commands.addAccountRow(periodId, parentId || null, {
-        id: `acc-${label.toLowerCase().replace(/\W+/g, "-")}`,
+        id,
         kind, label, dare: zero, avere: zero, saldo: zero,
         preventivo: isExpense ? fromCents(preventivoCents) : null,
         ...(isExpense ? { rd: "R" as const, tabelle: tableName } : {}),
