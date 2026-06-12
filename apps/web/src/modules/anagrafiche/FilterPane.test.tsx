@@ -29,6 +29,8 @@ test("clicking a category selects it; clicking the active one clears", async () 
   await userEvent.click(screen.getByRole("button", { name: "Assicurazione (2)" }));
   expect(onCategory).toHaveBeenCalledWith("Assicurazione");
   rerender(<FilterPane {...base} category="Assicurazione" onCategory={onCategory} />);
+  expect(screen.getByRole("button", { name: "Assicurazione (2)" })).toHaveAttribute("aria-pressed", "true");
+  expect(screen.getByRole("button", { name: "Idraulico (0)" })).toHaveAttribute("aria-pressed", "false");
   await userEvent.click(screen.getByRole("button", { name: "Assicurazione (2)" }));
   expect(onCategory).toHaveBeenLastCalledWith(null); // toggle off
 });

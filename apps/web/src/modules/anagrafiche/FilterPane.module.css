@@ -48,4 +48,5 @@
   color: var(--text-secondary);
 }
 .cat:hover { background: var(--surface-row-hover); }
+.catActive:hover { background: var(--surface-row-selected); } /* hover must not wash out the active state */
 .catActive { background: var(--surface-row-selected); font-weight: var(--fw-bold); }

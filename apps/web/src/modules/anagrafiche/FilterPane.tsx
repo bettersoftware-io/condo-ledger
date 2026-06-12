@@ -43,6 +43,7 @@ export function FilterPane({
           <li key={c}>
             <button
               className={`${styles.cat} ${category === c ? styles.catActive : ""}`}
+              aria-pressed={category === c}
               onClick={() => onCategory(category === c ? null : c)}>
               {c} ({counts[c] ?? 0})
             </button>
