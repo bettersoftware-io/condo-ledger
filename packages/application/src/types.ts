@@ -167,7 +167,7 @@ export interface Anagrafica {
   /* person-only fields (legacy person table) */
   nome?: string;
   cognome?: string;
-  sesso?: "m" | "f";
+  sesso?: "m" | "f";       // lowercase, as in the legacy person table
   dataNascita?: string;     // ISO yyyy-mm-dd
   luogoNascita?: string;
   professione?: string;
@@ -176,12 +176,13 @@ export interface Anagrafica {
   iban?: string;
   note?: string;
 }
-/** Cross-reference row for the "Anagrafiche Condomini" tab (read-only, derived). */
+/** Cross-reference row for the "Anagrafiche Condomini" tab (read-only, derived).
+ * Deliberately keyless: a pure value object recomputed by the store; lists render by index. */
 export interface AnagraficaLink {
   condominio: string;       // condominium display name (no address suffix)
   esercizio: string;        // accounting-period name, e.g. "2011 (Ordinario)"
   ruolo: "Fornitore" | "Condòmino";
   dettaglio: string;        // supplier categoria, or the matched unit-tree row label
 }
-export type AnagraficaTypeFilter = "tutte" | "person" | "company";
+export type AnagraficaKindFilter = "tutte" | "person" | "company";
 export type AnagraficaStatusFilter = "tutte" | AnagraficaStatus;

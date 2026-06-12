@@ -7,7 +7,7 @@ import type {
   TransactionInput, InvoiceInput, TakingInput, CreateInstallmentsInput,
   F24Row, FunctionalRole, PeriodSummary, WithholdingPaymentInput,
   CalendarLayer, CalendarEvent,
-  Anagrafica, AnagraficaLink, AnagraficaTypeFilter, AnagraficaStatusFilter,
+  Anagrafica, AnagraficaLink, AnagraficaKindFilter, AnagraficaStatusFilter,
 } from "./types";
 
 /** Accounting + inline-edit commands. Synchronous: mock store mutates in memory. */
@@ -124,8 +124,8 @@ export interface AppRuntime {
   /** ---- Anagrafiche slice (Plan 4) ---- */
   useAnagSearch(): string;
   setAnagSearch(q: string): void;
-  useAnagKind(): AnagraficaTypeFilter;
-  setAnagKind(k: AnagraficaTypeFilter): void;
+  useAnagKind(): AnagraficaKindFilter;
+  setAnagKind(k: AnagraficaKindFilter): void;
   useAnagStato(): AnagraficaStatusFilter;   // legacy "Status Anagrafiche" filter
   setAnagStato(s: AnagraficaStatusFilter): void;
   useAnagCategory(): string | null;     // null = all categories
