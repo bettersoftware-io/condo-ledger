@@ -12,7 +12,9 @@ function findByLabel(rows: LedgerAccountRow[], re: RegExp): LedgerAccountRow | n
 }
 
 /** Naive Dati-grid aggregates (replaced by @cl/domain later): money positions from the
- * account tree by label convention, dovuto/preventivo figures from the units root group. */
+ * account tree by label convention, dovuto/preventivo figures from the units root group.
+ * Assumes the fixture labelling convention: the cash position is the "Liquidità" group (or the
+ * first cassa-labelled account) and funds match /fond/i — revisit when accounts come from real data. */
 export function periodSummary(accounts: LedgerAccountRow[], units: UnitRow[]): PeriodSummary {
   const liquid = findByLabel(accounts, /liquidità|cassa/i);
   const fondi = findByLabel(accounts, /fond/i);
