@@ -72,6 +72,16 @@ describe("MockStore inline-edit commands", () => {
     expect(a01.byInstallment.r3!.cents).toBe(49575 + 4788);
     expect(data.rows[0]!.byInstallment.r1!.cents).toBe(40000 + 71608); // group re-derived
   });
+  it("setInstallmentAmount flags the edited cell as overridden; rejected edits flag nothing", () => {
+    const s = new MockStore();
+    s.setInstallmentAmount("sat-2011", "i-a01", "r1", 40000);
+    let a01 = latest(s.installments("sat-2011")).rows[0]!.children!.find((r) => r.id === "i-a01")!;
+    expect(a01.overridden).toEqual({ r1: true });
+    s.setInstallmentAmount("sat-2011", "i-a01", "r2", 99999999); // would drive r3 negative → rejected
+    a01 = latest(s.installments("sat-2011")).rows[0]!.children!.find((r) => r.id === "i-a01")!;
+    expect(a01.overridden).toEqual({ r1: true });
+    expect(a01.byInstallment.r2!.cents).toBe(49576 + 4788); // unchanged by the rejected edit
+  });
   it("setInstallmentAmount is a no-op for an unknown installment id", () => {
     const s = new MockStore();
     const before = latest(s.installments("sat-2011"));

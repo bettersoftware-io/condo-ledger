@@ -12,19 +12,19 @@ function Field({ label, id, children }: { label: string; id: string; children: R
   );
 }
 
-export function TextField({ label, value, onChange, type = "text" }: {
-  label: string; value: string; onChange: (v: string) => void; type?: string;
+export function TextField({ label, value, onChange, type = "text", disabled }: {
+  label: string; value: string; onChange: (v: string) => void; type?: string; disabled?: boolean;
 }) {
   const id = useId();
   return (
     <Field label={label} id={id}>
       <input id={id} className={styles.input} type={type} value={value}
-        onChange={(e) => onChange(e.target.value)} />
+        onChange={(e) => onChange(e.target.value)} disabled={disabled} />
     </Field>
   );
 }
 
-export function DateField(props: { label: string; value: string; onChange: (v: string) => void }) {
+export function DateField(props: { label: string; value: string; onChange: (v: string) => void; disabled?: boolean }) {
   return <TextField {...props} type="date" />;
 }
 

@@ -175,7 +175,12 @@ export class MockStore implements MockDataSource {
       const edited = mapRow(data.rows, rowId, (r) => {
         const cells = order.map((id) => r.byInstallment[id]?.cents ?? 0);
         const next = redistributeOverride(cells, idx, cents);
-        return { ...r, byInstallment: Object.fromEntries(order.map((id, i) => [id, fromCents(next[i]!)])) };
+        if (next === cells) return r;
+        return {
+          ...r,
+          byInstallment: Object.fromEntries(order.map((id, i) => [id, fromCents(next[i]!)])),
+          overridden: { ...r.overridden, [installmentId]: true },
+        };
       });
       // single-level re-derivation: assumes group → leaf rows (current fixture shape)
       const rows = edited.map((g) => !g.children?.length ? g : ({
