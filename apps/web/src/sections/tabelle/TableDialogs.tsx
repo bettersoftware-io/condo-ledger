@@ -38,7 +38,12 @@ export function TableDialog({ open, onOpenChange, editing }: {
       title={editing ? "Modifica Tabella" : "Aggiungi Tabella"}
       steps={[{
         title: "Tabella",
-        validate: () => (!name.trim() ? "Inserisci il nome" : Number.isNaN(Number(total)) ? "Totale non valido" : null),
+        validate: () => {
+          const tot = Number(total);
+          if (!name.trim()) return "Inserisci il nome";
+          if (Number.isNaN(tot) || tot <= 0) return "Totale non valido";
+          return null;
+        },
         content: (
           <div>
             <TextField label="Nome tabella" value={name} onChange={setName} />
@@ -55,6 +60,8 @@ export function AddItemDialog({ open, onOpenChange, tableId }: {
 }) {
   const rt = useAppRuntime();
   const periodId = rt.useSelection().accountingPeriodId ?? null;
+  const tables = rt.useDistributionTables();
+  const table = tables.find((t) => t.id === tableId) ?? null;
   const units = flattenRows(rt.useUnitsTree()).filter((u) => u.kind === "unit");
   const [unitId, setUnitId] = useState("");
   const [coefficient, setCoefficient] = useState("0");
@@ -73,7 +80,10 @@ export function AddItemDialog({ open, onOpenChange, tableId }: {
       title="Aggiungi Coefficiente"
       steps={[{
         title: "Riga",
-        validate: () => (!unitId ? "Seleziona l'unità" : Number.isNaN(Number(coefficient.replace(",", "."))) ? "Coefficiente non valido" : null),
+        validate: () =>
+          !unitId ? "Seleziona l'unità"
+          : table?.items.some((i) => i.unitId === unitId) ? "Unità già presente nella tabella"
+          : Number.isNaN(Number(coefficient.replace(",", "."))) ? "Coefficiente non valido" : null,
         content: (
           <div>
             <SelectField label="Unità" value={unitId} onChange={setUnitId}

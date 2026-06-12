@@ -39,3 +39,18 @@ test("adds and removes a distribution table via the pane toolbar", async () => {
   await userEvent.click(screen.getByRole("button", { name: "Salva" }));
   expect(await screen.findByText("Acqua")).toBeInTheDocument();
 });
+
+test("AddItemDialog rejects a unit already present in the table", async () => {
+  render(<AppRuntimeProvider><Inner /></AppRuntimeProvider>);
+  await userEvent.click(screen.getByText("sel"));
+  // Wait for the tables pane to render; "t-prop" table is pre-selected and contains u-a01
+  await screen.findByLabelText("Aggiungi coefficiente");
+  await userEvent.click(screen.getByLabelText("Aggiungi coefficiente"));
+  // Pick the unit already in t-prop by its display label (from unitsTree fixture)
+  await userEvent.selectOptions(screen.getByLabelText("Unità"), "A01 - Alberi Dina (PR)");
+  await userEvent.click(screen.getByRole("button", { name: "Salva" }));
+  // Validation error must appear
+  expect(await screen.findByText("Unità già presente nella tabella")).toBeInTheDocument();
+  // Dialog must remain open (Salva button still present)
+  expect(screen.getByRole("button", { name: "Salva" })).toBeInTheDocument();
+});
