@@ -4,7 +4,6 @@ import type { CondominiumNode } from "@cl/application";
 import { WizardDialog } from "../../components/common/WizardDialog";
 import { TextField, DateField, SelectField, MoneyField } from "../../components/forms/fields";
 import { useAppRuntime } from "../../runtime/useAppRuntime";
-import { supplierCandidates } from "../../mock/fixtures";
 
 export function CondominiumDialog({ open, onOpenChange, editing }: {
   open: boolean; onOpenChange: (o: boolean) => void; editing: CondominiumNode | null;
@@ -85,23 +84,31 @@ export function SupplierDialog({ open, onOpenChange, periodId }: {
 }) {
   const rt = useAppRuntime();
   const detail = rt.useCondominiumDetail();
+  // active companies from the studio registry — the legacy picker surface
+  const companies = rt.useAllAnagrafiche()
+    .filter((a) => a.kind === "company" && a.stato === "active");
   const [candidateId, setCandidateId] = useState("");
   useEffect(() => { if (open) setCandidateId(""); }, [open]);
+  const candidate = companies.find((c) => c.id === candidateId) ?? null;
   const submit = () => {
-    const cand = supplierCandidates.find((c) => c.id === candidateId);
-    if (!periodId || !cand) return;
-    rt.commands.addSupplier(periodId, { ...cand, id: `s-${cand.id}` });
+    if (!periodId || !candidate) return;
+    rt.commands.addSupplier(periodId, {
+      id: `s-${candidate.id}`, nominativo: candidate.nominativo, categoria: candidate.categoria,
+    });
   };
   return (
     <WizardDialog open={open} onOpenChange={onOpenChange} onSubmit={submit} submitLabel="Salva" title="Aggiungi Fornitore"
       steps={[{
         title: "Fornitore",
         validate: () =>
-          !candidateId ? "Seleziona il fornitore"
-          : detail?.suppliers.some((s) => s.id === `s-${candidateId}`) ? "Fornitore già presente" : null,
+          !candidate ? "Seleziona il fornitore"
+          // match by nominativo: fixture suppliers predate registry-derived ids
+          : detail?.suppliers.some((s) => s.nominativo === candidate.nominativo) ? "Fornitore già presente"
+          : null,
         content: (
           <SelectField label="Anagrafica" value={candidateId} onChange={setCandidateId}
-            options={[{ value: "", label: "—" }, ...supplierCandidates.map((c) => ({ value: c.id, label: `${c.nominativo} (${c.categoria})` }))]} />
+            options={[{ value: "", label: "—" },
+              ...companies.map((c) => ({ value: c.id, label: `${c.nominativo} (${c.categoria})` }))]} />
         ),
       }]}
     />

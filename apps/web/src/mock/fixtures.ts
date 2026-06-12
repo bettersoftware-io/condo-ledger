@@ -2,7 +2,7 @@ import { fromCents } from "@cl/domain";
 import type {
   CondominiumNode, CondominiumDetail, UnitRow, DistributionTable,
   DistributionColumn, DistributionRow, LedgerAccountRow, LedgerTxnRow,
-  InstallmentColumn, InstallmentRow, Id, F24Row, FunctionalRole, SupplierRow,
+  InstallmentColumn, InstallmentRow, Id, F24Row, FunctionalRole,
   CalendarLayer, CalendarEvent, Anagrafica,
 } from "@cl/application";
 
@@ -272,13 +272,6 @@ export const functionalByPeriod: Record<Id, Partial<Record<FunctionalRole, Id>>>
   // poz-2010 has no dedicated payable/withholding/credit accounts; patr-p is a placeholder
   "poz-2010": { liquid: "liq-p", payable: "patr-p", withholding: "patr-p", credit: "patr-p" },
 };
-
-/** Pool the "add supplier" dialog picks from (replaced by real anagrafiche in Plan 4). */
-export const supplierCandidates: SupplierRow[] = [
-  { id: "cand-1", nominativo: "Idraulica Blu S.n.c.", categoria: "Idraulico" },
-  { id: "cand-2", nominativo: "Elettrosistemi Friuli", categoria: "Elettricista" },
-  { id: "cand-3", nominativo: "Studio Rag. Bianchi", categoria: "Commercialista" },
-];
 
 /** ---- Calendario (Plan 3) ---- */
 export const calendarLayers: CalendarLayer[] = [

@@ -50,10 +50,14 @@ test("adds a condominium and a supplier; toggles an F24", async () => {
   await userEvent.type(screen.getByLabelText("Intestazione (con indirizzo)"), "Nuovo Condominio");
   await userEvent.click(screen.getByRole("button", { name: "Salva" }));
   expect(await screen.findByText(/NEW — Nuovo Condominio/)).toBeInTheDocument();
-  // add supplier from candidates
+  // add supplier from the anagrafiche registry (companies only)
   await userEvent.click(screen.getByText("Fornitori del Condominio"));
   await userEvent.click(screen.getByLabelText("Aggiungi fornitore"));
-  await userEvent.selectOptions(screen.getByLabelText("Anagrafica"), "cand-1");
+  // duplicate veto: BPER is already a fixture supplier of sat-2011
+  await userEvent.selectOptions(screen.getByLabelText("Anagrafica"), "ana-bper");
+  await userEvent.click(screen.getByRole("button", { name: "Salva" }));
+  expect(await screen.findByText("Fornitore già presente")).toBeInTheDocument();
+  await userEvent.selectOptions(screen.getByLabelText("Anagrafica"), "ana-idraulica");
   await userEvent.click(screen.getByRole("button", { name: "Salva" }));
   expect(await screen.findByText(/Idraulica Blu/)).toBeInTheDocument();
   // F24 tab — scope the toggle within the table row to avoid the pre-paid fixture row
