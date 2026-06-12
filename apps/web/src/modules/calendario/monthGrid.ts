@@ -4,6 +4,7 @@ export interface MonthCell { iso: string; day: number; inMonth: boolean; weekend
 
 // Static labels: deterministic across Node ICU builds (Intl month names vary by ICU data).
 export const WEEKDAYS = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"];
+// index 0 = Gennaio … 11 = Dicembre (matches getUTCMonth())
 export const MONTHS = [
   "Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
   "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre",

@@ -23,6 +23,17 @@ describe("monthCells", () => {
     const feb29 = monthCells("2012-02").find((c) => c.iso === "2012-02-29");
     expect(feb29?.inMonth).toBe(true);
   });
+  it("a Monday-start month has zero leading padding", () => {
+    const cells = monthCells("2018-01"); // 1 Jan 2018 is a Monday
+    expect(cells[0]!.iso).toBe("2018-01-01");
+    expect(cells[0]!.inMonth).toBe(true);
+  });
+  it("December trailing cells spill into January and are flagged outside", () => {
+    const cells = monthCells("2011-12"); // 1 Dec 2011 is a Thursday → offset 3
+    expect(cells[3]!.iso).toBe("2011-12-01");
+    const jan1 = cells.find((c) => c.iso === "2012-01-01");
+    expect(jan1?.inMonth).toBe(false);
+  });
 });
 
 describe("shiftMonth", () => {
