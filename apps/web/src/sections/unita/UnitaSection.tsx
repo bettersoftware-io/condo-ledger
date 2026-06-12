@@ -8,6 +8,7 @@ import { STANDARD_ACTIONS } from "../../components/common/ActionToolbar";
 import { MoneyText } from "../../format";
 import { useAppRuntime } from "../../runtime/useAppRuntime";
 import { useState } from "react";
+import { regroupUnits, type RegroupMode } from "../../mock/regroup";
 
 const columns: TreeColumn<UnitRow>[] = [
   { id: "label", header: "Gruppi / Unità / Condòmini", cell: (r) => r.label },
@@ -30,9 +31,11 @@ function findById(rows: UnitRow[], id: string): UnitRow | null {
 
 export function UnitaSection() {
   const rt = useAppRuntime();
-  const rows = rt.useUnitsTree();
-  const [selId, setSelId] = useState<string | null>(null);
-  const sel = selId ? findById(rows, selId) : null;
+  const selId = rt.useSelectedRow("unita");
+  const [mode, setMode] = useState<RegroupMode>("gruppo");
+  const allRows = rt.useUnitsTree();
+  const rows = regroupUnits(allRows, mode);
+  const sel = selId ? findById(allRows, selId) : null; // detail works across regroupings
 
   const tabs = sel ? [
     { id: "scheda", label: "Scheda Unità", content: (
@@ -58,16 +61,26 @@ export function UnitaSection() {
     ) },
   ] : [];
 
-  const unitCount = rows.reduce((n, g) => n + (g.children?.length ?? 0), 0);
+  // unitCount always reflects the total number of units, regardless of current grouping mode
+  const unitCount = allRows.reduce((n, g) => n + (g.children?.length ?? 0), 0);
 
   return (
     <SectionPanel
       title="Unità, Condòmini e Bilancio Personale" actions={STANDARD_ACTIONS}
       count={unitCount} countNoun="unità"
       legend={<div>Gruppo → unità → condòmino. I valori monetari sono blu (positivi) / rossi (negativi).</div>}
+      toolbarRight={
+        <label>Raggruppa righe per{" "}
+          <select value={mode} onChange={(e) => setMode(e.target.value as RegroupMode)}>
+            <option value="gruppo">Per gruppo</option>
+            <option value="unita">Per unità</option>
+            <option value="condomino">Per condòmino</option>
+          </select>
+        </label>
+      }
     >
       <SplitPane
-        top={<TreeTable rows={rows} columns={columns} getRowKind={(r) => (r.kind === "group" ? "group" : "row")} selectedId={selId} onSelect={(r) => setSelId(r.id)} />}
+        top={<TreeTable rows={rows} columns={columns} getRowKind={(r) => (mode === "gruppo" && r.kind === "group" ? "group" : "row")} selectedId={selId} onSelect={(r) => rt.selectRow("unita", r.id)} />}
         bottom={<DetailPanel tabs={tabs} />}
       />
     </SectionPanel>

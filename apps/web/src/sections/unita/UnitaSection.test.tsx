@@ -16,3 +16,14 @@ test("shows units after selection and opens detail", async () => {
   await userEvent.click(screen.getByText("A01 - Alberi Dina (PR)"));
   expect(await screen.findByText("Dati identificativi")).toBeInTheDocument();
 });
+
+test("regroup selector reshapes the tree", async () => {
+  render(<AppRuntimeProvider><Inner /></AppRuntimeProvider>);
+  await userEvent.click(screen.getByText("sel"));
+  await screen.findByText("A01 - Alberi Dina (PR)");
+  await userEvent.selectOptions(screen.getByLabelText(/Raggruppa righe per/), "condomino");
+  expect(screen.queryByText("Saturno / 2011 (via A. Marangoni, 4, Udine)")).not.toBeInTheDocument(); // group row gone
+  expect(screen.getAllByText(/Mauri Dina \(PR 100%\)/).length).toBeGreaterThan(0);   // resident at top
+  await userEvent.selectOptions(screen.getByLabelText(/Raggruppa righe per/), "gruppo");
+  expect(await screen.findByText("Saturno / 2011 (via A. Marangoni, 4, Udine)")).toBeInTheDocument();
+});
