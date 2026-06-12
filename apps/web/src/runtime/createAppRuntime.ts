@@ -1,4 +1,4 @@
-import { BehaviorSubject, of, switchMap, map } from "rxjs";
+import { BehaviorSubject, combineLatest, of, switchMap, map } from "rxjs";
 import { bind } from "@react-rxjs/core";
 import type {
   AppRuntime, MockDataSource, Module, CondominiSection, Selection,
@@ -17,6 +17,24 @@ export function createAppRuntime(deps: { data: MockDataSource }): AppRuntime {
     { dati: null, unita: null, tabelle: null, conti: null, giornale: null, rate: null };
   const selectedRows$ = new BehaviorSubject<Record<CondominiSection, string | null>>(emptyRows);
   const [useSelectedRows] = bind(selectedRows$, emptyRows);
+
+  // Calendario slice. Studio-wide (not gated on selection$): the legacy agenda
+  // spans all condominiums; the month is the unit of fetching. "2011-04" is the
+  // demo default — fixtures live in 2010-2011 (a real adapter would use today).
+  const calendarMonth$ = new BehaviorSubject<string>("2011-04");
+  const selectedDay$ = new BehaviorSubject<string | null>(null);
+  const [useCalendarMonth] = bind(calendarMonth$, "2011-04");
+  const [useSelectedDay] = bind(selectedDay$, null);
+  const [useCalendarLayers] = bind(data.calendarLayers(), []);
+  const [useAllCalendarEvents] = bind(data.calendarEvents(), []);
+  const [useCalendarEvents] = bind(
+    combineLatest([calendarMonth$, data.calendarEvents()]).pipe(
+      map(([ym, events]) => events
+        .filter((e) => e.date.startsWith(`${ym}-`))
+        .sort((a, b) => a.date.localeCompare(b.date) || (a.time ?? "").localeCompare(b.time ?? ""))),
+    ),
+    [],
+  );
 
   const periodId$ = selection$.pipe(map((s) => s.accountingPeriodId ?? null));
 
@@ -91,5 +109,12 @@ export function createAppRuntime(deps: { data: MockDataSource }): AppRuntime {
     useSelectedRow: (section) => useSelectedRows()[section] ?? null,
     selectRow: (section, id) =>
       selectedRows$.next({ ...selectedRows$.getValue(), [section]: id }),
+    useCalendarMonth,
+    setCalendarMonth: (ym) => { calendarMonth$.next(ym); selectedDay$.next(null); },
+    useSelectedDay,
+    selectDay: (iso) => selectedDay$.next(iso),
+    useCalendarLayers,
+    useCalendarEvents,
+    useAllCalendarEvents,
   };
 }
