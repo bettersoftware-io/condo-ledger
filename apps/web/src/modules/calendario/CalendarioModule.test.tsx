@@ -79,3 +79,24 @@ test("Rimuovi is disabled until an event is selected, then deletes it", async ()
   await userEvent.click(screen.getByLabelText("Rimuovi scadenza"));
   expect(screen.queryByText("Revisione caldaia — Condominio Saturno")).not.toBeInTheDocument();
 });
+
+test("competenza without a selected period shows the hint and an empty month", async () => {
+  setup();
+  await screen.findByText("Assemblea ordinaria — Condominio Saturno");
+  await userEvent.selectOptions(screen.getByLabelText("Mostra"), "competenza");
+  expect(screen.getByText(/Nessun esercizio selezionato/)).toBeInTheDocument();
+  expect(screen.getByText(/0 scadenze nel mese/)).toBeInTheDocument();
+});
+
+test("filtering out the selected event disables Modifica and Rimuovi", async () => {
+  const { container } = setup();
+  await screen.findByText("Scadenza polizza assicurativa n. 8274 Assicurazioni del Varmo S.p.A.");
+  fireEvent.click(container.querySelector('[data-iso="2011-04-12"]')!);
+  // description appears both as a grid chip and as a day-list <td>; use within(table) to target the list row
+  fireEvent.click(within(screen.getByRole("table")).getByText("Scadenza polizza assicurativa n. 8274 Assicurazioni del Varmo S.p.A."));
+  expect(screen.getByLabelText("Modifica scadenza")).toBeEnabled();
+  await userEvent.click(screen.getByText("sel-sat"));
+  await userEvent.selectOptions(screen.getByLabelText("Mostra"), "competenza"); // polizza (no periodId) filtered out
+  expect(screen.getByLabelText("Modifica scadenza")).toBeDisabled();
+  expect(screen.getByLabelText("Rimuovi scadenza")).toBeDisabled();
+});

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CalendarEvent, CalendarLayer, CalendarPriority, CalendarStatus } from "@cl/application";
 import { WizardDialog } from "../../components/common/WizardDialog";
 import { TextField, DateField, SelectField } from "../../components/forms/fields";
@@ -18,7 +18,7 @@ export function uniqueEventId(description: string, existing: { id: string }[]): 
 
 export function EventDialog({ open, onOpenChange, layers, events, editing, defaultDate }: {
   open: boolean; onOpenChange: (o: boolean) => void;
-  /** stable reference (rt.useCalendarLayers()) — an inline-built array would re-seed the form mid-open */
+  /** calendar layers for the Calendario select */
   layers: CalendarLayer[];
   /** the FULL event list (rt.useAllCalendarEvents) — id-uniqueness pool; the month slice would miss cross-month collisions */
   events: CalendarEvent[];
@@ -37,15 +37,18 @@ export function EventDialog({ open, onOpenChange, layers, events, editing, defau
   const [priority, setPriority] = useState<CalendarPriority>("medium");
   const [notes, setNotes] = useState("");
 
+  const wasOpen = useRef(false);
   useEffect(() => {
-    if (!open) return;
-    setDescrizione(editing?.description ?? "");
-    setDate(editing?.date ?? defaultDate);
-    setTime(editing?.time ?? "");
-    setLayerId(editing?.layerId ?? layers[0]?.id ?? "");
-    setStatus(editing?.status ?? "new");
-    setPriority(editing?.priority ?? "medium");
-    setNotes(editing?.notes ?? "");
+    if (open && !wasOpen.current) {
+      setDescrizione(editing?.description ?? "");
+      setDate(editing?.date ?? defaultDate);
+      setTime(editing?.time ?? "");
+      setLayerId(editing?.layerId ?? layers[0]?.id ?? "");
+      setStatus(editing?.status ?? "new");
+      setPriority(editing?.priority ?? "medium");
+      setNotes(editing?.notes ?? "");
+    }
+    wasOpen.current = open;
   }, [open, editing, defaultDate, layers]);
 
   const submit = (): boolean => {

@@ -74,6 +74,9 @@ export function CalendarioModule() {
         </span>
       }
     >
+      {filter === "competenza" && !periodId && (
+        <p className={styles.hint}>Nessun esercizio selezionato: scegli un condominio nei Condomini per usare il filtro «Competenza».</p>
+      )}
       <div className={styles.layout}>
         <MonthGrid ym={ym} events={events} layers={layers} selectedDay={day} onSelectDay={selectDay} />
         <DayPanel day={day} events={events} layers={layers} selectedEventId={eventId} onSelectEvent={setEventId} />
