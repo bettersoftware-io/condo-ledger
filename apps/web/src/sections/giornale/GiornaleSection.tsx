@@ -8,6 +8,7 @@ import { PagingBar } from "../../components/common/PagingBar";
 import { useToast } from "../../components/common/Toast";
 import { MoneyText, DateText } from "../../format";
 import { useAppRuntime } from "../../runtime/useAppRuntime";
+import { ScritturaWizard } from "./wizards/ScritturaWizard";
 
 const PAGE_SIZE = 10;
 
@@ -53,6 +54,7 @@ export function GiornaleSection() {
     { icon: "add", label: "Registra fattura", primary: true, onClick: () => setWizard("Registrazione Fattura") },
     { icon: "edit", label: "Incasso", onClick: () => setWizard("Incasso Condòmino") },
     { icon: "edit", label: "Saldi iniziali", onClick: () => setWizard("Apertura Saldi Iniziali") },
+    { icon: "add", label: "Scrittura", onClick: () => setWizard("Scrittura Contabile") },
     { sep: true, icon: "", label: "" },
     { icon: "print", label: "Stampa", onClick: stub }, { icon: "pdf", label: "PDF", onClick: stub },
   ];
@@ -60,7 +62,6 @@ export function GiornaleSection() {
   const stepsByWizard: Record<string, string[]> = {
     "Registrazione Fattura": ["Fornitore e importi", "Ritenuta/IVA", "Conferma"],
     "Incasso Condòmino": ["Condòmino", "Importo e conto", "Conferma"],
-    "Apertura Saldi Iniziali": ["Conto", "Saldi per condòmino", "Conferma"],
   };
 
   return (
@@ -71,8 +72,10 @@ export function GiornaleSection() {
     >
       <TreeTable rows={rows} columns={columns} getRowKind={(r) => (r.kind === "txn" ? "group" : "row")} />
       <PagingBar page={safePage} pageCount={pageCount} onPage={setPage} />
-      <WizardDialog open={wizard !== null} onOpenChange={(o) => !o && setWizard(null)}
+      <WizardDialog open={wizard !== null && wizard in stepsByWizard} onOpenChange={(o) => !o && setWizard(null)}
         title={wizard ?? ""} steps={shellSteps(wizard ? stepsByWizard[wizard] ?? [] : [])} />
+      <ScritturaWizard mode="scrittura" open={wizard === "Scrittura Contabile"} onOpenChange={(o) => !o && setWizard(null)} />
+      <ScritturaWizard mode="saldi" open={wizard === "Apertura Saldi Iniziali"} onOpenChange={(o) => !o && setWizard(null)} />
     </SectionPanel>
   );
 }

@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { mapRow, removeRow, insertChild, findRow } from "./treeRows";
+import { describe, it, expect, test } from "vitest";
+import { mapRow, removeRow, insertChild, findRow, flattenRows } from "./treeRows";
 
 type R = { id: string; v?: number; children?: R[] };
 const rows: R[] = [{ id: "a", children: [{ id: "a1" }, { id: "a2", children: [{ id: "a2x" }] }] }];
@@ -24,4 +24,9 @@ describe("treeRows", () => {
     expect(findRow(out, "a1")?.children?.[0]?.id).toBe("new");
     expect(insertChild(rows, null, { id: "root2" })[1]!.id).toBe("root2");
   });
+});
+
+test("flattenRows lists depth-first, parents first", () => {
+  const rows = [{ id: "a", children: [{ id: "a1" }, { id: "a2", children: [{ id: "a2x" }] }] }, { id: "b" }];
+  expect(flattenRows(rows).map((r) => r.id)).toEqual(["a", "a1", "a2", "a2x", "b"]);
 });

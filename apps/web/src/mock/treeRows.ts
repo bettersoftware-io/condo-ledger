@@ -40,3 +40,8 @@ export function findRow<R extends TreeRowLike>(rows: R[], id: string): R | null 
   }
   return null;
 }
+
+/** Depth-first flatten of a tree into a single list (parents before children). */
+export function flattenRows<R extends TreeRowLike>(rows: R[]): R[] {
+  return rows.flatMap((r) => [r, ...flattenRows((r.children ?? []) as R[])]);
+}
