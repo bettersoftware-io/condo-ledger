@@ -1,4 +1,4 @@
-import { BehaviorSubject, map, type Observable } from "rxjs";
+import { BehaviorSubject, combineLatest, map, type Observable } from "rxjs";
 import type {
   MockDataSource, Id, DistributionType, CondominiumNode, CondominiumDetail,
   AccountingPeriodNode, SupplierRow,
@@ -14,6 +14,7 @@ import { recomputeDistribution } from "../recompute/distribution";
 import { distributeInstallments, redistributeOverride } from "../recompute/installments";
 import { addMonths, formatItDate } from "../recompute/dates";
 import { applyEntryDeltas } from "../recompute/balances";
+import { periodSummary } from "../recompute/summary";
 
 type Dist = { columns: DistributionColumn[]; rows: DistributionRow[] };
 type Installments = { columns: InstallmentColumn[]; rows: InstallmentRow[] };
@@ -44,7 +45,14 @@ export class MockStore implements MockDataSource {
   }
   f24s(periodId: Id) { return this.f24s$.pipe(map((f) => f[periodId] ?? [])); }
   functionalAccounts(periodId: Id) { return this.functional$.pipe(map((f) => f[periodId] ?? {})); }
-  periodSummaries(): Observable<Record<Id, PeriodSummary>> { return new BehaviorSubject({}).asObservable(); } // real derivation in Task 15
+  periodSummaries(): Observable<Record<Id, PeriodSummary>> {
+    return combineLatest([this.accounts$, this.units$]).pipe(map(([accounts, units]) => {
+      const ids = new Set([...Object.keys(accounts), ...Object.keys(units)]);
+      return Object.fromEntries(
+        [...ids].map((id) => [id, periodSummary(accounts[id] ?? [], units[id] ?? [])]),
+      );
+    }));
+  }
 
   /** Immutable per-period patch; commands in later tasks build on this. */
   protected patch<K>(

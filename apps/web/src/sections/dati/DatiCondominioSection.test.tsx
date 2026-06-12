@@ -26,3 +26,10 @@ test("lists condominiums and shows detail after selection", async () => {
   await userEvent.click(screen.getByText("Fornitori del Condominio"));
   expect(screen.getByText("Banca Pop. Emilia Romagna")).toBeInTheDocument();
 });
+
+test("period rows show the six money aggregates", async () => {
+  render(<Harness />);
+  expect(await screen.findByText("Liquidità")).toBeInTheDocument();
+  expect(screen.getByText("518,41")).toBeInTheDocument();    // sat-2011 liquidità
+  expect(screen.getByText("38.000,00")).toBeInTheDocument(); // sat-2011 preventivo
+});

@@ -240,6 +240,21 @@ describe("MockStore transaction commands", () => {
   });
 });
 
+describe("periodSummaries derivation", () => {
+  it("periodSummaries re-derives when a transaction lands", () => {
+    const s = new MockStore();
+    expect(latest(s.periodSummaries())["sat-2011"]!.liquidita.cents).toBe(51841);
+    s.addTransaction("sat-2011", {
+      date: "2011-09-01", description: "Versamento in cassa",
+      entries: [
+        { accountId: "cassa", label: "Cassa", dareCents: 1000, avereCents: 0 },
+        { accountId: "crate", label: "Condòmini c/rate", dareCents: 0, avereCents: 1000 },
+      ],
+    });
+    expect(latest(s.periodSummaries())["sat-2011"]!.liquidita.cents).toBe(52841);
+  });
+});
+
 describe("editAccountRow expense-flag clearing", () => {
   it("editAccountRow clears expense fields when patch sets them undefined/null", () => {
     const s = new MockStore();
