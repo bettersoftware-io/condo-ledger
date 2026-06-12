@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import styles from "./WizardDialog.module.css";
 
@@ -18,6 +18,7 @@ export function WizardDialog({
 }) {
   const [idx, setIdx] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const noteId = useId();
   const close = (o: boolean) => { setIdx(0); setError(null); onOpenChange(o); };
   const safeIdx = Math.min(idx, Math.max(0, steps.length - 1));
   const step = steps[safeIdx] ?? { title: "" };
@@ -32,7 +33,7 @@ export function WizardDialog({
     <Dialog.Root open={open} onOpenChange={close}>
       <Dialog.Portal>
         <Dialog.Overlay className={styles.overlay} />
-        <Dialog.Content className={styles.content} aria-describedby={step.content ? undefined : "wizard-shell-note"}>
+        <Dialog.Content className={styles.content} aria-describedby={step.content ? undefined : noteId}>
           <Dialog.Title className={styles.title}>{title}</Dialog.Title>
           <div className={styles.steps}>
             {steps.map((s, i) => (
@@ -43,7 +44,7 @@ export function WizardDialog({
           </div>
           <div className={styles.body}>
             {step.content ?? (
-              <Dialog.Description id="wizard-shell-note" className={styles.note}>
+              <Dialog.Description id={noteId} className={styles.note}>
                 Prototipo: contenuto del passo non ancora implementato.
               </Dialog.Description>
             )}

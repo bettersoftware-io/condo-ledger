@@ -49,7 +49,7 @@ export function MoneyField({ label, cents, onChange }: {
   const [draft, setDraft] = useState(formatEUR(fromCents(cents)));
   const focused = useRef(false);
   const lastCommitted = useRef(cents);
-  useEffect(() => { lastCommitted.current = cents; }, [cents]);
+  useEffect(() => { lastCommitted.current = cents; }, [cents]); // sync prop back so commit() stays idempotent after parent re-renders
   useEffect(() => {
     if (!focused.current) setDraft(formatEUR(fromCents(cents)));
   }, [cents]);
