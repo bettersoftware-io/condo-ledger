@@ -27,7 +27,7 @@ export function CreateInstallmentsWizard({ open, onOpenChange }: {
   const n = parseInt(count, 10);
   const cad = parseInt(cadence, 10);
   const table = tables.find((t) => t.id === tableId) ?? null;
-  const preview = table && Number.isInteger(n) && n > 0 && totalCents > 0
+  const preview = table && Number.isInteger(n) && n > 0 && totalCents > 0 && Number.isInteger(cad)
     ? distributeInstallments(totalCents, table.items.map((i) => i.coefficient), n)
     : [];
 
