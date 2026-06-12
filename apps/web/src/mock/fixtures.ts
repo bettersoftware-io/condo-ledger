@@ -226,10 +226,10 @@ export const installmentsByPeriod: Record<Id, { columns: InstallmentColumn[]; ro
       { id: "i-g", kind: "group", label: "Saturno / 2011", saldoPrec: c(-625099), totPreventivo: c(3800000), totDovuto: c(2814766),
         byInstallment: { r1: c(1266667), r2: c(1266667), r3: c(1266666) },
         children: [
-          { id: "i-a01", kind: "unit", label: "A01 - Alberi Dina", role: "Proprietario", restriction: "01/01/2011 - 31/12/2011",
+          { id: "i-a01", kind: "unit", unitId: "u-a01", label: "A01 - Alberi Dina", role: "Proprietario", restriction: "01/01/2011 - 31/12/2011",
             saldoPrec: c(-86065), totPreventivo: c(148727), totDovuto: c(65115),
             byInstallment: { r1: c(49576), r2: c(49576), r3: c(49575) } },
-          { id: "i-a02", kind: "unit", label: "A02 - Mauri/Picech", role: "Proprietario", restriction: "01/01/2011 - 31/12/2011",
+          { id: "i-a02", kind: "unit", unitId: "u-a02", label: "A02 - Mauri/Picech", role: "Proprietario", restriction: "01/01/2011 - 31/12/2011",
             saldoPrec: c(-43739), totPreventivo: c(214823), totDovuto: c(149814),
             byInstallment: { r1: c(71608), r2: c(71608), r3: c(71607) } },
         ] },
@@ -241,7 +241,7 @@ export const installmentsByPeriod: Record<Id, { columns: InstallmentColumn[]; ro
       { id: "i-gp", kind: "group", label: "Pozzetto / 2010", saldoPrec: c(0), totPreventivo: c(1200000), totDovuto: c(1180000),
         byInstallment: { r1: c(600000), r2: c(600000) },
         children: [
-          { id: "i-p01", kind: "unit", label: "P01 - Floreani Tiziano", role: "Proprietario",
+          { id: "i-p01", kind: "unit", unitId: "u-p01", label: "P01 - Floreani Tiziano", role: "Proprietario",
             saldoPrec: c(0), totPreventivo: c(600000), totDovuto: c(590000),
             byInstallment: { r1: c(300000), r2: c(300000) } },
         ] },

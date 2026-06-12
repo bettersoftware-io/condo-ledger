@@ -96,7 +96,7 @@ export interface LedgerTxnRow {
 
 export interface InstallmentColumn { id: Id; header: string; expiry?: string; locked?: boolean; }
 export interface InstallmentRow {
-  id: Id; kind: "group" | "unit" | "resident"; label: string; role?: string;
+  id: Id; kind: "group" | "unit" | "resident"; label: string; unitId?: Id; role?: string;
   restriction?: string; saldoPrec: Money; totPreventivo: Money; totDovuto: Money;
   byInstallment: Record<Id, Money>; overridden?: Record<Id, boolean>; children?: InstallmentRow[];
 }

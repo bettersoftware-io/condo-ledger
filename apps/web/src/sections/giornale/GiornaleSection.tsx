@@ -3,13 +3,14 @@ import type { Money } from "@cl/domain";
 import type { LedgerTxnRow, TreeColumn } from "@cl/application";
 import { SectionPanel } from "../../components/layout/SectionPanel";
 import { TreeTable } from "../../components/grid/TreeTable";
-import { WizardDialog, shellSteps } from "../../components/common/WizardDialog";
 import { PagingBar } from "../../components/common/PagingBar";
 import { useToast } from "../../components/common/Toast";
 import { MoneyText, DateText } from "../../format";
 import { useAppRuntime } from "../../runtime/useAppRuntime";
 import { ScritturaWizard } from "./wizards/ScritturaWizard";
 import { InvoiceWizard } from "./wizards/InvoiceWizard";
+import { IncassoWizard } from "./wizards/IncassoWizard";
+import { RitenutaWizard } from "./wizards/RitenutaWizard";
 
 const PAGE_SIZE = 10;
 
@@ -55,14 +56,11 @@ export function GiornaleSection() {
     { icon: "add", label: "Registra fattura", primary: true, onClick: () => setWizard("Registrazione Fattura") },
     { icon: "edit", label: "Incasso", onClick: () => setWizard("Incasso Condòmino") },
     { icon: "edit", label: "Saldi iniziali", onClick: () => setWizard("Apertura Saldi Iniziali") },
+    { icon: "edit", label: "Paga ritenuta", onClick: () => setWizard("Pagamento Ritenuta") },
     { icon: "add", label: "Scrittura", onClick: () => setWizard("Scrittura Contabile") },
     { sep: true, icon: "", label: "" },
     { icon: "print", label: "Stampa", onClick: stub }, { icon: "pdf", label: "PDF", onClick: stub },
   ];
-
-  const stepsByWizard: Record<string, string[]> = {
-    "Incasso Condòmino": ["Condòmino", "Importo e conto", "Conferma"],
-  };
 
   return (
     <SectionPanel
@@ -72,11 +70,11 @@ export function GiornaleSection() {
     >
       <TreeTable rows={rows} columns={columns} getRowKind={(r) => (r.kind === "txn" ? "group" : "row")} />
       <PagingBar page={safePage} pageCount={pageCount} onPage={setPage} />
-      <WizardDialog open={wizard !== null && wizard in stepsByWizard} onOpenChange={(o) => !o && setWizard(null)}
-        title={wizard ?? ""} steps={shellSteps(wizard ? stepsByWizard[wizard] ?? [] : [])} />
       <ScritturaWizard mode="scrittura" open={wizard === "Scrittura Contabile"} onOpenChange={(o) => !o && setWizard(null)} />
       <ScritturaWizard mode="saldi" open={wizard === "Apertura Saldi Iniziali"} onOpenChange={(o) => !o && setWizard(null)} />
       <InvoiceWizard open={wizard === "Registrazione Fattura"} onOpenChange={(o) => !o && setWizard(null)} />
+      <IncassoWizard open={wizard === "Incasso Condòmino"} onOpenChange={(o) => !o && setWizard(null)} />
+      <RitenutaWizard open={wizard === "Pagamento Ritenuta"} onOpenChange={(o) => !o && setWizard(null)} />
     </SectionPanel>
   );
 }

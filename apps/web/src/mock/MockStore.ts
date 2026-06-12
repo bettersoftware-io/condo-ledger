@@ -270,7 +270,7 @@ export class MockStore implements MockDataSource {
     const children: InstallmentRow[] = table.items.map((item, idx) => {
       const totale = split[idx]!.reduce((a, b) => a + b, 0);
       return {
-        id: `i-${item.unitId}`, kind: "unit", label: item.unitLabel, role: "Proprietario",
+        id: `i-${item.unitId}`, kind: "unit", unitId: item.unitId, label: item.unitLabel, role: "Proprietario",
         saldoPrec: fromCents(0), totPreventivo: fromCents(totale), totDovuto: fromCents(totale),
         byInstallment: Object.fromEntries(columns.map((c, k) => [c.id, fromCents(split[idx]![k]!)])),
       };
