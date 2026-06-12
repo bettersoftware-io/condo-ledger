@@ -43,3 +43,14 @@ test("edit mode seeds every field from the event", () => {
   expect(screen.getByLabelText("Priorità")).toHaveValue("critical");
   expect(screen.getByLabelText("Note")).toHaveValue("ODG");
 });
+
+test("malformed time blocks the save", async () => {
+  // jsdom fully sanitises type="time" inputs and will not hold an invalid value like "9:9"
+  // in the DOM under any fireEvent/userEvent approach (React's controlled-input reconciliation
+  // resets the DOM to "" before the onChange handler can read it).  Seed the state via the
+  // editing prop instead: useEffect calls setTime(editing.time) which bypasses DOM sanitisation.
+  renderDialog({ id: "ev-x", date: "2011-04-21", time: "9:9", description: "Prova",
+    layerId: "lay-scad", status: "new", priority: "medium" });
+  await userEvent.click(screen.getByRole("button", { name: "Salva" }));
+  expect(await screen.findByText("Formato ora non valido (HH:mm)")).toBeInTheDocument();
+});

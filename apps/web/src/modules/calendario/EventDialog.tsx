@@ -18,6 +18,7 @@ export function uniqueEventId(description: string, existing: { id: string }[]): 
 
 export function EventDialog({ open, onOpenChange, layers, events, editing, defaultDate }: {
   open: boolean; onOpenChange: (o: boolean) => void;
+  /** stable reference (rt.useCalendarLayers()) — an inline-built array would re-seed the form mid-open */
   layers: CalendarLayer[];
   /** the FULL event list (rt.useAllCalendarEvents) — id-uniqueness pool; the month slice would miss cross-month collisions */
   events: CalendarEvent[];
@@ -72,6 +73,7 @@ export function EventDialog({ open, onOpenChange, layers, events, editing, defau
         validate: () => {
           if (!descrizione.trim()) return "Inserire una descrizione";
           if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return "Inserire una data valida";
+          if (time && !/^\d{2}:\d{2}$/.test(time)) return "Formato ora non valido (HH:mm)";
           return null;
         },
         content: (
