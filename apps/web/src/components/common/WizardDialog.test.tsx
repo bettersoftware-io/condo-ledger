@@ -33,6 +33,18 @@ describe("WizardDialog", () => {
   });
 });
 
+test("stays open when onSubmit returns false", async () => {
+  const onOpenChange = vi.fn();
+  render(
+    <WizardDialog open onOpenChange={onOpenChange} title="T"
+      steps={[{ title: "S1", content: <div>body</div> }]}
+      onSubmit={() => false} />,
+  );
+  await userEvent.click(screen.getByText("Conferma"));
+  expect(onOpenChange).not.toHaveBeenCalled();
+  expect(screen.getByText("body")).toBeInTheDocument();
+});
+
 test("clamps the step index when the steps array shrinks", async () => {
   function Host() {
     const [n, setN] = useState(2);

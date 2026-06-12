@@ -5,6 +5,7 @@ import { useToast } from "../../../components/common/Toast";
 import { useAppRuntime } from "../../../runtime/useAppRuntime";
 import { accountOptions, accountLabel } from "./accountOptions";
 import { EntriesForm, validateEntries, type EntryDraft } from "./EntriesForm";
+import { fromCents, formatEUR } from "@cl/domain";
 
 const EMPTY: EntryDraft[] = [
   { accountId: "", dareCents: 0, avereCents: 0 },
@@ -27,8 +28,8 @@ export function ScritturaWizard({ open, onOpenChange, mode }: {
   const reset = () => { setDate(""); setDescription(mode === "saldi" ? "Apertura saldi iniziali" : ""); setPartita(""); setEntries(EMPTY); };
   const close = (o: boolean) => { if (!o) reset(); onOpenChange(o); };
 
-  const submit = () => {
-    if (!periodId) return;
+  const submit = (): boolean => {
+    if (!periodId) return false;
     const input = {
       date, description, partita: partita || undefined,
       entries: entries.map((e) => ({
@@ -40,8 +41,10 @@ export function ScritturaWizard({ open, onOpenChange, mode }: {
       if (mode === "saldi") rt.commands.openBalances(periodId, input);
       else rt.commands.addTransaction(periodId, input);
       toast("Scrittura registrata");
+      return true;
     } catch (err) {
       toast(err instanceof Error ? err.message : "Errore");
+      return false;
     }
   };
 
@@ -73,7 +76,7 @@ export function ScritturaWizard({ open, onOpenChange, mode }: {
               <p>{date} — {description}</p>
               <ul>
                 {entries.map((e, i) => (
-                  <li key={i}>{accountLabel(options, e.accountId)}: D {e.dareCents / 100} / A {e.avereCents / 100}</li>
+                  <li key={i}>{accountLabel(options, e.accountId)}: D {formatEUR(fromCents(e.dareCents))} / A {formatEUR(fromCents(e.avereCents))}</li>
                 ))}
               </ul>
             </div>

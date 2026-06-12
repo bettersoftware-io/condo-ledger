@@ -14,7 +14,8 @@ export function WizardDialog({
   open, onOpenChange, title, steps, onSubmit, submitLabel = "Conferma",
 }: {
   open: boolean; onOpenChange: (o: boolean) => void; title: string;
-  steps: WizardStep[]; onSubmit?: () => void; submitLabel?: string;
+  /** returning `false` keeps the dialog open; void/true closes it */
+  steps: WizardStep[]; onSubmit?: () => void | boolean; submitLabel?: string;
 }) {
   const [idx, setIdx] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +28,7 @@ export function WizardDialog({
     const err = step.validate?.() ?? null;
     setError(err);
     if (err) return;
-    if (last) { onSubmit?.(); close(false); } else setIdx(safeIdx + 1);
+    if (last) { if (onSubmit?.() === false) return; close(false); } else setIdx(safeIdx + 1);
   };
   return (
     <Dialog.Root open={open} onOpenChange={close}>
