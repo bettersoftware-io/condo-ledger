@@ -377,7 +377,7 @@ export const anagrafiche: Anagrafica[] = [
   { id: "ana-elettro", kind: "company", nominativo: "Elettrosistemi Friuli", categoria: "Elettricista",
     stato: "active", partitaIva: "02214550306", indirizzo: "via Buttrio, 9, 33100 Udine" },
   { id: "ana-bianchi", kind: "company", nominativo: "Studio Rag. Bianchi", categoria: "Commercialista",
-    stato: "active", codiceFiscale: "01551230307", indirizzo: "piazza Libertà, 3, 33100 Udine" },
+    stato: "active", partitaIva: "01551230307", indirizzo: "piazza Libertà, 3, 33100 Udine" },
   // — società dal dump legacy —
   { id: "ana-friulclean", kind: "company", nominativo: "Zanon Servizi di Pulizia s.n.c.", categoria: "Impresa di pulizie",
     stato: "active", codice: "FCLEAN", partitaIva: "14476590311",

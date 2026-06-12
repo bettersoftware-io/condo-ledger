@@ -70,8 +70,12 @@ describe("anagrafiche fixtures", () => {
     expect(new Set(ids).size).toBe(ids.length);
     for (const a of fx.anagrafiche) {
       expect(fx.anagraficaCategories).toContain(a.categoria);
-      if (a.kind === "person") expect(a.cognome).toBeTruthy();
-      else expect(a.nome).toBeUndefined(); // companies carry no person fields
+      if (a.kind === "person") {
+        expect(a.cognome).toBeTruthy();
+        expect(a.nome).toBeTruthy();
+      } else {
+        expect(a.nome).toBeUndefined(); // companies carry no person fields
+      }
     }
   });
 
