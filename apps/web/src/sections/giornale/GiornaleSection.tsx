@@ -9,6 +9,7 @@ import { useToast } from "../../components/common/Toast";
 import { MoneyText, DateText } from "../../format";
 import { useAppRuntime } from "../../runtime/useAppRuntime";
 import { ScritturaWizard } from "./wizards/ScritturaWizard";
+import { InvoiceWizard } from "./wizards/InvoiceWizard";
 
 const PAGE_SIZE = 10;
 
@@ -60,7 +61,6 @@ export function GiornaleSection() {
   ];
 
   const stepsByWizard: Record<string, string[]> = {
-    "Registrazione Fattura": ["Fornitore e importi", "Ritenuta/IVA", "Conferma"],
     "Incasso Condòmino": ["Condòmino", "Importo e conto", "Conferma"],
   };
 
@@ -76,6 +76,7 @@ export function GiornaleSection() {
         title={wizard ?? ""} steps={shellSteps(wizard ? stepsByWizard[wizard] ?? [] : [])} />
       <ScritturaWizard mode="scrittura" open={wizard === "Scrittura Contabile"} onOpenChange={(o) => !o && setWizard(null)} />
       <ScritturaWizard mode="saldi" open={wizard === "Apertura Saldi Iniziali"} onOpenChange={(o) => !o && setWizard(null)} />
+      <InvoiceWizard open={wizard === "Registrazione Fattura"} onOpenChange={(o) => !o && setWizard(null)} />
     </SectionPanel>
   );
 }
