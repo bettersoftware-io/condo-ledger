@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AppRuntimeProvider } from "../../runtime/AppRuntimeProvider";
 import { ToastProvider } from "../../components/common/Toast";
@@ -51,7 +51,8 @@ test("stato filter narrows to archived records", async () => {
 
 test("selecting a row fills the detail card and the condomini links tab", async () => {
   setup();
-  await userEvent.click(await screen.findByText("Banca Pop. Emilia Romagna"));
+  const grid = await screen.findByRole("table", { name: "Elenco Anagrafiche" });
+  await userEvent.click(within(grid).getByText("Banca Pop. Emilia Romagna"));
   expect(await screen.findByText("DATI SOCIETÀ")).toBeInTheDocument();
   expect(screen.getByText("IT60X0542811101000000123456")).toBeInTheDocument();
   await userEvent.click(screen.getByRole("tab", { name: "Anagrafiche Condomini" }));

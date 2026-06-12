@@ -85,6 +85,9 @@ export function AnagraficheModule() {
           </div>
         </div>
       </div>
+      {/* Modifica opens only with a live selection, and nothing can change the
+          selection while the modal is open — so the kind fallback never seeds
+          a mismatched form (review-verified interaction contract). */}
       <AnagraficaDialog
         open={dialog !== null}
         onOpenChange={(o) => { if (!o) setDialog(null); }}
