@@ -7,6 +7,7 @@ import type {
   TransactionInput, InvoiceInput, TakingInput, CreateInstallmentsInput,
   F24Row, FunctionalRole, PeriodSummary, WithholdingPaymentInput,
   CalendarLayer, CalendarEvent,
+  Anagrafica, AnagraficaLink, AnagraficaTypeFilter, AnagraficaStatusFilter,
 } from "./types";
 
 /** Accounting + inline-edit commands. Synchronous: mock store mutates in memory. */
@@ -48,6 +49,9 @@ export interface CrudCommands {
   addCalendarEvent(event: CalendarEvent): void;
   editCalendarEvent(id: Id, patch: Partial<CalendarEvent>): void;
   removeCalendarEvent(id: Id): void;
+  addAnagrafica(a: Anagrafica): void;
+  editAnagrafica(id: Id, patch: Partial<Anagrafica>): void;
+  removeAnagrafica(id: Id): void;
 }
 
 /** Data port. Mock today; HTTP/tRPC adapter later. Returns observables. */
@@ -70,6 +74,12 @@ export interface MockDataSource extends DataCommands, CrudCommands {
   calendarLayers(): Observable<CalendarLayer[]>;
   /** studio-wide event list; month filtering happens in the runtime */
   calendarEvents(): Observable<CalendarEvent[]>;
+  /** studio-wide registry (legacy masterData); filtering happens in the runtime */
+  anagrafiche(): Observable<Anagrafica[]>;
+  /** static category registry (legacy masterDataCategory); no CRUD in the prototype */
+  anagraficaCategories(): Observable<string[]>;
+  /** where this anagrafica appears in the condomini data (suppliers + unit tree) */
+  anagraficaLinks(anagraficaId: Id): Observable<AnagraficaLink[]>;
 }
 
 /** The reactive runtime, exposed as bound hooks (DI via context). */
@@ -111,6 +121,26 @@ export interface AppRuntime {
   useCalendarEvents(): CalendarEvent[];  // events of the visible month, date+time sorted
   /** unfiltered list — id-uniqueness pool for the add dialog (month slice would miss collisions) */
   useAllCalendarEvents(): CalendarEvent[];
+  /** ---- Anagrafiche slice (Plan 4) ---- */
+  useAnagSearch(): string;
+  setAnagSearch(q: string): void;
+  useAnagKind(): AnagraficaTypeFilter;
+  setAnagKind(k: AnagraficaTypeFilter): void;
+  useAnagStato(): AnagraficaStatusFilter;   // legacy "Status Anagrafiche" filter
+  setAnagStato(s: AnagraficaStatusFilter): void;
+  useAnagCategory(): string | null;     // null = all categories
+  setAnagCategory(c: string | null): void;
+  useSelectedAnagrafica(): Id | null;
+  selectAnagrafica(id: Id | null): void;
+  /** search + tipo + stato + categoria composed as one derived stream, sorted by nominativo */
+  useAnagrafiche(): Anagrafica[];
+  /** unfiltered list — id-uniqueness pool for dialogs and the Fornitori picker */
+  useAllAnagrafiche(): Anagrafica[];
+  useAnagraficaCategories(): string[];
+  /** counts over the UNFILTERED list (sidebar badges stay stable while filtering) */
+  useAnagraficaCategoryCounts(): Record<string, number>;
+  /** links of the selected anagrafica ([] when none selected) */
+  useAnagraficaLinks(): AnagraficaLink[];
 }
 
 /** Grid adapter contract — independent of TanStack. */

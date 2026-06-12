@@ -149,3 +149,39 @@ export interface CalendarEvent {
   notes?: string;
   periodId?: Id;           // competenza link to an accounting period (drives the Competenza filter)
 }
+
+/** ---- Anagrafiche (Plan 4) ---- */
+export type AnagraficaKind = "person" | "company";    // legacy person / company tables
+export type AnagraficaStatus = "active" | "archived"; // legacy masterData.status enum
+export interface Anagrafica {
+  id: Id;
+  kind: AnagraficaKind;
+  /** display name: "Cognome Nome" for persons, ragione sociale for companies */
+  nominativo: string;
+  categoria: string;        // masterDataCategory name; registry in anagraficaCategories()
+  stato: AnagraficaStatus;
+  codice?: string;          // legacy masterData.code, e.g. "FCLEAN"
+  indirizzo?: string;       // single-line reference address ("Indirizzo di riferimento")
+  codiceFiscale?: string;
+  partitaIva?: string;
+  /* person-only fields (legacy person table) */
+  nome?: string;
+  cognome?: string;
+  sesso?: "m" | "f";
+  dataNascita?: string;     // ISO yyyy-mm-dd
+  luogoNascita?: string;
+  professione?: string;
+  /* bank coordinates (legacy bankAccount link), shown for companies */
+  banca?: string;           // legacy "Banca / Filiale"
+  iban?: string;
+  note?: string;
+}
+/** Cross-reference row for the "Anagrafiche Condomini" tab (read-only, derived). */
+export interface AnagraficaLink {
+  condominio: string;       // condominium display name (no address suffix)
+  esercizio: string;        // accounting-period name, e.g. "2011 (Ordinario)"
+  ruolo: "Fornitore" | "Condòmino";
+  dettaglio: string;        // supplier categoria, or the matched unit-tree row label
+}
+export type AnagraficaTypeFilter = "tutte" | "person" | "company";
+export type AnagraficaStatusFilter = "tutte" | AnagraficaStatus;
