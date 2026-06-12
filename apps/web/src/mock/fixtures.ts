@@ -261,6 +261,7 @@ export const f24sByPeriod: Record<Id, F24Row[]> = {
 
 export const functionalByPeriod: Record<Id, Partial<Record<FunctionalRole, Id>>> = {
   "sat-2011": { liquid: "banca", payable: "forn", withholding: "erar", credit: "crate" },
+  // poz-2010 has no dedicated payable/withholding/credit accounts; patr-p is a placeholder
   "poz-2010": { liquid: "liq-p", payable: "patr-p", withholding: "patr-p", credit: "patr-p" },
 };
 

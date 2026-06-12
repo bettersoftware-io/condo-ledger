@@ -38,7 +38,8 @@ export interface CondominiumDetail {
   creatoIl: string;
   modificatoIl: string;
   suppliers: SupplierRow[];
-  publicDocs: string[]; privateDocs: string[];
+  publicDocs: string[];
+  privateDocs: string[];
 }
 export interface SupplierRow { id: Id; nominativo: string; categoria: string; }
 
@@ -121,7 +122,7 @@ export interface CreateInstallmentsInput {
   totalCents: number; tableId: Id;
 }
 
-export interface F24Row { id: Id; descrizione: string; scadenza: string /* ISO */; importo: Money; stato: "da pagare" | "pagato"; }
+export interface F24Row { id: Id; descrizione: string; scadenza: string /* ISO date */; importo: Money; stato: "da pagare" | "pagato"; }
 export type FunctionalRole = "liquid" | "payable" | "withholding" | "credit";
 export interface PeriodSummary {
   liquidita: Money; fondi: Money; preventivo: Money;
