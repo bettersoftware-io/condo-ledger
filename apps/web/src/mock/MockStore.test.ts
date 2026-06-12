@@ -345,7 +345,8 @@ describe("calendar slice", () => {
     s.addCalendarEvent({ id: "ev-x", date: "2011-04-09", description: "Sopralluogo tetto",
       layerId: "lay-manut", status: "new", priority: "low" });
     sub.unsubscribe();
-    expect(seen.at(-1)).toBe(seen[0]! + 1);
+    expect(seen).toHaveLength(2);
+    expect(seen[1]).toBe(seen[0]! + 1);
   });
   it("addCalendarEvent rejects an unknown layer and leaves state untouched", () => {
     const s = new MockStore();
