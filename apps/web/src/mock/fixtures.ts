@@ -3,7 +3,7 @@ import type {
   CondominiumNode, CondominiumDetail, UnitRow, DistributionTable,
   DistributionColumn, DistributionRow, LedgerAccountRow, LedgerTxnRow,
   InstallmentColumn, InstallmentRow, Id, F24Row, FunctionalRole, SupplierRow,
-  CalendarLayer, CalendarEvent,
+  CalendarLayer, CalendarEvent, Anagrafica,
 } from "@cl/application";
 
 const c = fromCents;
@@ -28,8 +28,8 @@ export const detailByPeriod: Record<Id, CondominiumDetail> = {
     dataCostruzione: null, datiCatastali: null, idSistema: "19",
     creatoIl: "2011-03-11T14:55:57", modificatoIl: "2011-03-11T14:55:57",
     suppliers: [
-      { id: "s1", nominativo: "Acme Pulizie S.r.l.", categoria: "Pulizie" },
-      { id: "s2", nominativo: "Verdi Giardini", categoria: "Giardinaggio" },
+      { id: "s1", nominativo: "Acme Pulizie S.r.l.", categoria: "Impresa di pulizie" },
+      { id: "s2", nominativo: "Verdi Giardini", categoria: "Giardiniere" },
     ],
     publicDocs: ["Regolamento condominiale.pdf"], privateDocs: ["Polizza fabbricato.pdf"],
   },
@@ -38,7 +38,7 @@ export const detailByPeriod: Record<Id, CondominiumDetail> = {
     indirizzo: "Piazza del Duomo, 39, 33100 Udine", codiceFiscale: "—",
     dataCostruzione: null, datiCatastali: null, idSistema: "20",
     creatoIl: "2011-03-11T14:55:57", modificatoIl: "2011-03-11T14:55:57",
-    suppliers: [{ id: "s3", nominativo: "Banca Pop. Emilia Romagna", categoria: "Banca" }],
+    suppliers: [{ id: "s3", nominativo: "Banca Pop. Emilia Romagna", categoria: "Istituto di credito" }],
     publicDocs: ["Regolamento condominiale.pdf", "Verbale assemblea 2011-03.pdf"], privateDocs: ["Contratto pulizie Acme.pdf"],
   },
 };
@@ -323,4 +323,86 @@ export const calendarEvents: CalendarEvent[] = [
   { id: "ev-ferie", date: "2011-08-13", description: "Chiusura studio per ferie",
     layerId: "lay-studio", status: "new", priority: "low",
     notes: "Lo studio resterà chiuso dal 13/8 al 26/8. Per urgenze: 347-2115474." },
+];
+
+/** ---- Anagrafiche (Plan 4) ---- */
+/** Legacy masterDataCategory registry (dump-accurate names, alphabetical).
+ * Static like calendarLayers; several stay at 0 entries on purpose — the
+ * legacy sidebar shows the whole registry with counts. */
+export const anagraficaCategories: string[] = [
+  "Amministrazione condominiale", "Antincendio", "Assicurazione", "Avvocato",
+  "Commercialista", "Condòmino", "Elettricista", "Fabbro", "Fornitura acqua",
+  "Fornitura energia elettrica", "Fornitura gas", "Geometra", "Giardiniere",
+  "Idraulico", "Impresa di pulizie", "Istituto di credito", "Manutenzione ascensori",
+];
+
+/** Studio-wide registry. Companies/codes/P.IVA/addresses transcribed from the dump
+ * (company + masterData tables); persons tied to fixture units keep the prototype
+ * names so Unità, Rate and Giornale keep telling one story (guarded by fixtures.test). */
+export const anagrafiche: Anagrafica[] = [
+  // — persone fisiche —
+  { id: "ana-alberi", kind: "person", nominativo: "Alberi Dina", categoria: "Condòmino",
+    stato: "active", nome: "Dina", cognome: "Alberi", sesso: "f",
+    dataNascita: "1955-04-05", luogoNascita: "Udine",
+    indirizzo: "Piazza del Duomo, 39, 33100 Udine", codiceFiscale: "LBRRTT55D45L483F" },
+  { id: "ana-mauri", kind: "person", nominativo: "Mauri Dina", categoria: "Condòmino",
+    stato: "active", nome: "Dina", cognome: "Mauri", sesso: "f",
+    indirizzo: "Piazza del Duomo, 39, 33100 Udine", codiceFiscale: "MRALDN62M50L483Q" },
+  { id: "ana-picech", kind: "person", nominativo: "Picech Giorgio", categoria: "Condòmino",
+    stato: "active", nome: "Giorgio", cognome: "Picech", sesso: "m",
+    indirizzo: "Piazza del Duomo, 39, 33100 Udine", codiceFiscale: "PCHGRG58T10L483Z" },
+  { id: "ana-rossi", kind: "person", nominativo: "Floreani Tiziano", categoria: "Condòmino",
+    stato: "active", nome: "Tiziano", cognome: "Rossi", sesso: "m", codice: "MROSSI",
+    indirizzo: "34071 Nimis (GO)" },
+  { id: "ana-savino", kind: "person", nominativo: "Adami Valerio", categoria: "Amministrazione condominiale",
+    stato: "active", nome: "Vito", cognome: "Adami", sesso: "m", codice: "ADAMI",
+    professione: "Amministratore di condominio", indirizzo: "via Gorghi, 123, 33044 Tarcento",
+    note: "Titolare dello Studio Bertoli Amministrazioni." },
+  { id: "ana-sfiligoi", kind: "person", nominativo: "Mattiussi Vittorio", categoria: "Amministrazione condominiale",
+    stato: "active", nome: "Vittorio", cognome: "Mattiussi", sesso: "m",
+    indirizzo: "via Pordenone, 143, 33100 Udine" },
+  // — società (fornitori correnti dei condomìni fixture) —
+  { id: "ana-acme", kind: "company", nominativo: "Acme Pulizie S.r.l.", categoria: "Impresa di pulizie",
+    stato: "active", partitaIva: "02471550301", indirizzo: "via dei Platani, 12, 33100 Udine",
+    note: "Contratto pulizie scale in essere per il condominio Saturno." },
+  { id: "ana-verdi", kind: "company", nominativo: "Verdi Giardini", categoria: "Giardiniere",
+    stato: "active", partitaIva: "01988770304", indirizzo: "via Pradamano, 7, 33100 Udine" },
+  { id: "ana-bper", kind: "company", nominativo: "Banca Pop. Emilia Romagna", categoria: "Istituto di credito",
+    stato: "active", codice: "BPEMRM", partitaIva: "72415790327",
+    indirizzo: "via S. Carlo, 20, 41121 Modena",
+    banca: "BPER — Filiale di Udine", iban: "IT60X0542811101000000123456" },
+  // — società (candidati fornitore, già nel prototipo) —
+  { id: "ana-idraulica", kind: "company", nominativo: "Idraulica Blu S.n.c.", categoria: "Idraulico",
+    stato: "active", partitaIva: "01775430309", indirizzo: "via Cividale, 44, 33100 Udine" },
+  { id: "ana-elettro", kind: "company", nominativo: "Elettrosistemi Friuli", categoria: "Elettricista",
+    stato: "active", partitaIva: "02214550306", indirizzo: "via Buttrio, 9, 33100 Udine" },
+  { id: "ana-bianchi", kind: "company", nominativo: "Studio Rag. Bianchi", categoria: "Commercialista",
+    stato: "active", codiceFiscale: "01551230307", indirizzo: "piazza Libertà, 3, 33100 Udine" },
+  // — società dal dump legacy —
+  { id: "ana-friulclean", kind: "company", nominativo: "Zanon Servizi di Pulizia s.n.c.", categoria: "Impresa di pulizie",
+    stato: "active", codice: "FCLEAN", partitaIva: "14476590311",
+    indirizzo: "Via Mazzini, 48, 33100 Udine" },
+  { id: "ana-modesto", kind: "company", nominativo: "Ascensori Castellarin s.a.s.", categoria: "Manutenzione ascensori",
+    stato: "active", codice: "MODEST", partitaIva: "91757180301",
+    indirizzo: "via dei Gelsi, 101, 33017 Tarcento" },
+  { id: "ana-ascoop", kind: "company", nominativo: "Cargnelutti Elevatori s.n.c.", categoria: "Manutenzione ascensori",
+    stato: "active", codice: "ASCOOP", partitaIva: "58080030321",
+    indirizzo: "via Nievo, 72, 34015 Muggia (TS)" },
+  { id: "ana-enel", kind: "company", nominativo: "Energie del Ledra S.p.A.", categoria: "Fornitura energia elettrica",
+    stato: "active", codice: "ENERGIE DEL LEDRA" },
+  { id: "ana-poiana", kind: "company", nominativo: "Acque Arzino s.n.c.", categoria: "Fornitura acqua",
+    stato: "active", codice: "POIANA", indirizzo: "piazza XX Settembre, 84, 33043 Cividale del Friuli" },
+  { id: "ana-iris", kind: "company", nominativo: "Acque Fella s.r.l.", categoria: "Fornitura acqua",
+    stato: "active", codice: "IRIS", partitaIva: "74864820316", indirizzo: "Via della Roggia, 107, 34170 Gorizia" },
+  { id: "ana-isogas", kind: "company", nominativo: "Natisone Gas S.p.A.", categoria: "Fornitura gas",
+    stato: "active", codice: "Natisone Gas", partitaIva: "57281340307", indirizzo: "Via della Roggia, 107, 34170 Gorizia" },
+  { id: "ana-lloyd", kind: "company", nominativo: "Mutua Assicuratrice del Livenza", categoria: "Assicurazione",
+    stato: "active", codice: "LYDADR", partitaIva: "11075030327", indirizzo: "via San Rocco, 134, 34123 Trieste" },
+  { id: "ana-reale", kind: "company", nominativo: "Minisini Assicurazioni s.r.l.", categoria: "Assicurazione",
+    stato: "active", codice: "RLMTAS", partitaIva: "16318210933", indirizzo: "Via San Rocco, 62, 33010 Tavagnacco" },
+  { id: "ana-carifvg", kind: "company", nominativo: "Cassa di Risparmio del Natisone S.p.A.", categoria: "Istituto di credito",
+    stato: "active", codice: "CARIFVG", codiceFiscale: "57337330310", partitaIva: "14036590314",
+    indirizzo: "Via delle Acacie, 128, 34170 Gorizia" },
+  { id: "ana-amga", kind: "company", nominativo: "Fella Gas S.p.A.", categoria: "Fornitura gas",
+    stato: "archived", codice: "AMGAUD" }, // archived in the dump too
 ];

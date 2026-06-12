@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { LedgerAccountRow } from "@cl/application";
+import type { LedgerAccountRow, UnitRow } from "@cl/application";
 import * as fx from "./fixtures";
 
 function checkRollups(rows: LedgerAccountRow[]): void {
@@ -61,5 +61,45 @@ describe("calendar fixtures", () => {
           `${periodId} ${col.expiry}`,
         ).toBe(true);
       }
+  });
+});
+
+describe("anagrafiche fixtures", () => {
+  it("ids unique, categorie known, kind fields consistent", () => {
+    const ids = fx.anagrafiche.map((a) => a.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const a of fx.anagrafiche) {
+      expect(fx.anagraficaCategories).toContain(a.categoria);
+      if (a.kind === "person") expect(a.cognome).toBeTruthy();
+      else expect(a.nome).toBeUndefined(); // companies carry no person fields
+    }
+  });
+
+  it("every fixture supplier matches a company anagrafica (nominativo + categoria)", () => {
+    for (const detail of Object.values(fx.detailByPeriod)) {
+      for (const s of detail.suppliers) {
+        const match = fx.anagrafiche.find(
+          (a) => a.kind === "company" && a.nominativo === s.nominativo,
+        );
+        expect(match, `supplier ${s.nominativo} has no anagrafica`).toBeTruthy();
+        expect(match!.categoria).toBe(s.categoria);
+      }
+    }
+  });
+
+  it("every Condòmino anagrafica appears in some unit tree", () => {
+    const labels: string[] = [];
+    const walk = (rows: UnitRow[]) => {
+      for (const r of rows) { labels.push(r.label); walk(r.children ?? []); }
+    };
+    for (const rows of Object.values(fx.unitsByPeriod)) walk(rows);
+    const condomini = fx.anagrafiche.filter((a) => a.categoria === "Condòmino");
+    expect(condomini.length).toBeGreaterThan(0);
+    for (const a of condomini) {
+      expect(
+        labels.some((l) => l.includes(a.nominativo)),
+        `${a.nominativo} not found in any unit tree`,
+      ).toBe(true);
+    }
   });
 });
