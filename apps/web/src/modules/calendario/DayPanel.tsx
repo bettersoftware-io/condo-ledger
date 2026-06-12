@@ -9,6 +9,8 @@ export function DayPanel({ day, events, layers, selectedEventId, onSelectEvent }
   /** the visible month's events; the panel narrows to `day` itself */
   events: CalendarEvent[];
   layers: CalendarLayer[];
+  /** id of the event shown in the details card; may belong to a different day —
+   *  the caller is responsible for clearing it when navigating days */
   selectedEventId: string | null;
   onSelectEvent: (id: string) => void;
 }) {
