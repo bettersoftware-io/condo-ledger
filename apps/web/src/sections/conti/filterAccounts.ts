@@ -1,20 +1,33 @@
 import type { LedgerAccountRow } from "@cl/application";
 
-/** Search + hide-empty over the account tree. A group survives if it matches the
- * query itself (keeping all its children) or if any descendant survives. */
+/** Drop zero-movement leaves; a group disappears when all its leaves were dropped. */
+function pruneEmpty(rows: LedgerAccountRow[]): LedgerAccountRow[] {
+  return rows.flatMap((r) => {
+    if (r.children?.length) {
+      const children = pruneEmpty(r.children);
+      return children.length ? [{ ...r, children }] : [];
+    }
+    return r.dare.cents === 0 && r.avere.cents === 0 ? [] : [r];
+  });
+}
+
+/** Search + hide-empty over the account tree. Hide-empty is applied first, then the
+ * query: a row survives a query when its label matches (a matching group keeps its
+ * whole — already pruned — subtree) or when any descendant matches. */
 export function filterAccounts(rows: LedgerAccountRow[], query: string, hideEmpty: boolean): LedgerAccountRow[] {
   const q = query.trim().toLowerCase();
   if (!q && !hideEmpty) return rows;
-  const walk = (rs: LedgerAccountRow[]): LedgerAccountRow[] =>
+  const base = hideEmpty ? pruneEmpty(rows) : rows;
+  if (!q) return base;
+  const byQuery = (rs: LedgerAccountRow[]): LedgerAccountRow[] =>
     rs.flatMap((r) => {
-      const children = r.children ? walk(r.children) : undefined;
-      const selfMatch = !q || r.label.toLowerCase().includes(q);
+      const selfMatch = r.label.toLowerCase().includes(q);
       if (r.children?.length) {
-        if (!children?.length && !selfMatch) return [];
-        return [{ ...r, children: selfMatch && !children?.length ? r.children : children }];
+        const children = byQuery(r.children);
+        if (selfMatch) return [{ ...r, children: children.length ? children : r.children }];
+        return children.length ? [{ ...r, children }] : [];
       }
-      const empty = r.dare.cents === 0 && r.avere.cents === 0;
-      return selfMatch && !(hideEmpty && empty) ? [r] : [];
+      return selfMatch ? [r] : [];
     });
-  return walk(rows);
+  return byQuery(base);
 }

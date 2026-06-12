@@ -19,4 +19,13 @@ describe("filterAccounts", () => {
   it("no query, no hide → same reference (no pointless re-allocation)", () => {
     expect(filterAccounts(rows, "", false)).toBe(rows);
   });
+  it("hideEmpty prunes a group whose leaves are ALL empty (no query)", () => {
+    const zero = { cents: 0 };
+    const tree = [{
+      id: "g", kind: "grouping" as const, label: "Gruppo vuoto",
+      dare: zero, avere: zero, saldo: zero, preventivo: null,
+      children: [{ id: "l", kind: "regular" as const, label: "Foglia vuota", dare: zero, avere: zero, saldo: zero, preventivo: null }],
+    }];
+    expect(filterAccounts(tree, "", true)).toEqual([]);
+  });
 });
