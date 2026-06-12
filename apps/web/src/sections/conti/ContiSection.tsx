@@ -1,4 +1,3 @@
-import { useState } from "react";
 import type { LedgerAccountRow, TreeColumn } from "@cl/application";
 import { SectionPanel } from "../../components/layout/SectionPanel";
 import { SplitPane } from "../../components/layout/SplitPane";
@@ -6,14 +5,18 @@ import { DetailPanel } from "../../components/layout/DetailPanel";
 import { FormCard, FieldGroup, Field } from "../../components/layout/FormCard";
 import { TreeTable } from "../../components/grid/TreeTable";
 import { STANDARD_ACTIONS } from "../../components/common/ActionToolbar";
-import { MoneyText } from "../../format";
+import { MoneyText, DateText } from "../../format";
 import { useAppRuntime } from "../../runtime/useAppRuntime";
+import { mastrino } from "./mastrino";
 
 const columns: TreeColumn<LedgerAccountRow>[] = [
   { id: "label", header: "Conti", cell: (r) => r.label },
   { id: "dare", header: "Dare", align: "right", cell: (r) => <MoneyText value={r.dare} /> },
   { id: "avere", header: "Avere", align: "right", cell: (r) => <MoneyText value={r.avere} /> },
   { id: "saldo", header: "Saldo", align: "right", cell: (r) => <MoneyText value={r.saldo} /> },
+  { id: "rd", header: "R/d", cell: (r) => r.rd ?? "" },
+  { id: "tabelle", header: "Tabelle di riparto", cell: (r) => r.tabelle ?? "" },
+  { id: "restr", header: "Restr. competenza", cell: (r) => r.restriction ?? "" },
   { id: "preventivo", header: "Preventivo", align: "right", cell: (r) => (r.preventivo ? <MoneyText value={r.preventivo} /> : <span>—</span>) },
 ];
 
@@ -25,8 +28,10 @@ function find(rows: LedgerAccountRow[], id: string): LedgerAccountRow | null {
 export function ContiSection() {
   const rt = useAppRuntime();
   const rows = rt.useLedgerAccountsTree();
-  const [selId, setSelId] = useState<string | null>(null);
+  const selId = rt.useSelectedRow("conti");
   const sel = selId ? find(rows, selId) : null;
+  const txns = rt.useLedgerTransactions();
+  const card = sel ? mastrino(txns, sel.id) : [];
 
   const tabs = sel ? [
     { id: "scheda", label: "Scheda Conto", content: (
@@ -42,8 +47,20 @@ export function ContiSection() {
         </FieldGroup>
       </FormCard>
     ) },
-    { id: "mastrina", label: "Mastrina", content: (
-      <FormCard><Field label="Movimenti" value="(prototipo) — i movimenti del mastrino verranno mostrati qui" /></FormCard>
+    { id: "mastrino", label: "Mastrino", content: (
+      <table>
+        <thead><tr><th>Data</th><th>Descrizione</th><th>Dare</th><th>Avere</th><th>Saldo</th></tr></thead>
+        <tbody>
+          {card.map((m) => (
+            <tr key={m.id}>
+              <td><DateText iso={m.date} /></td><td>{m.description}</td>
+              <td><MoneyText value={m.dare} /></td><td><MoneyText value={m.avere} /></td>
+              <td><MoneyText value={m.saldo} /></td>
+            </tr>
+          ))}
+          {card.length === 0 && <tr><td colSpan={5}>Nessun movimento</td></tr>}
+        </tbody>
+      </table>
     ) },
   ] : [];
 
@@ -53,7 +70,7 @@ export function ContiSection() {
       legend={<div>Albero del piano dei conti. Raggruppamenti in grassetto con subtotali.</div>}
     >
       <SplitPane
-        top={<TreeTable rows={rows} columns={columns} getRowKind={(r) => (r.kind === "grouping" ? "group" : "row")} selectedId={selId} onSelect={(r) => setSelId(r.id)} />}
+        top={<TreeTable rows={rows} columns={columns} getRowKind={(r) => (r.kind === "grouping" ? "group" : "row")} selectedId={selId} onSelect={(r) => rt.selectRow("conti", r.id)} />}
         bottom={<DetailPanel tabs={tabs} />}
       />
     </SectionPanel>
