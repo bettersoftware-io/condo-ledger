@@ -129,8 +129,7 @@ export class MockStore implements MockDataSource {
     }));
   }
   setFunctionalAccount(periodId: Id, role: FunctionalRole, accountId: Id): void {
-    const cur = this.functional$.getValue();
-    this.functional$.next({ ...cur, [periodId]: { ...cur[periodId], [role]: accountId } });
+    this.patch(this.functional$, periodId, {}, (cur) => ({ ...cur, [role]: accountId }));
   }
   payWithholding(periodId: Id, input: WithholdingPaymentInput): void {
     this.addTransaction(periodId, {
