@@ -53,7 +53,7 @@ function condType(raw: unknown): CondominiumNode["type"] {
 export function projectTree(db: Db): CondominiumNode[] {
   return db.condominiums.map((c) => ({
     id: `c${c.id}`,
-    code: String(c.code),
+    code: str(c.code) ?? "",
     name: String(c.name),
     type: condType(c.type),
     periods: db.periodsOf(String(c.id)).map((p): AccountingPeriodNode => ({
@@ -110,7 +110,7 @@ export function projectDetails(db: Db): Record<Id, CondominiumDetail> {
     for (const p of db.periodsOf(condId)) {
       const detail: CondominiumDetail = {
         intestazione: String(c.name),
-        codice: String(c.code),
+        codice: str(c.code) ?? "—",
         status: String(c.status) === "active" ? "active" : "inactive",
         tipo: "Condominio",
         indirizzo,

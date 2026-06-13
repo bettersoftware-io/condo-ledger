@@ -10,7 +10,7 @@ export function reconcilePeriods(db: Db): Record<string, PeriodStatus> {
   for (const e of db.rows("ledgerEntry")) {
     const period = txPeriod.get(String(e.ledgerTransactionId));
     if (!period) continue;
-    sum.set(period, (sum.get(period) ?? 0) + eur(String(e.amount)).cents);
+    sum.set(period, (sum.get(period) ?? 0) + eur(e.amount == null ? null : String(e.amount)).cents);
     count.set(period, (count.get(period) ?? 0) + 1);
   }
   const out: Record<string, PeriodStatus> = {};

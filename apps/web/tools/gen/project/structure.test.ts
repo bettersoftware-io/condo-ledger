@@ -36,6 +36,16 @@ describe("structure projection", () => {
   it("maps f24 with stato from confirmed", () => {
     expect(projectF24(db)["p1"]).toEqual([{ id: "f24-1", descrizione: "Modello F24", scadenza: "2011-04-16", importo: { cents: 0 }, stato: "pagato" }]);
   });
+  it("renders a null condominium code as empty (tree) / dash (detail), never the string 'null'", () => {
+    // Real dump: Pozzetto (id 19) has code=NULL — must not surface as the literal "null".
+    const nullCode = buildDb({
+      condominium: [{ id: "9", code: null, name: "Pozzetto", status: "active", type: "regular", address: null, taxCode: "TC9", vatNumber: null, parentCondominiumId: null, manufacturedDate: null, landRegistry: null, created: "", lastModified: "" }],
+      accountingPeriod: [{ id: "5", condominiumId: "9", name: "2013", type: "ordinary", status: "opened", startDate: "2013-01-01", endDate: "2013-12-31" }],
+      unit: [{ id: "200", accountingPeriodId: "5", code: "B01", name: "y", unitTypeId: "1", unitGroupId: null, floor: null, innerNumber: null, subordinateNumber: null, periodRestrictionStartDate: null, periodRestrictionEndDate: null }],
+    });
+    expect(projectTree(nullCode)[0]!.code).toBe("");
+    expect(projectDetails(nullCode)["p5"]!.codice).toBe("—");
+  });
 });
 
 const extraTables: Tables = {
