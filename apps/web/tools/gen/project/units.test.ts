@@ -111,6 +111,59 @@ describe("role split — orphan falls back to owner", () => {
   });
 });
 
+// ---------------------------------------------------------------------------
+// Individual expenses: a resident has BOTH a riparto current share (15118
+// cents, from account 3 "expenses"-kind, same as base fixture, linked via
+// table 7) AND a directly-attributed entry on account 50, also expenses-kind
+// but NOT linked to any distribution table, with unitResidentId set, for
+// 48909 cents (€489.09). This mirrors the real Pozzetto data where accounts
+// 223/225/227/228 under parent 222 ("Spese individuali") are expenses-kind
+// with unitResidentId but have NO expenseLA2Table links.
+// Expected consuntivo = 15118 + 48909 = 64027 cents.
+// The OWNER (res 900) gets the riparto share; the individual entry is also
+// on res 900. Residents with NO such entries are unaffected — the existing
+// base fixture passes unchanged because its entry on account 3 has
+// unitResidentId: null, so it is not picked up as an individual expense.
+// ---------------------------------------------------------------------------
+const individualExpenseTables: Tables = {
+  ...tables,
+  ledgerAccount: [
+    { id: "3", accountingPeriodId: "1", name: "Spese", type: "regular", parentLedgerAccountId: null, kind: "expenses", order: "1" },
+    { id: "50", accountingPeriodId: "1", name: "Spese postali singole unità", type: "regular", parentLedgerAccountId: null, kind: "expenses", order: "2" },
+  ],
+  ledgerTransaction: [
+    { id: "9", accountingPeriodId: "1", code: "1", type: "expense" },
+    { id: "10", accountingPeriodId: "1", code: "2", type: "unitResidentTakings" },
+    { id: "11", accountingPeriodId: "1", code: "3", type: "expense" },
+  ],
+  ledgerEntry: [
+    { id: "21", ledgerTransactionId: "9", postingAccountId: "3", amount: "151.18", order: "1", type: "expense", unitResidentId: null },
+    { id: "22", ledgerTransactionId: "10", postingAccountId: "2", amount: "-100.00", order: "1", type: "unitResidentTakings", unitResidentId: "900" },
+    { id: "23", ledgerTransactionId: "11", postingAccountId: "50", amount: "489.09", order: "1", type: "expense", unitResidentId: "900" },
+  ],
+};
+
+describe("controlUnitResident individual expenses added to consuntivo", () => {
+  const db = buildDb(individualExpenseTables);
+  const rows = projectUnits(db, "1");
+  const res = rows[0]!.children![0]!.children![0]!;
+  it("consuntivo = riparto current share + direct individual expense", () => {
+    // riparto current: 15118 (actual 151.18 → 100% owner)
+    // individual:      48909 (€489.09 posted to controlUnitResident acct, unitResidentId=900)
+    // sum:             64027
+    expect(res.consuntivo).toEqual({ cents: 64027 });
+  });
+  it("preventivo, saldoPrec, versato, totDovuto are unchanged from base fixture", () => {
+    expect(res.preventivo).toEqual({ cents: 20000 });
+    expect(res.saldoPrec).toEqual({ cents: -86065 });
+    expect(res.versato).toEqual({ cents: 10000 });
+    expect(res.totDovuto).toEqual({ cents: -66065 }); // saldoPrec + preventivo only
+  });
+  it("group consuntivo sums correctly including individual expense", () => {
+    expect(rows[0]!.consuntivo).toEqual({ cents: 64027 });
+  });
+});
+
 describe("percentage formatting in resident label", () => {
   const baseResident = (tables["unitResident"] as (typeof tables.unitResident & {}))![0]!;
   function makeTablesWithPct(percentage: string): Tables {

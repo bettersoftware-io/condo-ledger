@@ -62,20 +62,37 @@ export function projectUnits(db: Db, periodId: string): UnitRow[] {
   const upByUnit = db.group("unitPeriod", "unitId");
   const resByUnitPeriod = db.group("unitResident", "unitPeriodId");
 
-  // Build per-resident "versato" (paid-in) from unitResidentTakings entries.
+  // Build per-resident "versato" (paid-in) from unitResidentTakings entries,
+  // and "individualCents" from directly-attributed controlUnitResident entries.
   const txInPeriod = new Set(
     db
       .rows("ledgerTransaction")
       .filter((t) => String(t.accountingPeriodId) === periodId)
       .map((t) => String(t.id)),
   );
+
+  // Build a kind-lookup for ledger accounts (kind is stable across periods).
+  const accountKindById = new Map<string, string>(
+    db.rows("ledgerAccount").map((a) => [String(a.id), String(a.kind ?? "")]),
+  );
+
   const takingsByResident = new Map<string, number>();
+  const individualByResident = new Map<string, number>();
   for (const e of db.rows("ledgerEntry")) {
     if (!txInPeriod.has(String(e.ledgerTransactionId))) continue;
-    if (String(e.type) !== "unitResidentTakings") continue;
-    const ur = str(e.unitResidentId);
-    if (!ur) continue;
-    takingsByResident.set(ur, (takingsByResident.get(ur) ?? 0) + eur(str(e.amount)).cents);
+    if (String(e.type) === "unitResidentTakings") {
+      const ur = str(e.unitResidentId);
+      if (!ur) continue;
+      takingsByResident.set(ur, (takingsByResident.get(ur) ?? 0) + eur(str(e.amount)).cents);
+    } else {
+      // Directly-attributed individual expenses: expenses-kind accounts with a
+      // unitResidentId set (e.g. postal/reminder fees charged to specific residents).
+      // These are NOT in any riparto linked subtree, so adding them is not a double-count.
+      const ur = str(e.unitResidentId);
+      if (!ur) continue;
+      if (accountKindById.get(String(e.postingAccountId)) !== "expenses") continue;
+      individualByResident.set(ur, (individualByResident.get(ur) ?? 0) + eur(str(e.amount)).cents);
+    }
   }
 
   // Riparto engine: per-resident preventivo (estimate) / consuntivo (current),
@@ -112,7 +129,9 @@ export function projectUnits(db: Db, periodId: string): UnitRow[] {
       const abbr = roleAbbrev(db, str(up.unitOwnershipScenarioId), str(r.unitResidentPriorityId));
       const saldoPrec = eur(str(r.startingBalance)).cents;
       const preventivo = preventivoByResident.get(String(r.id)) ?? 0;
-      const consuntivo = consuntivoByResident.get(String(r.id)) ?? 0;
+      const consuntivo =
+        (consuntivoByResident.get(String(r.id)) ?? 0) +
+        (individualByResident.get(String(r.id)) ?? 0);
       // takings credit the resident (negative in the ledger); negate to get paid-in positive
       const versato = -(takingsByResident.get(String(r.id)) ?? 0);
       return {
