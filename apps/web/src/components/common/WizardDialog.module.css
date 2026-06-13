@@ -9,3 +9,7 @@
 .note { color: var(--text-muted); font-size: var(--fs-sm); }
 .actions { display: flex; justify-content: flex-end; gap: var(--sp-3); margin-top: var(--sp-6); }
 .btn { padding: var(--sp-3) var(--sp-5); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface-panel); cursor: pointer; }
+.body { min-height: 80px; padding: var(--sp-3) 0; }
+.error { color: var(--money-negative); font-size: var(--fs-xs); margin: 0 0 var(--sp-2); }
+.actionsSpacer { flex: 1; }
+.btnPrimary { background: var(--accent); color: var(--surface-panel); }
