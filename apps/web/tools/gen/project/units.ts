@@ -2,6 +2,7 @@ import type { UnitRow } from "@cl/application";
 import type { Money } from "@cl/domain";
 import type { Db } from "../db.ts";
 import { eur } from "../amounts.ts";
+import { buildRiparto, type Mode } from "./riparto.ts";
 
 const str = (v: unknown): string | undefined =>
   v === null || v === undefined || String(v).trim() === "" ? undefined : String(v).trim();
@@ -61,39 +62,39 @@ export function projectUnits(db: Db, periodId: string): UnitRow[] {
   const upByUnit = db.group("unitPeriod", "unitId");
   const resByUnitPeriod = db.group("unitResident", "unitPeriodId");
 
-  // Build per-resident ledger aggregates for this period
+  // Build per-resident "versato" (paid-in) from unitResidentTakings entries.
   const txInPeriod = new Set(
     db
       .rows("ledgerTransaction")
       .filter((t) => String(t.accountingPeriodId) === periodId)
       .map((t) => String(t.id)),
   );
-  const byResident = new Map<string, { individualExpense: number; takings: number }>();
+  const takingsByResident = new Map<string, number>();
   for (const e of db.rows("ledgerEntry")) {
     if (!txInPeriod.has(String(e.ledgerTransactionId))) continue;
+    if (String(e.type) !== "unitResidentTakings") continue;
     const ur = str(e.unitResidentId);
     if (!ur) continue;
-    const acc = byResident.get(ur) ?? { individualExpense: 0, takings: 0 };
-    const cents = eur(str(e.amount)).cents;
-    if (String(e.type) === "individualExpense") acc.individualExpense += cents;
-    else if (String(e.type) === "unitResidentTakings") acc.takings += cents;
-    byResident.set(ur, acc);
+    takingsByResident.set(ur, (takingsByResident.get(ur) ?? 0) + eur(str(e.amount)).cents);
   }
 
-  // Build per-resident installmentItem totals for this period
-  const instInPeriod = new Set(
-    db
-      .rows("installment")
-      .filter((i) => String(i.accountingPeriodId) === periodId)
-      .map((i) => String(i.id)),
-  );
-  const instByResident = new Map<string, number>();
-  for (const ii of db.rows("installmentItem")) {
-    if (!instInPeriod.has(String(ii.installmentId))) continue;
-    const ur = str(ii.unitResidentId);
-    if (!ur) continue;
-    instByResident.set(ur, (instByResident.get(ur) ?? 0) + eur(str(ii.amount)).cents);
-  }
+  // Riparto engine: per-resident preventivo (estimate) / consuntivo (current),
+  // summed across all linked expense accounts via the faithful distribution.
+  const eng = buildRiparto(db, periodId);
+  const sumByMode = (mode: Mode): Map<string, number> => {
+    const out = new Map<string, number>();
+    for (const legacyUnitId of eng.unitLegacyIds) {
+      for (const col of eng.columns) {
+        const split = eng.perResidentAmount(col.legacyAccountId, mode, legacyUnitId);
+        for (const [resId, cents] of split) {
+          out.set(resId, (out.get(resId) ?? 0) + cents);
+        }
+      }
+    }
+    return out;
+  };
+  const preventivoByResident = sumByMode("estimate");
+  const consuntivoByResident = sumByMode("current");
 
   const sumField = (rows: UnitRow[], k: keyof Pick<UnitRow, "saldoPrec" | "preventivo" | "consuntivo" | "totDovuto" | "versato">): Money =>
     m(rows.reduce((a, r) => a + r[k].cents, 0));
@@ -109,12 +110,11 @@ export function projectUnits(db: Db, periodId: string): UnitRow[] {
       const name = residentName(db, mdId);
       const pct = formatPct(str(r.percentage));
       const abbr = roleAbbrev(db, str(up.unitOwnershipScenarioId), str(r.unitResidentPriorityId));
-      const agg = byResident.get(String(r.id)) ?? { individualExpense: 0, takings: 0 };
       const saldoPrec = eur(str(r.startingBalance)).cents;
-      const preventivo = instByResident.get(String(r.id)) ?? 0;
-      const consuntivo = agg.individualExpense;
+      const preventivo = preventivoByResident.get(String(r.id)) ?? 0;
+      const consuntivo = consuntivoByResident.get(String(r.id)) ?? 0;
       // takings credit the resident (negative in the ledger); negate to get paid-in positive
-      const versato = -agg.takings;
+      const versato = -(takingsByResident.get(String(r.id)) ?? 0);
       return {
         id: `r${r.id}`,
         kind: "resident" as const,

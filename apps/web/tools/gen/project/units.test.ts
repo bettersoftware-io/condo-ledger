@@ -3,25 +3,38 @@ import { projectUnits } from "./units.ts";
 import { buildDb } from "../db.ts";
 import type { Tables } from "../loadRows.ts";
 
+// ---------------------------------------------------------------------------
+// Base fixture: one unit (A01) with one OWNER resident (priority 1). One leaf
+// expense account (id 3) estimate 200.00, actual +151.18, linked to table 7
+// (single unit, coeff 1000 → 100%). With NO role rows the whole amount lands on
+// the owner. preventivo = 200.00 (estimate); consuntivo = 151.18 (actual).
+// ---------------------------------------------------------------------------
 const tables: Tables = {
   condominium: [{ id: "1", code: "SAT", name: "Saturno", status: "active", type: "regular", address: null, taxCode: null, vatNumber: null, parentCondominiumId: null }],
   accountingPeriod: [{ id: "1", condominiumId: "1", name: "2011", type: "ordinary", status: "opened", startDate: "2011-01-01", endDate: "2011-12-31" }],
   unitType: [{ id: "1", name: "Appartamento" }], unitTypeI18n: [],
   unit: [{ id: "100", accountingPeriodId: "1", unitTypeId: "1", unitGroupId: null, code: "A01", name: "", floor: "T", innerNumber: "1", subordinateNumber: null, periodRestrictionStartDate: "2011-01-01", periodRestrictionEndDate: "2011-12-31" }],
   unitPeriod: [{ id: "500", unitId: "100", unitOwnershipScenarioId: "1", periodRestrictionStartDate: null, periodRestrictionEndDate: null }],
-  unitResidentPriority: [{ id: "1" }],
-  unitResidentRole: [{ id: "1", unitOwnershipScenarioId: "1", unitResidentPriorityId: "1", abbreviation: "PR", name: "Proprietario" }],
+  unitResidentPriority: [{ id: "1" }, { id: "3" }],
+  unitResidentRole: [
+    { id: "1", unitOwnershipScenarioId: "1", unitResidentPriorityId: "1", abbreviation: "PR", name: "Proprietario" },
+    { id: "2", unitOwnershipScenarioId: "1", unitResidentPriorityId: "3", abbreviation: "CO", name: "Conduttore" },
+  ],
   unitResident: [{ id: "900", unitPeriodId: "500", masterDataId: "10", unitResidentPriorityId: "1", percentage: "100", startingBalance: "-860.65", periodRestrictionStartDate: null, periodRestrictionEndDate: null }],
   masterData: [{ id: "10", status: "active", masterDataCategoryId: "2", code: null, taxCode: null, vatNumber: null, postalAddress: null, notes: null }],
   masterDataCategory: [{ id: "2", name: "Condòmino", code: "C", order: "1" }], masterDataCategoryI18n: [],
   person: [{ masterDataId: "10", firstName: "Dina", lastName: "Alberi", sex: "F" }], company: [],
-  ledgerTransaction: [{ id: "9", accountingPeriodId: "1", code: "1", type: "individualExpense" }, { id: "10", accountingPeriodId: "1", code: "2", type: "unitResidentTakings" }],
+  distributionTable: [{ id: "7", accountingPeriodId: "1", name: "Proprietà", order: "1", restrictionUnitGroupId: null }],
+  distributionTableItem: [{ distributionTableId: "7", unitId: "100", coefficient: "1000" }],
+  ledgerAccount: [{ id: "3", accountingPeriodId: "1", name: "Spese", type: "regular", parentLedgerAccountId: null, kind: "expenses", order: "1" }],
+  expenseLedgerAccount: [{ ledgerAccountId: "3", estimate: "200.00", restrictionUnitGroupId: null }],
+  expenseLA2Table: [{ id: "1", expenseLedgerAccountId: "3", distributionTableId: "7", type: null, percentage: null }],
+  expenseLA2Role: [],
+  ledgerTransaction: [{ id: "9", accountingPeriodId: "1", code: "1", type: "expense" }, { id: "10", accountingPeriodId: "1", code: "2", type: "unitResidentTakings" }],
   ledgerEntry: [
-    { id: "21", ledgerTransactionId: "9", postingAccountId: "3", amount: "151.18", order: "1", type: "individualExpense", unitResidentId: "900" },
+    { id: "21", ledgerTransactionId: "9", postingAccountId: "3", amount: "151.18", order: "1", type: "expense", unitResidentId: null },
     { id: "22", ledgerTransactionId: "10", postingAccountId: "2", amount: "-100.00", order: "1", type: "unitResidentTakings", unitResidentId: "900" },
   ],
-  installment: [{ id: "1", accountingPeriodId: "1", name: "Rata 1", expiryDate: "2011-02-28" }],
-  installmentItem: [{ id: "1", installmentId: "1", unitResidentId: "900", amount: "148.73", status: "issued" }],
 };
 
 describe("units projection", () => {
@@ -35,48 +48,89 @@ describe("units projection", () => {
     expect(unit.unitType).toBe("Appartamento");
     expect(unit.children![0]!.label).toBe("Alberi Dina (PR 100%)");
   });
-  it("computes resident money from the ledger", () => {
+  it("preventivo/consuntivo come from the riparto engine; saldoPrec & versato from the ledger", () => {
     const res = rows[0]!.children![0]!.children![0]!;
     expect(res.saldoPrec).toEqual({ cents: -86065 });
-    expect(res.consuntivo).toEqual({ cents: 15118 });
-    expect(res.versato).toEqual({ cents: 10000 });   // -Σ takings (−100.00) → +100.00
-    expect(res.preventivo).toEqual({ cents: 14873 }); // Σ installmentItem
-    expect(res.totDovuto).toEqual({ cents: -71192 }); // saldoPrec + preventivo
+    expect(res.preventivo).toEqual({ cents: 20000 }); // estimate 200.00 → owner (no role rows)
+    expect(res.consuntivo).toEqual({ cents: 15118 }); // actual 151.18 → owner
+    expect(res.versato).toEqual({ cents: 10000 });     // -Σ takings (−100.00) → +100.00
+    expect(res.totDovuto).toEqual({ cents: -66065 });  // saldoPrec + preventivo
   });
   it("group totals sum the children", () => {
     expect(rows[0]!.saldoPrec).toEqual({ cents: -86065 });
+    expect(rows[0]!.preventivo).toEqual({ cents: 20000 });
+    expect(rows[0]!.consuntivo).toEqual({ cents: 15118 });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Role split: a unit with an OWNER (priority 1, res 900) and a TENANT
+// (priority 3, res 901). The account's link has expenseLA2Role priority 3 @100%.
+// The consuntivo must land entirely on the TENANT, not the owner.
+// ---------------------------------------------------------------------------
+const roleTables: Tables = {
+  ...tables,
+  unitResident: [
+    { id: "900", unitPeriodId: "500", masterDataId: "10", unitResidentPriorityId: "1", percentage: "100", startingBalance: "0", periodRestrictionStartDate: null, periodRestrictionEndDate: null },
+    { id: "901", unitPeriodId: "500", masterDataId: "11", unitResidentPriorityId: "3", percentage: "100", startingBalance: "0", periodRestrictionStartDate: null, periodRestrictionEndDate: null },
+  ],
+  masterData: [
+    { id: "10", status: "active", masterDataCategoryId: "2", code: null, taxCode: null, vatNumber: null, postalAddress: null, notes: null },
+    { id: "11", status: "active", masterDataCategoryId: "2", code: null, taxCode: null, vatNumber: null, postalAddress: null, notes: null },
+  ],
+  person: [
+    { masterDataId: "10", firstName: "Dina", lastName: "Alberi", sex: "F" },
+    { masterDataId: "11", firstName: "Tiziano", lastName: "Rossi", sex: "M" },
+  ],
+  expenseLA2Role: [{ expenseLA2TableId: "1", unitResidentPriorityId: "3", percentage: "100.00" }],
+};
+
+describe("role split — tenant-charged account", () => {
+  const db = buildDb(roleTables);
+  const rows = projectUnits(db, "1");
+  const residents = rows[0]!.children![0]!.children!;
+  const owner = residents.find((r) => r.label.includes("Alberi"))!;
+  const tenant = residents.find((r) => r.label.includes("Rossi"))!;
+  it("consuntivo lands on the TENANT (priority 3), not the owner", () => {
+    expect(tenant.consuntivo).toEqual({ cents: 15118 });
+    expect(owner.consuntivo).toEqual({ cents: 0 });
+    expect(tenant.preventivo).toEqual({ cents: 20000 });
+    expect(owner.preventivo).toEqual({ cents: 0 });
+  });
+});
+
+// Orphan case: tenant-charged account (role priority 3 @100%) but the unit has
+// ONLY an owner. The orphaned share falls back to the owner so totals tie out.
+describe("role split — orphan falls back to owner", () => {
+  const db = buildDb({ ...tables, expenseLA2Role: [{ expenseLA2TableId: "1", unitResidentPriorityId: "3", percentage: "100.00" }] });
+  const rows = projectUnits(db, "1");
+  const owner = rows[0]!.children![0]!.children![0]!;
+  it("owner absorbs the tenant-priority share", () => {
+    expect(owner.consuntivo).toEqual({ cents: 15118 });
+    expect(owner.preventivo).toEqual({ cents: 20000 });
   });
 });
 
 describe("percentage formatting in resident label", () => {
   const baseResident = (tables["unitResident"] as (typeof tables.unitResident & {}))![0]!;
   function makeTablesWithPct(percentage: string): Tables {
-    return {
-      ...tables,
-      unitResident: [{ ...baseResident, percentage }],
-    };
+    return { ...tables, unitResident: [{ ...baseResident, percentage }] };
   }
-
   it('formats "100.000000" as "100"', () => {
     const db = buildDb(makeTablesWithPct("100.000000"));
-    const rows = projectUnits(db, "1");
-    const label = rows[0]!.children![0]!.children![0]!.label;
+    const label = projectUnits(db, "1")[0]!.children![0]!.children![0]!.label;
     expect(label).toMatch(/\(PR 100%\)$/);
     expect(label).not.toContain("100.000000");
   });
-
   it('formats "33.333300" as "33.33"', () => {
     const db = buildDb(makeTablesWithPct("33.333300"));
-    const rows = projectUnits(db, "1");
-    const label = rows[0]!.children![0]!.children![0]!.label;
+    const label = projectUnits(db, "1")[0]!.children![0]!.children![0]!.label;
     expect(label).toMatch(/\(PR 33\.33%\)$/);
     expect(label).not.toContain("33.333300");
   });
-
   it('formats "50.000000" as "50"', () => {
     const db = buildDb(makeTablesWithPct("50.000000"));
-    const rows = projectUnits(db, "1");
-    const label = rows[0]!.children![0]!.children![0]!.label;
+    const label = projectUnits(db, "1")[0]!.children![0]!.children![0]!.label;
     expect(label).toMatch(/\(PR 50%\)$/);
   });
 });
