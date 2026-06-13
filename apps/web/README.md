@@ -74,6 +74,39 @@ Registro unico dello studio (legacy MasterData), non legato alla selezione del c
   (slug + suffisso), validazione categoria nel mock store.
 - Il dialog «Aggiungi Fornitore» dei Condomini ora pesca dalle società del registro (via port).
 
+## Dati reali (generated dataset)
+
+L'app in esecuzione usa `src/mock/data.generated.json`, prodotto dal generatore a partire dal dump
+MySQL legacy `old/db/it-jtime-condominium.all.sql` (48 MB). Il JSON è committato: build e CI non
+richiedono mai il dump originale.
+
+**Rigenerare:**
+```bash
+cd apps/web && pnpm gen:data
+```
+
+**Dataset:** 9 condomini reali (condomini di test/junk esclusi), 113 anagrafiche in 34 categorie,
+12 eventi calendario.
+
+**Separazione test / app in esecuzione:** i test usano il seed selezionato `fixtures.ts` (via
+`createMockDataSource()` / `MockStore()` senza argomenti), così i conteggi restano stabili. L'app
+in esecuzione passa il dataset generato via `createGeneratedDataSource()`, che istanzia lo stesso
+`MockStore` con `generatedSeed`.
+
+**Gate di riconciliazione:** un periodo espone la contabilità completa (libro giornale, riparto,
+rate) solo se il suo saldo in partita doppia netta a zero (tolleranza ±1 centesimo); altrimenti
+viene pubblicato come «solo struttura» (unità, residenti, dettaglio, anagrafiche, calendario) con
+contabilità vuota — dati veritieri, mai numeri errati.
+
+**Libri completi:** solo **Saturno 2011** e **Pozzetto 2013** hanno scritture contabili caricate e
+bilancio quadrato. Tutti gli altri edifici/periodi reali sono struttura-only by design: il dump
+legacy non contiene scritture contabili pubblicate per essi.
+
+**Motore di distribuzione (riparto):** per ogni conto spesa, il totale del sottoalbero viene
+ripartito sulle unità in base ai coefficienti di tabella: split percentuale multi-tabella, tabelle
+`estimate` vs `currentBalance`, suddivisione proprietario/inquilino. I valori di preventivo e
+consuntivo per unità vengono così ricostruiti fedeli ai totali di conto.
+
 ## Parità con il legacy (screenshot pass)
 
 Riferimento: `old/screenshots/presentazione Vittorio/`. Ogni schermata ha un corrispettivo

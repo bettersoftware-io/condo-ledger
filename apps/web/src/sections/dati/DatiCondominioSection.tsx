@@ -19,12 +19,16 @@ function toRows(tree: CondominiumNode[], summaries: Record<string, PeriodSummary
     id: c.id, kind: "cond", code: c.code, name: c.name, tipo: "Condominio",
     children: c.periods.map((p: AccountingPeriodNode) => ({
       id: p.id, kind: "period", code: "", name: p.name, tipo: p.type,
-      closed: p.closed, competenza: `${fmt(p.start)} - ${fmt(p.end)}`,
+      closed: p.closed, competenza: [fmt(p.start), fmt(p.end)].filter(Boolean).join(" - "),
       summary: summaries[p.id],
     })),
   }));
 }
-const fmt = (iso: string) => new Date(iso).toLocaleDateString("it-IT");
+const fmt = (iso: string) => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("it-IT");
+};
 
 const money = (pick: (s: PeriodSummary) => Money) =>
   (r: DatiRow) => (r.summary ? <MoneyText value={pick(r.summary)} /> : "");

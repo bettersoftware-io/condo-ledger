@@ -5,6 +5,7 @@ import type {
   InstallmentColumn, InstallmentRow, Id, F24Row, FunctionalRole,
   CalendarLayer, CalendarEvent, Anagrafica,
 } from "@cl/application";
+import type { MockStoreSeed } from "./seed";
 
 const c = fromCents;
 
@@ -399,3 +400,22 @@ export const anagrafiche: Anagrafica[] = [
   { id: "ana-amga", kind: "company", nominativo: "Fella Gas S.p.A.", categoria: "Fornitura gas",
     stato: "archived", codice: "AMGAUD" }, // archived in the dump too
 ];
+
+/** The curated fixture dataset as a {@link MockStoreSeed} — the default seed for
+ * {@link MockStore} and the seed every test runs against. */
+export const fixtureSeed: MockStoreSeed = {
+  tree,
+  detailByPeriod,
+  unitsByPeriod,
+  distributionTablesByPeriod,
+  distributionByPeriod,
+  ledgerAccountsByPeriod,
+  ledgerTxnsByPeriod,
+  installmentsByPeriod,
+  f24sByPeriod,
+  functionalByPeriod,
+  calendarLayers,
+  calendarEvents,
+  anagraficaCategories,
+  anagrafiche,
+};

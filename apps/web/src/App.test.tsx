@@ -1,9 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { App } from "./App";
+import { createMockDataSource } from "./mock/MockDataSource";
 
 test("end-to-end: pick period → navigate sections", async () => {
-  render(<App />);
+  render(<App data={createMockDataSource()} />);
   // registry visible first (appears in sidebar + Dati grid)
   expect((await screen.findAllByText(/SAT — Saturno/)).length).toBeGreaterThan(0);
   // pick a period in the sidebar tree (first match = sidebar, which calls rt.select)

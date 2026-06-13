@@ -10,7 +10,8 @@ import type {
   Anagrafica, AnagraficaLink,
 } from "@cl/application";
 import { fromCents } from "@cl/domain";
-import * as fx from "./fixtures";
+import { fixtureSeed } from "./fixtures";
+import type { MockStoreSeed } from "./seed";
 import { mapRow, removeRow, insertChild } from "./treeRows";
 import { recomputeDistribution } from "../recompute/distribution";
 import { distributeInstallments, redistributeOverride } from "../recompute/installments";
@@ -22,18 +23,38 @@ type Dist = { columns: DistributionColumn[]; rows: DistributionRow[] };
 type Installments = { columns: InstallmentColumn[]; rows: InstallmentRow[] };
 
 export class MockStore implements MockDataSource {
-  private tree$ = new BehaviorSubject<CondominiumNode[]>(fx.tree);
-  private details$ = new BehaviorSubject<Record<Id, CondominiumDetail>>(fx.detailByPeriod);
-  private units$ = new BehaviorSubject<Record<Id, UnitRow[]>>(fx.unitsByPeriod);
-  private tables$ = new BehaviorSubject<Record<Id, DistributionTable[]>>(fx.distributionTablesByPeriod);
-  private distributions$ = new BehaviorSubject<Record<Id, Record<DistributionType, Dist>>>(fx.distributionByPeriod);
-  private accounts$ = new BehaviorSubject<Record<Id, LedgerAccountRow[]>>(fx.ledgerAccountsByPeriod);
-  protected txns$ = new BehaviorSubject<Record<Id, LedgerTxnRow[]>>(fx.ledgerTxnsByPeriod);
-  private installments$ = new BehaviorSubject<Record<Id, Installments>>(fx.installmentsByPeriod);
-  private f24s$ = new BehaviorSubject<Record<Id, F24Row[]>>(fx.f24sByPeriod);
-  private functional$ = new BehaviorSubject<Record<Id, Partial<Record<FunctionalRole, Id>>>>(fx.functionalByPeriod);
-  private calendar$ = new BehaviorSubject<CalendarEvent[]>(fx.calendarEvents);
-  private anagrafiche$ = new BehaviorSubject<Anagrafica[]>(fx.anagrafiche);
+  private tree$: BehaviorSubject<CondominiumNode[]>;
+  private details$: BehaviorSubject<Record<Id, CondominiumDetail>>;
+  private units$: BehaviorSubject<Record<Id, UnitRow[]>>;
+  private tables$: BehaviorSubject<Record<Id, DistributionTable[]>>;
+  private distributions$: BehaviorSubject<Record<Id, Record<DistributionType, Dist>>>;
+  private accounts$: BehaviorSubject<Record<Id, LedgerAccountRow[]>>;
+  protected txns$: BehaviorSubject<Record<Id, LedgerTxnRow[]>>;
+  private installments$: BehaviorSubject<Record<Id, Installments>>;
+  private f24s$: BehaviorSubject<Record<Id, F24Row[]>>;
+  private functional$: BehaviorSubject<Record<Id, Partial<Record<FunctionalRole, Id>>>>;
+  private calendar$: BehaviorSubject<CalendarEvent[]>;
+  private anagrafiche$: BehaviorSubject<Anagrafica[]>;
+  /** Static registries: shipped as-is, validated against on CRUD. */
+  private readonly calendarLayers_: CalendarLayer[];
+  private readonly anagraficaCategories_: string[];
+
+  constructor(seed: MockStoreSeed = fixtureSeed) {
+    this.tree$ = new BehaviorSubject<CondominiumNode[]>(seed.tree);
+    this.details$ = new BehaviorSubject<Record<Id, CondominiumDetail>>(seed.detailByPeriod);
+    this.units$ = new BehaviorSubject<Record<Id, UnitRow[]>>(seed.unitsByPeriod);
+    this.tables$ = new BehaviorSubject<Record<Id, DistributionTable[]>>(seed.distributionTablesByPeriod);
+    this.distributions$ = new BehaviorSubject<Record<Id, Record<DistributionType, Dist>>>(seed.distributionByPeriod);
+    this.accounts$ = new BehaviorSubject<Record<Id, LedgerAccountRow[]>>(seed.ledgerAccountsByPeriod);
+    this.txns$ = new BehaviorSubject<Record<Id, LedgerTxnRow[]>>(seed.ledgerTxnsByPeriod);
+    this.installments$ = new BehaviorSubject<Record<Id, Installments>>(seed.installmentsByPeriod);
+    this.f24s$ = new BehaviorSubject<Record<Id, F24Row[]>>(seed.f24sByPeriod);
+    this.functional$ = new BehaviorSubject<Record<Id, Partial<Record<FunctionalRole, Id>>>>(seed.functionalByPeriod);
+    this.calendar$ = new BehaviorSubject<CalendarEvent[]>(seed.calendarEvents);
+    this.anagrafiche$ = new BehaviorSubject<Anagrafica[]>(seed.anagrafiche);
+    this.calendarLayers_ = seed.calendarLayers;
+    this.anagraficaCategories_ = seed.anagraficaCategories;
+  }
 
   condominiumTree(): Observable<CondominiumNode[]> { return this.tree$.asObservable(); }
   condominiumDetail(periodId: Id) { return this.details$.pipe(map((d) => d[periodId] ?? null)); }
@@ -57,10 +78,10 @@ export class MockStore implements MockDataSource {
       );
     }));
   }
-  calendarLayers(): Observable<CalendarLayer[]> { return of(fx.calendarLayers); } // static registry
+  calendarLayers(): Observable<CalendarLayer[]> { return of(this.calendarLayers_); } // static registry
   calendarEvents(): Observable<CalendarEvent[]> { return this.calendar$.asObservable(); }
   anagrafiche(): Observable<Anagrafica[]> { return this.anagrafiche$.asObservable(); }
-  anagraficaCategories(): Observable<string[]> { return of(fx.anagraficaCategories); } // static registry
+  anagraficaCategories(): Observable<string[]> { return of(this.anagraficaCategories_); } // static registry
   anagraficaLinks(anagraficaId: Id): Observable<AnagraficaLink[]> {
     return combineLatest([this.anagrafiche$, this.tree$, this.details$, this.units$]).pipe(
       map(([anas, tree, details, units]) => {
@@ -169,7 +190,7 @@ export class MockStore implements MockDataSource {
     this.patch(this.functional$, periodId, {}, (cur) => ({ ...cur, [role]: accountId }));
   }
   addCalendarEvent(event: CalendarEvent): void {
-    if (!fx.calendarLayers.some((l) => l.id === event.layerId))
+    if (!this.calendarLayers_.some((l) => l.id === event.layerId))
       throw new Error(`Calendario sconosciuto: ${event.layerId}`);
     this.calendar$.next([...this.calendar$.getValue(), event]);
   }
@@ -180,7 +201,7 @@ export class MockStore implements MockDataSource {
     this.calendar$.next(this.calendar$.getValue().filter((e) => e.id !== id));
   }
   addAnagrafica(a: Anagrafica): void {
-    if (!fx.anagraficaCategories.includes(a.categoria))
+    if (!this.anagraficaCategories_.includes(a.categoria))
       throw new Error(`Categoria sconosciuta: ${a.categoria}`);
     this.anagrafiche$.next([...this.anagrafiche$.getValue(), a]);
   }
