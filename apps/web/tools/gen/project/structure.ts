@@ -61,8 +61,8 @@ export function projectTree(db: Db): CondominiumNode[] {
       name: periodLabel(String(p.name), String(p.type)),
       type: mapPeriodType(String(p.type)),
       closed: String(p.status) === "closed",
-      start: String(p.startDate),
-      end: String(p.endDate),
+      start: str(p.startDate) ?? "",
+      end: str(p.endDate) ?? "",
     })),
   }));
 }

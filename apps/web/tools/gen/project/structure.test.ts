@@ -46,6 +46,17 @@ describe("structure projection", () => {
     expect(projectTree(nullCode)[0]!.code).toBe("");
     expect(projectDetails(nullCode)["p5"]!.codice).toBe("—");
   });
+  it("renders a null period endDate as empty string, never 'null' (structure-only periods)", () => {
+    // Real dump: e.g. Mercurio "Tinteggiatura esterna" has endDate=NULL — must not surface as "null".
+    const nullEnd = buildDb({
+      condominium: [{ id: "9", code: "MER", name: "Mercurio", status: "active", type: "regular", address: null, taxCode: "TC9", vatNumber: null, parentCondominiumId: null, manufacturedDate: null, landRegistry: null, created: "", lastModified: "" }],
+      accountingPeriod: [{ id: "5", condominiumId: "9", name: "Tinteggiatura esterna", type: "auxiliary", status: "closed", startDate: "2010-01-01", endDate: null }],
+      unit: [{ id: "200", accountingPeriodId: "5", code: "B01", name: "y", unitTypeId: "1", unitGroupId: null, floor: null, innerNumber: null, subordinateNumber: null, periodRestrictionStartDate: null, periodRestrictionEndDate: null }],
+    });
+    const period = projectTree(nullEnd)[0]!.periods[0]!;
+    expect(period.end).toBe("");
+    expect(period.start).toBe("2010-01-01");
+  });
 });
 
 const extraTables: Tables = {
