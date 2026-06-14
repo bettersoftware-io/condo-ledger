@@ -1,12 +1,13 @@
 import { expect } from "vitest";
 import { Given, Then, When } from "./gherkin/run.ts";
 import { resolvePeriod, type SpecWorld } from "./world.ts";
-import { rawTrialBalanceCents, entryCount, estimateDistributionByResident, installmentItemTotalCents } from "./oracle.ts";
+import { rawTrialBalanceCents, entryCount, estimateDistributionByResident, installmentItemTotalCents, startingBalanceByResident } from "./oracle.ts";
 import { reconcilePeriods } from "../reconcile.ts";
 import { projectAccounts, projectTransactions } from "../project/accounting.ts";
 import { projectDistribution } from "../project/distribution.ts";
 import { buildRiparto } from "../project/riparto.ts";
-import type { LedgerAccountRow, LedgerTxnRow, InstallmentRow } from "@cl/application";
+import { projectUnits } from "../project/units.ts";
+import type { LedgerAccountRow, LedgerTxnRow, InstallmentRow, UnitRow } from "@cl/application";
 import { projectInstallments } from "../project/installments.ts";
 
 Given(/^the legacy data for period "([^"]+)"$/, (world, label) => {
@@ -130,4 +131,39 @@ Then(/^the installments group total equals the sum of legacy installmentItem amo
   const group = inst.rows[0] as InstallmentRow | undefined;
   const projected = group ? group.totPreventivo.cents : 0;
   expect(projected).toBe(installmentItemTotalCents(w.db, w.legacyPeriodId!));
+});
+
+// --- units money (per-resident saldoPrec) parity ---------------------------
+
+// Resident rows carry id `r<unitResident.id>` (see project/units.ts: `id: \`r${r.id}\``),
+// so stripping the leading `r` recovers the raw unitResident.id that
+// startingBalanceByResident keys by.
+function residentRows(rows: UnitRow[]): UnitRow[] {
+  const out: UnitRow[] = [];
+  const walk = (r: UnitRow) => { if (r.kind === "resident") out.push(r); (r.children ?? []).forEach(walk); };
+  rows.forEach(walk);
+  return out;
+}
+
+When(/^the new app projects the units tree$/, (world) => {
+  const w = world as SpecWorld;
+  w.units = projectUnits(w.db, w.legacyPeriodId!);
+});
+
+Then(/^each resident saldoPrec equals the legacy unitResident startingBalance$/, (world) => {
+  const w = world as SpecWorld;
+  const residents = residentRows(w.units as UnitRow[]);
+  const legacy = startingBalanceByResident(w.db, w.legacyPeriodId!);
+  expect(residents.length).toBeGreaterThan(0);
+  for (const r of residents) {
+    const legacyId = r.id.replace(/^r/, "");
+    expect(r.saldoPrec.cents).toBe(legacy.get(legacyId) ?? 0);
+  }
+});
+
+Then(/^the group saldoPrec equals the sum of resident saldoPrec$/, (world) => {
+  const rows = (world as SpecWorld).units as UnitRow[];
+  const group = rows[0]!;
+  const sum = residentRows(rows).reduce((s, r) => s + r.saldoPrec.cents, 0);
+  expect(group.saldoPrec.cents).toBe(sum);
 });
