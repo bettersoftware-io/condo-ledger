@@ -71,7 +71,9 @@ Then(/^the estimate matrix total equals the sum of linked expense estimates$/, (
   const eng = buildRiparto(w.db, w.legacyPeriodId!);
   const src = eng.columns.reduce((s, c) => s + eng.subtree(c.legacyAccountId).estimateCents, 0);
   const matrix = sumMatrix(dist.estimate.rows);
-  // tolerance: one rounding cent per (column x unit) cell that gets allocated.
+  // tolerance: ~one rounding cent per allocated (column x unit) cell. A multi-link
+  // column rounds once per chosen link, so a cell can contribute >1 cent; in practice
+  // link counts are small and errors rarely align, so this remains a safe upper bound.
   expect(Math.abs(matrix - src)).toBeLessThanOrEqual(eng.columns.length * eng.unitLegacyIds.length);
 });
 
