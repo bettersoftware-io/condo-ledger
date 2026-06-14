@@ -9,6 +9,9 @@ import { buildRiparto } from "../project/riparto.ts";
 import { projectUnits } from "../project/units.ts";
 import type { LedgerAccountRow, LedgerTxnRow, InstallmentRow, UnitRow } from "@cl/application";
 import { projectInstallments } from "../project/installments.ts";
+import { projectAnagrafiche, projectCategories } from "../project/anagrafiche.ts";
+import { projectTree } from "../project/structure.ts";
+import type { Anagrafica, CondominiumNode } from "@cl/application";
 
 Given(/^the legacy data for period "([^"]+)"$/, (world, label) => {
   const w = world as SpecWorld;
@@ -166,4 +169,50 @@ Then(/^the group saldoPrec equals the sum of resident saldoPrec$/, (world) => {
   const group = rows[0]!;
   const sum = residentRows(rows).reduce((s, r) => s + r.saldoPrec.cents, 0);
   expect(group.saldoPrec.cents).toBe(sum);
+});
+
+// --- anagrafiche + structure projection parity ------------------------------
+
+Given(/^the legacy data$/, () => {
+  // no-op: world already holds the db; periodId not needed for studio-wide projections
+});
+
+When(/^the new app projects the anagrafiche$/, (world) => {
+  const w = world as SpecWorld;
+  w.anagrafiche = projectAnagrafiche(w.db);
+  w.categories = projectCategories(w.db);
+});
+
+Then(/^every anagrafica has a category present in the category registry$/, (world) => {
+  const w = world as SpecWorld;
+  const cats = new Set(w.categories as string[]);
+  for (const a of w.anagrafiche as Anagrafica[]) expect(cats.has(a.categoria)).toBe(true);
+});
+
+Then(/^the registry has at least (\d+) parties$/, (world, n) => {
+  expect(((world as SpecWorld).anagrafiche as Anagrafica[]).length).toBeGreaterThanOrEqual(Number(n));
+});
+
+When(/^the new app projects the condominium tree$/, (world) => {
+  const w = world as SpecWorld;
+  w.tree = projectTree(w.db);
+});
+
+Then(/^the tree contains the building "([^"]+)" with a null legacy code rendered blank$/, (world, name) => {
+  const tree = (world as SpecWorld).tree as CondominiumNode[];
+  const node = tree.find((c) => c.name === name);
+  expect(node).toBeDefined();
+  expect(node!.code).toBe("");
+});
+
+Then(/^the tree contains the super-condominium "([^"]+)"$/, (world, name) => {
+  const tree = (world as SpecWorld).tree as CondominiumNode[];
+  const node = tree.find((c) => c.name === name);
+  expect(node).toBeDefined();
+  expect(node!.type).toBe("super");
+});
+
+Then(/^the tree excludes any building whose name contains "([^"]+)"$/, (world, needle) => {
+  const tree = (world as SpecWorld).tree as CondominiumNode[];
+  expect(tree.some((c) => c.name.toLowerCase().includes(needle.toLowerCase()))).toBe(false);
 });
