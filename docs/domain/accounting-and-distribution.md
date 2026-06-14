@@ -293,7 +293,7 @@ flowchart TD
   E1["Spesa 1 — 20€"]
   E2["Spesa 2 — 50€"]
   E3["Spesa 3 — 30€"]
-  M["Conto «Misto»<br/>100€"]
+  M["Conto «Misto»<br/>100€ = 20 + 50 + 30"]
   E1 --> M
   E2 --> M
   E3 --> M
@@ -319,14 +319,21 @@ flowchart TD
   PAOLO["Paolo<br/>= 32€"]
   ELVIO["Elvio<br/>= 0€"]
 
+  MARCO -->|"68€"| TOT
+  PAOLO -->|"32€"| TOT
+  ELVIO -->|"0€"| TOT
+  TOT["Totale fatturato = 100€<br/>68 + 32 + 0<br/>= 20 + 50 + 30 (le 3 spese) ✓"]
+
   classDef prop fill:#e6f4ea,stroke:#137333,color:#0b3d1b;
   classDef scale fill:#fce8e6,stroke:#c5221f,color:#5c1a16;
   classDef payer fill:#e8f0fe,stroke:#1a73e8,color:#0b2a5b;
   classDef acct fill:#fff7e0,stroke:#b06000,color:#5c3a00;
+  classDef total fill:#d9ead3,stroke:#0b8043,color:#0b3d1b,stroke-width:2px;
   class P,PU1,PU2,PU3 prop
   class S,SU1,SU2,SU3 scale
   class MARCO,PAOLO,ELVIO payer
   class M acct
+  class TOT total
 ```
 
 **Read it in five steps**
