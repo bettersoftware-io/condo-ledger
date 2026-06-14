@@ -166,6 +166,7 @@ Then(/^each resident saldoPrec equals the legacy unitResident startingBalance$/,
 
 Then(/^the group saldoPrec equals the sum of resident saldoPrec$/, (world) => {
   const rows = (world as SpecWorld).units as UnitRow[];
+  expect(rows.length).toBeGreaterThan(0); // fail readably (not a raw TypeError) on an empty tree
   const group = rows[0]!;
   const sum = residentRows(rows).reduce((s, r) => s + r.saldoPrec.cents, 0);
   expect(group.saldoPrec.cents).toBe(sum);
@@ -173,6 +174,9 @@ Then(/^the group saldoPrec equals the sum of resident saldoPrec$/, (world) => {
 
 // --- anagrafiche + structure projection parity ------------------------------
 
+// Studio-wide "Given" (no period) — distinct from the period variant registered
+// above (/^the legacy data for period "..."$/); both are anchored so neither shadows
+// the other (runStep matches first-registered-wins).
 Given(/^the legacy data$/, () => {
   // no-op: world already holds the db; periodId not needed for studio-wide projections
 });
