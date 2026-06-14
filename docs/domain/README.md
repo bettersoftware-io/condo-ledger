@@ -15,6 +15,7 @@ works in the code.
 |---|---|
 | [`database-schema.md`](./database-schema.md) | The legacy MySQL schema — Entity-Relationship diagrams and a per-table reference for the ~30 core domain tables (registry, units & residents, master data, the double-entry ledger, distribution/riparto, installments, calendar). Mirrors the real DDL. |
 | [`accounting-and-distribution.md`](./accounting-and-distribution.md) | How the numbers work — the data pipeline (dump → generator → seed → app), **double-entry** bookkeeping (signed amounts, account tree, roll-up), per-period **reconciliation** (the trial-balance gate), and the Italian **distribution (riparto)** engine (subtree roll-up, multi-table % splits, estimate vs consuntivo tables, owner/tenant role split), with diagrams and worked examples. |
+| [`requirements.md`](./requirements.md) | The legacy **requirements & feature catalogue** — extracted from the original 2011 analytical spec (`old/prototype.pdf`), structured into 14 areas (anagrafiche, buildings/periods, accounting, riparto, installments, fiscal, calendar, documents, frontend portal, …), each **cross-checked** against the legacy schema (what was modelled) and the current prototype (what's built), with the author's own future/aspirational flags and open questions preserved. |
 
 ## Quick mental model
 
