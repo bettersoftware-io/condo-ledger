@@ -1,12 +1,13 @@
 import { expect } from "vitest";
 import { Given, Then, When } from "./gherkin/run.ts";
 import { resolvePeriod, type SpecWorld } from "./world.ts";
-import { rawTrialBalanceCents, entryCount, estimateDistributionByResident } from "./oracle.ts";
+import { rawTrialBalanceCents, entryCount, estimateDistributionByResident, installmentItemTotalCents } from "./oracle.ts";
 import { reconcilePeriods } from "../reconcile.ts";
 import { projectAccounts, projectTransactions } from "../project/accounting.ts";
 import { projectDistribution } from "../project/distribution.ts";
 import { buildRiparto } from "../project/riparto.ts";
-import type { LedgerAccountRow, LedgerTxnRow } from "@cl/application";
+import type { LedgerAccountRow, LedgerTxnRow, InstallmentRow } from "@cl/application";
+import { projectInstallments } from "../project/installments.ts";
 
 Given(/^the legacy data for period "([^"]+)"$/, (world, label) => {
   const w = world as SpecWorld;
@@ -115,3 +116,18 @@ Then(
     expect(Math.abs(sum(engine) - sum(legacy))).toBeLessThanOrEqual(residents);
   },
 );
+
+// --- installments parity ----------------------------------------------------
+
+When(/^the new app projects the installments$/, (world) => {
+  const w = world as SpecWorld;
+  w.installments = projectInstallments(w.db, w.legacyPeriodId!);
+});
+
+Then(/^the installments group total equals the sum of legacy installmentItem amounts$/, (world) => {
+  const w = world as SpecWorld;
+  const inst = w.installments as ReturnType<typeof projectInstallments>;
+  const group = inst.rows[0] as InstallmentRow | undefined;
+  const projected = group ? group.totPreventivo.cents : 0;
+  expect(projected).toBe(installmentItemTotalCents(w.db, w.legacyPeriodId!));
+});
