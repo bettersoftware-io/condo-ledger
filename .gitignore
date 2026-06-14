@@ -11,3 +11,6 @@ dist/
 .env
 .env.*
 !.env.example
+
+# Pasted render screenshots in domain docs (throwaway; Mermaid renders inline)
+docs/domain/img*.png
