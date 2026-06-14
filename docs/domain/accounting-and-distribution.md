@@ -328,12 +328,10 @@ flowchart TD
   classDef scale fill:#fce8e6,stroke:#c5221f,color:#5c1a16;
   classDef payer fill:#e8f0fe,stroke:#1a73e8,color:#0b2a5b;
   classDef acct fill:#fff7e0,stroke:#b06000,color:#5c3a00;
-  classDef total fill:#d9ead3,stroke:#0b8043,color:#0b3d1b,stroke-width:2px;
   class P,PU1,PU2,PU3 prop
   class S,SU1,SU2,SU3 scale
   class MARCO,PAOLO,ELVIO payer
-  class M acct
-  class TOT total
+  class M,TOT acct
 ```
 
 **Read it in five steps**
