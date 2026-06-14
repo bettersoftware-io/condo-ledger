@@ -252,19 +252,127 @@ flowchart LR
 > The full per-resident amount for an account is therefore:
 > `Σ over links L of [ subtreeTotal(mode) × pct(L) × coeff(L.table, unit) ÷ tableTotal(L.table) ] × roleShare(resident, L)`
 
-### 4.3 Worked example
+### 4.3 Worked example — from three expenses to three people's bills
 
-Cleaning (estimate €200.00) distributed on the "Proprietà" table where unit A01 has 250‰ and
-A02 has 750‰ (total 1000), 100% to owners:
+This is the canonical end-to-end trace: **how €100 of expenses ends up as a specific euro
+amount owed by a specific person** (owner or tenant). It looks tangled at first glance, but it
+is just the four layers of §4.2 applied once. Follow the money top-to-bottom.
 
-| unit | coefficient | estimate share |
-|---|---:|---:|
-| A01 | 250 | `200 × 250/1000` = **€50.00** |
-| A02 | 750 | `200 × 750/1000` = **€150.00** |
-| **total** | 1000 | **€200.00** |
+**The setup**
 
-The **consuntivo** column does the same with the account's *actual* posted total instead of
-its estimate, using the `currentBalance` table if one is linked.
+- Three expenses are booked into **one** expense account, *Misto*: `Spesa 1 = 20€`,
+  `Spesa 2 = 50€`, `Spesa 3 = 30€` → **100€** total.
+- *Misto* is distributed across **two** tables by percentage: **Proprietà 60%** (60€) and
+  **Scale 40%** (40€).
+- Two tables, two sets of coefficients (_millesimi_) **and** two independent owner/tenant
+  (PR/CO) rules:
+
+| | Unità 1 | Unità 2 | Unità 3 | role rule (per table) |
+|---|---:|---:|---:|---|
+| **Proprietà** (60€) | 400‰ | 250‰ | 350‰ | **100% PR** (owner) for every unit |
+| **Scale** (40€) | 450‰ | 550‰ | 0‰ | U1 **100% PR**; U2 **50% PR / 50% CO**; U3 — |
+
+- Who owns / rents what:
+
+| unit | owner (PR) | tenant (CO) |
+|---|---|---|
+| Unità 1 | **Marco** | — |
+| Unità 2 | **Marco** | **Paolo** |
+| Unità 3 | **Paolo** | **Elvio** |
+
+> The crucial, non-obvious point: **the owner/tenant split lives on the table, not on the unit.**
+> The very same Unità 2 is billed *100% to its owner* through Proprietà (green) but *50/50
+> owner/tenant* through Scale (red). That is why the diagram colours each table's path
+> differently — a unit can route money to different people depending on which table the cost
+> came through.
+
+**The flow** (green = Proprietà, red = Scale)
+
+```mermaid
+flowchart TD
+  E1["Spesa 1 — 20€"]
+  E2["Spesa 2 — 50€"]
+  E3["Spesa 3 — 30€"]
+  M["Conto «Misto»<br/>100€"]
+  E1 --> M
+  E2 --> M
+  E3 --> M
+
+  M -->|"60% → 60€"| P["Tabella «Proprietà»<br/>60€"]
+  M -->|"40% → 40€"| S["Tabella «Scale»<br/>40€"]
+
+  P --> PU1["Unità 1 · 400‰<br/>24€"]
+  P --> PU2["Unità 2 · 250‰<br/>15€"]
+  P --> PU3["Unità 3 · 350‰<br/>21€"]
+  S --> SU1["Unità 1 · 450‰<br/>18€"]
+  S --> SU2["Unità 2 · 550‰<br/>22€"]
+  S --> SU3["Unità 3 · 0‰<br/>0€"]
+
+  PU1 -->|"100% PR → 24€"| MARCO
+  PU2 -->|"100% PR → 15€"| MARCO
+  PU3 -->|"100% PR → 21€"| PAOLO
+  SU1 -->|"100% PR → 18€"| MARCO
+  SU2 -->|"50% PR → 11€"| MARCO
+  SU2 -->|"50% CO → 11€"| PAOLO
+
+  MARCO["Marco<br/>= 68€"]
+  PAOLO["Paolo<br/>= 32€"]
+  ELVIO["Elvio<br/>= 0€"]
+
+  classDef prop fill:#e6f4ea,stroke:#137333,color:#0b3d1b;
+  classDef scale fill:#fce8e6,stroke:#c5221f,color:#5c1a16;
+  classDef payer fill:#e8f0fe,stroke:#1a73e8,color:#0b2a5b;
+  classDef acct fill:#fff7e0,stroke:#b06000,color:#5c3a00;
+  class P,PU1,PU2,PU3 prop
+  class S,SU1,SU2,SU3 scale
+  class MARCO,PAOLO,ELVIO payer
+  class M acct
+```
+
+**Read it in five steps**
+
+1. **Expenses → account.** Three costs are recorded against the single *Misto* account: 20 + 50 + 30 = **100€**.
+2. **Account → tables.** *Misto* is split by table percentages: **60€** down the green
+   *Proprietà* path, **40€** down the red *Scale* path. (100€ preserved.)
+3. **Table → units (by coefficient).** Each table divides its slice by its own _millesimi_:
+   - *Proprietà* 60€ over 400/250/350 ‰ → **24€ / 15€ / 21€** for U1 / U2 / U3.
+   - *Scale* 40€ over 450/550/0 ‰ → **18€ / 22€ / 0€** for U1 / U2 / U3.
+   - Per unit (both tables): U1 = 42€, U2 = 37€, U3 = 21€ → still **100€**.
+4. **Unit → payer (by the table's role rule).** Each unit-share is handed to a person using
+   *that table's* PR/CO split:
+   - *Proprietà* (100% owner everywhere): U1 24€ → Marco, U2 15€ → Marco, U3 21€ → Paolo.
+   - *Scale*: U1 18€ → Marco (owner); U2 22€ splits **11€ → Marco (owner)** and **11€ → Paolo (tenant)**; U3 has 0€.
+5. **Sum per person.** Add every euro routed to each payer across both tables.
+
+**The allocation matrix** (who pays what, by table)
+
+| Payer | via Proprietà (green) | via Scale (red) | **Total** |
+|---|---:|---:|---:|
+| **Marco** (owns U1, U2) | 24 + 15 = 39€ | 18 + 11 = 29€ | **68€** |
+| **Paolo** (owns U3; rents U2) | 21€ | 11€ | **32€** |
+| **Elvio** (rents U3) | 0€ | 0€ | **0€** |
+| **Total billed** | 60€ | 40€ | **100€** ✓ |
+
+**Why Paolo's and Elvio's tenancies don't always matter.** Paolo *rents* Unità 2, but
+Proprietà charges U2 100% to its owner (Marco), so Paolo pays nothing there; he only picks up
+11€ from Scale's 50% tenant share on U2. Paolo also *owns* Unità 3, so its Proprietà share
+(21€) is his. Elvio rents Unità 3, but no table routes any tenant-charged cost to U3
+(Proprietà is 100% owner; Scale allocates U3 = 0€), so Elvio owes **0€**.
+
+**It reconciles.** Marco 68€ + Paolo 32€ + Elvio 0€ = **100€** — exactly the three original
+expenses. No euro is created or lost; this conservation is the tie-out gate of §4.4 applied to
+a single account.
+
+> In the engine (`riparto.ts`), this whole trace is `perResidentAmount()`: for each linked
+> table it computes `accountTotal × tablePct × coeff(unit)/tableTotal`, then splits that
+> per-unit amount across the unit's residents by the table's `expenseLA2Role` rule — with any
+> role share that has no matching resident falling back to the owner so the 100€ always lands
+> somewhere.
+
+> **Estimate vs consuntivo.** The trace above uses one set of amounts. The **preventivo**
+> (estimate) matrix runs it with each account's *budgeted* `estimate`; the **consuntivo**
+> (current) matrix runs the identical machinery with the account's *actual* posted total,
+> selecting the `currentBalance` table when one is linked (§4.2, step 4).
 
 ### 4.4 Tie-out (the correctness gate)
 
