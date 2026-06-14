@@ -301,12 +301,25 @@ flowchart TD
   M -->|"60% → 60€"| P["Tabella «Proprietà»<br/>60€"]
   M -->|"40% → 40€"| S["Tabella «Scale»<br/>40€"]
 
-  P --> PU1["Unità 1 · 400‰<br/>24€"]
-  P --> PU2["Unità 2 · 250‰<br/>15€"]
-  P --> PU3["Unità 3 · 350‰<br/>21€"]
-  S --> SU1["Unità 1 · 450‰<br/>18€"]
-  S --> SU2["Unità 2 · 550‰<br/>22€"]
-  S --> SU3["Unità 3 · 0‰<br/>0€"]
+  subgraph GP["Riparto «Proprietà»"]
+    direction LR
+    PU1["Unità 1 · 400‰<br/>24€"]
+    PU2["Unità 2 · 250‰<br/>15€"]
+    PU3["Unità 3 · 350‰<br/>21€"]
+  end
+  subgraph GS["Riparto «Scale»"]
+    direction LR
+    SU1["Unità 1 · 450‰<br/>18€"]
+    SU2["Unità 2 · 550‰<br/>22€"]
+    SU3["Unità 3 · 0‰<br/>0€"]
+  end
+
+  P --> PU1
+  P --> PU2
+  P --> PU3
+  S --> SU1
+  S --> SU2
+  S --> SU3
 
   PU1 -->|"100% PR → 24€"| MARCO
   PU2 -->|"100% PR → 15€"| MARCO
@@ -332,6 +345,8 @@ flowchart TD
   class S,SU1,SU2,SU3 scale
   class MARCO,PAOLO,ELVIO payer
   class M,TOT acct
+  style GP fill:#f3fbf5,stroke:#137333,stroke-dasharray:4 3
+  style GS fill:#fdf3f2,stroke:#c5221f,stroke-dasharray:4 3
 ```
 
 **Read it in five steps**
