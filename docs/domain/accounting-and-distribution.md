@@ -286,7 +286,7 @@ is just the four layers of §4.2 applied once. Follow the money top-to-bottom.
 > differently — a unit can route money to different people depending on which table the cost
 > came through.
 
-**The flow** (green = Proprietà, red = Scale)
+**The flow** (green = Proprietà, red = Scale; **PR** = _proprietario_/owner, **CO** = _conduttore_/tenant)
 
 ```mermaid
 flowchart TD
@@ -328,9 +328,9 @@ flowchart TD
   SU2 -->|"50% PR → 11€"| MARCO
   SU2 -->|"50% CO → 11€"| PAOLO
 
-  MARCO["Marco<br/>= 68€"]
-  PAOLO["Paolo<br/>= 32€"]
-  ELVIO["Elvio<br/>= 0€"]
+  MARCO["Marco — 68€<br/>PR: Unità 1, 2"]
+  PAOLO["Paolo — 32€<br/>PR: Unità 3 · CO: Unità 2"]
+  ELVIO["Elvio — 0€<br/>CO: Unità 3"]
 
   MARCO -->|"68€"| TOT
   PAOLO -->|"32€"| TOT
