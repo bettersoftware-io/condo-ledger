@@ -17,6 +17,13 @@ works in the code.
 | [`accounting-and-distribution.md`](./accounting-and-distribution.md) | How the numbers work — the data pipeline (dump → generator → seed → app), **double-entry** bookkeeping (signed amounts, account tree, roll-up), per-period **reconciliation** (the trial-balance gate), and the Italian **distribution (riparto)** engine (subtree roll-up, multi-table % splits, estimate vs consuntivo tables, owner/tenant role split), with diagrams and worked examples. |
 | [`requirements.md`](./requirements.md) | The legacy **requirements & feature catalogue** — extracted from the original 2011 analytical spec (`old/prototype.pdf`), structured into 14 areas (anagrafiche, buildings/periods, accounting, riparto, installments, fiscal, calendar, documents, frontend portal, …), each **cross-checked** against the legacy schema (what was modelled) and the current prototype (what's built), with the author's own future/aspirational flags and open questions preserved. |
 
+## Parity specs
+
+**Parity specs** — `apps/web/tools/gen/specs/features/*.feature` are executable Gherkin
+acceptance specs proving the new accounting projections reproduce the legacy dump (the
+oracle). Run with `pnpm --filter @cl/web spec`. Design:
+`docs/superpowers/specs/2026-06-14-accounting-parity-specs-design.md`.
+
 ## Quick mental model
 
 - **Registry:** a *studio* (firm) manages *condominiums* (buildings); each has *accounting
