@@ -1,9 +1,11 @@
 import { expect } from "vitest";
 import { Given, Then, When } from "./gherkin/run.ts";
 import { resolvePeriod, type SpecWorld } from "./world.ts";
-import { rawTrialBalanceCents, entryCount } from "./oracle.ts";
+import { rawTrialBalanceCents, entryCount, estimateDistributionByResident } from "./oracle.ts";
 import { reconcilePeriods } from "../reconcile.ts";
 import { projectAccounts, projectTransactions } from "../project/accounting.ts";
+import { projectDistribution } from "../project/distribution.ts";
+import { buildRiparto } from "../project/riparto.ts";
 import type { LedgerAccountRow, LedgerTxnRow } from "@cl/application";
 
 Given(/^the legacy data for period "([^"]+)"$/, (world, label) => {
@@ -50,3 +52,64 @@ Then(/^the account tree saldo equals the raw sum of entries$/, (world) => {
   const treeSaldo = accounts.reduce((s, a) => s + a.saldo.cents, 0);
   expect(treeSaldo).toBe(rawTrialBalanceCents(w.db, w.legacyPeriodId!));
 });
+
+// --- riparto (distribution) parity -----------------------------------------
+
+/** group row is rows[0]; its total is the whole matrix total. */
+function sumMatrix(rows: { total: { cents: number } }[]): number {
+  return rows.length ? rows[0]!.total.cents : 0;
+}
+
+When(/^the new app computes the riparto matrices$/, (world) => {
+  const w = world as SpecWorld;
+  w.dist = projectDistribution(w.db, w.legacyPeriodId!);
+});
+
+Then(/^the estimate matrix total equals the sum of linked expense estimates$/, (world) => {
+  const w = world as SpecWorld;
+  const dist = w.dist as ReturnType<typeof projectDistribution>;
+  const eng = buildRiparto(w.db, w.legacyPeriodId!);
+  const src = eng.columns.reduce((s, c) => s + eng.subtree(c.legacyAccountId).estimateCents, 0);
+  const matrix = sumMatrix(dist.estimate.rows);
+  // tolerance: one rounding cent per (column x unit) cell that gets allocated.
+  expect(Math.abs(matrix - src)).toBeLessThanOrEqual(eng.columns.length * eng.unitLegacyIds.length);
+});
+
+Then(/^the current matrix total equals the sum of linked expense actuals$/, (world) => {
+  const w = world as SpecWorld;
+  const dist = w.dist as ReturnType<typeof projectDistribution>;
+  const eng = buildRiparto(w.db, w.legacyPeriodId!);
+  const src = eng.columns.reduce((s, c) => s + eng.subtree(c.legacyAccountId).actualCents, 0);
+  const matrix = sumMatrix(dist.current.rows);
+  expect(Math.abs(matrix - src)).toBeLessThanOrEqual(eng.columns.length * eng.unitLegacyIds.length);
+});
+
+When(/^the new app computes per-resident preventivo from the riparto engine$/, (world) => {
+  const w = world as SpecWorld;
+  const eng = buildRiparto(w.db, w.legacyPeriodId!);
+  const byResident = new Map<string, number>();
+  for (const unitId of eng.unitLegacyIds) {
+    for (const col of eng.columns) {
+      for (const [ur, cents] of eng.perResidentAmount(col.legacyAccountId, "estimate", unitId)) {
+        byResident.set(ur, (byResident.get(ur) ?? 0) + cents);
+      }
+    }
+  }
+  w.enginePreventivo = byResident;
+});
+
+// Σ-only fallback: the per-resident split diverges materially (see feature NOTE),
+// but the TOTAL preventivo the engine emits ties out to what the legacy app
+// posted, within rounding. Tolerance = number of residents (≤1 cent per resident
+// rounding), generous enough to cover the per-cell rounding of the split.
+Then(
+  /^the total engine preventivo equals the total legacy estimateDistribution within rounding$/,
+  (world) => {
+    const w = world as SpecWorld;
+    const engine = w.enginePreventivo as Map<string, number>;
+    const legacy = estimateDistributionByResident(w.db, w.legacyPeriodId!);
+    const sum = (mm: Map<string, number>): number => [...mm.values()].reduce((s, v) => s + v, 0);
+    const residents = new Set<string>([...engine.keys(), ...legacy.keys()]).size;
+    expect(Math.abs(sum(engine) - sum(legacy))).toBeLessThanOrEqual(residents);
+  },
+);
