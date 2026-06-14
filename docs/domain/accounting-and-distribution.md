@@ -345,8 +345,8 @@ flowchart TD
   class S,SU1,SU2,SU3 scale
   class MARCO,PAOLO,ELVIO payer
   class M,TOT acct
-  style GP fill:#f3fbf5,stroke:#137333,stroke-dasharray:4 3
-  style GS fill:#fdf3f2,stroke:#c5221f,stroke-dasharray:4 3
+  style GP fill:#f3fbf5,stroke:#137333,stroke-dasharray:4 3,color:#0b3d1b
+  style GS fill:#fdf3f2,stroke:#c5221f,stroke-dasharray:4 3,color:#5c1a16
 ```
 
 **Read it in five steps**
