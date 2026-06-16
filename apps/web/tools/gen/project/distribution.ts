@@ -6,7 +6,8 @@ import type {
 } from "@cl/application";
 import type { Money } from "@cl/domain";
 import type { Db } from "../db.ts";
-import { buildRiparto, type Mode } from "./riparto.ts";
+import { buildRiparto, type Mode } from "@cl/domain";
+import { dbToRipartoInput } from "./ripartoInput.ts";
 
 const m = (c: number): Money => ({ cents: c });
 const num = (v: unknown): number => (v === null || v === undefined ? 0 : Number(v));
@@ -38,7 +39,7 @@ export function projectDistribution(
   db: Db,
   periodId: string,
 ): Record<DistributionType, { columns: DistributionColumn[]; rows: DistributionRow[] }> {
-  const eng = buildRiparto(db, periodId);
+  const eng = buildRiparto(dbToRipartoInput(db, periodId));
 
   const columns: DistributionColumn[] = eng.columns.map((c) => ({
     accountId: `la${c.legacyAccountId}`,
