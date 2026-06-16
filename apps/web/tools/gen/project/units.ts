@@ -1,8 +1,7 @@
 import type { UnitRow } from "@cl/application";
-import type { Money } from "@cl/domain";
+import { buildRiparto, type Mode, type Money } from "@cl/domain";
 import type { Db } from "../db.ts";
 import { eur } from "../amounts.ts";
-import { buildRiparto, type Mode } from "@cl/domain";
 import { dbToRipartoInput } from "./ripartoInput.ts";
 
 const str = (v: unknown): string | undefined =>
