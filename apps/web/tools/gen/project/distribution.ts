@@ -4,9 +4,8 @@ import type {
   DistributionRow,
   DistributionType,
 } from "@cl/application";
-import type { Money } from "@cl/domain";
+import { buildRiparto, type Mode, type Money } from "@cl/domain";
 import type { Db } from "../db.ts";
-import { buildRiparto, type Mode } from "@cl/domain";
 import { dbToRipartoInput } from "./ripartoInput.ts";
 
 const m = (c: number): Money => ({ cents: c });
