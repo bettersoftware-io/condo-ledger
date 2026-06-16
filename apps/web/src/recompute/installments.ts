@@ -1,4 +1,4 @@
-import { allocate } from "./allocate";
+import { allocate } from "@cl/domain";
 
 /** amounts[resident][installment]: total → per resident (by coefficient) → equal split per rata. */
 export function distributeInstallments(
