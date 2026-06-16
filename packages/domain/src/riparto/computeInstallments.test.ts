@@ -48,6 +48,54 @@ describe("computeInstallments", () => {
     expect(cells.get("i3")).toBe(100);
   });
 
+  it("places the residual cent on an odd override delta exactly like the app's allocate", () => {
+    const est = new Map<string, number>([["r1", 300]]); // even → 100,100,100
+    // pin i1 to 125: delta = 100 − 125 = −25; allocate(−25,[1,1]) = −[13,12] = [−13,−12]
+    // → later [100,100] + [−13,−12] = [87,88] (residual lands on the FIRST later cell, as in the app)
+    const out = computeInstallments(est, plan([{ residentId: "r1", installmentId: "i1", cents: 125 }]));
+    const cells = out.get("r1")!;
+    expect(cells.get("i1")).toBe(125);
+    expect(cells.get("i2")).toBe(87);
+    expect(cells.get("i3")).toBe(88);
+    expect([...cells.values()].reduce((a, b) => a + b, 0)).toBe(300);
+  });
+
+  it("applies multiple overrides on one resident in installment order, each against running amounts", () => {
+    const est = new Map<string, number>([["r1", 300]]); // even → 100,100,100
+    // i1→120: delta −20 over [100,100] → [90,90]; amounts [120,90,90]
+    // then i2→100: delta = 90 − 100 = −10 over [90] (i3) → [80]; amounts [120,100,80]
+    const out = computeInstallments(
+      est,
+      plan([
+        { residentId: "r1", installmentId: "i2", cents: 100 }, // deliberately out of order in input
+        { residentId: "r1", installmentId: "i1", cents: 120 },
+      ]),
+    );
+    const cells = out.get("r1")!;
+    expect(cells.get("i1")).toBe(120);
+    expect(cells.get("i2")).toBe(100);
+    expect(cells.get("i3")).toBe(80);
+    expect([...cells.values()].reduce((a, b) => a + b, 0)).toBe(300);
+  });
+
+  it("treats a last-cell override as a no-op (preserves the Σ-cells == estimate invariant)", () => {
+    const est = new Map<string, number>([["r1", 300]]); // even → 100,100,100
+    const out = computeInstallments(est, plan([{ residentId: "r1", installmentId: "i3", cents: 150 }]));
+    const cells = out.get("r1")!;
+    expect(cells.get("i1")).toBe(100);
+    expect(cells.get("i2")).toBe(100);
+    expect(cells.get("i3")).toBe(100); // unchanged — last-cell edit ignored
+  });
+
+  it("ignores an override whose installmentId is not in the plan", () => {
+    const est = new Map<string, number>([["r1", 300]]);
+    const out = computeInstallments(est, plan([{ residentId: "r1", installmentId: "iX", cents: 999 }]));
+    const cells = out.get("r1")!;
+    expect(cells.get("i1")).toBe(100);
+    expect(cells.get("i2")).toBe(100);
+    expect(cells.get("i3")).toBe(100);
+  });
+
   it("returns an empty plan map when there are no installments", () => {
     const est = new Map<string, number>([["r1", 100]]);
     const out = computeInstallments(est, { installmentIds: [], overrides: [] });

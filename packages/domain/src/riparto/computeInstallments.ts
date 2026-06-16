@@ -4,10 +4,14 @@ import type { InstallmentPlan } from "./periodTypes";
 /**
  * Split each resident's total estimate across the plan's installments.
  * Even split via largest-remainder `allocate`; then apply valid overrides.
- * An override pins one cell and spreads the delta across LATER cells (residual-to-last,
- * same rule as the app's redistributeOverride). An override that would drive a later cell
- * negative is rejected (ignored) and that resident keeps the even split.
- * Σ cells per resident always equals that resident's estimate.
+ * An override pins one cell and spreads the delta across LATER cells via the same
+ * largest-remainder `allocate(delta, later)` call as the app's redistributeOverride
+ * (so the per-cent placement is identical to the app). An override that would drive a
+ * later cell negative is rejected (ignored) and that resident keeps the prior split.
+ * Overrides for a resident are applied in installment order, each checked against the
+ * running amounts. A LAST-cell override is a no-op here: the app would change the row
+ * total, but this stage preserves the invariant that Σ cells per resident always equals
+ * that resident's estimate.
  */
 export function computeInstallments(
   estimateByResident: Map<string, number>,
