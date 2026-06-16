@@ -13,4 +13,11 @@ describe("allocate", () => {
   it("handles negative totals symmetrically", () => {
     expect(allocate(-100, [1, 1, 1])).toEqual([-34, -33, -33]);
   });
+  it("preserves the total for millesimal weights", () => {
+    expect(allocate(200000, [312.5, 687.5]).reduce((a, b) => a + b, 0)).toBe(200000);
+    expect(allocate(200000, [312.5, 687.5])).toEqual([62500, 137500]);
+  });
+  it("rejects non-integer totals", () => {
+    expect(() => allocate(10.5, [1])).toThrow();
+  });
 });
