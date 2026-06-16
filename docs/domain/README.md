@@ -27,6 +27,14 @@ legacy app itself. Run with `pnpm --filter @cl/web spec`. See
 exactly what is and isn't covered; design:
 `docs/superpowers/specs/2026-06-14-accounting-parity-specs-design.md`.
 
+**Riparto engine** — the faithful distribution math lives once in
+`packages/domain/src/riparto/computeRiparto.ts` (pure, store/DB-agnostic). The offline
+generator adapts the legacy dump into it via `apps/web/tools/gen/project/ripartoInput.ts`;
+`data.generated.json` is byte-identical to the pre-extraction output (the parity specs are
+the gate). This is Phase 0 of the recompute-engine work
+(`docs/superpowers/specs/2026-06-16-recompute-engine-design.md`); the live-app reactive
+cascade is a later phase.
+
 ## Quick mental model
 
 - **Registry:** a *studio* (firm) manages *condominiums* (buildings); each has *accounting

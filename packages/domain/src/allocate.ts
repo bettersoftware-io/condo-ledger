@@ -1,3 +1,4 @@
+// packages/domain/src/allocate.ts
 /** Split an integer cents total across weights using largest-remainder rounding.
  * Invariant: result sums exactly to totalCents. Ties go to the lower index. */
 export function allocate(totalCents: number, weights: number[]): number[] {
@@ -12,8 +13,8 @@ export function allocate(totalCents: number, weights: number[]): number[] {
     .map((r, i) => ({ frac: r - Math.floor(r), i }))
     .sort((a, b) => b.frac - a.frac || a.i - b.i);
   for (let k = 0; remainder > 0; k = (k + 1) % order.length, remainder--) {
-    const entry = order[k]!; // k = k % order.length — always a valid index
-    out[entry.i] = out[entry.i]! + 1; // entry.i is an index of out (order permutes raw's indices)
+    const entry = order[k]!;
+    out[entry.i] = out[entry.i]! + 1;
   }
   return out;
 }

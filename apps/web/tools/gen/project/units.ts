@@ -1,8 +1,8 @@
 import type { UnitRow } from "@cl/application";
-import type { Money } from "@cl/domain";
+import { buildRiparto, type Mode, type Money } from "@cl/domain";
 import type { Db } from "../db.ts";
 import { eur } from "../amounts.ts";
-import { buildRiparto, type Mode } from "./riparto.ts";
+import { dbToRipartoInput } from "./ripartoInput.ts";
 
 const str = (v: unknown): string | undefined =>
   v === null || v === undefined || String(v).trim() === "" ? undefined : String(v).trim();
@@ -97,7 +97,7 @@ export function projectUnits(db: Db, periodId: string): UnitRow[] {
 
   // Riparto engine: per-resident preventivo (estimate) / consuntivo (current),
   // summed across all linked expense accounts via the faithful distribution.
-  const eng = buildRiparto(db, periodId);
+  const eng = buildRiparto(dbToRipartoInput(db, periodId));
   const sumByMode = (mode: Mode): Map<string, number> => {
     const out = new Map<string, number>();
     for (const legacyUnitId of eng.unitLegacyIds) {

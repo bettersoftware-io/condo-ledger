@@ -1,6 +1,6 @@
 import { fromCents } from "@cl/domain";
 import type { DistributionColumn, DistributionRow, DistributionTable, Id } from "@cl/application";
-import { allocate } from "./allocate";
+import { allocate } from "@cl/domain";
 
 type Dist = { columns: DistributionColumn[]; rows: DistributionRow[] };
 

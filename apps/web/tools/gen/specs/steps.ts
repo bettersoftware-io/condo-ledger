@@ -5,7 +5,8 @@ import { rawTrialBalanceCents, entryCount, estimateDistributionByResident, insta
 import { reconcilePeriods } from "../reconcile.ts";
 import { projectAccounts, projectTransactions } from "../project/accounting.ts";
 import { projectDistribution } from "../project/distribution.ts";
-import { buildRiparto } from "../project/riparto.ts";
+import { buildRiparto } from "@cl/domain";
+import { dbToRipartoInput } from "../project/ripartoInput.ts";
 import { projectUnits } from "../project/units.ts";
 import type { LedgerAccountRow, LedgerTxnRow, InstallmentRow, UnitRow } from "@cl/application";
 import { projectInstallments } from "../project/installments.ts";
@@ -73,7 +74,7 @@ When(/^the new app computes the riparto matrices$/, (world) => {
 Then(/^the estimate matrix total equals the sum of linked expense estimates$/, (world) => {
   const w = world as SpecWorld;
   const dist = w.dist as ReturnType<typeof projectDistribution>;
-  const eng = buildRiparto(w.db, w.legacyPeriodId!);
+  const eng = buildRiparto(dbToRipartoInput(w.db, w.legacyPeriodId!));
   const src = eng.columns.reduce((s, c) => s + eng.subtree(c.legacyAccountId).estimateCents, 0);
   const matrix = sumMatrix(dist.estimate.rows);
   // tolerance: ~one rounding cent per allocated (column x unit) cell. A multi-link
@@ -85,7 +86,7 @@ Then(/^the estimate matrix total equals the sum of linked expense estimates$/, (
 Then(/^the current matrix total equals the sum of linked expense actuals$/, (world) => {
   const w = world as SpecWorld;
   const dist = w.dist as ReturnType<typeof projectDistribution>;
-  const eng = buildRiparto(w.db, w.legacyPeriodId!);
+  const eng = buildRiparto(dbToRipartoInput(w.db, w.legacyPeriodId!));
   const src = eng.columns.reduce((s, c) => s + eng.subtree(c.legacyAccountId).actualCents, 0);
   const matrix = sumMatrix(dist.current.rows);
   expect(Math.abs(matrix - src)).toBeLessThanOrEqual(eng.columns.length * eng.unitLegacyIds.length);
@@ -93,7 +94,7 @@ Then(/^the current matrix total equals the sum of linked expense actuals$/, (wor
 
 When(/^the new app computes per-resident preventivo from the riparto engine$/, (world) => {
   const w = world as SpecWorld;
-  const eng = buildRiparto(w.db, w.legacyPeriodId!);
+  const eng = buildRiparto(dbToRipartoInput(w.db, w.legacyPeriodId!));
   const byResident = new Map<string, number>();
   for (const unitId of eng.unitLegacyIds) {
     for (const col of eng.columns) {
