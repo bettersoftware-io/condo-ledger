@@ -192,13 +192,15 @@ User edit → command patches a **source** subject → the derived `combineLates
 
 ## Phasing (each phase independently shippable & green)
 
-- **Phase 0 — Extract & re-point the generator.** Move `allocate`; lift the 5-stage math into
-  `@cl/domain/riparto`; define clean I/O; adapt the generator to build `PeriodState` and call
-  the engine. **No app behaviour change.** Guarded entirely by existing tests + parity specs.
-  This lands the durable production asset and proves it first.
+- **Phase 0 — Extract & re-point the generator. ✅ DONE (merged to `main`, `79fe67d`,
+  2026-06-16).** Moved `allocate`; lifted the 5-stage math into `@cl/domain/riparto`; defined
+  clean I/O; adapted the generator via `dbToRipartoInput`. `data.generated.json` byte-identical;
+  parity specs + web suite green. **NB:** the shipped contract is narrower than the aspirational
+  one drafted above — see "Phase 1 — reconciled design" for the concrete types and how Phase 1
+  builds on them.
 - **Phase 1 — Amounts cascade.** Restructure `MockStore` into source/derived; wire expense,
   coefficient, and budget edits through the graph. The three amount triggers cascade correctly
-  to installments + balances.
+  to installments + balances. **Reconciled against the shipped Phase 0 API below.**
 - **Phase 2 — Structural cascade.** Add/remove unit or resident, ownership/tenancy role
   changes, opening-balance edits — these reshape the matrices (rows/columns), not just amounts.
   Heavier; lands last. Structural semantics pinned down here (e.g. whether coefficients must
@@ -241,3 +243,131 @@ User edit → command patches a **source** subject → the derived `combineLates
 - **Reactive-graph performance** — recompute on every edit. Mitigation: prototype data sizes
   are small; `combineLatest` + memoised `map` is ample. Revisit only if measured.
 - **Structural-edit semantics are genuinely ambiguous.** Deferred to Phase 2, pinned there.
+
+---
+
+## Phase 1 — reconciled design (2026-06-16, post-Phase-0)
+
+Phase 0 shipped a **narrower** engine than the aspirational contract drafted earlier in this
+doc. This section is authoritative for Phase 1; where it conflicts with the earlier
+"pure engine contract" / "cascade DAG" / "app reactive wiring" sketches, this section wins.
+
+### What Phase 0 actually shipped (the concrete foundation)
+
+```ts
+// @cl/domain/riparto/types.ts
+buildRiparto(input: RipartoInput): RipartoEngine
+// RipartoInput: { accounts[], links[], estimateCentsByAccount, actualCentsByAccount,
+//                 tableItems[], roles[], residents[], unitLegacyIds[] }   (all cents are integers)
+// RipartoEngine (query object): { columns, perUnitAmount(acct,mode,unit),
+//                 subtree(acct), perResidentAmount(acct,mode,unit), unitLegacyIds }
+```
+
+The generator already maps this engine → UI DTOs in `apps/web/tools/gen/project/distribution.ts`
+(`projectDistribution`) and `units.ts` (`projectUnits`), applying the id prefixes `la{accountId}`,
+`u{unitId}`, `dt{tableId}`. Installments are **not** engine-derived today — `projectInstallments`
+reads legacy `installment`/`installmentItem` rows directly.
+
+### Decisions taken for Phase 1 (2026-06-16)
+
+1. **Engine home — extend `@cl/domain`.** Add a second pure entry point
+   `recomputePeriod(state: PeriodState): PeriodResult` that *uses* the shipped `buildRiparto`
+   for the riparto stage, then chains pure installment / posting / balance stages. The shipped
+   `buildRiparto`/`RipartoInput`/`RipartoEngine` are unchanged (no Phase 0 regression).
+2. **Installments — fully derived from riparto** (see "Installments resolution" below).
+3. **Wiring — reactive derived graph.** Source subjects stay command-patched; dependent data
+   (`distributions$`, `installments$`, unit-balance `units$`) becomes derived off a single
+   `riparto$ = combineLatest([accounts$, tables$, roster$]).pipe(map(recomputePeriod-via-adapter))`.
+
+### The Phase 1 engine contract (concrete)
+
+```ts
+// @cl/domain/riparto/recomputePeriod.ts
+interface PeriodState {
+  riparto: RipartoInput;                 // the shipped Phase 0 input (drives buildRiparto)
+  plan: {                                // installment plan
+    installmentIds: string[];            // ordered (by expiry)
+    overrides: { residentId: string; installmentId: string; cents: number }[];
+  };
+  opening: Record<string, number>;       // saldoPrec cents, per residentId
+  paid: Record<string, number>;          // versato cents, per residentId
+}
+
+interface PeriodResult {
+  // per-unit + per-resident estimate/current — sourced from the RipartoEngine query object
+  riparto: RipartoEngine;
+  // per-resident-per-installment cents, honouring overrides; Σ cells = resident preventivo
+  installments: { byResident: Map<string /*residentId*/, Map<string /*installmentId*/, number>> };
+  // the balanced estimateDistribution double-entry the matrix implies
+  postings: { transactionId: string; entries: { accountId: string; cents: number }[] }[];
+  // per-resident rollup: preventivo = Σ estimate share; consuntivo = Σ current share;
+  // totDovuto = preventivo + saldoPrec − versato
+  balances: { residentId: string; preventivoCents: number; consuntivoCents: number;
+              saldoPrecCents: number; versatoCents: number; totDovutoCents: number }[];
+}
+```
+
+`recomputePeriod` is pure (depends only on `state`); all stages use integer cents and the
+`allocate` largest-remainder primitive (residual-to-last) for Σ-exactness. The generator and the
+live app each keep their own thin adapters mapping their world → `PeriodState` and
+`PeriodResult` → their DTOs (the generator's existing `project*` mappers are refactored to read
+from `PeriodResult` rather than calling the bare `RipartoEngine`).
+
+### Installments resolution (the seed-vs-derive conflict, resolved)
+
+Deriving installments from riparto changes the **initial** numbers away from the legacy
+`installmentItem` amounts. To keep the seed coherent with what the live app derives on load,
+**both** the generator (`projectInstallments`) and the live app derive installments from
+`recomputePeriod`. Consequences, accepted:
+
+- `data.generated.json` **changes for installments** (riparto-distribution and unit-balance
+  outputs stay **byte-identical** — only installments move). This is a deliberate behaviour
+  change, not a regression.
+- The **installments parity spec is relaxed** from "group total equals Σ legacy
+  `installmentItem.amount`, cell-for-cell" to the **Σ-conservation invariant**: the installment
+  plan's group total ties to the period's preventivo (Σ per-resident estimate). This mirrors the
+  precedent already set for the [[riparto-per-resident-divergence]] (a documented Σ-only
+  invariant where the legacy per-cell split can't be reproduced without an oracle).
+- Manual overrides (`redistributeOverride`) survive a recompute where still valid; a recompute
+  that invalidates an override (total dropped below the overridden cells) clears it and
+  re-derives — pinned precisely in the plan.
+
+### App reactive wiring (concrete)
+
+```ts
+// SOURCE (command-patched, as today): txns$/accounts$ base, budget (account.preventivo),
+//   tables$ (coefficients), roster$ (units+residents), plan$ (+overrides), opening$, paid$
+// DERIVED (NEW — never patched directly):
+riparto$        = combineLatest([accounts$, tables$, roster$, plan$, opening$, paid$])
+                    .pipe(map(state → recomputePeriod(storeToPeriodState(state))))
+distributions$  = riparto$.pipe(map(toDistributionDTO))   // replaces the stored subject
+installments$   = riparto$.pipe(map(toInstallmentDTO))     // now derived (was stored)
+units$ balances = riparto$.pipe(map(toUnitBalances))       // preventivo/consuntivo/totDovuto/versato
+```
+
+Hooks (`useDistribution`, `useInstallments`, `useUnitsTree`, `periodSummaries`) keep their
+signatures and subscribe to the derived observables. The `storeToPeriodState` /
+`PeriodResult → DTO` adapter is the only new app-specific (throwaway) code; it mirrors the
+generator's id-prefix mapping so the DTOs are identical in shape.
+
+The three amount triggers and their cascade:
+- **Budget edit** (`setPreventivo`) → patches the account's `preventivo` → `accounts$` re-emits →
+  riparto estimate, installments, unit preventivo/totDovuto all re-derive.
+- **Posted expense** (`addTransaction`/`recordTaking`) → patches `txns$`/`accounts$` actuals (and
+  `paid$` for takings) → riparto current, unit consuntivo/versato re-derive.
+- **Coefficient edit** (`setCoefficient`) → patches `tables$` → riparto matrices + installments
+  + balances all re-derive. (Replaces today's partial `recomputeDistribution`.)
+
+### Correctness & testing (Phase 1)
+
+The invariant battery from "Correctness (two bars)" applies after every `recomputePeriod`,
+asserted as property-style checks over the two real seed periods and after randomised edit
+sequences — including **idempotence** `recompute(recompute(s)) == recompute(s)`. The generator
+regression bar holds for riparto + balances (byte-identical); installments move to the relaxed
+Σ-conservation invariant. App integration tests assert each Phase-1 trigger re-derives its
+dependent hooks (no stale view).
+
+### Out of scope for Phase 1 (→ Phase 2)
+
+Structural edits (add/remove unit or resident, owner/tenant role changes, opening-balance edits)
+reshape the matrices, not just amounts — deferred to Phase 2, where their semantics are pinned.
