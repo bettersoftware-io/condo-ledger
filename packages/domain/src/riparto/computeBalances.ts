@@ -22,6 +22,12 @@ export function perResidentTotals(eng: RipartoEngine, mode: Mode): Map<string, n
 /**
  * Per-resident rolled-up balances. Residents come from `roster` so zero-share
  * residents still appear. totDovuto = preventivo + saldoPrec − versato.
+ *
+ * Phase 1b note: the current generator (apps/web/tools/gen/project/units.ts) computes
+ * totDovuto as saldoPrec + preventivo (it does NOT subtract versato), and folds
+ * directly-attributed individual expenses into consuntivo. Those are adapter concerns
+ * for when the generator adopts recomputePeriod — the parity guarantee here is scoped to
+ * perResidentTotals mirroring the generator's sumByMode, not to totDovuto.
  */
 export function computeBalances(
   roster: { residentId: string }[],
