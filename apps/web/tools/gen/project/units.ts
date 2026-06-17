@@ -1,8 +1,8 @@
 import type { UnitRow } from "@cl/application";
-import { buildRiparto, type Mode, type Money } from "@cl/domain";
+import { recomputePeriod, type Money } from "@cl/domain";
 import type { Db } from "../db.ts";
 import { eur } from "../amounts.ts";
-import { dbToRipartoInput } from "./ripartoInput.ts";
+import { dbToPeriodState } from "./periodState.ts";
 
 const str = (v: unknown): string | undefined =>
   v === null || v === undefined || String(v).trim() === "" ? undefined : String(v).trim();
@@ -76,42 +76,26 @@ export function projectUnits(db: Db, periodId: string): UnitRow[] {
     db.rows("ledgerAccount").map((a) => [String(a.id), String(a.kind ?? "")]),
   );
 
-  const takingsByResident = new Map<string, number>();
+  // Directly-attributed individual expenses: expenses-kind accounts with a
+  // unitResidentId set (e.g. postal/reminder fees charged to specific residents).
+  // These are NOT in any riparto linked subtree, so adding them is not a double-count.
+  // (Versato/takings now come from recomputePeriod's balances via dbToPeriodState.)
   const individualByResident = new Map<string, number>();
   for (const e of db.rows("ledgerEntry")) {
     if (!txInPeriod.has(String(e.ledgerTransactionId))) continue;
-    if (String(e.type) === "unitResidentTakings") {
-      const ur = str(e.unitResidentId);
-      if (!ur) continue;
-      takingsByResident.set(ur, (takingsByResident.get(ur) ?? 0) + eur(str(e.amount)).cents);
-    } else {
-      // Directly-attributed individual expenses: expenses-kind accounts with a
-      // unitResidentId set (e.g. postal/reminder fees charged to specific residents).
-      // These are NOT in any riparto linked subtree, so adding them is not a double-count.
-      const ur = str(e.unitResidentId);
-      if (!ur) continue;
-      if (accountKindById.get(String(e.postingAccountId)) !== "expenses") continue;
-      individualByResident.set(ur, (individualByResident.get(ur) ?? 0) + eur(str(e.amount)).cents);
-    }
+    if (String(e.type) === "unitResidentTakings") continue;
+    const ur = str(e.unitResidentId);
+    if (!ur) continue;
+    if (accountKindById.get(String(e.postingAccountId)) !== "expenses") continue;
+    individualByResident.set(ur, (individualByResident.get(ur) ?? 0) + eur(str(e.amount)).cents);
   }
 
-  // Riparto engine: per-resident preventivo (estimate) / consuntivo (current),
-  // summed across all linked expense accounts via the faithful distribution.
-  const eng = buildRiparto(dbToRipartoInput(db, periodId));
-  const sumByMode = (mode: Mode): Map<string, number> => {
-    const out = new Map<string, number>();
-    for (const legacyUnitId of eng.unitLegacyIds) {
-      for (const col of eng.columns) {
-        const split = eng.perResidentAmount(col.legacyAccountId, mode, legacyUnitId);
-        for (const [resId, cents] of split) {
-          out.set(resId, (out.get(resId) ?? 0) + cents);
-        }
-      }
-    }
-    return out;
-  };
-  const preventivoByResident = sumByMode("estimate");
-  const consuntivoByResident = sumByMode("current");
+  // Per-resident balances via the pure cascade. We use only the riparto-derived
+  // preventivo/consuntivo/saldoPrec/versato; consuntivo gets the individual-expense
+  // fold below and totDovuto stays saldoPrec + preventivo (generator semantics).
+  const balancesById = new Map(
+    recomputePeriod(dbToPeriodState(db, periodId)).balances.map((b) => [b.residentId, b]),
+  );
 
   const sumField = (rows: UnitRow[], k: keyof Pick<UnitRow, "saldoPrec" | "preventivo" | "consuntivo" | "totDovuto" | "versato">): Money =>
     m(rows.reduce((a, r) => a + r[k].cents, 0));
@@ -127,13 +111,12 @@ export function projectUnits(db: Db, periodId: string): UnitRow[] {
       const name = residentName(db, mdId);
       const pct = formatPct(str(r.percentage));
       const abbr = roleAbbrev(db, str(up.unitOwnershipScenarioId), str(r.unitResidentPriorityId));
-      const saldoPrec = eur(str(r.startingBalance)).cents;
-      const preventivo = preventivoByResident.get(String(r.id)) ?? 0;
+      const bal = balancesById.get(String(r.id));
+      const saldoPrec = bal?.saldoPrecCents ?? 0;
+      const preventivo = bal?.preventivoCents ?? 0;
       const consuntivo =
-        (consuntivoByResident.get(String(r.id)) ?? 0) +
-        (individualByResident.get(String(r.id)) ?? 0);
-      // takings credit the resident (negative in the ledger); negate to get paid-in positive
-      const versato = -(takingsByResident.get(String(r.id)) ?? 0);
+        (bal?.consuntivoCents ?? 0) + (individualByResident.get(String(r.id)) ?? 0);
+      const versato = bal?.versatoCents ?? 0;
       return {
         id: `r${r.id}`,
         kind: "resident" as const,
