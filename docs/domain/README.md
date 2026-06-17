@@ -34,6 +34,9 @@ generator adapts the legacy dump into it via `apps/web/tools/gen/project/riparto
 the gate). This is Phase 0 of the recompute-engine work
 (`docs/superpowers/specs/2026-06-16-recompute-engine-design.md`); the live-app reactive
 cascade is a later phase.
+The period cascade `packages/domain/src/riparto/recomputePeriod.ts` builds on it (pure
+`recomputePeriod(state) → { riparto, installments, balances }`); Phase 1b wires the generator
+and the live app through it.
 
 ## Quick mental model
 
