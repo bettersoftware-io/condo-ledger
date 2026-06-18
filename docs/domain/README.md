@@ -40,7 +40,10 @@ and the live app through it.
 The build-time seed generator consumes it via `apps/web/tools/gen/project/periodState.ts`
 (`dbToPeriodState`): distribution and per-resident balances are derived from
 `recomputePeriod(state)` (byte-identical to the prior `buildRiparto` path); installments
-remain on their legacy `installmentItem` source. The live-app reactive cascade is Phase 1b-2.
+remain on their legacy `installmentItem` source. For the live app, the generator also seeds
+`periodStateByPeriod` (the pure-cascade input) and `individualByPeriod` (per-resident individual
+expenses) into `data.generated.json`, so the app can rebuild distribution + balances by calling
+`recomputePeriod` at runtime. Wiring that into the reactive store is Phase 1b-2b.
 
 ## Quick mental model
 
