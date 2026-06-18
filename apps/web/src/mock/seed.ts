@@ -17,6 +17,7 @@ import type {
   Anagrafica,
   DistributionType,
 } from "@cl/application";
+import type { PeriodState } from "@cl/domain";
 
 type Dist = { columns: DistributionColumn[]; rows: DistributionRow[] };
 type Installments = { columns: InstallmentColumn[]; rows: InstallmentRow[] };
@@ -33,6 +34,12 @@ export interface MockStoreSeed {
   ledgerAccountsByPeriod: Record<Id, LedgerAccountRow[]>;
   ledgerTxnsByPeriod: Record<Id, LedgerTxnRow[]>;
   installmentsByPeriod: Record<Id, Installments>;
+  /** Phase 1b-2: pure-cascade input per period (book-reconciling periods only).
+   * The live app derives distribution + balances by calling recomputePeriod on this. */
+  periodStateByPeriod?: Record<Id, PeriodState>;
+  /** Phase 1b-2: per-resident directly-attributed individual expenses (legacy
+   * unitResidentId → cents) folded into consuntivo on top of the riparto share. */
+  individualByPeriod?: Record<Id, Record<string, number>>;
   f24sByPeriod: Record<Id, F24Row[]>;
   functionalByPeriod: Record<Id, Partial<Record<FunctionalRole, Id>>>;
   calendarLayers: CalendarLayer[];

@@ -17,6 +17,7 @@ import type {
   Anagrafica,
   DistributionType,
 } from "@cl/application";
+import type { PeriodState } from "@cl/domain";
 import type { Db } from "./db.ts";
 import { reconcilePeriods } from "./reconcile.ts";
 import { projectAnagrafiche, projectCategories } from "./project/anagrafiche.ts";
@@ -26,6 +27,8 @@ import { projectAccounts, projectTransactions } from "./project/accounting.ts";
 import { projectUnits } from "./project/units.ts";
 import { projectDistributionTables, projectDistribution } from "./project/distribution.ts";
 import { projectInstallments } from "./project/installments.ts";
+import { dbToPeriodState } from "./project/periodState.ts";
+import { projectIndividual } from "./project/individual.ts";
 
 type Dist = { columns: DistributionColumn[]; rows: DistributionRow[] };
 type Installments = { columns: InstallmentColumn[]; rows: InstallmentRow[] };
@@ -39,6 +42,8 @@ export interface Seed {
   ledgerAccountsByPeriod: Record<Id, LedgerAccountRow[]>;
   ledgerTxnsByPeriod: Record<Id, LedgerTxnRow[]>;
   installmentsByPeriod: Record<Id, Installments>;
+  periodStateByPeriod: Record<Id, PeriodState>;
+  individualByPeriod: Record<Id, Record<string, number>>;
   f24sByPeriod: Record<Id, F24Row[]>;
   functionalByPeriod: Record<Id, Partial<Record<FunctionalRole, Id>>>;
   calendarLayers: CalendarLayer[];
@@ -68,6 +73,8 @@ export function assemble(db: Db): Seed {
   const ledgerAccountsByPeriod: Record<Id, LedgerAccountRow[]> = {};
   const ledgerTxnsByPeriod: Record<Id, LedgerTxnRow[]> = {};
   const installmentsByPeriod: Record<Id, Installments> = {};
+  const periodStateByPeriod: Record<Id, PeriodState> = {};
+  const individualByPeriod: Record<Id, Record<string, number>> = {};
 
   for (const c of db.condominiums) {
     for (const p of db.periodsOf(String(c.id))) {
@@ -84,12 +91,23 @@ export function assemble(db: Db): Seed {
         distributionTablesByPeriod[pid] = projectDistributionTables(db, lp);
         distributionByPeriod[pid] = projectDistribution(db, lp);
         installmentsByPeriod[pid] = projectInstallments(db, lp);
+        periodStateByPeriod[pid] = dbToPeriodState(db, lp);
+        individualByPeriod[pid] = projectIndividual(db, lp);
       } else {
         ledgerAccountsByPeriod[pid] = [];
         ledgerTxnsByPeriod[pid] = [];
         distributionTablesByPeriod[pid] = [];
         distributionByPeriod[pid] = { estimate: emptyDist, current: emptyDist };
         installmentsByPeriod[pid] = emptyInst;
+        periodStateByPeriod[pid] = {
+          riparto: {
+            accounts: [], links: [], estimateCentsByAccount: {}, actualCentsByAccount: {},
+            tableItems: [], roles: [], residents: [], unitLegacyIds: [],
+          },
+          plan: { installmentIds: [], overrides: [] },
+          opening: {}, paid: {},
+        };
+        individualByPeriod[pid] = {};
       }
     }
   }
@@ -103,6 +121,8 @@ export function assemble(db: Db): Seed {
     ledgerAccountsByPeriod,
     ledgerTxnsByPeriod,
     installmentsByPeriod,
+    periodStateByPeriod,
+    individualByPeriod,
     f24sByPeriod,
     functionalByPeriod,
     calendarLayers,
