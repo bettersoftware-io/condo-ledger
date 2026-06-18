@@ -1,7 +1,6 @@
 import type { UnitRow } from "@cl/application";
 import { recomputePeriod, type Money } from "@cl/domain";
 import type { Db } from "../db.ts";
-import { eur } from "../amounts.ts";
 import { dbToPeriodState } from "./periodState.ts";
 import { projectIndividual } from "./individual.ts";
 
