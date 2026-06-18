@@ -3,6 +3,7 @@ import { recomputePeriod, type Money } from "@cl/domain";
 import type { Db } from "../db.ts";
 import { eur } from "../amounts.ts";
 import { dbToPeriodState } from "./periodState.ts";
+import { projectIndividual } from "./individual.ts";
 
 const str = (v: unknown): string | undefined =>
   v === null || v === undefined || String(v).trim() === "" ? undefined : String(v).trim();
@@ -62,33 +63,9 @@ export function projectUnits(db: Db, periodId: string): UnitRow[] {
   const upByUnit = db.group("unitPeriod", "unitId");
   const resByUnitPeriod = db.group("unitResident", "unitPeriodId");
 
-  // Build per-resident "versato" (paid-in) from unitResidentTakings entries,
-  // and "individualCents" from directly-attributed controlUnitResident entries.
-  const txInPeriod = new Set(
-    db
-      .rows("ledgerTransaction")
-      .filter((t) => String(t.accountingPeriodId) === periodId)
-      .map((t) => String(t.id)),
-  );
-
-  // Build a kind-lookup for ledger accounts (kind is stable across periods).
-  const accountKindById = new Map<string, string>(
-    db.rows("ledgerAccount").map((a) => [String(a.id), String(a.kind ?? "")]),
-  );
-
-  // Directly-attributed individual expenses: expenses-kind accounts with a
-  // unitResidentId set (e.g. postal/reminder fees charged to specific residents).
-  // These are NOT in any riparto linked subtree, so adding them is not a double-count.
-  // (Versato/takings now come from recomputePeriod's balances via dbToPeriodState.)
-  const individualByResident = new Map<string, number>();
-  for (const e of db.rows("ledgerEntry")) {
-    if (!txInPeriod.has(String(e.ledgerTransactionId))) continue;
-    if (String(e.type) === "unitResidentTakings") continue;
-    const ur = str(e.unitResidentId);
-    if (!ur) continue;
-    if (accountKindById.get(String(e.postingAccountId)) !== "expenses") continue;
-    individualByResident.set(ur, (individualByResident.get(ur) ?? 0) + eur(str(e.amount)).cents);
-  }
+  // Directly-attributed individual expenses per resident (expenses-kind entries carrying a
+  // unitResidentId). Shared with the seed's individualByPeriod via projectIndividual.
+  const individualByResident = projectIndividual(db, periodId);
 
   // Per-resident balances via the pure cascade. We use only the riparto-derived
   // preventivo/consuntivo/saldoPrec/versato; consuntivo gets the individual-expense
@@ -115,7 +92,7 @@ export function projectUnits(db: Db, periodId: string): UnitRow[] {
       const saldoPrec = bal?.saldoPrecCents ?? 0;
       const preventivo = bal?.preventivoCents ?? 0;
       const consuntivo =
-        (bal?.consuntivoCents ?? 0) + (individualByResident.get(String(r.id)) ?? 0);
+        (bal?.consuntivoCents ?? 0) + (individualByResident[String(r.id)] ?? 0);
       const versato = bal?.versatoCents ?? 0;
       return {
         id: `r${r.id}`,
