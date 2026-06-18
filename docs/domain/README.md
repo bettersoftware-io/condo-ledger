@@ -37,6 +37,10 @@ cascade is a later phase.
 The period cascade `packages/domain/src/riparto/recomputePeriod.ts` builds on it (pure
 `recomputePeriod(state) → { riparto, installments, balances }`); Phase 1b wires the generator
 and the live app through it.
+The build-time seed generator consumes it via `apps/web/tools/gen/project/periodState.ts`
+(`dbToPeriodState`): distribution and per-resident balances are derived from
+`recomputePeriod(state)` (byte-identical to the prior `buildRiparto` path); installments
+remain on their legacy `installmentItem` source. The live-app reactive cascade is Phase 1b-2.
 
 ## Quick mental model
 

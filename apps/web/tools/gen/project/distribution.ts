@@ -4,9 +4,9 @@ import type {
   DistributionRow,
   DistributionType,
 } from "@cl/application";
-import { buildRiparto, type Mode, type Money } from "@cl/domain";
+import { recomputePeriod, type Mode, type Money } from "@cl/domain";
 import type { Db } from "../db.ts";
-import { dbToRipartoInput } from "./ripartoInput.ts";
+import { dbToPeriodState } from "./periodState.ts";
 
 const m = (c: number): Money => ({ cents: c });
 const num = (v: unknown): number => (v === null || v === undefined ? 0 : Number(v));
@@ -38,7 +38,7 @@ export function projectDistribution(
   db: Db,
   periodId: string,
 ): Record<DistributionType, { columns: DistributionColumn[]; rows: DistributionRow[] }> {
-  const eng = buildRiparto(dbToRipartoInput(db, periodId));
+  const eng = recomputePeriod(dbToPeriodState(db, periodId)).riparto;
 
   const columns: DistributionColumn[] = eng.columns.map((c) => ({
     accountId: `la${c.legacyAccountId}`,
