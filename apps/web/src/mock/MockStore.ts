@@ -87,7 +87,11 @@ export class MockStore implements MockDataSource {
     paid: Record<Id, Record<string, number>>,
   ): ReturnType<typeof recomputePeriod> | null {
     const seeded = this.periodStates_[periodId];
-    if (!seeded) return null;
+    // Only book-reconciling periods carry a real cascade input. Structure-only states are
+    // seeded as empty literals (no units/residents) yet their seeded unit DTO may still
+    // carry carried-forward money (e.g. saldoPrec); overlaying an empty engine result
+    // would zero those, so fall back to the seeded skeleton instead.
+    if (!seeded || seeded.riparto.unitLegacyIds.length === 0) return null;
     return recomputePeriod(liveState(seeded, tables[periodId] ?? [], accounts[periodId] ?? [], paid[periodId] ?? {}));
   }
 
