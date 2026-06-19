@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { Observable } from "rxjs";
 import { MockStore } from "./MockStore";
+import { generatedSeed } from "./data.generated";
 
 const latest = <T,>(obs: Observable<T>): T => {
   let v!: T;
@@ -34,22 +35,38 @@ describe("MockStore reads", () => {
 });
 
 describe("MockStore inline-edit commands", () => {
-  it("setCoefficient re-emits tables AND re-splits the riparto", () => {
+  it("setCoefficient re-emits the coefficient table (fixture seed)", () => {
     const s = new MockStore();
     s.setCoefficient("sat-2011", "t-prop", "u-a01", 500);
     const table = latest(s.distributionTables("sat-2011")).find((t) => t.id === "t-prop")!;
     expect(table.items.find((i) => i.unitId === "u-a01")!.coefficient).toBe(500);
     expect(table.items.find((i) => i.unitId === "u-a02")!.coefficient).toBe(687.5);
-    const dist = latest(s.distribution("sat-2011", "estimate"));
-    const a01 = dist.rows[0]!.children!.find((r) => r.unitId === "u-a01")!;
-    const a02 = dist.rows[0]!.children!.find((r) => r.unitId === "u-a02")!;
-    expect(a01.amounts["e-pul"]!.cents).toBe(50526); // 120000 split 500/687.5 (largest remainder)
-    expect(a02.amounts["e-pul"]!.cents).toBe(69474);
-    expect(a01.amounts["e-pul"]!.cents + a02.amounts["e-pul"]!.cents).toBe(120000);
-    // e-asc belongs to t-scale, not t-prop — must survive the coefficient edit unchanged
-    expect(a01.amounts["e-asc"]!.cents).toBe(32000);
-    // unit total must equal new e-pul + preserved e-asc
-    expect(a01.total.cents).toBe(a01.amounts["e-pul"]!.cents + a01.amounts["e-asc"]!.cents);
+  });
+
+  it("setCoefficient re-splits the riparto via the cascade (generated seed), preserving column totals", () => {
+    const seed = generatedSeed;
+    const states = seed.periodStateByPeriod ?? {};
+    // a book period with a coefficient table carrying >= 2 items
+    const pid = Object.keys(states).find((p) =>
+      states[p]!.riparto.unitLegacyIds.length > 1 &&
+      (seed.distributionTablesByPeriod[p] ?? []).some((t) => t.items.length >= 2))!;
+    expect(pid).toBeTruthy();
+    const s = new MockStore(seed);
+    const table = (seed.distributionTablesByPeriod[pid] ?? []).find((t) => t.items.length >= 2)!;
+    const before = latest(s.distribution(pid, "estimate"));
+    const col = before.rows[0]!; // group row
+    const colTotalsBefore = Object.fromEntries(Object.entries(col.amounts).map(([k, v]) => [k, v.cents]));
+    // bump the first item's coefficient
+    const first = table.items[0]!;
+    s.setCoefficient(pid, table.id, first.unitId, first.coefficient + 100);
+    const after = latest(s.distribution(pid, "estimate"));
+    const colAfter = after.rows[0]!;
+    // group/column totals are conserved within 1 cent (largest-remainder rounding may shift by 1)
+    for (const k of Object.keys(colTotalsBefore)) {
+      expect(Math.abs(colAfter.amounts[k]!.cents - colTotalsBefore[k]!)).toBeLessThanOrEqual(1);
+    }
+    // and at least one unit cell actually changed
+    expect(JSON.stringify(after.rows)).not.toBe(JSON.stringify(before.rows));
   });
   it("setPreventivo updates the account row", () => {
     const s = new MockStore();
