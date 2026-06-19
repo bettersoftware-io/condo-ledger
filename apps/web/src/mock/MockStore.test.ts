@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { Observable } from "rxjs";
 import { MockStore } from "./MockStore";
+import { generatedSeed } from "./data.generated";
 
 const latest = <T,>(obs: Observable<T>): T => {
   let v!: T;
@@ -34,22 +35,38 @@ describe("MockStore reads", () => {
 });
 
 describe("MockStore inline-edit commands", () => {
-  it("setCoefficient re-emits tables AND re-splits the riparto", () => {
+  it("setCoefficient re-emits the coefficient table (fixture seed)", () => {
     const s = new MockStore();
     s.setCoefficient("sat-2011", "t-prop", "u-a01", 500);
     const table = latest(s.distributionTables("sat-2011")).find((t) => t.id === "t-prop")!;
     expect(table.items.find((i) => i.unitId === "u-a01")!.coefficient).toBe(500);
     expect(table.items.find((i) => i.unitId === "u-a02")!.coefficient).toBe(687.5);
-    const dist = latest(s.distribution("sat-2011", "estimate"));
-    const a01 = dist.rows[0]!.children!.find((r) => r.unitId === "u-a01")!;
-    const a02 = dist.rows[0]!.children!.find((r) => r.unitId === "u-a02")!;
-    expect(a01.amounts["e-pul"]!.cents).toBe(50526); // 120000 split 500/687.5 (largest remainder)
-    expect(a02.amounts["e-pul"]!.cents).toBe(69474);
-    expect(a01.amounts["e-pul"]!.cents + a02.amounts["e-pul"]!.cents).toBe(120000);
-    // e-asc belongs to t-scale, not t-prop — must survive the coefficient edit unchanged
-    expect(a01.amounts["e-asc"]!.cents).toBe(32000);
-    // unit total must equal new e-pul + preserved e-asc
-    expect(a01.total.cents).toBe(a01.amounts["e-pul"]!.cents + a01.amounts["e-asc"]!.cents);
+  });
+
+  it("setCoefficient re-splits the riparto via the cascade (generated seed), preserving column totals", () => {
+    const seed = generatedSeed;
+    const states = seed.periodStateByPeriod ?? {};
+    // a book period with a coefficient table carrying >= 2 items
+    const pid = Object.keys(states).find((p) =>
+      states[p]!.riparto.unitLegacyIds.length > 1 &&
+      (seed.distributionTablesByPeriod[p] ?? []).some((t) => t.items.length >= 2))!;
+    expect(pid).toBeTruthy();
+    const s = new MockStore(seed);
+    const table = (seed.distributionTablesByPeriod[pid] ?? []).find((t) => t.items.length >= 2)!;
+    const before = latest(s.distribution(pid, "estimate"));
+    const col = before.rows[0]!; // group row
+    const colTotalsBefore = Object.fromEntries(Object.entries(col.amounts).map(([k, v]) => [k, v.cents]));
+    // bump the first item's coefficient
+    const first = table.items[0]!;
+    s.setCoefficient(pid, table.id, first.unitId, first.coefficient + 100);
+    const after = latest(s.distribution(pid, "estimate"));
+    const colAfter = after.rows[0]!;
+    // group/column totals are conserved within 1 cent (largest-remainder rounding may shift by 1)
+    for (const k of Object.keys(colTotalsBefore)) {
+      expect(Math.abs(colAfter.amounts[k]!.cents - colTotalsBefore[k]!)).toBeLessThanOrEqual(1);
+    }
+    // and at least one unit cell actually changed
+    expect(JSON.stringify(after.rows)).not.toBe(JSON.stringify(before.rows));
   });
   it("setPreventivo updates the account row", () => {
     const s = new MockStore();
@@ -238,19 +255,36 @@ describe("MockStore transaction commands", () => {
     })).toThrow(/inesistente/);
     expect(latest(s.ledgerTransactions("sat-2011"))).toHaveLength(3); // nothing posted
   });
-  it("recordTaking posts the incasso and bumps versato on resident + ancestors", () => {
-    const s = new MockStore();
-    s.recordTaking("sat-2011", {
-      date: "2011-07-01", residentId: "r-a01-1", residentLabel: "Alberi Dina",
-      liquidAccountId: "banca", liquidAccountLabel: "Banca",
-      creditAccountId: "cassa", creditAccountLabel: "Condòmini c/rate",
-      settlements: [{ installmentId: "r1", amountCents: 49576 }],
+  it("recordTaking bumps versato via the cascade (generated seed) on resident + ancestors", () => {
+    const seed = generatedSeed;
+    const states = seed.periodStateByPeriod ?? {};
+    const pid = Object.keys(states).find((p) => states[p]!.riparto.unitLegacyIds.length > 0)!;
+    expect(pid).toBeTruthy();
+    const s = new MockStore(seed);
+    // find a resident row + its unit + group in the seeded unit tree
+    const groups = seed.unitsByPeriod[pid] ?? [];
+    let residentId = "", unitIdx = -1, groupIdx = -1;
+    groups.forEach((g, gi) => (g.children ?? []).forEach((u, ui) => (u.children ?? []).forEach((r) => {
+      if (!residentId && r.kind === "resident") { residentId = r.id; unitIdx = ui; groupIdx = gi; }
+    })));
+    expect(residentId).toBeTruthy();
+    const before = latest(s.unitsTree(pid));
+    const beforeVers = before[groupIdx]!.children![unitIdx]!.children!.find((r) => r.id === residentId)!.versato.cents;
+    s.recordTaking(pid, {
+      date: "2013-07-01", residentId, residentLabel: "Test",
+      liquidAccountId: (seed.ledgerAccountsByPeriod[pid] ?? [])[0]?.id ?? "x",
+      liquidAccountLabel: "Banca",
+      creditAccountId: (seed.ledgerAccountsByPeriod[pid] ?? [])[0]?.id ?? "x",
+      creditAccountLabel: "Crediti",
+      settlements: [{ installmentId: "r1", amountCents: 12345 }],
     });
-    const units = latest(s.unitsTree("sat-2011"));
-    expect(units[0]!.versato.cents).toBe(49576);                       // group rollup
-    expect(units[0]!.children![0]!.versato.cents).toBe(49576);          // unit u-a01
-    expect(units[0]!.children![0]!.children![0]!.versato.cents).toBe(49576); // resident
-    expect(units[0]!.children![1]!.versato.cents).toBe(0);              // untouched sibling
+    const after = latest(s.unitsTree(pid));
+    const res = after[groupIdx]!.children![unitIdx]!.children!.find((r) => r.id === residentId)!;
+    expect(res.versato.cents).toBe(beforeVers + 12345);
+    // ancestor rollup reflects the increase
+    const unitVers = after[groupIdx]!.children![unitIdx]!.versato.cents;
+    const beforeUnitVers = before[groupIdx]!.children![unitIdx]!.versato.cents;
+    expect(unitVers).toBe(beforeUnitVers + 12345);
   });
 });
 

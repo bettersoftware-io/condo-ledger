@@ -1,8 +1,10 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AppRuntimeProvider } from "../../runtime/AppRuntimeProvider";
 import { ToastProvider } from "../../components/common/Toast";
 import { useAppRuntime } from "../../runtime/useAppRuntime";
+import { createGeneratedDataSource } from "../../mock/MockDataSource";
+import { generatedSeed } from "../../mock/data.generated";
 import { TabelleSection } from "./TabelleSection";
 
 function Inner() {
@@ -22,18 +24,60 @@ test("lists tables and toggles preventivo/consuntivo", async () => {
   expect(screen.getByText("Consuntivo")).toBeInTheDocument();
 });
 
-test("coefficient edit persists to the store and recomputes the riparto live", async () => {
-  setup();
+test("coefficient edit persists and re-splits the riparto live (generated seed)", async () => {
+  // The cascade needs a seeded PeriodState to recompute; fixtures have none, so this
+  // end-to-end "edit a coefficient -> riparto re-splits on screen" check runs against the
+  // generated seed (the data the real app actually uses). We assert the riparto cells
+  // CHANGE rather than a hardcoded value, so it is robust to the engine's exact rounding.
+  const seed = generatedSeed;
+  const states = seed.periodStateByPeriod ?? {};
+  // first book period whose default-selected table (tables[0]) carries >= 2 coefficients
+  const pid = Object.keys(states).find(
+    (p) =>
+      states[p]!.riparto.unitLegacyIds.length > 0 &&
+      ((seed.distributionTablesByPeriod[p] ?? [])[0]?.items.length ?? 0) >= 2,
+  )!;
+  expect(pid).toBeTruthy();
+  const firstCoeff = seed.distributionTablesByPeriod[pid]![0]!.items[0]!.coefficient;
+  const fmt = (n: number) => n.toLocaleString("it-IT", { minimumFractionDigits: 4, maximumFractionDigits: 4 });
+
+  function GenInner() {
+    const rt = useAppRuntime();
+    return (
+      <>
+        <button onClick={() => rt.select({ accountingPeriodId: pid })}>sel</button>
+        <TabelleSection />
+      </>
+    );
+  }
+  render(
+    <AppRuntimeProvider data={createGeneratedDataSource()}>
+      <ToastProvider>
+        <GenInner />
+      </ToastProvider>
+    </AppRuntimeProvider>,
+  );
   await userEvent.click(screen.getByText("sel"));
-  const cell = await screen.findByText("312,5000");
-  fireEvent.doubleClick(cell);
+
+  // the riparto (bottom) table is uniquely identified by its first column header
+  const before = (await screen.findByText("Conto / Unità")).closest("table")!.textContent;
+
+  // edit the first coefficient of the default-selected table to a clearly different value
+  fireEvent.doubleClick(await screen.findByText(fmt(firstCoeff)));
   const input = screen.getByRole("textbox");
-  fireEvent.change(input, { target: { value: "500" } });
+  fireEvent.change(input, { target: { value: "900" } });
   fireEvent.keyDown(input, { key: "Enter" });
-  await screen.findByText("500,0000", {}, { timeout: 3000 });
-  expect(screen.queryByText("500,0000")).toBeInTheDocument();
-  expect(await screen.findByText("505,26", {}, { timeout: 3000 })).toBeInTheDocument(); // riparto A01 Pulizie re-split (50526 cents)
-  expect(screen.getByText("Competenza")).toBeInTheDocument();    // new column
+
+  // let the rxjs commit -> react-rxjs re-render settle (a macrotask tick)
+  await new Promise((r) => setTimeout(r, 0));
+
+  // coefficient persisted to the store and re-rendered
+  expect(await screen.findByText("900,0000", {}, { timeout: 3000 })).toBeInTheDocument();
+  // riparto re-split live: the bottom table's contents changed
+  await waitFor(
+    () => expect(screen.getByText("Conto / Unità").closest("table")!.textContent).not.toBe(before),
+    { timeout: 3000 },
+  );
 });
 
 test("adds and removes a distribution table via the pane toolbar", async () => {

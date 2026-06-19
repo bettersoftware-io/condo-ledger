@@ -13,7 +13,8 @@ import { fromCents } from "@cl/domain";
 import { fixtureSeed } from "./fixtures";
 import type { MockStoreSeed } from "./seed";
 import { mapRow, removeRow, insertChild } from "./treeRows";
-import { recomputeDistribution } from "../recompute/distribution";
+import { recomputePeriod, type PeriodState } from "@cl/domain";
+import { liveState, overlayDistribution, overlayUnits } from "./cascade";
 import { distributeInstallments, redistributeOverride } from "../recompute/installments";
 import { addMonths, formatItDate } from "../recompute/dates";
 import { applyEntryDeltas } from "../recompute/balances";
@@ -31,6 +32,7 @@ export class MockStore implements MockDataSource {
   private accounts$: BehaviorSubject<Record<Id, LedgerAccountRow[]>>;
   protected txns$: BehaviorSubject<Record<Id, LedgerTxnRow[]>>;
   private installments$: BehaviorSubject<Record<Id, Installments>>;
+  private paid$: BehaviorSubject<Record<Id, Record<string, number>>>;
   private f24s$: BehaviorSubject<Record<Id, F24Row[]>>;
   private functional$: BehaviorSubject<Record<Id, Partial<Record<FunctionalRole, Id>>>>;
   private calendar$: BehaviorSubject<CalendarEvent[]>;
@@ -38,6 +40,9 @@ export class MockStore implements MockDataSource {
   /** Static registries: shipped as-is, validated against on CRUD. */
   private readonly calendarLayers_: CalendarLayer[];
   private readonly anagraficaCategories_: string[];
+  /** Seeded pure-cascade input + individual expenses (book-reconciling periods only). */
+  private readonly periodStates_: Record<Id, PeriodState>;
+  private readonly individual_: Record<Id, Record<string, number>>;
 
   constructor(seed: MockStoreSeed = fixtureSeed) {
     this.tree$ = new BehaviorSubject<CondominiumNode[]>(seed.tree);
@@ -48,6 +53,12 @@ export class MockStore implements MockDataSource {
     this.accounts$ = new BehaviorSubject<Record<Id, LedgerAccountRow[]>>(seed.ledgerAccountsByPeriod);
     this.txns$ = new BehaviorSubject<Record<Id, LedgerTxnRow[]>>(seed.ledgerTxnsByPeriod);
     this.installments$ = new BehaviorSubject<Record<Id, Installments>>(seed.installmentsByPeriod);
+    const states = seed.periodStateByPeriod ?? {};
+    this.periodStates_ = states;
+    this.individual_ = seed.individualByPeriod ?? {};
+    const paidSeed: Record<Id, Record<string, number>> = {};
+    for (const pid of Object.keys(states)) paidSeed[pid] = { ...states[pid]!.paid };
+    this.paid$ = new BehaviorSubject<Record<Id, Record<string, number>>>(paidSeed);
     this.f24s$ = new BehaviorSubject<Record<Id, F24Row[]>>(seed.f24sByPeriod);
     this.functional$ = new BehaviorSubject<Record<Id, Partial<Record<FunctionalRole, Id>>>>(seed.functionalByPeriod);
     this.calendar$ = new BehaviorSubject<CalendarEvent[]>(seed.calendarEvents);
@@ -58,10 +69,40 @@ export class MockStore implements MockDataSource {
 
   condominiumTree(): Observable<CondominiumNode[]> { return this.tree$.asObservable(); }
   condominiumDetail(periodId: Id) { return this.details$.pipe(map((d) => d[periodId] ?? null)); }
-  unitsTree(periodId: Id) { return this.units$.pipe(map((u) => u[periodId] ?? [])); }
+  unitsTree(periodId: Id) {
+    return combineLatest([this.units$, this.tables$, this.accounts$, this.paid$]).pipe(
+      map(([units, tables, accounts, paid]) => {
+        const skeleton = units[periodId] ?? [];
+        const eng = this.engineFor(periodId, tables, accounts, paid);
+        return eng ? overlayUnits(eng.balances, skeleton, this.individual_[periodId] ?? {}) : skeleton;
+      }),
+    );
+  }
   distributionTables(periodId: Id) { return this.tables$.pipe(map((t) => t[periodId] ?? [])); }
+  /** recomputePeriod over the live subjects for a period; null when not a book period. */
+  private engineFor(
+    periodId: Id,
+    tables: Record<Id, DistributionTable[]>,
+    accounts: Record<Id, LedgerAccountRow[]>,
+    paid: Record<Id, Record<string, number>>,
+  ): ReturnType<typeof recomputePeriod> | null {
+    const seeded = this.periodStates_[periodId];
+    // Only book-reconciling periods carry a real cascade input. Structure-only states are
+    // seeded as empty literals (no units/residents) yet their seeded unit DTO may still
+    // carry carried-forward money (e.g. saldoPrec); overlaying an empty engine result
+    // would zero those, so fall back to the seeded skeleton instead.
+    if (!seeded || seeded.riparto.unitLegacyIds.length === 0) return null;
+    return recomputePeriod(liveState(seeded, tables[periodId] ?? [], accounts[periodId] ?? [], paid[periodId] ?? {}));
+  }
+
   distribution(periodId: Id, type: DistributionType): Observable<Dist> {
-    return this.distributions$.pipe(map((d) => d[periodId]?.[type] ?? { columns: [], rows: [] }));
+    return combineLatest([this.distributions$, this.tables$, this.accounts$, this.paid$]).pipe(
+      map(([dists, tables, accounts, paid]) => {
+        const skeleton = dists[periodId]?.[type] ?? { columns: [], rows: [] };
+        const eng = this.engineFor(periodId, tables, accounts, paid);
+        return eng ? overlayDistribution(eng.riparto, skeleton, type) : skeleton;
+      }),
+    );
   }
   ledgerAccountsTree(periodId: Id) { return this.accounts$.pipe(map((a) => a[periodId] ?? [])); }
   ledgerTransactions(periodId: Id) { return this.txns$.pipe(map((t) => t[periodId] ?? [])); }
@@ -71,12 +112,18 @@ export class MockStore implements MockDataSource {
   f24s(periodId: Id) { return this.f24s$.pipe(map((f) => f[periodId] ?? [])); }
   functionalAccounts(periodId: Id) { return this.functional$.pipe(map((f) => f[periodId] ?? {})); }
   periodSummaries(): Observable<Record<Id, PeriodSummary>> {
-    return combineLatest([this.accounts$, this.units$]).pipe(map(([accounts, units]) => {
-      const ids = new Set([...Object.keys(accounts), ...Object.keys(units)]);
-      return Object.fromEntries(
-        [...ids].map((id) => [id, periodSummary(accounts[id] ?? [], units[id] ?? [])]),
-      );
-    }));
+    return combineLatest([this.accounts$, this.units$, this.tables$, this.paid$]).pipe(
+      map(([accounts, units, tables, paid]) => {
+        const ids = new Set([...Object.keys(accounts), ...Object.keys(units)]);
+        return Object.fromEntries(
+          [...ids].map((id) => {
+            const eng = this.engineFor(id, tables, accounts, paid);
+            const u = eng ? overlayUnits(eng.balances, units[id] ?? [], this.individual_[id] ?? {}) : (units[id] ?? []);
+            return [id, periodSummary(accounts[id] ?? [], u)];
+          }),
+        );
+      }),
+    );
   }
   calendarLayers(): Observable<CalendarLayer[]> { return of(this.calendarLayers_); } // static registry
   calendarEvents(): Observable<CalendarEvent[]> { return this.calendar$.asObservable(); }
@@ -227,19 +274,6 @@ export class MockStore implements MockDataSource {
         ...t,
         items: t.items.map((it) => (it.unitId === unitId ? { ...it, coefficient } : it)),
       })));
-    const table = (this.tables$.getValue()[periodId] ?? []).find((t) => t.id === tableId);
-    if (!table) return;
-    const coeffByUnit = new Map(table.items.map((i) => [i.unitId, i.coefficient]));
-    const cur = this.distributions$.getValue();
-    const dist = cur[periodId];
-    if (!dist) return;
-    this.distributions$.next({
-      ...cur,
-      [periodId]: {
-        estimate: recomputeDistribution(dist.estimate, coeffByUnit, tableId),
-        current: recomputeDistribution(dist.current, coeffByUnit, tableId),
-      },
-    });
   }
 
   setPreventivo(periodId: Id, accountId: Id, cents: number): void {
@@ -335,15 +369,8 @@ export class MockStore implements MockDataSource {
         { accountId: t.creditAccountId, label: t.creditAccountLabel, dareCents: 0, avereCents: total },
       ],
     });
-    const addVersato = (rows: UnitRow[]): UnitRow[] => {
-      const contains = (r: UnitRow): boolean =>
-        r.id === t.residentId || (r.children ?? []).some(contains);
-      const walk = (r: UnitRow): UnitRow => contains(r)
-        ? { ...r, versato: fromCents(r.versato.cents + total), children: r.children?.map(walk) }
-        : r;
-      return rows.map(walk);
-    };
-    this.patch(this.units$, periodId, [], addVersato);
+    const rid = t.residentId.startsWith("r") ? t.residentId.slice(1) : t.residentId;
+    this.patch(this.paid$, periodId, {}, (cur) => ({ ...cur, [rid]: (cur[rid] ?? 0) + total }));
   }
 
   createInstallments(periodId: Id, input: CreateInstallmentsInput): void {
