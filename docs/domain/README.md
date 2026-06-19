@@ -43,7 +43,11 @@ The build-time seed generator consumes it via `apps/web/tools/gen/project/period
 remain on their legacy `installmentItem` source. For the live app, the generator also seeds
 `periodStateByPeriod` (the pure-cascade input) and `individualByPeriod` (per-resident individual
 expenses) into `data.generated.json`, so the app can rebuild distribution + balances by calling
-`recomputePeriod` at runtime. Wiring that into the reactive store is Phase 1b-2b.
+`recomputePeriod` at runtime. Phase 1b-2b wires that into the live store: `distribution`
+and `unitsTree` are derived by assembling a live `PeriodState` from the editable subjects
+(`tables$`/`accounts$`/`paid$`) and overlaying `recomputePeriod` onto the seeded DTO
+skeletons; the bespoke `recomputeDistribution` is retired. Installments remain a
+command-patched source.
 
 ## Quick mental model
 
