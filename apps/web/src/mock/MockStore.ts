@@ -69,7 +69,15 @@ export class MockStore implements MockDataSource {
 
   condominiumTree(): Observable<CondominiumNode[]> { return this.tree$.asObservable(); }
   condominiumDetail(periodId: Id) { return this.details$.pipe(map((d) => d[periodId] ?? null)); }
-  unitsTree(periodId: Id) { return this.units$.pipe(map((u) => u[periodId] ?? [])); }
+  unitsTree(periodId: Id) {
+    return combineLatest([this.units$, this.tables$, this.accounts$, this.paid$]).pipe(
+      map(([units, tables, accounts, paid]) => {
+        const skeleton = units[periodId] ?? [];
+        const eng = this.engineFor(periodId, tables, accounts, paid);
+        return eng ? overlayUnits(eng.balances, skeleton, this.individual_[periodId] ?? {}) : skeleton;
+      }),
+    );
+  }
   distributionTables(periodId: Id) { return this.tables$.pipe(map((t) => t[periodId] ?? [])); }
   /** recomputePeriod over the live subjects for a period; null when not a book period. */
   private engineFor(
@@ -100,12 +108,18 @@ export class MockStore implements MockDataSource {
   f24s(periodId: Id) { return this.f24s$.pipe(map((f) => f[periodId] ?? [])); }
   functionalAccounts(periodId: Id) { return this.functional$.pipe(map((f) => f[periodId] ?? {})); }
   periodSummaries(): Observable<Record<Id, PeriodSummary>> {
-    return combineLatest([this.accounts$, this.units$]).pipe(map(([accounts, units]) => {
-      const ids = new Set([...Object.keys(accounts), ...Object.keys(units)]);
-      return Object.fromEntries(
-        [...ids].map((id) => [id, periodSummary(accounts[id] ?? [], units[id] ?? [])]),
-      );
-    }));
+    return combineLatest([this.accounts$, this.units$, this.tables$, this.paid$]).pipe(
+      map(([accounts, units, tables, paid]) => {
+        const ids = new Set([...Object.keys(accounts), ...Object.keys(units)]);
+        return Object.fromEntries(
+          [...ids].map((id) => {
+            const eng = this.engineFor(id, tables, accounts, paid);
+            const u = eng ? overlayUnits(eng.balances, units[id] ?? [], this.individual_[id] ?? {}) : (units[id] ?? []);
+            return [id, periodSummary(accounts[id] ?? [], u)];
+          }),
+        );
+      }),
+    );
   }
   calendarLayers(): Observable<CalendarLayer[]> { return of(this.calendarLayers_); } // static registry
   calendarEvents(): Observable<CalendarEvent[]> { return this.calendar$.asObservable(); }
@@ -351,15 +365,8 @@ export class MockStore implements MockDataSource {
         { accountId: t.creditAccountId, label: t.creditAccountLabel, dareCents: 0, avereCents: total },
       ],
     });
-    const addVersato = (rows: UnitRow[]): UnitRow[] => {
-      const contains = (r: UnitRow): boolean =>
-        r.id === t.residentId || (r.children ?? []).some(contains);
-      const walk = (r: UnitRow): UnitRow => contains(r)
-        ? { ...r, versato: fromCents(r.versato.cents + total), children: r.children?.map(walk) }
-        : r;
-      return rows.map(walk);
-    };
-    this.patch(this.units$, periodId, [], addVersato);
+    const rid = t.residentId.startsWith("r") ? t.residentId.slice(1) : t.residentId;
+    this.patch(this.paid$, periodId, {}, (cur) => ({ ...cur, [rid]: (cur[rid] ?? 0) + total }));
   }
 
   createInstallments(periodId: Id, input: CreateInstallmentsInput): void {

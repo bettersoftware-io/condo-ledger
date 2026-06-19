@@ -255,19 +255,36 @@ describe("MockStore transaction commands", () => {
     })).toThrow(/inesistente/);
     expect(latest(s.ledgerTransactions("sat-2011"))).toHaveLength(3); // nothing posted
   });
-  it("recordTaking posts the incasso and bumps versato on resident + ancestors", () => {
-    const s = new MockStore();
-    s.recordTaking("sat-2011", {
-      date: "2011-07-01", residentId: "r-a01-1", residentLabel: "Alberi Dina",
-      liquidAccountId: "banca", liquidAccountLabel: "Banca",
-      creditAccountId: "cassa", creditAccountLabel: "Condòmini c/rate",
-      settlements: [{ installmentId: "r1", amountCents: 49576 }],
+  it("recordTaking bumps versato via the cascade (generated seed) on resident + ancestors", () => {
+    const seed = generatedSeed;
+    const states = seed.periodStateByPeriod ?? {};
+    const pid = Object.keys(states).find((p) => states[p]!.riparto.unitLegacyIds.length > 0)!;
+    expect(pid).toBeTruthy();
+    const s = new MockStore(seed);
+    // find a resident row + its unit + group in the seeded unit tree
+    const groups = seed.unitsByPeriod[pid] ?? [];
+    let residentId = "", unitIdx = -1, groupIdx = -1;
+    groups.forEach((g, gi) => (g.children ?? []).forEach((u, ui) => (u.children ?? []).forEach((r) => {
+      if (!residentId && r.kind === "resident") { residentId = r.id; unitIdx = ui; groupIdx = gi; }
+    })));
+    expect(residentId).toBeTruthy();
+    const before = latest(s.unitsTree(pid));
+    const beforeVers = before[groupIdx]!.children![unitIdx]!.children!.find((r) => r.id === residentId)!.versato.cents;
+    s.recordTaking(pid, {
+      date: "2013-07-01", residentId, residentLabel: "Test",
+      liquidAccountId: (seed.ledgerAccountsByPeriod[pid] ?? [])[0]?.id ?? "x",
+      liquidAccountLabel: "Banca",
+      creditAccountId: (seed.ledgerAccountsByPeriod[pid] ?? [])[0]?.id ?? "x",
+      creditAccountLabel: "Crediti",
+      settlements: [{ installmentId: "r1", amountCents: 12345 }],
     });
-    const units = latest(s.unitsTree("sat-2011"));
-    expect(units[0]!.versato.cents).toBe(49576);                       // group rollup
-    expect(units[0]!.children![0]!.versato.cents).toBe(49576);          // unit u-a01
-    expect(units[0]!.children![0]!.children![0]!.versato.cents).toBe(49576); // resident
-    expect(units[0]!.children![1]!.versato.cents).toBe(0);              // untouched sibling
+    const after = latest(s.unitsTree(pid));
+    const res = after[groupIdx]!.children![unitIdx]!.children!.find((r) => r.id === residentId)!;
+    expect(res.versato.cents).toBe(beforeVers + 12345);
+    // ancestor rollup reflects the increase
+    const unitVers = after[groupIdx]!.children![unitIdx]!.versato.cents;
+    const beforeUnitVers = before[groupIdx]!.children![unitIdx]!.versato.cents;
+    expect(unitVers).toBe(beforeUnitVers + 12345);
   });
 });
 
