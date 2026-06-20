@@ -19,11 +19,26 @@ export function createAppRuntime(deps: { data: MockDataSource }): AppRuntime {
   const [useSelectedRows] = bind(selectedRows$, emptyRows);
 
   // Calendario slice. Studio-wide (not gated on selection$): the legacy agenda
-  // spans all condominiums; the month is the unit of fetching. "2011-04" is the
-  // demo default — fixtures live in 2010-2011 (a real adapter would use today).
-  const calendarMonth$ = new BehaviorSubject<string>("2011-04");
+  // spans all condominiums; the month is the unit of fetching. The initial month is
+  // data-driven — the month carrying the most seeded events — so the view opens on a
+  // populated month for any seed (fixtures land on 2011-04, the generated data on
+  // 2013-02). "2011-04" is only the fallback when there are no events; a real adapter
+  // would use today.
+  const pickInitialMonth = (): string => {
+    let events: { date: string }[] = [];
+    data.calendarEvents().subscribe((e) => { events = e; }).unsubscribe();
+    if (events.length === 0) return "2011-04";
+    const counts = new Map<string, number>();
+    for (const e of events) {
+      const ym = e.date.slice(0, 7);
+      counts.set(ym, (counts.get(ym) ?? 0) + 1);
+    }
+    return [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0]![0];
+  };
+  const initialMonth = pickInitialMonth();
+  const calendarMonth$ = new BehaviorSubject<string>(initialMonth);
   const selectedDay$ = new BehaviorSubject<string | null>(null);
-  const [useCalendarMonth] = bind(calendarMonth$, "2011-04");
+  const [useCalendarMonth] = bind(calendarMonth$, initialMonth);
   const [useSelectedDay] = bind(selectedDay$, null);
   const [useCalendarLayers] = bind(data.calendarLayers(), []);
   const [useAllCalendarEvents] = bind(data.calendarEvents(), []);
