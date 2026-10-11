@@ -1,4 +1,0 @@
-.chip { display: inline-flex; align-items: center; gap: var(--sp-2); font-size: var(--fs-xs); }
-.dot { width: 8px; height: 8px; border-radius: 50%; }
-.active { background: var(--status-active); }
-.closed { background: var(--status-closed); }

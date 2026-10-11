@@ -1,7 +1,0 @@
-.card { padding: var(--sp-6); overflow: auto; }
-.group { margin-bottom: var(--sp-6); }
-.groupTitle { font-size: var(--fs-sm); font-weight: var(--fw-bold); color: var(--text-secondary);
-  border-bottom: 1px solid var(--border-subtle); padding-bottom: var(--sp-2); margin-bottom: var(--sp-3); }
-.row { display: grid; grid-template-columns: 180px 1fr; gap: var(--sp-4); padding: var(--sp-2) 0; }
-.label { color: var(--text-secondary); }
-.value { color: var(--text-primary); }
