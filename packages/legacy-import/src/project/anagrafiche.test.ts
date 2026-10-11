@@ -13,9 +13,9 @@ const tables: Tables = {
     {
       id: "10",
       status: "active",
-      code: "FCLEAN",
+      code: "LUCENT",
       taxCode: null,
-      vatNumber: "14476590311",
+      vatNumber: "02468135790",
       masterDataCategoryId: "5",
       postalAddress: `C:9:"AddressVO":1:{a:1:{s:8:"postCode";s:5:"33100";}}`,
       notes: null,
@@ -34,7 +34,7 @@ const tables: Tables = {
   company: [
     {
       masterDataId: "10",
-      name: "Zanon Servizi di Pulizia s.n.c.",
+      name: "Lucente Pulizie soc. coop. r.l.",
       registeredOfficeAddress: null,
       taxPurposeAddress: null,
     },
@@ -63,11 +63,11 @@ describe("projectAnagrafiche", () => {
     })!;
     expect(c).toMatchObject({
       kind: "company",
-      nominativo: "Zanon Servizi di Pulizia s.n.c.",
+      nominativo: "Lucente Pulizie soc. coop. r.l.",
       categoria: "Impresa di pulizie",
       stato: "active",
-      partitaIva: "14476590311",
-      codice: "FCLEAN",
+      partitaIva: "02468135790",
+      codice: "LUCENT",
     });
     expect(c.indirizzo).toContain("33100");
   });

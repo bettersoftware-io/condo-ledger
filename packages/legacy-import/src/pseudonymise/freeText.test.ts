@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   createNameMapping,
+  identifierReplacements,
   type NameEntry,
   replaceNames,
   sweepIdentifiers,
@@ -89,6 +90,15 @@ describe("replaceNames", () => {
     expect(replaceNames("Paolo", m)).toBe("Ivo");
   });
 
+  it("orders originals of equal length by their code units, not by locale", () => {
+    const m = createNameMapping([
+      { original: "Zeta", pseudonym: "Uno" },
+      { original: "zeta", pseudonym: "Due", anyCase: true },
+    ]);
+
+    expect(m.pattern?.source).toContain("(?i:zeta)|ZETA|Zeta|zeta");
+  });
+
   it("returns the text unchanged when no name occurs, or the mapping is empty", () => {
     expect(replaceNames("Spese generali 2013", mapping)).toBe(
       "Spese generali 2013",
@@ -138,11 +148,22 @@ describe("sweepIdentifiers", () => {
   });
 
   it("replaces the subscriber digits of a phone number, keeping its prefix and shape", () => {
-    const mobile = sweepIdentifiers("Per urgenze, chiamare il 347-43546518.");
+    const mobile = sweepIdentifiers("Per urgenze, chiamare il 347-50918273.");
 
     expect(mobile).toMatch(/^Per urgenze, chiamare il 347-\d{8}\.$/);
-    expect(mobile).not.toContain("21154741");
-    expect(sweepIdentifiers("+39 0432 818699")).toMatch(/^\+39 0432 \d{6}$/);
+    expect(mobile).not.toContain("50918273");
+    expect(sweepIdentifiers("+39 0432 918273")).toMatch(/^\+39 0432 \d{6}$/);
+  });
+
+  it("redraws the digits of an insurance policy number", () => {
+    const out = sweepIdentifiers("Scadenza polizza assicurativa n.6153 Lumen");
+
+    expect(out).toMatch(/^Scadenza polizza assicurativa n\.\d{4} Lumen$/);
+    expect(out).not.toContain("6153");
+    expect(sweepIdentifiers("Polizza n° 5531")).toMatch(/^Polizza n° \d{4}$/);
+    expect(sweepIdentifiers("Premio polizza fabbricato")).toBe(
+      "Premio polizza fabbricato",
+    );
   });
 
   it("replaces the digits of a bank account number after C/C", () => {
@@ -150,6 +171,23 @@ describe("sweepIdentifiers", () => {
 
     expect(out).toMatch(/^Banca - C\/C \d{4}\.\d{2}$/);
     expect(out).not.toBe("Banca - C/C 1234.56");
+  });
+
+  it("lists each identifier with the fake that replaces it", () => {
+    const text = "tel 347-50918273, P.IVA 00743110157, n. 395 123 456";
+    const pairs = identifierReplacements(text);
+
+    expect(
+      pairs.map(([original]) => {
+        return original;
+      }),
+    ).toEqual(["347-50918273", "00743110157"]);
+    expect(
+      pairs.reduce((t, [original, fake]) => {
+        return t.replace(original, fake);
+      }, text),
+    ).toBe(sweepIdentifiers(text));
+    expect(identifierReplacements("nessun numero")).toEqual([]);
   });
 
   it("leaves utility numbers, dates, invoice numbers and post codes alone", () => {

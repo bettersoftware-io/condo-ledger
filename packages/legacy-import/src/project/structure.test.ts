@@ -62,7 +62,7 @@ const tables: Tables = {
     {
       id: "10",
       status: "active",
-      code: "FCLEAN",
+      code: "LUCENT",
       masterDataCategoryId: "5",
       vatNumber: "x",
       taxCode: null,
@@ -74,7 +74,7 @@ const tables: Tables = {
     { id: "5", name: "Impresa di pulizie", code: "PUL", order: "1" },
   ],
   masterDataCategoryI18n: [],
-  company: [{ masterDataId: "10", name: "Zanon Servizi di Pulizia" }],
+  company: [{ masterDataId: "10", name: "Lucente Pulizie" }],
   person: [],
   f24: [
     {
@@ -120,7 +120,7 @@ describe("structure projection", () => {
     expect(d.suppliers).toEqual([
       {
         id: "sup1-10",
-        nominativo: "Zanon Servizi di Pulizia",
+        nominativo: "Lucente Pulizie",
         categoria: "Impresa di pulizie",
       },
     ]);

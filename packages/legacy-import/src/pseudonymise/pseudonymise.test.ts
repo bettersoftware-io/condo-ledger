@@ -4,6 +4,7 @@ import { parseAddressVO } from "../addressVO.ts";
 import type { Row, Tables } from "../loadRows.ts";
 import { fiscalCode, slugOf } from "./codes.ts";
 import { companyCore } from "./identity.ts";
+import { EXTRA_ENTRIES } from "./leftovers.ts";
 import { BANK_NAMES, STREETS, SURNAMES, TOWNS } from "./names.ts";
 import { serializeAddressVO } from "./phpSerialized.ts";
 import { pseudonymiseTables } from "./pseudonymise.ts";
@@ -186,19 +187,66 @@ describe("pseudonymiseTables", () => {
     });
   });
 
-  it("redraws the digits of cadastral references and of a building's fiscal code", () => {
+  it("redraws the parcel numbers of a cadastral reference and keeps its category and class", () => {
     const out = pseudonymiseTables(createTables());
     const building = rowOf(out, "condominium", "id", "1");
+    const unit = s(rowOf(out, "unit", "id", "1").landRegistry);
 
     expect(building.landRegistry).toMatch(
-      /^Foglio = \d{2}; Particella = \d{3}$/,
+      /^Sezione = A; Foglio = \d{2}; Particella = \d{3}; Categoria = C\/6; Classe = 2; Sub = \d$/,
     );
-    expect(building.landRegistry).not.toBe("Foglio = 33; Particella = 346");
+    expect(building.landRegistry).not.toContain(
+      "Foglio = 33; Particella = 346",
+    );
+    expect(unit).toMatch(/^Mapp\. \d{3}, Sup\. \d{2}-\d{2}$/);
+    expect(unit).not.toContain("512");
+  });
+
+  it("redraws a building's fiscal code", () => {
+    const building = rowOf(
+      pseudonymiseTables(createTables()),
+      "condominium",
+      "id",
+      "1",
+    );
+
     expect(building.taxCode).toMatch(/^\d{9}$/);
-    expect(building.taxCode).not.toBe("010027376");
-    expect(rowOf(out, "unit", "id", "1").landRegistry).toMatch(
-      /^Mapp\. \d{3}$/,
+    expect(building.taxCode).not.toBe("582917364");
+  });
+
+  it("keeps lookup and label tables as they are", () => {
+    const tables = createTables();
+    const out = pseudonymiseTables(tables);
+
+    expect(out.qualification).toEqual(tables.qualification);
+    expect(out.unitType).toEqual(tables.unitType);
+  });
+
+  it("replaces a building's real town and the known leftovers in free text", () => {
+    const out = pseudonymiseTables(createTables());
+    const town = parseAddressVO(
+      s(rowOf(out, "condominium", "id", "1").address),
+    ).cityName;
+    const policy = s(rowOf(out, "calendarEvent", "id", "1").description);
+    const bank = s(rowOf(out, "ledgerAccount", "id", "2").name);
+
+    expect(rowOf(out, "ledgerAccount", "id", "1").name).toBe(
+      `Diritti segreteria Comune ${town ?? ""}`,
     );
+    expect(BANK_NAMES).toContain(bank.split(" - ")[0]);
+    expect(bank).toMatch(/ - C\/C \d{4}\.\d{2}$/);
+    expect(BANK_NAMES).toContain(
+      s(rowOf(out, "ledgerAccount", "id", "3").name).split(" - ")[0],
+    );
+    expect(policy).toMatch(/^Scadenza polizza assicurativa n\.\d{4} \S/);
+    expect(policy).not.toContain("6153");
+
+    for (const leftover of OTHER_LEFTOVERS) {
+      expect(policy).not.toContain(leftover.original);
+      expect(rowOf(out, "calendarEvent", "id", "1").notes).not.toContain(
+        leftover.original,
+      );
+    }
   });
 
   it("gives a bank account one consistent fake IBAN and its holder's name", () => {
@@ -247,7 +295,12 @@ describe("pseudonymiseTables", () => {
   });
 
   it("leaves no original name, code or address outside the reference tables", () => {
-    const { city: _city, ...out } = pseudonymiseTables(createTables());
+    const {
+      city: _city,
+      qualification: _qualification,
+      unitType: _unitType,
+      ...out
+    } = pseudonymiseTables(createTables());
     const text = JSON.stringify(out);
 
     for (const original of [
@@ -266,6 +319,11 @@ describe("pseudonymiseTables", () => {
       "via Lunga",
       "via Corta",
       "Banca Vera",
+      "Borgo Alto",
+      "6153",
+      ...EXTRA_ENTRIES.map((e) => {
+        return e.original;
+      }),
     ]) {
       expect(text).not.toContain(original);
     }
@@ -382,10 +440,14 @@ function createTables(): Tables {
         id: "1",
         name: "Alfa",
         code: "ALF",
-        address: blob("via Corta, 4", "33100"),
-        taxCode: "010027376",
+        address: blob("via Corta, 4", "33100").replace(
+          's:6:"cityId";N;',
+          's:6:"cityId";i:77;',
+        ),
+        taxCode: "582917364",
         vatNumber: null,
-        landRegistry: "Foglio = 33; Particella = 346",
+        landRegistry:
+          "Sezione = A; Foglio = 33; Particella = 346; Categoria = C/6; Classe = 2; Sub = 2",
         bankAccountId: "7",
       },
     ],
@@ -398,7 +460,7 @@ function createTables(): Tables {
         address: blob("via Corta, 4/a", "33100"),
       },
     ],
-    unit: [{ id: "1", code: "A1", landRegistry: "Mapp. 787" }],
+    unit: [{ id: "1", code: "A1", landRegistry: "Mapp. 512, Sup. 31-32" }],
     bankAccount: [
       {
         id: "7",
@@ -429,6 +491,20 @@ function createTables(): Tables {
       { id: "3", description: "ZANIN e De Bortoli Lidia, tel 347-1234567" },
     ],
     ledgerEntry: [{ id: "1", ledgerTransactionId: "1", amount: "350.00" }],
+    ledgerAccount: [
+      { id: "1", name: "Diritti segreteria Comune Borgo Alto" },
+      { id: "2", name: `${s(BANK_LEFTOVERS[0]?.original)} - C/C 1234.56` },
+      { id: "3", name: `${s(BANK_LEFTOVERS.at(-1)?.original)} - c/c` },
+    ],
+    calendarEvent: [
+      {
+        id: "1",
+        description: `Scadenza polizza assicurativa n.6153 ${s(OTHER_LEFTOVERS[0]?.original)}`,
+        notes: `Sarà sostituita dalla ditta ${s(OTHER_LEFTOVERS.at(-1)?.original)}.`,
+      },
+    ],
+    qualification: [{ id: "1", name: "Zanin" }],
+    unitType: [{ id: "1", name: "Lidia" }],
     distributionTableItem: [
       { id: "1", coefficient: "300.000000" },
       { id: "2", coefficient: "3456789012.50" },
@@ -438,7 +514,10 @@ function createTables(): Tables {
       { username: "000001", masterDataId: "4" },
     ],
     unitResidentAccount: [{ systemUsername: "mario.zanin" }],
-    city: [{ id: "1", name: "Zanin" }],
+    city: [
+      { id: "1", name: "Zanin" },
+      { id: "77", name: "Borgo Alto" },
+    ],
   };
 }
 
@@ -490,3 +569,12 @@ function mod97(text: string): number {
 
   return rest;
 }
+
+// The real leftovers live in leftovers.ts only; the fixtures take them from there.
+const BANK_LEFTOVERS = EXTRA_ENTRIES.filter((e) => {
+  return BANK_NAMES.includes(e.pseudonym);
+});
+
+const OTHER_LEFTOVERS = EXTRA_ENTRIES.filter((e) => {
+  return !BANK_NAMES.includes(e.pseudonym);
+});

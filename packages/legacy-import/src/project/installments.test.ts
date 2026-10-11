@@ -69,7 +69,7 @@ const tables: Tables = {
   masterDataCategory: [{ id: "2", name: "Condòmino", code: "C", order: "1" }],
   masterDataCategoryI18n: [],
   person: [
-    { masterDataId: "10", firstName: "Dina", lastName: "Alberi", sex: "F" },
+    { masterDataId: "10", firstName: "Nives", lastName: "Bulfon", sex: "F" },
   ],
   company: [],
   installment: [

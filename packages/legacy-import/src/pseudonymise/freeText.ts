@@ -36,6 +36,7 @@ const SWEEP = new RegExp(
     String.raw`|(?<cf>[A-Z]{6}\d{2}[A-Z]\d{2}[A-Z]\d{3}[A-Z])`,
     String.raw`|(?<email>[\p{L}\p{N}._%+\-]+@[\p{L}\p{N}\-]+(?:\.[\p{L}\p{N}\-]+)+)`,
     String.raw`|(?<vat>(?:IT)?\d{11})`,
+    String.raw`|(?<policy>[Pp]olizza\D{0,20}?n[°.r]*\s*\d+)`,
     String.raw`|(?<phone>(?:\+39[\s\-]?)?(?:0\d{1,3}|3\d{2})[\s\/\-]?\d{5,8})`,
     String.raw`|(?<account>[Cc]\/[Cc]\.?\s*(?:n\.?\s*)?\d[\d.]{2,}\d)`,
     String.raw`)(?![\p{L}\p{N}]|[.,]\d)`,
@@ -75,7 +76,7 @@ export function createNameMapping(entries: readonly NameEntry[]): NameMapping {
 
   const ordered = [...alternatives.entries()]
     .sort(([a], [b]) => {
-      return literalLength(b) - literalLength(a) || a.localeCompare(b);
+      return literalLength(b) - literalLength(a) || byCodeUnits(a, b);
     })
     .map(([, source]) => {
       return source;
@@ -116,6 +117,21 @@ export function sweepIdentifiers(text: string): string {
   });
 }
 
+/** Each identifier-shaped substring of `text` with the fake sweepIdentifiers puts in its place. */
+export function identifierReplacements(text: string): [string, string][] {
+  const out: [string, string][] = [];
+
+  if (!/\d|@/.test(text)) {
+    return out;
+  }
+
+  for (const m of text.matchAll(SWEEP)) {
+    out.push([m[0], fakeIdentifier(m[0], m.groups ?? {})]);
+  }
+
+  return out;
+}
+
 function fakeIdentifier(
   match: string,
   groups: Record<string, string | undefined>,
@@ -138,6 +154,8 @@ function fakeIdentifier(
       return fakeEmail(rng);
     case "vat":
       return `${match.startsWith("IT") ? "IT" : ""}${vatNumber(rng)}`;
+    case "policy":
+      return redigitAfter(match, /^[Pp]olizza\D*/, rng);
     case "phone":
       return redigitAfter(match, /^(?:\+39[\s-]?)?(?:0\d{1,3}|3\d{2})/, rng);
     default:
@@ -222,6 +240,14 @@ function firstWord(text: string): string {
         return word !== "";
       }) ?? ""
   );
+}
+
+function byCodeUnits(a: string, b: string): number {
+  if (a === b) {
+    return 0;
+  }
+
+  return a < b ? -1 : 1;
 }
 
 function isAllCaps(text: string): boolean {

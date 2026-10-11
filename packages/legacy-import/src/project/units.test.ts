@@ -105,7 +105,7 @@ const tables: Tables = {
   masterDataCategory: [{ id: "2", name: "Condòmino", code: "C", order: "1" }],
   masterDataCategoryI18n: [],
   person: [
-    { masterDataId: "10", firstName: "Dina", lastName: "Alberi", sex: "F" },
+    { masterDataId: "10", firstName: "Nives", lastName: "Bulfon", sex: "F" },
   ],
   company: [],
   distributionTable: [
@@ -182,7 +182,7 @@ describe("units projection", () => {
     expect(unit.kind).toBe("unit");
     expect(unit.label).toContain("A01");
     expect(unit.unitType).toBe("Appartamento");
-    expect(unit.children![0]!.label).toBe("Alberi Dina (PR 100%)");
+    expect(unit.children![0]!.label).toBe("Bulfon Nives (PR 100%)");
   });
   it("preventivo/consuntivo come from the riparto engine; saldoPrec & versato from the ledger", () => {
     const res = rows[0]!.children![0]!.children![0]!;
@@ -255,7 +255,7 @@ const roleTables: Tables = {
     },
   ],
   person: [
-    { masterDataId: "10", firstName: "Dina", lastName: "Alberi", sex: "F" },
+    { masterDataId: "10", firstName: "Nives", lastName: "Bulfon", sex: "F" },
     { masterDataId: "11", firstName: "Tiziano", lastName: "Rossi", sex: "M" },
   ],
   expenseLA2Role: [
@@ -282,7 +282,7 @@ describe("role split — tenant-charged account", () => {
   const residents = rows[0]!.children![0]!.children!;
 
   const owner = residents.find((r) => {
-    return r.label.includes("Alberi");
+    return r.label.includes("Bulfon");
   })!;
 
   const tenant = residents.find((r) => {

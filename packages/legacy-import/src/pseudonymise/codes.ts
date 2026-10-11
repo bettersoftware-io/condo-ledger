@@ -15,7 +15,7 @@ const ODD_LETTERS = [
   22, 25, 24, 23,
 ];
 
-// The provincial VAT offices of Friuli Venezia Selene: Udine, Gorizia, Trieste,
+// The provincial VAT offices of the region (FVG): Udine, Gorizia, Trieste,
 // Pordenone.
 const VAT_OFFICES = ["030", "031", "032", "093"];
 

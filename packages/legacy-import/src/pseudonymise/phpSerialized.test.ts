@@ -44,12 +44,12 @@ describe("mapSerializedStrings", () => {
     const blob = serializeAddressVO({
       countryIso3166_1_a2: "IT",
       postCode: "33100",
-      street: "via Rossi, 4",
+      street: "via Zanin, 4",
       cityName: null,
     });
 
     const out = mapSerializedStrings(blob, (text) => {
-      return text.replace("Rossi", "Zanòn");
+      return text.replace("Zanin", "Zanòn");
     });
 
     expect(parseAddressVO(out).street).toBe("via Zanòn, 4");

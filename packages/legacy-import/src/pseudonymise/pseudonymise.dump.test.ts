@@ -7,10 +7,18 @@ import { formatAddress, parseAddressVO } from "../addressVO.ts";
 import { assemble, type Seed } from "../assemble.ts";
 import { buildDb } from "../db.ts";
 import { parseTables, type Tables } from "../loadRows.ts";
-import { pseudonymiseTables } from "./pseudonymise.ts";
+import { identifierReplacements } from "./freeText.ts";
+import { EXTRA_ENTRIES } from "./leftovers.ts";
+import { TOWNS } from "./names.ts";
+import {
+  buildingTowns,
+  isOutsideFreeText,
+  LABEL_TABLES,
+  pseudonymiseTables,
+} from "./pseudonymise.ts";
 
-// The real dump is never committed; where it is absent this suite is skipped
-// and says why. cwd is packages/legacy-import under Vitest (see specs/world.ts).
+// The real dump must never be committed again (the history is being purged);
+// where it is absent this suite is skipped and says why. cwd is packages/legacy-import under Vitest (see specs/world.ts).
 const DUMP_PATH = resolve(
   process.cwd(),
   "../../old/db/it-jtime-condominium.all.sql",
@@ -24,11 +32,19 @@ describe.skipIf(!HAS_DUMP)(
       const { tables, seed } = load();
       const json = JSON.stringify(seed);
       const leaks = originalValues(tables).filter((value) => {
-        return json.includes(JSON.stringify(value).slice(1, -1));
+        return wholeWord(value).test(json);
       });
 
       expect(originalValues(tables).length).toBeGreaterThan(250);
       expect(leaks).toEqual([]);
+    });
+
+    it("leaves the lookup and label tables exactly as they were", () => {
+      const { tables, pseudonymised } = load();
+
+      for (const table of LABEL_TABLES) {
+        expect(pseudonymised[table], table).toEqual(tables[table]);
+      }
     });
 
     it("pins three pseudonyms, so a regeneration cannot drift", () => {
@@ -56,9 +72,11 @@ describe.skipIf(!HAS_DUMP)(
 function load(): Loaded {
   if (!cached) {
     const tables = parseTables(readFileSync(DUMP_PATH, "utf8"));
+    const pseudonymised = pseudonymiseTables(tables);
     cached = {
       tables,
-      seed: assemble(buildDb(pseudonymiseTables(tables))),
+      pseudonymised,
+      seed: assemble(buildDb(pseudonymised)),
     };
   }
 
@@ -102,6 +120,41 @@ function originalValues(tables: Tables): string[] {
 
   for (const c of tables.masterDataContact ?? []) {
     add(c.value);
+  }
+
+  // Real names typed in free text, and the buildings' real towns (except
+  // those that are also in the fake town pool).
+  for (const entry of EXTRA_ENTRIES) {
+    add(entry.original);
+  }
+
+  const fakeTowns = new Set(
+    TOWNS.map((t) => {
+      return t.name;
+    }),
+  );
+
+  for (const town of buildingTowns(tables).values()) {
+    if (!fakeTowns.has(town)) {
+      add(town);
+    }
+  }
+
+  // Identifiers typed into free text (phones, policy and account numbers).
+  for (const [name, rows] of Object.entries(tables)) {
+    if (isOutsideFreeText(name)) {
+      continue;
+    }
+
+    for (const row of rows) {
+      for (const value of Object.values(row)) {
+        if (typeof value === "string") {
+          for (const [found] of identifierReplacements(value)) {
+            add(found, 6);
+          }
+        }
+      }
+    }
   }
 
   for (const [table, column] of ADDRESS_COLUMNS) {
@@ -161,7 +214,16 @@ const ADDRESS_COLUMNS: readonly (readonly [string, string])[] = [
 
 interface Loaded {
   tables: Tables;
+  pseudonymised: Tables;
   seed: Seed;
 }
 
 let cached: Loaded | null = null;
+
+// The value as a whole word, in any letter case: "Invito" does not leak "vito".
+function wholeWord(value: string): RegExp {
+  const escaped = JSON.stringify(value)
+    .slice(1, -1)
+    .replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(?<![\\p{L}\\p{N}])${escaped}(?![\\p{L}\\p{N}])`, "iu");
+}

@@ -15,7 +15,7 @@ export interface AccountingPeriodNode {
 export interface CondominiumNode {
   id: Id;
   code: string; // "SAT"
-  name: string; // "Saturno (Piazza del Duomo, 39, 33100 Udine)"
+  name: string; // "Saturno (via dei Glicini, 4, 33017 Tarcento)"
   type: "regular" | "super" | "residence";
   periods: AccountingPeriodNode[];
 }
@@ -182,7 +182,7 @@ export interface Anagrafica {
   nominativo: string;
   categoria: string; // masterDataCategory name; registry in anagraficaCategories()
   stato: AnagraficaStatus;
-  codice?: string; // legacy masterData.code, e.g. "FCLEAN"
+  codice?: string; // legacy masterData.code, e.g. "LUCENT"
   indirizzo?: string; // single-line reference address ("Indirizzo di riferimento")
   codiceFiscale?: string;
   partitaIva?: string;

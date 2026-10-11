@@ -66,9 +66,15 @@
       "project": ["src/**/*.ts", "etl/**/*.ts", "scripts/**/*.ts", "test/**/*.ts"]
     },
     "packages/legacy-import": {
-      // The generator is run as a program (`node src/generate-data.ts`); the
-      // parity specs live outside src/.
-      "entry": ["src/generate-data.ts", "specs/**/*.test.ts"],
+      // The generator is run as a program (`node src/generate-data.ts`), and
+      // so is the history-rewrite mapping exporter (`node
+      // src/pseudonymise/exportMapping.ts <out-file>`, by hand, never by a
+      // script); the parity specs live outside src/.
+      "entry": [
+        "src/generate-data.ts",
+        "src/pseudonymise/exportMapping.ts",
+        "specs/**/*.test.ts"
+      ],
       "includeEntryExports": true,
       "project": ["src/**/*.ts", "specs/**/*.ts"]
     }

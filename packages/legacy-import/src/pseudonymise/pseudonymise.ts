@@ -28,6 +28,7 @@ import {
   personIdentity,
   streetLine,
 } from "./identity.ts";
+import { EXTRA_ENTRIES } from "./leftovers.ts";
 import { BANK_NAMES } from "./names.ts";
 import {
   isSerialized,
@@ -37,8 +38,8 @@ import {
 import { digits, pick, type Rng, rngFor } from "./random.ts";
 
 // Public registries carried in the dump (geography, the bank list): their
-// names are not about anyone, and a surname that is also a town ("Messina")
-// must not rename the town.
+// names are not about anyone, and a surname that is also a town name must not
+// rename the town.
 const REFERENCE_TABLES = new Set([
   "bank",
   "city",
@@ -56,14 +57,38 @@ const REFERENCE_TABLES = new Set([
   "stateI18n",
 ]);
 
+// Lookup and label tables: salutations, roles, unit types, tributes,
+// withholding taxes, categories. A salutation that happens to be a surname is
+// a word there, not a person.
+export const LABEL_TABLES = new Set([
+  "accountingPeriodInstallmentDefaultSettings",
+  "grant",
+  "masterDataCategory",
+  "masterDataCategoryI18n",
+  "propertyManagersAssociation",
+  "qualification",
+  "taxRelief",
+  "tribute",
+  "unitOwnershipScenario",
+  "unitResidentPriority",
+  "unitResidentRole",
+  "unitResidentRoleI18n",
+  "unitType",
+  "withholdingTax",
+]);
+
 // Rewritten whole by its own rule below, so the free-text pass skips it.
 const REWRITTEN_WHOLE = new Set(["bankBranch"]);
 
 // A code made of a short prefix and a serial ("PRS231") says nothing about
-// whom it names; a mnemonic ("MROSSI") does.
+// whom it names; a mnemonic ("EZANIN") does.
 const OPAQUE_CODE = /^[A-Z]{1,4}\d+$/;
 
 const MAX_DRAWS = 1000;
+
+// "Foglio = 33", "Mapp. 787", "Sub = 2", "Sup. 17-18": the label, then the number.
+const PARCEL_NUMBER =
+  /(?<!\p{L})((?:Foglio|Fg\.?|Particella|Part\.?|Mappale|Mapp\.?|Subalterno|Sub\.?|Sup\.?)\s*[=:]?\s*)(\d[\d/-]*)/giu;
 
 /** Who each master-data id becomes, and how free text is cleaned. */
 interface Cast {
@@ -77,7 +102,7 @@ interface Cast {
 
 interface BuildingAddress {
   fake: FakeAddress;
-  originalStreet: string; // "via Antonio Marangoni" (without the civic number)
+  originalStreet: string; // "via dei Glicini" (without the civic number)
   originalCivic: string; // "4"
 }
 
@@ -98,10 +123,7 @@ export function pseudonymiseTables(tables: Tables): Tables {
 
   for (const [name, rows] of Object.entries(tables)) {
     const rewrite = ROW_REWRITERS[name];
-    const clean =
-      REFERENCE_TABLES.has(name) || REWRITTEN_WHOLE.has(name)
-        ? null
-        : cast.mapping;
+    const clean = isOutsideFreeText(name) ? null : cast.mapping;
 
     out[name] = rows.map((row) => {
       const cleaned = clean ? cleanRow(row, clean) : { ...row };
@@ -165,18 +187,66 @@ function castIdentities(tables: Tables): Cast {
     }
   }
 
-  entries.push(...userNameEntries(tables, people, firms));
+  const buildings = buildingAddresses(tables, original);
+  entries.push(
+    ...userNameEntries(tables, people, firms),
+    ...townEntries(tables, buildings, buildingNames),
+    ...EXTRA_ENTRIES,
+  );
   return {
     people,
     firms,
     nominativo,
     codes: registryCodes(tables, people, firms),
     mapping: createNameMapping(entries),
-    buildings: buildingAddresses(tables, original),
+    buildings,
   };
 }
 
-// A mnemonic made from a name ("MROSSI") is made again from the pseudonym, and
+/** Each building's real town, by condominium id, read from its address's city id. */
+export function buildingTowns(tables: Tables): Map<string, string> {
+  const cities = indexBy(tables.city, "id");
+  const out = new Map<string, string>();
+
+  for (const building of tables.condominium ?? []) {
+    const cityId = /s:6:"cityId";i:(\d+);/.exec(text(building.address))?.[1];
+    const town = text(cities.get(cityId ?? "")?.name);
+
+    if (town !== "") {
+      out.set(text(building.id), town);
+    }
+  }
+
+  return out;
+}
+
+// A building's real town named in free text ("Comune di <town>") would undo
+// its fake address: it becomes the building's fake town. The first building
+// in a town decides.
+function townEntries(
+  tables: Tables,
+  buildings: Map<string, BuildingAddress>,
+  buildingNames: Set<string>,
+): NameEntry[] {
+  const entries: NameEntry[] = [];
+  const seen = new Set<string>();
+  const towns = [...buildingTowns(tables).entries()].sort(([a], [b]) => {
+    return byNumber(a, b);
+  });
+
+  for (const [id, town] of towns) {
+    const fake = buildings.get(id)?.fake.town.name;
+
+    if (fake && !seen.has(town) && !buildingNames.has(town.toLowerCase())) {
+      seen.add(town);
+      entries.push({ original: town, pseudonym: fake });
+    }
+  }
+
+  return entries;
+}
+
+// A mnemonic made from a name ("EZANIN") is made again from the pseudonym, and
 // kept distinct from every other code by a numeric suffix; an opaque serial
 // ("PRS231") and a building's own code stay.
 function registryCodes(
@@ -321,7 +391,7 @@ function originalsOf(tables: Tables): Original {
   const streets = new Set<string>();
 
   for (const [name, rows] of Object.entries(tables)) {
-    if (REFERENCE_TABLES.has(name) || REWRITTEN_WHOLE.has(name)) {
+    if (isOutsideFreeText(name)) {
       continue;
     }
 
@@ -391,7 +461,7 @@ function companyEntries(
   return entries;
 }
 
-// A login named after its owner ("mario.rossi", "mrossi2") becomes one named
+// A login named after its owner ("elio.zanin", "ezanin2") becomes one named
 // after the pseudonym; numeric logins say nothing and stay.
 function userNameEntries(
   tables: Tables,
@@ -517,7 +587,10 @@ const ROW_REWRITERS: Record<string, RowRewriter> = {
   unit: (row) => {
     return {
       ...row,
-      landRegistry: redigit(row.landRegistry, rngFor("unit", text(row.id))),
+      landRegistry: redrawParcels(
+        row.landRegistry,
+        rngFor("unit", text(row.id)),
+      ),
     };
   },
 };
@@ -739,7 +812,7 @@ function rewriteCondominium(row: Row, cast: Cast): Row {
         ? vatNumber(rng)
         : redigit(row.taxCode, rng),
     vatNumber: keepNull(row.vatNumber, vatNumber(rng)),
-    landRegistry: redigit(row.landRegistry, rng),
+    landRegistry: redrawParcels(row.landRegistry, rng),
   };
 }
 
@@ -832,7 +905,7 @@ function addressBlob(fake: FakeAddress): string {
   });
 }
 
-function streetOf(a: AddressFields): string {
+export function streetOf(a: AddressFields): string {
   if (a.street !== undefined) {
     return a.street.trim();
   }
@@ -845,12 +918,28 @@ function streetOf(a: AddressFields): string {
     .trim();
 }
 
-// "Piazza del Duomo, 39/a" → ["via Antonio Marangoni", "4/a"]
-function splitStreet(street: string): [string, string] {
+// "via dei Glicini, 4/a" → ["via dei Glicini", "4/a"]
+export function splitStreet(street: string): [string, string] {
   const comma = street.lastIndexOf(",");
   return comma === -1
     ? [street, ""]
     : [street.slice(0, comma).trim(), street.slice(comma + 1).trim()];
+}
+
+// Only the numbers that locate a parcel are redrawn (Foglio, Particella,
+// Mappale, Sub, Sup.); Sezione, Categoria and Classe describe it and stay.
+function redrawParcels(value: Row[string] | undefined, rng: Rng): Row[string] {
+  const current = nullable(value);
+  return current === null
+    ? (value ?? null)
+    : current.replace(
+        PARCEL_NUMBER,
+        (_match, label: string, digitsPart: string) => {
+          return `${label}${digitsPart.replace(/\d/g, () => {
+            return digits(1, rng);
+          })}`;
+        },
+      );
 }
 
 function redigit(value: Row[string] | undefined, rng: Rng): Row[string] {
@@ -865,6 +954,14 @@ function redigit(value: Row[string] | undefined, rng: Rng): Row[string] {
 // A column that was empty stays empty; one that held a value gets the fake.
 function keepNull(current: Row[string] | undefined, fake: string): Row[string] {
   return current === null || current === undefined ? null : fake;
+}
+
+export function isOutsideFreeText(table: string): boolean {
+  return (
+    REFERENCE_TABLES.has(table) ||
+    LABEL_TABLES.has(table) ||
+    REWRITTEN_WHOLE.has(table)
+  );
 }
 
 function isBuildingCategory(name: string): boolean {
