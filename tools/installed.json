@@ -113,5 +113,28 @@
       "tools/strict-lint/eslint.config.mts",
       "tools/strict-lint/knip.jsonc"
     ]
+  },
+  "coverage": {
+    "files": {
+      ".github/workflows/coverage.yml": "dd54cf763e8deee63c51ae448b2512e54c98ec2e9a51e0df5bbe436251cbb77d",
+      "tools/.gitignore": "4424513510f3bbbe04155cd812f9a7bb6731a8c06ccb25cd3b20de9512c556eb",
+      "tools/coverage/gaps.mts": "20f229aac0bfc5e42a69a8f6806f580382d5eabd1515f3b8f3a2880c1a423b86",
+      "tools/coverage/lib/config.mts": "106bf9ccecb16de01d8f08c7c238c9712c534788826a27460e8c4a7666320d29",
+      "tools/coverage/lib/ignores.mts": "0ee998bfa1dfce2c0b94255bdf7d929163c6225e53621603408c7e45dc8b51c3",
+      "tools/coverage/lib/judge.mts": "e74caf810d4560e98c17c808f1796bdb910593b41e332a3f1ca3c2fad9042bdb",
+      "tools/coverage/lib/listening.mts": "62a6af79ab1e5ecdd4e8c1872a23e9939e0ab7745a8c55f6c58d31306ddc4981",
+      "tools/coverage/lib/main.mts": "b9510ffce92e72c31b519bffcd5b2d464d723a11e9d2755b065afb91bca5d54c",
+      "tools/coverage/lib/measure.mts": "81b3e2c41f384790dcd09cc0b8845cf4517f3be08b73017f675bc70679a21450",
+      "tools/coverage/lib/report.mts": "de83c9b68d153fdbd25af2b224b42b31f9c6145b3c91ea8db6965caef0a77291",
+      "tools/coverage/lib/site.mts": "855e11fa5388cbe6f9022a79892bf2d14ad01c6fbf0dc1b98609f82117b203cf",
+      "tools/coverage/lib/workspace.mts": "5ebdd7291cfeb30d2ee4516dccf91bb02083c4c6558a6ec9f07a72ece6fddea8",
+      "tools/coverage/mutation-check.mts": "298fc942ce795e8bb9c41c8d16e4ff438af0c4907245259a7c616b7d1cb54334",
+      "tools/coverage/publish-to-pages.mts": "005e5a8f60cbb66275b47a5bee7a636a6e848362ae492d86948f05a309ef9383",
+      "tools/coverage/run.mts": "71a720658afa7fb70a7cfbb5c7492756b54cde7a3572c17c43a3f573ad739039",
+      "tools/templates/coverage.tools__coverage.config.mts.txt": "c2a2446495d7557fb6ec7761ae199900e7a1744c025f32eaeda42c3fe848bb7f"
+    },
+    "starting": [
+      "tools/coverage.config.mts"
+    ]
   }
 }
