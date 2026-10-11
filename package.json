@@ -21,7 +21,7 @@
     "gates": "node tools/arch/gates/run.mts",
     "check:react-policies": "node tools/arch/check-react-policies.mts",
     "check:compiler": "node tools/arch/check-compiler.mts",
-    "gate:fast": "pnpm gates && pnpm check:react-policies && pnpm check:compiler && pnpm lint && pnpm typecheck && pnpm biome:check && pnpm lint:types && pnpm lint:dead",
+    "gate:fast": "pnpm gates && pnpm check:react-policies && pnpm check:compiler && pnpm lint && pnpm typecheck && pnpm biome:check && pnpm lint:types && pnpm lint:dead && pnpm check:dockerfiles && pnpm visual:check && pnpm visual:check:server",
     "gate:full": "pnpm gate:fast && pnpm test && pnpm build && pnpm coverage",
     "gate:fast:quiet": "node tools/arch/gates/quiet.mts gate:fast",
     "gate:full:quiet": "node tools/arch/gates/quiet.mts gate:full",
@@ -33,7 +33,14 @@
     "lint:dead": "node tools/strict-lint/check-dead.mts",
     "coverage": "node tools/coverage/run.mts",
     "coverage:gaps": "node tools/coverage/gaps.mts",
-    "mutation-check": "node tools/coverage/mutation-check.mts"
+    "mutation-check": "node tools/coverage/mutation-check.mts",
+    "lint:workflows": "node tools/ci-security/lint-workflows.mts",
+    "check:dockerfiles": "node tools/ci-security/check-dockerfiles.mts",
+    "visual": "pnpm --dir packages/client-react exec playwright test --config tests/visual/playwright.config.ts",
+    "visual:update": "pnpm --dir packages/client-react exec playwright test --config tests/visual/playwright.config.ts --update-snapshots=all",
+    "visual:jitter": "node tools/visual/jitter.mts",
+    "visual:check": "pnpm --dir packages/client-react run typecheck:visual",
+    "visual:check:server": "node tools/visual/check-server.mts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.14",
