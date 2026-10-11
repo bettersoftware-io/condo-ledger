@@ -5,7 +5,10 @@ dist/
 *.tsbuildinfo
 .DS_Store
 .pnpm-store/
-.claude/
+
+# Claude Code: share project settings (enabled plugins), keep everything else local
+.claude/*
+!.claude/settings.json
 
 # Local env files (e.g. packages/db/.env holds the dev DATABASE_URL). Keep .env.example tracked.
 .env

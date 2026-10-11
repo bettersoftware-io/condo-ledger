@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "bettersoftware": {
+      "source": {
+        "source": "github",
+        "repo": "bettersoftware-io/skills"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "bettersoftware-skills@bettersoftware": true
+  }
+}
