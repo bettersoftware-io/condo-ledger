@@ -17,6 +17,11 @@ describe("Money", () => {
     expect(formatEUR(fromCents(123456))).toBe("1.234,56");
     expect(formatEUR(fromCents(-50))).toBe("-0,50");
   });
+  it("rejects a non-integer number of cents", () => {
+    expect(() => {
+      fromCents(1.5);
+    }).toThrow("cents must be an integer");
+  });
   it("detects negative", () => {
     expect(isNegative(fromCents(-1))).toBe(true);
     expect(isNegative(fromCents(0))).toBe(false);

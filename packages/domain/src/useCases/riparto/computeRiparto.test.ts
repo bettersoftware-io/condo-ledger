@@ -77,6 +77,168 @@ describe("computeRiparto", () => {
     }, 0);
     expect(total).toBe(eng.subtree("A").estimateCents);
   });
+
+  describe("splitting among several residents of one priority", () => {
+    it("splits by resident percentage, the last resident taking the residual", () => {
+      // u1 share = 100000 * 60/100 = 60000 cents.
+      // Owners o1 75% and o2 25% (total 100): o1 = round(60000*75/100) = 45000,
+      // o2 = 60000 - 45000 = 15000.
+      const eng = buildRiparto({
+        ...base,
+        residents: [owner("o1", 75), owner("o2", 25)],
+      });
+      const r = eng.perResidentAmount("A", "estimate", "u1");
+      expect(r.get("o1")).toBe(45000);
+      expect(r.get("o2")).toBe(15000);
+      expect(sum(r)).toBe(60000);
+    });
+
+    it("splits equally when the residents carry no percentage", () => {
+      // 60000 cents over three owners with 0%: round(60000/3) = 20000 for the
+      // first two, the third takes 60000 - 40000 = 20000.
+      const eng = buildRiparto({
+        ...base,
+        residents: [owner("o1", 0), owner("o2", 0), owner("o3", 0)],
+      });
+      const r = eng.perResidentAmount("A", "estimate", "u1");
+      expect(r.get("o1")).toBe(20000);
+      expect(r.get("o2")).toBe(20000);
+      expect(r.get("o3")).toBe(20000);
+      expect(sum(r)).toBe(60000);
+    });
+
+    it("gives the whole share to the owners when no resident has the role's priority", () => {
+      // Role priority 3 takes 100%, but u1 has only owners: owners get 60000,
+      // split 50/50 by percentage = 30000 and 30000.
+      const eng = buildRiparto({
+        ...base,
+        roles: [{ linkId: "L1", priorityId: "3", percentage: 100 }],
+        residents: [owner("o1", 50), owner("o2", 50)],
+      });
+      const r = eng.perResidentAmount("A", "estimate", "u1");
+      expect(r.get("o1")).toBe(30000);
+      expect(r.get("o2")).toBe(30000);
+      expect(sum(r)).toBe(60000);
+    });
+
+    it("skips a role whose share is zero", () => {
+      // Roles: owner 100%, tenant 0% -> owner 60000, the tenant's residual is
+      // 60000 - 60000 = 0 and nobody is credited for it.
+      const eng = buildRiparto({
+        ...base,
+        roles: [
+          { linkId: "L1", priorityId: "1", percentage: 100 },
+          { linkId: "L1", priorityId: "3", percentage: 0 },
+        ],
+        residents: [
+          owner("o1", 100),
+          { unitId: "u1", residentId: "t1", priorityId: "3", percentage: 100 },
+        ],
+      });
+      const r = eng.perResidentAmount("A", "estimate", "u1");
+      expect(r.get("o1")).toBe(60000);
+      expect(r.has("t1")).toBe(false);
+      expect(sum(r)).toBe(60000);
+    });
+
+    it("credits nobody when the unit has no residents", () => {
+      const eng = buildRiparto({ ...base, residents: [] });
+      expect(eng.perResidentAmount("A", "estimate", "u1").size).toBe(0);
+    });
+  });
+
+  describe("links, modes and subtrees", () => {
+    it("uses the estimate link for estimates and the currentBalance link for actuals", () => {
+      // Estimate 100000 and actual 50000 on A, both links at 100% on T (60/40).
+      // estimate u1 = 60000, u2 = 40000; actual u1 = 30000, u2 = 20000.
+      const eng = buildRiparto({
+        ...base,
+        actualCentsByAccount: { A: 50000 },
+        links: [
+          {
+            accountId: "A",
+            linkId: "L1",
+            tableId: "T",
+            pct: 100,
+            type: "estimate",
+          },
+          {
+            accountId: "A",
+            linkId: "L2",
+            tableId: "T",
+            pct: 100,
+            type: "currentBalance",
+          },
+        ],
+      });
+      expect(eng.perUnitAmount("A", "estimate", "u1")).toBe(60000);
+      expect(eng.perUnitAmount("A", "current", "u1")).toBe(30000);
+      expect(eng.perUnitAmount("A", "current", "u2")).toBe(20000);
+    });
+
+    it("charges nothing in a mode the account has no link for", () => {
+      const eng = buildRiparto({
+        ...base,
+        links: [
+          {
+            accountId: "A",
+            linkId: "L1",
+            tableId: "T",
+            pct: 100,
+            type: "currentBalance",
+          },
+        ],
+      });
+      expect(eng.perUnitAmount("A", "estimate", "u1")).toBe(0);
+      expect(eng.columns).toHaveLength(1);
+    });
+
+    it("charges nothing through a table with no coefficients, or for an unknown account", () => {
+      const eng = buildRiparto({
+        ...base,
+        links: [
+          {
+            accountId: "A",
+            linkId: "L1",
+            tableId: "EMPTY",
+            pct: 100,
+            type: null,
+          },
+        ],
+      });
+      expect(eng.perUnitAmount("A", "estimate", "u1")).toBe(0);
+      expect(eng.perUnitAmount("ZZ", "estimate", "u1")).toBe(0);
+      expect(eng.perResidentAmount("ZZ", "estimate", "u1").size).toBe(0);
+    });
+
+    it("rolls a subtree up but leaves a linked descendant to its own column", () => {
+      // P 100000 + child C 50000 = 150000; the linked grandchild G (20000) is
+      // excluded from P and stands alone; an unknown parent is ignored.
+      const eng = buildRiparto({
+        ...base,
+        accounts: [
+          { id: "P", name: "Padre", order: 2, parentId: null },
+          { id: "C", name: "Figlio", order: 3, parentId: "P" },
+          { id: "G", name: "Nipote", order: 1, parentId: "C" },
+          { id: "X", name: "Orfano", order: 4, parentId: "missing" },
+        ],
+        links: [
+          { accountId: "P", linkId: "LP", tableId: "T", pct: 100, type: null },
+          { accountId: "G", linkId: "LG", tableId: "T", pct: 100, type: null },
+        ],
+        estimateCentsByAccount: { P: 100000, C: 50000, G: 20000 },
+        actualCentsByAccount: {},
+      });
+      expect(eng.subtree("P").estimateCents).toBe(150000);
+      expect(eng.subtree("P").estimateCents).toBe(150000); // cached
+      expect(eng.subtree("G").estimateCents).toBe(20000);
+      expect(
+        eng.columns.map((c) => {
+          return c.legacyAccountId;
+        }),
+      ).toEqual(["G", "P"]); // ordered by account.order
+    });
+  });
 });
 
 // One expense account A (linked to table T at 100%), two units u1/u2 with coeffs 60/40,
@@ -97,3 +259,16 @@ const base: RipartoInput = {
   ],
   unitLegacyIds: ["u1", "u2"],
 };
+
+function sum(m: Map<string, number>): number {
+  return [...m.values()].reduce((s, c) => {
+    return s + c;
+  }, 0);
+}
+
+function owner(
+  id: string,
+  percentage: number,
+): RipartoInput["residents"][number] {
+  return { unitId: "u1", residentId: id, priorityId: "1", percentage };
+}
