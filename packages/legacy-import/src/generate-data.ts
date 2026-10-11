@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { assemble } from "./assemble.ts";
 import { buildDb } from "./db.ts";
 import { parseTables } from "./loadRows.ts";
+import { pseudonymiseTables } from "./pseudonymise/pseudonymise.ts";
 import { reconcilePeriods } from "./reconcile.ts";
 
 const DUMP_URL = new URL(
@@ -11,7 +12,11 @@ const DUMP_URL = new URL(
 );
 const OUT_URL = new URL("../seed/data.generated.json", import.meta.url);
 
-const db = buildDb(parseTables(readFileSync(DUMP_URL, "utf8")));
+// The dump holds real people: every identity is replaced by a fake one before
+// anything is projected from it.
+const db = buildDb(
+  pseudonymiseTables(parseTables(readFileSync(DUMP_URL, "utf8"))),
+);
 const status = reconcilePeriods(db);
 const seed = assemble(db);
 

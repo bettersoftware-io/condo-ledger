@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 
 import { buildDb, type Db } from "#/db.ts";
 import { parseTables, type Tables } from "#/loadRows.ts";
+import { pseudonymiseTables } from "#/pseudonymise/pseudonymise.ts";
 
 let cachedTables: Tables | null = null;
 let cachedDb: Db | null = null;
@@ -20,9 +21,10 @@ function legacyTables(): Tables {
   return cachedTables;
 }
 
+/** The Db the specs run on: the dump with every identity pseudonymised, as the generator sees it. */
 export function legacyDb(): Db {
   if (!cachedDb) {
-    cachedDb = buildDb(legacyTables());
+    cachedDb = buildDb(pseudonymiseTables(legacyTables()));
   }
 
   return cachedDb;
