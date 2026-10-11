@@ -1,7 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["tsconfig.base.json"],
-  "globalEnv": ["DATABASE_URL", "XDG_DATA_HOME"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -15,7 +14,8 @@
       "dependsOn": ["transit"]
     },
     "test": {
-      "dependsOn": ["transit"]
+      "dependsOn": ["transit"],
+      "env": ["DATABASE_URL", "XDG_DATA_HOME"]
     },
     "dev": {
       "cache": false,

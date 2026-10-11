@@ -13,7 +13,8 @@
       "!**/.turbo",
       "!old",
       "!docs",
-      "!packages/legacy-import/seed"
+      "!packages/legacy-import/seed",
+      "!packages/db/drizzle"
     ]
   },
   "overrides": [
