@@ -1,5 +1,6 @@
 import { parseAddressVO } from "../addressVO.ts";
 import type { Row, Tables } from "../loadRows.ts";
+import { COMMON_WORDS } from "./commonWords.ts";
 import { identifierReplacements, type NameEntry } from "./freeText.ts";
 import { companyCore } from "./identity.ts";
 import { EXTRA_ENTRIES } from "./leftovers.ts";
@@ -7,6 +8,7 @@ import { TOWNS } from "./names.ts";
 import {
   buildingTowns,
   isOutsideFreeText,
+  LABEL_TABLES,
   splitStreet,
   streetOf,
 } from "./pseudonymise.ts";
@@ -113,6 +115,7 @@ function nameEntries(original: Tables, pseudonymised: Tables): NameEntry[] {
   const entries: NameEntry[] = [];
   const fakePeople = indexBy(pseudonymised.person, "masterDataId");
   const fakeFirms = indexBy(pseudonymised.company, "masterDataId");
+  const canStandAlone = loneNameFilter(original);
 
   for (const person of original.person ?? []) {
     const fake = fakePeople.get(text(person.masterDataId));
@@ -132,11 +135,11 @@ function nameEntries(original: Tables, pseudonymised: Tables): NameEntry[] {
       );
     }
 
-    if (last.length >= MIN_LONE_NAME) {
+    if (canStandAlone(last)) {
       entries.push({ original: last, pseudonym: fakeLast });
     }
 
-    if (first.length >= MIN_LONE_NAME) {
+    if (canStandAlone(first)) {
       entries.push({ original: first, pseudonym: fakeFirst });
     }
   }
@@ -159,6 +162,34 @@ function nameEntries(original: Tables, pseudonymised: Tables): NameEntry[] {
 
   entries.push(...EXTRA_ENTRIES, ...townEntries(original, pseudonymised));
   return entries;
+}
+
+// A lone name is rewritten only when it is long enough and is no ordinary
+// text: not a common word, place, brand or saint (commonWords.ts), and not a
+// word of the lookup and label tables. Such a name is still rewritten inside
+// a full name.
+function loneNameFilter(original: Tables): (name: string) => boolean {
+  const labels = [...LABEL_TABLES]
+    .flatMap((table) => {
+      return (original[table] ?? []).flatMap((row) => {
+        return Object.values(row).filter((value): value is string => {
+          return typeof value === "string";
+        });
+      });
+    })
+    .join("\n")
+    .toLowerCase();
+
+  return (name: string): boolean => {
+    const lower = name.toLowerCase();
+    const inLabels = new RegExp(
+      `(?<![\\p{L}])${lower.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}])`,
+      "u",
+    ).test(labels);
+    return (
+      name.length >= MIN_LONE_NAME && !COMMON_WORDS.has(lower) && !inLabels
+    );
+  };
 }
 
 function townEntries(original: Tables, pseudonymised: Tables): NameEntry[] {

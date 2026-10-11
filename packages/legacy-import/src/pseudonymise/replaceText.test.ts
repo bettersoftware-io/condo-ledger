@@ -28,6 +28,23 @@ describe("replaceTextLines", () => {
     );
   });
 
+  it("gives a surname that is an ordinary word full-name rules only", () => {
+    expect(lines).toContain(
+      String.raw`regex:(?<!\w)Conti Elio(?!\w)==>Rizzi Ivo`,
+    );
+    expect(lines).toContain(
+      String.raw`regex:(?<!\w)CONTI ELIO(?!\w)==>RIZZI IVO`,
+    );
+    expect(lines.join("\n")).not.toMatch(/\(\?<!\\w\)(Conti|CONTI)\(\?!\\w\)/);
+  });
+
+  it("never gives a lone rule to a word of the label tables", () => {
+    expect(lines).toContain(
+      String.raw`regex:(?<!\w)Vianello Remo(?!\w)==>Tavano Dino`,
+    );
+    expect(lines.join("\n")).not.toMatch(/\(\?<!\\w\)Vianello\(\?!\\w\)/);
+  });
+
   it("escapes a firm's name and rewrites its core without the legal form", () => {
     expect(lines).toContain(
       String.raw`regex:(?<!\w)Lumen Acque S\.p\.A\.(?!\w)==>Acque Torre S.p.A.`,
@@ -91,7 +108,10 @@ function createOriginal(): Tables {
     person: [
       { masterDataId: "3", firstName: "Tiziano", lastName: "Zanin" },
       { masterDataId: "4", firstName: "Ugo", lastName: "Bon" },
+      { masterDataId: "5", firstName: "Elio", lastName: "Conti" },
+      { masterDataId: "6", firstName: "Remo", lastName: "Vianello" },
     ],
+    qualification: [{ id: "1", name: "Gentilissimo Vianello" }],
     company: [
       { masterDataId: "17", name: "Lumen Acque S.p.A." },
       { masterDataId: "18", name: "B" },
@@ -152,6 +172,8 @@ function createPseudonymised(): Tables {
     person: [
       { masterDataId: "3", firstName: "Elio", lastName: "Moro" },
       { masterDataId: "4", firstName: "Ivo", lastName: "Fabris" },
+      { masterDataId: "5", firstName: "Ivo", lastName: "Rizzi" },
+      { masterDataId: "6", firstName: "Dino", lastName: "Tavano" },
     ],
     company: [
       { masterDataId: "17", name: "Acque Torre S.p.A." },
