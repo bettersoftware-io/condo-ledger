@@ -4,11 +4,6 @@ import type { Db } from "../db.ts";
 import { dbToPeriodState } from "./periodState.ts";
 import { projectIndividual } from "./individual.ts";
 
-const str = (v: unknown): string | undefined =>
-  v === null || v === undefined || String(v).trim() === "" ? undefined : String(v).trim();
-
-const m = (c: number): Money => ({ cents: c });
-
 function formatPct(raw: string | undefined): string {
   const n = parseFloat(raw ?? "100");
   if (!Number.isFinite(n)) return "100";
@@ -24,7 +19,7 @@ function residentName(db: Db, masterDataId: string): string {
 
 function roleAbbrev(db: Db, scenarioId: string | undefined, priorityId: string | undefined): string {
   const role = db.rows("unitResidentRole").find(
-    (r) => String(r.unitOwnershipScenarioId) === scenarioId && String(r.unitResidentPriorityId) === priorityId,
+    (r) => {return String(r.unitOwnershipScenarioId) === scenarioId && String(r.unitResidentPriorityId) === priorityId},
   );
   return role ? String(role.abbreviation) : "PR";
 }
@@ -33,31 +28,35 @@ function unitTypeName(db: Db, unitTypeId: string | undefined): string | undefine
   if (!unitTypeId) return undefined;
   const base = db.by("unitType", "id").get(unitTypeId);
   const i18n = (db.group("unitTypeI18n", "unitTypeId").get(unitTypeId) ?? []).find((r) =>
-    String(r.localeCode).startsWith("it"),
+    {return String(r.localeCode).startsWith("it")},
   );
   return str(i18n?.translation) ?? str(base?.name);
 }
 
 function restrictionLabel(start?: string, end?: string): string | undefined {
   if (!start && !end) return undefined;
-  const f = (d?: string) => (d ? d.split(" ")[0]!.split("-").reverse().join("/") : "");
+
+  function f(d?: string): string {
+    return d ? d.split(" ")[0]!.split("-").reverse().join("/") : "";
+  }
+
   return `${f(start)} - ${f(end)}`;
 }
 
 function labelYear(db: Db, periodId: string): string {
-  const p = db.rows("accountingPeriod").find((x) => String(x.id) === periodId);
+  const p = db.rows("accountingPeriod").find((x) => {return String(x.id) === periodId});
   return p ? String(p.name) : periodId;
 }
 
 export function projectUnits(db: Db, periodId: string): UnitRow[] {
   const cond = db.condominiums.find((c) =>
-    db.periodsOf(String(c.id)).some((p) => String(p.id) === periodId),
+    {return db.periodsOf(String(c.id)).some((p) => {return String(p.id) === periodId})},
   );
 
   const units = db
     .rows("unit")
-    .filter((u) => String(u.accountingPeriodId) === periodId)
-    .sort((a, b) => String(a.code ?? "").localeCompare(String(b.code ?? ""), "it"));
+    .filter((u) => {return String(u.accountingPeriodId) === periodId})
+    .sort((a, b) => {return String(a.code ?? "").localeCompare(String(b.code ?? ""), "it")});
 
   const upByUnit = db.group("unitPeriod", "unitId");
   const resByUnitPeriod = db.group("unitResident", "unitPeriodId");
@@ -70,16 +69,17 @@ export function projectUnits(db: Db, periodId: string): UnitRow[] {
   // preventivo/consuntivo/saldoPrec/versato; consuntivo gets the individual-expense
   // fold below and totDovuto stays saldoPrec + preventivo (generator semantics).
   const balancesById = new Map(
-    recomputePeriod(dbToPeriodState(db, periodId)).balances.map((b) => [b.residentId, b]),
+    recomputePeriod(dbToPeriodState(db, periodId)).balances.map((b) => {return [b.residentId, b]}),
   );
 
-  const sumField = (rows: UnitRow[], k: keyof Pick<UnitRow, "saldoPrec" | "preventivo" | "consuntivo" | "totDovuto" | "versato">): Money =>
-    m(rows.reduce((a, r) => a + r[k].cents, 0));
+  function sumField(rows: UnitRow[], k: keyof Pick<UnitRow, "saldoPrec" | "preventivo" | "consuntivo" | "totDovuto" | "versato">): Money {
+    return m(rows.reduce((a, r) => {return a + r[k].cents}, 0));
+  }
 
   const unitRows: UnitRow[] = units.map((u) => {
     const unitPeriods = upByUnit.get(String(u.id)) ?? [];
     const residents = unitPeriods.flatMap((up) =>
-      (resByUnitPeriod.get(String(up.id)) ?? []).map((r) => ({ r, up })),
+      {return (resByUnitPeriod.get(String(up.id)) ?? []).map((r) => {return { r, up }})},
     );
 
     const resRows: UnitRow[] = residents.map(({ r, up }) => {
@@ -106,8 +106,9 @@ export function projectUnits(db: Db, periodId: string): UnitRow[] {
     });
 
     const names = resRows
-      .map((rr) => rr.label.replace(/ \(.*\)$/, ""))
+      .map((rr) => {return rr.label.replace(/ \(.*\)$/, "")})
       .join(", ");
+
     const restriction = restrictionLabel(
       str(u.periodRestrictionStartDate),
       str(u.periodRestrictionEndDate),
@@ -145,4 +146,12 @@ export function projectUnits(db: Db, periodId: string): UnitRow[] {
     children: unitRows,
   };
   return [group];
+}
+
+function str(v: unknown): string | undefined {
+  return v === null || v === undefined || String(v).trim() === "" ? undefined : String(v).trim();
+}
+
+function m(c: number): Money {
+  return { cents: c };
 }

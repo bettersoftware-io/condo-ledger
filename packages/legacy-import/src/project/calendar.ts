@@ -30,15 +30,17 @@ const STATUS: Record<string, CalendarEvent["status"]> = {
 };
 
 export function projectLayers(db: Db): CalendarLayer[] {
-  const layers = db.rows("calendarLayer").map((l) => ({
+  const layers = db.rows("calendarLayer").map((l) => {return {
     id: `lay${l.id}`,
     name: String(l.name),
     color: String(l.color ?? "#7f8c8d"),
-  }));
-  const needsDefault = db.rows("calendarEvent").some((e) => e.layerId == null);
-  if (needsDefault && !layers.some((l) => l.id === DEFAULT_LAYER_ID)) {
+  }});
+  const needsDefault = db.rows("calendarEvent").some((e) => {return e.layerId == null});
+
+  if (needsDefault && !layers.some((l) => {return l.id === DEFAULT_LAYER_ID})) {
     layers.unshift({ id: DEFAULT_LAYER_ID, name: "Generale", color: "#7f8c8d" });
   }
+
   return layers;
 }
 
@@ -52,6 +54,7 @@ export function projectEvents(db: Db): CalendarEvent[] {
       link !== undefined && link.accountingPeriodId !== null
         ? `p${link.accountingPeriodId}`
         : undefined;
+
     const ev: CalendarEvent = {
       id: `ev${e.id}`,
       date: datePart ?? raw,
@@ -60,9 +63,11 @@ export function projectEvents(db: Db): CalendarEvent[] {
       status: STATUS[String(e.status)] ?? "new",
       priority: PRIORITY[String(e.priority)] ?? "medium",
     };
+
     if (e.ignoreTime !== true && timePart !== undefined && timePart !== "00:00:00") {
       ev.time = timePart.slice(0, 5);
     }
+
     if (apId !== undefined) ev.periodId = apId;
     const notes =
       e.notes === null || e.notes === undefined

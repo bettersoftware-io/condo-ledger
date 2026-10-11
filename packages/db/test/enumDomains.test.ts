@@ -16,7 +16,7 @@ d("enum domains", () => {
   beforeAll(() => {
     pool = makePool(url);
   });
-  afterAll(() => pool.end());
+  afterAll(() => {return pool.end()});
 
   it("rejects an out-of-domain ledger_account.type", async () => {
     await expect(pool.query(`INSERT INTO ledger_account (type) VALUES ('bogus')`))

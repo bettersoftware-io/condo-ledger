@@ -14,7 +14,7 @@ export interface Feature {
 const STEP = /^(?:Given|When|Then|And|But)\s+(.*)$/;
 
 function substitute(s: string, row: Record<string, string>): string {
-  return s.replace(/<([^>]+)>/g, (_, k: string) => row[k] ?? `<${k}>`);
+  return s.replace(/<([^>]+)>/g, (_, k: string) => {return row[k] ?? `<${k}>`});
 }
 
 /** Minimal Gherkin: Feature, Background, Scenario, Scenario Outline + Examples, steps. */
@@ -22,7 +22,7 @@ export function parseFeature(text: string): Feature {
   const feature: Feature = { name: "", background: [], scenarios: [] };
   let mode: "none" | "background" | "scenario" | "outline" | "examples" = "none";
   let scenario: Scenario | null = null;
-  let outline: { name: string; steps: Step[] } | null = null;
+  let outline: Scenario | null = null;
   let header: string[] | null = null;
 
   for (const raw of text.split(/\r?\n/)) {
@@ -37,14 +37,14 @@ export function parseFeature(text: string): Feature {
     if (/^Examples:/.test(line)) { header = null; mode = "examples"; continue; }
 
     if (mode === "examples" && line.startsWith("|")) {
-      const cells = line.split("|").slice(1, -1).map((c) => c.trim());
+      const cells = line.split("|").slice(1, -1).map((c) => {return c.trim()});
       if (!header) { header = cells; continue; }
       const row: Record<string, string> = {};
       header.forEach((h, i) => { row[h] = cells[i] ?? ""; });
-      const label = header.map((h) => `${h}=${row[h]}`).join(", ");
+      const label = header.map((h) => {return `${h}=${row[h]}`}).join(", ");
       feature.scenarios.push({
         name: `${outline!.name} — ${label}`,
-        steps: outline!.steps.map((s) => ({ text: substitute(s.text, row) })),
+        steps: outline!.steps.map((s) => {return { text: substitute(s.text, row) }}),
       });
       continue;
     }
@@ -57,5 +57,6 @@ export function parseFeature(text: string): Feature {
       continue;
     }
   }
+
   return feature;
 }

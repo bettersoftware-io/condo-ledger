@@ -18,12 +18,13 @@ const tablesFixture: Tables = {
 };
 
 describe("projectDistributionTables", () => {
-  const db = buildDb(tablesFixture);
   it("builds tables with total = Σ coefficients", () => {
     const t = projectDistributionTables(db, "1");
     expect(t[0]).toMatchObject({ id: "dt7", name: "Proprietà", total: 1000 });
-    expect(t[0]!.items.map((i) => i.coefficient)).toEqual([250, 750]);
+    expect(t[0]!.items.map((i) => {return i.coefficient})).toEqual([250, 750]);
   });
+
+  const db = buildDb(tablesFixture);
 });
 
 // ---------------------------------------------------------------------------
@@ -65,19 +66,20 @@ const subtreeFixture: Tables = {
 };
 
 describe("subtree rollup", () => {
-  const db = buildDb(subtreeFixture);
   it("distributes the grouping's SUBTREE total, not its own 0", () => {
     const { estimate, current } = projectDistribution(db, "1");
     expect(estimate.columns).toEqual([{ accountId: "la3", header: "Pulizie", tableId: "dt7" }]);
     const eg = estimate.rows[0]!;
-    expect(eg.children!.find((r) => r.unitId === "u100")!.amounts["la3"]).toEqual({ cents: 5000 });
-    expect(eg.children!.find((r) => r.unitId === "u101")!.amounts["la3"]).toEqual({ cents: 15000 });
+    expect(eg.children!.find((r) => {return r.unitId === "u100"})!.amounts["la3"]).toEqual({ cents: 5000 });
+    expect(eg.children!.find((r) => {return r.unitId === "u101"})!.amounts["la3"]).toEqual({ cents: 15000 });
     expect(eg.total).toEqual({ cents: 20000 });
     const cg = current.rows[0]!;
-    expect(cg.children!.find((r) => r.unitId === "u100")!.amounts["la3"]).toEqual({ cents: 2500 });
-    expect(cg.children!.find((r) => r.unitId === "u101")!.amounts["la3"]).toEqual({ cents: 7500 });
+    expect(cg.children!.find((r) => {return r.unitId === "u100"})!.amounts["la3"]).toEqual({ cents: 2500 });
+    expect(cg.children!.find((r) => {return r.unitId === "u101"})!.amounts["la3"]).toEqual({ cents: 7500 });
     expect(cg.total).toEqual({ cents: 10000 });
   });
+
+  const db = buildDb(subtreeFixture);
 });
 
 // Multi-table % split: leaf account 3 estimate 1000.00, linked 60% to table 7
@@ -106,13 +108,14 @@ const multiTableFixture: Tables = {
 };
 
 describe("multi-table % split", () => {
-  const db = buildDb(multiTableFixture);
   it("sums both link contributions per unit", () => {
     const eg = projectDistribution(db, "1").estimate.rows[0]!;
-    expect(eg.children!.find((r) => r.unitId === "u100")!.amounts["la3"]).toEqual({ cents: 35000 });
-    expect(eg.children!.find((r) => r.unitId === "u101")!.amounts["la3"]).toEqual({ cents: 65000 });
+    expect(eg.children!.find((r) => {return r.unitId === "u100"})!.amounts["la3"]).toEqual({ cents: 35000 });
+    expect(eg.children!.find((r) => {return r.unitId === "u101"})!.amounts["la3"]).toEqual({ cents: 65000 });
     expect(eg.total).toEqual({ cents: 100000 });
   });
+
+  const db = buildDb(multiTableFixture);
 });
 
 // Estimate vs currentBalance tables: account 3 estimate→TabA (250/750),
@@ -141,27 +144,29 @@ const typeSplitFixture: Tables = {
 };
 
 describe("estimate vs currentBalance tables", () => {
-  const db = buildDb(typeSplitFixture);
   it("estimate matrix uses tableA, current uses tableB", () => {
     const { estimate, current } = projectDistribution(db, "1");
     // displayTableId is the estimate-side table (dt7)
     expect(estimate.columns[0]!.tableId).toBe("dt7");
     const eg = estimate.rows[0]!;
-    expect(eg.children!.find((r) => r.unitId === "u100")!.amounts["la3"]).toEqual({ cents: 10000 });
-    expect(eg.children!.find((r) => r.unitId === "u101")!.amounts["la3"]).toEqual({ cents: 30000 });
+    expect(eg.children!.find((r) => {return r.unitId === "u100"})!.amounts["la3"]).toEqual({ cents: 10000 });
+    expect(eg.children!.find((r) => {return r.unitId === "u101"})!.amounts["la3"]).toEqual({ cents: 30000 });
     const cg = current.rows[0]!;
-    expect(cg.children!.find((r) => r.unitId === "u100")!.amounts["la3"]).toEqual({ cents: 10000 });
-    expect(cg.children!.find((r) => r.unitId === "u101")!.amounts["la3"]).toEqual({ cents: 10000 });
+    expect(cg.children!.find((r) => {return r.unitId === "u100"})!.amounts["la3"]).toEqual({ cents: 10000 });
+    expect(cg.children!.find((r) => {return r.unitId === "u101"})!.amounts["la3"]).toEqual({ cents: 10000 });
   });
+
+  const db = buildDb(typeSplitFixture);
 });
 
 describe("group/unit rollups still sum", () => {
-  const db = buildDb(subtreeFixture);
   it("group amount = Σ unit amounts and group total = Σ unit totals", () => {
     const eg = projectDistribution(db, "1").estimate.rows[0]!;
-    const sumLa3 = eg.children!.reduce((s, r) => s + r.amounts["la3"]!.cents, 0);
+    const sumLa3 = eg.children!.reduce((s, r) => {return s + r.amounts["la3"]!.cents}, 0);
     expect(eg.amounts["la3"]).toEqual({ cents: sumLa3 });
-    const sumTot = eg.children!.reduce((s, r) => s + r.total.cents, 0);
+    const sumTot = eg.children!.reduce((s, r) => {return s + r.total.cents}, 0);
     expect(eg.total).toEqual({ cents: sumTot });
   });
+
+  const db = buildDb(subtreeFixture);
 });

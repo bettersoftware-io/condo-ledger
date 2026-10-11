@@ -15,18 +15,20 @@ const tables: Tables = {
 };
 
 describe("projectAnagrafiche", () => {
-  const db = buildDb(tables);
-  const out = projectAnagrafiche(db);
   it("maps a company", () => {
-    const c = out.find((a) => a.id === "md10")!;
+    const c = out.find((a) => {return a.id === "md10"})!;
     expect(c).toMatchObject({ kind: "company", nominativo: "Zanon Servizi di Pulizia s.n.c.", categoria: "Impresa di pulizie", stato: "active", partitaIva: "14476590311", codice: "FCLEAN" });
     expect(c.indirizzo).toContain("33100");
   });
   it("maps a person with nominativo 'Cognome Nome' and lowercased sesso", () => {
-    const p = out.find((a) => a.id === "md11")!;
+    const p = out.find((a) => {return a.id === "md11"})!;
     expect(p).toMatchObject({ kind: "person", nominativo: "Floreani Tiziano", cognome: "Rossi", nome: "Tiziano", sesso: "m", stato: "archived", codiceFiscale: "RSSMRA80A01L483Z", professione: "Operaio", luogoNascita: "Udine", dataNascita: "1980-01-01" });
   });
   it("category registry is the distinct category names", () => {
     expect(projectCategories(db)).toEqual(["Impresa di pulizie"]);
   });
+
+  const db = buildDb(tables);
+
+  const out = projectAnagrafiche(db);
 });

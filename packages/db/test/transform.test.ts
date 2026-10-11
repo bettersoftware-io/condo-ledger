@@ -2,29 +2,6 @@ import { describe, it, expect } from "vitest";
 import { makeTransform } from "../etl/transform.ts";
 import type { DdlColumn } from "../etl/ddl.ts";
 
-// Small inline DDL — kept a pure unit (no real file read here).
-const ddl: Record<string, DdlColumn[]> = {
-  condominium: [
-    { name: "id", sqlType: "int" },
-    { name: "name", sqlType: "varchar(255)" },
-    { name: "isActive", sqlType: "tinyint(1)" },
-    { name: "created", sqlType: "datetime" },
-    { name: "lastModified", sqlType: "datetime" },
-    { name: "birthDate", sqlType: "date" },
-  ],
-  masterDataTaxTreatment: [
-    { name: "id", sqlType: "int" },
-    { name: "default", sqlType: "tinyint(1)" },
-  ],
-  masterData: [
-    { name: "id", sqlType: "int" },
-    { name: "createdMasterDataId", sqlType: "int" },
-    { name: "lastModifiedMasterDataId", sqlType: "int" },
-  ],
-};
-
-const transformRow = makeTransform(ddl);
-
 describe("makeTransform — column renames", () => {
   it("snake_cases normal columns", () => {
     const r = transformRow("condominium", ["id", "name"], ["1", "Saturno"]);
@@ -106,3 +83,26 @@ describe("makeTransform — nulls and unknown columns", () => {
     expect(r.mystery_col).toBe("abc");
   });
 });
+
+// Small inline DDL — kept a pure unit (no real file read here).
+const ddl: Record<string, DdlColumn[]> = {
+  condominium: [
+    { name: "id", sqlType: "int" },
+    { name: "name", sqlType: "varchar(255)" },
+    { name: "isActive", sqlType: "tinyint(1)" },
+    { name: "created", sqlType: "datetime" },
+    { name: "lastModified", sqlType: "datetime" },
+    { name: "birthDate", sqlType: "date" },
+  ],
+  masterDataTaxTreatment: [
+    { name: "id", sqlType: "int" },
+    { name: "default", sqlType: "tinyint(1)" },
+  ],
+  masterData: [
+    { name: "id", sqlType: "int" },
+    { name: "createdMasterDataId", sqlType: "int" },
+    { name: "lastModifiedMasterDataId", sqlType: "int" },
+  ],
+};
+
+const transformRow = makeTransform(ddl);

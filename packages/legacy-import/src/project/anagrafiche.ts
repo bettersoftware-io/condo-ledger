@@ -2,29 +2,25 @@ import type { Anagrafica } from "#/seedTypes.ts";
 import type { Db } from "../db.ts";
 import { parseAddressVO, formatAddress } from "../addressVO.ts";
 
-const str = (v: unknown): string | undefined => {
-  if (v === null || v === undefined) return undefined;
-  const t = String(v).trim();
-  return t === "" ? undefined : t;
-};
-
 /** Category display name: prefer it-IT i18n translation, else the base name. */
 function categoryName(db: Db, categoryId: string | null): string | undefined {
   if (!categoryId) return undefined;
   const base = db.by("masterDataCategory", "id").get(categoryId);
   if (!base) return undefined;
   const i18n = (db.group("masterDataCategoryI18n", "masterDataCategoryId").get(categoryId) ?? [])
-    .find((r) => String(r.localeCode).startsWith("it"));
+    .find((r) => {return String(r.localeCode).startsWith("it")});
   return str(i18n?.translation) ?? str(base.name);
 }
 
 export function projectCategories(db: Db): string[] {
   const names = new Set<string>();
+
   for (const cat of db.rows("masterDataCategory")) {
     const n = categoryName(db, String(cat.id));
     if (n) names.add(n);
   }
-  return [...names].sort((a, b) => a.localeCompare(b, "it", { sensitivity: "base" }));
+
+  return [...names].sort((a, b) => {return a.localeCompare(b, "it", { sensitivity: "base" })});
 }
 
 export function projectAnagrafiche(db: Db): Anagrafica[] {
@@ -95,6 +91,12 @@ export function projectAnagrafiche(db: Db): Anagrafica[] {
   }
 
   return out.sort((a, b) =>
-    a.nominativo.localeCompare(b.nominativo, "it", { sensitivity: "base" }),
+    {return a.nominativo.localeCompare(b.nominativo, "it", { sensitivity: "base" })},
   );
+}
+
+function str(v: unknown): string | undefined {
+  if (v === null || v === undefined) return undefined;
+  const t = String(v).trim();
+  return t === "" ? undefined : t;
 }

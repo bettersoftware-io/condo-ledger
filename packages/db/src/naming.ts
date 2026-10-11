@@ -63,9 +63,9 @@ export function toCamel(snake: string): string {
   return s
     .split(" ")
     .map((seg) =>
-      seg.includes("_") || /^[a-z0-9]+$/.test(seg)
-        ? seg.replace(/_([a-z0-9])/g, (_, ch: string) => ch.toUpperCase())
-        : seg,
+      {return seg.includes("_") || /^[a-z0-9]+$/.test(seg)
+        ? seg.replace(/_([a-z0-9])/g, (_, ch: string) => {return ch.toUpperCase()})
+        : seg},
     )
     .join("");
 }

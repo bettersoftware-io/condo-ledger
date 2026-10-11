@@ -17,7 +17,7 @@ d("foreign-key integrity", () => {
   beforeAll(() => {
     pool = makePool(url);
   });
-  afterAll(() => pool.end());
+  afterAll(() => {return pool.end()});
 
   it("has zero orphan rows across all foreign keys", async () => {
     const fks = await pool.query(`
@@ -28,6 +28,7 @@ d("foreign-key integrity", () => {
       JOIN information_schema.constraint_column_usage ccu ON ccu.constraint_name=tc.constraint_name
       WHERE tc.constraint_type='FOREIGN KEY' AND tc.table_schema='public'`);
     const offenders: string[] = [];
+
     for (const fk of fks.rows) {
       const q = `SELECT count(*)::int c FROM "${fk.child}" ch
         WHERE ch."${fk.col}" IS NOT NULL
@@ -35,6 +36,7 @@ d("foreign-key integrity", () => {
       const r = await pool.query(q);
       if (r.rows[0].c > 0) offenders.push(`${fk.child}.${fk.col} -> ${fk.parent} (${r.rows[0].c})`);
     }
+
     expect(offenders).toEqual([]);
   });
 });

@@ -41,6 +41,7 @@ export function parseAddressVO(blob: string | null): AddressFields {
 
     // Try to match a string value: s:LEN:"...";
     const strMatch = /^s:\d+:"([^"]*)";/.exec(afterKey);
+
     if (strMatch) {
       (out as Record<string, string>)[key] = strMatch[1]!;
     }
@@ -53,8 +54,8 @@ export function parseAddressVO(blob: string | null): AddressFields {
 export function formatAddress(a: AddressFields): string {
   const streetPart =
     a.street ??
-    [a.streetName, a.streetNumber].filter((s): s is string => s !== undefined && s !== "").join(", ");
+    [a.streetName, a.streetNumber].filter((s): s is string => {return s !== undefined && s !== ""}).join(", ");
   const trimmed = streetPart.trim();
-  const parts = [trimmed, a.postCode?.trim()].filter((s): s is string => !!s);
+  const parts = [trimmed, a.postCode?.trim()].filter((s): s is string => {return !!s});
   return parts.join(" — ");
 }

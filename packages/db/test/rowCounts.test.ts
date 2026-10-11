@@ -17,9 +17,10 @@ d("operational row-count parity", () => {
   beforeAll(() => {
     pool = makePool(url);
   });
-  afterAll(() => pool.end());
+  afterAll(() => {return pool.end()});
 
   const expected = expectedOperationalCounts();
+
   for (const [table, n] of Object.entries(expected)) {
     it(`${table} has ${n} rows`, async () => {
       const r = await pool.query(`SELECT count(*)::int n FROM "${table}"`);

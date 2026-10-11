@@ -5,14 +5,13 @@ import { rawTrialBalanceCents, entryCount, estimateDistributionByResident, insta
 import { reconcilePeriods } from "#/reconcile.ts";
 import { projectAccounts, projectTransactions } from "#/project/accounting.ts";
 import { projectDistribution } from "#/project/distribution.ts";
-import { buildRiparto } from "@cl/domain";
+import { buildRiparto, type Money } from "@cl/domain";
 import { dbToRipartoInput } from "#/project/ripartoInput.ts";
 import { projectUnits } from "#/project/units.ts";
-import type { LedgerAccountRow, LedgerTxnRow, InstallmentRow, UnitRow } from "#/seedTypes.ts";
+import type { LedgerAccountRow, LedgerTxnRow, InstallmentRow, UnitRow, Anagrafica, CondominiumNode } from "#/seedTypes.ts";
 import { projectInstallments } from "#/project/installments.ts";
 import { projectAnagrafiche, projectCategories } from "#/project/anagrafiche.ts";
 import { projectTree } from "#/project/structure.ts";
-import type { Anagrafica, CondominiumNode } from "#/seedTypes.ts";
 
 Given(/^the legacy data for period "([^"]+)"$/, (world, label) => {
   const w = world as SpecWorld;
@@ -48,21 +47,26 @@ Then(/^every projected transaction balances \(dare equals avere\)$/, (world) => 
 
 Then(/^the account tree root saldo is zero$/, (world) => {
   const accounts = (world as SpecWorld).accounts as LedgerAccountRow[];
-  const rootSaldo = accounts.reduce((s, a) => s + a.saldo.cents, 0);
+  const rootSaldo = accounts.reduce((s, a) => {return s + a.saldo.cents}, 0);
   expect(Math.abs(rootSaldo)).toBeLessThanOrEqual(1);
 });
 
 Then(/^the account tree saldo equals the raw sum of entries$/, (world) => {
   const w = world as SpecWorld;
   const accounts = w.accounts as LedgerAccountRow[];
-  const treeSaldo = accounts.reduce((s, a) => s + a.saldo.cents, 0);
+  const treeSaldo = accounts.reduce((s, a) => {return s + a.saldo.cents}, 0);
   expect(treeSaldo).toBe(rawTrialBalanceCents(w.db, w.legacyPeriodId!));
 });
 
 // --- riparto (distribution) parity -----------------------------------------
 
+/** The part of a matrix row that sumMatrix reads. */
+interface MatrixRow {
+  total: Money;
+}
+
 /** group row is rows[0]; its total is the whole matrix total. */
-function sumMatrix(rows: { total: { cents: number } }[]): number {
+function sumMatrix(rows: MatrixRow[]): number {
   return rows.length ? rows[0]!.total.cents : 0;
 }
 
@@ -75,7 +79,7 @@ Then(/^the estimate matrix total equals the sum of linked expense estimates$/, (
   const w = world as SpecWorld;
   const dist = w.dist as ReturnType<typeof projectDistribution>;
   const eng = buildRiparto(dbToRipartoInput(w.db, w.legacyPeriodId!));
-  const src = eng.columns.reduce((s, c) => s + eng.subtree(c.legacyAccountId).estimateCents, 0);
+  const src = eng.columns.reduce((s, c) => {return s + eng.subtree(c.legacyAccountId).estimateCents}, 0);
   const matrix = sumMatrix(dist.estimate.rows);
   // tolerance: ~one rounding cent per allocated (column x unit) cell. A multi-link
   // column rounds once per chosen link, so a cell can contribute >1 cent; in practice
@@ -87,7 +91,7 @@ Then(/^the current matrix total equals the sum of linked expense actuals$/, (wor
   const w = world as SpecWorld;
   const dist = w.dist as ReturnType<typeof projectDistribution>;
   const eng = buildRiparto(dbToRipartoInput(w.db, w.legacyPeriodId!));
-  const src = eng.columns.reduce((s, c) => s + eng.subtree(c.legacyAccountId).actualCents, 0);
+  const src = eng.columns.reduce((s, c) => {return s + eng.subtree(c.legacyAccountId).actualCents}, 0);
   const matrix = sumMatrix(dist.current.rows);
   expect(Math.abs(matrix - src)).toBeLessThanOrEqual(eng.columns.length * eng.unitLegacyIds.length);
 });
@@ -96,6 +100,7 @@ When(/^the new app computes per-resident preventivo from the riparto engine$/, (
   const w = world as SpecWorld;
   const eng = buildRiparto(dbToRipartoInput(w.db, w.legacyPeriodId!));
   const byResident = new Map<string, number>();
+
   for (const unitId of eng.unitLegacyIds) {
     for (const col of eng.columns) {
       for (const [ur, cents] of eng.perResidentAmount(col.legacyAccountId, "estimate", unitId)) {
@@ -103,6 +108,7 @@ When(/^the new app computes per-resident preventivo from the riparto engine$/, (
       }
     }
   }
+
   w.enginePreventivo = byResident;
 });
 
@@ -116,7 +122,11 @@ Then(
     const w = world as SpecWorld;
     const engine = w.enginePreventivo as Map<string, number>;
     const legacy = estimateDistributionByResident(w.db, w.legacyPeriodId!);
-    const sum = (mm: Map<string, number>): number => [...mm.values()].reduce((s, v) => s + v, 0);
+
+    function sum(mm: Map<string, number>): number {
+      return [...mm.values()].reduce((s, v) => {return s + v}, 0);
+    }
+
     const residents = new Set<string>([...engine.keys(), ...legacy.keys()]).size;
     expect(Math.abs(sum(engine) - sum(legacy))).toBeLessThanOrEqual(residents);
   },
@@ -144,7 +154,9 @@ Then(/^the installments group total equals the sum of legacy installmentItem amo
 // startingBalanceByResident keys by.
 function residentRows(rows: UnitRow[]): UnitRow[] {
   const out: UnitRow[] = [];
-  const walk = (r: UnitRow) => { if (r.kind === "resident") out.push(r); (r.children ?? []).forEach(walk); };
+
+  function walk(r: UnitRow): void { if (r.kind === "resident") out.push(r); (r.children ?? []).forEach(walk); }
+
   rows.forEach(walk);
   return out;
 }
@@ -159,6 +171,7 @@ Then(/^each resident saldoPrec equals the legacy unitResident startingBalance$/,
   const residents = residentRows(w.units as UnitRow[]);
   const legacy = startingBalanceByResident(w.db, w.legacyPeriodId!);
   expect(residents.length).toBeGreaterThan(0);
+
   for (const r of residents) {
     const legacyId = r.id.replace(/^r/, "");
     expect(r.saldoPrec.cents).toBe(legacy.get(legacyId) ?? 0);
@@ -169,7 +182,7 @@ Then(/^the group saldoPrec equals the sum of resident saldoPrec$/, (world) => {
   const rows = (world as SpecWorld).units as UnitRow[];
   expect(rows.length).toBeGreaterThan(0); // fail readably (not a raw TypeError) on an empty tree
   const group = rows[0]!;
-  const sum = residentRows(rows).reduce((s, r) => s + r.saldoPrec.cents, 0);
+  const sum = residentRows(rows).reduce((s, r) => {return s + r.saldoPrec.cents}, 0);
   expect(group.saldoPrec.cents).toBe(sum);
 });
 
@@ -205,19 +218,19 @@ When(/^the new app projects the condominium tree$/, (world) => {
 
 Then(/^the tree contains the building "([^"]+)" with a null legacy code rendered blank$/, (world, name) => {
   const tree = (world as SpecWorld).tree as CondominiumNode[];
-  const node = tree.find((c) => c.name === name);
+  const node = tree.find((c) => {return c.name === name});
   expect(node).toBeDefined();
   expect(node!.code).toBe("");
 });
 
 Then(/^the tree contains the super-condominium "([^"]+)"$/, (world, name) => {
   const tree = (world as SpecWorld).tree as CondominiumNode[];
-  const node = tree.find((c) => c.name === name);
+  const node = tree.find((c) => {return c.name === name});
   expect(node).toBeDefined();
   expect(node!.type).toBe("super");
 });
 
 Then(/^the tree excludes any building whose name contains "([^"]+)"$/, (world, needle) => {
   const tree = (world as SpecWorld).tree as CondominiumNode[];
-  expect(tree.some((c) => c.name.toLowerCase().includes(needle.toLowerCase()))).toBe(false);
+  expect(tree.some((c) => {return c.name.toLowerCase().includes(needle.toLowerCase())})).toBe(false);
 });

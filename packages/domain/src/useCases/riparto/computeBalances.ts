@@ -8,15 +8,23 @@ import type { ResidentBalance } from "./periodTypes.ts";
  */
 export function perResidentTotals(eng: RipartoEngine, mode: Mode): Map<string, number> {
   const out = new Map<string, number>();
+
   for (const legacyUnitId of eng.unitLegacyIds) {
     for (const col of eng.columns) {
       const split = eng.perResidentAmount(col.legacyAccountId, mode, legacyUnitId);
+
       for (const [residentId, cents] of split) {
         out.set(residentId, (out.get(residentId) ?? 0) + cents);
       }
     }
   }
+
   return out;
+}
+
+/** A resident on the period's roster. */
+export interface RosterEntry {
+  residentId: string;
 }
 
 /**
@@ -30,7 +38,7 @@ export function perResidentTotals(eng: RipartoEngine, mode: Mode): Map<string, n
  * perResidentTotals mirroring the generator's sumByMode, not to totDovuto.
  */
 export function computeBalances(
-  roster: { residentId: string }[],
+  roster: RosterEntry[],
   eng: RipartoEngine,
   opening: Record<string, number>,
   paid: Record<string, number>,
@@ -39,6 +47,7 @@ export function computeBalances(
   const consuntivo = perResidentTotals(eng, "current");
   const seen = new Set<string>();
   const balances: ResidentBalance[] = [];
+
   for (const { residentId } of roster) {
     if (seen.has(residentId)) continue;
     seen.add(residentId);
@@ -55,5 +64,6 @@ export function computeBalances(
       totDovutoCents: preventivoCents + saldoPrecCents - versatoCents,
     });
   }
+
   return balances;
 }

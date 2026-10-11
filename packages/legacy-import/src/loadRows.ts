@@ -15,24 +15,32 @@ export type Tables = Record<string, Row[]>;
  */
 export function parseTables(sql: string): Tables {
   const ddl = parseDdl(sql);
-  const resolve = (table: string) => tableColumns(ddl, table);
+
+  function resolve(table: string): string[] {
+    return tableColumns(ddl, table);
+  }
+
   const stmts = parseInserts(sql, resolve);
   const out: Tables = {};
+
   for (const s of stmts) {
     const cols = s.columns;
-    const types = new Map((ddl[s.table] ?? []).map((c) => [c.name, c.sqlType]));
+    const types = new Map((ddl[s.table] ?? []).map((c) => {return [c.name, c.sqlType]}));
     const rows = s.rows.map((tuple) => {
       const r: Row = {};
+
       for (let i = 0; i < cols.length; i++) {
         const name = cols[i]!;
         const raw = tuple[i] ?? null;
         const sqlType = types.get(name) ?? "";
         r[name] = coerce(raw, sqlType);
       }
+
       return r;
     });
     (out[s.table] ??= []).push(...rows);
   }
+
   return out;
 }
 

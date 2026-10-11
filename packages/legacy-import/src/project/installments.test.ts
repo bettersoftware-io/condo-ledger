@@ -18,8 +18,6 @@ const tables: Tables = {
 };
 
 describe("installments projection", () => {
-  const db = buildDb(tables);
-  const out = projectInstallments(db, "1");
   it("columns sorted by expiry", () => {
     expect(out.columns).toEqual([{ id: "inst1", header: "Rata 1", expiry: "2011-02-28" }, { id: "inst2", header: "Rata 2", expiry: "2011-04-30" }]);
   });
@@ -30,4 +28,8 @@ describe("installments projection", () => {
     expect(res.saldoPrec).toEqual({ cents: -8607 });
     expect(res.role).toBe("Proprietario");
   });
+
+  const db = buildDb(tables);
+
+  const out = projectInstallments(db, "1");
 });

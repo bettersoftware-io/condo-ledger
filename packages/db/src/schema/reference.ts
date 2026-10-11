@@ -9,7 +9,6 @@ import {
   unique,
   type AnyPgColumn,
 } from "drizzle-orm/pg-core";
-import { masterData } from "./masterData.ts";
 
 // ---------------------------------------------------------------------------
 // country
@@ -20,13 +19,13 @@ export const country = pgTable("country", {
   iso31661Numeric: integer("iso3166_1_numeric").notNull(),
   name: varchar("name", { length: 127 }).notNull(),
   primaryLocaleCode: varchar("primary_locale_code", { length: 10 }).references(
-    () => locale.code,
+    () => {return locale.code},
   ),
   secondaryLocaleCode: varchar("secondary_locale_code", {
     length: 10,
-  }).references(() => locale.code),
+  }).references(() => {return locale.code}),
   tertiaryLocaleCode: varchar("tertiary_locale_code", { length: 10 }).references(
-    () => locale.code,
+    () => {return locale.code},
   ),
   created: timestamp("created", { withTimezone: true }),
   updated: timestamp("updated", { withTimezone: true }),
@@ -40,17 +39,17 @@ export const countryI18n = pgTable(
   {
     countryIso31661A2: char("country_iso3166_1_a2", { length: 2 })
       .notNull()
-      .references(() => country.iso31661Alpha2),
+      .references(() => {return country.iso31661Alpha2}),
     localeCode: varchar("locale_code", { length: 10 })
       .notNull()
-      .references(() => locale.code),
+      .references(() => {return locale.code}),
     translation: varchar("translation", { length: 127 }).notNull(),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => ({
+  (t) => {return {
     pk: primaryKey({ columns: [t.countryIso31661A2, t.localeCode] }),
-  }),
+  }},
 );
 
 // ---------------------------------------------------------------------------
@@ -71,17 +70,17 @@ export const localeI18n = pgTable(
   {
     localeCodeSrc: varchar("locale_code_src", { length: 10 })
       .notNull()
-      .references(() => locale.code),
+      .references(() => {return locale.code}),
     localeCodeDst: varchar("locale_code_dst", { length: 10 })
       .notNull()
-      .references(() => locale.code),
+      .references(() => {return locale.code}),
     translation: varchar("translation", { length: 127 }).notNull(),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => ({
+  (t) => {return {
     pk: primaryKey({ columns: [t.localeCodeSrc, t.localeCodeDst] }),
-  }),
+  }},
 );
 
 // ---------------------------------------------------------------------------
@@ -91,7 +90,7 @@ export const state = pgTable("state", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   countryIso31661A2: char("country_iso3166_1_a2", { length: 2 })
     .notNull()
-    .references(() => country.iso31661Alpha2),
+    .references(() => {return country.iso31661Alpha2}),
   code: varchar("code", { length: 31 }),
   name: varchar("name", { length: 127 }).notNull(),
   abbreviation: varchar("abbreviation", { length: 15 }),
@@ -107,17 +106,17 @@ export const stateI18n = pgTable(
   {
     stateId: integer("state_id")
       .notNull()
-      .references(() => state.id),
+      .references(() => {return state.id}),
     localeCode: varchar("locale_code", { length: 10 })
       .notNull()
-      .references(() => locale.code),
+      .references(() => {return locale.code}),
     translation: varchar("translation", { length: 127 }).notNull(),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => ({
+  (t) => {return {
     pk: primaryKey({ columns: [t.stateId, t.localeCode] }),
-  }),
+  }},
 );
 
 // ---------------------------------------------------------------------------
@@ -127,8 +126,8 @@ export const district = pgTable("district", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   countryIso31661A2: char("country_iso3166_1_a2", { length: 2 })
     .notNull()
-    .references(() => country.iso31661Alpha2),
-  stateId: integer("state_id").references(() => state.id),
+    .references(() => {return country.iso31661Alpha2}),
+  stateId: integer("state_id").references(() => {return state.id}),
   code: varchar("code", { length: 31 }),
   name: varchar("name", { length: 127 }).notNull(),
   abbreviation: varchar("abbreviation", { length: 15 }),
@@ -144,17 +143,17 @@ export const districtI18n = pgTable(
   {
     districtId: integer("district_id")
       .notNull()
-      .references(() => district.id),
+      .references(() => {return district.id}),
     localeCode: varchar("locale_code", { length: 10 })
       .notNull()
-      .references(() => locale.code),
+      .references(() => {return locale.code}),
     translation: varchar("translation", { length: 127 }).notNull(),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => ({
+  (t) => {return {
     pk: primaryKey({ columns: [t.districtId, t.localeCode] }),
-  }),
+  }},
 );
 
 // ---------------------------------------------------------------------------
@@ -164,7 +163,7 @@ export const minorCivilDivision = pgTable("minor_civil_division", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   districtId: integer("district_id")
     .notNull()
-    .references(() => district.id),
+    .references(() => {return district.id}),
   code: varchar("code", { length: 31 }),
   name: varchar("name", { length: 127 }).notNull(),
   abbreviation: varchar("abbreviation", { length: 15 }),
@@ -180,17 +179,17 @@ export const minorCivilDivisionI18n = pgTable(
   {
     minorCivilDivisionId: integer("minor_civil_division_id")
       .notNull()
-      .references(() => minorCivilDivision.id),
+      .references(() => {return minorCivilDivision.id}),
     localeCode: varchar("locale_code", { length: 10 })
       .notNull()
-      .references(() => locale.code),
+      .references(() => {return locale.code}),
     translation: varchar("translation", { length: 127 }).notNull(),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => ({
+  (t) => {return {
     pk: primaryKey({ columns: [t.minorCivilDivisionId, t.localeCode] }),
-  }),
+  }},
 );
 
 // ---------------------------------------------------------------------------
@@ -200,11 +199,11 @@ export const city = pgTable("city", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   countryIso31661A2: char("country_iso3166_1_a2", { length: 2 })
     .notNull()
-    .references(() => country.iso31661Alpha2),
-  stateId: integer("state_id").references(() => state.id),
-  districtId: integer("district_id").references(() => district.id),
+    .references(() => {return country.iso31661Alpha2}),
+  stateId: integer("state_id").references(() => {return state.id}),
+  districtId: integer("district_id").references(() => {return district.id}),
   minorCivilDivisionId: integer("minor_civil_division_id").references(
-    () => minorCivilDivision.id,
+    () => {return minorCivilDivision.id},
   ),
   code: varchar("code", { length: 31 }),
   name: varchar("name", { length: 127 }).notNull(),
@@ -220,17 +219,17 @@ export const cityI18n = pgTable(
   {
     cityId: integer("city_id")
       .notNull()
-      .references(() => city.id),
+      .references(() => {return city.id}),
     localeCode: varchar("locale_code", { length: 10 })
       .notNull()
-      .references(() => locale.code),
+      .references(() => {return locale.code}),
     translation: varchar("translation", { length: 127 }).notNull(),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => ({
+  (t) => {return {
     pk: primaryKey({ columns: [t.cityId, t.localeCode] }),
-  }),
+  }},
 );
 
 // ---------------------------------------------------------------------------
@@ -241,16 +240,16 @@ export const cityPostCode = pgTable(
   {
     cityId: integer("city_id")
       .notNull()
-      .references(() => city.id),
+      .references(() => {return city.id}),
     postCode: varchar("post_code", { length: 31 })
       .notNull()
-      .references(() => postCode.code),
+      .references(() => {return postCode.code}),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => ({
+  (t) => {return {
     pk: primaryKey({ columns: [t.cityId, t.postCode] }),
-  }),
+  }},
 );
 
 // ---------------------------------------------------------------------------
@@ -262,11 +261,11 @@ export const postCode = pgTable(
     code: varchar("code", { length: 31 }).notNull(),
     countryIso31661A2: char("country_iso3166_1_a2", { length: 2 })
       .notNull()
-      .references(() => country.iso31661Alpha2),
+      .references(() => {return country.iso31661Alpha2}),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => ({
+  (t) => {return {
     pk: primaryKey({ columns: [t.code, t.countryIso31661A2] }),
     // cityPostCode.postCode FKs to post_code.code alone. Legacy MySQL allowed
     // this because `code` is the leftmost prefix of the composite PK; Postgres
@@ -276,7 +275,7 @@ export const postCode = pgTable(
     // Current data is Italy-only so codes are de-facto unique; flagged for
     // schema-owner ratification.
     codeUnique: unique("post_code_code_unique").on(t.code),
-  }),
+  }},
 );
 
 // ---------------------------------------------------------------------------
@@ -286,7 +285,7 @@ export const bank = pgTable("bank", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   countryIso31661A2: char("country_iso3166_1_a2", { length: 2 })
     .notNull()
-    .references(() => country.iso31661Alpha2),
+    .references(() => {return country.iso31661Alpha2}),
   name: varchar("name", { length: 255 }).notNull(),
   nationalBankCode: char("national_bank_code", { length: 8 }),
   swiftPrimaryOffice: char("swift_primary_office", { length: 11 }),
@@ -295,26 +294,19 @@ export const bank = pgTable("bank", {
 });
 
 // ---------------------------------------------------------------------------
-// bankBranch
+// tribute
 // ---------------------------------------------------------------------------
-export const bankBranch = pgTable("bank_branch", {
+export const tribute = pgTable("tribute", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
-  bankId: integer("bank_id")
+  countryIso31661A2: char("country_iso3166_1_a2", { length: 2 })
     .notNull()
-    .references(() => bank.id),
-  name: varchar("name", { length: 255 }).notNull(),
-  branchCode: char("branch_code", { length: 6 }),
-  swift: char("swift", { length: 11 }),
-  address: text("address"),
-  masterDataId: integer("master_data_id").references(
-    (): AnyPgColumn => masterData.id,
-  ),
-  cityId: integer("city_id").references(() => city.id),
-  districtId: integer("district_id").references(() => district.id),
-  stateId: integer("state_id").references(() => state.id),
-  countryIso31661A2: char("country_iso3166_1_a2", { length: 2 }).references(
-    () => country.iso31661Alpha2,
-  ),
+    .references(() => {return country.iso31661Alpha2}),
+  code: varchar("code", { length: 15 }).notNull(),
+  name: varchar("name", { length: 63 }),
+  defaultVat: integer("default_vat"),
+  defaultWithholdingTax: integer("default_withholding_tax"),
+  defaultWelfareTax: integer("default_welfare_tax"),
+  notes: text("notes"),
   created: timestamp("created", { withTimezone: true }),
   updated: timestamp("updated", { withTimezone: true }),
 });

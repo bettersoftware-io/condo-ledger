@@ -12,8 +12,10 @@ export function legacyTables(): Tables {
     const path = resolve(process.cwd(), "../../old/db/it-jtime-condominium.all.sql");
     cachedTables = parseTables(readFileSync(path, "utf8"));
   }
+
   return cachedTables;
 }
+
 export function legacyDb(): Db {
   if (!cachedDb) cachedDb = buildDb(legacyTables());
   return cachedDb;
@@ -35,10 +37,10 @@ export function resolvePeriod(db: Db, label: string): string {
   const parts = label.trim().split(/\s+/);
   const year = parts[parts.length - 1]!;
   const condName = parts.slice(0, -1).join(" ");
-  const cond = db.rows("condominium").find((c) => String(c.name) === condName);
+  const cond = db.rows("condominium").find((c) => {return String(c.name) === condName});
   if (!cond) throw new Error(`No condominium named "${condName}"`);
   const period = db.rows("accountingPeriod").find(
-    (p) => String(p.condominiumId) === String(cond.id) && String(p.name) === year,
+    (p) => {return String(p.condominiumId) === String(cond.id) && String(p.name) === year},
   );
   if (!period) throw new Error(`No period "${year}" for condominium "${condName}"`);
   return String(period.id);

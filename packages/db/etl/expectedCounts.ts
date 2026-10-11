@@ -20,14 +20,20 @@ export function expectedOperationalCounts(): Record<string, number> {
       "utf8",
     ),
   );
-  const resolve = (t: string): string[] => tableColumns(ddl, t);
+
+  function resolve(t: string): string[] {
+    return tableColumns(ddl, t);
+  }
+
   const stmts = [
     ...parseInserts(readFileSync(FILES.saturnoOnly, "utf8"), resolve),
     ...parseInserts(readFileSync(FILES.pozzettoOnly, "utf8"), resolve),
   ];
   const counts: Record<string, number> = {};
+
   for (const s of stmts) {
     counts[toSnake(s.table)] = (counts[toSnake(s.table)] ?? 0) + s.rows.length;
   }
+
   return counts;
 }

@@ -2,26 +2,12 @@ import { describe, it, expect } from "vitest";
 import { buildDb } from "./db.ts";
 import type { Tables } from "./loadRows.ts";
 
-const tables: Tables = {
-  condominium: [
-    { id: "1", code: "SAT", name: "Saturno", status: "active", type: "regular", address: null, taxCode: "TC1", vatNumber: null, parentCondominiumId: null },
-    { id: "9", code: null, name: "Pozzetto x test", status: "active", type: "regular", address: null, taxCode: null, vatNumber: null, parentCondominiumId: null },
-    { id: "7", code: "EMP", name: "Empty", status: "active", type: "regular", address: null, taxCode: null, vatNumber: null, parentCondominiumId: null },
-  ],
-  accountingPeriod: [
-    { id: "1", condominiumId: "1", name: "2011", type: "ordinary", status: "opened", startDate: "2011-01-01", endDate: "2011-12-31" },
-    { id: "9", condominiumId: "9", name: "2012", type: "ordinary", status: "opened", startDate: "2012-01-01", endDate: "2012-12-31" },
-    { id: "70", condominiumId: "7", name: "2012", type: "ordinary", status: "opened", startDate: "2012-01-01", endDate: "2012-12-31" },
-  ],
-  unit: [{ id: "100", accountingPeriodId: "1", code: "A01", name: "Alberi", unitTypeId: "1", unitGroupId: null, floor: "T", innerNumber: "1", subordinateNumber: null, periodRestrictionStartDate: null, periodRestrictionEndDate: null }],
-};
-
 describe("buildDb selection", () => {
   it("keeps real condominiums with ≥1 unit, drops test/code-null-numbered-dupe and empty ones", () => {
     const db = buildDb(tables);
-    const ids = db.condominiums.map((c) => c.id);
+    const ids = db.condominiums.map((c) => {return c.id});
     expect(ids).toEqual(["1"]); // SAT kept; "Pozzetto x test" (name has test) + "Empty" (0 units) dropped
-    expect(db.periodsOf("1").map((p) => p.id)).toEqual(["1"]);
+    expect(db.periodsOf("1").map((p) => {return p.id})).toEqual(["1"]);
   });
 
   it("keeps code-null buildings with units and super-condos, drops numbered dupes and test rows", () => {
@@ -52,7 +38,7 @@ describe("buildDb selection", () => {
     };
 
     const db = buildDb(fixture);
-    const ids = new Set(db.condominiums.map((c) => String(c.id)));
+    const ids = new Set(db.condominiums.map((c) => {return String(c.id)}));
 
     // Kept: code-null building with units (19) + super-condo (13)
     expect(ids.has("19")).toBe(true);  // Pozzetto: code=null but has units
@@ -66,3 +52,17 @@ describe("buildDb selection", () => {
     expect(ids).toEqual(new Set(["13", "19"]));
   });
 });
+
+const tables: Tables = {
+  condominium: [
+    { id: "1", code: "SAT", name: "Saturno", status: "active", type: "regular", address: null, taxCode: "TC1", vatNumber: null, parentCondominiumId: null },
+    { id: "9", code: null, name: "Pozzetto x test", status: "active", type: "regular", address: null, taxCode: null, vatNumber: null, parentCondominiumId: null },
+    { id: "7", code: "EMP", name: "Empty", status: "active", type: "regular", address: null, taxCode: null, vatNumber: null, parentCondominiumId: null },
+  ],
+  accountingPeriod: [
+    { id: "1", condominiumId: "1", name: "2011", type: "ordinary", status: "opened", startDate: "2011-01-01", endDate: "2011-12-31" },
+    { id: "9", condominiumId: "9", name: "2012", type: "ordinary", status: "opened", startDate: "2012-01-01", endDate: "2012-12-31" },
+    { id: "70", condominiumId: "7", name: "2012", type: "ordinary", status: "opened", startDate: "2012-01-01", endDate: "2012-12-31" },
+  ],
+  unit: [{ id: "100", accountingPeriodId: "1", code: "A01", name: "Alberi", unitTypeId: "1", unitGroupId: null, floor: "T", innerNumber: "1", subordinateNumber: null, periodRestrictionStartDate: null, periodRestrictionEndDate: null }],
+};

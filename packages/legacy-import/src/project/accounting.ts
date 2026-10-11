@@ -3,46 +3,52 @@ import type { Money } from "@cl/domain";
 import type { Db } from "../db.ts";
 import { eur } from "../amounts.ts";
 
-const str = (v: unknown): string | undefined =>
-  v === null || v === undefined || String(v).trim() === "" ? undefined : String(v).trim();
-
-const m = (cents: number): Money => ({ cents });
-
 /** Sum of signed entry cents per postingAccountId, for one period. */
 function accountSignedCents(db: Db, periodId: string): Map<string, number> {
   const txInPeriod = new Set(
     db
       .rows("ledgerTransaction")
-      .filter((t) => String(t.accountingPeriodId) === periodId)
-      .map((t) => String(t.id)),
+      .filter((t) => {return String(t.accountingPeriodId) === periodId})
+      .map((t) => {return String(t.id)}),
   );
   const sums = new Map<string, number>();
+
   for (const e of db.rows("ledgerEntry")) {
     if (!txInPeriod.has(String(e.ledgerTransactionId))) continue;
     const acct = String(e.postingAccountId);
     sums.set(acct, (sums.get(acct) ?? 0) + eur(str(e.amount) ?? null).cents);
   }
+
   return sums;
 }
 
+/** An account row of the tree, with its signed cents rolled up. */
+interface BuiltAccount {
+  row: LedgerAccountRow;
+  signed: number;
+}
+
 export function projectAccounts(db: Db, periodId: string): LedgerAccountRow[] {
-  const accounts = db.rows("ledgerAccount").filter((a) => String(a.accountingPeriodId) === periodId);
+  const accounts = db.rows("ledgerAccount").filter((a) => {return String(a.accountingPeriodId) === periodId});
   const own = accountSignedCents(db, periodId);
   const estimate = db.by("expenseLedgerAccount", "ledgerAccountId");
 
-  const byId = new Map(accounts.map((a) => [String(a.id), a]));
+  const byId = new Map(accounts.map((a) => {return [String(a.id), a]}));
   const childrenOf = new Map<string, string[]>();
+
   for (const a of accounts) {
     const parent = str(a.parentLedgerAccountId);
+
     if (parent && byId.has(parent)) {
       (childrenOf.get(parent) ?? childrenOf.set(parent, []).get(parent)!).push(String(a.id));
     }
   }
 
-  const ordered = (ids: string[]): string[] =>
-    ids.slice().sort((x, y) => Number(byId.get(x)!.order ?? 0) - Number(byId.get(y)!.order ?? 0));
+  function ordered(ids: string[]): string[] {
+    return ids.slice().sort((x, y) => {return Number(byId.get(x)!.order ?? 0) - Number(byId.get(y)!.order ?? 0)});
+  }
 
-  function build(id: string): { row: LedgerAccountRow; signed: number } {
+  function build(id: string): BuiltAccount {
     const a = byId.get(id)!;
     const kids = ordered(childrenOf.get(id) ?? []);
     const ownSigned = own.get(id) ?? 0;
@@ -62,8 +68,8 @@ export function projectAccounts(db: Db, periodId: string): LedgerAccountRow[] {
     const ownAvere = ownSigned < 0 ? -ownSigned : 0;
 
     // For grouping accounts: roll up children; for leaves: own amounts
-    const dareCents = isGrouping ? childRows.reduce((s, c) => s + c.dare.cents, ownDare) : ownDare;
-    const avereCents = isGrouping ? childRows.reduce((s, c) => s + c.avere.cents, ownAvere) : ownAvere;
+    const dareCents = isGrouping ? childRows.reduce((s, c) => {return s + c.dare.cents}, ownDare) : ownDare;
+    const avereCents = isGrouping ? childRows.reduce((s, c) => {return s + c.avere.cents}, ownAvere) : ownAvere;
 
     const est = estimate.get(id);
     const restriction = restrictionLabel(str(a.periodRestrictionStartDate), str(a.periodRestrictionEndDate));
@@ -89,33 +95,37 @@ export function projectAccounts(db: Db, periodId: string): LedgerAccountRow[] {
         const p = str(a.parentLedgerAccountId);
         return !p || !byId.has(p);
       })
-      .map((a) => String(a.id)),
+      .map((a) => {return String(a.id)}),
   );
 
-  return roots.map((id) => build(id).row);
+  return roots.map((id) => {return build(id).row});
 }
 
 function restrictionLabel(start?: string, end?: string): string | undefined {
   if (!start && !end) return undefined;
-  const f = (d?: string): string => (d ? d.split(" ")[0]!.split("-").reverse().join("/") : "");
+
+  function f(d?: string): string {
+    return d ? d.split(" ")[0]!.split("-").reverse().join("/") : "";
+  }
+
   return `${f(start)} - ${f(end)}`;
 }
 
 export function projectTransactions(db: Db, periodId: string): LedgerTxnRow[] {
   const txns = db
     .rows("ledgerTransaction")
-    .filter((t) => String(t.accountingPeriodId) === periodId);
+    .filter((t) => {return String(t.accountingPeriodId) === periodId});
 
-  const acctName = new Map(db.rows("ledgerAccount").map((a) => [String(a.id), String(a.name)]));
+  const acctName = new Map(db.rows("ledgerAccount").map((a) => {return [String(a.id), String(a.name)]}));
   const entriesByTx = db.group("ledgerEntry", "ledgerTransactionId");
 
   return txns
     .slice()
-    .sort((a, b) => Number(a.code) - Number(b.code))
+    .sort((a, b) => {return Number(a.code) - Number(b.code)})
     .map((t) => {
       const raw = (entriesByTx.get(String(t.id)) ?? [])
         .slice()
-        .sort((x, y) => Number(x.order) - Number(y.order));
+        .sort((x, y) => {return Number(x.order) - Number(y.order)});
 
       const entries: LedgerTxnEntry[] = raw.map((e) => {
         const cents = eur(str(e.amount) ?? null).cents;
@@ -127,7 +137,7 @@ export function projectTransactions(db: Db, periodId: string): LedgerTxnRow[] {
         };
       });
 
-      const dare = entries.reduce((s, e) => s + e.dare.cents, 0);
+      const dare = entries.reduce((s, e) => {return s + e.dare.cents}, 0);
 
       return {
         id: `tx${String(t.id)}`,
@@ -140,4 +150,12 @@ export function projectTransactions(db: Db, periodId: string): LedgerTxnRow[] {
         entries,
       };
     });
+}
+
+function str(v: unknown): string | undefined {
+  return v === null || v === undefined || String(v).trim() === "" ? undefined : String(v).trim();
+}
+
+function m(cents: number): Money {
+  return { cents };
 }

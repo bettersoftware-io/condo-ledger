@@ -44,12 +44,18 @@ export interface RipartoInput {
   unitLegacyIds: string[];
 }
 
+/** Estimate and actual totals (cents) of a linked account's subtree. */
+export interface SubtreeTotals {
+  estimateCents: number;
+  actualCents: number;
+}
+
 export interface RipartoEngine {
   columns: LinkedColumn[];
   /** per-unit amount in cents for an account+mode+legacy unit id. */
   perUnitAmount(accountId: string, mode: Mode, legacyUnitId: string): number;
   /** subtree totals (cents) for a linked account. */
-  subtree(accountId: string): { estimateCents: number; actualCents: number };
+  subtree(accountId: string): SubtreeTotals;
   /** split a unit's per-unit amount among its residents. Map<unitResidentId, cents>. */
   perResidentAmount(accountId: string, mode: Mode, legacyUnitId: string): Map<string, number>;
   /** legacy unit ids present this period (sorted by code). */

@@ -19,10 +19,12 @@ console.log("");
 
 for (const c of seed.tree) {
   console.log(`${c.code} — ${c.name}`);
+
   for (const p of c.periods) {
     const lp = p.id.replace(/^p/, "");
     const st = status[lp];
     let label: string;
+
     if (st?.hasBooks && st?.reconciles) {
       label = "books OK";
     } else if (st?.hasBooks && !st?.reconciles) {
@@ -30,6 +32,7 @@ for (const c of seed.tree) {
     } else {
       label = "structure-only";
     }
+
     console.log(`  ${p.id} ${p.name}: ${label}`);
   }
 }

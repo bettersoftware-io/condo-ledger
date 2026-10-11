@@ -22,6 +22,7 @@ d("loader", () => {
 
   it("loads explicit ids under replica mode, then resync allows fresh insert", async () => {
     const client = await pool.connect();
+
     try {
       await client.query(`SET session_replication_role = 'replica'`);
       await loadTable(client, "_l_demo",

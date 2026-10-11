@@ -12,6 +12,7 @@ const bindings: Binding[] = [];
 export function defineStep(re: RegExp, fn: StepFn): void {
   bindings.push({ re, fn });
 }
+
 export const Given = defineStep;
 export const When = defineStep;
 export const Then = defineStep;
@@ -25,23 +26,27 @@ export function resetSteps(): void {
 export async function runStep(world: World, step: Step): Promise<void> {
   for (const b of bindings) {
     const m = step.text.match(b.re);
+
     if (m) {
       await b.fn(world, ...m.slice(1));
       return;
     }
   }
+
   throw new Error(`Undefined step: ${step.text}`);
 }
 
 /** Read every .feature in `dir` and emit one Vitest test per scenario. */
 export function runFeatureFiles(dir: string, makeWorld: () => World): void {
-  const files = readdirSync(dir).filter((f) => f.endsWith(".feature")).sort();
+  const files = readdirSync(dir).filter((f) => {return f.endsWith(".feature")}).sort();
+
   for (const file of files) {
     const feature = parseFeature(readFileSync(`${dir}/${file}`, "utf8"));
     describe(feature.name || file, () => {
       for (const sc of feature.scenarios) {
         it(sc.name, async () => {
           const world = makeWorld();
+
           for (const step of [...feature.background, ...sc.steps]) {
             await runStep(world, step);
           }

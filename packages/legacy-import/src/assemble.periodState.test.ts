@@ -8,24 +8,14 @@ import { recomputePeriod, type ResidentBalance } from "@cl/domain";
 
 const SQL = readFileSync(resolve(process.cwd(), "../../old/db/it-jtime-condominium.all.sql"), "utf8");
 
-function loadSeed() {
-  const db = buildDb(parseTables(SQL));
-  return assemble(db);
-}
-
-function balancesById(bs: ResidentBalance[]): Map<string, ResidentBalance> {
-  return new Map(bs.map((b) => [b.residentId, b]));
-}
-
 describe("assemble: periodStateByPeriod / individualByPeriod", () => {
-  const seed = loadSeed();
-
   it("emits a PeriodState for every period (matching the distribution gate)", () => {
     const dist = seed.distributionByPeriod;
     const ps = seed.periodStateByPeriod;
     expect(Object.keys(ps).sort()).toEqual(Object.keys(seed.unitsByPeriod).sort());
-    const withBooks = Object.keys(dist).filter((pid) => seed.distributionByPeriod[pid]!.estimate.rows.length > 0);
+    const withBooks = Object.keys(dist).filter((pid) => {return seed.distributionByPeriod[pid]!.estimate.rows.length > 0});
     expect(withBooks.length).toBeGreaterThan(0);
+
     for (const pid of withBooks) {
       expect(ps[pid]!.riparto.unitLegacyIds.length).toBeGreaterThan(0);
     }
@@ -33,8 +23,9 @@ describe("assemble: periodStateByPeriod / individualByPeriod", () => {
 
   it("survives a JSON round-trip and reproduces recomputePeriod balances byte-for-byte", () => {
     const withBooks = Object.keys(seed.periodStateByPeriod).filter(
-      (pid) => seed.periodStateByPeriod[pid]!.riparto.unitLegacyIds.length > 0,
+      (pid) => {return seed.periodStateByPeriod[pid]!.riparto.unitLegacyIds.length > 0},
     );
+
     for (const pid of withBooks) {
       const original = seed.periodStateByPeriod[pid]!;
       const roundTripped = JSON.parse(JSON.stringify(original)) as typeof original;
@@ -48,13 +39,26 @@ describe("assemble: periodStateByPeriod / individualByPeriod", () => {
 
   it("individualByPeriod is keyed by residentIds present in the period roster", () => {
     const withBooks = Object.keys(seed.periodStateByPeriod).filter(
-      (pid) => seed.periodStateByPeriod[pid]!.riparto.unitLegacyIds.length > 0,
+      (pid) => {return seed.periodStateByPeriod[pid]!.riparto.unitLegacyIds.length > 0},
     );
+
     for (const pid of withBooks) {
-      const roster = new Set(seed.periodStateByPeriod[pid]!.riparto.residents.map((r) => r.residentId));
+      const roster = new Set(seed.periodStateByPeriod[pid]!.riparto.residents.map((r) => {return r.residentId}));
+
       for (const rid of Object.keys(seed.individualByPeriod[pid] ?? {})) {
         expect(roster.has(rid)).toBe(true);
       }
     }
   });
+
+  const seed = loadSeed();
 });
+
+function loadSeed() {
+  const db = buildDb(parseTables(SQL));
+  return assemble(db);
+}
+
+function balancesById(bs: ResidentBalance[]): Map<string, ResidentBalance> {
+  return new Map(bs.map((b) => {return [b.residentId, b]}));
+}

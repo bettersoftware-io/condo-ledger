@@ -3,6 +3,58 @@ import { recomputePeriod } from "./recomputePeriod.ts";
 import { perResidentTotals } from "./computeBalances.ts";
 import type { PeriodState } from "./periodTypes.ts";
 
+describe("recomputePeriod invariants", () => {
+  it("conservation: per-resident estimate Σ equals per-unit estimate Σ (the matrix splits exactly)", () => {
+    const r = recomputePeriod(state);
+    const perResident = [...perResidentTotals(r.riparto, "estimate").values()].reduce((a, c) => {return a + c}, 0);
+    const perUnit = r.riparto.unitLegacyIds.reduce(
+      (s, u) => {return s + r.riparto.columns.reduce((c, col) => {return c + r.riparto.perUnitAmount(col.legacyAccountId, "estimate", u)}, 0)},
+      0,
+    );
+    expect(perResident).toBe(perUnit);
+  });
+
+  it("installment cells Σ equals resident preventivo (conserved, overrides included)", () => {
+    const r = recomputePeriod(state);
+
+    for (const b of r.balances) {
+      const cells = r.installments.get(b.residentId);
+      const sum = cells ? [...cells.values()].reduce((a, c) => {return a + c}, 0) : 0;
+      expect(sum).toBe(b.preventivoCents);
+    }
+  });
+
+  it("balances: totDovuto = preventivo + saldoPrec − versato for every resident", () => {
+    const r = recomputePeriod(state);
+
+    for (const b of r.balances) {
+      expect(b.totDovutoCents).toBe(b.preventivoCents + b.saldoPrecCents - b.versatoCents);
+    }
+  });
+
+  it("idempotence/determinism: recompute twice yields identical results", () => {
+    const a = recomputePeriod(state);
+    const b = recomputePeriod(state);
+
+    function norm(r: ReturnType<typeof recomputePeriod>) {
+      return {
+        balances: r.balances,
+        installments: [...r.installments].map(([rid, cells]) => {return [rid, [...cells.entries()]]}),
+        estimate: [...perResidentTotals(r.riparto, "estimate").entries()],
+      };
+    }
+
+    expect(norm(a)).toEqual(norm(b));
+  });
+
+  it("owner/tenant split conserves within the unit (o1 + t1 estimate = unit u1 estimate)", () => {
+    const r = recomputePeriod(state);
+    const est = perResidentTotals(r.riparto, "estimate");
+    const u1Total = r.riparto.columns.reduce((c, col) => {return c + r.riparto.perUnitAmount(col.legacyAccountId, "estimate", "u1")}, 0);
+    expect((est.get("o1") ?? 0) + (est.get("t1") ?? 0)).toBe(u1Total);
+  });
+});
+
 // Two linked accounts, two tables, owner/tenant role split on one link, rounding-edge totals.
 const state: PeriodState = {
   riparto: {
@@ -40,49 +92,3 @@ const state: PeriodState = {
   opening: { o1: 500, o2: -200 },
   paid: { o3: 100 },
 };
-
-describe("recomputePeriod invariants", () => {
-  it("conservation: per-resident estimate Σ equals per-unit estimate Σ (the matrix splits exactly)", () => {
-    const r = recomputePeriod(state);
-    const perResident = [...perResidentTotals(r.riparto, "estimate").values()].reduce((a, c) => a + c, 0);
-    const perUnit = r.riparto.unitLegacyIds.reduce(
-      (s, u) => s + r.riparto.columns.reduce((c, col) => c + r.riparto.perUnitAmount(col.legacyAccountId, "estimate", u), 0),
-      0,
-    );
-    expect(perResident).toBe(perUnit);
-  });
-
-  it("installment cells Σ equals resident preventivo (conserved, overrides included)", () => {
-    const r = recomputePeriod(state);
-    for (const b of r.balances) {
-      const cells = r.installments.get(b.residentId);
-      const sum = cells ? [...cells.values()].reduce((a, c) => a + c, 0) : 0;
-      expect(sum).toBe(b.preventivoCents);
-    }
-  });
-
-  it("balances: totDovuto = preventivo + saldoPrec − versato for every resident", () => {
-    const r = recomputePeriod(state);
-    for (const b of r.balances) {
-      expect(b.totDovutoCents).toBe(b.preventivoCents + b.saldoPrecCents - b.versatoCents);
-    }
-  });
-
-  it("idempotence/determinism: recompute twice yields identical results", () => {
-    const a = recomputePeriod(state);
-    const b = recomputePeriod(state);
-    const norm = (r: ReturnType<typeof recomputePeriod>) => ({
-      balances: r.balances,
-      installments: [...r.installments].map(([rid, cells]) => [rid, [...cells.entries()]]),
-      estimate: [...perResidentTotals(r.riparto, "estimate").entries()],
-    });
-    expect(norm(a)).toEqual(norm(b));
-  });
-
-  it("owner/tenant split conserves within the unit (o1 + t1 estimate = unit u1 estimate)", () => {
-    const r = recomputePeriod(state);
-    const est = perResidentTotals(r.riparto, "estimate");
-    const u1Total = r.riparto.columns.reduce((c, col) => c + r.riparto.perUnitAmount(col.legacyAccountId, "estimate", "u1"), 0);
-    expect((est.get("o1") ?? 0) + (est.get("t1") ?? 0)).toBe(u1Total);
-  });
-});

@@ -22,10 +22,11 @@ d("sequence health", () => {
   beforeAll(() => {
     pool = makePool(url);
   });
-  afterAll(() => pool.end());
+  afterAll(() => {return pool.end()});
 
   it("unit.id sequence was resynced past the max loaded id", async () => {
     const client = await pool.connect();
+
     try {
       await client.query("BEGIN");
       // Reuse an existing row's NOT NULL FK values so the probe insert is valid

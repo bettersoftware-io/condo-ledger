@@ -17,7 +17,6 @@ const tables: Tables = {
 };
 
 describe("structure projection", () => {
-  const db = buildDb(tables);
   it("builds the tree with labelled periods", () => {
     expect(projectTree(db)).toEqual([{
       id: "c1", code: "SAT", name: "Saturno", type: "regular",
@@ -57,6 +56,8 @@ describe("structure projection", () => {
     expect(period.end).toBe("");
     expect(period.start).toBe("2010-01-01");
   });
+
+  const db = buildDb(tables);
 });
 
 const extraTables: Tables = {
@@ -82,30 +83,31 @@ const extraTables: Tables = {
 };
 
 describe("structure projection — condominium type + period label regressions", () => {
-  const db = buildDb(extraTables);
-  const tree = projectTree(db);
-
   it("projects residence condominium type correctly (Nettuno id=10)", () => {
-    const nettuno = tree.find((n) => n.code === "NET")!;
+    const nettuno = tree.find((n) => {return n.code === "NET"})!;
     expect(nettuno.type).toBe("residence");
   });
 
   it("projects super condominium type correctly (Sole id=13)", () => {
-    const sole = tree.find((n) => n.code === "SOL")!;
+    const sole = tree.find((n) => {return n.code === "SOL"})!;
     expect(sole.type).toBe("super");
   });
 
   it("maps auxiliary period type and labels it (Ausiliario)", () => {
-    const nettuno = tree.find((n) => n.code === "NET")!;
+    const nettuno = tree.find((n) => {return n.code === "NET"})!;
     const p = nettuno.periods[0]!;
     expect(p.type).toBe("auxiliary");
     expect(p.name).toMatch(/\(Ausiliario\)$/);
   });
 
   it("maps extra period type and labels it (Straordinario)", () => {
-    const sole = tree.find((n) => n.code === "SOL")!;
+    const sole = tree.find((n) => {return n.code === "SOL"})!;
     const p = sole.periods[0]!;
     expect(p.type).toBe("extra");
     expect(p.name).toMatch(/\(Straordinario\)$/);
   });
+
+  const db = buildDb(extraTables);
+
+  const tree = projectTree(db);
 });

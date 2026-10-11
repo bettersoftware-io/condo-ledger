@@ -19,7 +19,6 @@ const tables: Tables = {
 };
 
 describe("accounting projection", () => {
-  const db = buildDb(tables);
   it("builds the account tree with rolled-up dare/avere/saldo and expense preventivo", () => {
     const tree = projectAccounts(db, "1");
     const tot = tree[0]!;
@@ -27,18 +26,20 @@ describe("accounting projection", () => {
     expect(tot.dare).toEqual({ cents: 12000 });
     expect(tot.avere).toEqual({ cents: 12000 });
     expect(tot.saldo).toEqual({ cents: 0 });
-    const pulizie = tot.children!.find((c) => c.id === "la3")!;
+    const pulizie = tot.children!.find((c) => {return c.id === "la3"})!;
     expect(pulizie.preventivo).toEqual({ cents: 20000 });
     expect(pulizie.saldo).toEqual({ cents: 12000 });
-    const banca = tot.children!.find((c) => c.id === "la2")!;
+    const banca = tot.children!.find((c) => {return c.id === "la2"})!;
     expect(banca.preventivo).toBeNull();
   });
   it("builds transactions with per-entry dare/avere and a header total", () => {
     const txns = projectTransactions(db, "1");
     expect(txns[0]).toMatchObject({ id: "tx9", code: 1, description: "Bolletta", date: "2011-03-13" });
     expect(txns[0]!.dare).toEqual({ cents: 12000 });
-    expect(txns[0]!.entries.map((e) => e.account)).toEqual(["Pulizie", "Banca"]);
+    expect(txns[0]!.entries.map((e) => {return e.account})).toEqual(["Pulizie", "Banca"]);
     expect(txns[0]!.entries[0]).toMatchObject({ accountId: "la3", dare: { cents: 12000 }, avere: { cents: 0 } });
     expect(txns[0]!.entries[1]).toMatchObject({ accountId: "la2", dare: { cents: 0 }, avere: { cents: 12000 } });
   });
+
+  const db = buildDb(tables);
 });

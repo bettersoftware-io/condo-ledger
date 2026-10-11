@@ -22,8 +22,6 @@ CREATE TABLE \`widget\` (
 `;
 
 describe("parseDdl", () => {
-  const ddl = parseDdl(fixture);
-
   it("captures columns in order with correct names and type tokens, dropping constraint/key lines", () => {
     expect(ddl.widget).toEqual([
       { name: "id", sqlType: "int(10)" },
@@ -49,6 +47,8 @@ describe("parseDdl", () => {
       "startDate",
     ]);
   });
+
+  const ddl = parseDdl(fixture);
 });
 
 describe("classify", () => {
@@ -76,12 +76,6 @@ describe("classify", () => {
 });
 
 describe("parseDdl real DDL smoke test", () => {
-  const structureSql = readFileSync(
-    new URL("../../../old/db/it-jtime-condominium.structure.sql", import.meta.url),
-    "utf8",
-  );
-  const ddl = parseDdl(structureSql);
-
   it("yields 95 tables", () => {
     expect(Object.keys(ddl)).toHaveLength(95);
   });
@@ -92,15 +86,22 @@ describe("parseDdl real DDL smoke test", () => {
   });
 
   it("accountingPeriod.created classifies as tz", () => {
-    const created = ddl.accountingPeriod!.find((c) => c.name === "created");
+    const created = ddl.accountingPeriod!.find((c) => {return c.name === "created"});
     expect(created).toBeDefined();
     expect(classify(created!.sqlType)).toBe("tz");
   });
 
   it("accountingPeriod.startDate classifies as date", () => {
-    const startDate = ddl.accountingPeriod!.find((c) => c.name === "startDate");
+    const startDate = ddl.accountingPeriod!.find((c) => {return c.name === "startDate"});
     expect(startDate).toBeDefined();
     expect(startDate!.sqlType).toBe("date");
     expect(classify(startDate!.sqlType)).toBe("date");
   });
+
+  const structureSql = readFileSync(
+    new URL("../../../old/db/it-jtime-condominium.structure.sql", import.meta.url),
+    "utf8",
+  );
+
+  const ddl = parseDdl(structureSql);
 });

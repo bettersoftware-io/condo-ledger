@@ -2,12 +2,12 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { defineStep, runStep, resetSteps } from "./run.ts";
 
 describe("step registry", () => {
-  beforeEach(() => resetSteps());
+  beforeEach(() => {return resetSteps()});
 
   it("matches a step by regex and passes captured args + world", async () => {
     const calls: string[] = [];
     defineStep(/^I add (\d+) and (\d+)$/, (world, a, b) => {
-      (world as { sum?: number }).sum = Number(a) + Number(b);
+      (world as SumWorld).sum = Number(a) + Number(b);
       calls.push(`${a}+${b}`);
     });
     const world: Record<string, unknown> = {};
@@ -20,3 +20,7 @@ describe("step registry", () => {
     await expect(runStep({}, { text: "nothing matches this" })).rejects.toThrow(/Undefined step/);
   });
 });
+
+interface SumWorld {
+  sum?: number;
+}

@@ -20,7 +20,7 @@ describe("enums", () => {
     // .enumValues array, so detect by that property (it is a function, not a
     // plain object). The assertion guards against accidental dupes/omissions.
     const pgEnums = Object.values(enums).filter(
-      (e: any) => typeof e === "function" && Array.isArray(e.enumValues),
+      (e: any) => {return typeof e === "function" && Array.isArray(e.enumValues)},
     );
     expect(pgEnums).toHaveLength(23);
   });

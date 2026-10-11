@@ -11,12 +11,6 @@ import type {
 import type { Db } from "../db.ts";
 import { parseAddressVO, formatAddress } from "../addressVO.ts";
 
-const str = (v: unknown): string | undefined => {
-  if (v === null || v === undefined) return undefined;
-  const t = String(v).trim();
-  return t === "" ? undefined : t;
-};
-
 /**
  * Map legacy DB accountingPeriod.type → TS AccountingPeriodType.
  * Real dump values: 'regular', 'extra', 'auxiliary'.
@@ -51,20 +45,20 @@ function condType(raw: unknown): CondominiumNode["type"] {
 }
 
 export function projectTree(db: Db): CondominiumNode[] {
-  return db.condominiums.map((c) => ({
+  return db.condominiums.map((c) => {return {
     id: `c${c.id}`,
     code: str(c.code) ?? "",
     name: String(c.name),
     type: condType(c.type),
-    periods: db.periodsOf(String(c.id)).map((p): AccountingPeriodNode => ({
+    periods: db.periodsOf(String(c.id)).map((p): AccountingPeriodNode => {return {
       id: `p${p.id}`,
       name: periodLabel(String(p.name), String(p.type)),
       type: mapPeriodType(String(p.type)),
       closed: String(p.status) === "closed",
       start: str(p.startDate) ?? "",
       end: str(p.endDate) ?? "",
-    })),
-  }));
+    }}),
+  }});
 }
 
 function categoryName(db: Db, categoryId: string | null): string | undefined {
@@ -72,7 +66,7 @@ function categoryName(db: Db, categoryId: string | null): string | undefined {
   const base = db.by("masterDataCategory", "id").get(categoryId);
   if (!base) return undefined;
   const i18n = (db.group("masterDataCategoryI18n", "masterDataCategoryId").get(categoryId) ?? []).find(
-    (r) => String(r.localeCode).startsWith("it"),
+    (r) => {return String(r.localeCode).startsWith("it")},
   );
   return str(i18n?.translation) ?? str(base.name);
 }
@@ -94,7 +88,7 @@ export function projectDetails(db: Db): Record<Id, CondominiumDetail> {
     const condId = String(c.id);
     const suppliers: SupplierRow[] = (suppliersByCond.get(condId) ?? [])
       .slice()
-      .sort((a, b) => Number(a.order ?? 0) - Number(b.order ?? 0))
+      .sort((a, b) => {return Number(a.order ?? 0) - Number(b.order ?? 0)})
       .map((sup) => {
         const mdId = String(sup.masterDataId);
         const md = mdById.get(mdId);
@@ -140,16 +134,20 @@ const ROLE_COL: Record<FunctionalRole, string> = {
 
 export function projectFunctional(db: Db): Record<Id, Partial<Record<FunctionalRole, Id>>> {
   const out: Record<Id, Partial<Record<FunctionalRole, Id>>> = {};
+
   for (const c of db.condominiums) {
     for (const p of db.periodsOf(String(c.id))) {
       const m: Partial<Record<FunctionalRole, Id>> = {};
+
       for (const role of Object.keys(ROLE_COL) as FunctionalRole[]) {
         const v = str(p[ROLE_COL[role]!]);
         if (v) m[role] = `la${v}`;
       }
+
       out[`p${p.id}`] = m;
     }
   }
+
   return out;
 }
 
@@ -160,16 +158,22 @@ export function projectF24(db: Db): Record<Id, F24Row[]> {
   for (const c of db.condominiums) {
     const condId = String(c.id);
     const rows = byCond.get(condId) ?? [];
-    const mapped: F24Row[] = rows.map((f) => ({
+    const mapped: F24Row[] = rows.map((f) => {return {
       id: `f24-${f.id}`,
       descrizione: "Modello F24",
       scadenza: str(f.paymentDate) ?? str(f.referenceDate) ?? "",
       importo: { cents: 0 }, // amount from withholdingTax/ledgerInvoice2F24; no clean per-row source → 0
       stato: f.confirmed === true ? "pagato" : "da pagare",
-    }));
+    }});
     // F24 is condominium-scoped in legacy; attach to every period of the condominium.
     for (const p of db.periodsOf(condId)) out[`p${p.id}`] = mapped;
   }
 
   return out;
+}
+
+function str(v: unknown): string | undefined {
+  if (v === null || v === undefined) return undefined;
+  const t = String(v).trim();
+  return t === "" ? undefined : t;
 }

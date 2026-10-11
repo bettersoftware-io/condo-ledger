@@ -5,7 +5,6 @@ import {
 } from "./oracle.ts";
 
 describe("legacy oracles", () => {
-  const db = legacyDb();
   it("trial balance nets to zero for the reconciling periods", () => {
     expect(Math.abs(rawTrialBalanceCents(db, "1"))).toBeLessThanOrEqual(1);
     expect(Math.abs(rawTrialBalanceCents(db, "36"))).toBeLessThanOrEqual(1);
@@ -17,10 +16,12 @@ describe("legacy oracles", () => {
   it("the legacy estimateDistribution postings exist per resident", () => {
     const m = estimateDistributionByResident(db, "36");
     expect(m.size).toBeGreaterThan(0);
-    const total = [...m.values()].reduce((s, c) => s + c, 0);
+    const total = [...m.values()].reduce((s, c) => {return s + c}, 0);
     expect(total).toBeGreaterThan(0);
   });
   it("installment items total to a positive amount", () => {
     expect(installmentItemTotalCents(db, "36")).toBeGreaterThan(0);
   });
+
+  const db = legacyDb();
 });

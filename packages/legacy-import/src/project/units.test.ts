@@ -38,8 +38,6 @@ const tables: Tables = {
 };
 
 describe("units projection", () => {
-  const db = buildDb(tables);
-  const rows = projectUnits(db, "1");
   it("nests group → unit → resident", () => {
     expect(rows[0]!.kind).toBe("group");
     const unit = rows[0]!.children![0]!;
@@ -61,6 +59,10 @@ describe("units projection", () => {
     expect(rows[0]!.preventivo).toEqual({ cents: 20000 });
     expect(rows[0]!.consuntivo).toEqual({ cents: 15118 });
   });
+
+  const db = buildDb(tables);
+
+  const rows = projectUnits(db, "1");
 });
 
 // ---------------------------------------------------------------------------
@@ -86,29 +88,37 @@ const roleTables: Tables = {
 };
 
 describe("role split — tenant-charged account", () => {
-  const db = buildDb(roleTables);
-  const rows = projectUnits(db, "1");
-  const residents = rows[0]!.children![0]!.children!;
-  const owner = residents.find((r) => r.label.includes("Alberi"))!;
-  const tenant = residents.find((r) => r.label.includes("Rossi"))!;
   it("consuntivo lands on the TENANT (priority 3), not the owner", () => {
     expect(tenant.consuntivo).toEqual({ cents: 15118 });
     expect(owner.consuntivo).toEqual({ cents: 0 });
     expect(tenant.preventivo).toEqual({ cents: 20000 });
     expect(owner.preventivo).toEqual({ cents: 0 });
   });
+
+  const db = buildDb(roleTables);
+
+  const rows = projectUnits(db, "1");
+
+  const residents = rows[0]!.children![0]!.children!;
+
+  const owner = residents.find((r) => {return r.label.includes("Alberi")})!;
+
+  const tenant = residents.find((r) => {return r.label.includes("Rossi")})!;
 });
 
 // Orphan case: tenant-charged account (role priority 3 @100%) but the unit has
 // ONLY an owner. The orphaned share falls back to the owner so totals tie out.
 describe("role split — orphan falls back to owner", () => {
-  const db = buildDb({ ...tables, expenseLA2Role: [{ expenseLA2TableId: "1", unitResidentPriorityId: "3", percentage: "100.00" }] });
-  const rows = projectUnits(db, "1");
-  const owner = rows[0]!.children![0]!.children![0]!;
   it("owner absorbs the tenant-priority share", () => {
     expect(owner.consuntivo).toEqual({ cents: 15118 });
     expect(owner.preventivo).toEqual({ cents: 20000 });
   });
+
+  const db = buildDb({ ...tables, expenseLA2Role: [{ expenseLA2TableId: "1", unitResidentPriorityId: "3", percentage: "100.00" }] });
+
+  const rows = projectUnits(db, "1");
+
+  const owner = rows[0]!.children![0]!.children![0]!;
 });
 
 // ---------------------------------------------------------------------------
@@ -144,9 +154,6 @@ const individualExpenseTables: Tables = {
 };
 
 describe("controlUnitResident individual expenses added to consuntivo", () => {
-  const db = buildDb(individualExpenseTables);
-  const rows = projectUnits(db, "1");
-  const res = rows[0]!.children![0]!.children![0]!;
   it("consuntivo = riparto current share + direct individual expense", () => {
     // riparto current: 15118 (actual 151.18 → 100% owner)
     // individual:      48909 (€489.09 posted to controlUnitResident acct, unitResidentId=900)
@@ -162,28 +169,36 @@ describe("controlUnitResident individual expenses added to consuntivo", () => {
   it("group consuntivo sums correctly including individual expense", () => {
     expect(rows[0]!.consuntivo).toEqual({ cents: 64027 });
   });
+
+  const db = buildDb(individualExpenseTables);
+
+  const rows = projectUnits(db, "1");
+
+  const res = rows[0]!.children![0]!.children![0]!;
 });
 
 describe("percentage formatting in resident label", () => {
-  const baseResident = (tables["unitResident"] as (typeof tables.unitResident & {}))![0]!;
-  function makeTablesWithPct(percentage: string): Tables {
-    return { ...tables, unitResident: [{ ...baseResident, percentage }] };
-  }
   it('formats "100.000000" as "100"', () => {
-    const db = buildDb(makeTablesWithPct("100.000000"));
+    const db = buildDb(createTablesWithPct("100.000000"));
     const label = projectUnits(db, "1")[0]!.children![0]!.children![0]!.label;
     expect(label).toMatch(/\(PR 100%\)$/);
     expect(label).not.toContain("100.000000");
   });
   it('formats "33.333300" as "33.33"', () => {
-    const db = buildDb(makeTablesWithPct("33.333300"));
+    const db = buildDb(createTablesWithPct("33.333300"));
     const label = projectUnits(db, "1")[0]!.children![0]!.children![0]!.label;
     expect(label).toMatch(/\(PR 33\.33%\)$/);
     expect(label).not.toContain("33.333300");
   });
   it('formats "50.000000" as "50"', () => {
-    const db = buildDb(makeTablesWithPct("50.000000"));
+    const db = buildDb(createTablesWithPct("50.000000"));
     const label = projectUnits(db, "1")[0]!.children![0]!.children![0]!.label;
     expect(label).toMatch(/\(PR 50%\)$/);
   });
+
+  const baseResident = (tables["unitResident"] as (typeof tables.unitResident & {}))![0]!;
+
+  function createTablesWithPct(percentage: string): Tables {
+    return { ...tables, unitResident: [{ ...baseResident, percentage }] };
+  }
 });

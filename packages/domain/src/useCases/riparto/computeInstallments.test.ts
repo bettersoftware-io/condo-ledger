@@ -2,11 +2,6 @@ import { describe, it, expect } from "vitest";
 import { computeInstallments } from "./computeInstallments.ts";
 import type { InstallmentPlan } from "./periodTypes.ts";
 
-const plan = (overrides: InstallmentPlan["overrides"] = []): InstallmentPlan => ({
-  installmentIds: ["i1", "i2", "i3"],
-  overrides,
-});
-
 describe("computeInstallments", () => {
   it("splits each resident's estimate evenly across installments (residual to last via allocate)", () => {
     const est = new Map<string, number>([["r1", 100]]); // 100 cents / 3 → 34,33,33
@@ -15,14 +10,15 @@ describe("computeInstallments", () => {
     expect(cells.get("i1")).toBe(34);
     expect(cells.get("i2")).toBe(33);
     expect(cells.get("i3")).toBe(33);
-    expect([...cells.values()].reduce((a, b) => a + b, 0)).toBe(100);
+    expect([...cells.values()].reduce((a, b) => {return a + b}, 0)).toBe(100);
   });
 
   it("conserves: Σ cells equals the resident estimate for arbitrary totals", () => {
     const est = new Map<string, number>([["r1", 99901], ["r2", 1]]);
     const out = computeInstallments(est, plan());
+
     for (const [rid, cents] of est) {
-      expect([...out.get(rid)!.values()].reduce((a, b) => a + b, 0)).toBe(cents);
+      expect([...out.get(rid)!.values()].reduce((a, b) => {return a + b}, 0)).toBe(cents);
     }
   });
 
@@ -34,7 +30,7 @@ describe("computeInstallments", () => {
     // delta −50 spread across later cells [i2,i3] via allocate(-50,[1,1]) = [-25,-25]
     expect(cells.get("i2")).toBe(75);
     expect(cells.get("i3")).toBe(75);
-    expect([...cells.values()].reduce((a, b) => a + b, 0)).toBe(300);
+    expect([...cells.values()].reduce((a, b) => {return a + b}, 0)).toBe(300);
   });
 
   it("ignores an override that would drive a later cell negative (keeps even split)", () => {
@@ -57,7 +53,7 @@ describe("computeInstallments", () => {
     expect(cells.get("i1")).toBe(125);
     expect(cells.get("i2")).toBe(87);
     expect(cells.get("i3")).toBe(88);
-    expect([...cells.values()].reduce((a, b) => a + b, 0)).toBe(300);
+    expect([...cells.values()].reduce((a, b) => {return a + b}, 0)).toBe(300);
   });
 
   it("applies multiple overrides on one resident in installment order, each against running amounts", () => {
@@ -75,7 +71,7 @@ describe("computeInstallments", () => {
     expect(cells.get("i1")).toBe(120);
     expect(cells.get("i2")).toBe(100);
     expect(cells.get("i3")).toBe(80);
-    expect([...cells.values()].reduce((a, b) => a + b, 0)).toBe(300);
+    expect([...cells.values()].reduce((a, b) => {return a + b}, 0)).toBe(300);
   });
 
   it("treats a last-cell override as a no-op (preserves the Σ-cells == estimate invariant)", () => {
@@ -102,3 +98,10 @@ describe("computeInstallments", () => {
     expect(out.get("r1")!.size).toBe(0);
   });
 });
+
+function plan(overrides: InstallmentPlan["overrides"] = []): InstallmentPlan {
+  return {
+    installmentIds: ["i1", "i2", "i3"],
+    overrides,
+  };
+}

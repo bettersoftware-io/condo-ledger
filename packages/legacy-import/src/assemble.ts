@@ -85,6 +85,7 @@ export function assemble(db: Db): Seed {
       unitsByPeriod[pid] = projectUnits(db, lp);
 
       const st = status[lp];
+
       if (st?.hasBooks && st?.reconciles) {
         ledgerAccountsByPeriod[pid] = projectAccounts(db, lp);
         ledgerTxnsByPeriod[pid] = projectTransactions(db, lp);

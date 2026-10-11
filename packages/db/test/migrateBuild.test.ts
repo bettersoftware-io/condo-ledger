@@ -13,7 +13,7 @@ d("migrated schema", () => {
   beforeAll(() => {
     pool = makePool(url);
   });
-  afterAll(() => pool.end());
+  afterAll(() => {return pool.end()});
 
   it("has 94 base tables", async () => {
     // Exclude leading-underscore tables: drizzle's `__drizzle_migrations` and the
