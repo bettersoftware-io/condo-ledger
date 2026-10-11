@@ -6,7 +6,20 @@ dist/
 .DS_Store
 .pnpm-store/
 
-# Claude Code: share project settings (enabled plugins), keep everything else local
+# Caches
+.turbo/
+.vite/
+.vitest/
+.eslintcache
+
+# Reports of a run (anchored: docs/design/**/reports is committed design data)
+coverage/
+/reports/
+packages/*/reports/
+playwright-report/
+test-results/
+
+# Claude Code: share project settings (enabled plugins, hooks), keep everything else local
 .claude/*
 !.claude/settings.json
 
@@ -14,6 +27,14 @@ dist/
 .env
 .env.*
 !.env.example
+
+# Editors, hosting CLI, logs
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+.vercel/
+*.log
 
 # Pasted render screenshots in domain docs (throwaway; Mermaid renders inline)
 docs/domain/img*.png

@@ -1,0 +1,22 @@
+{
+  "name": "@cl/client-core",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*"
+  },
+  "imports": {
+    "#/*": "./src/*"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@cl/domain": "workspace:*",
+    "@cl/shared": "workspace:*",
+    "@rx-state/core": "^0.1.4",
+    "rxjs": "^7.8.2"
+  }
+}
