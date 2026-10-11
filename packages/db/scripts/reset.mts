@@ -24,8 +24,8 @@ try {
     CREATE SCHEMA public;
   `);
   console.log("reset: dropped public + drizzle schemas, recreated empty public");
-} catch (err) {
-  console.error("reset failed:", err.message);
+} catch (error) {
+  console.error("reset failed:", error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 } finally {
   await pool.end();
