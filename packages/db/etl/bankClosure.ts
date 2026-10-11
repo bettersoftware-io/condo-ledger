@@ -30,23 +30,3 @@ export function referencedBankBranchIds(
 
   return ids;
 }
-
-/** Filter bankBranch INSERT rows down to the referenced ids (+ their banks). */
-export function filterReferenced(
-  branchStmts: InsertStmt[],
-  branchIdCol: string,
-  keep: Set<string>,
-): InsertStmt[] {
-  return branchStmts.map((s) => {
-    const idx = s.columns.indexOf(branchIdCol);
-    return {
-      ...s,
-      rows:
-        idx < 0
-          ? s.rows
-          : s.rows.filter((r) => {
-              return keep.has(r[idx] ?? "");
-            }),
-    };
-  });
-}

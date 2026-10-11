@@ -1,7 +1,7 @@
 export interface Step {
   text: string;
 }
-export interface Scenario {
+interface Scenario {
   name: string;
   steps: Step[];
 }

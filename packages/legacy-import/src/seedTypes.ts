@@ -1,14 +1,6 @@
 import type { Money } from "@cl/domain";
 
 export type Id = string;
-export type Module = "calendario" | "condomini" | "anagrafiche";
-export type CondominiSection =
-  | "dati"
-  | "unita"
-  | "tabelle"
-  | "conti"
-  | "giornale"
-  | "rate";
 
 export type AccountingPeriodType = "ordinary" | "extra" | "auxiliary";
 
@@ -26,11 +18,6 @@ export interface CondominiumNode {
   name: string; // "Saturno (Piazza del Duomo, 39, 33100 Udine)"
   type: "regular" | "super" | "residence";
   periods: AccountingPeriodNode[];
-}
-
-export interface Selection {
-  condominiumId?: Id;
-  accountingPeriodId?: Id;
 }
 
 export interface CondominiumDetail {
@@ -55,7 +42,7 @@ export interface SupplierRow {
   categoria: string;
 }
 
-export type UnitRowKind = "group" | "unit" | "resident";
+type UnitRowKind = "group" | "unit" | "resident";
 export interface UnitRow {
   id: Id;
   kind: UnitRowKind;
@@ -80,7 +67,7 @@ export interface DistributionTable {
   total: number;
   items: DistributionTableItem[];
 }
-export interface DistributionTableItem {
+interface DistributionTableItem {
   unitId: Id;
   unitLabel: string;
   coefficient: number;
@@ -103,11 +90,7 @@ export interface DistributionColumn {
   tableId?: Id /* owning riparto table; columns from other tables are untouched by coefficient edits */;
 }
 
-export type LedgerAccountKind =
-  | "grouping"
-  | "regular"
-  | "subsidiary"
-  | "control";
+type LedgerAccountKind = "grouping" | "regular" | "subsidiary" | "control";
 export interface LedgerAccountRow {
   id: Id;
   kind: LedgerAccountKind;
@@ -160,50 +143,6 @@ export interface InstallmentRow {
   children?: InstallmentRow[];
 }
 
-/** ---- Command inputs (Plan 1 foundations) ---- */
-export interface LedgerEntryInput {
-  accountId: Id;
-  label: string;
-  dareCents: number;
-  avereCents: number;
-}
-export interface TransactionInput {
-  date: string;
-  description: string;
-  entries: LedgerEntryInput[];
-  partita?: string;
-}
-export interface InvoiceInput {
-  date: string;
-  supplierName: string;
-  invoiceNumber: string;
-  grossCents: number;
-  withholdingCents: number;
-  expenseAccountId: Id;
-  expenseAccountLabel: string;
-  payableAccountId: Id;
-  payableAccountLabel: string;
-  withholdingAccountId: Id;
-  withholdingAccountLabel: string;
-}
-export interface TakingInput {
-  date: string;
-  residentId: Id;
-  residentLabel: string;
-  liquidAccountId: Id;
-  liquidAccountLabel: string;
-  creditAccountId: Id;
-  creditAccountLabel: string;
-  settlements: { installmentId: Id; amountCents: number }[];
-}
-export interface CreateInstallmentsInput {
-  count: number;
-  firstExpiry: string /* ISO date */;
-  cadenceMonths: number;
-  totalCents: number;
-  tableId: Id;
-}
-
 export interface F24Row {
   id: Id;
   descrizione: string;
@@ -212,26 +151,10 @@ export interface F24Row {
   stato: "da pagare" | "pagato";
 }
 export type FunctionalRole = "liquid" | "payable" | "withholding" | "credit";
-export interface PeriodSummary {
-  liquidita: Money;
-  fondi: Money;
-  preventivo: Money;
-  consuntivo: Money;
-  saldoPrec: Money;
-  totDovuto: Money;
-}
-export interface WithholdingPaymentInput {
-  date: string;
-  amountCents: number;
-  withholdingAccountId: Id;
-  withholdingAccountLabel: string;
-  liquidAccountId: Id;
-  liquidAccountLabel: string;
-}
 
 /** ---- Calendario (Plan 3) ---- */
-export type CalendarPriority = "idle" | "low" | "medium" | "high" | "critical"; // legacy enum
-export type CalendarStatus = "new" | "closed" | "cancelled"; // values seen in the dump
+type CalendarPriority = "idle" | "low" | "medium" | "high" | "critical"; // legacy enum
+type CalendarStatus = "new" | "closed" | "cancelled"; // values seen in the dump
 export interface CalendarLayer {
   id: Id;
   name: string;
@@ -250,8 +173,8 @@ export interface CalendarEvent {
 }
 
 /** ---- Anagrafiche (Plan 4) ---- */
-export type AnagraficaKind = "person" | "company"; // legacy person / company tables
-export type AnagraficaStatus = "active" | "archived"; // legacy masterData.status enum
+type AnagraficaKind = "person" | "company"; // legacy person / company tables
+type AnagraficaStatus = "active" | "archived"; // legacy masterData.status enum
 export interface Anagrafica {
   id: Id;
   kind: AnagraficaKind;
@@ -275,13 +198,3 @@ export interface Anagrafica {
   iban?: string;
   note?: string;
 }
-/** Cross-reference row for the "Anagrafiche Condomini" tab (read-only, derived).
- * Deliberately keyless: a pure value object recomputed by the store; lists render by index. */
-export interface AnagraficaLink {
-  condominio: string; // condominium display name (no address suffix)
-  esercizio: string; // accounting-period name, e.g. "2011 (Ordinario)"
-  ruolo: "Fornitore" | "Condòmino";
-  dettaglio: string; // supplier categoria, or the matched unit-tree row label
-}
-export type AnagraficaKindFilter = "tutte" | "person" | "company";
-export type AnagraficaStatusFilter = "tutte" | AnagraficaStatus;

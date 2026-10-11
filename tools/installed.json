@@ -98,5 +98,20 @@
     "starting": [
       "biome.json"
     ]
+  },
+  "strict-lint": {
+    "files": {
+      "tools/strict-lint/check-dead.mts": "87a4fc27c69ef23161e33b4e4d7948780897dd21a46dfd2ab133edd76905f3e5",
+      "tools/strict-lint/check-types.mts": "09a1c69fb99307875dcd5b490927c94b3e3b17166a28e0644d5c4aad462856da",
+      "tools/strict-lint/eslint.typed.base.mts": "eb9fdafbffdbc68d5ec932bba9205d60eda041d8fedc19767fb1f32bc75b46a0",
+      "tools/strict-lint/lib/files.mts": "71fe26dc7e77dcef4c2217aae9d9891061edce27a2f124dbd96a53b2f2038d96",
+      "tools/strict-lint/lib/run.mts": "70bba5152fc002adb1303a2d405beed8d1610337681e39cd4d4a221e892f1b2f",
+      "tools/templates/strict-lint.tools__strict-lint__eslint.config.mts.txt": "feb93ba515024fd0ba08a2f5b90157b3e56a825c25d770252c22e1959a17e8c1",
+      "tools/templates/strict-lint.tools__strict-lint__knip.jsonc.txt": "d2c59e626ed7930d845ced2d540b12f3421dad28f27d793c91f65b97686ffd4b"
+    },
+    "starting": [
+      "tools/strict-lint/eslint.config.mts",
+      "tools/strict-lint/knip.jsonc"
+    ]
   }
 }

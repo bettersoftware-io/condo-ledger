@@ -8,7 +8,7 @@ let cachedTables: Tables | null = null;
 let cachedDb: Db | null = null;
 
 /** Parse the 48 MB dump once per worker (cwd = apps/web under Vitest). */
-export function legacyTables(): Tables {
+function legacyTables(): Tables {
   if (!cachedTables) {
     const path = resolve(
       process.cwd(),

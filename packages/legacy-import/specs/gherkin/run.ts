@@ -18,10 +18,19 @@ export function defineStep(re: RegExp, fn: StepFn): void {
   bindings.push({ re, fn });
 }
 
-export const Given = defineStep;
-export const When = defineStep;
-export const Then = defineStep;
-export const And = defineStep;
+// The keywords the step files use. Each is its own function, not an alias of
+// `defineStep`, so knip does not read them as one export under four names.
+export function Given(re: RegExp, fn: StepFn): void {
+  defineStep(re, fn);
+}
+
+export function When(re: RegExp, fn: StepFn): void {
+  defineStep(re, fn);
+}
+
+export function Then(re: RegExp, fn: StepFn): void {
+  defineStep(re, fn);
+}
 
 /** Test seam: clear the registry. */
 export function resetSteps(): void {

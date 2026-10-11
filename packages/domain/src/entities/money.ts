@@ -21,10 +21,6 @@ export function add(a: Money, b: Money): Money {
   return { cents: a.cents + b.cents };
 }
 
-export function subtract(a: Money, b: Money): Money {
-  return { cents: a.cents - b.cents };
-}
-
 export function isNegative(m: Money): boolean {
   return m.cents < 0;
 }
