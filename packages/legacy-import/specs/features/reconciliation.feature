@@ -1,4 +1,4 @@
-# apps/web/tools/gen/specs/features/reconciliation.feature
+# packages/legacy-import/specs/features/reconciliation.feature
 Feature: Reconciliation gate
 
   Scenario Outline: a period with books reconciles to zero

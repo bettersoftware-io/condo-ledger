@@ -1,4 +1,4 @@
-// packages/domain/src/allocate.test.ts
+// packages/domain/src/useCases/allocate.test.ts
 import { describe, expect, it } from "vitest";
 
 import { allocate } from "./allocate.ts";

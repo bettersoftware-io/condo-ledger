@@ -1,4 +1,4 @@
-// apps/web/tools/gen/project/ripartoInput.ts
+// packages/legacy-import/src/project/ripartoInput.ts
 
 import type { RipartoInput } from "@cl/domain";
 

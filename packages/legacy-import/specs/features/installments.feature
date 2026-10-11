@@ -1,4 +1,4 @@
-# apps/web/tools/gen/specs/features/installments.feature
+# packages/legacy-import/specs/features/installments.feature
 Feature: Installments parity
 
   Scenario Outline: the installment plan reproduces the legacy installmentItem amounts

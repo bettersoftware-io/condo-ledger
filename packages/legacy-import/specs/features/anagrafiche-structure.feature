@@ -1,4 +1,4 @@
-# apps/web/tools/gen/specs/features/anagrafiche-structure.feature
+# packages/legacy-import/specs/features/anagrafiche-structure.feature
 Feature: Anagrafiche and structure projection parity
 
   Scenario: the registry projects every categorised party with a known category

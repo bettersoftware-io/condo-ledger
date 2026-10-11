@@ -1,4 +1,4 @@
-// apps/web/tools/gen/project/ripartoInput.test.ts
+// packages/legacy-import/src/project/ripartoInput.test.ts
 
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -40,7 +40,7 @@ describe("dbToRipartoInput", () => {
   });
 });
 
-// cwd = apps/web under Vitest; the dump is read cwd-relative (a known Vitest quirk).
+// cwd = packages/legacy-import under Vitest; the dump is read cwd-relative (a known Vitest quirk).
 const db = buildDb(
   parseTables(
     readFileSync(

@@ -1,4 +1,4 @@
-# apps/web/tools/gen/specs/features/riparto.feature
+# packages/legacy-import/specs/features/riparto.feature
 Feature: Riparto (distribution) parity
 
   Scenario Outline: estimate distribution conserves the expense total (tie-out)

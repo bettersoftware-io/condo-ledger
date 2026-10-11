@@ -1,6 +1,6 @@
+// packages/domain/src/useCases/allocate.ts
 import { must } from "./must.ts";
 
-// packages/domain/src/allocate.ts
 /** Split an integer cents total across weights using largest-remainder rounding.
  * Invariant: result sums exactly to totalCents. Ties go to the lower index. */
 export function allocate(totalCents: number, weights: number[]): number[] {

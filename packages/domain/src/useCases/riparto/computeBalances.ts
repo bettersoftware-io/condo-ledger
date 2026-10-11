@@ -3,7 +3,7 @@ import type { Mode, RipartoEngine } from "./types.ts";
 
 /**
  * Sum each resident's share for a mode across every column and unit.
- * Mirrors apps/web/tools/gen/project/units.ts `sumByMode` so the generator's
+ * Mirrors packages/legacy-import/src/project/units.ts `sumByMode` so the generator's
  * unit balances stay byte-identical when it adopts recomputePeriod.
  */
 export function perResidentTotals(
@@ -38,7 +38,7 @@ export interface RosterEntry {
  * Per-resident rolled-up balances. Residents come from `roster` so zero-share
  * residents still appear. totDovuto = preventivo + saldoPrec − versato.
  *
- * Phase 1b note: the current generator (apps/web/tools/gen/project/units.ts) computes
+ * Phase 1b note: the current generator (packages/legacy-import/src/project/units.ts) computes
  * totDovuto as saldoPrec + preventivo (it does NOT subtract versato), and folds
  * directly-attributed individual expenses into consuntivo. Those are adapter concerns
  * for when the generator adopts recomputePeriod — the parity guarantee here is scoped to

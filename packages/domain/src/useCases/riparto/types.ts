@@ -1,4 +1,4 @@
-// packages/domain/src/riparto/types.ts
+// packages/domain/src/useCases/riparto/types.ts
 
 export type Mode = "estimate" | "current";
 

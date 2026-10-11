@@ -1,4 +1,4 @@
-// packages/domain/src/riparto/computeRiparto.test.ts
+// packages/domain/src/useCases/riparto/computeRiparto.test.ts
 import { describe, expect, it } from "vitest";
 
 import { must } from "../must.ts";

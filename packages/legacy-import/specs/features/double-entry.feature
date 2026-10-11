@@ -1,4 +1,4 @@
-# apps/web/tools/gen/specs/features/double-entry.feature
+# packages/legacy-import/specs/features/double-entry.feature
 Feature: Double-entry ledger parity
 
   Scenario Outline: every transaction balances and the tree ties to the flat sum

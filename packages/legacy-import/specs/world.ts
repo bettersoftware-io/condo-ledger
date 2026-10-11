@@ -7,7 +7,7 @@ import { parseTables, type Tables } from "#/loadRows.ts";
 let cachedTables: Tables | null = null;
 let cachedDb: Db | null = null;
 
-/** Parse the 48 MB dump once per worker (cwd = apps/web under Vitest). */
+/** Parse the 48 MB dump once per worker (cwd = packages/legacy-import under Vitest). */
 function legacyTables(): Tables {
   if (!cachedTables) {
     const path = resolve(

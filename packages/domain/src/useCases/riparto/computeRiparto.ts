@@ -1,4 +1,4 @@
-// packages/domain/src/riparto/computeRiparto.ts
+// packages/domain/src/useCases/riparto/computeRiparto.ts
 import { listFor, must } from "../must.ts";
 import type {
   LinkedColumn,

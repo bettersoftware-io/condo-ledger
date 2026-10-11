@@ -1,5 +1,7 @@
 import { defer, map, type Observable, timer } from "rxjs";
 
+import { must } from "#/useCases/must.ts";
+
 import type { Price } from "../entities/price.ts";
 import type { PricePort } from "../ports/pricePort.ts";
 
@@ -50,7 +52,7 @@ export function createRandomWalk(
 
   return (): Price => {
     // `random()` is below 1, so the index is always inside the list.
-    const price = latest[Math.floor(random() * latest.length)];
+    const price = must(latest[Math.floor(random() * latest.length)]);
 
     price.mid = roundToPips(price.mid * (1 + (random() * 2 - 1) * 0.001));
 

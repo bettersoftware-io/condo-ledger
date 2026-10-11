@@ -1,4 +1,4 @@
-# apps/web/tools/gen/specs/features/units-money.feature
+# packages/legacy-import/specs/features/units-money.feature
 Feature: Per-resident units money parity
 
   Scenario Outline: resident saldoPrec reproduces the legacy startingBalance

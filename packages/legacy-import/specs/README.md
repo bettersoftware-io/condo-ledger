@@ -4,18 +4,18 @@ Executable **Gherkin acceptance specs** (run under Vitest) that prove the new
 accounting code reproduces the **legacy app's accounting behaviour**, using the legacy
 database dump as the **oracle**.
 
-Run them: `pnpm --filter @cl/web spec` (alias for `vitest run tools/gen/specs`).
+Run them: `pnpm --filter @cl/legacy-import test` (the parity specs run with the package's unit tests; to run only the specs: `pnpm --filter @cl/legacy-import exec vitest run specs`).
 
 Design rationale: [`docs/superpowers/specs/2026-06-14-accounting-parity-specs-design.md`](../../../../../docs/superpowers/specs/2026-06-14-accounting-parity-specs-design.md).
 Domain background: [`docs/domain/accounting-and-distribution.md`](../../../../../docs/domain/accounting-and-distribution.md).
 
 ## What these tests actually exercise
 
-**The offline generator's projection layer** (`apps/web/tools/gen/`) — *not* the prototype
+**The offline generator's projection layer** (`packages/legacy-import/src/`) — *not* the prototype
 UI and *not* the legacy app.
 
 ```
-old/db/…all.sql   →   tools/gen/ projections          →   data.generated.json   →   React prototype renders it
+old/db/…all.sql   →   legacy-import/src projections         →   data.generated.json   →   React prototype renders it
  (legacy dump        (parseTables→buildDb→project*,        (committed app seed)       (the UI you click)
   = the ORACLE)        reconcile, buildRiparto)
                        ▲ the specs assert on THIS
@@ -32,7 +32,7 @@ values read **independently** from the dump by `oracle.ts`.
 | The numbers the prototype **displays** | **Transitively** — these projections *are* `data.generated.json`, the prototype's seed, so asserting them asserts the data behind the screen |
 | The prototype **UI** (components, routing, search, dialogs, rendering) | No — no DOM/component rendering here |
 | The legacy PHP/Flex app | Not executed (it isn't runnable) — its dump is the frozen-output **oracle** we compare against |
-| Recompute / mutation flows (`apps/web/src/recompute/`) | No — parity here is about the *initial legacy state*, not post-edit recomputation |
+| Recompute / mutation flows (the archived prototype's recompute code under `old/prototype-web`) | No — parity here is about the *initial legacy state*, not post-edit recomputation |
 
 ### Why this is genuine parity, not a self-test
 
