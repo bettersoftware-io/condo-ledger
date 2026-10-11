@@ -11,7 +11,10 @@ export const FILES = {
   // Full 46MB dump — source for Tier B master-data parents.
   full: new URL("it-jtime-condominium.data.sql", DB),
   // Locale/country reference dump — source for Tier A.
-  reference: new URL("it-jtime-condominium - data - country, locale, localeI18n.sql", DB),
+  reference: new URL(
+    "it-jtime-condominium - data - country, locale, localeI18n.sql",
+    DB,
+  ),
 } as const;
 
 // Tier A — locale/country reference data.

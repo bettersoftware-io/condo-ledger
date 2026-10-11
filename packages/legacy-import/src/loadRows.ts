@@ -25,7 +25,12 @@ export function parseTables(sql: string): Tables {
 
   for (const s of stmts) {
     const cols = s.columns;
-    const types = new Map((ddl[s.table] ?? []).map((c) => {return [c.name, c.sqlType]}));
+    const types = new Map(
+      (ddl[s.table] ?? []).map((c) => {
+        return [c.name, c.sqlType];
+      }),
+    );
+
     const rows = s.rows.map((tuple) => {
       const r: Row = {};
 
@@ -38,7 +43,9 @@ export function parseTables(sql: string): Tables {
 
       return r;
     });
-    (out[s.table] ??= []).push(...rows);
+    const bucket = out[s.table] ?? [];
+    out[s.table] = bucket;
+    bucket.push(...rows);
   }
 
   return out;
@@ -47,7 +54,13 @@ export function parseTables(sql: string): Tables {
 // tinyint(1) -> boolean; everything else stays a raw string|null (numbers and
 // decimals are parsed at projection time). Keeps the loader dumb and explicit.
 function coerce(raw: string | null, sqlType: string): TransformValue {
-  if (raw === null) return null;
-  if (/^tinyint\(1\)/i.test(sqlType)) return raw === "1";
+  if (raw === null) {
+    return null;
+  }
+
+  if (/^tinyint\(1\)/i.test(sqlType)) {
+    return raw === "1";
+  }
+
   return raw;
 }

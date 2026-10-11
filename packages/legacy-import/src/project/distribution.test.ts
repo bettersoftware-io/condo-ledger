@@ -1,27 +1,92 @@
-import { describe, it, expect } from "vitest";
-import { projectDistributionTables, projectDistribution } from "./distribution.ts";
+import { describe, expect, it } from "vitest";
+
 import { buildDb } from "../db.ts";
 import type { Tables } from "../loadRows.ts";
+import {
+  projectDistribution,
+  projectDistributionTables,
+} from "./distribution.ts";
 
 // ---------------------------------------------------------------------------
 // projectDistributionTables — unchanged behaviour (Σ coefficients).
 // ---------------------------------------------------------------------------
 const tablesFixture: Tables = {
-  condominium: [{ id: "1", code: "SAT", name: "S", status: "active", type: "regular", address: null, taxCode: null, vatNumber: null, parentCondominiumId: null }],
-  accountingPeriod: [{ id: "1", condominiumId: "1", name: "2011", type: "ordinary", status: "opened", startDate: "2011-01-01", endDate: "2011-12-31" }],
-  unit: [
-    { id: "100", accountingPeriodId: "1", code: "A01", name: "", unitTypeId: "1", unitGroupId: null, floor: null, innerNumber: null, subordinateNumber: null, periodRestrictionStartDate: null, periodRestrictionEndDate: null },
-    { id: "101", accountingPeriodId: "1", code: "A02", name: "", unitTypeId: "1", unitGroupId: null, floor: null, innerNumber: null, subordinateNumber: null, periodRestrictionStartDate: null, periodRestrictionEndDate: null },
+  condominium: [
+    {
+      id: "1",
+      code: "SAT",
+      name: "S",
+      status: "active",
+      type: "regular",
+      address: null,
+      taxCode: null,
+      vatNumber: null,
+      parentCondominiumId: null,
+    },
   ],
-  distributionTable: [{ id: "7", accountingPeriodId: "1", name: "Proprietà", order: "1", restrictionUnitGroupId: null }],
-  distributionTableItem: [{ distributionTableId: "7", unitId: "100", coefficient: "250" }, { distributionTableId: "7", unitId: "101", coefficient: "750" }],
+  accountingPeriod: [
+    {
+      id: "1",
+      condominiumId: "1",
+      name: "2011",
+      type: "ordinary",
+      status: "opened",
+      startDate: "2011-01-01",
+      endDate: "2011-12-31",
+    },
+  ],
+  unit: [
+    {
+      id: "100",
+      accountingPeriodId: "1",
+      code: "A01",
+      name: "",
+      unitTypeId: "1",
+      unitGroupId: null,
+      floor: null,
+      innerNumber: null,
+      subordinateNumber: null,
+      periodRestrictionStartDate: null,
+      periodRestrictionEndDate: null,
+    },
+    {
+      id: "101",
+      accountingPeriodId: "1",
+      code: "A02",
+      name: "",
+      unitTypeId: "1",
+      unitGroupId: null,
+      floor: null,
+      innerNumber: null,
+      subordinateNumber: null,
+      periodRestrictionStartDate: null,
+      periodRestrictionEndDate: null,
+    },
+  ],
+  distributionTable: [
+    {
+      id: "7",
+      accountingPeriodId: "1",
+      name: "Proprietà",
+      order: "1",
+      restrictionUnitGroupId: null,
+    },
+  ],
+  distributionTableItem: [
+    { distributionTableId: "7", unitId: "100", coefficient: "250" },
+    { distributionTableId: "7", unitId: "101", coefficient: "750" },
+  ],
 };
 
 describe("projectDistributionTables", () => {
   it("builds tables with total = Σ coefficients", () => {
     const t = projectDistributionTables(db, "1");
     expect(t[0]).toMatchObject({ id: "dt7", name: "Proprietà", total: 1000 });
-    expect(t[0]!.items.map((i) => {return i.coefficient})).toEqual([250, 750]);
+    expect(
+      t[0]!.items.map((i) => {
+        return i.coefficient;
+      }),
+    ).toEqual([250, 750]);
   });
 
   const db = buildDb(tablesFixture);
@@ -41,41 +106,126 @@ describe("projectDistributionTables", () => {
 //   u101 current  = 100.00 × 750/1000 = 75.00 = 7500c
 const subtreeFixture: Tables = {
   ...tablesFixture,
-  unitPeriod: [{ id: "500", unitId: "100" }, { id: "501", unitId: "101" }],
+  unitPeriod: [
+    { id: "500", unitId: "100" },
+    { id: "501", unitId: "101" },
+  ],
   unitResident: [
-    { id: "900", unitPeriodId: "500", masterDataId: "10", percentage: "100", startingBalance: "0", unitResidentPriorityId: "1" },
-    { id: "901", unitPeriodId: "501", masterDataId: "11", percentage: "100", startingBalance: "0", unitResidentPriorityId: "1" },
+    {
+      id: "900",
+      unitPeriodId: "500",
+      masterDataId: "10",
+      percentage: "100",
+      startingBalance: "0",
+      unitResidentPriorityId: "1",
+    },
+    {
+      id: "901",
+      unitPeriodId: "501",
+      masterDataId: "11",
+      percentage: "100",
+      startingBalance: "0",
+      unitResidentPriorityId: "1",
+    },
   ],
   ledgerAccount: [
-    { id: "3", accountingPeriodId: "1", name: "Pulizie", type: "grouping", parentLedgerAccountId: null, kind: "expenses", order: "1" },
-    { id: "30", accountingPeriodId: "1", name: "Pulizie A", type: "regular", parentLedgerAccountId: "3", kind: "expenses", order: "1" },
-    { id: "31", accountingPeriodId: "1", name: "Pulizie B", type: "regular", parentLedgerAccountId: "3", kind: "expenses", order: "2" },
+    {
+      id: "3",
+      accountingPeriodId: "1",
+      name: "Pulizie",
+      type: "grouping",
+      parentLedgerAccountId: null,
+      kind: "expenses",
+      order: "1",
+    },
+    {
+      id: "30",
+      accountingPeriodId: "1",
+      name: "Pulizie A",
+      type: "regular",
+      parentLedgerAccountId: "3",
+      kind: "expenses",
+      order: "1",
+    },
+    {
+      id: "31",
+      accountingPeriodId: "1",
+      name: "Pulizie B",
+      type: "regular",
+      parentLedgerAccountId: "3",
+      kind: "expenses",
+      order: "2",
+    },
   ],
   expenseLedgerAccount: [
     { ledgerAccountId: "3", estimate: null, restrictionUnitGroupId: null },
     { ledgerAccountId: "30", estimate: "100.00", restrictionUnitGroupId: null },
     { ledgerAccountId: "31", estimate: "100.00", restrictionUnitGroupId: null },
   ],
-  expenseLA2Table: [{ id: "1", expenseLedgerAccountId: "3", distributionTableId: "7", type: null, percentage: null }],
+  expenseLA2Table: [
+    {
+      id: "1",
+      expenseLedgerAccountId: "3",
+      distributionTableId: "7",
+      type: null,
+      percentage: null,
+    },
+  ],
   expenseLA2Role: [],
-  ledgerTransaction: [{ id: "9", accountingPeriodId: "1", code: "1", type: "expense" }],
+  ledgerTransaction: [
+    { id: "9", accountingPeriodId: "1", code: "1", type: "expense" },
+  ],
   ledgerEntry: [
-    { id: "21", ledgerTransactionId: "9", postingAccountId: "30", amount: "60.00", order: "1", type: "expense", unitResidentId: null },
-    { id: "22", ledgerTransactionId: "9", postingAccountId: "31", amount: "40.00", order: "2", type: "expense", unitResidentId: null },
+    {
+      id: "21",
+      ledgerTransactionId: "9",
+      postingAccountId: "30",
+      amount: "60.00",
+      order: "1",
+      type: "expense",
+      unitResidentId: null,
+    },
+    {
+      id: "22",
+      ledgerTransactionId: "9",
+      postingAccountId: "31",
+      amount: "40.00",
+      order: "2",
+      type: "expense",
+      unitResidentId: null,
+    },
   ],
 };
 
 describe("subtree rollup", () => {
   it("distributes the grouping's SUBTREE total, not its own 0", () => {
     const { estimate, current } = projectDistribution(db, "1");
-    expect(estimate.columns).toEqual([{ accountId: "la3", header: "Pulizie", tableId: "dt7" }]);
+    expect(estimate.columns).toEqual([
+      { accountId: "la3", header: "Pulizie", tableId: "dt7" },
+    ]);
     const eg = estimate.rows[0]!;
-    expect(eg.children!.find((r) => {return r.unitId === "u100"})!.amounts["la3"]).toEqual({ cents: 5000 });
-    expect(eg.children!.find((r) => {return r.unitId === "u101"})!.amounts["la3"]).toEqual({ cents: 15000 });
+    expect(
+      eg.children!.find((r) => {
+        return r.unitId === "u100";
+      })!.amounts.la3,
+    ).toEqual({ cents: 5000 });
+    expect(
+      eg.children!.find((r) => {
+        return r.unitId === "u101";
+      })!.amounts.la3,
+    ).toEqual({ cents: 15000 });
     expect(eg.total).toEqual({ cents: 20000 });
     const cg = current.rows[0]!;
-    expect(cg.children!.find((r) => {return r.unitId === "u100"})!.amounts["la3"]).toEqual({ cents: 2500 });
-    expect(cg.children!.find((r) => {return r.unitId === "u101"})!.amounts["la3"]).toEqual({ cents: 7500 });
+    expect(
+      cg.children!.find((r) => {
+        return r.unitId === "u100";
+      })!.amounts.la3,
+    ).toEqual({ cents: 2500 });
+    expect(
+      cg.children!.find((r) => {
+        return r.unitId === "u101";
+      })!.amounts.la3,
+    ).toEqual({ cents: 7500 });
     expect(cg.total).toEqual({ cents: 10000 });
   });
 
@@ -91,18 +241,56 @@ describe("subtree rollup", () => {
 const multiTableFixture: Tables = {
   ...tablesFixture,
   distributionTable: [
-    { id: "7", accountingPeriodId: "1", name: "TabA", order: "1", restrictionUnitGroupId: null },
-    { id: "8", accountingPeriodId: "1", name: "TabB", order: "2", restrictionUnitGroupId: null },
+    {
+      id: "7",
+      accountingPeriodId: "1",
+      name: "TabA",
+      order: "1",
+      restrictionUnitGroupId: null,
+    },
+    {
+      id: "8",
+      accountingPeriodId: "1",
+      name: "TabB",
+      order: "2",
+      restrictionUnitGroupId: null,
+    },
   ],
   distributionTableItem: [
-    { distributionTableId: "7", unitId: "100", coefficient: "250" }, { distributionTableId: "7", unitId: "101", coefficient: "750" },
-    { distributionTableId: "8", unitId: "100", coefficient: "100" }, { distributionTableId: "8", unitId: "101", coefficient: "100" },
+    { distributionTableId: "7", unitId: "100", coefficient: "250" },
+    { distributionTableId: "7", unitId: "101", coefficient: "750" },
+    { distributionTableId: "8", unitId: "100", coefficient: "100" },
+    { distributionTableId: "8", unitId: "101", coefficient: "100" },
   ],
-  ledgerAccount: [{ id: "3", accountingPeriodId: "1", name: "Spese", type: "regular", parentLedgerAccountId: null, kind: "expenses", order: "1" }],
-  expenseLedgerAccount: [{ ledgerAccountId: "3", estimate: "1000.00", restrictionUnitGroupId: null }],
+  ledgerAccount: [
+    {
+      id: "3",
+      accountingPeriodId: "1",
+      name: "Spese",
+      type: "regular",
+      parentLedgerAccountId: null,
+      kind: "expenses",
+      order: "1",
+    },
+  ],
+  expenseLedgerAccount: [
+    { ledgerAccountId: "3", estimate: "1000.00", restrictionUnitGroupId: null },
+  ],
   expenseLA2Table: [
-    { id: "1", expenseLedgerAccountId: "3", distributionTableId: "7", type: null, percentage: "60.00" },
-    { id: "2", expenseLedgerAccountId: "3", distributionTableId: "8", type: null, percentage: "40.00" },
+    {
+      id: "1",
+      expenseLedgerAccountId: "3",
+      distributionTableId: "7",
+      type: null,
+      percentage: "60.00",
+    },
+    {
+      id: "2",
+      expenseLedgerAccountId: "3",
+      distributionTableId: "8",
+      type: null,
+      percentage: "40.00",
+    },
   ],
   expenseLA2Role: [],
 };
@@ -110,8 +298,16 @@ const multiTableFixture: Tables = {
 describe("multi-table % split", () => {
   it("sums both link contributions per unit", () => {
     const eg = projectDistribution(db, "1").estimate.rows[0]!;
-    expect(eg.children!.find((r) => {return r.unitId === "u100"})!.amounts["la3"]).toEqual({ cents: 35000 });
-    expect(eg.children!.find((r) => {return r.unitId === "u101"})!.amounts["la3"]).toEqual({ cents: 65000 });
+    expect(
+      eg.children!.find((r) => {
+        return r.unitId === "u100";
+      })!.amounts.la3,
+    ).toEqual({ cents: 35000 });
+    expect(
+      eg.children!.find((r) => {
+        return r.unitId === "u101";
+      })!.amounts.la3,
+    ).toEqual({ cents: 65000 });
     expect(eg.total).toEqual({ cents: 100000 });
   });
 
@@ -125,22 +321,72 @@ describe("multi-table % split", () => {
 const typeSplitFixture: Tables = {
   ...tablesFixture,
   distributionTable: [
-    { id: "7", accountingPeriodId: "1", name: "TabA", order: "1", restrictionUnitGroupId: null },
-    { id: "8", accountingPeriodId: "1", name: "TabB", order: "2", restrictionUnitGroupId: null },
+    {
+      id: "7",
+      accountingPeriodId: "1",
+      name: "TabA",
+      order: "1",
+      restrictionUnitGroupId: null,
+    },
+    {
+      id: "8",
+      accountingPeriodId: "1",
+      name: "TabB",
+      order: "2",
+      restrictionUnitGroupId: null,
+    },
   ],
   distributionTableItem: [
-    { distributionTableId: "7", unitId: "100", coefficient: "250" }, { distributionTableId: "7", unitId: "101", coefficient: "750" },
-    { distributionTableId: "8", unitId: "100", coefficient: "100" }, { distributionTableId: "8", unitId: "101", coefficient: "100" },
+    { distributionTableId: "7", unitId: "100", coefficient: "250" },
+    { distributionTableId: "7", unitId: "101", coefficient: "750" },
+    { distributionTableId: "8", unitId: "100", coefficient: "100" },
+    { distributionTableId: "8", unitId: "101", coefficient: "100" },
   ],
-  ledgerAccount: [{ id: "3", accountingPeriodId: "1", name: "Spese", type: "regular", parentLedgerAccountId: null, kind: "expenses", order: "1" }],
-  expenseLedgerAccount: [{ ledgerAccountId: "3", estimate: "400.00", restrictionUnitGroupId: null }],
+  ledgerAccount: [
+    {
+      id: "3",
+      accountingPeriodId: "1",
+      name: "Spese",
+      type: "regular",
+      parentLedgerAccountId: null,
+      kind: "expenses",
+      order: "1",
+    },
+  ],
+  expenseLedgerAccount: [
+    { ledgerAccountId: "3", estimate: "400.00", restrictionUnitGroupId: null },
+  ],
   expenseLA2Table: [
-    { id: "1", expenseLedgerAccountId: "3", distributionTableId: "7", type: "estimate", percentage: null },
-    { id: "2", expenseLedgerAccountId: "3", distributionTableId: "8", type: "currentBalance", percentage: null },
+    {
+      id: "1",
+      expenseLedgerAccountId: "3",
+      distributionTableId: "7",
+      type: "estimate",
+      percentage: null,
+    },
+    {
+      id: "2",
+      expenseLedgerAccountId: "3",
+      distributionTableId: "8",
+      type: "currentBalance",
+      percentage: null,
+    },
   ],
   expenseLA2Role: [],
-  ledgerTransaction: [{ id: "9", accountingPeriodId: "1", code: "1", type: "expense" }],
-  ledgerEntry: [{ id: "21", ledgerTransactionId: "9", postingAccountId: "3", amount: "200.00", order: "1", type: "expense", unitResidentId: null }],
+  ledgerTransaction: [
+    { id: "9", accountingPeriodId: "1", code: "1", type: "expense" },
+  ],
+  ledgerEntry: [
+    {
+      id: "21",
+      ledgerTransactionId: "9",
+      postingAccountId: "3",
+      amount: "200.00",
+      order: "1",
+      type: "expense",
+      unitResidentId: null,
+    },
+  ],
 };
 
 describe("estimate vs currentBalance tables", () => {
@@ -149,11 +395,27 @@ describe("estimate vs currentBalance tables", () => {
     // displayTableId is the estimate-side table (dt7)
     expect(estimate.columns[0]!.tableId).toBe("dt7");
     const eg = estimate.rows[0]!;
-    expect(eg.children!.find((r) => {return r.unitId === "u100"})!.amounts["la3"]).toEqual({ cents: 10000 });
-    expect(eg.children!.find((r) => {return r.unitId === "u101"})!.amounts["la3"]).toEqual({ cents: 30000 });
+    expect(
+      eg.children!.find((r) => {
+        return r.unitId === "u100";
+      })!.amounts.la3,
+    ).toEqual({ cents: 10000 });
+    expect(
+      eg.children!.find((r) => {
+        return r.unitId === "u101";
+      })!.amounts.la3,
+    ).toEqual({ cents: 30000 });
     const cg = current.rows[0]!;
-    expect(cg.children!.find((r) => {return r.unitId === "u100"})!.amounts["la3"]).toEqual({ cents: 10000 });
-    expect(cg.children!.find((r) => {return r.unitId === "u101"})!.amounts["la3"]).toEqual({ cents: 10000 });
+    expect(
+      cg.children!.find((r) => {
+        return r.unitId === "u100";
+      })!.amounts.la3,
+    ).toEqual({ cents: 10000 });
+    expect(
+      cg.children!.find((r) => {
+        return r.unitId === "u101";
+      })!.amounts.la3,
+    ).toEqual({ cents: 10000 });
   });
 
   const db = buildDb(typeSplitFixture);
@@ -162,9 +424,13 @@ describe("estimate vs currentBalance tables", () => {
 describe("group/unit rollups still sum", () => {
   it("group amount = Σ unit amounts and group total = Σ unit totals", () => {
     const eg = projectDistribution(db, "1").estimate.rows[0]!;
-    const sumLa3 = eg.children!.reduce((s, r) => {return s + r.amounts["la3"]!.cents}, 0);
-    expect(eg.amounts["la3"]).toEqual({ cents: sumLa3 });
-    const sumTot = eg.children!.reduce((s, r) => {return s + r.total.cents}, 0);
+    const sumLa3 = eg.children!.reduce((s, r) => {
+      return s + r.amounts.la3!.cents;
+    }, 0);
+    expect(eg.amounts.la3).toEqual({ cents: sumLa3 });
+    const sumTot = eg.children!.reduce((s, r) => {
+      return s + r.total.cents;
+    }, 0);
     expect(eg.total).toEqual({ cents: sumTot });
   });
 

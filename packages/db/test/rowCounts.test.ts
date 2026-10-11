@@ -4,10 +4,12 @@
 // dumps the orchestrator loads Tier C from), so this proves the load is faithful.
 //
 // Integration suite: skips cleanly without DATABASE_URL (passWithNoTests:true).
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+
 import type pg from "pg";
-import { makePool } from "../src/db.ts";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+
 import { expectedOperationalCounts } from "../etl/expectedCounts.ts";
+import { makePool } from "../src/db.ts";
 
 const url = process.env.DATABASE_URL;
 const d = url ? describe : describe.skip;
@@ -17,7 +19,9 @@ d("operational row-count parity", () => {
   beforeAll(() => {
     pool = makePool(url);
   });
-  afterAll(() => {return pool.end()});
+  afterAll(() => {
+    return pool.end();
+  });
 
   const expected = expectedOperationalCounts();
 

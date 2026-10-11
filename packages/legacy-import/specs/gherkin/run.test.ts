@@ -1,8 +1,11 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { defineStep, runStep, resetSteps } from "./run.ts";
+import { beforeEach, describe, expect, it } from "vitest";
+
+import { defineStep, resetSteps, runStep } from "./run.ts";
 
 describe("step registry", () => {
-  beforeEach(() => {return resetSteps()});
+  beforeEach(() => {
+    return resetSteps();
+  });
 
   it("matches a step by regex and passes captured args + world", async () => {
     const calls: string[] = [];
@@ -17,7 +20,9 @@ describe("step registry", () => {
   });
 
   it("throws on an undefined step", async () => {
-    await expect(runStep({}, { text: "nothing matches this" })).rejects.toThrow(/Undefined step/);
+    await expect(runStep({}, { text: "nothing matches this" })).rejects.toThrow(
+      /Undefined step/,
+    );
   });
 });
 

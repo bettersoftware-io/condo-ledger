@@ -67,13 +67,9 @@
         "bank_country_iso3166_1_a2_country_iso3166_1_alpha2_fk": {
           "name": "bank_country_iso3166_1_a2_country_iso3166_1_alpha2_fk",
           "tableFrom": "bank",
-          "columnsFrom": [
-            "country_iso3166_1_a2"
-          ],
+          "columnsFrom": ["country_iso3166_1_a2"],
           "tableTo": "country",
-          "columnsTo": [
-            "iso3166_1_alpha2"
-          ],
+          "columnsTo": ["iso3166_1_alpha2"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -183,78 +179,54 @@
         "bank_branch_bank_id_bank_id_fk": {
           "name": "bank_branch_bank_id_bank_id_fk",
           "tableFrom": "bank_branch",
-          "columnsFrom": [
-            "bank_id"
-          ],
+          "columnsFrom": ["bank_id"],
           "tableTo": "bank",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "bank_branch_master_data_id_master_data_id_fk": {
           "name": "bank_branch_master_data_id_master_data_id_fk",
           "tableFrom": "bank_branch",
-          "columnsFrom": [
-            "master_data_id"
-          ],
+          "columnsFrom": ["master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "bank_branch_city_id_city_id_fk": {
           "name": "bank_branch_city_id_city_id_fk",
           "tableFrom": "bank_branch",
-          "columnsFrom": [
-            "city_id"
-          ],
+          "columnsFrom": ["city_id"],
           "tableTo": "city",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "bank_branch_district_id_district_id_fk": {
           "name": "bank_branch_district_id_district_id_fk",
           "tableFrom": "bank_branch",
-          "columnsFrom": [
-            "district_id"
-          ],
+          "columnsFrom": ["district_id"],
           "tableTo": "district",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "bank_branch_state_id_state_id_fk": {
           "name": "bank_branch_state_id_state_id_fk",
           "tableFrom": "bank_branch",
-          "columnsFrom": [
-            "state_id"
-          ],
+          "columnsFrom": ["state_id"],
           "tableTo": "state",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "bank_branch_country_iso3166_1_a2_country_iso3166_1_alpha2_fk": {
           "name": "bank_branch_country_iso3166_1_a2_country_iso3166_1_alpha2_fk",
           "tableFrom": "bank_branch",
-          "columnsFrom": [
-            "country_iso3166_1_a2"
-          ],
+          "columnsFrom": ["country_iso3166_1_a2"],
           "tableTo": "country",
-          "columnsTo": [
-            "iso3166_1_alpha2"
-          ],
+          "columnsTo": ["iso3166_1_alpha2"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -340,52 +312,36 @@
         "city_country_iso3166_1_a2_country_iso3166_1_alpha2_fk": {
           "name": "city_country_iso3166_1_a2_country_iso3166_1_alpha2_fk",
           "tableFrom": "city",
-          "columnsFrom": [
-            "country_iso3166_1_a2"
-          ],
+          "columnsFrom": ["country_iso3166_1_a2"],
           "tableTo": "country",
-          "columnsTo": [
-            "iso3166_1_alpha2"
-          ],
+          "columnsTo": ["iso3166_1_alpha2"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "city_state_id_state_id_fk": {
           "name": "city_state_id_state_id_fk",
           "tableFrom": "city",
-          "columnsFrom": [
-            "state_id"
-          ],
+          "columnsFrom": ["state_id"],
           "tableTo": "state",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "city_district_id_district_id_fk": {
           "name": "city_district_id_district_id_fk",
           "tableFrom": "city",
-          "columnsFrom": [
-            "district_id"
-          ],
+          "columnsFrom": ["district_id"],
           "tableTo": "district",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "city_minor_civil_division_id_minor_civil_division_id_fk": {
           "name": "city_minor_civil_division_id_minor_civil_division_id_fk",
           "tableFrom": "city",
-          "columnsFrom": [
-            "minor_civil_division_id"
-          ],
+          "columnsFrom": ["minor_civil_division_id"],
           "tableTo": "minor_civil_division",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -436,26 +392,18 @@
         "city_i18n_city_id_city_id_fk": {
           "name": "city_i18n_city_id_city_id_fk",
           "tableFrom": "city_i18n",
-          "columnsFrom": [
-            "city_id"
-          ],
+          "columnsFrom": ["city_id"],
           "tableTo": "city",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "city_i18n_locale_code_locale_code_fk": {
           "name": "city_i18n_locale_code_locale_code_fk",
           "tableFrom": "city_i18n",
-          "columnsFrom": [
-            "locale_code"
-          ],
+          "columnsFrom": ["locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -463,10 +411,7 @@
       "compositePrimaryKeys": {
         "city_i18n_city_id_locale_code_pk": {
           "name": "city_i18n_city_id_locale_code_pk",
-          "columns": [
-            "city_id",
-            "locale_code"
-          ]
+          "columns": ["city_id", "locale_code"]
         }
       },
       "uniqueConstraints": {},
@@ -508,26 +453,18 @@
         "city_post_code_city_id_city_id_fk": {
           "name": "city_post_code_city_id_city_id_fk",
           "tableFrom": "city_post_code",
-          "columnsFrom": [
-            "city_id"
-          ],
+          "columnsFrom": ["city_id"],
           "tableTo": "city",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "city_post_code_post_code_post_code_code_fk": {
           "name": "city_post_code_post_code_post_code_code_fk",
           "tableFrom": "city_post_code",
-          "columnsFrom": [
-            "post_code"
-          ],
+          "columnsFrom": ["post_code"],
           "tableTo": "post_code",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -535,10 +472,7 @@
       "compositePrimaryKeys": {
         "city_post_code_city_id_post_code_pk": {
           "name": "city_post_code_city_id_post_code_pk",
-          "columns": [
-            "city_id",
-            "post_code"
-          ]
+          "columns": ["city_id", "post_code"]
         }
       },
       "uniqueConstraints": {},
@@ -610,39 +544,27 @@
         "country_primary_locale_code_locale_code_fk": {
           "name": "country_primary_locale_code_locale_code_fk",
           "tableFrom": "country",
-          "columnsFrom": [
-            "primary_locale_code"
-          ],
+          "columnsFrom": ["primary_locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "country_secondary_locale_code_locale_code_fk": {
           "name": "country_secondary_locale_code_locale_code_fk",
           "tableFrom": "country",
-          "columnsFrom": [
-            "secondary_locale_code"
-          ],
+          "columnsFrom": ["secondary_locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "country_tertiary_locale_code_locale_code_fk": {
           "name": "country_tertiary_locale_code_locale_code_fk",
           "tableFrom": "country",
-          "columnsFrom": [
-            "tertiary_locale_code"
-          ],
+          "columnsFrom": ["tertiary_locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -693,26 +615,18 @@
         "country_i18n_country_iso3166_1_a2_country_iso3166_1_alpha2_fk": {
           "name": "country_i18n_country_iso3166_1_a2_country_iso3166_1_alpha2_fk",
           "tableFrom": "country_i18n",
-          "columnsFrom": [
-            "country_iso3166_1_a2"
-          ],
+          "columnsFrom": ["country_iso3166_1_a2"],
           "tableTo": "country",
-          "columnsTo": [
-            "iso3166_1_alpha2"
-          ],
+          "columnsTo": ["iso3166_1_alpha2"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "country_i18n_locale_code_locale_code_fk": {
           "name": "country_i18n_locale_code_locale_code_fk",
           "tableFrom": "country_i18n",
-          "columnsFrom": [
-            "locale_code"
-          ],
+          "columnsFrom": ["locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -720,10 +634,7 @@
       "compositePrimaryKeys": {
         "country_i18n_country_iso3166_1_a2_locale_code_pk": {
           "name": "country_i18n_country_iso3166_1_a2_locale_code_pk",
-          "columns": [
-            "country_iso3166_1_a2",
-            "locale_code"
-          ]
+          "columns": ["country_iso3166_1_a2", "locale_code"]
         }
       },
       "uniqueConstraints": {},
@@ -800,26 +711,18 @@
         "district_country_iso3166_1_a2_country_iso3166_1_alpha2_fk": {
           "name": "district_country_iso3166_1_a2_country_iso3166_1_alpha2_fk",
           "tableFrom": "district",
-          "columnsFrom": [
-            "country_iso3166_1_a2"
-          ],
+          "columnsFrom": ["country_iso3166_1_a2"],
           "tableTo": "country",
-          "columnsTo": [
-            "iso3166_1_alpha2"
-          ],
+          "columnsTo": ["iso3166_1_alpha2"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "district_state_id_state_id_fk": {
           "name": "district_state_id_state_id_fk",
           "tableFrom": "district",
-          "columnsFrom": [
-            "state_id"
-          ],
+          "columnsFrom": ["state_id"],
           "tableTo": "state",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -870,26 +773,18 @@
         "district_i18n_district_id_district_id_fk": {
           "name": "district_i18n_district_id_district_id_fk",
           "tableFrom": "district_i18n",
-          "columnsFrom": [
-            "district_id"
-          ],
+          "columnsFrom": ["district_id"],
           "tableTo": "district",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "district_i18n_locale_code_locale_code_fk": {
           "name": "district_i18n_locale_code_locale_code_fk",
           "tableFrom": "district_i18n",
-          "columnsFrom": [
-            "locale_code"
-          ],
+          "columnsFrom": ["locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -897,10 +792,7 @@
       "compositePrimaryKeys": {
         "district_i18n_district_id_locale_code_pk": {
           "name": "district_i18n_district_id_locale_code_pk",
-          "columns": [
-            "district_id",
-            "locale_code"
-          ]
+          "columns": ["district_id", "locale_code"]
         }
       },
       "uniqueConstraints": {},
@@ -985,26 +877,18 @@
         "locale_i18n_locale_code_src_locale_code_fk": {
           "name": "locale_i18n_locale_code_src_locale_code_fk",
           "tableFrom": "locale_i18n",
-          "columnsFrom": [
-            "locale_code_src"
-          ],
+          "columnsFrom": ["locale_code_src"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "locale_i18n_locale_code_dst_locale_code_fk": {
           "name": "locale_i18n_locale_code_dst_locale_code_fk",
           "tableFrom": "locale_i18n",
-          "columnsFrom": [
-            "locale_code_dst"
-          ],
+          "columnsFrom": ["locale_code_dst"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -1012,10 +896,7 @@
       "compositePrimaryKeys": {
         "locale_i18n_locale_code_src_locale_code_dst_pk": {
           "name": "locale_i18n_locale_code_src_locale_code_dst_pk",
-          "columns": [
-            "locale_code_src",
-            "locale_code_dst"
-          ]
+          "columns": ["locale_code_src", "locale_code_dst"]
         }
       },
       "uniqueConstraints": {},
@@ -1086,13 +967,9 @@
         "minor_civil_division_district_id_district_id_fk": {
           "name": "minor_civil_division_district_id_district_id_fk",
           "tableFrom": "minor_civil_division",
-          "columnsFrom": [
-            "district_id"
-          ],
+          "columnsFrom": ["district_id"],
           "tableTo": "district",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -1143,26 +1020,18 @@
         "minor_civil_division_i18n_minor_civil_division_id_minor_civil_division_id_fk": {
           "name": "minor_civil_division_i18n_minor_civil_division_id_minor_civil_division_id_fk",
           "tableFrom": "minor_civil_division_i18n",
-          "columnsFrom": [
-            "minor_civil_division_id"
-          ],
+          "columnsFrom": ["minor_civil_division_id"],
           "tableTo": "minor_civil_division",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "minor_civil_division_i18n_locale_code_locale_code_fk": {
           "name": "minor_civil_division_i18n_locale_code_locale_code_fk",
           "tableFrom": "minor_civil_division_i18n",
-          "columnsFrom": [
-            "locale_code"
-          ],
+          "columnsFrom": ["locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -1170,10 +1039,7 @@
       "compositePrimaryKeys": {
         "minor_civil_division_i18n_minor_civil_division_id_locale_code_pk": {
           "name": "minor_civil_division_i18n_minor_civil_division_id_locale_code_pk",
-          "columns": [
-            "minor_civil_division_id",
-            "locale_code"
-          ]
+          "columns": ["minor_civil_division_id", "locale_code"]
         }
       },
       "uniqueConstraints": {},
@@ -1215,13 +1081,9 @@
         "post_code_country_iso3166_1_a2_country_iso3166_1_alpha2_fk": {
           "name": "post_code_country_iso3166_1_a2_country_iso3166_1_alpha2_fk",
           "tableFrom": "post_code",
-          "columnsFrom": [
-            "country_iso3166_1_a2"
-          ],
+          "columnsFrom": ["country_iso3166_1_a2"],
           "tableTo": "country",
-          "columnsTo": [
-            "iso3166_1_alpha2"
-          ],
+          "columnsTo": ["iso3166_1_alpha2"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -1229,18 +1091,13 @@
       "compositePrimaryKeys": {
         "post_code_code_country_iso3166_1_a2_pk": {
           "name": "post_code_code_country_iso3166_1_a2_pk",
-          "columns": [
-            "code",
-            "country_iso3166_1_a2"
-          ]
+          "columns": ["code", "country_iso3166_1_a2"]
         }
       },
       "uniqueConstraints": {
         "post_code_code_unique": {
           "name": "post_code_code_unique",
-          "columns": [
-            "code"
-          ],
+          "columns": ["code"],
           "nullsNotDistinct": false
         }
       },
@@ -1311,13 +1168,9 @@
         "state_country_iso3166_1_a2_country_iso3166_1_alpha2_fk": {
           "name": "state_country_iso3166_1_a2_country_iso3166_1_alpha2_fk",
           "tableFrom": "state",
-          "columnsFrom": [
-            "country_iso3166_1_a2"
-          ],
+          "columnsFrom": ["country_iso3166_1_a2"],
           "tableTo": "country",
-          "columnsTo": [
-            "iso3166_1_alpha2"
-          ],
+          "columnsTo": ["iso3166_1_alpha2"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -1368,26 +1221,18 @@
         "state_i18n_state_id_state_id_fk": {
           "name": "state_i18n_state_id_state_id_fk",
           "tableFrom": "state_i18n",
-          "columnsFrom": [
-            "state_id"
-          ],
+          "columnsFrom": ["state_id"],
           "tableTo": "state",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "state_i18n_locale_code_locale_code_fk": {
           "name": "state_i18n_locale_code_locale_code_fk",
           "tableFrom": "state_i18n",
-          "columnsFrom": [
-            "locale_code"
-          ],
+          "columnsFrom": ["locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -1395,10 +1240,7 @@
       "compositePrimaryKeys": {
         "state_i18n_state_id_locale_code_pk": {
           "name": "state_i18n_state_id_locale_code_pk",
-          "columns": [
-            "state_id",
-            "locale_code"
-          ]
+          "columns": ["state_id", "locale_code"]
         }
       },
       "uniqueConstraints": {},
@@ -1496,26 +1338,18 @@
         "access_account_studio_id_studio_id_fk": {
           "name": "access_account_studio_id_studio_id_fk",
           "tableFrom": "access_account",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "access_account_master_data_id_master_data_id_fk": {
           "name": "access_account_master_data_id_master_data_id_fk",
           "tableFrom": "access_account",
-          "columnsFrom": [
-            "master_data_id"
-          ],
+          "columnsFrom": ["master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -1644,13 +1478,9 @@
         "access_account_activation_request_studio_id_studio_id_fk": {
           "name": "access_account_activation_request_studio_id_studio_id_fk",
           "tableFrom": "access_account_activation_request",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -1701,39 +1531,27 @@
         "access_account_grant_username_access_account_username_fk": {
           "name": "access_account_grant_username_access_account_username_fk",
           "tableFrom": "access_account_grant",
-          "columnsFrom": [
-            "username"
-          ],
+          "columnsFrom": ["username"],
           "tableTo": "access_account",
-          "columnsTo": [
-            "username"
-          ],
+          "columnsTo": ["username"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "access_account_grant_grant_id_grant_id_fk": {
           "name": "access_account_grant_grant_id_grant_id_fk",
           "tableFrom": "access_account_grant",
-          "columnsFrom": [
-            "grant_id"
-          ],
+          "columnsFrom": ["grant_id"],
           "tableTo": "grant",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "access_account_grant_studio_id_studio_id_fk": {
           "name": "access_account_grant_studio_id_studio_id_fk",
           "tableFrom": "access_account_grant",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -1741,10 +1559,7 @@
       "compositePrimaryKeys": {
         "access_account_grant_username_grant_id_pk": {
           "name": "access_account_grant_username_grant_id_pk",
-          "columns": [
-            "username",
-            "grant_id"
-          ]
+          "columns": ["username", "grant_id"]
         }
       },
       "uniqueConstraints": {},
@@ -1899,52 +1714,36 @@
         "bank_account_studio_id_studio_id_fk": {
           "name": "bank_account_studio_id_studio_id_fk",
           "tableFrom": "bank_account",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "bank_account_bank_id_bank_id_fk": {
           "name": "bank_account_bank_id_bank_id_fk",
           "tableFrom": "bank_account",
-          "columnsFrom": [
-            "bank_id"
-          ],
+          "columnsFrom": ["bank_id"],
           "tableTo": "bank",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "bank_account_country_iso3166_1_a2_country_iso3166_1_alpha2_fk": {
           "name": "bank_account_country_iso3166_1_a2_country_iso3166_1_alpha2_fk",
           "tableFrom": "bank_account",
-          "columnsFrom": [
-            "country_iso3166_1_a2"
-          ],
+          "columnsFrom": ["country_iso3166_1_a2"],
           "tableTo": "country",
-          "columnsTo": [
-            "iso3166_1_alpha2"
-          ],
+          "columnsTo": ["iso3166_1_alpha2"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "bank_account_bank_branch_id_bank_branch_id_fk": {
           "name": "bank_account_bank_branch_id_bank_branch_id_fk",
           "tableFrom": "bank_account",
-          "columnsFrom": [
-            "bank_branch_id"
-          ],
+          "columnsFrom": ["bank_branch_id"],
           "tableTo": "bank_branch",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -2012,26 +1811,18 @@
         "bank_transfer_po_studio_id_studio_id_fk": {
           "name": "bank_transfer_po_studio_id_studio_id_fk",
           "tableFrom": "bank_transfer_po",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "bank_transfer_po_bank_account_id_bank_account_id_fk": {
           "name": "bank_transfer_po_bank_account_id_bank_account_id_fk",
           "tableFrom": "bank_transfer_po",
-          "columnsFrom": [
-            "bank_account_id"
-          ],
+          "columnsFrom": ["bank_account_id"],
           "tableTo": "bank_account",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -2088,13 +1879,9 @@
         "company_master_data_id_master_data_id_fk": {
           "name": "company_master_data_id_master_data_id_fk",
           "tableFrom": "company",
-          "columnsFrom": [
-            "master_data_id"
-          ],
+          "columnsFrom": ["master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -2151,13 +1938,9 @@
         "company_variation_master_data_variation_id_master_data_variation_id_fk": {
           "name": "company_variation_master_data_variation_id_master_data_variation_id_fk",
           "tableFrom": "company_variation",
-          "columnsFrom": [
-            "master_data_variation_id"
-          ],
+          "columnsFrom": ["master_data_variation_id"],
           "tableTo": "master_data_variation",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -2298,91 +2081,63 @@
         "master_data_studio_id_studio_id_fk": {
           "name": "master_data_studio_id_studio_id_fk",
           "tableFrom": "master_data",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_master_data_category_id_master_data_category_id_fk": {
           "name": "master_data_master_data_category_id_master_data_category_id_fk",
           "tableFrom": "master_data",
-          "columnsFrom": [
-            "master_data_category_id"
-          ],
+          "columnsFrom": ["master_data_category_id"],
           "tableTo": "master_data_category",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_preferred_locale_code_locale_code_fk": {
           "name": "master_data_preferred_locale_code_locale_code_fk",
           "tableFrom": "master_data",
-          "columnsFrom": [
-            "preferred_locale_code"
-          ],
+          "columnsFrom": ["preferred_locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_qualification_id_qualification_id_fk": {
           "name": "master_data_qualification_id_qualification_id_fk",
           "tableFrom": "master_data",
-          "columnsFrom": [
-            "qualification_id"
-          ],
+          "columnsFrom": ["qualification_id"],
           "tableTo": "qualification",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_bank_account_id_bank_account_id_fk": {
           "name": "master_data_bank_account_id_bank_account_id_fk",
           "tableFrom": "master_data",
-          "columnsFrom": [
-            "bank_account_id"
-          ],
+          "columnsFrom": ["bank_account_id"],
           "tableTo": "bank_account",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_created_master_data_id_master_data_id_fk": {
           "name": "master_data_created_master_data_id_master_data_id_fk",
           "tableFrom": "master_data",
-          "columnsFrom": [
-            "created_master_data_id"
-          ],
+          "columnsFrom": ["created_master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_last_modified_master_data_id_master_data_id_fk": {
           "name": "master_data_last_modified_master_data_id_master_data_id_fk",
           "tableFrom": "master_data",
-          "columnsFrom": [
-            "last_modified_master_data_id"
-          ],
+          "columnsFrom": ["last_modified_master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -2456,13 +2211,9 @@
         "master_data_category_studio_id_studio_id_fk": {
           "name": "master_data_category_studio_id_studio_id_fk",
           "tableFrom": "master_data_category",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -2519,39 +2270,27 @@
         "master_data_category_i18n_master_data_category_id_master_data_category_id_fk": {
           "name": "master_data_category_i18n_master_data_category_id_master_data_category_id_fk",
           "tableFrom": "master_data_category_i18n",
-          "columnsFrom": [
-            "master_data_category_id"
-          ],
+          "columnsFrom": ["master_data_category_id"],
           "tableTo": "master_data_category",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_category_i18n_locale_code_locale_code_fk": {
           "name": "master_data_category_i18n_locale_code_locale_code_fk",
           "tableFrom": "master_data_category_i18n",
-          "columnsFrom": [
-            "locale_code"
-          ],
+          "columnsFrom": ["locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_category_i18n_studio_id_studio_id_fk": {
           "name": "master_data_category_i18n_studio_id_studio_id_fk",
           "tableFrom": "master_data_category_i18n",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -2559,10 +2298,7 @@
       "compositePrimaryKeys": {
         "master_data_category_i18n_master_data_category_id_locale_code_pk": {
           "name": "master_data_category_i18n_master_data_category_id_locale_code_pk",
-          "columns": [
-            "master_data_category_id",
-            "locale_code"
-          ]
+          "columns": ["master_data_category_id", "locale_code"]
         }
       },
       "uniqueConstraints": {},
@@ -2652,39 +2388,27 @@
         "master_data_contact_studio_id_studio_id_fk": {
           "name": "master_data_contact_studio_id_studio_id_fk",
           "tableFrom": "master_data_contact",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_contact_master_data_id_master_data_id_fk": {
           "name": "master_data_contact_master_data_id_master_data_id_fk",
           "tableFrom": "master_data_contact",
-          "columnsFrom": [
-            "master_data_id"
-          ],
+          "columnsFrom": ["master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_contact_master_data_variation_id_master_data_variation_id_fk": {
           "name": "master_data_contact_master_data_variation_id_master_data_variation_id_fk",
           "tableFrom": "master_data_contact",
-          "columnsFrom": [
-            "master_data_variation_id"
-          ],
+          "columnsFrom": ["master_data_variation_id"],
           "tableTo": "master_data_variation",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -2741,39 +2465,27 @@
         "master_data_contact_i18n_master_data_contact_id_master_data_contact_id_fk": {
           "name": "master_data_contact_i18n_master_data_contact_id_master_data_contact_id_fk",
           "tableFrom": "master_data_contact_i18n",
-          "columnsFrom": [
-            "master_data_contact_id"
-          ],
+          "columnsFrom": ["master_data_contact_id"],
           "tableTo": "master_data_contact",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_contact_i18n_locale_code_locale_code_fk": {
           "name": "master_data_contact_i18n_locale_code_locale_code_fk",
           "tableFrom": "master_data_contact_i18n",
-          "columnsFrom": [
-            "locale_code"
-          ],
+          "columnsFrom": ["locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_contact_i18n_studio_id_studio_id_fk": {
           "name": "master_data_contact_i18n_studio_id_studio_id_fk",
           "tableFrom": "master_data_contact_i18n",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -2781,10 +2493,7 @@
       "compositePrimaryKeys": {
         "master_data_contact_i18n_master_data_contact_id_locale_code_pk": {
           "name": "master_data_contact_i18n_master_data_contact_id_locale_code_pk",
-          "columns": [
-            "master_data_contact_id",
-            "locale_code"
-          ]
+          "columns": ["master_data_contact_id", "locale_code"]
         }
       },
       "uniqueConstraints": {},
@@ -2861,39 +2570,27 @@
         "master_data_cross_relation_studio_id_studio_id_fk": {
           "name": "master_data_cross_relation_studio_id_studio_id_fk",
           "tableFrom": "master_data_cross_relation",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_cross_relation_from_master_data_id_master_data_id_fk": {
           "name": "master_data_cross_relation_from_master_data_id_master_data_id_fk",
           "tableFrom": "master_data_cross_relation",
-          "columnsFrom": [
-            "from_master_data_id"
-          ],
+          "columnsFrom": ["from_master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_cross_relation_to_master_data_id_master_data_id_fk": {
           "name": "master_data_cross_relation_to_master_data_id_master_data_id_fk",
           "tableFrom": "master_data_cross_relation",
-          "columnsFrom": [
-            "to_master_data_id"
-          ],
+          "columnsFrom": ["to_master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -2950,39 +2647,27 @@
         "master_data_cross_relation_i18n_master_data_cross_relation_id_master_data_cross_relation_id_fk": {
           "name": "master_data_cross_relation_i18n_master_data_cross_relation_id_master_data_cross_relation_id_fk",
           "tableFrom": "master_data_cross_relation_i18n",
-          "columnsFrom": [
-            "master_data_cross_relation_id"
-          ],
+          "columnsFrom": ["master_data_cross_relation_id"],
           "tableTo": "master_data_cross_relation",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_cross_relation_i18n_locale_code_locale_code_fk": {
           "name": "master_data_cross_relation_i18n_locale_code_locale_code_fk",
           "tableFrom": "master_data_cross_relation_i18n",
-          "columnsFrom": [
-            "locale_code"
-          ],
+          "columnsFrom": ["locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_cross_relation_i18n_studio_id_studio_id_fk": {
           "name": "master_data_cross_relation_i18n_studio_id_studio_id_fk",
           "tableFrom": "master_data_cross_relation_i18n",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -2990,10 +2675,7 @@
       "compositePrimaryKeys": {
         "master_data_cross_relation_i18n_master_data_cross_relation_id_locale_code_pk": {
           "name": "master_data_cross_relation_i18n_master_data_cross_relation_id_locale_code_pk",
-          "columns": [
-            "master_data_cross_relation_id",
-            "locale_code"
-          ]
+          "columns": ["master_data_cross_relation_id", "locale_code"]
         }
       },
       "uniqueConstraints": {},
@@ -3101,39 +2783,27 @@
         "master_data_tax_treatment_studio_id_studio_id_fk": {
           "name": "master_data_tax_treatment_studio_id_studio_id_fk",
           "tableFrom": "master_data_tax_treatment",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_tax_treatment_master_data_id_master_data_id_fk": {
           "name": "master_data_tax_treatment_master_data_id_master_data_id_fk",
           "tableFrom": "master_data_tax_treatment",
-          "columnsFrom": [
-            "master_data_id"
-          ],
+          "columnsFrom": ["master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_tax_treatment_tribute_id_tribute_id_fk": {
           "name": "master_data_tax_treatment_tribute_id_tribute_id_fk",
           "tableFrom": "master_data_tax_treatment",
-          "columnsFrom": [
-            "tribute_id"
-          ],
+          "columnsFrom": ["tribute_id"],
           "tableTo": "tribute",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -3255,78 +2925,54 @@
         "master_data_variation_studio_id_studio_id_fk": {
           "name": "master_data_variation_studio_id_studio_id_fk",
           "tableFrom": "master_data_variation",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_variation_master_data_id_master_data_id_fk": {
           "name": "master_data_variation_master_data_id_master_data_id_fk",
           "tableFrom": "master_data_variation",
-          "columnsFrom": [
-            "master_data_id"
-          ],
+          "columnsFrom": ["master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_variation_qualification_id_qualification_id_fk": {
           "name": "master_data_variation_qualification_id_qualification_id_fk",
           "tableFrom": "master_data_variation",
-          "columnsFrom": [
-            "qualification_id"
-          ],
+          "columnsFrom": ["qualification_id"],
           "tableTo": "qualification",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_variation_bank_account_id_bank_account_id_fk": {
           "name": "master_data_variation_bank_account_id_bank_account_id_fk",
           "tableFrom": "master_data_variation",
-          "columnsFrom": [
-            "bank_account_id"
-          ],
+          "columnsFrom": ["bank_account_id"],
           "tableTo": "bank_account",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_variation_created_master_data_id_master_data_id_fk": {
           "name": "master_data_variation_created_master_data_id_master_data_id_fk",
           "tableFrom": "master_data_variation",
-          "columnsFrom": [
-            "created_master_data_id"
-          ],
+          "columnsFrom": ["created_master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "master_data_variation_last_modified_master_data_id_master_data_id_fk": {
           "name": "master_data_variation_last_modified_master_data_id_master_data_id_fk",
           "tableFrom": "master_data_variation",
-          "columnsFrom": [
-            "last_modified_master_data_id"
-          ],
+          "columnsFrom": ["last_modified_master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -3401,13 +3047,9 @@
         "password_reset_request_studio_id_studio_id_fk": {
           "name": "password_reset_request_studio_id_studio_id_fk",
           "tableFrom": "password_reset_request",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -3513,26 +3155,18 @@
         "person_master_data_id_master_data_id_fk": {
           "name": "person_master_data_id_master_data_id_fk",
           "tableFrom": "person",
-          "columnsFrom": [
-            "master_data_id"
-          ],
+          "columnsFrom": ["master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "person_citizenship_iso3166_1_a2_country_iso3166_1_alpha2_fk": {
           "name": "person_citizenship_iso3166_1_a2_country_iso3166_1_alpha2_fk",
           "tableFrom": "person",
-          "columnsFrom": [
-            "citizenship_iso3166_1_a2"
-          ],
+          "columnsFrom": ["citizenship_iso3166_1_a2"],
           "tableTo": "country",
-          "columnsTo": [
-            "iso3166_1_alpha2"
-          ],
+          "columnsTo": ["iso3166_1_alpha2"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -3619,26 +3253,18 @@
         "person_variation_master_data_variation_id_master_data_variation_id_fk": {
           "name": "person_variation_master_data_variation_id_master_data_variation_id_fk",
           "tableFrom": "person_variation",
-          "columnsFrom": [
-            "master_data_variation_id"
-          ],
+          "columnsFrom": ["master_data_variation_id"],
           "tableTo": "master_data_variation",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "person_variation_citizenship_iso3166_1_a2_country_iso3166_1_alpha2_fk": {
           "name": "person_variation_citizenship_iso3166_1_a2_country_iso3166_1_alpha2_fk",
           "tableFrom": "person_variation",
-          "columnsFrom": [
-            "citizenship_iso3166_1_a2"
-          ],
+          "columnsFrom": ["citizenship_iso3166_1_a2"],
           "tableTo": "country",
-          "columnsTo": [
-            "iso3166_1_alpha2"
-          ],
+          "columnsTo": ["iso3166_1_alpha2"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -3712,26 +3338,18 @@
         "qualification_studio_id_studio_id_fk": {
           "name": "qualification_studio_id_studio_id_fk",
           "tableFrom": "qualification",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "qualification_country_iso3166_1_a2_country_iso3166_1_alpha2_fk": {
           "name": "qualification_country_iso3166_1_a2_country_iso3166_1_alpha2_fk",
           "tableFrom": "qualification",
-          "columnsFrom": [
-            "country_iso3166_1_a2"
-          ],
+          "columnsFrom": ["country_iso3166_1_a2"],
           "tableTo": "country",
-          "columnsTo": [
-            "iso3166_1_alpha2"
-          ],
+          "columnsTo": ["iso3166_1_alpha2"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -3817,39 +3435,27 @@
         "studio_master_data_id_master_data_id_fk": {
           "name": "studio_master_data_id_master_data_id_fk",
           "tableFrom": "studio",
-          "columnsFrom": [
-            "master_data_id"
-          ],
+          "columnsFrom": ["master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "studio_country_iso3166_1_a2_country_iso3166_1_alpha2_fk": {
           "name": "studio_country_iso3166_1_a2_country_iso3166_1_alpha2_fk",
           "tableFrom": "studio",
-          "columnsFrom": [
-            "country_iso3166_1_a2"
-          ],
+          "columnsFrom": ["country_iso3166_1_a2"],
           "tableTo": "country",
-          "columnsTo": [
-            "iso3166_1_alpha2"
-          ],
+          "columnsTo": ["iso3166_1_alpha2"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "studio_default_locale_code_locale_code_fk": {
           "name": "studio_default_locale_code_locale_code_fk",
           "tableFrom": "studio",
-          "columnsFrom": [
-            "default_locale_code"
-          ],
+          "columnsFrom": ["default_locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -3979,39 +3585,27 @@
         "condominium_studio_id_studio_id_fk": {
           "name": "condominium_studio_id_studio_id_fk",
           "tableFrom": "condominium",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "condominium_parent_condominium_id_condominium_id_fk": {
           "name": "condominium_parent_condominium_id_condominium_id_fk",
           "tableFrom": "condominium",
-          "columnsFrom": [
-            "parent_condominium_id"
-          ],
+          "columnsFrom": ["parent_condominium_id"],
           "tableTo": "condominium",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "condominium_bank_account_id_bank_account_id_fk": {
           "name": "condominium_bank_account_id_bank_account_id_fk",
           "tableFrom": "condominium",
-          "columnsFrom": [
-            "bank_account_id"
-          ],
+          "columnsFrom": ["bank_account_id"],
           "tableTo": "bank_account",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -4085,26 +3679,18 @@
         "condominium_attribute_studio_id_studio_id_fk": {
           "name": "condominium_attribute_studio_id_studio_id_fk",
           "tableFrom": "condominium_attribute",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "condominium_attribute_condominium_id_condominium_id_fk": {
           "name": "condominium_attribute_condominium_id_condominium_id_fk",
           "tableFrom": "condominium_attribute",
-          "columnsFrom": [
-            "condominium_id"
-          ],
+          "columnsFrom": ["condominium_id"],
           "tableTo": "condominium",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -4167,39 +3753,27 @@
         "condominium_attribute_i18n_condominium_attribute_id_condominium_attribute_id_fk": {
           "name": "condominium_attribute_i18n_condominium_attribute_id_condominium_attribute_id_fk",
           "tableFrom": "condominium_attribute_i18n",
-          "columnsFrom": [
-            "condominium_attribute_id"
-          ],
+          "columnsFrom": ["condominium_attribute_id"],
           "tableTo": "condominium_attribute",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "condominium_attribute_i18n_locale_code_locale_code_fk": {
           "name": "condominium_attribute_i18n_locale_code_locale_code_fk",
           "tableFrom": "condominium_attribute_i18n",
-          "columnsFrom": [
-            "locale_code"
-          ],
+          "columnsFrom": ["locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "condominium_attribute_i18n_studio_id_studio_id_fk": {
           "name": "condominium_attribute_i18n_studio_id_studio_id_fk",
           "tableFrom": "condominium_attribute_i18n",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -4207,10 +3781,7 @@
       "compositePrimaryKeys": {
         "condominium_attribute_i18n_condominium_attribute_id_locale_code_pk": {
           "name": "condominium_attribute_i18n_condominium_attribute_id_locale_code_pk",
-          "columns": [
-            "condominium_attribute_id",
-            "locale_code"
-          ]
+          "columns": ["condominium_attribute_id", "locale_code"]
         }
       },
       "uniqueConstraints": {},
@@ -4306,91 +3877,63 @@
         "condominium_calendar_event_calendar_event_id_calendar_event_id_fk": {
           "name": "condominium_calendar_event_calendar_event_id_calendar_event_id_fk",
           "tableFrom": "condominium_calendar_event",
-          "columnsFrom": [
-            "calendar_event_id"
-          ],
+          "columnsFrom": ["calendar_event_id"],
           "tableTo": "calendar_event",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "condominium_calendar_event_condominium_id_condominium_id_fk": {
           "name": "condominium_calendar_event_condominium_id_condominium_id_fk",
           "tableFrom": "condominium_calendar_event",
-          "columnsFrom": [
-            "condominium_id"
-          ],
+          "columnsFrom": ["condominium_id"],
           "tableTo": "condominium",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "condominium_calendar_event_accounting_period_id_accounting_period_id_fk": {
           "name": "condominium_calendar_event_accounting_period_id_accounting_period_id_fk",
           "tableFrom": "condominium_calendar_event",
-          "columnsFrom": [
-            "accounting_period_id"
-          ],
+          "columnsFrom": ["accounting_period_id"],
           "tableTo": "accounting_period",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "condominium_calendar_event_unit_group_id_unit_group_id_fk": {
           "name": "condominium_calendar_event_unit_group_id_unit_group_id_fk",
           "tableFrom": "condominium_calendar_event",
-          "columnsFrom": [
-            "unit_group_id"
-          ],
+          "columnsFrom": ["unit_group_id"],
           "tableTo": "unit_group",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "condominium_calendar_event_unit_id_unit_id_fk": {
           "name": "condominium_calendar_event_unit_id_unit_id_fk",
           "tableFrom": "condominium_calendar_event",
-          "columnsFrom": [
-            "unit_id"
-          ],
+          "columnsFrom": ["unit_id"],
           "tableTo": "unit",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "condominium_calendar_event_unit_resident_id_unit_resident_id_fk": {
           "name": "condominium_calendar_event_unit_resident_id_unit_resident_id_fk",
           "tableFrom": "condominium_calendar_event",
-          "columnsFrom": [
-            "unit_resident_id"
-          ],
+          "columnsFrom": ["unit_resident_id"],
           "tableTo": "unit_resident",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "condominium_calendar_event_master_data_id_master_data_id_fk": {
           "name": "condominium_calendar_event_master_data_id_master_data_id_fk",
           "tableFrom": "condominium_calendar_event",
-          "columnsFrom": [
-            "master_data_id"
-          ],
+          "columnsFrom": ["master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -4447,39 +3990,27 @@
         "condominium_supplier_condominium_id_condominium_id_fk": {
           "name": "condominium_supplier_condominium_id_condominium_id_fk",
           "tableFrom": "condominium_supplier",
-          "columnsFrom": [
-            "condominium_id"
-          ],
+          "columnsFrom": ["condominium_id"],
           "tableTo": "condominium",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "condominium_supplier_master_data_id_master_data_id_fk": {
           "name": "condominium_supplier_master_data_id_master_data_id_fk",
           "tableFrom": "condominium_supplier",
-          "columnsFrom": [
-            "master_data_id"
-          ],
+          "columnsFrom": ["master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "condominium_supplier_studio_id_studio_id_fk": {
           "name": "condominium_supplier_studio_id_studio_id_fk",
           "tableFrom": "condominium_supplier",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -4487,10 +4018,7 @@
       "compositePrimaryKeys": {
         "condominium_supplier_condominium_id_master_data_id_pk": {
           "name": "condominium_supplier_condominium_id_master_data_id_pk",
-          "columns": [
-            "condominium_id",
-            "master_data_id"
-          ]
+          "columns": ["condominium_id", "master_data_id"]
         }
       },
       "uniqueConstraints": {},
@@ -4615,52 +4143,36 @@
         "unit_studio_id_studio_id_fk": {
           "name": "unit_studio_id_studio_id_fk",
           "tableFrom": "unit",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "unit_accounting_period_id_accounting_period_id_fk": {
           "name": "unit_accounting_period_id_accounting_period_id_fk",
           "tableFrom": "unit",
-          "columnsFrom": [
-            "accounting_period_id"
-          ],
+          "columnsFrom": ["accounting_period_id"],
           "tableTo": "accounting_period",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "unit_unit_type_id_unit_type_id_fk": {
           "name": "unit_unit_type_id_unit_type_id_fk",
           "tableFrom": "unit",
-          "columnsFrom": [
-            "unit_type_id"
-          ],
+          "columnsFrom": ["unit_type_id"],
           "tableTo": "unit_type",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "unit_unit_group_id_unit_group_id_fk": {
           "name": "unit_unit_group_id_unit_group_id_fk",
           "tableFrom": "unit",
-          "columnsFrom": [
-            "unit_group_id"
-          ],
+          "columnsFrom": ["unit_group_id"],
           "tableTo": "unit_group",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -4752,39 +4264,27 @@
         "unit_group_studio_id_studio_id_fk": {
           "name": "unit_group_studio_id_studio_id_fk",
           "tableFrom": "unit_group",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "unit_group_parent_unit_group_id_unit_group_id_fk": {
           "name": "unit_group_parent_unit_group_id_unit_group_id_fk",
           "tableFrom": "unit_group",
-          "columnsFrom": [
-            "parent_unit_group_id"
-          ],
+          "columnsFrom": ["parent_unit_group_id"],
           "tableTo": "unit_group",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "unit_group_accounting_period_id_accounting_period_id_fk": {
           "name": "unit_group_accounting_period_id_accounting_period_id_fk",
           "tableFrom": "unit_group",
-          "columnsFrom": [
-            "accounting_period_id"
-          ],
+          "columnsFrom": ["accounting_period_id"],
           "tableTo": "accounting_period",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -4852,13 +4352,9 @@
         "unit_ownership_scenario_country_iso3166_1_a2_country_iso3166_1_alpha2_fk": {
           "name": "unit_ownership_scenario_country_iso3166_1_a2_country_iso3166_1_alpha2_fk",
           "tableFrom": "unit_ownership_scenario",
-          "columnsFrom": [
-            "country_iso3166_1_a2"
-          ],
+          "columnsFrom": ["country_iso3166_1_a2"],
           "tableTo": "country",
-          "columnsTo": [
-            "iso3166_1_alpha2"
-          ],
+          "columnsTo": ["iso3166_1_alpha2"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -4909,26 +4405,18 @@
         "unit_ownership_scenario_i18n_unit_ownership_scenario_id_unit_ownership_scenario_id_fk": {
           "name": "unit_ownership_scenario_i18n_unit_ownership_scenario_id_unit_ownership_scenario_id_fk",
           "tableFrom": "unit_ownership_scenario_i18n",
-          "columnsFrom": [
-            "unit_ownership_scenario_id"
-          ],
+          "columnsFrom": ["unit_ownership_scenario_id"],
           "tableTo": "unit_ownership_scenario",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "unit_ownership_scenario_i18n_locale_code_locale_code_fk": {
           "name": "unit_ownership_scenario_i18n_locale_code_locale_code_fk",
           "tableFrom": "unit_ownership_scenario_i18n",
-          "columnsFrom": [
-            "locale_code"
-          ],
+          "columnsFrom": ["locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -4936,10 +4424,7 @@
       "compositePrimaryKeys": {
         "unit_ownership_scenario_i18n_unit_ownership_scenario_id_locale_code_pk": {
           "name": "unit_ownership_scenario_i18n_unit_ownership_scenario_id_locale_code_pk",
-          "columns": [
-            "unit_ownership_scenario_id",
-            "locale_code"
-          ]
+          "columns": ["unit_ownership_scenario_id", "locale_code"]
         }
       },
       "uniqueConstraints": {},
@@ -5016,39 +4501,27 @@
         "unit_period_studio_id_studio_id_fk": {
           "name": "unit_period_studio_id_studio_id_fk",
           "tableFrom": "unit_period",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "unit_period_unit_id_unit_id_fk": {
           "name": "unit_period_unit_id_unit_id_fk",
           "tableFrom": "unit_period",
-          "columnsFrom": [
-            "unit_id"
-          ],
+          "columnsFrom": ["unit_id"],
           "tableTo": "unit",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "unit_period_unit_ownership_scenario_id_unit_ownership_scenario_id_fk": {
           "name": "unit_period_unit_ownership_scenario_id_unit_ownership_scenario_id_fk",
           "tableFrom": "unit_period",
-          "columnsFrom": [
-            "unit_ownership_scenario_id"
-          ],
+          "columnsFrom": ["unit_ownership_scenario_id"],
           "tableTo": "unit_ownership_scenario",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -5158,78 +4631,54 @@
         "unit_resident_studio_id_studio_id_fk": {
           "name": "unit_resident_studio_id_studio_id_fk",
           "tableFrom": "unit_resident",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "unit_resident_unit_period_id_unit_period_id_fk": {
           "name": "unit_resident_unit_period_id_unit_period_id_fk",
           "tableFrom": "unit_resident",
-          "columnsFrom": [
-            "unit_period_id"
-          ],
+          "columnsFrom": ["unit_period_id"],
           "tableTo": "unit_period",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "unit_resident_master_data_id_master_data_id_fk": {
           "name": "unit_resident_master_data_id_master_data_id_fk",
           "tableFrom": "unit_resident",
-          "columnsFrom": [
-            "master_data_id"
-          ],
+          "columnsFrom": ["master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "unit_resident_system_username_unit_resident_account_system_username_fk": {
           "name": "unit_resident_system_username_unit_resident_account_system_username_fk",
           "tableFrom": "unit_resident",
-          "columnsFrom": [
-            "system_username"
-          ],
+          "columnsFrom": ["system_username"],
           "tableTo": "unit_resident_account",
-          "columnsTo": [
-            "system_username"
-          ],
+          "columnsTo": ["system_username"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "unit_resident_unit_resident_priority_id_unit_resident_priority_id_fk": {
           "name": "unit_resident_unit_resident_priority_id_unit_resident_priority_id_fk",
           "tableFrom": "unit_resident",
-          "columnsFrom": [
-            "unit_resident_priority_id"
-          ],
+          "columnsFrom": ["unit_resident_priority_id"],
           "tableTo": "unit_resident_priority",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "unit_resident_starting_balance_ledger_entry_id_ledger_entry_id_fk": {
           "name": "unit_resident_starting_balance_ledger_entry_id_ledger_entry_id_fk",
           "tableFrom": "unit_resident",
-          "columnsFrom": [
-            "starting_balance_ledger_entry_id"
-          ],
+          "columnsFrom": ["starting_balance_ledger_entry_id"],
           "tableTo": "ledger_entry",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -5280,26 +4729,18 @@
         "unit_resident_account_system_username_access_account_username_fk": {
           "name": "unit_resident_account_system_username_access_account_username_fk",
           "tableFrom": "unit_resident_account",
-          "columnsFrom": [
-            "system_username"
-          ],
+          "columnsFrom": ["system_username"],
           "tableTo": "access_account",
-          "columnsTo": [
-            "username"
-          ],
+          "columnsTo": ["username"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "unit_resident_account_studio_id_studio_id_fk": {
           "name": "unit_resident_account_studio_id_studio_id_fk",
           "tableFrom": "unit_resident_account",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -5373,13 +4814,9 @@
         "unit_resident_priority_country_iso3166_1_a2_country_iso3166_1_alpha2_fk": {
           "name": "unit_resident_priority_country_iso3166_1_a2_country_iso3166_1_alpha2_fk",
           "tableFrom": "unit_resident_priority",
-          "columnsFrom": [
-            "country_iso3166_1_a2"
-          ],
+          "columnsFrom": ["country_iso3166_1_a2"],
           "tableTo": "country",
-          "columnsTo": [
-            "iso3166_1_alpha2"
-          ],
+          "columnsTo": ["iso3166_1_alpha2"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -5471,39 +4908,27 @@
         "unit_resident_role_country_iso3166_1_a2_country_iso3166_1_alpha2_fk": {
           "name": "unit_resident_role_country_iso3166_1_a2_country_iso3166_1_alpha2_fk",
           "tableFrom": "unit_resident_role",
-          "columnsFrom": [
-            "country_iso3166_1_a2"
-          ],
+          "columnsFrom": ["country_iso3166_1_a2"],
           "tableTo": "country",
-          "columnsTo": [
-            "iso3166_1_alpha2"
-          ],
+          "columnsTo": ["iso3166_1_alpha2"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "unit_resident_role_unit_ownership_scenario_id_unit_ownership_scenario_id_fk": {
           "name": "unit_resident_role_unit_ownership_scenario_id_unit_ownership_scenario_id_fk",
           "tableFrom": "unit_resident_role",
-          "columnsFrom": [
-            "unit_ownership_scenario_id"
-          ],
+          "columnsFrom": ["unit_ownership_scenario_id"],
           "tableTo": "unit_ownership_scenario",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "unit_resident_role_unit_resident_priority_id_unit_resident_priority_id_fk": {
           "name": "unit_resident_role_unit_resident_priority_id_unit_resident_priority_id_fk",
           "tableFrom": "unit_resident_role",
-          "columnsFrom": [
-            "unit_resident_priority_id"
-          ],
+          "columnsFrom": ["unit_resident_priority_id"],
           "tableTo": "unit_resident_priority",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -5566,26 +4991,18 @@
         "unit_resident_role_i18n_unit_resident_role_id_unit_resident_role_id_fk": {
           "name": "unit_resident_role_i18n_unit_resident_role_id_unit_resident_role_id_fk",
           "tableFrom": "unit_resident_role_i18n",
-          "columnsFrom": [
-            "unit_resident_role_id"
-          ],
+          "columnsFrom": ["unit_resident_role_id"],
           "tableTo": "unit_resident_role",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "unit_resident_role_i18n_locale_code_locale_code_fk": {
           "name": "unit_resident_role_i18n_locale_code_locale_code_fk",
           "tableFrom": "unit_resident_role_i18n",
-          "columnsFrom": [
-            "locale_code"
-          ],
+          "columnsFrom": ["locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -5593,10 +5010,7 @@
       "compositePrimaryKeys": {
         "unit_resident_role_i18n_unit_resident_role_id_locale_code_pk": {
           "name": "unit_resident_role_i18n_unit_resident_role_id_locale_code_pk",
-          "columns": [
-            "unit_resident_role_id",
-            "locale_code"
-          ]
+          "columns": ["unit_resident_role_id", "locale_code"]
         }
       },
       "uniqueConstraints": {},
@@ -5655,13 +5069,9 @@
         "unit_type_studio_id_studio_id_fk": {
           "name": "unit_type_studio_id_studio_id_fk",
           "tableFrom": "unit_type",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -5718,39 +5128,27 @@
         "unit_type_i18n_unit_type_id_unit_type_id_fk": {
           "name": "unit_type_i18n_unit_type_id_unit_type_id_fk",
           "tableFrom": "unit_type_i18n",
-          "columnsFrom": [
-            "unit_type_id"
-          ],
+          "columnsFrom": ["unit_type_id"],
           "tableTo": "unit_type",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "unit_type_i18n_locale_code_locale_code_fk": {
           "name": "unit_type_i18n_locale_code_locale_code_fk",
           "tableFrom": "unit_type_i18n",
-          "columnsFrom": [
-            "locale_code"
-          ],
+          "columnsFrom": ["locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "unit_type_i18n_studio_id_studio_id_fk": {
           "name": "unit_type_i18n_studio_id_studio_id_fk",
           "tableFrom": "unit_type_i18n",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -5758,10 +5156,7 @@
       "compositePrimaryKeys": {
         "unit_type_i18n_unit_type_id_locale_code_pk": {
           "name": "unit_type_i18n_unit_type_id_locale_code_pk",
-          "columns": [
-            "unit_type_id",
-            "locale_code"
-          ]
+          "columns": ["unit_type_id", "locale_code"]
         }
       },
       "uniqueConstraints": {},
@@ -5820,13 +5215,9 @@
         "consumption_meter_studio_id_studio_id_fk": {
           "name": "consumption_meter_studio_id_studio_id_fk",
           "tableFrom": "consumption_meter",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -5883,39 +5274,27 @@
         "expense_la2_role_expense_la2_table_id_expense_la2_table_id_fk": {
           "name": "expense_la2_role_expense_la2_table_id_expense_la2_table_id_fk",
           "tableFrom": "expense_la2_role",
-          "columnsFrom": [
-            "expense_la2_table_id"
-          ],
+          "columnsFrom": ["expense_la2_table_id"],
           "tableTo": "expense_la2_table",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "expense_la2_role_unit_resident_priority_id_unit_resident_priority_id_fk": {
           "name": "expense_la2_role_unit_resident_priority_id_unit_resident_priority_id_fk",
           "tableFrom": "expense_la2_role",
-          "columnsFrom": [
-            "unit_resident_priority_id"
-          ],
+          "columnsFrom": ["unit_resident_priority_id"],
           "tableTo": "unit_resident_priority",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "expense_la2_role_studio_id_studio_id_fk": {
           "name": "expense_la2_role_studio_id_studio_id_fk",
           "tableFrom": "expense_la2_role",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -5923,10 +5302,7 @@
       "compositePrimaryKeys": {
         "expense_la2_role_expense_la2_table_id_unit_resident_priority_id_pk": {
           "name": "expense_la2_role_expense_la2_table_id_unit_resident_priority_id_pk",
-          "columns": [
-            "expense_la2_table_id",
-            "unit_resident_priority_id"
-          ]
+          "columns": ["expense_la2_table_id", "unit_resident_priority_id"]
         }
       },
       "uniqueConstraints": {},
@@ -6004,39 +5380,27 @@
         "expense_la2_table_studio_id_studio_id_fk": {
           "name": "expense_la2_table_studio_id_studio_id_fk",
           "tableFrom": "expense_la2_table",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "expense_la2_table_expense_ledger_account_id_expense_ledger_account_ledger_account_id_fk": {
           "name": "expense_la2_table_expense_ledger_account_id_expense_ledger_account_ledger_account_id_fk",
           "tableFrom": "expense_la2_table",
-          "columnsFrom": [
-            "expense_ledger_account_id"
-          ],
+          "columnsFrom": ["expense_ledger_account_id"],
           "tableTo": "expense_ledger_account",
-          "columnsTo": [
-            "ledger_account_id"
-          ],
+          "columnsTo": ["ledger_account_id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "expense_la2_table_distribution_table_id_distribution_table_id_fk": {
           "name": "expense_la2_table_distribution_table_id_distribution_table_id_fk",
           "tableFrom": "expense_la2_table",
-          "columnsFrom": [
-            "distribution_table_id"
-          ],
+          "columnsFrom": ["distribution_table_id"],
           "tableTo": "distribution_table",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -6110,52 +5474,36 @@
         "expense_la_unit_exception_studio_id_studio_id_fk": {
           "name": "expense_la_unit_exception_studio_id_studio_id_fk",
           "tableFrom": "expense_la_unit_exception",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "expense_la_unit_exception_expense_ledger_account_id_expense_ledger_account_ledger_account_id_fk": {
           "name": "expense_la_unit_exception_expense_ledger_account_id_expense_ledger_account_ledger_account_id_fk",
           "tableFrom": "expense_la_unit_exception",
-          "columnsFrom": [
-            "expense_ledger_account_id"
-          ],
+          "columnsFrom": ["expense_ledger_account_id"],
           "tableTo": "expense_ledger_account",
-          "columnsTo": [
-            "ledger_account_id"
-          ],
+          "columnsTo": ["ledger_account_id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "expense_la_unit_exception_unit_id_unit_id_fk": {
           "name": "expense_la_unit_exception_unit_id_unit_id_fk",
           "tableFrom": "expense_la_unit_exception",
-          "columnsFrom": [
-            "unit_id"
-          ],
+          "columnsFrom": ["unit_id"],
           "tableTo": "unit",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "expense_la_unit_exception_expense_la2_table_id_expense_la2_table_id_fk": {
           "name": "expense_la_unit_exception_expense_la2_table_id_expense_la2_table_id_fk",
           "tableFrom": "expense_la_unit_exception",
-          "columnsFrom": [
-            "expense_la2_table_id"
-          ],
+          "columnsFrom": ["expense_la2_table_id"],
           "tableTo": "expense_la2_table",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -6212,39 +5560,27 @@
         "expense_la_unit_exception_item_expense_la_unit_exception_id_expense_la_unit_exception_id_fk": {
           "name": "expense_la_unit_exception_item_expense_la_unit_exception_id_expense_la_unit_exception_id_fk",
           "tableFrom": "expense_la_unit_exception_item",
-          "columnsFrom": [
-            "expense_la_unit_exception_id"
-          ],
+          "columnsFrom": ["expense_la_unit_exception_id"],
           "tableTo": "expense_la_unit_exception",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "expense_la_unit_exception_item_unit_resident_priority_id_unit_resident_priority_id_fk": {
           "name": "expense_la_unit_exception_item_unit_resident_priority_id_unit_resident_priority_id_fk",
           "tableFrom": "expense_la_unit_exception_item",
-          "columnsFrom": [
-            "unit_resident_priority_id"
-          ],
+          "columnsFrom": ["unit_resident_priority_id"],
           "tableTo": "unit_resident_priority",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "expense_la_unit_exception_item_studio_id_studio_id_fk": {
           "name": "expense_la_unit_exception_item_studio_id_studio_id_fk",
           "tableFrom": "expense_la_unit_exception_item",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -6341,39 +5677,27 @@
         "expense_ledger_account_ledger_account_id_ledger_account_id_fk": {
           "name": "expense_ledger_account_ledger_account_id_ledger_account_id_fk",
           "tableFrom": "expense_ledger_account",
-          "columnsFrom": [
-            "ledger_account_id"
-          ],
+          "columnsFrom": ["ledger_account_id"],
           "tableTo": "ledger_account",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "expense_ledger_account_restriction_unit_group_id_unit_group_id_fk": {
           "name": "expense_ledger_account_restriction_unit_group_id_unit_group_id_fk",
           "tableFrom": "expense_ledger_account",
-          "columnsFrom": [
-            "restriction_unit_group_id"
-          ],
+          "columnsFrom": ["restriction_unit_group_id"],
           "tableTo": "unit_group",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "expense_ledger_account_tax_relief_id_tax_relief_id_fk": {
           "name": "expense_ledger_account_tax_relief_id_tax_relief_id_fk",
           "tableFrom": "expense_ledger_account",
-          "columnsFrom": [
-            "tax_relief_id"
-          ],
+          "columnsFrom": ["tax_relief_id"],
           "tableTo": "tax_relief",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -6453,26 +5777,18 @@
         "f24_studio_id_studio_id_fk": {
           "name": "f24_studio_id_studio_id_fk",
           "tableFrom": "f24",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "f24_condominium_id_condominium_id_fk": {
           "name": "f24_condominium_id_condominium_id_fk",
           "tableFrom": "f24",
-          "columnsFrom": [
-            "condominium_id"
-          ],
+          "columnsFrom": ["condominium_id"],
           "tableTo": "condominium",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -6632,65 +5948,45 @@
         "ledger_account_studio_id_studio_id_fk": {
           "name": "ledger_account_studio_id_studio_id_fk",
           "tableFrom": "ledger_account",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_account_accounting_period_id_accounting_period_id_fk": {
           "name": "ledger_account_accounting_period_id_accounting_period_id_fk",
           "tableFrom": "ledger_account",
-          "columnsFrom": [
-            "accounting_period_id"
-          ],
+          "columnsFrom": ["accounting_period_id"],
           "tableTo": "accounting_period",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_account_parent_ledger_account_id_ledger_account_id_fk": {
           "name": "ledger_account_parent_ledger_account_id_ledger_account_id_fk",
           "tableFrom": "ledger_account",
-          "columnsFrom": [
-            "parent_ledger_account_id"
-          ],
+          "columnsFrom": ["parent_ledger_account_id"],
           "tableTo": "ledger_account",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_account_default_counter_account_id_ledger_account_id_fk": {
           "name": "ledger_account_default_counter_account_id_ledger_account_id_fk",
           "tableFrom": "ledger_account",
-          "columnsFrom": [
-            "default_counter_account_id"
-          ],
+          "columnsFrom": ["default_counter_account_id"],
           "tableTo": "ledger_account",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_account_default_counter_account_master_data_id_master_data_id_fk": {
           "name": "ledger_account_default_counter_account_master_data_id_master_data_id_fk",
           "tableFrom": "ledger_account",
-          "columnsFrom": [
-            "default_counter_account_master_data_id"
-          ],
+          "columnsFrom": ["default_counter_account_master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -6753,39 +6049,27 @@
         "ledger_account_i18n_ledger_account_id_ledger_account_id_fk": {
           "name": "ledger_account_i18n_ledger_account_id_ledger_account_id_fk",
           "tableFrom": "ledger_account_i18n",
-          "columnsFrom": [
-            "ledger_account_id"
-          ],
+          "columnsFrom": ["ledger_account_id"],
           "tableTo": "ledger_account",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_account_i18n_locale_code_locale_code_fk": {
           "name": "ledger_account_i18n_locale_code_locale_code_fk",
           "tableFrom": "ledger_account_i18n",
-          "columnsFrom": [
-            "locale_code"
-          ],
+          "columnsFrom": ["locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_account_i18n_studio_id_studio_id_fk": {
           "name": "ledger_account_i18n_studio_id_studio_id_fk",
           "tableFrom": "ledger_account_i18n",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -6793,10 +6077,7 @@
       "compositePrimaryKeys": {
         "ledger_account_i18n_ledger_account_id_locale_code_pk": {
           "name": "ledger_account_i18n_ledger_account_id_locale_code_pk",
-          "columns": [
-            "ledger_account_id",
-            "locale_code"
-          ]
+          "columns": ["ledger_account_id", "locale_code"]
         }
       },
       "uniqueConstraints": {},
@@ -6904,91 +6185,63 @@
         "ledger_entry_studio_id_studio_id_fk": {
           "name": "ledger_entry_studio_id_studio_id_fk",
           "tableFrom": "ledger_entry",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_entry_ledger_transaction_id_ledger_transaction_id_fk": {
           "name": "ledger_entry_ledger_transaction_id_ledger_transaction_id_fk",
           "tableFrom": "ledger_entry",
-          "columnsFrom": [
-            "ledger_transaction_id"
-          ],
+          "columnsFrom": ["ledger_transaction_id"],
           "tableTo": "ledger_transaction",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_entry_posting_account_id_ledger_account_id_fk": {
           "name": "ledger_entry_posting_account_id_ledger_account_id_fk",
           "tableFrom": "ledger_entry",
-          "columnsFrom": [
-            "posting_account_id"
-          ],
+          "columnsFrom": ["posting_account_id"],
           "tableTo": "ledger_account",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_entry_master_data_id_master_data_id_fk": {
           "name": "ledger_entry_master_data_id_master_data_id_fk",
           "tableFrom": "ledger_entry",
-          "columnsFrom": [
-            "master_data_id"
-          ],
+          "columnsFrom": ["master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_entry_unit_resident_id_unit_resident_id_fk": {
           "name": "ledger_entry_unit_resident_id_unit_resident_id_fk",
           "tableFrom": "ledger_entry",
-          "columnsFrom": [
-            "unit_resident_id"
-          ],
+          "columnsFrom": ["unit_resident_id"],
           "tableTo": "unit_resident",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_entry_installment_item_id_installment_item_id_fk": {
           "name": "ledger_entry_installment_item_id_installment_item_id_fk",
           "tableFrom": "ledger_entry",
-          "columnsFrom": [
-            "installment_item_id"
-          ],
+          "columnsFrom": ["installment_item_id"],
           "tableTo": "installment_item",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_entry_ledger_invoice_id_ledger_invoice_id_fk": {
           "name": "ledger_entry_ledger_invoice_id_ledger_invoice_id_fk",
           "tableFrom": "ledger_entry",
-          "columnsFrom": [
-            "ledger_invoice_id"
-          ],
+          "columnsFrom": ["ledger_invoice_id"],
           "tableTo": "ledger_invoice",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -7052,39 +6305,27 @@
         "ledger_entry_2_ur_distribution_ledger_entry_id_ledger_entry_id_fk": {
           "name": "ledger_entry_2_ur_distribution_ledger_entry_id_ledger_entry_id_fk",
           "tableFrom": "ledger_entry_2_ur_distribution",
-          "columnsFrom": [
-            "ledger_entry_id"
-          ],
+          "columnsFrom": ["ledger_entry_id"],
           "tableTo": "ledger_entry",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_entry_2_ur_distribution_unit_resident_id_unit_resident_id_fk": {
           "name": "ledger_entry_2_ur_distribution_unit_resident_id_unit_resident_id_fk",
           "tableFrom": "ledger_entry_2_ur_distribution",
-          "columnsFrom": [
-            "unit_resident_id"
-          ],
+          "columnsFrom": ["unit_resident_id"],
           "tableTo": "unit_resident",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_entry_2_ur_distribution_studio_id_studio_id_fk": {
           "name": "ledger_entry_2_ur_distribution_studio_id_studio_id_fk",
           "tableFrom": "ledger_entry_2_ur_distribution",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -7092,10 +6333,7 @@
       "compositePrimaryKeys": {
         "ledger_entry_2_ur_distribution_ledger_entry_id_unit_resident_id_pk": {
           "name": "ledger_entry_2_ur_distribution_ledger_entry_id_unit_resident_id_pk",
-          "columns": [
-            "ledger_entry_id",
-            "unit_resident_id"
-          ]
+          "columns": ["ledger_entry_id", "unit_resident_id"]
         }
       },
       "uniqueConstraints": {},
@@ -7238,52 +6476,36 @@
         "ledger_invoice_studio_id_studio_id_fk": {
           "name": "ledger_invoice_studio_id_studio_id_fk",
           "tableFrom": "ledger_invoice",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_invoice_accounting_period_id_accounting_period_id_fk": {
           "name": "ledger_invoice_accounting_period_id_accounting_period_id_fk",
           "tableFrom": "ledger_invoice",
-          "columnsFrom": [
-            "accounting_period_id"
-          ],
+          "columnsFrom": ["accounting_period_id"],
           "tableTo": "accounting_period",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_invoice_master_data_id_master_data_id_fk": {
           "name": "ledger_invoice_master_data_id_master_data_id_fk",
           "tableFrom": "ledger_invoice",
-          "columnsFrom": [
-            "master_data_id"
-          ],
+          "columnsFrom": ["master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_invoice_withholding_tax_id_withholding_tax_id_fk": {
           "name": "ledger_invoice_withholding_tax_id_withholding_tax_id_fk",
           "tableFrom": "ledger_invoice",
-          "columnsFrom": [
-            "withholding_tax_id"
-          ],
+          "columnsFrom": ["withholding_tax_id"],
           "tableTo": "withholding_tax",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -7340,52 +6562,36 @@
         "ledger_invoice_2_f24_f24_id_f24_id_fk": {
           "name": "ledger_invoice_2_f24_f24_id_f24_id_fk",
           "tableFrom": "ledger_invoice_2_f24",
-          "columnsFrom": [
-            "f24_id"
-          ],
+          "columnsFrom": ["f24_id"],
           "tableTo": "f24",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_invoice_2_f24_ledger_invoice_id_ledger_invoice_id_fk": {
           "name": "ledger_invoice_2_f24_ledger_invoice_id_ledger_invoice_id_fk",
           "tableFrom": "ledger_invoice_2_f24",
-          "columnsFrom": [
-            "ledger_invoice_id"
-          ],
+          "columnsFrom": ["ledger_invoice_id"],
           "tableTo": "ledger_invoice",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_invoice_2_f24_studio_id_studio_id_fk": {
           "name": "ledger_invoice_2_f24_studio_id_studio_id_fk",
           "tableFrom": "ledger_invoice_2_f24",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_invoice_2_f24_ledger_entry_id_ledger_entry_id_fk": {
           "name": "ledger_invoice_2_f24_ledger_entry_id_ledger_entry_id_fk",
           "tableFrom": "ledger_invoice_2_f24",
-          "columnsFrom": [
-            "ledger_entry_id"
-          ],
+          "columnsFrom": ["ledger_entry_id"],
           "tableTo": "ledger_entry",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -7393,10 +6599,7 @@
       "compositePrimaryKeys": {
         "ledger_invoice_2_f24_f24_id_ledger_invoice_id_pk": {
           "name": "ledger_invoice_2_f24_f24_id_ledger_invoice_id_pk",
-          "columns": [
-            "f24_id",
-            "ledger_invoice_id"
-          ]
+          "columns": ["f24_id", "ledger_invoice_id"]
         }
       },
       "uniqueConstraints": {},
@@ -7486,39 +6689,27 @@
         "ledger_transaction_studio_id_studio_id_fk": {
           "name": "ledger_transaction_studio_id_studio_id_fk",
           "tableFrom": "ledger_transaction",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_transaction_accounting_period_id_accounting_period_id_fk": {
           "name": "ledger_transaction_accounting_period_id_accounting_period_id_fk",
           "tableFrom": "ledger_transaction",
-          "columnsFrom": [
-            "accounting_period_id"
-          ],
+          "columnsFrom": ["accounting_period_id"],
           "tableTo": "accounting_period",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ledger_transaction_ledger_invoice_id_ledger_invoice_id_fk": {
           "name": "ledger_transaction_ledger_invoice_id_ledger_invoice_id_fk",
           "tableFrom": "ledger_transaction",
-          "columnsFrom": [
-            "ledger_invoice_id"
-          ],
+          "columnsFrom": ["ledger_invoice_id"],
           "tableTo": "ledger_invoice",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -7592,13 +6783,9 @@
         "tax_relief_country_iso3166_1_a2_country_iso3166_1_alpha2_fk": {
           "name": "tax_relief_country_iso3166_1_a2_country_iso3166_1_alpha2_fk",
           "tableFrom": "tax_relief",
-          "columnsFrom": [
-            "country_iso3166_1_a2"
-          ],
+          "columnsFrom": ["country_iso3166_1_a2"],
           "tableTo": "country",
-          "columnsTo": [
-            "iso3166_1_alpha2"
-          ],
+          "columnsTo": ["iso3166_1_alpha2"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -7690,13 +6877,9 @@
         "tribute_country_iso3166_1_a2_country_iso3166_1_alpha2_fk": {
           "name": "tribute_country_iso3166_1_a2_country_iso3166_1_alpha2_fk",
           "tableFrom": "tribute",
-          "columnsFrom": [
-            "country_iso3166_1_a2"
-          ],
+          "columnsFrom": ["country_iso3166_1_a2"],
           "tableTo": "country",
-          "columnsTo": [
-            "iso3166_1_alpha2"
-          ],
+          "columnsTo": ["iso3166_1_alpha2"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -7782,13 +6965,9 @@
         "withholding_tax_country_iso3166_1_a2_country_iso3166_1_alpha2_fk": {
           "name": "withholding_tax_country_iso3166_1_a2_country_iso3166_1_alpha2_fk",
           "tableFrom": "withholding_tax",
-          "columnsFrom": [
-            "country_iso3166_1_a2"
-          ],
+          "columnsFrom": ["country_iso3166_1_a2"],
           "tableTo": "country",
-          "columnsTo": [
-            "iso3166_1_alpha2"
-          ],
+          "columnsTo": ["iso3166_1_alpha2"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -7845,52 +7024,36 @@
         "withholding_tax_2_la_withholding_tax_id_withholding_tax_id_fk": {
           "name": "withholding_tax_2_la_withholding_tax_id_withholding_tax_id_fk",
           "tableFrom": "withholding_tax_2_la",
-          "columnsFrom": [
-            "withholding_tax_id"
-          ],
+          "columnsFrom": ["withholding_tax_id"],
           "tableTo": "withholding_tax",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "withholding_tax_2_la_ledger_account_id_ledger_account_id_fk": {
           "name": "withholding_tax_2_la_ledger_account_id_ledger_account_id_fk",
           "tableFrom": "withholding_tax_2_la",
-          "columnsFrom": [
-            "ledger_account_id"
-          ],
+          "columnsFrom": ["ledger_account_id"],
           "tableTo": "ledger_account",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "withholding_tax_2_la_studio_id_studio_id_fk": {
           "name": "withholding_tax_2_la_studio_id_studio_id_fk",
           "tableFrom": "withholding_tax_2_la",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "withholding_tax_2_la_accounting_period_id_accounting_period_id_fk": {
           "name": "withholding_tax_2_la_accounting_period_id_accounting_period_id_fk",
           "tableFrom": "withholding_tax_2_la",
-          "columnsFrom": [
-            "accounting_period_id"
-          ],
+          "columnsFrom": ["accounting_period_id"],
           "tableTo": "accounting_period",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -7898,10 +7061,7 @@
       "compositePrimaryKeys": {
         "withholding_tax_2_la_withholding_tax_id_ledger_account_id_pk": {
           "name": "withholding_tax_2_la_withholding_tax_id_ledger_account_id_pk",
-          "columns": [
-            "withholding_tax_id",
-            "ledger_account_id"
-          ]
+          "columns": ["withholding_tax_id", "ledger_account_id"]
         }
       },
       "uniqueConstraints": {},
@@ -7990,52 +7150,36 @@
         "distribution_table_studio_id_studio_id_fk": {
           "name": "distribution_table_studio_id_studio_id_fk",
           "tableFrom": "distribution_table",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "distribution_table_accounting_period_id_accounting_period_id_fk": {
           "name": "distribution_table_accounting_period_id_accounting_period_id_fk",
           "tableFrom": "distribution_table",
-          "columnsFrom": [
-            "accounting_period_id"
-          ],
+          "columnsFrom": ["accounting_period_id"],
           "tableTo": "accounting_period",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "distribution_table_restriction_unit_group_id_unit_group_id_fk": {
           "name": "distribution_table_restriction_unit_group_id_unit_group_id_fk",
           "tableFrom": "distribution_table",
-          "columnsFrom": [
-            "restriction_unit_group_id"
-          ],
+          "columnsFrom": ["restriction_unit_group_id"],
           "tableTo": "unit_group",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "distribution_table_consumption_meter_id_consumption_meter_id_fk": {
           "name": "distribution_table_consumption_meter_id_consumption_meter_id_fk",
           "tableFrom": "distribution_table",
-          "columnsFrom": [
-            "consumption_meter_id"
-          ],
+          "columnsFrom": ["consumption_meter_id"],
           "tableTo": "consumption_meter",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -8092,39 +7236,27 @@
         "distribution_table_item_distribution_table_id_distribution_table_id_fk": {
           "name": "distribution_table_item_distribution_table_id_distribution_table_id_fk",
           "tableFrom": "distribution_table_item",
-          "columnsFrom": [
-            "distribution_table_id"
-          ],
+          "columnsFrom": ["distribution_table_id"],
           "tableTo": "distribution_table",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "distribution_table_item_unit_id_unit_id_fk": {
           "name": "distribution_table_item_unit_id_unit_id_fk",
           "tableFrom": "distribution_table_item",
-          "columnsFrom": [
-            "unit_id"
-          ],
+          "columnsFrom": ["unit_id"],
           "tableTo": "unit",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "distribution_table_item_studio_id_studio_id_fk": {
           "name": "distribution_table_item_studio_id_studio_id_fk",
           "tableFrom": "distribution_table_item",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -8132,10 +7264,7 @@
       "compositePrimaryKeys": {
         "distribution_table_item_distribution_table_id_unit_id_pk": {
           "name": "distribution_table_item_distribution_table_id_unit_id_pk",
-          "columns": [
-            "distribution_table_id",
-            "unit_id"
-          ]
+          "columns": ["distribution_table_id", "unit_id"]
         }
       },
       "uniqueConstraints": {},
@@ -8274,39 +7403,27 @@
         "accounting_period_studio_id_studio_id_fk": {
           "name": "accounting_period_studio_id_studio_id_fk",
           "tableFrom": "accounting_period",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "accounting_period_condominium_id_condominium_id_fk": {
           "name": "accounting_period_condominium_id_condominium_id_fk",
           "tableFrom": "accounting_period",
-          "columnsFrom": [
-            "condominium_id"
-          ],
+          "columnsFrom": ["condominium_id"],
           "tableTo": "condominium",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "accounting_period_supplier_accounts_payable_ledger_account_id_ledger_account_id_fk": {
           "name": "accounting_period_supplier_accounts_payable_ledger_account_id_ledger_account_id_fk",
           "tableFrom": "accounting_period",
-          "columnsFrom": [
-            "supplier_accounts_payable_ledger_account_id"
-          ],
+          "columnsFrom": ["supplier_accounts_payable_ledger_account_id"],
           "tableTo": "ledger_account",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
@@ -8317,74 +7434,52 @@
             "flat_resident_accounts_receivable_ledger_account_id"
           ],
           "tableTo": "ledger_account",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "accounting_period_flat_resident_rounding_off_ledger_account_id_ledger_account_id_fk": {
           "name": "accounting_period_flat_resident_rounding_off_ledger_account_id_ledger_account_id_fk",
           "tableFrom": "accounting_period",
-          "columnsFrom": [
-            "flat_resident_rounding_off_ledger_account_id"
-          ],
+          "columnsFrom": ["flat_resident_rounding_off_ledger_account_id"],
           "tableTo": "ledger_account",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "accounting_period_individual_expenses_ledger_account_id_ledger_account_id_fk": {
           "name": "accounting_period_individual_expenses_ledger_account_id_ledger_account_id_fk",
           "tableFrom": "accounting_period",
-          "columnsFrom": [
-            "individual_expenses_ledger_account_id"
-          ],
+          "columnsFrom": ["individual_expenses_ledger_account_id"],
           "tableTo": "ledger_account",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "accounting_period_default_checking_account_ledger_account_id_ledger_account_id_fk": {
           "name": "accounting_period_default_checking_account_ledger_account_id_ledger_account_id_fk",
           "tableFrom": "accounting_period",
-          "columnsFrom": [
-            "default_checking_account_ledger_account_id"
-          ],
+          "columnsFrom": ["default_checking_account_ledger_account_id"],
           "tableTo": "ledger_account",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "accounting_period_payment_in_cash_ledger_account_id_ledger_account_id_fk": {
           "name": "accounting_period_payment_in_cash_ledger_account_id_ledger_account_id_fk",
           "tableFrom": "accounting_period",
-          "columnsFrom": [
-            "payment_in_cash_ledger_account_id"
-          ],
+          "columnsFrom": ["payment_in_cash_ledger_account_id"],
           "tableTo": "ledger_account",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "accounting_period_withholding_tax_penalty_ledger_account_id_ledger_account_id_fk": {
           "name": "accounting_period_withholding_tax_penalty_ledger_account_id_ledger_account_id_fk",
           "tableFrom": "accounting_period",
-          "columnsFrom": [
-            "withholding_tax_penalty_ledger_account_id"
-          ],
+          "columnsFrom": ["withholding_tax_penalty_ledger_account_id"],
           "tableTo": "ledger_account",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -8503,26 +7598,18 @@
         "accounting_period_installment_default_settings_accounting_period_id_accounting_period_id_fk": {
           "name": "accounting_period_installment_default_settings_accounting_period_id_accounting_period_id_fk",
           "tableFrom": "accounting_period_installment_default_settings",
-          "columnsFrom": [
-            "accounting_period_id"
-          ],
+          "columnsFrom": ["accounting_period_id"],
           "tableTo": "accounting_period",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "accounting_period_installment_default_settings_studio_id_studio_id_fk": {
           "name": "accounting_period_installment_default_settings_studio_id_studio_id_fk",
           "tableFrom": "accounting_period_installment_default_settings",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -8639,39 +7726,27 @@
         "installment_studio_id_studio_id_fk": {
           "name": "installment_studio_id_studio_id_fk",
           "tableFrom": "installment",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "installment_accounting_period_id_accounting_period_id_fk": {
           "name": "installment_accounting_period_id_accounting_period_id_fk",
           "tableFrom": "installment",
-          "columnsFrom": [
-            "accounting_period_id"
-          ],
+          "columnsFrom": ["accounting_period_id"],
           "tableTo": "accounting_period",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "installment_installment_group_id_installment_group_id_fk": {
           "name": "installment_installment_group_id_installment_group_id_fk",
           "tableFrom": "installment",
-          "columnsFrom": [
-            "installment_group_id"
-          ],
+          "columnsFrom": ["installment_group_id"],
           "tableTo": "installment_group",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -8826,26 +7901,18 @@
         "installment_group_studio_id_studio_id_fk": {
           "name": "installment_group_studio_id_studio_id_fk",
           "tableFrom": "installment_group",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "installment_group_accounting_period_id_accounting_period_id_fk": {
           "name": "installment_group_accounting_period_id_accounting_period_id_fk",
           "tableFrom": "installment_group",
-          "columnsFrom": [
-            "accounting_period_id"
-          ],
+          "columnsFrom": ["accounting_period_id"],
           "tableTo": "accounting_period",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -8902,39 +7969,27 @@
         "installment_group_i18n_installment_group_id_installment_group_id_fk": {
           "name": "installment_group_i18n_installment_group_id_installment_group_id_fk",
           "tableFrom": "installment_group_i18n",
-          "columnsFrom": [
-            "installment_group_id"
-          ],
+          "columnsFrom": ["installment_group_id"],
           "tableTo": "installment_group",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "installment_group_i18n_locale_code_locale_code_fk": {
           "name": "installment_group_i18n_locale_code_locale_code_fk",
           "tableFrom": "installment_group_i18n",
-          "columnsFrom": [
-            "locale_code"
-          ],
+          "columnsFrom": ["locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "installment_group_i18n_studio_id_studio_id_fk": {
           "name": "installment_group_i18n_studio_id_studio_id_fk",
           "tableFrom": "installment_group_i18n",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -8942,10 +7997,7 @@
       "compositePrimaryKeys": {
         "installment_group_i18n_installment_group_id_locale_code_pk": {
           "name": "installment_group_i18n_installment_group_id_locale_code_pk",
-          "columns": [
-            "installment_group_id",
-            "locale_code"
-          ]
+          "columns": ["installment_group_id", "locale_code"]
         }
       },
       "uniqueConstraints": {},
@@ -8999,39 +8051,27 @@
         "installment_i18n_installment_id_installment_id_fk": {
           "name": "installment_i18n_installment_id_installment_id_fk",
           "tableFrom": "installment_i18n",
-          "columnsFrom": [
-            "installment_id"
-          ],
+          "columnsFrom": ["installment_id"],
           "tableTo": "installment",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "installment_i18n_locale_code_locale_code_fk": {
           "name": "installment_i18n_locale_code_locale_code_fk",
           "tableFrom": "installment_i18n",
-          "columnsFrom": [
-            "locale_code"
-          ],
+          "columnsFrom": ["locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "installment_i18n_studio_id_studio_id_fk": {
           "name": "installment_i18n_studio_id_studio_id_fk",
           "tableFrom": "installment_i18n",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -9039,10 +8079,7 @@
       "compositePrimaryKeys": {
         "installment_i18n_installment_id_locale_code_pk": {
           "name": "installment_i18n_installment_id_locale_code_pk",
-          "columns": [
-            "installment_id",
-            "locale_code"
-          ]
+          "columns": ["installment_id", "locale_code"]
         }
       },
       "uniqueConstraints": {},
@@ -9120,39 +8157,27 @@
         "installment_item_studio_id_studio_id_fk": {
           "name": "installment_item_studio_id_studio_id_fk",
           "tableFrom": "installment_item",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "installment_item_installment_id_installment_id_fk": {
           "name": "installment_item_installment_id_installment_id_fk",
           "tableFrom": "installment_item",
-          "columnsFrom": [
-            "installment_id"
-          ],
+          "columnsFrom": ["installment_id"],
           "tableTo": "installment",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "installment_item_unit_resident_id_unit_resident_id_fk": {
           "name": "installment_item_unit_resident_id_unit_resident_id_fk",
           "tableFrom": "installment_item",
-          "columnsFrom": [
-            "unit_resident_id"
-          ],
+          "columnsFrom": ["unit_resident_id"],
           "tableTo": "unit_resident",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -9227,26 +8252,18 @@
         "installment_payment_slip_studio_id_studio_id_fk": {
           "name": "installment_payment_slip_studio_id_studio_id_fk",
           "tableFrom": "installment_payment_slip",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "installment_payment_slip_master_data_id_master_data_id_fk": {
           "name": "installment_payment_slip_master_data_id_master_data_id_fk",
           "tableFrom": "installment_payment_slip",
-          "columnsFrom": [
-            "master_data_id"
-          ],
+          "columnsFrom": ["master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -9297,39 +8314,27 @@
         "installment_payment_slip_item_installment_payment_slip_id_installment_payment_slip_id_fk": {
           "name": "installment_payment_slip_item_installment_payment_slip_id_installment_payment_slip_id_fk",
           "tableFrom": "installment_payment_slip_item",
-          "columnsFrom": [
-            "installment_payment_slip_id"
-          ],
+          "columnsFrom": ["installment_payment_slip_id"],
           "tableTo": "installment_payment_slip",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "installment_payment_slip_item_installment_item_id_installment_item_id_fk": {
           "name": "installment_payment_slip_item_installment_item_id_installment_item_id_fk",
           "tableFrom": "installment_payment_slip_item",
-          "columnsFrom": [
-            "installment_item_id"
-          ],
+          "columnsFrom": ["installment_item_id"],
           "tableTo": "installment_item",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "installment_payment_slip_item_studio_id_studio_id_fk": {
           "name": "installment_payment_slip_item_studio_id_studio_id_fk",
           "tableFrom": "installment_payment_slip_item",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -9337,10 +8342,7 @@
       "compositePrimaryKeys": {
         "installment_payment_slip_item_installment_payment_slip_id_installment_item_id_pk": {
           "name": "installment_payment_slip_item_installment_payment_slip_id_installment_item_id_pk",
-          "columns": [
-            "installment_payment_slip_id",
-            "installment_item_id"
-          ]
+          "columns": ["installment_payment_slip_id", "installment_item_id"]
         }
       },
       "uniqueConstraints": {},
@@ -9454,26 +8456,18 @@
         "calendar_event_studio_id_studio_id_fk": {
           "name": "calendar_event_studio_id_studio_id_fk",
           "tableFrom": "calendar_event",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "calendar_event_layer_id_calendar_layer_id_fk": {
           "name": "calendar_event_layer_id_calendar_layer_id_fk",
           "tableFrom": "calendar_event",
-          "columnsFrom": [
-            "layer_id"
-          ],
+          "columnsFrom": ["layer_id"],
           "tableTo": "calendar_layer",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -9553,13 +8547,9 @@
         "calendar_layer_studio_id_studio_id_fk": {
           "name": "calendar_layer_studio_id_studio_id_fk",
           "tableFrom": "calendar_layer",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -9639,13 +8629,9 @@
         "grant_studio_id_studio_id_fk": {
           "name": "grant_studio_id_studio_id_fk",
           "tableFrom": "grant",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -9702,39 +8688,27 @@
         "grant_i18n_grant_id_grant_id_fk": {
           "name": "grant_i18n_grant_id_grant_id_fk",
           "tableFrom": "grant_i18n",
-          "columnsFrom": [
-            "grant_id"
-          ],
+          "columnsFrom": ["grant_id"],
           "tableTo": "grant",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "grant_i18n_locale_code_locale_code_fk": {
           "name": "grant_i18n_locale_code_locale_code_fk",
           "tableFrom": "grant_i18n",
-          "columnsFrom": [
-            "locale_code"
-          ],
+          "columnsFrom": ["locale_code"],
           "tableTo": "locale",
-          "columnsTo": [
-            "code"
-          ],
+          "columnsTo": ["code"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "grant_i18n_studio_id_studio_id_fk": {
           "name": "grant_i18n_studio_id_studio_id_fk",
           "tableFrom": "grant_i18n",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -9742,10 +8716,7 @@
       "compositePrimaryKeys": {
         "grant_i18n_grant_id_locale_code_pk": {
           "name": "grant_i18n_grant_id_locale_code_pk",
-          "columns": [
-            "grant_id",
-            "locale_code"
-          ]
+          "columns": ["grant_id", "locale_code"]
         }
       },
       "uniqueConstraints": {},
@@ -9824,13 +8795,9 @@
         "license_studio_id_studio_id_fk": {
           "name": "license_studio_id_studio_id_fk",
           "tableFrom": "license",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -9898,26 +8865,18 @@
         "property_manager_studio_id_studio_id_fk": {
           "name": "property_manager_studio_id_studio_id_fk",
           "tableFrom": "property_manager",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "property_manager_master_data_id_master_data_id_fk": {
           "name": "property_manager_master_data_id_master_data_id_fk",
           "tableFrom": "property_manager",
-          "columnsFrom": [
-            "master_data_id"
-          ],
+          "columnsFrom": ["master_data_id"],
           "tableTo": "master_data",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -9991,13 +8950,9 @@
         "property_managers_association_country_iso3166_1_a2_country_iso3166_1_alpha2_fk": {
           "name": "property_managers_association_country_iso3166_1_a2_country_iso3166_1_alpha2_fk",
           "tableFrom": "property_managers_association",
-          "columnsFrom": [
-            "country_iso3166_1_a2"
-          ],
+          "columnsFrom": ["country_iso3166_1_a2"],
           "tableTo": "country",
-          "columnsTo": [
-            "iso3166_1_alpha2"
-          ],
+          "columnsTo": ["iso3166_1_alpha2"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -10048,26 +9003,18 @@
         "property_managers_association_code_property_manager_id_property_manager_id_fk": {
           "name": "property_managers_association_code_property_manager_id_property_manager_id_fk",
           "tableFrom": "property_managers_association_code",
-          "columnsFrom": [
-            "property_manager_id"
-          ],
+          "columnsFrom": ["property_manager_id"],
           "tableTo": "property_manager",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "property_managers_association_code_property_managers_association_id_property_managers_association_id_fk": {
           "name": "property_managers_association_code_property_managers_association_id_property_managers_association_id_fk",
           "tableFrom": "property_managers_association_code",
-          "columnsFrom": [
-            "property_managers_association_id"
-          ],
+          "columnsFrom": ["property_managers_association_id"],
           "tableTo": "property_managers_association",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -10075,10 +9022,7 @@
       "compositePrimaryKeys": {
         "property_managers_association_code_property_manager_id_property_managers_association_id_pk": {
           "name": "property_managers_association_code_property_manager_id_property_managers_association_id_pk",
-          "columns": [
-            "property_manager_id",
-            "property_managers_association_id"
-          ]
+          "columns": ["property_manager_id", "property_managers_association_id"]
         }
       },
       "uniqueConstraints": {},
@@ -10193,39 +9137,27 @@
         "ticket_studio_id_studio_id_fk": {
           "name": "ticket_studio_id_studio_id_fk",
           "tableFrom": "ticket",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ticket_ticket_topic_id_ticket_topic_id_fk": {
           "name": "ticket_ticket_topic_id_ticket_topic_id_fk",
           "tableFrom": "ticket",
-          "columnsFrom": [
-            "ticket_topic_id"
-          ],
+          "columnsFrom": ["ticket_topic_id"],
           "tableTo": "ticket_topic",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ticket_opened_by_username_access_account_username_fk": {
           "name": "ticket_opened_by_username_access_account_username_fk",
           "tableFrom": "ticket",
-          "columnsFrom": [
-            "opened_by_username"
-          ],
+          "columnsFrom": ["opened_by_username"],
           "tableTo": "access_account",
-          "columnsTo": [
-            "username"
-          ],
+          "columnsTo": ["username"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -10305,26 +9237,18 @@
         "ticket_message_ticket_id_ticket_id_fk": {
           "name": "ticket_message_ticket_id_ticket_id_fk",
           "tableFrom": "ticket_message",
-          "columnsFrom": [
-            "ticket_id"
-          ],
+          "columnsFrom": ["ticket_id"],
           "tableTo": "ticket",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         },
         "ticket_message_author_username_access_account_username_fk": {
           "name": "ticket_message_author_username_access_account_username_fk",
           "tableFrom": "ticket_message",
-          "columnsFrom": [
-            "author_username"
-          ],
+          "columnsFrom": ["author_username"],
           "tableTo": "access_account",
-          "columnsTo": [
-            "username"
-          ],
+          "columnsTo": ["username"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -10398,13 +9322,9 @@
         "ticket_topic_studio_id_studio_id_fk": {
           "name": "ticket_topic_studio_id_studio_id_fk",
           "tableFrom": "ticket_topic",
-          "columnsFrom": [
-            "studio_id"
-          ],
+          "columnsFrom": ["studio_id"],
           "tableTo": "studio",
-          "columnsTo": [
-            "id"
-          ],
+          "columnsTo": ["id"],
           "onUpdate": "no action",
           "onDelete": "no action"
         }
@@ -10420,102 +9340,57 @@
     "public.access_account_role": {
       "name": "access_account_role",
       "schema": "public",
-      "values": [
-        "guest",
-        "flatowner",
-        "supplier",
-        "employee",
-        "administrator"
-      ]
+      "values": ["guest", "flatowner", "supplier", "employee", "administrator"]
     },
     "public.access_account_status": {
       "name": "access_account_status",
       "schema": "public",
-      "values": [
-        "enabled",
-        "disabled"
-      ]
+      "values": ["enabled", "disabled"]
     },
     "public.accounting_period_status": {
       "name": "accounting_period_status",
       "schema": "public",
-      "values": [
-        "opened",
-        "closed"
-      ]
+      "values": ["opened", "closed"]
     },
     "public.accounting_period_type": {
       "name": "accounting_period_type",
       "schema": "public",
-      "values": [
-        "regular",
-        "extra",
-        "auxiliary"
-      ]
+      "values": ["regular", "extra", "auxiliary"]
     },
     "public.condominium_type": {
       "name": "condominium_type",
       "schema": "public",
-      "values": [
-        "regular",
-        "super",
-        "residence"
-      ]
+      "values": ["regular", "super", "residence"]
     },
     "public.cost_attribution_on_handover": {
       "name": "cost_attribution_on_handover",
       "schema": "public",
-      "values": [
-        "tenureProportionBased",
-        "accrualDateBased"
-      ]
+      "values": ["tenureProportionBased", "accrualDateBased"]
     },
     "public.event_priority": {
       "name": "event_priority",
       "schema": "public",
-      "values": [
-        "idle",
-        "low",
-        "medium",
-        "high",
-        "critical"
-      ]
+      "values": ["idle", "low", "medium", "high", "critical"]
     },
     "public.expense_la2_table_type": {
       "name": "expense_la2_table_type",
       "schema": "public",
-      "values": [
-        "estimate",
-        "currentBalance"
-      ]
+      "values": ["estimate", "currentBalance"]
     },
     "public.installment_item_status": {
       "name": "installment_item_status",
       "schema": "public",
-      "values": [
-        "issued",
-        "incomplete",
-        "settled",
-        "neutralized"
-      ]
+      "values": ["issued", "incomplete", "settled", "neutralized"]
     },
     "public.installment_payment_slip_status": {
       "name": "installment_payment_slip_status",
       "schema": "public",
-      "values": [
-        "issued",
-        "settled",
-        "neutralized"
-      ]
+      "values": ["issued", "settled", "neutralized"]
     },
     "public.installment_type": {
       "name": "installment_type",
       "schema": "public",
-      "values": [
-        "downpayment",
-        "estimate",
-        "compensation"
-      ]
+      "values": ["downpayment", "estimate", "compensation"]
     },
     "public.ledger_account_kind": {
       "name": "ledger_account_kind",
@@ -10531,30 +9406,17 @@
     "public.ledger_account_type": {
       "name": "ledger_account_type",
       "schema": "public",
-      "values": [
-        "regular",
-        "grouping",
-        "control",
-        "controlUnitResident"
-      ]
+      "values": ["regular", "grouping", "control", "controlUnitResident"]
     },
     "public.ledger_entry_2_ur_distribution_type": {
       "name": "ledger_entry_2_ur_distribution_type",
       "schema": "public",
-      "values": [
-        "startingBalance",
-        "individualExpense",
-        "receipts"
-      ]
+      "values": ["startingBalance", "individualExpense", "receipts"]
     },
     "public.ledger_entry_type": {
       "name": "ledger_entry_type",
       "schema": "public",
-      "values": [
-        "startingBalance",
-        "individualExpense",
-        "unitResidentTakings"
-      ]
+      "values": ["startingBalance", "individualExpense", "unitResidentTakings"]
     },
     "public.ledger_transaction_type": {
       "name": "ledger_transaction_type",
@@ -10575,68 +9437,37 @@
     "public.license_type": {
       "name": "license_type",
       "schema": "public",
-      "values": [
-        "demo",
-        "light",
-        "standard",
-        "professional",
-        "enterprise"
-      ]
+      "values": ["demo", "light", "standard", "professional", "enterprise"]
     },
     "public.master_data_contact_type": {
       "name": "master_data_contact_type",
       "schema": "public",
-      "values": [
-        "tel",
-        "mail",
-        "web",
-        "im",
-        "pec"
-      ]
+      "values": ["tel", "mail", "web", "im", "pec"]
     },
     "public.next_period_estimate_based_on": {
       "name": "next_period_estimate_based_on",
       "schema": "public",
-      "values": [
-        "previousEstimate",
-        "currentBalance"
-      ]
+      "values": ["previousEstimate", "currentBalance"]
     },
     "public.opening_balance_distribution_mode": {
       "name": "opening_balance_distribution_mode",
       "schema": "public",
-      "values": [
-        "spread",
-        "specificInstallment",
-        "separateInstallment"
-      ]
+      "values": ["spread", "specificInstallment", "separateInstallment"]
     },
     "public.person_sex": {
       "name": "person_sex",
       "schema": "public",
-      "values": [
-        "m",
-        "f"
-      ]
+      "values": ["m", "f"]
     },
     "public.record_status": {
       "name": "record_status",
       "schema": "public",
-      "values": [
-        "active",
-        "archived"
-      ]
+      "values": ["active", "archived"]
     },
     "public.ticket_status": {
       "name": "ticket_status",
       "schema": "public",
-      "values": [
-        "opened",
-        "processing",
-        "suspended",
-        "cancelled",
-        "closed"
-      ]
+      "values": ["opened", "processing", "suspended", "cancelled", "closed"]
     }
   },
   "schemas": {},

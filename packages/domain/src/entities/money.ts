@@ -3,15 +3,17 @@ export interface Money {
 }
 
 export function fromCents(cents: number): Money {
-  if (!Number.isInteger(cents)) throw new Error("cents must be an integer");
+  if (!Number.isInteger(cents)) {
+    throw new Error("cents must be an integer");
+  }
+
   return { cents };
 }
 
 /** Construct from a decimal amount (e.g. 1234.56) → integer cents, half-away-from-zero. */
 export function money(amount: number): Money {
   const scaled = amount * 100;
-  const rounded =
-    scaled >= 0 ? Math.round(scaled) : -Math.round(-scaled);
+  const rounded = scaled >= 0 ? Math.round(scaled) : -Math.round(-scaled);
   return { cents: rounded };
 }
 

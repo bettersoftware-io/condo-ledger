@@ -2,12 +2,19 @@
   "name": "@cl/legacy-import",
   "private": true,
   "type": "module",
-  "exports": { "./*": "./src/*" },
-  "imports": { "#/*": "./src/*" },
+  "exports": {
+    "./*": "./src/*"
+  },
+  "imports": {
+    "#/*": "./src/*"
+  },
   "scripts": {
     "gen:data": "node src/generate-data.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run"
   },
-  "dependencies": { "@cl/db": "workspace:*", "@cl/domain": "workspace:*" }
+  "dependencies": {
+    "@cl/db": "workspace:*",
+    "@cl/domain": "workspace:*"
+  }
 }

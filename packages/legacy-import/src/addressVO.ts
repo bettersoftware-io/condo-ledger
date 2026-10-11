@@ -28,13 +28,19 @@ const WANTED_KEYS: ReadonlyArray<keyof AddressFields> = [
  */
 export function parseAddressVO(blob: string | null): AddressFields {
   const out: AddressFields = {};
-  if (!blob || !blob.includes("AddressVO")) return out;
+
+  if (!blob?.includes("AddressVO")) {
+    return out;
+  }
 
   for (const key of WANTED_KEYS) {
     // Match the PHP serialized key token exactly.
     const keyToken = `s:${key.length}:"${key}";`;
     const keyIdx = blob.indexOf(keyToken);
-    if (keyIdx === -1) continue;
+
+    if (keyIdx === -1) {
+      continue;
+    }
 
     // The value token starts immediately after the key token.
     const afterKey = blob.slice(keyIdx + keyToken.length);
@@ -54,8 +60,14 @@ export function parseAddressVO(blob: string | null): AddressFields {
 export function formatAddress(a: AddressFields): string {
   const streetPart =
     a.street ??
-    [a.streetName, a.streetNumber].filter((s): s is string => {return s !== undefined && s !== ""}).join(", ");
+    [a.streetName, a.streetNumber]
+      .filter((s): s is string => {
+        return s !== undefined && s !== "";
+      })
+      .join(", ");
   const trimmed = streetPart.trim();
-  const parts = [trimmed, a.postCode?.trim()].filter((s): s is string => {return !!s});
+  const parts = [trimmed, a.postCode?.trim()].filter((s): s is string => {
+    return !!s;
+  });
   return parts.join(" — ");
 }

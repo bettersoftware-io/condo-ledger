@@ -1,10 +1,12 @@
-import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { getTableConfig, PgTable } from "drizzle-orm/pg-core";
-import * as schema from "../src/schema/index.ts";
+import { describe, expect, it } from "vitest";
+
 import { toSnake } from "../src/naming.ts";
+import * as schema from "../src/schema/index.ts";
 
 // Build a lookup of authored schema table -> column-name set.
 const schemaTables = new Map<string, Set<string>>();
@@ -12,7 +14,14 @@ const schemaTables = new Map<string, Set<string>>();
 for (const t of Object.values(schema)) {
   if (t instanceof PgTable) {
     const cfg = getTableConfig(t);
-    schemaTables.set(cfg.name, new Set(cfg.columns.map((c) => {return c.name})));
+    schemaTables.set(
+      cfg.name,
+      new Set(
+        cfg.columns.map((c) => {
+          return c.name;
+        }),
+      ),
+    );
   }
 }
 
@@ -80,7 +89,10 @@ describe("naming convergence: toSnake reproduces authored schema names", () => {
 
 const here = dirname(fileURLToPath(import.meta.url));
 
-const ddlPath = resolve(here, "../../../old/db/it-jtime-condominium.structure.sql");
+const ddlPath = resolve(
+  here,
+  "../../../old/db/it-jtime-condominium.structure.sql",
+);
 
 interface LegacyTable {
   name: string;
@@ -94,7 +106,7 @@ function parseDdl(sql: string): LegacyTable[] {
 
   const createRe = /^CREATE TABLE `([^`]+)` \(/;
   // A column line: exactly two leading spaces then a backtick-quoted name.
-  const colRe = /^  `([^`]+)`/;
+  const colRe = /^ {2}`([^`]+)`/;
   const nonColPrefixes = ["PRIMARY KEY", "UNIQUE KEY", "KEY", "CONSTRAINT"];
 
   for (const line of lines) {
@@ -106,7 +118,9 @@ function parseDdl(sql: string): LegacyTable[] {
       continue;
     }
 
-    if (!current) continue;
+    if (!current) {
+      continue;
+    }
 
     if (line.startsWith(")")) {
       current = null; // end of this CREATE TABLE body
@@ -115,9 +129,20 @@ function parseDdl(sql: string): LegacyTable[] {
 
     // skip index/constraint definitions even though they also start with two spaces
     const trimmed = line.trimStart();
-    if (nonColPrefixes.some((p) => {return trimmed.startsWith(p)})) continue;
+
+    if (
+      nonColPrefixes.some((p) => {
+        return trimmed.startsWith(p);
+      })
+    ) {
+      continue;
+    }
+
     const col = colRe.exec(line);
-    if (col) current.columns.push(col[1]!);
+
+    if (col) {
+      current.columns.push(col[1]!);
+    }
   }
 
   return tables;
@@ -125,11 +150,19 @@ function parseDdl(sql: string): LegacyTable[] {
 
 // Map legacy column name -> expected authored schema column name.
 function expectedColumnName(table: string, col: string): string {
-  if (col === "lastModified") return "updated";
-  if (table === "masterDataTaxTreatment" && col === "default") return "is_default";
+  if (col === "lastModified") {
+    return "updated";
+  }
+
+  if (table === "masterDataTaxTreatment" && col === "default") {
+    return "is_default";
+  }
+
   return toSnake(col);
 }
 
 const ddl = readFileSync(ddlPath, "utf8");
 
-const legacyTables = parseDdl(ddl).filter((t) => {return t.name !== "codeIgniterSession"});
+const legacyTables = parseDdl(ddl).filter((t) => {
+  return t.name !== "codeIgniterSession";
+});

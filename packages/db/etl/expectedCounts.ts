@@ -8,15 +8,19 @@
 // plain DDL resolver is fine here.
 
 import { readFileSync } from "node:fs";
-import { parseInserts } from "./parse.ts";
-import { parseDdl, tableColumns } from "./ddl.ts";
-import { FILES } from "./sources.ts";
+
 import { toSnake } from "../src/naming.ts";
+import { parseDdl, tableColumns } from "./ddl.ts";
+import { parseInserts } from "./parse.ts";
+import { FILES } from "./sources.ts";
 
 export function expectedOperationalCounts(): Record<string, number> {
   const ddl = parseDdl(
     readFileSync(
-      new URL("../../../old/db/it-jtime-condominium.structure.sql", import.meta.url),
+      new URL(
+        "../../../old/db/it-jtime-condominium.structure.sql",
+        import.meta.url,
+      ),
       "utf8",
     ),
   );

@@ -6,5 +6,8 @@ import { defineConfig } from "vitest/config";
 // more while the other packages test in parallel), so the 5 s default is too
 // short for it.
 export default defineConfig({
-  test: { include: ["src/**/*.test.ts", "specs/**/*.test.ts"], testTimeout: 30_000 },
+  test: {
+    include: ["src/**/*.test.ts", "specs/**/*.test.ts"],
+    testTimeout: 30_000,
+  },
 });

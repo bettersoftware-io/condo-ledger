@@ -1,4 +1,4 @@
-import type { RipartoInput, RipartoEngine } from "./types.ts";
+import type { RipartoEngine, RipartoInput } from "./types.ts";
 
 /** Ordered installment plan + manual per-resident-per-installment overrides. */
 export interface InstallmentPlan {
@@ -35,7 +35,10 @@ export interface PeriodResult {
   /** The riparto query object (per-unit / per-resident, per mode). */
   riparto: RipartoEngine;
   /** Per-resident → per-installment cents (honouring valid overrides). */
-  installments: Map<string /*residentId*/, Map<string /*installmentId*/, number>>;
+  installments: Map<
+    string /*residentId*/,
+    Map<string /*installmentId*/, number>
+  >;
   /** Per-resident rolled-up balances. */
   balances: ResidentBalance[];
 }

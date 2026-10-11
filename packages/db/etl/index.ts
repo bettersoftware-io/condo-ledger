@@ -12,17 +12,27 @@
 // The whole load is one transaction: any failure ROLLBACKs and rethrows.
 
 import { readFileSync } from "node:fs";
-import { parseDdl, tableColumns } from "./ddl.ts";
-import { parseInserts, type InsertStmt } from "./parse.ts";
-import { makeTransform } from "./transform.ts";
-import { loadTable, resyncSequence } from "./load.ts";
-import { referencedBankBranchIds } from "./bankClosure.ts";
-import { FILES, TIER_A, TIER_B, DROP_STUDIO_ID, STUDIO_BACKFILL } from "./sources.ts";
-import { LOAD_ORDER } from "./order.ts";
-import { toSnake } from "../src/naming.ts";
-import { makePool } from "../src/db.ts";
 
-const structureUrl = new URL("../../../old/db/it-jtime-condominium.structure.sql", import.meta.url);
+import { makePool } from "../src/db.ts";
+import { toSnake } from "../src/naming.ts";
+import { referencedBankBranchIds } from "./bankClosure.ts";
+import { parseDdl, tableColumns } from "./ddl.ts";
+import { loadTable, resyncSequence } from "./load.ts";
+import { LOAD_ORDER } from "./order.ts";
+import { type InsertStmt, parseInserts } from "./parse.ts";
+import {
+  DROP_STUDIO_ID,
+  FILES,
+  STUDIO_BACKFILL,
+  TIER_A,
+  TIER_B,
+} from "./sources.ts";
+import { makeTransform } from "./transform.ts";
+
+const structureUrl = new URL(
+  "../../../old/db/it-jtime-condominium.structure.sql",
+  import.meta.url,
+);
 
 async function main(): Promise<void> {
   // 1. DDL: names + types for the column-less dumps.
@@ -33,7 +43,9 @@ async function main(): Promise<void> {
   // so positional tuples line up; studio_id is backfilled later (STUDIO_BACKFILL).
   function resolve(t: string): string[] {
     return DROP_STUDIO_ID.has(t)
-      ? tableColumns(ddl, t).filter((c) => {return c !== "studioId"})
+      ? tableColumns(ddl, t).filter((c) => {
+          return c !== "studioId";
+        })
       : tableColumns(ddl, t);
   }
 
@@ -60,8 +72,12 @@ async function main(): Promise<void> {
 
     for (const s of stmts) {
       const arr = m.get(s.table);
-      if (arr) arr.push(s);
-      else m.set(s.table, [s]);
+
+      if (arr) {
+        arr.push(s);
+      } else {
+        m.set(s.table, [s]);
+      }
     }
 
     return m;
@@ -70,25 +86,53 @@ async function main(): Promise<void> {
   // 4. Operational dumps -> Tier C, derived dynamically.
   const opStmts = [...read(FILES.saturnoOnly), ...read(FILES.pozzettoOnly)];
   const opByTable = byTable(opStmts);
-  const tierC = new Set(opStmts.map((s) => {return s.table}));
+  const tierC = new Set(
+    opStmts.map((s) => {
+      return s.table;
+    }),
+  );
 
   // 6. Guard: nothing in the dumps may be silently dropped, and every declared
   // Tier A/B table must have a slot in LOAD_ORDER.
   const orderSet = new Set(LOAD_ORDER);
   const missing = [
-    ...[...tierC].filter((t) => {return !orderSet.has(t)}).map((t) => {return `tierC:${t}`}),
-    ...[...TIER_A].filter((t) => {return !orderSet.has(t)}).map((t) => {return `tierA:${t}`}),
-    ...[...TIER_B].filter((t) => {return !orderSet.has(t)}).map((t) => {return `tierB:${t}`}),
+    ...[...tierC]
+      .filter((t) => {
+        return !orderSet.has(t);
+      })
+      .map((t) => {
+        return `tierC:${t}`;
+      }),
+    ...[...TIER_A]
+      .filter((t) => {
+        return !orderSet.has(t);
+      })
+      .map((t) => {
+        return `tierA:${t}`;
+      }),
+    ...[...TIER_B]
+      .filter((t) => {
+        return !orderSet.has(t);
+      })
+      .map((t) => {
+        return `tierB:${t}`;
+      }),
   ];
 
   if (missing.length) {
-    throw new Error(`LOAD_ORDER is missing source tables: ${missing.join(", ")}`);
+    throw new Error(
+      `LOAD_ORDER is missing source tables: ${missing.join(", ")}`,
+    );
   }
 
   console.log("tier C (from dumps):", [...tierC].sort().join(", "));
 
   // 7. Bank closure — empty in this dataset; compute for correctness/logging.
-  const branchIds = referencedBankBranchIds(opStmts, "bankAccount", "bankBranchId");
+  const branchIds = referencedBankBranchIds(
+    opStmts,
+    "bankAccount",
+    "bankBranchId",
+  );
 
   if (branchIds.size === 0) {
     console.log("0 bank branches referenced; skipping bank/bankBranch");
@@ -121,22 +165,34 @@ async function main(): Promise<void> {
     // 9. Load each table from its tier's source.
     for (const table of LOAD_ORDER) {
       const stmts = tierC.has(table)
-        ? opByTable.get(table) ?? []
+        ? (opByTable.get(table) ?? [])
         : TIER_A.has(table)
           ? tierAStmts(table)
           : TIER_B.has(table)
             ? tierBStmts(table)
             : [];
-      if (stmts.length === 0) continue;
 
-      const rows = stmts.flatMap((s) => {return s.rows.map((r) => {return transformRow(s.table, s.columns, r)})});
-      if (rows.length === 0) continue;
+      if (stmts.length === 0) {
+        continue;
+      }
+
+      const rows = stmts.flatMap((s) => {
+        return s.rows.map((r) => {
+          return transformRow(s.table, s.columns, r);
+        });
+      });
+
+      if (rows.length === 0) {
+        continue;
+      }
 
       // studioId reconciliation: the dumps predate multi-tenancy and all this data
       // is studio 1. Backfill the post-transform snake_case key, covering both the
       // absent case (DROP_STUDIO_ID tables) and the present-but-NULL case (condominium).
       if (STUDIO_BACKFILL.has(table)) {
-        for (const r of rows) r.studio_id ??= 1;
+        for (const r of rows) {
+          r.studio_id ??= 1;
+        }
       }
 
       await loadTable(client, toSnake(table), rows);

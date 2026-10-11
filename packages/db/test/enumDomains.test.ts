@@ -4,8 +4,10 @@
 // assert the INSERT is rejected with the enum domain error.
 //
 // Integration suite: skips cleanly without DATABASE_URL (passWithNoTests:true).
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+
 import type pg from "pg";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+
 import { makePool } from "../src/db.ts";
 
 const url = process.env.DATABASE_URL;
@@ -16,10 +18,13 @@ d("enum domains", () => {
   beforeAll(() => {
     pool = makePool(url);
   });
-  afterAll(() => {return pool.end()});
+  afterAll(() => {
+    return pool.end();
+  });
 
   it("rejects an out-of-domain ledger_account.type", async () => {
-    await expect(pool.query(`INSERT INTO ledger_account (type) VALUES ('bogus')`))
-      .rejects.toThrow(/invalid input value for enum/i);
+    await expect(
+      pool.query(`INSERT INTO ledger_account (type) VALUES ('bogus')`),
+    ).rejects.toThrow(/invalid input value for enum/i);
   });
 });

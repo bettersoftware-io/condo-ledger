@@ -1,17 +1,26 @@
-import { describe, it, expect } from "vitest";
-import { parseAddressVO, formatAddress } from "./addressVO.ts";
+import { describe, expect, it } from "vitest";
+
+import { formatAddress, parseAddressVO } from "./addressVO.ts";
 
 describe("parseAddressVO", () => {
   it("extracts string fields and ignores N (null) / i: (int)", () => {
     const a = parseAddressVO(SATURNO);
-    expect(a).toMatchObject({ postCode: "33100", street: "Piazza del Duomo, 39", countryIso3166_1_a2: "IT" });
+    expect(a).toMatchObject({
+      postCode: "33100",
+      street: "Piazza del Duomo, 39",
+      countryIso3166_1_a2: "IT",
+    });
     expect(a.cityName).toBeUndefined();
   });
   it("composes streetName + streetNumber when street is null", () => {
-    expect(formatAddress(parseAddressVO(POZZETTO))).toBe("Piazza Libertà, 74 — 34071");
+    expect(formatAddress(parseAddressVO(POZZETTO))).toBe(
+      "Piazza Libertà, 74 — 34071",
+    );
   });
   it("formats street + postCode", () => {
-    expect(formatAddress(parseAddressVO(SATURNO))).toBe("Piazza del Duomo, 39 — 33100");
+    expect(formatAddress(parseAddressVO(SATURNO))).toBe(
+      "Piazza del Duomo, 39 — 33100",
+    );
   });
   it("returns {} for null/empty/garbage and formats to empty string", () => {
     expect(parseAddressVO(null)).toEqual({});

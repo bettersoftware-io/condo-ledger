@@ -1,17 +1,32 @@
-import type { Db } from "./db.ts";
 import { eur } from "./amounts.ts";
+import type { Db } from "./db.ts";
 
-export interface PeriodStatus { hasBooks: boolean; reconciles: boolean }
+export interface PeriodStatus {
+  hasBooks: boolean;
+  reconciles: boolean;
+}
 
 export function reconcilePeriods(db: Db): Record<string, PeriodStatus> {
-  const txPeriod = new Map(db.rows("ledgerTransaction").map((t) => {return [String(t.id), String(t.accountingPeriodId)]}));
-  const sum = new Map<string, number>();   // periodId -> Σ signed cents
-  const count = new Map<string, number>();  // periodId -> entry count
+  const txPeriod = new Map(
+    db.rows("ledgerTransaction").map((t) => {
+      return [String(t.id), String(t.accountingPeriodId)];
+    }),
+  );
+  const sum = new Map<string, number>(); // periodId -> Σ signed cents
+  const count = new Map<string, number>(); // periodId -> entry count
 
   for (const e of db.rows("ledgerEntry")) {
     const period = txPeriod.get(String(e.ledgerTransactionId));
-    if (!period) continue;
-    sum.set(period, (sum.get(period) ?? 0) + eur(e.amount == null ? null : String(e.amount)).cents);
+
+    if (!period) {
+      continue;
+    }
+
+    sum.set(
+      period,
+      (sum.get(period) ?? 0) +
+        eur(e.amount == null ? null : String(e.amount)).cents,
+    );
     count.set(period, (count.get(period) ?? 0) + 1);
   }
 

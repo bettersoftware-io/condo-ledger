@@ -5,8 +5,10 @@
 // has no matching parent. The offenders list must be empty.
 //
 // Integration suite: skips cleanly without DATABASE_URL (passWithNoTests:true).
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+
 import type pg from "pg";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+
 import { makePool } from "../src/db.ts";
 
 const url = process.env.DATABASE_URL;
@@ -17,7 +19,9 @@ d("foreign-key integrity", () => {
   beforeAll(() => {
     pool = makePool(url);
   });
-  afterAll(() => {return pool.end()});
+  afterAll(() => {
+    return pool.end();
+  });
 
   it("has zero orphan rows across all foreign keys", async () => {
     const fks = await pool.query(`
@@ -34,7 +38,12 @@ d("foreign-key integrity", () => {
         WHERE ch."${fk.col}" IS NOT NULL
         AND NOT EXISTS (SELECT 1 FROM "${fk.parent}" p WHERE p."${fk.pcol}" = ch."${fk.col}")`;
       const r = await pool.query(q);
-      if (r.rows[0].c > 0) offenders.push(`${fk.child}.${fk.col} -> ${fk.parent} (${r.rows[0].c})`);
+
+      if (r.rows[0].c > 0) {
+        offenders.push(
+          `${fk.child}.${fk.col} -> ${fk.parent} (${r.rows[0].c})`,
+        );
+      }
     }
 
     expect(offenders).toEqual([]);

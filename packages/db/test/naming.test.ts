@@ -1,12 +1,16 @@
-import { describe, it, expect } from "vitest";
-import { toSnake, toCamel } from "../src/naming.ts";
+import { describe, expect, it } from "vitest";
+
+import { toCamel, toSnake } from "../src/naming.ts";
 
 // Cases that round-trip losslessly in BOTH directions.
 const cases: Array<[camel: string, snake: string]> = [
   ["studioId", "studio_id"],
   ["unitResident", "unit_resident"],
   ["ledgerTransaction", "ledger_transaction"],
-  ["accountingPeriodInstallmentDefaultSettings", "accounting_period_installment_default_settings"],
+  [
+    "accountingPeriodInstallmentDefaultSettings",
+    "accounting_period_installment_default_settings",
+  ],
   ["masterDataCategoryI18n", "master_data_category_i18n"],
   ["ledgerInvoice2F24", "ledger_invoice_2_f24"],
   ["bankTransferPO", "bank_transfer_po"],
@@ -43,7 +47,10 @@ describe("naming", () => {
   it.each(cases)("toCamel round-trips %s", (camel, snake) => {
     expect(toCamel(snake)).toBe(camel);
   });
-  it.each(toSnakeOnly)("toSnake(%s) === %s (toSnake-only; not reversible)", (camel, snake) => {
-    expect(toSnake(camel)).toBe(snake);
-  });
+  it.each(toSnakeOnly)(
+    "toSnake(%s) === %s (toSnake-only; not reversible)",
+    (camel, snake) => {
+      expect(toSnake(camel)).toBe(snake);
+    },
+  );
 });

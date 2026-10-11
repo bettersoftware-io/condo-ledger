@@ -1,5 +1,14 @@
 // packages/domain/src/riparto/computeRiparto.ts
-import type { RipartoInput, RipartoEngine, LinkRef, LinkedColumn, Mode, ResidentInfo, SubtreeTotals } from "./types.ts";
+import { listFor, must } from "../must.ts";
+import type {
+  LinkedColumn,
+  LinkRef,
+  Mode,
+  ResidentInfo,
+  RipartoEngine,
+  RipartoInput,
+  SubtreeTotals,
+} from "./types.ts";
 
 /**
  * Build the riparto engine for one accounting period from a clean input.
@@ -8,14 +17,18 @@ import type { RipartoInput, RipartoEngine, LinkRef, LinkedColumn, Mode, Resident
  */
 export function buildRiparto(input: RipartoInput): RipartoEngine {
   // --- accounts ----------------------------------------------------------
-  const acctById = new Map(input.accounts.map((a) => {return [a.id, a]}));
+  const acctById = new Map(
+    input.accounts.map((a) => {
+      return [a.id, a];
+    }),
+  );
   const childrenOf = new Map<string, string[]>();
 
   for (const a of input.accounts) {
     const parent = a.parentId;
 
     if (parent && acctById.has(parent)) {
-      (childrenOf.get(parent) ?? childrenOf.set(parent, []).get(parent)!).push(a.id);
+      listFor(childrenOf, parent).push(a.id);
     }
   }
 
@@ -23,8 +36,13 @@ export function buildRiparto(input: RipartoInput): RipartoEngine {
   const linksByAccount = new Map<string, LinkRef[]>();
 
   for (const l of input.links) {
-    const ref: LinkRef = { linkId: l.linkId, tableId: l.tableId, pct: l.pct, type: l.type };
-    (linksByAccount.get(l.accountId) ?? linksByAccount.set(l.accountId, []).get(l.accountId)!).push(ref);
+    const ref: LinkRef = {
+      linkId: l.linkId,
+      tableId: l.tableId,
+      pct: l.pct,
+      type: l.type,
+    };
+    listFor(linksByAccount, l.accountId).push(ref);
   }
 
   function isLinkedAccount(id: string): boolean {
@@ -50,10 +68,16 @@ export function buildRiparto(input: RipartoInput): RipartoEngine {
     let actualCents = 0;
 
     function visit(id: string, isRoot: boolean): void {
-      if (!isRoot && isLinkedAccount(id)) return;
+      if (!isRoot && isLinkedAccount(id)) {
+        return;
+      }
+
       estimateCents += ownEstimateCents(id);
       actualCents += ownActualCents(id);
-      for (const k of childrenOf.get(id) ?? []) visit(k, false);
+
+      for (const k of childrenOf.get(id) ?? []) {
+        visit(k, false);
+      }
     }
 
     visit(rootId, true);
@@ -74,11 +98,16 @@ export function buildRiparto(input: RipartoInput): RipartoEngine {
   }
 
   // --- distribution table coefficients -----------------------------------
-  const itemsByTable = new Map<string, { unitId: string; coefficient: number }[]>();
+  const itemsByTable = new Map<
+    string,
+    { unitId: string; coefficient: number }[]
+  >();
 
   for (const it of input.tableItems) {
-    (itemsByTable.get(it.tableId) ?? itemsByTable.set(it.tableId, []).get(it.tableId)!)
-      .push({ unitId: it.unitId, coefficient: it.coefficient });
+    listFor(itemsByTable, it.tableId).push({
+      unitId: it.unitId,
+      coefficient: it.coefficient,
+    });
   }
 
   const tableTotalCache = new Map<string, number>();
@@ -87,7 +116,9 @@ export function buildRiparto(input: RipartoInput): RipartoEngine {
     let t = tableTotalCache.get(tableId);
 
     if (t === undefined) {
-      t = (itemsByTable.get(tableId) ?? []).reduce((s, i) => {return s + i.coefficient}, 0);
+      t = (itemsByTable.get(tableId) ?? []).reduce((s, i) => {
+        return s + i.coefficient;
+      }, 0);
       tableTotalCache.set(tableId, t);
     }
 
@@ -96,49 +127,94 @@ export function buildRiparto(input: RipartoInput): RipartoEngine {
 
   function coeff(tableId: string, legacyUnitId: string): number {
     const items = itemsByTable.get(tableId) ?? [];
-    const mine = items.find((i) => {return i.unitId === legacyUnitId});
+    const mine = items.find((i) => {
+      return i.unitId === legacyUnitId;
+    });
     return mine ? mine.coefficient : 0;
   }
 
   // --- role rows keyed by LINK id ----------------------------------------
-  const rolesByLink = new Map<string, { priorityId: string; percentage: number }[]>();
+  const rolesByLink = new Map<
+    string,
+    { priorityId: string; percentage: number }[]
+  >();
 
   for (const r of input.roles) {
-    (rolesByLink.get(r.linkId) ?? rolesByLink.set(r.linkId, []).get(r.linkId)!)
-      .push({ priorityId: r.priorityId, percentage: r.percentage });
+    listFor(rolesByLink, r.linkId).push({
+      priorityId: r.priorityId,
+      percentage: r.percentage,
+    });
   }
 
   // --- residents keyed by legacy unit id ---------------------------------
   const residentsByUnit = new Map<string, ResidentInfo[]>();
 
   for (const r of input.residents) {
-    const info: ResidentInfo = { id: r.residentId, priorityId: r.priorityId, percentage: r.percentage };
-    (residentsByUnit.get(r.unitId) ?? residentsByUnit.set(r.unitId, []).get(r.unitId)!).push(info);
+    const info: ResidentInfo = {
+      id: r.residentId,
+      priorityId: r.priorityId,
+      percentage: r.percentage,
+    };
+    listFor(residentsByUnit, r.unitId).push(info);
   }
 
   // --- columns: one per distinct linked account, ordered by account.order -
   const columns: LinkedColumn[] = [];
 
-  for (const a of input.accounts.slice().sort((x, y) => {return x.order - y.order})) {
+  for (const a of input.accounts.slice().sort((x, y) => {
+    return x.order - y.order;
+  })) {
     const raw = linksByAccount.get(a.id);
-    if (!raw || raw.length === 0) continue;
-    const estimateSide = raw.find((l) => {return l.type === "estimate"}) ?? raw[0]!;
-    columns.push({ legacyAccountId: a.id, name: a.name, links: raw, displayTableId: estimateSide.tableId });
+
+    if (!raw || raw.length === 0) {
+      continue;
+    }
+
+    const estimateSide =
+      raw.find((l) => {
+        return l.type === "estimate";
+      }) ?? must(raw[0]);
+    columns.push({
+      legacyAccountId: a.id,
+      name: a.name,
+      links: raw,
+      displayTableId: estimateSide.tableId,
+    });
   }
 
-  const colByAccount = new Map(columns.map((c) => {return [c.legacyAccountId, c]}));
+  const colByAccount = new Map(
+    columns.map((c) => {
+      return [c.legacyAccountId, c];
+    }),
+  );
 
   /** Pick the links relevant to a mode. */
   function chosenLinks(col: LinkedColumn, mode: Mode): LinkRef[] {
     if (mode === "estimate") {
-      const est = col.links.filter((l) => {return l.type === "estimate"});
-      if (est.length > 0) return est;
-      return col.links.filter((l) => {return l.type === null});
+      const est = col.links.filter((l) => {
+        return l.type === "estimate";
+      });
+
+      if (est.length > 0) {
+        return est;
+      }
+
+      return col.links.filter((l) => {
+        return l.type === null;
+      });
     }
 
-    const cur = col.links.filter((l) => {return l.type === "currentBalance"});
-    if (cur.length > 0) return cur;
-    return col.links.filter((l) => {return l.type === null});
+    const cur = col.links.filter((l) => {
+      return l.type === "currentBalance";
+    });
+
+    if (cur.length > 0) {
+      return cur;
+    }
+
+    return col.links.filter((l) => {
+      return l.type === null;
+    });
   }
 
   /** per-unit amount, per chosen link, as a list (used by resident split). */
@@ -148,24 +224,39 @@ export function buildRiparto(input: RipartoInput): RipartoEngine {
     legacyUnitId: string,
   ): LinkCents[] {
     const col = colByAccount.get(accountId);
-    if (!col) return [];
+
+    if (!col) {
+      return [];
+    }
+
     const totals = subtree(accountId);
-    const base = mode === "estimate" ? totals.estimateCents : totals.actualCents;
+    const base =
+      mode === "estimate" ? totals.estimateCents : totals.actualCents;
     const out: LinkCents[] = [];
 
     for (const link of chosenLinks(col, mode)) {
       const tot = tableTotal(link.tableId);
-      if (tot === 0) continue;
+
+      if (tot === 0) {
+        continue;
+      }
+
       const c = coeff(link.tableId, legacyUnitId);
-      const cents = Math.round((base * link.pct) / 100 * (c / tot));
+      const cents = Math.round(((base * link.pct) / 100) * (c / tot));
       out.push({ link, cents });
     }
 
     return out;
   }
 
-  function perUnitAmount(accountId: string, mode: Mode, legacyUnitId: string): number {
-    return perUnitByLink(accountId, mode, legacyUnitId).reduce((s, x) => {return s + x.cents}, 0);
+  function perUnitAmount(
+    accountId: string,
+    mode: Mode,
+    legacyUnitId: string,
+  ): number {
+    return perUnitByLink(accountId, mode, legacyUnitId).reduce((s, x) => {
+      return s + x.cents;
+    }, 0);
   }
 
   /** Split one link's per-unit amount among the unit's residents. */
@@ -175,16 +266,26 @@ export function buildRiparto(input: RipartoInput): RipartoEngine {
     residents: ResidentInfo[],
     out: Map<string, number>,
   ): void {
-    if (cents === 0 || residents.length === 0) return;
-    const owners = residents.filter((r) => {return r.priorityId === "1"});
+    if (cents === 0 || residents.length === 0) {
+      return;
+    }
+
+    const owners = residents.filter((r) => {
+      return r.priorityId === "1";
+    });
     const ownerFallback = owners.length > 0 ? owners : residents;
 
     function addTo(group: ResidentInfo[], amount: number): void {
-      if (amount === 0) return;
-      const totalPct = group.reduce((s, r) => {return s + r.percentage}, 0);
+      if (amount === 0) {
+        return;
+      }
+
+      const totalPct = group.reduce((s, r) => {
+        return s + r.percentage;
+      }, 0);
 
       if (group.length === 1) {
-        const only = group[0]!;
+        const only = must(group[0]);
         out.set(only.id, (out.get(only.id) ?? 0) + amount);
         return;
       }
@@ -193,9 +294,11 @@ export function buildRiparto(input: RipartoInput): RipartoEngine {
         let allocated = 0;
 
         for (let i = 0; i < group.length; i++) {
-          const r = group[i]!;
+          const r = must(group[i]);
           const share =
-            i === group.length - 1 ? amount - allocated : Math.round((amount * r.percentage) / totalPct);
+            i === group.length - 1
+              ? amount - allocated
+              : Math.round((amount * r.percentage) / totalPct);
           allocated += share;
           out.set(r.id, (out.get(r.id) ?? 0) + share);
         }
@@ -203,8 +306,11 @@ export function buildRiparto(input: RipartoInput): RipartoEngine {
         let allocated = 0;
 
         for (let i = 0; i < group.length; i++) {
-          const r = group[i]!;
-          const share = i === group.length - 1 ? amount - allocated : Math.round(amount / group.length);
+          const r = must(group[i]);
+          const share =
+            i === group.length - 1
+              ? amount - allocated
+              : Math.round(amount / group.length);
           allocated += share;
           out.set(r.id, (out.get(r.id) ?? 0) + share);
         }
@@ -221,28 +327,47 @@ export function buildRiparto(input: RipartoInput): RipartoEngine {
     let allocated = 0;
 
     for (let i = 0; i < roles.length; i++) {
-      const role = roles[i]!;
+      const role = must(roles[i]);
       const rolePct = role.percentage;
-      const share = i === roles.length - 1 ? cents - allocated : Math.round((cents * rolePct) / 100);
+      const share =
+        i === roles.length - 1
+          ? cents - allocated
+          : Math.round((cents * rolePct) / 100);
       allocated += share;
       const priorityId = role.priorityId;
-      const group = residents.filter((r) => {return r.priorityId === priorityId});
+      const group = residents.filter((r) => {
+        return r.priorityId === priorityId;
+      });
       addTo(group.length > 0 ? group : ownerFallback, share);
     }
   }
 
-  function perResidentAmount(accountId: string, mode: Mode, legacyUnitId: string): Map<string, number> {
+  function perResidentAmount(
+    accountId: string,
+    mode: Mode,
+    legacyUnitId: string,
+  ): Map<string, number> {
     const out = new Map<string, number>();
     const residents = residentsByUnit.get(legacyUnitId) ?? [];
 
-    for (const { link, cents } of perUnitByLink(accountId, mode, legacyUnitId)) {
+    for (const { link, cents } of perUnitByLink(
+      accountId,
+      mode,
+      legacyUnitId,
+    )) {
       splitLinkAmount(link, cents, residents, out);
     }
 
     return out;
   }
 
-  return { columns, perUnitAmount, subtree, perResidentAmount, unitLegacyIds: input.unitLegacyIds };
+  return {
+    columns,
+    perUnitAmount,
+    subtree,
+    perResidentAmount,
+    unitLegacyIds: input.unitLegacyIds,
+  };
 }
 
 /** One chosen link's per-unit amount. */

@@ -9,13 +9,22 @@ export function referencedBankBranchIds(
   const ids = new Set<string>();
 
   for (const s of stmts) {
-    if (s.table !== table) continue;
+    if (s.table !== table) {
+      continue;
+    }
+
     const idx = s.columns.indexOf(fkColumn);
-    if (idx < 0) continue;
+
+    if (idx < 0) {
+      continue;
+    }
 
     for (const row of s.rows) {
       const v = row[idx];
-      if (v !== null && v !== undefined && v !== "0") ids.add(v);
+
+      if (v !== null && v !== undefined && v !== "0") {
+        ids.add(v);
+      }
     }
   }
 
@@ -30,6 +39,14 @@ export function filterReferenced(
 ): InsertStmt[] {
   return branchStmts.map((s) => {
     const idx = s.columns.indexOf(branchIdCol);
-    return { ...s, rows: idx < 0 ? s.rows : s.rows.filter((r) => {return keep.has(r[idx] ?? "")}) };
+    return {
+      ...s,
+      rows:
+        idx < 0
+          ? s.rows
+          : s.rows.filter((r) => {
+              return keep.has(r[idx] ?? "");
+            }),
+    };
   });
 }

@@ -40,7 +40,10 @@ const config: ArchitectureConfig = {
     "packages/legacy-import": { role: "server" },
   },
 
-  adapters: ["packages/domain/src/simulators", "packages/client-core/src/adapters"],
+  adapters: [
+    "packages/domain/src/simulators",
+    "packages/client-core/src/adapters",
+  ],
 
   vendorOnlyIn: {
     react: ["packages/react-bindings", "packages/client-react"],
@@ -52,7 +55,8 @@ const config: ArchitectureConfig = {
   // of the project: the archived legacy application (old/flex, old/prototype-web)
   // and the design prototype's own script.
   javascriptAllowed: {
-    "docs/design/web/v1/support.js": "the design prototype's own script; a reference, not code of the project",
+    "docs/design/web/v1/support.js":
+      "the design prototype's own script; a reference, not code of the project",
     ...archivedJavascript("old"),
   },
 };
@@ -62,7 +66,9 @@ function archivedJavascript(folder: string): Record<string, string> {
   const files: string[] = [];
 
   function walk(relative: string): void {
-    for (const entry of readdirSync(join(import.meta.dirname, relative), { withFileTypes: true })) {
+    for (const entry of readdirSync(join(import.meta.dirname, relative), {
+      withFileTypes: true,
+    })) {
       const path = `${relative}/${entry.name}`;
 
       if (entry.isDirectory() && entry.name !== "node_modules") {
@@ -75,9 +81,14 @@ function archivedJavascript(folder: string): Record<string, string> {
 
   walk(folder);
 
-  return Object.fromEntries(files.map((file) => {
-    return [file, `archived under ${folder}/: the legacy application and the first prototype, kept for reference`];
-  }));
+  return Object.fromEntries(
+    files.map((file) => {
+      return [
+        file,
+        `archived under ${folder}/: the legacy application and the first prototype, kept for reference`,
+      ];
+    }),
+  );
 }
 
 export default config;

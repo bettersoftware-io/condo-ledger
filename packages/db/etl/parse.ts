@@ -23,14 +23,15 @@ export function parseInserts(
 ): InsertStmt[] {
   const out: InsertStmt[] = [];
   const re = /INSERT INTO `(\w+)`\s*(?:\(([^)]*)\))?\s*VALUES\s*/gi;
-  let m: RegExpExecArray | null;
 
-  while ((m = re.exec(sql))) {
+  for (let m = re.exec(sql); m; m = re.exec(sql)) {
     const table = m[1]!;
     const inlineList = m[2];
     const columns =
       inlineList !== undefined
-        ? inlineList.split(",").map((c) => {return c.trim().replace(/`/g, "")})
+        ? inlineList.split(",").map((c) => {
+            return c.trim().replace(/`/g, "");
+          })
         : resolveColumns
           ? resolveColumns(table)
           : [];
@@ -52,28 +53,53 @@ function readTuples(s: string, i: number): Tuples {
   const n = s.length;
 
   while (i < n) {
-    while (i < n && /\s/.test(s[i]!)) i++;
-    if (s[i] !== "(") break;
+    while (i < n && /\s/.test(s[i]!)) {
+      i++;
+    }
+
+    if (s[i] !== "(") {
+      break;
+    }
+
     i++; // past '('
     const row: Array<string | null> = [];
 
     while (i < n) {
-      while (i < n && /\s/.test(s[i]!)) i++;
+      while (i < n && /\s/.test(s[i]!)) {
+        i++;
+      }
 
       if (s[i] === "'") {
-        let v = ""; i++;
+        let v = "";
+        i++;
 
         while (i < n) {
           const ch = s[i];
-          if (ch === "\\") { v += s[i + 1]; i += 2; continue; }
-          if (ch === "'") { i++; break; }
-          v += ch; i++;
+
+          if (ch === "\\") {
+            v += s[i + 1];
+            i += 2;
+            continue;
+          }
+
+          if (ch === "'") {
+            i++;
+            break;
+          }
+
+          v += ch;
+          i++;
         }
 
         row.push(v);
       } else {
         let tok = "";
-        while (i < n && s[i] !== "," && s[i] !== ")") { tok += s[i]; i++; }
+
+        while (i < n && s[i] !== "," && s[i] !== ")") {
+          tok += s[i];
+          i++;
+        }
+
         tok = tok.trim();
         // Unquoted NULL keyword -> SQL NULL. mysqldump normally emits uppercase
         // `NULL`, but the country/locale reference dump emits lowercase `null`;
@@ -82,15 +108,36 @@ function readTuples(s: string, i: number): Tuples {
         row.push(/^null$/i.test(tok) ? null : tok);
       }
 
-      while (i < n && /\s/.test(s[i]!)) i++;
-      if (s[i] === ",") { i++; continue; }
-      if (s[i] === ")") { i++; break; }
+      while (i < n && /\s/.test(s[i]!)) {
+        i++;
+      }
+
+      if (s[i] === ",") {
+        i++;
+        continue;
+      }
+
+      if (s[i] === ")") {
+        i++;
+        break;
+      }
     }
 
     rows.push(row);
-    while (i < n && /\s/.test(s[i]!)) i++;
-    if (s[i] === ",") { i++; continue; }
-    if (s[i] === ";") { i++; break; }
+
+    while (i < n && /\s/.test(s[i]!)) {
+      i++;
+    }
+
+    if (s[i] === ",") {
+      i++;
+      continue;
+    }
+
+    if (s[i] === ";") {
+      i++;
+      break;
+    }
   }
 
   return { rows, end: i };

@@ -1,43 +1,44 @@
 import {
-  pgTable,
-  integer,
-  varchar,
-  char,
-  text,
-  boolean,
-  timestamp,
-  date,
-  numeric,
-  real,
-  primaryKey,
   type AnyPgColumn,
+  boolean,
+  char,
+  date,
+  integer,
+  numeric,
+  pgTable,
+  primaryKey,
+  real,
+  text,
+  timestamp,
+  varchar,
 } from "drizzle-orm/pg-core";
+
 import {
-  recordStatus,
-  condominiumType,
-  accountingPeriodType,
   accountingPeriodStatus,
-  openingBalanceDistributionMode,
-  installmentType,
+  accountingPeriodType,
+  condominiumType,
+  costAttributionOnHandover,
+  expenseLa2TableType,
   installmentItemStatus,
   installmentPaymentSlipStatus,
-  ledgerAccountType,
+  installmentType,
   ledgerAccountKind,
-  ledgerEntryType,
+  ledgerAccountType,
   ledgerEntry2UrDistributionType,
+  ledgerEntryType,
   ledgerTransactionType,
-  expenseLa2TableType,
-  costAttributionOnHandover,
   nextPeriodEstimateBasedOn,
+  openingBalanceDistributionMode,
+  recordStatus,
 } from "../enums.ts";
+import { calendarEvent } from "./leftovers.ts";
 import {
-  studio,
-  masterData,
-  bankAccount,
   accessAccount,
+  bankAccount,
+  masterData,
+  studio,
 } from "./masterData.ts";
 import { country, locale } from "./reference.ts";
-import { calendarEvent } from "./leftovers.ts";
 
 // A condominium's own tables: its units and residents, its accounting periods
 // and installments, its ledger and its distribution tables. They reference one
@@ -52,9 +53,13 @@ export const condominium = pgTable("condominium", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   parentCondominiumId: integer("parent_condominium_id").references(
-    (): AnyPgColumn => {return condominium.id},
+    (): AnyPgColumn => {
+      return condominium.id;
+    },
   ),
   name: varchar("name", { length: 63 }).notNull(),
   code: varchar("code", { length: 15 }),
@@ -65,7 +70,9 @@ export const condominium = pgTable("condominium", {
   vatNumber: varchar("vat_number", { length: 31 }),
   manufacturedDate: date("manufactured_date"),
   landRegistry: varchar("land_registry", { length: 127 }),
-  bankAccountId: integer("bank_account_id").references(() => {return bankAccount.id}),
+  bankAccountId: integer("bank_account_id").references(() => {
+    return bankAccount.id;
+  }),
   notes: text("notes"),
   created: timestamp("created", { withTimezone: true }),
   updated: timestamp("updated", { withTimezone: true }),
@@ -78,10 +85,14 @@ export const condominiumAttribute = pgTable("condominium_attribute", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   condominiumId: integer("condominium_id")
     .notNull()
-    .references(() => {return condominium.id}),
+    .references(() => {
+      return condominium.id;
+    }),
   label: varchar("label", { length: 31 }).notNull(),
   value: varchar("value", { length: 31 }).notNull(),
   created: timestamp("created", { withTimezone: true }),
@@ -96,21 +107,29 @@ export const condominiumAttributeI18n = pgTable(
   {
     condominiumAttributeId: integer("condominium_attribute_id")
       .notNull()
-      .references(() => {return condominiumAttribute.id}),
+      .references(() => {
+        return condominiumAttribute.id;
+      }),
     localeCode: varchar("locale_code", { length: 10 })
       .notNull()
-      .references(() => {return locale.code}),
+      .references(() => {
+        return locale.code;
+      }),
     studioId: integer("studio_id")
       .notNull()
-      .references(() => {return studio.id}),
+      .references(() => {
+        return studio.id;
+      }),
     labelTranslation: varchar("label_translation", { length: 63 }).notNull(),
     valueTranslation: varchar("value_translation", { length: 63 }).notNull(),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => {return {
-    pk: primaryKey({ columns: [t.condominiumAttributeId, t.localeCode] }),
-  }},
+  (t) => {
+    return {
+      pk: primaryKey({ columns: [t.condominiumAttributeId, t.localeCode] }),
+    };
+  },
 );
 
 // ---------------------------------------------------------------------------
@@ -119,15 +138,27 @@ export const condominiumAttributeI18n = pgTable(
 export const condominiumCalendarEvent = pgTable("condominium_calendar_event", {
   calendarEventId: integer("calendar_event_id")
     .primaryKey()
-    .references(() => {return calendarEvent.id}),
-  condominiumId: integer("condominium_id").references(() => {return condominium.id}),
-  accountingPeriodId: integer("accounting_period_id").references(
-    () => {return accountingPeriod.id},
-  ),
-  unitGroupId: integer("unit_group_id").references(() => {return unitGroup.id}),
-  unitId: integer("unit_id").references(() => {return unit.id}),
-  unitResidentId: integer("unit_resident_id").references(() => {return unitResident.id}),
-  masterDataId: integer("master_data_id").references(() => {return masterData.id}),
+    .references(() => {
+      return calendarEvent.id;
+    }),
+  condominiumId: integer("condominium_id").references(() => {
+    return condominium.id;
+  }),
+  accountingPeriodId: integer("accounting_period_id").references(() => {
+    return accountingPeriod.id;
+  }),
+  unitGroupId: integer("unit_group_id").references(() => {
+    return unitGroup.id;
+  }),
+  unitId: integer("unit_id").references(() => {
+    return unit.id;
+  }),
+  unitResidentId: integer("unit_resident_id").references(() => {
+    return unitResident.id;
+  }),
+  masterDataId: integer("master_data_id").references(() => {
+    return masterData.id;
+  }),
   showOnFrontend: boolean("show_on_frontend").notNull(),
   showDate: boolean("show_date").notNull(),
   showFrom: date("show_from"),
@@ -144,20 +175,28 @@ export const condominiumSupplier = pgTable(
   {
     condominiumId: integer("condominium_id")
       .notNull()
-      .references(() => {return condominium.id}),
+      .references(() => {
+        return condominium.id;
+      }),
     masterDataId: integer("master_data_id")
       .notNull()
-      .references(() => {return masterData.id}),
+      .references(() => {
+        return masterData.id;
+      }),
     studioId: integer("studio_id")
       .notNull()
-      .references(() => {return studio.id}),
+      .references(() => {
+        return studio.id;
+      }),
     order: integer("order"),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => {return {
-    pk: primaryKey({ columns: [t.condominiumId, t.masterDataId] }),
-  }},
+  (t) => {
+    return {
+      pk: primaryKey({ columns: [t.condominiumId, t.masterDataId] }),
+    };
+  },
 );
 
 // ---------------------------------------------------------------------------
@@ -167,12 +206,20 @@ export const unit = pgTable("unit", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   accountingPeriodId: integer("accounting_period_id")
     .notNull()
-    .references(() => {return accountingPeriod.id}),
-  unitTypeId: integer("unit_type_id").references(() => {return unitType.id}),
-  unitGroupId: integer("unit_group_id").references(() => {return unitGroup.id}),
+    .references(() => {
+      return accountingPeriod.id;
+    }),
+  unitTypeId: integer("unit_type_id").references(() => {
+    return unitType.id;
+  }),
+  unitGroupId: integer("unit_group_id").references(() => {
+    return unitGroup.id;
+  }),
   code: varchar("code", { length: 15 }),
   name: varchar("name", { length: 63 }),
   floor: varchar("floor", { length: 15 }),
@@ -193,13 +240,19 @@ export const unitGroup = pgTable("unit_group", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   parentUnitGroupId: integer("parent_unit_group_id").references(
-    (): AnyPgColumn => {return unitGroup.id},
+    (): AnyPgColumn => {
+      return unitGroup.id;
+    },
   ),
   accountingPeriodId: integer("accounting_period_id")
     .notNull()
-    .references(() => {return accountingPeriod.id}),
+    .references(() => {
+      return accountingPeriod.id;
+    }),
   code: varchar("code", { length: 15 }).notNull(),
   name: varchar("name", { length: 127 }).notNull(),
   address: text("address"),
@@ -215,13 +268,19 @@ export const unitPeriod = pgTable("unit_period", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   unitId: integer("unit_id")
     .notNull()
-    .references(() => {return unit.id}),
+    .references(() => {
+      return unit.id;
+    }),
   unitOwnershipScenarioId: integer("unit_ownership_scenario_id")
     .notNull()
-    .references(() => {return unitOwnershipScenario.id}),
+    .references(() => {
+      return unitOwnershipScenario.id;
+    }),
   periodRestrictionStartDate: date("period_restriction_start_date"),
   periodRestrictionEndDate: date("period_restriction_end_date"),
   created: timestamp("created", { withTimezone: true }),
@@ -235,19 +294,29 @@ export const unitResident = pgTable("unit_resident", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   unitPeriodId: integer("unit_period_id")
     .notNull()
-    .references(() => {return unitPeriod.id}),
+    .references(() => {
+      return unitPeriod.id;
+    }),
   masterDataId: integer("master_data_id")
     .notNull()
-    .references(() => {return masterData.id}),
+    .references(() => {
+      return masterData.id;
+    }),
   systemUsername: varchar("system_username", { length: 63 })
     .notNull()
-    .references(() => {return unitResidentAccount.systemUsername}),
+    .references(() => {
+      return unitResidentAccount.systemUsername;
+    }),
   unitResidentPriorityId: integer("unit_resident_priority_id")
     .notNull()
-    .references(() => {return unitResidentPriority.id}),
+    .references(() => {
+      return unitResidentPriority.id;
+    }),
   periodRestrictionStartDate: date("period_restriction_start_date"),
   periodRestrictionEndDate: date("period_restriction_end_date"),
   percentage: numeric("percentage", { precision: 10, scale: 6 }),
@@ -257,7 +326,9 @@ export const unitResident = pgTable("unit_resident", {
   }).notNull(),
   startingBalanceLedgerEntryId: integer(
     "starting_balance_ledger_entry_id",
-  ).references((): AnyPgColumn => {return ledgerEntry.id}),
+  ).references((): AnyPgColumn => {
+    return ledgerEntry.id;
+  }),
   created: timestamp("created", { withTimezone: true }),
   updated: timestamp("updated", { withTimezone: true }),
 });
@@ -268,10 +339,14 @@ export const unitResident = pgTable("unit_resident", {
 export const unitResidentAccount = pgTable("unit_resident_account", {
   systemUsername: varchar("system_username", { length: 63 })
     .primaryKey()
-    .references(() => {return accessAccount.username}),
+    .references(() => {
+      return accessAccount.username;
+    }),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   activationClearTextPassword: varchar("activation_clear_text_password", {
     length: 63,
   }),
@@ -286,7 +361,9 @@ export const unitResidentPriority = pgTable("unit_resident_priority", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   countryIso31661A2: char("country_iso3166_1_a2", { length: 2 })
     .notNull()
-    .references(() => {return country.iso31661Alpha2}),
+    .references(() => {
+      return country.iso31661Alpha2;
+    }),
   priority: integer("priority").notNull(),
   rolesAbbreviationList: varchar("roles_abbreviation_list", { length: 15 }),
   notes: text("notes"),
@@ -301,13 +378,19 @@ export const unitResidentRole = pgTable("unit_resident_role", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   countryIso31661A2: char("country_iso3166_1_a2", { length: 2 })
     .notNull()
-    .references(() => {return country.iso31661Alpha2}),
+    .references(() => {
+      return country.iso31661Alpha2;
+    }),
   unitOwnershipScenarioId: integer("unit_ownership_scenario_id")
     .notNull()
-    .references(() => {return unitOwnershipScenario.id}),
+    .references(() => {
+      return unitOwnershipScenario.id;
+    }),
   unitResidentPriorityId: integer("unit_resident_priority_id")
     .notNull()
-    .references(() => {return unitResidentPriority.id}),
+    .references(() => {
+      return unitResidentPriority.id;
+    }),
   abbreviation: varchar("abbreviation", { length: 15 }).notNull(),
   name: varchar("name", { length: 63 }).notNull(),
   pluralName: varchar("plural_name", { length: 63 }).notNull(),
@@ -324,10 +407,14 @@ export const unitResidentRoleI18n = pgTable(
   {
     unitResidentRoleId: integer("unit_resident_role_id")
       .notNull()
-      .references(() => {return unitResidentRole.id}),
+      .references(() => {
+        return unitResidentRole.id;
+      }),
     localeCode: varchar("locale_code", { length: 10 })
       .notNull()
-      .references(() => {return locale.code}),
+      .references(() => {
+        return locale.code;
+      }),
     abbreviationTranslation: varchar("abbreviation_translation", {
       length: 15,
     }).notNull(),
@@ -338,9 +425,11 @@ export const unitResidentRoleI18n = pgTable(
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => {return {
-    pk: primaryKey({ columns: [t.unitResidentRoleId, t.localeCode] }),
-  }},
+  (t) => {
+    return {
+      pk: primaryKey({ columns: [t.unitResidentRoleId, t.localeCode] }),
+    };
+  },
 );
 
 // ---------------------------------------------------------------------------
@@ -350,7 +439,9 @@ export const unitType = pgTable("unit_type", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   name: varchar("name", { length: 63 }).notNull(),
   created: timestamp("created", { withTimezone: true }),
   updated: timestamp("updated", { withTimezone: true }),
@@ -364,20 +455,28 @@ export const unitTypeI18n = pgTable(
   {
     unitTypeId: integer("unit_type_id")
       .notNull()
-      .references(() => {return unitType.id}),
+      .references(() => {
+        return unitType.id;
+      }),
     localeCode: varchar("locale_code", { length: 10 })
       .notNull()
-      .references(() => {return locale.code}),
+      .references(() => {
+        return locale.code;
+      }),
     studioId: integer("studio_id")
       .notNull()
-      .references(() => {return studio.id}),
+      .references(() => {
+        return studio.id;
+      }),
     translation: varchar("translation", { length: 63 }).notNull(),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => {return {
-    pk: primaryKey({ columns: [t.unitTypeId, t.localeCode] }),
-  }},
+  (t) => {
+    return {
+      pk: primaryKey({ columns: [t.unitTypeId, t.localeCode] }),
+    };
+  },
 );
 
 // ---------------------------------------------------------------------------
@@ -387,7 +486,9 @@ export const unitOwnershipScenario = pgTable("unit_ownership_scenario", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   countryIso31661A2: char("country_iso3166_1_a2", { length: 2 })
     .notNull()
-    .references(() => {return country.iso31661Alpha2}),
+    .references(() => {
+      return country.iso31661Alpha2;
+    }),
   name: varchar("name", { length: 63 }).notNull(),
   order: integer("order"),
   created: timestamp("created", { withTimezone: true }),
@@ -402,17 +503,23 @@ export const unitOwnershipScenarioI18n = pgTable(
   {
     unitOwnershipScenarioId: integer("unit_ownership_scenario_id")
       .notNull()
-      .references(() => {return unitOwnershipScenario.id}),
+      .references(() => {
+        return unitOwnershipScenario.id;
+      }),
     localeCode: varchar("locale_code", { length: 10 })
       .notNull()
-      .references(() => {return locale.code}),
+      .references(() => {
+        return locale.code;
+      }),
     translation: varchar("translation", { length: 63 }).notNull(),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => {return {
-    pk: primaryKey({ columns: [t.unitOwnershipScenarioId, t.localeCode] }),
-  }},
+  (t) => {
+    return {
+      pk: primaryKey({ columns: [t.unitOwnershipScenarioId, t.localeCode] }),
+    };
+  },
 );
 
 // ---------------------------------------------------------------------------
@@ -422,10 +529,14 @@ export const accountingPeriod = pgTable("accounting_period", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   condominiumId: integer("condominium_id")
     .notNull()
-    .references((): AnyPgColumn => {return condominium.id}),
+    .references((): AnyPgColumn => {
+      return condominium.id;
+    }),
   name: varchar("name", { length: 31 }).notNull(),
   type: accountingPeriodType("type").notNull(),
   status: accountingPeriodStatus("status").notNull(),
@@ -433,25 +544,39 @@ export const accountingPeriod = pgTable("accounting_period", {
   endDate: date("end_date"),
   supplierAccountsPayableLedgerAccountId: integer(
     "supplier_accounts_payable_ledger_account_id",
-  ).references((): AnyPgColumn => {return ledgerAccount.id}),
+  ).references((): AnyPgColumn => {
+    return ledgerAccount.id;
+  }),
   flatResidentAccountsReceivableLedgerAccountId: integer(
     "flat_resident_accounts_receivable_ledger_account_id",
-  ).references(() => {return ledgerAccount.id}),
+  ).references(() => {
+    return ledgerAccount.id;
+  }),
   flatResidentRoundingOffLedgerAccountId: integer(
     "flat_resident_rounding_off_ledger_account_id",
-  ).references(() => {return ledgerAccount.id}),
+  ).references(() => {
+    return ledgerAccount.id;
+  }),
   individualExpensesLedgerAccountId: integer(
     "individual_expenses_ledger_account_id",
-  ).references(() => {return ledgerAccount.id}),
+  ).references(() => {
+    return ledgerAccount.id;
+  }),
   defaultCheckingAccountLedgerAccountId: integer(
     "default_checking_account_ledger_account_id",
-  ).references(() => {return ledgerAccount.id}),
+  ).references(() => {
+    return ledgerAccount.id;
+  }),
   paymentInCashLedgerAccountId: integer(
     "payment_in_cash_ledger_account_id",
-  ).references(() => {return ledgerAccount.id}),
+  ).references(() => {
+    return ledgerAccount.id;
+  }),
   withholdingTaxPenaltyLedgerAccountId: integer(
     "withholding_tax_penalty_ledger_account_id",
-  ).references(() => {return ledgerAccount.id}),
+  ).references(() => {
+    return ledgerAccount.id;
+  }),
   notes: text("notes"),
   created: timestamp("created", { withTimezone: true }),
   updated: timestamp("updated", { withTimezone: true }),
@@ -465,10 +590,14 @@ export const accountingPeriodInstallmentDefaultSettings = pgTable(
   {
     accountingPeriodId: integer("accounting_period_id")
       .primaryKey()
-      .references(() => {return accountingPeriod.id}),
+      .references(() => {
+        return accountingPeriod.id;
+      }),
     studioId: integer("studio_id")
       .notNull()
-      .references(() => {return studio.id}),
+      .references(() => {
+        return studio.id;
+      }),
     numberOfInstallments: integer("number_of_installments"),
     firstInstallmentExpiryDate: date("first_installment_expiry_date"),
     periodInMonths: integer("period_in_months"),
@@ -501,13 +630,17 @@ export const installment = pgTable("installment", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   accountingPeriodId: integer("accounting_period_id")
     .notNull()
-    .references(() => {return accountingPeriod.id}),
-  installmentGroupId: integer("installment_group_id").references(
-    () => {return installmentGroup.id},
-  ),
+    .references(() => {
+      return accountingPeriod.id;
+    }),
+  installmentGroupId: integer("installment_group_id").references(() => {
+    return installmentGroup.id;
+  }),
   type: installmentType("type").notNull(),
   name: varchar("name", { length: 63 }).notNull(),
   expiryDate: date("expiry_date").notNull(),
@@ -528,20 +661,28 @@ export const installmentI18n = pgTable(
   {
     installmentId: integer("installment_id")
       .notNull()
-      .references(() => {return installment.id}),
+      .references(() => {
+        return installment.id;
+      }),
     localeCode: varchar("locale_code", { length: 10 })
       .notNull()
-      .references(() => {return locale.code}),
+      .references(() => {
+        return locale.code;
+      }),
     studioId: integer("studio_id")
       .notNull()
-      .references(() => {return studio.id}),
+      .references(() => {
+        return studio.id;
+      }),
     translation: varchar("translation", { length: 63 }).notNull(),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => {return {
-    pk: primaryKey({ columns: [t.installmentId, t.localeCode] }),
-  }},
+  (t) => {
+    return {
+      pk: primaryKey({ columns: [t.installmentId, t.localeCode] }),
+    };
+  },
 );
 
 // ---------------------------------------------------------------------------
@@ -551,10 +692,14 @@ export const installmentGroup = pgTable("installment_group", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   accountingPeriodId: integer("accounting_period_id")
     .notNull()
-    .references(() => {return accountingPeriod.id}),
+    .references(() => {
+      return accountingPeriod.id;
+    }),
   name: varchar("name", { length: 63 }).notNull(),
   type: installmentType("type").notNull(),
   numberOfInstallments: integer("number_of_installments"),
@@ -590,20 +735,28 @@ export const installmentGroupI18n = pgTable(
   {
     installmentGroupId: integer("installment_group_id")
       .notNull()
-      .references(() => {return installmentGroup.id}),
+      .references(() => {
+        return installmentGroup.id;
+      }),
     localeCode: varchar("locale_code", { length: 10 })
       .notNull()
-      .references(() => {return locale.code}),
+      .references(() => {
+        return locale.code;
+      }),
     studioId: integer("studio_id")
       .notNull()
-      .references(() => {return studio.id}),
+      .references(() => {
+        return studio.id;
+      }),
     translation: varchar("translation", { length: 63 }).notNull(),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => {return {
-    pk: primaryKey({ columns: [t.installmentGroupId, t.localeCode] }),
-  }},
+  (t) => {
+    return {
+      pk: primaryKey({ columns: [t.installmentGroupId, t.localeCode] }),
+    };
+  },
 );
 
 // ---------------------------------------------------------------------------
@@ -613,13 +766,19 @@ export const installmentItem = pgTable("installment_item", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   installmentId: integer("installment_id")
     .notNull()
-    .references(() => {return installment.id}),
+    .references(() => {
+      return installment.id;
+    }),
   unitResidentId: integer("unit_resident_id")
     .notNull()
-    .references((): AnyPgColumn => {return unitResident.id}),
+    .references((): AnyPgColumn => {
+      return unitResident.id;
+    }),
   amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
   status: installmentItemStatus("status").notNull(),
   created: timestamp("created", { withTimezone: true }),
@@ -633,11 +792,15 @@ export const installmentPaymentSlip = pgTable("installment_payment_slip", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   code: varchar("code", { length: 63 }),
   masterDataId: integer("master_data_id")
     .notNull()
-    .references(() => {return masterData.id}),
+    .references(() => {
+      return masterData.id;
+    }),
   status: installmentPaymentSlipStatus("status").notNull(),
   created: timestamp("created", { withTimezone: true }),
   updated: timestamp("updated", { withTimezone: true }),
@@ -651,21 +814,29 @@ export const installmentPaymentSlipItem = pgTable(
   {
     installmentPaymentSlipId: integer("installment_payment_slip_id")
       .notNull()
-      .references(() => {return installmentPaymentSlip.id}),
+      .references(() => {
+        return installmentPaymentSlip.id;
+      }),
     installmentItemId: integer("installment_item_id")
       .notNull()
-      .references(() => {return installmentItem.id}),
+      .references(() => {
+        return installmentItem.id;
+      }),
     studioId: integer("studio_id")
       .notNull()
-      .references(() => {return studio.id}),
+      .references(() => {
+        return studio.id;
+      }),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => {return {
-    pk: primaryKey({
-      columns: [t.installmentPaymentSlipId, t.installmentItemId],
-    }),
-  }},
+  (t) => {
+    return {
+      pk: primaryKey({
+        columns: [t.installmentPaymentSlipId, t.installmentItemId],
+      }),
+    };
+  },
 );
 
 // ---------------------------------------------------------------------------
@@ -675,24 +846,34 @@ export const ledgerAccount = pgTable("ledger_account", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   accountingPeriodId: integer("accounting_period_id")
     .notNull()
-    .references((): AnyPgColumn => {return accountingPeriod.id}),
+    .references((): AnyPgColumn => {
+      return accountingPeriod.id;
+    }),
   name: varchar("name", { length: 255 }).notNull(),
   abbreviation: varchar("abbreviation", { length: 63 }),
   description: text("description"),
   type: ledgerAccountType("type").notNull(),
   order: integer("order"),
   parentLedgerAccountId: integer("parent_ledger_account_id").references(
-    (): AnyPgColumn => {return ledgerAccount.id},
+    (): AnyPgColumn => {
+      return ledgerAccount.id;
+    },
   ),
   defaultCounterAccountId: integer("default_counter_account_id").references(
-    (): AnyPgColumn => {return ledgerAccount.id},
+    (): AnyPgColumn => {
+      return ledgerAccount.id;
+    },
   ),
   defaultCounterAccountMasterDataId: integer(
     "default_counter_account_master_data_id",
-  ).references(() => {return masterData.id}),
+  ).references(() => {
+    return masterData.id;
+  }),
   kind: ledgerAccountKind("kind").notNull(),
   periodRestrictionStartDate: date("period_restriction_start_date"),
   periodRestrictionEndDate: date("period_restriction_end_date"),
@@ -725,13 +906,19 @@ export const ledgerAccountI18n = pgTable(
   {
     ledgerAccountId: integer("ledger_account_id")
       .notNull()
-      .references(() => {return ledgerAccount.id}),
+      .references(() => {
+        return ledgerAccount.id;
+      }),
     localeCode: varchar("locale_code", { length: 10 })
       .notNull()
-      .references(() => {return locale.code}),
+      .references(() => {
+        return locale.code;
+      }),
     studioId: integer("studio_id")
       .notNull()
-      .references(() => {return studio.id}),
+      .references(() => {
+        return studio.id;
+      }),
     nameTranslation: varchar("name_translation", { length: 255 }).notNull(),
     abbreviationTranslation: varchar("abbreviation_translation", {
       length: 63,
@@ -739,9 +926,11 @@ export const ledgerAccountI18n = pgTable(
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => {return {
-    pk: primaryKey({ columns: [t.ledgerAccountId, t.localeCode] }),
-  }},
+  (t) => {
+    return {
+      pk: primaryKey({ columns: [t.ledgerAccountId, t.localeCode] }),
+    };
+  },
 );
 
 // ---------------------------------------------------------------------------
@@ -751,21 +940,31 @@ export const ledgerEntry = pgTable("ledger_entry", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   ledgerTransactionId: integer("ledger_transaction_id")
     .notNull()
-    .references((): AnyPgColumn => {return ledgerTransaction.id}),
+    .references((): AnyPgColumn => {
+      return ledgerTransaction.id;
+    }),
   postingAccountId: integer("posting_account_id")
     .notNull()
-    .references((): AnyPgColumn => {return ledgerAccount.id}),
-  masterDataId: integer("master_data_id").references(() => {return masterData.id}),
-  unitResidentId: integer("unit_resident_id").references(() => {return unitResident.id}),
-  installmentItemId: integer("installment_item_id").references(
-    () => {return installmentItem.id},
-  ),
-  ledgerInvoiceId: integer("ledger_invoice_id").references(
-    () => {return ledgerInvoice.id},
-  ),
+    .references((): AnyPgColumn => {
+      return ledgerAccount.id;
+    }),
+  masterDataId: integer("master_data_id").references(() => {
+    return masterData.id;
+  }),
+  unitResidentId: integer("unit_resident_id").references(() => {
+    return unitResident.id;
+  }),
+  installmentItemId: integer("installment_item_id").references(() => {
+    return installmentItem.id;
+  }),
+  ledgerInvoiceId: integer("ledger_invoice_id").references(() => {
+    return ledgerInvoice.id;
+  }),
   amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
   order: integer("order").notNull(),
   type: ledgerEntryType("type"),
@@ -781,21 +980,29 @@ export const ledgerEntry2UrDistribution = pgTable(
   {
     ledgerEntryId: integer("ledger_entry_id")
       .notNull()
-      .references(() => {return ledgerEntry.id}),
+      .references(() => {
+        return ledgerEntry.id;
+      }),
     unitResidentId: integer("unit_resident_id")
       .notNull()
-      .references(() => {return unitResident.id}),
+      .references(() => {
+        return unitResident.id;
+      }),
     studioId: integer("studio_id")
       .notNull()
-      .references(() => {return studio.id}),
+      .references(() => {
+        return studio.id;
+      }),
     type: ledgerEntry2UrDistributionType("type"),
     amount: numeric("amount", { precision: 10, scale: 2 }),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => {return {
-    pk: primaryKey({ columns: [t.ledgerEntryId, t.unitResidentId] }),
-  }},
+  (t) => {
+    return {
+      pk: primaryKey({ columns: [t.ledgerEntryId, t.unitResidentId] }),
+    };
+  },
 );
 
 // ---------------------------------------------------------------------------
@@ -805,13 +1012,19 @@ export const ledgerInvoice = pgTable("ledger_invoice", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   accountingPeriodId: integer("accounting_period_id")
     .notNull()
-    .references(() => {return accountingPeriod.id}),
+    .references(() => {
+      return accountingPeriod.id;
+    }),
   masterDataId: integer("master_data_id")
     .notNull()
-    .references(() => {return masterData.id}),
+    .references(() => {
+      return masterData.id;
+    }),
   number: varchar("number", { length: 15 }).notNull(),
   description: varchar("description", { length: 127 }),
   date: date("date").notNull(),
@@ -828,9 +1041,9 @@ export const ledgerInvoice = pgTable("ledger_invoice", {
   }),
   vatPercentage: numeric("vat_percentage", { precision: 5, scale: 2 }),
   mixedVatAmount: numeric("mixed_vat_amount", { precision: 10, scale: 2 }),
-  withholdingTaxId: integer("withholding_tax_id").references(
-    () => {return withholdingTax.id},
-  ),
+  withholdingTaxId: integer("withholding_tax_id").references(() => {
+    return withholdingTax.id;
+  }),
   applyWithholdingTaxOnWelfareTax: integer(
     "apply_withholding_tax_on_welfare_tax",
   ).notNull(),
@@ -847,20 +1060,30 @@ export const ledgerInvoice2F24 = pgTable(
   {
     f24Id: integer("f24_id")
       .notNull()
-      .references(() => {return f24.id}),
+      .references(() => {
+        return f24.id;
+      }),
     ledgerInvoiceId: integer("ledger_invoice_id")
       .notNull()
-      .references(() => {return ledgerInvoice.id}),
+      .references(() => {
+        return ledgerInvoice.id;
+      }),
     studioId: integer("studio_id")
       .notNull()
-      .references(() => {return studio.id}),
-    ledgerEntryId: integer("ledger_entry_id").references(() => {return ledgerEntry.id}),
+      .references(() => {
+        return studio.id;
+      }),
+    ledgerEntryId: integer("ledger_entry_id").references(() => {
+      return ledgerEntry.id;
+    }),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => {return {
-    pk: primaryKey({ columns: [t.f24Id, t.ledgerInvoiceId] }),
-  }},
+  (t) => {
+    return {
+      pk: primaryKey({ columns: [t.f24Id, t.ledgerInvoiceId] }),
+    };
+  },
 );
 
 // ---------------------------------------------------------------------------
@@ -870,15 +1093,19 @@ export const ledgerTransaction = pgTable("ledger_transaction", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   accountingPeriodId: integer("accounting_period_id")
     .notNull()
-    .references(() => {return accountingPeriod.id}),
+    .references(() => {
+      return accountingPeriod.id;
+    }),
   code: integer("code").notNull(),
   type: ledgerTransactionType("type"),
-  ledgerInvoiceId: integer("ledger_invoice_id").references(
-    () => {return ledgerInvoice.id},
-  ),
+  ledgerInvoiceId: integer("ledger_invoice_id").references(() => {
+    return ledgerInvoice.id;
+  }),
   timestamp: timestamp("timestamp", { withTimezone: true }),
   description: varchar("description", { length: 255 }).notNull(),
   created: timestamp("created", { withTimezone: true }),
@@ -891,9 +1118,13 @@ export const ledgerTransaction = pgTable("ledger_transaction", {
 export const expenseLedgerAccount = pgTable("expense_ledger_account", {
   ledgerAccountId: integer("ledger_account_id")
     .primaryKey()
-    .references(() => {return ledgerAccount.id}),
+    .references(() => {
+      return ledgerAccount.id;
+    }),
   restrictionUnitGroupId: integer("restriction_unit_group_id").references(
-    () => {return unitGroup.id},
+    () => {
+      return unitGroup.id;
+    },
   ),
   estimate: numeric("estimate", { precision: 10, scale: 2 }),
   useDistinctTablesForEstimate: boolean("use_distinct_tables_for_estimate"),
@@ -910,7 +1141,9 @@ export const expenseLedgerAccount = pgTable("expense_ledger_account", {
     "next_period_estimate_increase_fixed_amount",
     { precision: 10, scale: 2 },
   ),
-  taxReliefId: integer("tax_relief_id").references(() => {return taxRelief.id}),
+  taxReliefId: integer("tax_relief_id").references(() => {
+    return taxRelief.id;
+  }),
   created: timestamp("created", { withTimezone: true }),
   updated: timestamp("updated", { withTimezone: true }),
 });
@@ -923,22 +1156,30 @@ export const expenseLA2Role = pgTable(
   {
     expenseLA2TableId: integer("expense_la2_table_id")
       .notNull()
-      .references(() => {return expenseLA2Table.id}),
+      .references(() => {
+        return expenseLA2Table.id;
+      }),
     unitResidentPriorityId: integer("unit_resident_priority_id")
       .notNull()
-      .references(() => {return unitResidentPriority.id}),
+      .references(() => {
+        return unitResidentPriority.id;
+      }),
     studioId: integer("studio_id")
       .notNull()
-      .references(() => {return studio.id}),
+      .references(() => {
+        return studio.id;
+      }),
     percentage: numeric("percentage", { precision: 5, scale: 2 }),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => {return {
-    pk: primaryKey({
-      columns: [t.expenseLA2TableId, t.unitResidentPriorityId],
-    }),
-  }},
+  (t) => {
+    return {
+      pk: primaryKey({
+        columns: [t.expenseLA2TableId, t.unitResidentPriorityId],
+      }),
+    };
+  },
 );
 
 // ---------------------------------------------------------------------------
@@ -948,13 +1189,19 @@ export const expenseLA2Table = pgTable("expense_la2_table", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   expenseLedgerAccountId: integer("expense_ledger_account_id")
     .notNull()
-    .references(() => {return expenseLedgerAccount.ledgerAccountId}),
+    .references(() => {
+      return expenseLedgerAccount.ledgerAccountId;
+    }),
   distributionTableId: integer("distribution_table_id")
     .notNull()
-    .references(() => {return distributionTable.id}),
+    .references(() => {
+      return distributionTable.id;
+    }),
   type: expenseLa2TableType("type"),
   percentage: numeric("percentage", { precision: 5, scale: 2 }),
   created: timestamp("created", { withTimezone: true }),
@@ -968,16 +1215,22 @@ export const expenseLAUnitException = pgTable("expense_la_unit_exception", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   expenseLedgerAccountId: integer("expense_ledger_account_id")
     .notNull()
-    .references(() => {return expenseLedgerAccount.ledgerAccountId}),
+    .references(() => {
+      return expenseLedgerAccount.ledgerAccountId;
+    }),
   unitId: integer("unit_id")
     .notNull()
-    .references(() => {return unit.id}),
-  expenseLA2TableId: integer("expense_la2_table_id").references(
-    () => {return expenseLA2Table.id},
-  ),
+    .references(() => {
+      return unit.id;
+    }),
+  expenseLA2TableId: integer("expense_la2_table_id").references(() => {
+    return expenseLA2Table.id;
+  }),
   created: timestamp("created", { withTimezone: true }),
   updated: timestamp("updated", { withTimezone: true }),
 });
@@ -990,22 +1243,30 @@ export const expenseLAUnitExceptionItem = pgTable(
   {
     expenseLAUnitExceptionId: integer("expense_la_unit_exception_id")
       .notNull()
-      .references(() => {return expenseLAUnitException.id}),
+      .references(() => {
+        return expenseLAUnitException.id;
+      }),
     unitResidentPriorityId: integer("unit_resident_priority_id")
       .notNull()
-      .references(() => {return unitResidentPriority.id}),
+      .references(() => {
+        return unitResidentPriority.id;
+      }),
     studioId: integer("studio_id")
       .notNull()
-      .references(() => {return studio.id}),
+      .references(() => {
+        return studio.id;
+      }),
     percentage: numeric("percentage", { precision: 5, scale: 2 }).notNull(),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => {return {
-    pk: primaryKey({
-      columns: [t.expenseLAUnitExceptionId, t.unitResidentPriorityId],
-    }),
-  }},
+  (t) => {
+    return {
+      pk: primaryKey({
+        columns: [t.expenseLAUnitExceptionId, t.unitResidentPriorityId],
+      }),
+    };
+  },
 );
 
 // ---------------------------------------------------------------------------
@@ -1015,7 +1276,9 @@ export const withholdingTax = pgTable("withholding_tax", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   countryIso31661A2: char("country_iso3166_1_a2", { length: 2 })
     .notNull()
-    .references(() => {return country.iso31661Alpha2}),
+    .references(() => {
+      return country.iso31661Alpha2;
+    }),
   code: varchar("code", { length: 10 }),
   name: varchar("name", { length: 32 }).notNull(),
   description: varchar("description", { length: 255 }),
@@ -1033,22 +1296,32 @@ export const withholdingTax2LA = pgTable(
   {
     withholdingTaxId: integer("withholding_tax_id")
       .notNull()
-      .references(() => {return withholdingTax.id}),
+      .references(() => {
+        return withholdingTax.id;
+      }),
     ledgerAccountId: integer("ledger_account_id")
       .notNull()
-      .references(() => {return ledgerAccount.id}),
+      .references(() => {
+        return ledgerAccount.id;
+      }),
     studioId: integer("studio_id")
       .notNull()
-      .references(() => {return studio.id}),
+      .references(() => {
+        return studio.id;
+      }),
     accountingPeriodId: integer("accounting_period_id")
       .notNull()
-      .references(() => {return accountingPeriod.id}),
+      .references(() => {
+        return accountingPeriod.id;
+      }),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => {return {
-    pk: primaryKey({ columns: [t.withholdingTaxId, t.ledgerAccountId] }),
-  }},
+  (t) => {
+    return {
+      pk: primaryKey({ columns: [t.withholdingTaxId, t.ledgerAccountId] }),
+    };
+  },
 );
 
 // ---------------------------------------------------------------------------
@@ -1058,7 +1331,9 @@ export const taxRelief = pgTable("tax_relief", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   countryIso31661A2: char("country_iso3166_1_a2", { length: 2 })
     .notNull()
-    .references(() => {return country.iso31661Alpha2}),
+    .references(() => {
+      return country.iso31661Alpha2;
+    }),
   name: varchar("name", { length: 63 }).notNull(),
   description: text("description"),
   percentage: numeric("percentage", { precision: 5, scale: 2 }).notNull(),
@@ -1073,7 +1348,9 @@ export const consumptionMeter = pgTable("consumption_meter", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   name: varchar("name", { length: 63 }).notNull(),
   created: timestamp("created", { withTimezone: true }),
   updated: timestamp("updated", { withTimezone: true }),
@@ -1086,10 +1363,14 @@ export const f24 = pgTable("f24", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   condominiumId: integer("condominium_id")
     .notNull()
-    .references(() => {return condominium.id}),
+    .references(() => {
+      return condominium.id;
+    }),
   referenceDate: date("reference_date"),
   paymentDate: date("payment_date"),
   confirmed: boolean("confirmed").notNull(),
@@ -1104,18 +1385,24 @@ export const distributionTable = pgTable("distribution_table", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
   studioId: integer("studio_id")
     .notNull()
-    .references(() => {return studio.id}),
+    .references(() => {
+      return studio.id;
+    }),
   accountingPeriodId: integer("accounting_period_id")
     .notNull()
-    .references(() => {return accountingPeriod.id}),
+    .references(() => {
+      return accountingPeriod.id;
+    }),
   name: varchar("name", { length: 63 }).notNull(),
   order: integer("order"),
   restrictionUnitGroupId: integer("restriction_unit_group_id").references(
-    () => {return unitGroup.id},
+    () => {
+      return unitGroup.id;
+    },
   ),
-  consumptionMeterId: integer("consumption_meter_id").references(
-    () => {return consumptionMeter.id},
-  ),
+  consumptionMeterId: integer("consumption_meter_id").references(() => {
+    return consumptionMeter.id;
+  }),
   notes: text("notes"),
   created: timestamp("created", { withTimezone: true }),
   updated: timestamp("updated", { withTimezone: true }),
@@ -1129,13 +1416,19 @@ export const distributionTableItem = pgTable(
   {
     distributionTableId: integer("distribution_table_id")
       .notNull()
-      .references(() => {return distributionTable.id}),
+      .references(() => {
+        return distributionTable.id;
+      }),
     unitId: integer("unit_id")
       .notNull()
-      .references(() => {return unit.id}),
+      .references(() => {
+        return unit.id;
+      }),
     studioId: integer("studio_id")
       .notNull()
-      .references(() => {return studio.id}),
+      .references(() => {
+        return studio.id;
+      }),
     coefficient: numeric("coefficient", {
       precision: 20,
       scale: 6,
@@ -1143,7 +1436,9 @@ export const distributionTableItem = pgTable(
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => {return {
-    pk: primaryKey({ columns: [t.distributionTableId, t.unitId] }),
-  }},
+  (t) => {
+    return {
+      pk: primaryKey({ columns: [t.distributionTableId, t.unitId] }),
+    };
+  },
 );

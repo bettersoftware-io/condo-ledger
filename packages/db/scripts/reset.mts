@@ -25,9 +25,14 @@ try {
     DROP SCHEMA IF EXISTS drizzle CASCADE;
     CREATE SCHEMA public;
   `);
-  console.log("reset: dropped public + drizzle schemas, recreated empty public");
+  console.log(
+    "reset: dropped public + drizzle schemas, recreated empty public",
+  );
 } catch (error) {
-  console.error("reset failed:", error instanceof Error ? error.message : String(error));
+  console.error(
+    "reset failed:",
+    error instanceof Error ? error.message : String(error),
+  );
   process.exitCode = 1;
 } finally {
   await pool.end();

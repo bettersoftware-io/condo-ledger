@@ -2,10 +2,21 @@ import type { PoolClient } from "pg";
 
 type Row = Record<string, string | number | boolean | null>;
 
-export async function loadTable(client: PoolClient, table: string, rows: Row[]): Promise<void> {
-  if (rows.length === 0) return;
+export async function loadTable(
+  client: PoolClient,
+  table: string,
+  rows: Row[],
+): Promise<void> {
+  if (rows.length === 0) {
+    return;
+  }
+
   const cols = Object.keys(rows[0]!);
-  const colList = cols.map((c) => {return `"${c}"`}).join(",");
+  const colList = cols
+    .map((c) => {
+      return `"${c}"`;
+    })
+    .join(",");
   // batch in chunks to keep parameter count under pg's 65535 limit
   const perRow = cols.length;
   const maxRows = Math.max(1, Math.floor(60000 / perRow));
@@ -14,7 +25,10 @@ export async function loadTable(client: PoolClient, table: string, rows: Row[]):
     const chunk = rows.slice(start, start + maxRows);
     const params: Array<string | number | boolean | null> = [];
     const tuples = chunk.map((r) => {
-      const ph = cols.map((c) => { params.push(r[c]!); return `$${params.length}`; });
+      const ph = cols.map((c) => {
+        params.push(r[c]!);
+        return `$${params.length}`;
+      });
       return `(${ph.join(",")})`;
     });
     await client.query(
@@ -32,7 +46,11 @@ interface OwnedSequence {
   sequence: string | null;
 }
 
-export async function resyncSequence(client: PoolClient, table: string, idCol = "id"): Promise<void> {
+export async function resyncSequence(
+  client: PoolClient,
+  table: string,
+  idCol = "id",
+): Promise<void> {
   // Not every loaded table has a serial `id`: many use natural or composite primary
   // keys (junction tables like condominium_supplier / ledger_invoice_2_f24, and
   // reference tables keyed by code). Those have no sequence to resync — skip them.
@@ -46,12 +64,20 @@ export async function resyncSequence(client: PoolClient, table: string, idCol = 
      ) AS exists`,
     [table, idCol],
   );
-  if (!colCheck.rows[0]?.exists) return;
+
+  if (!colCheck.rows[0]?.exists) {
+    return;
+  }
+
   const seq = await client.query<OwnedSequence>(
     `SELECT pg_get_serial_sequence($1, $2) AS sequence`,
     [table, idCol],
   );
-  if (!seq.rows[0]?.sequence) return;
+
+  if (!seq.rows[0]?.sequence) {
+    return;
+  }
+
   await client.query(
     `SELECT setval(
        pg_get_serial_sequence($1, $2),

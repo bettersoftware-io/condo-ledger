@@ -1,8 +1,12 @@
-import { describe, it, expect } from "vitest";
-import { legacyDb } from "./world.ts";
+import { describe, expect, it } from "vitest";
+
 import {
-  rawTrialBalanceCents, entryCount, estimateDistributionByResident, installmentItemTotalCents,
+  entryCount,
+  estimateDistributionByResident,
+  installmentItemTotalCents,
+  rawTrialBalanceCents,
 } from "./oracle.ts";
+import { legacyDb } from "./world.ts";
 
 describe("legacy oracles", () => {
   it("trial balance nets to zero for the reconciling periods", () => {
@@ -16,7 +20,9 @@ describe("legacy oracles", () => {
   it("the legacy estimateDistribution postings exist per resident", () => {
     const m = estimateDistributionByResident(db, "36");
     expect(m.size).toBeGreaterThan(0);
-    const total = [...m.values()].reduce((s, c) => {return s + c}, 0);
+    const total = [...m.values()].reduce((s, c) => {
+      return s + c;
+    }, 0);
     expect(total).toBeGreaterThan(0);
   });
   it("installment items total to a positive amount", () => {

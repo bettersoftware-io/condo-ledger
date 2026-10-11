@@ -1,14 +1,22 @@
-import { describe, it, expect } from "vitest";
-import { recomputePeriod } from "./recomputePeriod.ts";
+import { describe, expect, it } from "vitest";
+
+import { must } from "../must.ts";
 import type { PeriodState } from "./periodTypes.ts";
+import { recomputePeriod } from "./recomputePeriod.ts";
 
 describe("recomputePeriod", () => {
   it("returns riparto engine, installments, and balances", () => {
     const r = recomputePeriod(state);
     expect(r.riparto.unitLegacyIds).toEqual(["u1", "u2"]);
-    expect(r.balances.find((b) => {return b.residentId === "r1"})!.preventivoCents).toBe(60000);
+    expect(
+      must(
+        r.balances.find((b) => {
+          return b.residentId === "r1";
+        }),
+      ).preventivoCents,
+    ).toBe(60000);
     // installments: r1 preventivo 60000 over 2 → 30000,30000
-    const r1cells = r.installments.get("r1")!;
+    const r1cells = must(r.installments.get("r1"));
     expect(r1cells.get("i1")).toBe(30000);
     expect(r1cells.get("i2")).toBe(30000);
   });
@@ -18,7 +26,11 @@ describe("recomputePeriod", () => {
 
     for (const b of r.balances) {
       const cells = r.installments.get(b.residentId);
-      const sum = cells ? [...cells.values()].reduce((a, c) => {return a + c}, 0) : 0;
+      const sum = cells
+        ? [...cells.values()].reduce((a, c) => {
+            return a + c;
+          }, 0)
+        : 0;
       expect(sum).toBe(b.preventivoCents);
     }
   });
@@ -27,7 +39,9 @@ describe("recomputePeriod", () => {
 const state: PeriodState = {
   riparto: {
     accounts: [{ id: "A", name: "Spese", order: 1, parentId: null }],
-    links: [{ accountId: "A", linkId: "L1", tableId: "T", pct: 100, type: null }],
+    links: [
+      { accountId: "A", linkId: "L1", tableId: "T", pct: 100, type: null },
+    ],
     estimateCentsByAccount: { A: 100000 },
     actualCentsByAccount: { A: 0 },
     tableItems: [

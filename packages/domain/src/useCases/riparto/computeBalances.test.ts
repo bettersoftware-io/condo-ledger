@@ -1,4 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
+
+import { must } from "../must.ts";
 import { computeBalances, perResidentTotals } from "./computeBalances.ts";
 import { buildRiparto } from "./computeRiparto.ts";
 import type { RipartoInput } from "./types.ts";
@@ -21,14 +23,23 @@ describe("computeBalances", () => {
       { r1: 5000 }, // opening (saldoPrec)
       { r2: 2000 }, // paid (versato)
     );
-    const r1 = balances.find((b) => {return b.residentId === "r1"})!;
+
+    const r1 = must(
+      balances.find((b) => {
+        return b.residentId === "r1";
+      }),
+    );
     expect(r1.preventivoCents).toBe(60000);
     expect(r1.consuntivoCents).toBe(30000); // 50000 * 60/100
     expect(r1.saldoPrecCents).toBe(5000);
     expect(r1.versatoCents).toBe(0);
     expect(r1.totDovutoCents).toBe(60000 + 5000 - 0);
 
-    const r2 = balances.find((b) => {return b.residentId === "r2"})!;
+    const r2 = must(
+      balances.find((b) => {
+        return b.residentId === "r2";
+      }),
+    );
     expect(r2.preventivoCents).toBe(40000);
     expect(r2.consuntivoCents).toBe(20000);
     expect(r2.saldoPrecCents).toBe(0);
@@ -39,12 +50,20 @@ describe("computeBalances", () => {
   it("includes a roster resident with zero shares", () => {
     const eng = buildRiparto(input);
     const balances = computeBalances(
-      [...input.residents, { unitId: "u3", residentId: "r3", priorityId: "1", percentage: 100 }],
+      [
+        ...input.residents,
+        { unitId: "u3", residentId: "r3", priorityId: "1", percentage: 100 },
+      ],
       eng,
       {},
       {},
     );
-    const r3 = balances.find((b) => {return b.residentId === "r3"})!;
+
+    const r3 = must(
+      balances.find((b) => {
+        return b.residentId === "r3";
+      }),
+    );
     expect(r3.preventivoCents).toBe(0);
     expect(r3.consuntivoCents).toBe(0);
     expect(r3.totDovutoCents).toBe(0);

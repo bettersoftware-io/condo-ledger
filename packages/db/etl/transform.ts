@@ -4,8 +4,8 @@
 // coerce values by their declared MySQL type (bool / Rome-local datetime ->
 // UTC / calendar date passthrough / raw passthrough).
 
-import { classify, type DdlColumn } from "./ddl.ts";
 import { toSnake } from "../src/naming.ts";
+import { classify, type DdlColumn } from "./ddl.ts";
 
 export type TransformValue = string | number | boolean | null;
 
@@ -25,7 +25,11 @@ export function makeTransform(
     let m = typeByTable.get(table);
 
     if (!m) {
-      m = new Map((ddl[table] ?? []).map((c) => {return [c.name, c.sqlType]}));
+      m = new Map(
+        (ddl[table] ?? []).map((c) => {
+          return [c.name, c.sqlType];
+        }),
+      );
       typeByTable.set(table, m);
     }
 
@@ -51,7 +55,10 @@ export function makeTransform(
       // lowercase ('it'), which orphans the country FK. Canonicalize to uppercase
       // so the FK resolves to the existing parent — a lossless normalization (the
       // code still denotes the same country), not a data invention.
-      if (key === "country_iso3166_1_a2" || key === "citizenship_iso3166_1_a2") {
+      if (
+        key === "country_iso3166_1_a2" ||
+        key === "citizenship_iso3166_1_a2"
+      ) {
         row[key] = v.toUpperCase();
         continue;
       }
@@ -72,7 +79,6 @@ export function makeTransform(
           // Calendar date — pass through verbatim, no timezone conversion.
           row[key] = v;
           break;
-        case "raw":
         default:
           row[key] = v;
           break;
@@ -88,8 +94,14 @@ export function makeTransform(
 // NOTE: the exact-match on the whole string `"lastModified"` means audit-FK
 // columns like `lastModifiedMasterDataId` fall through to toSnake unchanged.
 function renameColumn(col: string): string {
-  if (col === "default") return "is_default";
-  if (col === "lastModified") return "updated";
+  if (col === "default") {
+    return "is_default";
+  }
+
+  if (col === "lastModified") {
+    return "updated";
+  }
+
   return toSnake(col);
 }
 

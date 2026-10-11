@@ -1,24 +1,39 @@
-import type { InstallmentColumn, InstallmentRow } from "#/seedTypes.ts";
 import type { Money } from "@cl/domain";
-import type { Db } from "../db.ts";
+
+import type { InstallmentColumn, InstallmentRow } from "#/seedTypes.ts";
+
 import { eur } from "../amounts.ts";
+import type { Db } from "../db.ts";
 
 function residentName(db: Db, mdId: string): string {
   const p = db.by("person", "masterDataId").get(mdId);
-  if (p) return [str(p.lastName), str(p.firstName)].filter(Boolean).join(" ");
+
+  if (p) {
+    return [str(p.lastName), str(p.firstName)].filter(Boolean).join(" ");
+  }
+
   const c = db.by("company", "masterDataId").get(mdId);
   return c ? String(c.name) : `Anagrafica ${mdId}`;
 }
 
-function roleName(db: Db, scenarioId: string | undefined, priorityId: string | undefined): string | undefined {
-  const role = db.rows("unitResidentRole").find(
-    (r) => {return String(r.unitOwnershipScenarioId) === scenarioId && String(r.unitResidentPriorityId) === priorityId},
-  );
+function roleName(
+  db: Db,
+  scenarioId: string | undefined,
+  priorityId: string | undefined,
+): string | undefined {
+  const role = db.rows("unitResidentRole").find((r) => {
+    return (
+      String(r.unitOwnershipScenarioId) === scenarioId &&
+      String(r.unitResidentPriorityId) === priorityId
+    );
+  });
   return role ? String(role.name) : undefined;
 }
 
 function labelYear(db: Db, periodId: string): string {
-  const p = db.rows("accountingPeriod").find((x) => {return String(x.id) === periodId});
+  const p = db.rows("accountingPeriod").find((x) => {
+    return String(x.id) === periodId;
+  });
   return p ? String(p.name) : periodId;
 }
 
@@ -42,37 +57,58 @@ export function projectInstallments(
 ): InstallmentsProjection {
   const installments = db
     .rows("installment")
-    .filter((i) => {return String(i.accountingPeriodId) === periodId})
-    .sort((a, b) => {return String(a.expiryDate).localeCompare(String(b.expiryDate))});
+    .filter((i) => {
+      return String(i.accountingPeriodId) === periodId;
+    })
+    .sort((a, b) => {
+      return String(a.expiryDate).localeCompare(String(b.expiryDate));
+    });
 
-  const columns: InstallmentColumn[] = installments.map((i) => {return {
-    id: `inst${i.id}`,
-    header: String(i.name),
-    expiry: String(i.expiryDate),
-  }});
+  const columns: InstallmentColumn[] = installments.map((i) => {
+    return {
+      id: `inst${i.id}`,
+      header: String(i.name),
+      expiry: String(i.expiryDate),
+    };
+  });
 
-  if (columns.length === 0) return { columns: [], rows: [] };
+  if (columns.length === 0) {
+    return { columns: [], rows: [] };
+  }
 
   // Build per-resident installment amounts: urId -> colId -> cents
-  const instIds = new Set(installments.map((i) => {return String(i.id)}));
+  const instIds = new Set(
+    installments.map((i) => {
+      return String(i.id);
+    }),
+  );
   const itemsByResident = new Map<string, Map<string, number>>();
 
   for (const it of db.rows("installmentItem")) {
-    if (!instIds.has(String(it.installmentId))) continue;
+    if (!instIds.has(String(it.installmentId))) {
+      continue;
+    }
+
     const ur = str(it.unitResidentId);
-    if (!ur) continue;
+
+    if (!ur) {
+      continue;
+    }
+
     const byInst = itemsByResident.get(ur) ?? new Map<string, number>();
     byInst.set(`inst${String(it.installmentId)}`, eur(str(it.amount)).cents);
     itemsByResident.set(ur, byInst);
   }
 
   function blank(): Record<string, Money> {
-    return Object.fromEntries(columns.map((c) => {return [c.id, m(0)]}));
+    return Object.fromEntries(
+      columns.map((c) => {
+        return [c.id, m(0)];
+      }),
+    );
   }
 
-  function sumRows(
-    rows: InstallmentRow[],
-  ): RowSums {
+  function sumRows(rows: InstallmentRow[]): RowSums {
     const byInstallment = blank();
     let saldoPrec = 0;
     let totPreventivo = 0;
@@ -90,13 +126,22 @@ export function projectInstallments(
       totDovuto += r.totDovuto.cents;
     }
 
-    return { byInstallment, saldoPrec: m(saldoPrec), totPreventivo: m(totPreventivo), totDovuto: m(totDovuto) };
+    return {
+      byInstallment,
+      saldoPrec: m(saldoPrec),
+      totPreventivo: m(totPreventivo),
+      totDovuto: m(totDovuto),
+    };
   }
 
   const units = db
     .rows("unit")
-    .filter((u) => {return String(u.accountingPeriodId) === periodId})
-    .sort((a, b) => {return String(a.code ?? "").localeCompare(String(b.code ?? ""), "it")});
+    .filter((u) => {
+      return String(u.accountingPeriodId) === periodId;
+    })
+    .sort((a, b) => {
+      return String(a.code ?? "").localeCompare(String(b.code ?? ""), "it");
+    });
 
   const upByUnit = db.group("unitPeriod", "unitId");
   const resByUp = db.group("unitResident", "unitPeriodId");
@@ -104,8 +149,8 @@ export function projectInstallments(
   const unitRows: InstallmentRow[] = units.map((u) => {
     const ups = upByUnit.get(String(u.id)) ?? [];
 
-    const resRows: InstallmentRow[] = ups.flatMap((up) =>
-      {return (resByUp.get(String(up.id)) ?? []).map((r) => {
+    const resRows: InstallmentRow[] = ups.flatMap((up) => {
+      return (resByUp.get(String(up.id)) ?? []).map((r) => {
         const byInstallment = blank();
         const mine = itemsByResident.get(String(r.id));
 
@@ -115,22 +160,28 @@ export function projectInstallments(
           }
         }
 
-        const totPreventivo = Object.values(byInstallment).reduce((s, x) => {return s + x.cents}, 0);
+        const totPreventivo = Object.values(byInstallment).reduce((s, x) => {
+          return s + x.cents;
+        }, 0);
         const saldoPrec = eur(str(r.startingBalance)).cents;
         const resRow: InstallmentRow = {
           id: `ir${r.id}`,
           kind: "resident",
           unitId: `u${u.id}`,
           label: residentName(db, String(r.masterDataId)),
-          role: roleName(db, str(up.unitOwnershipScenarioId), str(r.unitResidentPriorityId)),
+          role: roleName(
+            db,
+            str(up.unitOwnershipScenarioId),
+            str(r.unitResidentPriorityId),
+          ),
           saldoPrec: m(saldoPrec),
           totPreventivo: m(totPreventivo),
           totDovuto: m(saldoPrec + totPreventivo),
           byInstallment,
         };
         return resRow;
-      })},
-    );
+      });
+    });
 
     const agg = sumRows(resRows);
     const unitRow: InstallmentRow = {
@@ -157,7 +208,9 @@ export function projectInstallments(
 }
 
 function str(v: unknown): string | undefined {
-  return v === null || v === undefined || String(v).trim() === "" ? undefined : String(v).trim();
+  return v === null || v === undefined || String(v).trim() === ""
+    ? undefined
+    : String(v).trim();
 }
 
 function m(c: number): Money {

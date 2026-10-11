@@ -1,34 +1,47 @@
+import type { PeriodState } from "@cl/domain";
+
 import type {
-  CondominiumNode,
+  Anagrafica,
+  CalendarEvent,
+  CalendarLayer,
   CondominiumDetail,
-  UnitRow,
-  DistributionTable,
+  CondominiumNode,
   DistributionColumn,
   DistributionRow,
-  LedgerAccountRow,
-  LedgerTxnRow,
-  InstallmentColumn,
-  InstallmentRow,
+  DistributionTable,
+  DistributionType,
   F24Row,
   FunctionalRole,
   Id,
-  CalendarLayer,
-  CalendarEvent,
-  Anagrafica,
-  DistributionType,
+  InstallmentColumn,
+  InstallmentRow,
+  LedgerAccountRow,
+  LedgerTxnRow,
+  UnitRow,
 } from "#/seedTypes.ts";
-import type { PeriodState } from "@cl/domain";
+
 import type { Db } from "./db.ts";
-import { reconcilePeriods } from "./reconcile.ts";
-import { projectAnagrafiche, projectCategories } from "./project/anagrafiche.ts";
-import { projectLayers, projectEvents } from "./project/calendar.ts";
-import { projectTree, projectDetails, projectFunctional, projectF24 } from "./project/structure.ts";
 import { projectAccounts, projectTransactions } from "./project/accounting.ts";
-import { projectUnits } from "./project/units.ts";
-import { projectDistributionTables, projectDistribution } from "./project/distribution.ts";
+import {
+  projectAnagrafiche,
+  projectCategories,
+} from "./project/anagrafiche.ts";
+import { projectEvents, projectLayers } from "./project/calendar.ts";
+import {
+  projectDistribution,
+  projectDistributionTables,
+} from "./project/distribution.ts";
+import { projectIndividual } from "./project/individual.ts";
 import { projectInstallments } from "./project/installments.ts";
 import { dbToPeriodState } from "./project/periodState.ts";
-import { projectIndividual } from "./project/individual.ts";
+import {
+  projectDetails,
+  projectF24,
+  projectFunctional,
+  projectTree,
+} from "./project/structure.ts";
+import { projectUnits } from "./project/units.ts";
+import { reconcilePeriods } from "./reconcile.ts";
 
 type Dist = { columns: DistributionColumn[]; rows: DistributionRow[] };
 type Installments = { columns: InstallmentColumn[]; rows: InstallmentRow[] };
@@ -102,11 +115,18 @@ export function assemble(db: Db): Seed {
         installmentsByPeriod[pid] = emptyInst;
         periodStateByPeriod[pid] = {
           riparto: {
-            accounts: [], links: [], estimateCentsByAccount: {}, actualCentsByAccount: {},
-            tableItems: [], roles: [], residents: [], unitLegacyIds: [],
+            accounts: [],
+            links: [],
+            estimateCentsByAccount: {},
+            actualCentsByAccount: {},
+            tableItems: [],
+            roles: [],
+            residents: [],
+            unitLegacyIds: [],
           },
           plan: { installmentIds: [], overrides: [] },
-          opening: {}, paid: {},
+          opening: {},
+          paid: {},
         };
         individualByPeriod[pid] = {};
       }

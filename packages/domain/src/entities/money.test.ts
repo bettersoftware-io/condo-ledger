@@ -1,5 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { money, fromCents, add, formatEUR, isNegative } from "./money.ts";
+import { describe, expect, it } from "vitest";
+
+import { add, formatEUR, fromCents, isNegative, money } from "./money.ts";
 
 describe("Money", () => {
   it("constructs from a decimal amount as integer cents", () => {

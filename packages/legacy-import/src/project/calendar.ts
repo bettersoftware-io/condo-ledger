@@ -1,4 +1,5 @@
-import type { CalendarLayer, CalendarEvent } from "#/seedTypes.ts";
+import type { CalendarEvent, CalendarLayer } from "#/seedTypes.ts";
+
 import type { Db } from "../db.ts";
 
 // Catch-all layer for events whose layerId is null in the legacy dump.
@@ -30,15 +31,29 @@ const STATUS: Record<string, CalendarEvent["status"]> = {
 };
 
 export function projectLayers(db: Db): CalendarLayer[] {
-  const layers = db.rows("calendarLayer").map((l) => {return {
-    id: `lay${l.id}`,
-    name: String(l.name),
-    color: String(l.color ?? "#7f8c8d"),
-  }});
-  const needsDefault = db.rows("calendarEvent").some((e) => {return e.layerId == null});
+  const layers = db.rows("calendarLayer").map((l) => {
+    return {
+      id: `lay${l.id}`,
+      name: String(l.name),
+      color: String(l.color ?? "#7f8c8d"),
+    };
+  });
 
-  if (needsDefault && !layers.some((l) => {return l.id === DEFAULT_LAYER_ID})) {
-    layers.unshift({ id: DEFAULT_LAYER_ID, name: "Generale", color: "#7f8c8d" });
+  const needsDefault = db.rows("calendarEvent").some((e) => {
+    return e.layerId == null;
+  });
+
+  if (
+    needsDefault &&
+    !layers.some((l) => {
+      return l.id === DEFAULT_LAYER_ID;
+    })
+  ) {
+    layers.unshift({
+      id: DEFAULT_LAYER_ID,
+      name: "Generale",
+      color: "#7f8c8d",
+    });
   }
 
   return layers;
@@ -64,16 +79,27 @@ export function projectEvents(db: Db): CalendarEvent[] {
       priority: PRIORITY[String(e.priority)] ?? "medium",
     };
 
-    if (e.ignoreTime !== true && timePart !== undefined && timePart !== "00:00:00") {
+    if (
+      e.ignoreTime !== true &&
+      timePart !== undefined &&
+      timePart !== "00:00:00"
+    ) {
       ev.time = timePart.slice(0, 5);
     }
 
-    if (apId !== undefined) ev.periodId = apId;
+    if (apId !== undefined) {
+      ev.periodId = apId;
+    }
+
     const notes =
       e.notes === null || e.notes === undefined
         ? undefined
         : String(e.notes).trim() || undefined;
-    if (notes !== undefined) ev.notes = notes;
+
+    if (notes !== undefined) {
+      ev.notes = notes;
+    }
+
     return ev;
   });
 }

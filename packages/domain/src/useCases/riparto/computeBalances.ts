@@ -1,17 +1,24 @@
-import type { Mode, RipartoEngine } from "./types.ts";
 import type { ResidentBalance } from "./periodTypes.ts";
+import type { Mode, RipartoEngine } from "./types.ts";
 
 /**
  * Sum each resident's share for a mode across every column and unit.
  * Mirrors apps/web/tools/gen/project/units.ts `sumByMode` so the generator's
  * unit balances stay byte-identical when it adopts recomputePeriod.
  */
-export function perResidentTotals(eng: RipartoEngine, mode: Mode): Map<string, number> {
+export function perResidentTotals(
+  eng: RipartoEngine,
+  mode: Mode,
+): Map<string, number> {
   const out = new Map<string, number>();
 
   for (const legacyUnitId of eng.unitLegacyIds) {
     for (const col of eng.columns) {
-      const split = eng.perResidentAmount(col.legacyAccountId, mode, legacyUnitId);
+      const split = eng.perResidentAmount(
+        col.legacyAccountId,
+        mode,
+        legacyUnitId,
+      );
 
       for (const [residentId, cents] of split) {
         out.set(residentId, (out.get(residentId) ?? 0) + cents);
@@ -49,7 +56,10 @@ export function computeBalances(
   const balances: ResidentBalance[] = [];
 
   for (const { residentId } of roster) {
-    if (seen.has(residentId)) continue;
+    if (seen.has(residentId)) {
+      continue;
+    }
+
     seen.add(residentId);
     const preventivoCents = preventivo.get(residentId) ?? 0;
     const consuntivoCents = consuntivo.get(residentId) ?? 0;

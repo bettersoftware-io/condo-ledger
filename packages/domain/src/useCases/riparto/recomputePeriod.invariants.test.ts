@@ -1,16 +1,28 @@
-import { describe, it, expect } from "vitest";
-import { recomputePeriod } from "./recomputePeriod.ts";
+import { describe, expect, it } from "vitest";
+
 import { perResidentTotals } from "./computeBalances.ts";
 import type { PeriodState } from "./periodTypes.ts";
+import { recomputePeriod } from "./recomputePeriod.ts";
 
 describe("recomputePeriod invariants", () => {
   it("conservation: per-resident estimate Σ equals per-unit estimate Σ (the matrix splits exactly)", () => {
     const r = recomputePeriod(state);
-    const perResident = [...perResidentTotals(r.riparto, "estimate").values()].reduce((a, c) => {return a + c}, 0);
-    const perUnit = r.riparto.unitLegacyIds.reduce(
-      (s, u) => {return s + r.riparto.columns.reduce((c, col) => {return c + r.riparto.perUnitAmount(col.legacyAccountId, "estimate", u)}, 0)},
-      0,
-    );
+    const perResident = [
+      ...perResidentTotals(r.riparto, "estimate").values(),
+    ].reduce((a, c) => {
+      return a + c;
+    }, 0);
+
+    const perUnit = r.riparto.unitLegacyIds.reduce((s, u) => {
+      return (
+        s +
+        r.riparto.columns.reduce((c, col) => {
+          return (
+            c + r.riparto.perUnitAmount(col.legacyAccountId, "estimate", u)
+          );
+        }, 0)
+      );
+    }, 0);
     expect(perResident).toBe(perUnit);
   });
 
@@ -19,7 +31,11 @@ describe("recomputePeriod invariants", () => {
 
     for (const b of r.balances) {
       const cells = r.installments.get(b.residentId);
-      const sum = cells ? [...cells.values()].reduce((a, c) => {return a + c}, 0) : 0;
+      const sum = cells
+        ? [...cells.values()].reduce((a, c) => {
+            return a + c;
+          }, 0)
+        : 0;
       expect(sum).toBe(b.preventivoCents);
     }
   });
@@ -28,7 +44,9 @@ describe("recomputePeriod invariants", () => {
     const r = recomputePeriod(state);
 
     for (const b of r.balances) {
-      expect(b.totDovutoCents).toBe(b.preventivoCents + b.saldoPrecCents - b.versatoCents);
+      expect(b.totDovutoCents).toBe(
+        b.preventivoCents + b.saldoPrecCents - b.versatoCents,
+      );
     }
   });
 
@@ -36,10 +54,12 @@ describe("recomputePeriod invariants", () => {
     const a = recomputePeriod(state);
     const b = recomputePeriod(state);
 
-    function norm(r: ReturnType<typeof recomputePeriod>) {
+    function norm(r: ReturnType<typeof recomputePeriod>): unknown {
       return {
         balances: r.balances,
-        installments: [...r.installments].map(([rid, cells]) => {return [rid, [...cells.entries()]]}),
+        installments: [...r.installments].map(([rid, cells]) => {
+          return [rid, [...cells.entries()]];
+        }),
         estimate: [...perResidentTotals(r.riparto, "estimate").entries()],
       };
     }
@@ -50,7 +70,9 @@ describe("recomputePeriod invariants", () => {
   it("owner/tenant split conserves within the unit (o1 + t1 estimate = unit u1 estimate)", () => {
     const r = recomputePeriod(state);
     const est = perResidentTotals(r.riparto, "estimate");
-    const u1Total = r.riparto.columns.reduce((c, col) => {return c + r.riparto.perUnitAmount(col.legacyAccountId, "estimate", "u1")}, 0);
+    const u1Total = r.riparto.columns.reduce((c, col) => {
+      return c + r.riparto.perUnitAmount(col.legacyAccountId, "estimate", "u1");
+    }, 0);
     expect((est.get("o1") ?? 0) + (est.get("t1") ?? 0)).toBe(u1Total);
   });
 });
@@ -88,7 +110,10 @@ const state: PeriodState = {
     ],
     unitLegacyIds: ["u1", "u2", "u3"],
   },
-  plan: { installmentIds: ["i1", "i2", "i3"], overrides: [{ residentId: "o2", installmentId: "i1", cents: 1 }] },
+  plan: {
+    installmentIds: ["i1", "i2", "i3"],
+    overrides: [{ residentId: "o2", installmentId: "i1", cents: 1 }],
+  },
   opening: { o1: 500, o2: -200 },
   paid: { o3: 100 },
 };

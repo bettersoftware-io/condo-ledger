@@ -1,12 +1,12 @@
-import type { Tables, Row } from "./loadRows.ts";
+import type { Row, Tables } from "./loadRows.ts";
 
 export interface Db {
   tables: Tables;
-  condominiums: Row[];                 // selected, real, populated
-  periodsOf(condId: string): Row[];    // selected condominium's periods, by id asc
+  condominiums: Row[]; // selected, real, populated
+  periodsOf(condId: string): Row[]; // selected condominium's periods, by id asc
   rows(name: string): Row[];
-  by(name: string, key: string): Map<string, Row>;          // index by a column
-  group(name: string, key: string): Map<string, Row[]>;     // group by a column
+  by(name: string, key: string): Map<string, Row>; // index by a column
+  group(name: string, key: string): Map<string, Row[]>; // group by a column
 }
 
 // Junk rows carry "test" in the name.
@@ -26,7 +26,15 @@ export function buildDb(tables: Tables): Db {
 
     if (!m) {
       m = new Map();
-      for (const r of T(tables, name)) { const k = s(r[key]); if (k !== null) m.set(k, r); }
+
+      for (const r of T(tables, name)) {
+        const k = s(r[key]);
+
+        if (k !== null) {
+          m.set(k, r);
+        }
+      }
+
       indexCache.set(ck, m);
     }
 
@@ -39,7 +47,17 @@ export function buildDb(tables: Tables): Db {
 
     if (!m) {
       m = new Map();
-      for (const r of T(tables, name)) { const k = s(r[key]); if (k === null) continue; (m.get(k) ?? m.set(k, []).get(k)!).push(r); }
+
+      for (const r of T(tables, name)) {
+        const k = s(r[key]);
+
+        if (k === null) {
+          continue;
+        }
+
+        (m.get(k) ?? m.set(k, []).get(k)!).push(r);
+      }
+
       groupCache.set(ck, m);
     }
 
@@ -50,25 +68,51 @@ export function buildDb(tables: Tables): Db {
   const unitsByPeriod = group("unit", "accountingPeriodId");
 
   function periodsOf(condId: string): Row[] {
-    return (periodsByCond.get(condId) ?? []).slice().sort((a, b) => {return Number(a.id) - Number(b.id)});
+    return (periodsByCond.get(condId) ?? []).slice().sort((a, b) => {
+      return Number(a.id) - Number(b.id);
+    });
   }
 
   function condById(id: string): Row | undefined {
-    return T(tables, "condominium").find((r) => {return String(r.id) === id});
+    return T(tables, "condominium").find((r) => {
+      return String(r.id) === id;
+    });
   }
 
   function condHasUnits(condId: string): boolean {
-    if (String(condById(condId)?.type) === "super") return true; // super-condos have no direct periods/units
-    return periodsOf(condId).some((p) => {return (unitsByPeriod.get(String(p.id)) ?? []).length > 0});
+    if (String(condById(condId)?.type) === "super") {
+      return true; // super-condos have no direct periods/units
+    }
+
+    return periodsOf(condId).some((p) => {
+      return (unitsByPeriod.get(String(p.id)) ?? []).length > 0;
+    });
   }
 
   const condominiums = T(tables, "condominium")
-    .filter((c) => {return !JUNK_NAME.test(String(c.name))})                                // drop "... test" rows
-    .filter((c) => {return !(s(c.code) === null && JUNK_NUMBERED_DUPE.test(String(c.name)))}) // drop code-null numbered dupes
-    .filter((c) => {return condHasUnits(String(c.id))})                                    // drop empty buildings
-    .sort((a, b) => {return Number(a.id) - Number(b.id)});
+    .filter((c) => {
+      return !JUNK_NAME.test(String(c.name));
+    }) // drop "... test" rows
+    .filter((c) => {
+      return !(s(c.code) === null && JUNK_NUMBERED_DUPE.test(String(c.name)));
+    }) // drop code-null numbered dupes
+    .filter((c) => {
+      return condHasUnits(String(c.id));
+    }) // drop empty buildings
+    .sort((a, b) => {
+      return Number(a.id) - Number(b.id);
+    });
 
-  return { tables, condominiums, periodsOf, rows: (n) => {return T(tables, n)}, by, group };
+  return {
+    tables,
+    condominiums,
+    periodsOf,
+    rows: (n) => {
+      return T(tables, n);
+    },
+    by,
+    group,
+  };
 }
 
 function T(tables: Tables, name: string): Row[] {

@@ -7,7 +7,9 @@
     "./schema": "./src/schema/index.ts",
     "./etl/*": "./etl/*"
   },
-  "imports": { "#/*": "./src/*" },
+  "imports": {
+    "#/*": "./src/*"
+  },
   "scripts": {
     "db:up": "docker compose up -d",
     "db:down": "docker compose down -v",
@@ -19,6 +21,12 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
-  "dependencies": { "drizzle-orm": "^0.36.0", "pg": "^8.13.0" },
-  "devDependencies": { "@types/pg": "^8.11.0", "drizzle-kit": "^0.28.0" }
+  "dependencies": {
+    "drizzle-orm": "^0.36.0",
+    "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.0",
+    "drizzle-kit": "^0.28.0"
+  }
 }

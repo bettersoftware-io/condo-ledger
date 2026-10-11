@@ -1,6 +1,8 @@
-import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
-import { parseDdl, tableColumns, classify } from "../etl/ddl.ts";
+
+import { describe, expect, it } from "vitest";
+
+import { classify, parseDdl, tableColumns } from "../etl/ddl.ts";
 
 // Inline fixture exercising every column case plus excluded constraint/key lines.
 const fixture = `
@@ -86,20 +88,27 @@ describe("parseDdl real DDL smoke test", () => {
   });
 
   it("accountingPeriod.created classifies as tz", () => {
-    const created = ddl.accountingPeriod!.find((c) => {return c.name === "created"});
+    const created = ddl.accountingPeriod!.find((c) => {
+      return c.name === "created";
+    });
     expect(created).toBeDefined();
     expect(classify(created!.sqlType)).toBe("tz");
   });
 
   it("accountingPeriod.startDate classifies as date", () => {
-    const startDate = ddl.accountingPeriod!.find((c) => {return c.name === "startDate"});
+    const startDate = ddl.accountingPeriod!.find((c) => {
+      return c.name === "startDate";
+    });
     expect(startDate).toBeDefined();
     expect(startDate!.sqlType).toBe("date");
     expect(classify(startDate!.sqlType)).toBe("date");
   });
 
   const structureSql = readFileSync(
-    new URL("../../../old/db/it-jtime-condominium.structure.sql", import.meta.url),
+    new URL(
+      "../../../old/db/it-jtime-condominium.structure.sql",
+      import.meta.url,
+    ),
     "utf8",
   );
 

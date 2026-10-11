@@ -88,5 +88,15 @@
       "tools/arch/templates/turbo.json.txt": "33cf5e86de524fa1337d7246aee32689654a8e5207c70b83fe8c7150a54b9657",
       "tools/arch/testing/portTests.mts": "81fba3da26074db268fb24c81bf3d521cd68b39b61eb9c472304ef3642d8c1b5"
     }
+  },
+  "format-lint": {
+    "files": {
+      "tools/format-lint/biome.base.json": "0477f4392f093114ae01845b7a94640561c671fe531a9b6ffa455c9972da698b",
+      "tools/format-lint/fix.mts": "5c8418be9ea4890a8b11dafd6b935dc0b0ec1256553c7683515dea87d5cd7f94",
+      "tools/templates/format-lint.biome.json.txt": "837989065b90202735ec8a433beaeaab8610fe4bf2d3c4a6862282d0ea4dedbf"
+    },
+    "starting": [
+      "biome.json"
+    ]
   }
 }

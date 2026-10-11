@@ -1,6 +1,7 @@
-import { describe, it, expect } from "vitest";
-import { makeTransform } from "../etl/transform.ts";
+import { describe, expect, it } from "vitest";
+
 import type { DdlColumn } from "../etl/ddl.ts";
+import { makeTransform } from "../etl/transform.ts";
 
 describe("makeTransform — column renames", () => {
   it("snake_cases normal columns", () => {
@@ -9,7 +10,11 @@ describe("makeTransform — column renames", () => {
   });
 
   it("renames `default` to is_default", () => {
-    const r = transformRow("masterDataTaxTreatment", ["id", "default"], ["1", "1"]);
+    const r = transformRow(
+      "masterDataTaxTreatment",
+      ["id", "default"],
+      ["1", "1"],
+    );
     expect(r).toHaveProperty("is_default");
     expect(r).not.toHaveProperty("default");
   });
@@ -41,27 +46,47 @@ describe("makeTransform — column renames", () => {
 
 describe("makeTransform — type classification", () => {
   it("tinyint(1): '1' -> true, '0' -> false (isActive)", () => {
-    expect(transformRow("condominium", ["isActive"], ["1"]).is_active).toBe(true);
-    expect(transformRow("condominium", ["isActive"], ["0"]).is_active).toBe(false);
+    expect(transformRow("condominium", ["isActive"], ["1"]).is_active).toBe(
+      true,
+    );
+    expect(transformRow("condominium", ["isActive"], ["0"]).is_active).toBe(
+      false,
+    );
   });
 
   it("tinyint(1): bool also applies to renamed `default`", () => {
-    expect(transformRow("masterDataTaxTreatment", ["default"], ["1"]).is_default).toBe(true);
-    expect(transformRow("masterDataTaxTreatment", ["default"], ["0"]).is_default).toBe(false);
+    expect(
+      transformRow("masterDataTaxTreatment", ["default"], ["1"]).is_default,
+    ).toBe(true);
+    expect(
+      transformRow("masterDataTaxTreatment", ["default"], ["0"]).is_default,
+    ).toBe(false);
   });
 
   it("datetime: Rome->UTC (CET +01:00 in winter)", () => {
-    const r = transformRow("condominium", ["id", "created"], ["1", "2011-01-01 00:00:00"]);
+    const r = transformRow(
+      "condominium",
+      ["id", "created"],
+      ["1", "2011-01-01 00:00:00"],
+    );
     expect(r.created).toBe("2010-12-31T23:00:00.000Z");
   });
 
   it("datetime: Rome->UTC (CEST +02:00 in summer)", () => {
-    const r = transformRow("condominium", ["id", "created"], ["1", "2011-07-01 00:00:00"]);
+    const r = transformRow(
+      "condominium",
+      ["id", "created"],
+      ["1", "2011-07-01 00:00:00"],
+    );
     expect(r.created).toBe("2011-06-30T22:00:00.000Z");
   });
 
   it("date: passes through verbatim (NO tz shift)", () => {
-    const r = transformRow("condominium", ["id", "birthDate"], ["1", "1980-05-20"]);
+    const r = transformRow(
+      "condominium",
+      ["id", "birthDate"],
+      ["1", "1980-05-20"],
+    );
     expect(r.birth_date).toBe("1980-05-20");
   });
 

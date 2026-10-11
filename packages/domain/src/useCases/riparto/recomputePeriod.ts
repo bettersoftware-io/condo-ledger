@@ -1,7 +1,7 @@
-import { buildRiparto } from "./computeRiparto.ts";
-import { perResidentTotals, computeBalances } from "./computeBalances.ts";
+import { computeBalances, perResidentTotals } from "./computeBalances.ts";
 import { computeInstallments } from "./computeInstallments.ts";
-import type { PeriodState, PeriodResult } from "./periodTypes.ts";
+import { buildRiparto } from "./computeRiparto.ts";
+import type { PeriodResult, PeriodState } from "./periodTypes.ts";
 
 /**
  * Pure period cascade. Depends only on `state`. Integer cents throughout.
@@ -13,6 +13,11 @@ export function recomputePeriod(state: PeriodState): PeriodResult {
   const riparto = buildRiparto(state.riparto);
   const estimateByResident = perResidentTotals(riparto, "estimate");
   const installments = computeInstallments(estimateByResident, state.plan);
-  const balances = computeBalances(state.riparto.residents, riparto, state.opening, state.paid);
+  const balances = computeBalances(
+    state.riparto.residents,
+    riparto,
+    state.opening,
+    state.paid,
+  );
   return { riparto, installments, balances };
 }

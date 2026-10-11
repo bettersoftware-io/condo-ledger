@@ -1,10 +1,15 @@
 import { readdirSync, readFileSync } from "node:fs";
+
 import { describe, it } from "vitest";
+
 import { parseFeature, type Step } from "./parse.ts";
 
 export type World = Record<string, unknown>;
 type StepFn = (world: World, ...args: string[]) => void | Promise<void>;
-interface Binding { re: RegExp; fn: StepFn }
+interface Binding {
+  re: RegExp;
+  fn: StepFn;
+}
 
 const bindings: Binding[] = [];
 
@@ -38,7 +43,11 @@ export async function runStep(world: World, step: Step): Promise<void> {
 
 /** Read every .feature in `dir` and emit one Vitest test per scenario. */
 export function runFeatureFiles(dir: string, makeWorld: () => World): void {
-  const files = readdirSync(dir).filter((f) => {return f.endsWith(".feature")}).sort();
+  const files = readdirSync(dir)
+    .filter((f) => {
+      return f.endsWith(".feature");
+    })
+    .sort();
 
   for (const file of files) {
     const feature = parseFeature(readFileSync(`${dir}/${file}`, "utf8"));

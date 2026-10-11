@@ -1,14 +1,27 @@
 import type { Anagrafica } from "#/seedTypes.ts";
+
+import { formatAddress, parseAddressVO } from "../addressVO.ts";
 import type { Db } from "../db.ts";
-import { parseAddressVO, formatAddress } from "../addressVO.ts";
 
 /** Category display name: prefer it-IT i18n translation, else the base name. */
 function categoryName(db: Db, categoryId: string | null): string | undefined {
-  if (!categoryId) return undefined;
+  if (!categoryId) {
+    return undefined;
+  }
+
   const base = db.by("masterDataCategory", "id").get(categoryId);
-  if (!base) return undefined;
-  const i18n = (db.group("masterDataCategoryI18n", "masterDataCategoryId").get(categoryId) ?? [])
-    .find((r) => {return String(r.localeCode).startsWith("it")});
+
+  if (!base) {
+    return undefined;
+  }
+
+  const i18n = (
+    db
+      .group("masterDataCategoryI18n", "masterDataCategoryId")
+      .get(categoryId) ?? []
+  ).find((r) => {
+    return String(r.localeCode).startsWith("it");
+  });
   return str(i18n?.translation) ?? str(base.name);
 }
 
@@ -17,10 +30,15 @@ export function projectCategories(db: Db): string[] {
 
   for (const cat of db.rows("masterDataCategory")) {
     const n = categoryName(db, String(cat.id));
-    if (n) names.add(n);
+
+    if (n) {
+      names.add(n);
+    }
   }
 
-  return [...names].sort((a, b) => {return a.localeCompare(b, "it", { sensitivity: "base" })});
+  return [...names].sort((a, b) => {
+    return a.localeCompare(b, "it", { sensitivity: "base" });
+  });
 }
 
 export function projectAnagrafiche(db: Db): Anagrafica[] {
@@ -31,12 +49,19 @@ export function projectAnagrafiche(db: Db): Anagrafica[] {
   for (const md of db.rows("masterData")) {
     const id = String(md.id);
     const categoria = categoryName(db, str(md.masterDataCategoryId) ?? null);
-    if (!categoria) continue; // master-data with no category isn't shown in the registry
-    const stato: "active" | "archived" = String(md.status) === "archived" ? "archived" : "active";
+
+    if (!categoria) {
+      continue; // master-data with no category isn't shown in the registry
+    }
+
+    const stato: "active" | "archived" =
+      String(md.status) === "archived" ? "archived" : "active";
     const codice = str(md.code);
     const codiceFiscale = str(md.taxCode);
     const partitaIva = str(md.vatNumber);
-    const indirizzo = str(formatAddress(parseAddressVO(str(md.postalAddress) ?? null)));
+    const indirizzo = str(
+      formatAddress(parseAddressVO(str(md.postalAddress) ?? null)),
+    );
     const note = str(md.notes);
 
     const company = companies.get(id);
@@ -90,13 +115,18 @@ export function projectAnagrafiche(db: Db): Anagrafica[] {
     // master-data that is neither person nor company (rare) is skipped.
   }
 
-  return out.sort((a, b) =>
-    {return a.nominativo.localeCompare(b.nominativo, "it", { sensitivity: "base" })},
-  );
+  return out.sort((a, b) => {
+    return a.nominativo.localeCompare(b.nominativo, "it", {
+      sensitivity: "base",
+    });
+  });
 }
 
 function str(v: unknown): string | undefined {
-  if (v === null || v === undefined) return undefined;
+  if (v === null || v === undefined) {
+    return undefined;
+  }
+
   const t = String(v).trim();
   return t === "" ? undefined : t;
 }
