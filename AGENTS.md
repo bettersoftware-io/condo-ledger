@@ -227,6 +227,17 @@ Its message says what is wrong and where the code belongs. Fix the code. If you
 believe a finding is wrong, or it is outside what you were asked to do, say so;
 do not work around the gate or edit the rules to make it pass.
 
+## Packages of this project beyond the starter's
+
+| Package | Role | Holds |
+|---|---|---|
+| `packages/db` | leaf | The legacy schema in Drizzle (94 tables), migrations, and the ETL that seeds Postgres from the dumps in `old/db`. Imports no workspace package |
+| `packages/legacy-import` | server | The offline generator: parses the dump, projects it through the domain engine, writes `packages/legacy-import/seed/data.generated.json` and runs the Gherkin parity specs in `packages/legacy-import/specs` |
+
+`old/` is the archived legacy application and the first prototype
+(`old/prototype-web`): reference only, outside the workspace, ignored by lint.
+The design the app is built to is `docs/design/web/v1/README.md`.
+
 <!-- BEGIN:turborepo-agent-rules -->
 
 # This is NOT the Turborepo you know
