@@ -10,7 +10,7 @@ describe("must", () => {
   it("throws on undefined", () => {
     expect(() => {
       must(undefined);
-    }).toThrow();
+    }).toThrow("Expected a value, found undefined");
   });
 });
 
