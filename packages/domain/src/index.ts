@@ -9,6 +9,7 @@ export type { PricePort } from "./ports/pricePort.ts";
 export { createPriceSimulator } from "./simulators/priceSimulator.ts";
 export * from "./useCases/accountTree.ts";
 export * from "./useCases/allocate.ts";
+export * from "./useCases/ledger.ts";
 export * from "./useCases/riparto/computeBalances.ts";
 export * from "./useCases/riparto/computeInstallments.ts";
 export * from "./useCases/riparto/computeRiparto.ts";

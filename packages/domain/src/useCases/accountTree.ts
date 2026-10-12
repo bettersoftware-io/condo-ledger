@@ -19,7 +19,7 @@ type NodeIcon =
   | "roundings"
   | "tax";
 
-type PostingScope =
+export type PostingScope =
   | { kind: "account"; accountId: string }
   | { kind: "supplier"; accountId: string; supplierId: string }
   | { kind: "residency"; accountId: string; residentId: string };
