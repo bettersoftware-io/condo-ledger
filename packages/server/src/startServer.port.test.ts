@@ -1,98 +1,63 @@
 import { connect } from "node:net";
 
-import { Subject } from "rxjs";
 import { describe, expect, it, onTestFinished } from "vitest";
 
-import type { Price } from "@cl/domain";
-import { encodePrice, WS_PATH } from "@cl/shared";
+import { WS_PATH } from "@cl/shared";
 
 import { type RunningServer, startServer } from "./startServer.ts";
 
-describe("the price server", () => {
-  it("sends each price to a connected client as a wire message", async () => {
-    const prices$ = new Subject<Price>();
-    const server = await startTestServer(prices$);
-    const client = await connectClient(server.port);
-    const message = client.nextMessage();
+describe("the server", () => {
+  it("greets a client that connects", async () => {
+    const server = await startTestServer();
+    const client = openClient(server.port);
 
-    prices$.next({ symbol: "EURUSD", mid: 1.1 });
+    const greeting = await client.nextMessage();
 
-    expect(await message).toEqual(encodePrice({ symbol: "EURUSD", mid: 1.1 }));
+    expect(greeting).toEqual({ type: "ready" });
   });
 
-  it("gives every connected client the same prices, from one feed", async () => {
-    const prices$ = new Subject<Price>();
-    let feeds = 0;
-    const server = await startServer({
-      port: 0,
-      prices: {
-        prices: () => {
-          feeds += 1;
+  it("greets each client once", async () => {
+    const server = await startTestServer();
+    const first = openClient(server.port);
+    const second = openClient(server.port);
 
-          return prices$;
-        },
-      },
-    });
+    await Promise.all([first.nextMessage(), second.nextMessage()]);
+    await Promise.all([first.close(), second.close()]);
 
-    onTestFinished(() => {
-      return server.close();
-    });
+    expect([first.messages.length, second.messages.length]).toEqual([1, 1]);
+  });
 
-    const first = await connectClient(server.port);
-    const second = await connectClient(server.port);
-    const received = Promise.all([first.nextMessage(), second.nextMessage()]);
+  it("closes every client when it closes", async () => {
+    const server = await startTestServer();
+    const client = openClient(server.port);
+    await client.nextMessage();
+    const closed = client.closed();
 
-    prices$.next({ symbol: "EURUSD", mid: 1.1 });
+    await server.close();
 
-    expect(await received).toEqual([
-      encodePrice({ symbol: "EURUSD", mid: 1.1 }),
-      encodePrice({ symbol: "EURUSD", mid: 1.1 }),
-    ]);
-    expect(feeds).toBe(1);
+    await expect(closed).resolves.toBeUndefined();
   });
 
   it("drops a client that breaks the protocol, and keeps serving the others", async () => {
-    const prices$ = new Subject<Price>();
-    const server = await startTestServer(prices$);
-    const healthy = await connectClient(server.port);
+    const server = await startTestServer();
 
     await breakTheProtocol(server.port);
 
-    const message = healthy.nextMessage();
+    const healthy = openClient(server.port);
 
-    prices$.next({ symbol: "EURUSD", mid: 1.1 });
-
-    expect(await message).toEqual(encodePrice({ symbol: "EURUSD", mid: 1.1 }));
+    expect(await healthy.nextMessage()).toEqual({ type: "ready" });
   });
 
-  it("stops listening to the price source when the last client leaves", async () => {
-    const prices$ = new Subject<Price>();
-    const server = await startTestServer(prices$);
-    const client = await connectClient(server.port);
+  it("picks a free port when asked for 0", async () => {
+    const server = await startTestServer();
 
-    expect(prices$.observed).toBe(true);
-
-    await client.close();
-    await expect
-      .poll(() => {
-        return prices$.observed;
-      })
-      .toBe(false);
+    expect(server.port).toBeGreaterThan(0);
   });
 });
 
-/** A server on a free port, fed by hand and closed when the test ends. */
-async function startTestServer(
-  prices$: Subject<Price>,
-): Promise<RunningServer> {
-  const server = await startServer({
-    port: 0,
-    prices: {
-      prices: () => {
-        return prices$;
-      },
-    },
-  });
+/** A server on a free port, closed when the test ends. */
+async function startTestServer(): Promise<RunningServer> {
+  const server = await startServer({ port: 0 });
 
   onTestFinished(() => {
     return server.close();
@@ -132,41 +97,52 @@ function breakTheProtocol(port: number): Promise<void> {
   });
 }
 
-interface ConnectedClient {
+interface TestClient {
+  messages: unknown[];
   nextMessage: () => Promise<unknown>;
+  closed: () => Promise<void>;
   close: () => Promise<void>;
 }
 
-/** Resolves once the connection is open, which is after the server has subscribed. */
-function connectClient(port: number): Promise<ConnectedClient> {
-  const socket = new WebSocket(`ws://localhost:${port}${WS_PATH}`);
+/** Connects at once and keeps every message it receives. */
+function openClient(port: number): TestClient {
+  const socket = new WebSocket(`ws://127.0.0.1:${port}${WS_PATH}`);
+  const messages: unknown[] = [];
+  const waiting: Array<(message: unknown) => void> = [];
 
-  return new Promise((resolve, reject) => {
-    socket.addEventListener("error", () => {
-      reject(new Error("the client could not connect"));
-    });
-    socket.addEventListener("open", () => {
-      resolve({
-        nextMessage: () => {
-          return new Promise((received) => {
-            socket.addEventListener(
-              "message",
-              (event) => {
-                received(JSON.parse(String(event.data)));
-              },
-              { once: true },
-            );
-          });
-        },
-        close: () => {
-          return new Promise<void>((closed) => {
-            socket.addEventListener("close", () => {
-              closed();
-            });
-            socket.close();
-          });
-        },
+  socket.addEventListener("message", (event) => {
+    const message: unknown = JSON.parse(String(event.data));
+    messages.push(message);
+    waiting.shift()?.(message);
+  });
+
+  function whenClosed(): Promise<void> {
+    return new Promise((done) => {
+      if (socket.readyState === WebSocket.CLOSED) {
+        done();
+
+        return;
+      }
+
+      socket.addEventListener("close", () => {
+        done();
       });
     });
-  });
+  }
+
+  return {
+    messages,
+    nextMessage: () => {
+      return new Promise((received) => {
+        waiting.push(received);
+      });
+    },
+    closed: whenClosed,
+    close: () => {
+      const done = whenClosed();
+      socket.close();
+
+      return done;
+    },
+  };
 }

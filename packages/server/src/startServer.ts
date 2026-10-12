@@ -1,15 +1,12 @@
 import type { AddressInfo } from "node:net";
 
-import { share } from "rxjs";
 import { WebSocketServer } from "ws";
 
-import type { PricePort } from "@cl/domain";
-import { encodePrice, WS_PATH } from "@cl/shared";
+import { encodeReady, WS_PATH } from "@cl/shared";
 
 export interface ServerOptions {
   /** 0 picks a free port. */
   port: number;
-  prices: PricePort;
 }
 
 export interface RunningServer {
@@ -18,28 +15,14 @@ export interface RunningServer {
 }
 
 /**
- * Streams prices to every client that connects. All connections share one
- * feed, so every client sees the same prices; the feed opens with the first
- * client and closes when the last one leaves.
- *
- * The server takes its price source as a port, like the client does, so a test
- * drives it by hand and production runs it on the simulator.
+ * Greets every client that connects, once. The server's ports arrive on this
+ * channel in M3.
  */
-export function startServer({
-  port,
-  prices,
-}: ServerOptions): Promise<RunningServer> {
+export function startServer({ port }: ServerOptions): Promise<RunningServer> {
   const server = new WebSocketServer({ port, path: WS_PATH });
-  const prices$ = prices.prices().pipe(share());
 
   server.on("connection", (socket) => {
-    const subscription = prices$.subscribe((price) => {
-      socket.send(JSON.stringify(encodePrice(price)));
-    });
-
-    socket.on("close", () => {
-      subscription.unsubscribe();
-    });
+    socket.send(JSON.stringify(encodeReady()));
 
     // Without a listener, one client's protocol error would end the process.
     socket.on("error", () => {

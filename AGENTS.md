@@ -89,12 +89,12 @@ The price list is a worked example of every one of these. Copy its shape:
 | Contract test | `packages/domain/src/ports/__contracts__/PricePortContract.ts` |
 | Simulator | `packages/domain/src/simulators/priceSimulator.ts` |
 | Use case | `packages/domain/src/useCases/trackMovement.ts` |
-| Real adapter | `packages/client-core/src/adapters/wsPrice.ts` |
+| Real adapter (the connection; port adapters arrive in M3) | `packages/client-core/src/adapters/wsConnection.ts` |
 | Presenter (shared state, timers) | `packages/client-core/src/presenters/pricesPresenter.ts` |
 | State machine (per-component state) | `packages/client-core/src/machines/selectionMachine.ts` |
 | View model | `packages/react-bindings/src/createViewModel.ts` |
 | Composition root | `packages/client-react/src/app/startApp.tsx` |
-| Client adapter against the real server | `packages/integration/src/priceOverWebSocket.port.test.ts` |
+| Client adapter against the real server | `packages/integration/src/readyOverWebSocket.port.test.ts` |
 | Dumb component | `packages/client-react/src/ui/PriceList.tsx` |
 | Page object and its test | `packages/client-react/src/ui/PriceList.page.tsx`, `PriceList.test.tsx` |
 

@@ -1,8 +1,4 @@
-import {
-  type AppPorts,
-  createWsConnection,
-  createWsPricePort,
-} from "@cl/client-core";
+import type { AppPorts } from "@cl/client-core";
 import { createPriceSimulator } from "@cl/domain";
 
 /**
@@ -12,9 +8,9 @@ import { createPriceSimulator } from "@cl/domain";
  */
 export function buildPorts(serverUrl: string | undefined): AppPorts {
   if (serverUrl) {
-    console.info(`[data] composed live from ${serverUrl}`);
-
-    return { price: createWsPricePort(createWsConnection(serverUrl)) };
+    throw new Error(
+      `a server URL is set (${serverUrl}) but the server's ports arrive in M3`,
+    );
   }
 
   console.info("[data] composed sim: no VITE_SERVER_URL");
