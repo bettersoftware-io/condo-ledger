@@ -1,5 +1,5 @@
 import type { ResidentBalance } from "./periodTypes.ts";
-import type { Mode, RipartoEngine } from "./types.ts";
+import type { RipartoEngine, RipartoMode } from "./types.ts";
 
 /**
  * Sum each resident's share for a mode across every column and unit.
@@ -8,7 +8,7 @@ import type { Mode, RipartoEngine } from "./types.ts";
  */
 export function perResidentTotals(
   eng: RipartoEngine,
-  mode: Mode,
+  mode: RipartoMode,
 ): Map<string, number> {
   const out = new Map<string, number>();
 

@@ -1,6 +1,6 @@
 // packages/domain/src/useCases/riparto/types.ts
 
-export type Mode = "estimate" | "current";
+export type RipartoMode = "estimate" | "current";
 
 /** One link of an expense account to a distribution table. pct already resolved (null→100). */
 export interface LinkRef {
@@ -69,13 +69,17 @@ export interface SubtreeTotals {
 export interface RipartoEngine {
   columns: LinkedColumn[];
   /** per-unit amount in cents for an account+mode+legacy unit id. */
-  perUnitAmount(accountId: string, mode: Mode, legacyUnitId: string): number;
+  perUnitAmount(
+    accountId: string,
+    mode: RipartoMode,
+    legacyUnitId: string,
+  ): number;
   /** subtree totals (cents) for a linked account. */
   subtree(accountId: string): SubtreeTotals;
   /** split a unit's per-unit amount among its residents. Map<unitResidentId, cents>. */
   perResidentAmount(
     accountId: string,
-    mode: Mode,
+    mode: RipartoMode,
     legacyUnitId: string,
   ): Map<string, number>;
   /** legacy unit ids present this period (sorted by code). */

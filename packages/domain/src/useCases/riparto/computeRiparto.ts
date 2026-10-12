@@ -4,10 +4,10 @@ import { listFor, must } from "#/support/must.ts";
 import type {
   LinkedColumn,
   LinkRef,
-  Mode,
   ResidentInfo,
   RipartoEngine,
   RipartoInput,
+  RipartoMode,
   SubtreeTotals,
 } from "./types.ts";
 
@@ -192,7 +192,7 @@ export function buildRiparto(input: RipartoInput): RipartoEngine {
   );
 
   /** Pick the links relevant to a mode. */
-  function chosenLinks(col: LinkedColumn, mode: Mode): LinkRef[] {
+  function chosenLinks(col: LinkedColumn, mode: RipartoMode): LinkRef[] {
     if (mode === "estimate") {
       const est = col.links.filter((l) => {
         return l.type === "estimate";
@@ -223,7 +223,7 @@ export function buildRiparto(input: RipartoInput): RipartoEngine {
   /** per-unit amount, per chosen link, as a list (used by resident split). */
   function perUnitByLink(
     accountId: string,
-    mode: Mode,
+    mode: RipartoMode,
     legacyUnitId: string,
   ): LinkCents[] {
     const col = colByAccount.get(accountId);
@@ -254,7 +254,7 @@ export function buildRiparto(input: RipartoInput): RipartoEngine {
 
   function perUnitAmount(
     accountId: string,
-    mode: Mode,
+    mode: RipartoMode,
     legacyUnitId: string,
   ): number {
     return perUnitByLink(accountId, mode, legacyUnitId).reduce((s, x) => {
@@ -347,7 +347,7 @@ export function buildRiparto(input: RipartoInput): RipartoEngine {
 
   function perResidentAmount(
     accountId: string,
-    mode: Mode,
+    mode: RipartoMode,
     legacyUnitId: string,
   ): Map<string, number> {
     const out = new Map<string, number>();
