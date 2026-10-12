@@ -1,5 +1,8 @@
+export * from "./entities/account.ts";
+export * from "./entities/cents.ts";
 export * from "./entities/money.ts";
 export type { Movement, Price, PriceTick } from "./entities/price.ts";
+export * from "./entities/result.ts";
 export type { PricePort } from "./ports/pricePort.ts";
 export { createPriceSimulator } from "./simulators/priceSimulator.ts";
 export * from "./useCases/allocate.ts";
@@ -10,3 +13,4 @@ export * from "./useCases/riparto/periodTypes.ts";
 export * from "./useCases/riparto/recomputePeriod.ts";
 export * from "./useCases/riparto/types.ts";
 export { trackMovement } from "./useCases/trackMovement.ts";
+export * from "./useCases/validateBudget.ts";
