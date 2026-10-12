@@ -1,10 +1,13 @@
 export * from "./entities/account.ts";
 export * from "./entities/cents.ts";
+export * from "./entities/journal.ts";
 export * from "./entities/money.ts";
+export * from "./entities/party.ts";
 export type { Movement, Price, PriceTick } from "./entities/price.ts";
 export * from "./entities/result.ts";
 export type { PricePort } from "./ports/pricePort.ts";
 export { createPriceSimulator } from "./simulators/priceSimulator.ts";
+export * from "./useCases/accountTree.ts";
 export * from "./useCases/allocate.ts";
 export * from "./useCases/riparto/computeBalances.ts";
 export * from "./useCases/riparto/computeInstallments.ts";

@@ -1,19 +1,23 @@
-type AccountNature =
+import type { Cents } from "./cents.ts";
+
+export type AccountNature =
   | "assets"
   | "liabilities"
   | "assetsOrLiabilities"
   | "income"
   | "expenses";
-type AccountType = "grouping" | "regular" | "control" | "controlUnitResident";
-type AccountRole =
+export type AccountType =
+  | "grouping"
+  | "regular"
+  | "control"
+  | "controlUnitResident";
+export type AccountRole =
   | "cash"
   | "bank"
   | "suppliers"
   | "owners"
   | "roundings"
   | "tax";
-
-import type { Cents } from "./cents.ts";
 
 /** One line of a period's chart of accounts. */
 export interface Account {
