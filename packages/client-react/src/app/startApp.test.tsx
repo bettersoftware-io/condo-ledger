@@ -17,7 +17,8 @@ describe("starting the app", () => {
   it("draws the UI into #root, on the simulators", async () => {
     const page = await startAppOnPage();
 
-    expect(page.heading()).toBe("CondoLedger");
+    expect(page.accountLine()).toContain("marco");
+    expect(page.breadcrumb()).toMatch(/Accounts, Ledgers & Balance$/);
 
     await page.stop();
   });

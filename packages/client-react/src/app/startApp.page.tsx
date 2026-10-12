@@ -1,9 +1,11 @@
 import { act } from "react";
 
+import { TESTIDS } from "../ui/testids.ts";
 import { startApp } from "./startApp.tsx";
 
 export interface StartedApp {
-  heading: () => string | null;
+  accountLine: () => string | null;
+  breadcrumb: () => string | null;
   /** True when nothing is drawn in #root. */
   isBlank: () => boolean;
   stop: () => Promise<void>;
@@ -20,8 +22,11 @@ export async function startAppOnPage(): Promise<StartedApp> {
   });
 
   return {
-    heading: (): string | null => {
-      return document.querySelector("h1")?.textContent ?? null;
+    accountLine: (): string | null => {
+      return textOf(TESTIDS.accountLine);
+    },
+    breadcrumb: (): string | null => {
+      return textOf(TESTIDS.breadcrumb);
     },
     isBlank: (): boolean => {
       return document.getElementById("root")?.childElementCount === 0;
@@ -32,6 +37,12 @@ export async function startAppOnPage(): Promise<StartedApp> {
       });
     },
   };
+}
+
+function textOf(testId: string): string | null {
+  return (
+    document.querySelector(`[data-testid="${testId}"]`)?.textContent ?? null
+  );
 }
 
 /** Stands in until the app has started and handed back the real one. */

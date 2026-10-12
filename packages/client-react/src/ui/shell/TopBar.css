@@ -1,0 +1,167 @@
+/* README "Top bar" and the prototype's header (Condomini.dc.html, lines 31–109). */
+.topbar {
+  flex: none;
+  background: var(--chrome);
+  display: flex;
+  align-items: stretch;
+  padding: 0 18px;
+  gap: 18px;
+  color: var(--cfg);
+}
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 9px 0;
+}
+.logo-tile {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--acc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.logo-badge {
+  fill: var(--acc);
+}
+.topbar-wordmark {
+  line-height: 1.14;
+}
+.topbar-name {
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: 0.3px;
+  color: #fff;
+}
+.topbar-tagline {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--cfgd);
+  text-transform: uppercase;
+}
+.topbar-spacer {
+  flex: 1;
+}
+.topbar-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 7px 0 0;
+}
+.topbar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.topbar-account {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--cfgd);
+}
+.topbar-account b {
+  color: var(--cfg);
+  font-weight: 600;
+}
+.topbar-separator {
+  opacity: 0.4;
+}
+.topbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.topbar-anchor {
+  position: relative;
+}
+
+/* Chrome buttons: height 28, radius 7. */
+.topbar-chrome-button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--cfg);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.topbar-mode {
+  width: 30px;
+  padding: 0;
+  justify-content: center;
+}
+.topbar-language {
+  padding: 0 9px;
+}
+.topbar-chevron {
+  color: var(--cfgd);
+}
+.topbar-swatch {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  background: var(--acc);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+.topbar-swatch-option {
+  width: 13px;
+  height: 13px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+.flag {
+  display: block;
+  flex: none;
+  border-radius: 2px;
+}
+.topbar-log-out {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  color: #e98a8a;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Module tabs. */
+.module-tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  justify-content: flex-end;
+}
+.module-tab {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 16px 9px;
+  border-radius: 9px 9px 0 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--cfgd);
+  cursor: pointer;
+}
+.module-tab[aria-selected="true"] {
+  background: var(--panel);
+  color: var(--tx);
+  font-weight: 600;
+}
+.module-tab[aria-selected="false"] .module-tab-dot circle {
+  fill: var(--cfgd);
+}

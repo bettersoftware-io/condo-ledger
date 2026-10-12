@@ -1,10 +1,8 @@
 import type { ReactElement } from "react";
 
-/** Stands in for the shell, which arrives with the Accounts screen. */
+import { AppRoot } from "./shell/AppRoot.tsx";
+
+/** The whole UI: the shell, which draws the screen the person is on. */
 export function App(): ReactElement {
-  return (
-    <main className="app-placeholder">
-      <h1>CondoLedger</h1>
-    </main>
-  );
+  return <AppRoot />;
 }
