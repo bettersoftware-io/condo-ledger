@@ -13,6 +13,8 @@ const config: ProjectCoverageConfig = {
       "the legacy schema and its connection, carried over from the DB migration; its ETL suites need a live Postgres and skip without one. Measured from M3, when the server adapters are written over it",
     "packages/legacy-import/src/**":
       "the offline generator carried over from the prototype; its correctness is held by the parity specs against the dump, not by per-file coverage. Measured from M3, when it becomes the import path",
+    "packages/domain/src/simulators/seed/legacySeed.generated.ts":
+      "generated data, one constant; its content is held by the generator's freshness test against the dump",
   },
 };
 

@@ -11,6 +11,7 @@ import type {
   Posting,
 } from "../entities/journal.ts";
 import type { Party } from "../entities/party.ts";
+import type { LegacySeed } from "../simulators/seed/legacySeed.ts";
 
 /** One period's books, small enough to work every figure out by hand. */
 export interface SmallBooks {
@@ -179,6 +180,33 @@ export function createSmallBooks(): SmallBooks {
         unitCode: "B01",
       },
     ],
+  };
+}
+
+/** The small books as a seed: one building, Pozzetto, whose one period, 2013, holds them. */
+export function createSmallSeed(): LegacySeed {
+  const books = createSmallBooks();
+
+  return {
+    buildings: [
+      {
+        id: "c1",
+        name: "Pozzetto",
+        periods: [
+          {
+            id: books.periodId,
+            name: "2013",
+            type: "ordinary",
+            start: "2013-01-01",
+            end: "2013-12-31",
+            closed: false,
+          },
+        ],
+      },
+    ],
+    accounts: books.accounts,
+    entries: books.entries,
+    parties: books.parties,
   };
 }
 
