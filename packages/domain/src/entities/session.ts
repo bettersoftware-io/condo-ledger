@@ -11,11 +11,11 @@ export interface Firm {
   name: string;
 }
 
-type Mode = "light" | "dark";
+export type Mode = "light" | "dark";
 
-type Theme = "slate" | "carbon" | "sage";
+export type Theme = "slate" | "carbon" | "sage";
 
-type Language = "en" | "it" | "fr" | "de" | "es";
+export type Language = "en" | "it" | "fr" | "de" | "es";
 
 export interface Preferences {
   mode: Mode;

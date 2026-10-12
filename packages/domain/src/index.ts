@@ -7,9 +7,21 @@ export * from "./entities/party.ts";
 export type { Movement, Price, PriceTick } from "./entities/price.ts";
 export * from "./entities/result.ts";
 export * from "./entities/session.ts";
+export type { AccountsPort } from "./ports/accountsPort.ts";
+export type { BuildingsPort } from "./ports/buildingsPort.ts";
+export type { JournalPort } from "./ports/journalPort.ts";
 export type { PricePort } from "./ports/pricePort.ts";
+export type { SessionPort } from "./ports/sessionPort.ts";
+export { createAccountsSimulator } from "./simulators/accountsSimulator.ts";
+export { createBuildingsSimulator } from "./simulators/buildingsSimulator.ts";
+export { createJournalSimulator } from "./simulators/journalSimulator.ts";
 export { createPriceSimulator } from "./simulators/priceSimulator.ts";
 export * from "./simulators/seed/legacySeed.ts";
+export {
+  createSessionSimulator,
+  DESIGN_FIRM,
+  DESIGN_PRINCIPAL,
+} from "./simulators/sessionSimulator.ts";
 export * from "./useCases/accountTree.ts";
 export * from "./useCases/allocate.ts";
 export * from "./useCases/ledger.ts";
