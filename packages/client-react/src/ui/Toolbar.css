@@ -1,0 +1,79 @@
+.toolbar {
+  display: flex;
+  gap: 6px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--bd2);
+  align-items: center;
+}
+.toolbar-button {
+  height: 24px;
+  border-radius: 5px;
+  border: 1px solid var(--bd);
+  background: var(--ctrl);
+  color: var(--tx);
+  font-size: 12px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+.toolbar-button[data-icon-only="true"] {
+  width: 26px;
+  padding: 0;
+  justify-content: center;
+}
+.toolbar-button:hover:not(:disabled) {
+  background: var(--hover);
+}
+.toolbar-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.toolbar-button[data-tone="ok"] {
+  color: var(--ok);
+  font-weight: 700;
+}
+.toolbar-button[data-tone="neg"] {
+  color: var(--neg);
+  font-weight: 700;
+}
+.toolbar-button[data-tone="muted"] {
+  color: var(--txd);
+}
+.toolbar-divider {
+  border: 0;
+  flex: none;
+  width: 1px;
+  height: 16px;
+  background: var(--bd);
+  margin: 0 3px;
+}
+.toolbar-search {
+  width: 220px;
+  background: var(--ctrl);
+  border: 1px solid var(--bd);
+  border-radius: 5px;
+  padding: 4px 8px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--txd);
+}
+.toolbar-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--tx);
+}
+.toolbar-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--tx);
+}

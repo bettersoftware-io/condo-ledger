@@ -56,6 +56,14 @@
     },
     // A workspace named here replaces "packages/*" for that package (knip does
     // not merge the two), so each repeats `includeEntryExports`.
+    "packages/client-react": {
+      // The two IBM Plex packages are loaded by `@import` in src/styles/fonts.css,
+      // which knip does not follow. Repeats everything "packages/*" sets.
+      "ignoreDependencies": ["@fontsource/ibm-plex-sans", "@fontsource/ibm-plex-mono"],
+      "includeEntryExports": true,
+      "playwright": { "config": ["playwright.config.ts", "tests/**/playwright.config.ts"] },
+      "vite": { "config": ["vite.config.ts", "tests/**/vite.config.ts"] }
+    },
     "packages/db": {
       // The ETL and reset are run as programs by package.json scripts
       // (`node etl/index.ts`, `node scripts/reset.mts`). drizzle-kit reads
