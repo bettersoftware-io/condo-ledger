@@ -11,4 +11,11 @@ export const TESTIDS = {
   toolbarCheckbox: "toolbar-checkbox",
   scheda: "scheda",
   schedaRow: "scheda-row",
+  treeGrid: "tree-grid",
+  treeGridRow: "tree-grid-row",
+  treeGridCaret: "tree-grid-caret",
+  treeGridResize: "tree-grid-resize",
+  treeGridFooter: "tree-grid-footer",
+  inlineEditor: "inline-editor",
+  inlineEditorError: "inline-editor-error",
 } as const;

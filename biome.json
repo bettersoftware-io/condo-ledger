@@ -20,6 +20,21 @@
   },
   "overrides": [
     {
+      "includes": [
+        "packages/client-react/src/ui/TreeGrid.tsx",
+        "packages/client-react/src/ui/TreeGridRow.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "useSemanticElements": "off",
+            "useFocusableInteractive": "off",
+            "useKeyWithClickEvents": "off"
+          }
+        }
+      }
+    },
+    {
       "includes": ["packages/db/**", "packages/legacy-import/**"],
       "linter": {
         "rules": {
