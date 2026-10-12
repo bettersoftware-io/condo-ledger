@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { must } from "../must.ts";
+import { must } from "#/support/must.ts";
+
 import { computeBalances, perResidentTotals } from "./computeBalances.ts";
 import { buildRiparto } from "./computeRiparto.ts";
 import type { RipartoInput } from "./types.ts";
@@ -28,6 +29,7 @@ describe("computeBalances", () => {
       balances.find((b) => {
         return b.residentId === "r1";
       }),
+      "balance of r1",
     );
     expect(r1.preventivoCents).toBe(60000);
     expect(r1.consuntivoCents).toBe(30000); // 50000 * 60/100
@@ -39,6 +41,7 @@ describe("computeBalances", () => {
       balances.find((b) => {
         return b.residentId === "r2";
       }),
+      "balance of r2",
     );
     expect(r2.preventivoCents).toBe(40000);
     expect(r2.consuntivoCents).toBe(20000);
@@ -63,6 +66,7 @@ describe("computeBalances", () => {
       balances.find((b) => {
         return b.residentId === "r3";
       }),
+      "balance of r3",
     );
     expect(r3.preventivoCents).toBe(0);
     expect(r3.consuntivoCents).toBe(0);

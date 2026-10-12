@@ -1,5 +1,6 @@
 // packages/domain/src/useCases/riparto/computeRiparto.ts
-import { listFor, must } from "../must.ts";
+import { listFor, must } from "#/support/must.ts";
+
 import type {
   LinkedColumn,
   LinkRef,
@@ -87,6 +88,8 @@ export function buildRiparto(input: RipartoInput): RipartoEngine {
   const subtreeCache = new Map<string, SubtreeTotals>();
 
   function subtree(accountId: string): SubtreeTotals {
+    must(acctById.get(accountId), `the account ${accountId}`);
+
     let v = subtreeCache.get(accountId);
 
     if (!v) {
@@ -173,7 +176,7 @@ export function buildRiparto(input: RipartoInput): RipartoEngine {
     const estimateSide =
       raw.find((l) => {
         return l.type === "estimate";
-      }) ?? must(raw[0]);
+      }) ?? must(raw[0], `a link of account ${a.id}`);
     columns.push({
       legacyAccountId: a.id,
       name: a.name,
@@ -285,7 +288,7 @@ export function buildRiparto(input: RipartoInput): RipartoEngine {
       }, 0);
 
       if (group.length === 1) {
-        const only = must(group[0]);
+        const only = must(group[0], "the first resident of the group");
         out.set(only.id, (out.get(only.id) ?? 0) + amount);
         return;
       }
@@ -294,7 +297,7 @@ export function buildRiparto(input: RipartoInput): RipartoEngine {
         let allocated = 0;
 
         for (let i = 0; i < group.length; i++) {
-          const r = must(group[i]);
+          const r = must(group[i], `resident ${i} of the group`);
           const share =
             i === group.length - 1
               ? amount - allocated
@@ -306,7 +309,7 @@ export function buildRiparto(input: RipartoInput): RipartoEngine {
         let allocated = 0;
 
         for (let i = 0; i < group.length; i++) {
-          const r = must(group[i]);
+          const r = must(group[i], `resident ${i} of the group`);
           const share =
             i === group.length - 1
               ? amount - allocated
@@ -327,7 +330,7 @@ export function buildRiparto(input: RipartoInput): RipartoEngine {
     let allocated = 0;
 
     for (let i = 0; i < roles.length; i++) {
-      const role = must(roles[i]);
+      const role = must(roles[i], `role ${i} of link ${link.linkId}`);
       const rolePct = role.percentage;
       const share =
         i === roles.length - 1

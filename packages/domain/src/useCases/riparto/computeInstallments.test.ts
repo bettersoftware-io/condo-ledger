@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { must } from "../must.ts";
+import { must } from "#/support/must.ts";
+
 import { computeInstallments } from "./computeInstallments.ts";
 import type { InstallmentPlan } from "./periodTypes.ts";
 
@@ -8,7 +9,7 @@ describe("computeInstallments", () => {
   it("splits each resident's estimate evenly across installments (residual to last via allocate)", () => {
     const est = new Map<string, number>([["r1", 100]]); // 100 cents / 3 → 34,33,33
     const out = computeInstallments(est, plan());
-    const cells = must(out.get("r1"));
+    const cells = must(out.get("r1"), "the cells of r1");
     expect(cells.get("i1")).toBe(34);
     expect(cells.get("i2")).toBe(33);
     expect(cells.get("i3")).toBe(33);
@@ -28,9 +29,12 @@ describe("computeInstallments", () => {
 
     for (const [rid, cents] of est) {
       expect(
-        [...must(out.get(rid)).values()].reduce((a, b) => {
-          return a + b;
-        }, 0),
+        [...must(out.get(rid), `the cells of ${rid}`).values()].reduce(
+          (a, b) => {
+            return a + b;
+          },
+          0,
+        ),
       ).toBe(cents);
     }
   });
@@ -41,7 +45,7 @@ describe("computeInstallments", () => {
       est,
       plan([{ residentId: "r1", installmentId: "i1", cents: 150 }]),
     );
-    const cells = must(out.get("r1"));
+    const cells = must(out.get("r1"), "the cells of r1");
     expect(cells.get("i1")).toBe(150); // pinned
     // delta −50 spread across later cells [i2,i3] via allocate(-50,[1,1]) = [-25,-25]
     expect(cells.get("i2")).toBe(75);
@@ -61,7 +65,7 @@ describe("computeInstallments", () => {
       est,
       plan([{ residentId: "r1", installmentId: "i1", cents: 350 }]),
     );
-    const cells = must(out.get("r1"));
+    const cells = must(out.get("r1"), "the cells of r1");
     expect(cells.get("i1")).toBe(100);
     expect(cells.get("i2")).toBe(100);
     expect(cells.get("i3")).toBe(100);
@@ -75,7 +79,7 @@ describe("computeInstallments", () => {
       est,
       plan([{ residentId: "r1", installmentId: "i1", cents: 125 }]),
     );
-    const cells = must(out.get("r1"));
+    const cells = must(out.get("r1"), "the cells of r1");
     expect(cells.get("i1")).toBe(125);
     expect(cells.get("i2")).toBe(87);
     expect(cells.get("i3")).toBe(88);
@@ -97,7 +101,7 @@ describe("computeInstallments", () => {
         { residentId: "r1", installmentId: "i1", cents: 120 },
       ]),
     );
-    const cells = must(out.get("r1"));
+    const cells = must(out.get("r1"), "the cells of r1");
     expect(cells.get("i1")).toBe(120);
     expect(cells.get("i2")).toBe(100);
     expect(cells.get("i3")).toBe(80);
@@ -114,7 +118,7 @@ describe("computeInstallments", () => {
       est,
       plan([{ residentId: "r1", installmentId: "i3", cents: 150 }]),
     );
-    const cells = must(out.get("r1"));
+    const cells = must(out.get("r1"), "the cells of r1");
     expect(cells.get("i1")).toBe(100);
     expect(cells.get("i2")).toBe(100);
     expect(cells.get("i3")).toBe(100); // unchanged — last-cell edit ignored
@@ -126,7 +130,7 @@ describe("computeInstallments", () => {
       est,
       plan([{ residentId: "r1", installmentId: "iX", cents: 999 }]),
     );
-    const cells = must(out.get("r1"));
+    const cells = must(out.get("r1"), "the cells of r1");
     expect(cells.get("i1")).toBe(100);
     expect(cells.get("i2")).toBe(100);
     expect(cells.get("i3")).toBe(100);
@@ -135,7 +139,7 @@ describe("computeInstallments", () => {
   it("returns an empty plan map when there are no installments", () => {
     const est = new Map<string, number>([["r1", 100]]);
     const out = computeInstallments(est, { installmentIds: [], overrides: [] });
-    expect(must(out.get("r1")).size).toBe(0);
+    expect(must(out.get("r1"), "the cells of r1").size).toBe(0);
   });
 });
 
