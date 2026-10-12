@@ -1,8 +1,10 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { basename, dirname, isAbsolute, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { parseTables } from "../loadRows.ts";
+import { loadExtraEntries } from "./leftovers.ts";
 import { pseudonymiseTables } from "./pseudonymise.ts";
 import { replaceTextLines } from "./replaceText.ts";
 
@@ -41,7 +43,12 @@ if (fromRoot === "" || (!fromRoot.startsWith("..") && !isAbsolute(fromRoot))) {
 }
 
 const tables = parseTables(readFileSync(DUMP_URL, "utf8"));
-const lines = replaceTextLines(tables, pseudonymiseTables(tables));
+const extraEntries = loadExtraEntries(fileURLToPath(new URL(".", DUMP_URL)));
+const lines = replaceTextLines(
+  tables,
+  pseudonymiseTables(tables, extraEntries),
+  extraEntries,
+);
 writeFileSync(out, `${lines.join("\n")}\n`, { mode: 0o600 });
 console.log(`Wrote ${String(lines.length)} replace-text lines to ${out}`);
 

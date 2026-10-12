@@ -12,7 +12,7 @@ import {
 } from "../legacyDump.ts";
 import { parseTables, type Tables } from "../loadRows.ts";
 import { identifierReplacements } from "./freeText.ts";
-import { EXTRA_ENTRIES } from "./leftovers.ts";
+import { loadExtraEntries } from "./leftovers.ts";
 import { TOWNS } from "./names.ts";
 import {
   buildingTowns,
@@ -35,6 +35,12 @@ describe.skipIf(!legacyDumpAvailable())(
 
       expect(originalValues(tables).length).toBeGreaterThan(250);
       expect(leaks).toEqual([]);
+    });
+
+    it("has the local list of extra names beside the dump", () => {
+      // Without old/db/leftovers.json the hand-typed firm names would pass
+      // through unseen; where the dump is, the list must be too.
+      expect(loadExtraEntries().length).toBeGreaterThan(0);
     });
 
     it("leaves the lookup and label tables exactly as they were", () => {
@@ -70,7 +76,7 @@ describe.skipIf(!legacyDumpAvailable())(
 function load(): Loaded {
   if (!cached) {
     const tables = parseTables(readFileSync(legacyDumpPath(), "utf8"));
-    const pseudonymised = pseudonymiseTables(tables);
+    const pseudonymised = pseudonymiseTables(tables, loadExtraEntries());
     cached = {
       tables,
       pseudonymised,
@@ -122,7 +128,7 @@ function originalValues(tables: Tables): string[] {
 
   // Real names typed in free text, and the buildings' real towns (except
   // those that are also in the fake town pool).
-  for (const entry of EXTRA_ENTRIES) {
+  for (const entry of loadExtraEntries()) {
     add(entry.original);
   }
 
@@ -218,7 +224,7 @@ interface Loaded {
 
 let cached: Loaded | null = null;
 
-// The value as a whole word, in any letter case: "Invito" does not leak "vito".
+// The value as a whole word, in any letter case: a name inside a longer word is not a leak.
 function wholeWord(value: string): RegExp {
   const escaped = JSON.stringify(value)
     .slice(1, -1)

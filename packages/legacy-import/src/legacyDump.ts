@@ -9,10 +9,12 @@ const DUMP_FILE = "it-jtime-condominium.all.sql";
  * cwd is packages/legacy-import under Vitest (see specs/world.ts).
  */
 export function legacyDumpPath(): string {
-  const dir =
-    process.env.LEGACY_DUMP_DIR ?? resolve(process.cwd(), "../../old/db");
+  return resolve(legacyDumpDir(), DUMP_FILE);
+}
 
-  return resolve(dir, DUMP_FILE);
+/** The folder of the dump, and of the local files kept beside it (old/db, or LEGACY_DUMP_DIR). */
+export function legacyDumpDir(): string {
+  return process.env.LEGACY_DUMP_DIR ?? resolve(process.cwd(), "../../old/db");
 }
 
 export function legacyDumpAvailable(): boolean {

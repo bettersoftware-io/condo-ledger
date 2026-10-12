@@ -28,7 +28,6 @@ import {
   personIdentity,
   streetLine,
 } from "./identity.ts";
-import { EXTRA_ENTRIES } from "./leftovers.ts";
 import { BANK_NAMES } from "./names.ts";
 import {
   isSerialized,
@@ -115,10 +114,15 @@ interface Original {
  * Replaces every identity in the legacy tables with a fake one: the same
  * master-data id always becomes the same fake person or firm, wherever it is
  * named. Ids, amounts, dates other than birth dates, building names and
- * categories are left alone. Returns new tables; the input is not changed.
+ * categories are left alone. `extraEntries` adds names typed by hand in free
+ * text that no master-data entry carries (see leftovers.ts). Returns new
+ * tables; the input is not changed.
  */
-export function pseudonymiseTables(tables: Tables): Tables {
-  const cast = castIdentities(tables);
+export function pseudonymiseTables(
+  tables: Tables,
+  extraEntries: readonly NameEntry[] = [],
+): Tables {
+  const cast = castIdentities(tables, extraEntries);
   const out: Tables = {};
 
   for (const [name, rows] of Object.entries(tables)) {
@@ -138,7 +142,10 @@ export function pseudonymiseTables(tables: Tables): Tables {
 // Casting: one fake identity per master-data id, in id order.
 // ---------------------------------------------------------------------------
 
-function castIdentities(tables: Tables): Cast {
+function castIdentities(
+  tables: Tables,
+  extraEntries: readonly NameEntry[],
+): Cast {
   const persons = indexBy(tables.person, "masterDataId");
   const companies = indexBy(tables.company, "masterDataId");
   const categories = indexBy(tables.masterDataCategory, "id");
@@ -191,7 +198,7 @@ function castIdentities(tables: Tables): Cast {
   entries.push(
     ...userNameEntries(tables, people, firms),
     ...townEntries(tables, buildings, buildingNames),
-    ...EXTRA_ENTRIES,
+    ...extraEntries,
   );
   return {
     people,

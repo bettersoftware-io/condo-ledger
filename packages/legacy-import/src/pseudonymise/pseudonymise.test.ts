@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 import { parseAddressVO } from "../addressVO.ts";
 import type { Row, Tables } from "../loadRows.ts";
 import { fiscalCode, slugOf } from "./codes.ts";
+import type { NameEntry } from "./freeText.ts";
 import { companyCore } from "./identity.ts";
-import { EXTRA_ENTRIES } from "./leftovers.ts";
 import { BANK_NAMES, STREETS, SURNAMES, TOWNS } from "./names.ts";
 import { serializeAddressVO } from "./phpSerialized.ts";
 import { pseudonymiseTables } from "./pseudonymise.ts";
@@ -223,7 +223,7 @@ describe("pseudonymiseTables", () => {
   });
 
   it("replaces a building's real town and the known leftovers in free text", () => {
-    const out = pseudonymiseTables(createTables());
+    const out = pseudonymiseTables(createTables(), EXTRA);
     const town = parseAddressVO(
       s(rowOf(out, "condominium", "id", "1").address),
     ).cityName;
@@ -300,7 +300,7 @@ describe("pseudonymiseTables", () => {
       qualification: _qualification,
       unitType: _unitType,
       ...out
-    } = pseudonymiseTables(createTables());
+    } = pseudonymiseTables(createTables(), EXTRA);
     const text = JSON.stringify(out);
 
     for (const original of [
@@ -321,7 +321,7 @@ describe("pseudonymiseTables", () => {
       "Banca Vera",
       "Borgo Alto",
       "6153",
-      ...EXTRA_ENTRIES.map((e) => {
+      ...EXTRA.map((e) => {
         return e.original;
       }),
     ]) {
@@ -570,11 +570,31 @@ function mod97(text: string): number {
   return rest;
 }
 
-// The real leftovers live in leftovers.ts only; the fixtures take them from there.
-const BANK_LEFTOVERS = EXTRA_ENTRIES.filter((e) => {
-  return BANK_NAMES.includes(e.pseudonym);
-});
+// Firms typed by hand in free text, as old/db/leftovers.json lists the real ones.
+const BANK_LEFTOVERS: NameEntry[] = [
+  {
+    original: "Fintobanca S.p.A.",
+    pseudonym: "Credito Carnico",
+    anyCase: true,
+  },
+  {
+    original: "Cassa Inventata del Nord",
+    pseudonym: "Cassa di Risparmio del Natisone",
+    anyCase: true,
+  },
+];
 
-const OTHER_LEFTOVERS = EXTRA_ENTRIES.filter((e) => {
-  return !BANK_NAMES.includes(e.pseudonym);
-});
+const OTHER_LEFTOVERS: NameEntry[] = [
+  {
+    original: "Lumenix Assicura",
+    pseudonym: "Assicurazioni del Varmo S.p.A.",
+    anyCase: true,
+  },
+  {
+    original: "Brillo Clean Srl",
+    pseudonym: "Brillante Pulizie s.r.l.",
+    anyCase: true,
+  },
+];
+
+const EXTRA: NameEntry[] = [...BANK_LEFTOVERS, ...OTHER_LEFTOVERS];

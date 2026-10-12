@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { buildDb, type Db } from "#/db.ts";
 import { legacyDumpPath } from "#/legacyDump.ts";
 import { parseTables, type Tables } from "#/loadRows.ts";
+import { loadExtraEntries } from "#/pseudonymise/leftovers.ts";
 import { pseudonymiseTables } from "#/pseudonymise/pseudonymise.ts";
 
 let cachedTables: Tables | null = null;
@@ -20,7 +21,7 @@ function legacyTables(): Tables {
 /** The Db the specs run on: the dump with every identity pseudonymised, as the generator sees it. */
 export function legacyDb(): Db {
   if (!cachedDb) {
-    cachedDb = buildDb(pseudonymiseTables(legacyTables()));
+    cachedDb = buildDb(pseudonymiseTables(legacyTables(), loadExtraEntries()));
   }
 
   return cachedDb;

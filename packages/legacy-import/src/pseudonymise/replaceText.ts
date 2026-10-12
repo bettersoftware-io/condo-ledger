@@ -3,7 +3,6 @@ import type { Row, Tables } from "../loadRows.ts";
 import { COMMON_WORDS } from "./commonWords.ts";
 import { identifierReplacements, type NameEntry } from "./freeText.ts";
 import { companyCore } from "./identity.ts";
-import { EXTRA_ENTRIES } from "./leftovers.ts";
 import { TOWNS } from "./names.ts";
 import {
   buildingTowns,
@@ -68,6 +67,7 @@ const ADDRESS_COLUMNS: readonly (readonly [string, string, string])[] = [
 export function replaceTextLines(
   original: Tables,
   pseudonymised: Tables,
+  extraEntries: readonly NameEntry[] = [],
 ): string[] {
   const rules = new Map<string, Rule>();
 
@@ -83,7 +83,7 @@ export function replaceTextLines(
     }
   }
 
-  for (const entry of nameEntries(original, pseudonymised)) {
+  for (const entry of nameEntries(original, pseudonymised, extraEntries)) {
     add({
       kind: "regex",
       original: entry.original,
@@ -111,7 +111,11 @@ export function replaceTextLines(
     .map(formatRule);
 }
 
-function nameEntries(original: Tables, pseudonymised: Tables): NameEntry[] {
+function nameEntries(
+  original: Tables,
+  pseudonymised: Tables,
+  extraEntries: readonly NameEntry[],
+): NameEntry[] {
   const entries: NameEntry[] = [];
   const fakePeople = indexBy(pseudonymised.person, "masterDataId");
   const fakeFirms = indexBy(pseudonymised.company, "masterDataId");
@@ -160,7 +164,7 @@ function nameEntries(original: Tables, pseudonymised: Tables): NameEntry[] {
     }
   }
 
-  entries.push(...EXTRA_ENTRIES, ...townEntries(original, pseudonymised));
+  entries.push(...extraEntries, ...townEntries(original, pseudonymised));
   return entries;
 }
 

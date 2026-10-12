@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import type { Tables } from "../loadRows.ts";
-import { EXTRA_ENTRIES } from "./leftovers.ts";
 import { serializeAddressVO } from "./phpSerialized.ts";
 import { replaceTextLines } from "./replaceText.ts";
 
@@ -55,12 +54,11 @@ describe("replaceTextLines", () => {
   });
 
   it("carries the fixed leftovers and the building's real town", () => {
-    const leftover = EXTRA_ENTRIES.find((e) => {
-      return /^[\p{L} ]+$/u.test(e.original);
-    });
-
     expect(lines).toContain(
-      String.raw`regex:(?<!\w)${leftover?.original ?? ""}(?!\w)==>${leftover?.pseudonym ?? ""}`,
+      String.raw`regex:(?<!\w)Lumenix Assicura(?!\w)==>Assicurazioni del Varmo S.p.A.`,
+    );
+    expect(lines).toContain(
+      String.raw`regex:(?<!\w)LUMENIX ASSICURA(?!\w)==>ASSICURAZIONI DEL VARMO S.P.A.`,
     );
     expect(lines).toContain(String.raw`regex:(?<!\w)Borgo Alto(?!\w)==>Nimis`);
   });
@@ -100,7 +98,13 @@ describe("replaceTextLines", () => {
     expect(full).toBeLessThan(surname);
   });
 
-  const lines = replaceTextLines(createOriginal(), createPseudonymised());
+  const lines = replaceTextLines(createOriginal(), createPseudonymised(), [
+    {
+      original: "Lumenix Assicura",
+      pseudonym: "Assicurazioni del Varmo S.p.A.",
+      anyCase: true,
+    },
+  ]);
 });
 
 function createOriginal(): Tables {

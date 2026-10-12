@@ -4,9 +4,7 @@ Executable **Gherkin acceptance specs** (run under Vitest) that prove the new
 accounting code reproduces the **legacy app's accounting behaviour**, using the legacy
 database dump as the **oracle**.
 
-The parity specs and the other dump-based tests need `old/db/it-jtime-condominium.all.sql`, which is not in the repository (set `LEGACY_DUMP_DIR` to the folder that holds it); they are skipped without it.
-
-The parity specs and the other dump-based tests need `old/db/it-jtime-condominium.all.sql`, which is not in the repository (set `LEGACY_DUMP_DIR` to the folder that holds it); they are skipped without it.
+The parity specs and the other dump-based tests need `old/db/it-jtime-condominium.all.sql`, which is not in the repository (set `LEGACY_DUMP_DIR` to the folder that holds it), and `old/db/leftovers.json`, the local list of extra tokens to rewrite; they are skipped without the dump.
 
 Run them: `pnpm --filter @cl/legacy-import test` (the parity specs run with the package's unit tests; to run only the specs: `pnpm --filter @cl/legacy-import exec vitest run specs`).
 
