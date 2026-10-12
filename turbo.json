@@ -15,7 +15,12 @@
     },
     "test": {
       "dependsOn": ["transit"],
-      "env": ["DATABASE_URL", "XDG_DATA_HOME", "LEGACY_DUMP_DIR"]
+      "env": [
+        "DATABASE_URL",
+        "XDG_DATA_HOME",
+        "LEGACY_DUMP_DIR",
+        "DESIGN_ORACLE_DIR"
+      ]
     },
     "dev": {
       "cache": false,
