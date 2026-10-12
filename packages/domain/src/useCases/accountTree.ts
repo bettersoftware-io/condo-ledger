@@ -186,7 +186,7 @@ function sideNodes(books: Books, roots: Account[], side: Side): AccountNode[] {
       return account.nature === side;
     })
     .map((account) => {
-      return accountNode(books, account);
+      return fixedNatureNode(books, account);
     });
 
   const controls = roots
@@ -231,16 +231,11 @@ function natureNodes(
   return [...pure, ...controls];
 }
 
-/** A plain account: its own postings plus its children's, in legacy order. A control account among the children (individual expenses under a grouping) is split per supplier or per person, with no sides. */
+/** A plain account: its own postings plus its children's, in legacy order. A control account among the children splits per counterpart, with no side. */
 function accountNode(books: Books, account: Account): AccountNode {
   const children = ordered(books.childrenOf.get(account.id) ?? []).map(
     (child) => {
-      return isControl(child)
-        ? must(
-            controlNode(books, child, null),
-            `the control account ${child.id}`,
-          )
-        : accountNode(books, child);
+      return fixedNatureNode(books, child);
     },
   );
   const own = sumOf(books.postingsOf.get(account.id) ?? []);
@@ -260,10 +255,22 @@ function accountNode(books: Books, account: Account): AccountNode {
   });
 }
 
+/** An account of a fixed nature: a plain account, or a control account split per counterpart with no side. */
+function fixedNatureNode(books: Books, account: Account): AccountNode {
+  return isControl(account)
+    ? must(
+        controlNode(books, account, null),
+        `the control account ${account.id}`,
+      )
+    : accountNode(books, account);
+}
+
 /**
- * A control account on one side (or on no side, for individual expenses):
- * one row per supplier, or one per person holding one per residency. On a
- * side, only the rows whose balance has that sign. The assets side is always
+ * A control account splits per counterpart wherever it sits: one row per
+ * supplier, or one per person holding one per residency. The side split
+ * (`@assets`/`@liabilities`) applies only when its nature is
+ * `assetsOrLiabilities`; a fixed-nature control account's rows carry no
+ * side (side null). On a side, only the rows whose balance has that sign. The assets side is always
  * there, at zero with no rows when none has a debit or zero balance, as in
  * the legacy report; the liabilities side is undefined when it has no row.
  */

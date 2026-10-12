@@ -7,6 +7,7 @@ import {
   POZZETTO_2013_ORACLE,
 } from "@cl/client-core/testing/fixtures/pozzetto2013.oracle.ts";
 
+import { DUMP_SUITE_TIMEOUT_MS } from "#/legacyDump.ts";
 import {
   DEVIATIONS,
   type DesignNode,
@@ -19,6 +20,7 @@ import {
 
 describe.skipIf(!designOracleAvailable())(
   oracleSuiteName("the committed fixture against the design's acc.json"),
+  { timeout: DUMP_SUITE_TIMEOUT_MS },
   () => {
     it("has the same amounts on every node, walked in the report's order", () => {
       const design = parseDesignOracle(

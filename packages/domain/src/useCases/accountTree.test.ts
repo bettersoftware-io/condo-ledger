@@ -295,6 +295,81 @@ describe("buildAccountTree", () => {
     });
   });
 
+  it("splits a fixed-nature control account under a grouping per supplier, with no side", () => {
+    const books = createSmallBooks();
+    const grouping: Account = {
+      ...createControlAccount("la8", "grouping"),
+      name: "Debiti",
+      order: 8,
+      nature: "liabilities",
+    };
+
+    const suppliers: Account = {
+      ...createControlAccount("la9", "control"),
+      parentId: "la8",
+      name: "Fornitori (passivi)",
+      order: 9,
+      nature: "liabilities",
+      role: "suppliers",
+    };
+    books.accounts.push(grouping, suppliers);
+    books.entries[0]?.postings.push(
+      {
+        accountId: "la9",
+        debit: cents(500),
+        credit: ZERO_CENTS,
+        counterpart: { kind: "supplier", id: "md1" },
+      },
+      {
+        accountId: "la9",
+        debit: ZERO_CENTS,
+        credit: cents(800),
+        counterpart: { kind: "supplier", id: "md2" },
+      },
+    );
+    const root = buildAccountTree(books.accounts, books.entries, books.parties);
+
+    expect(findNode(root, "la9")?.children.map(keyOf)).toEqual([
+      "la9/md1",
+      "la9/md2",
+    ]);
+    expect(findNode(root, "la9/md1")?.balance).toBe(500);
+    expect(findNode(root, "la9/md2")?.balance).toBe(-800);
+    expect(findNode(root, "la8")).toMatchObject({
+      debit: 500,
+      credit: 800,
+      balance: -300,
+      children: [expect.objectContaining({ key: "la9" })],
+    });
+    expect(findNode(root, "la9@assets")).toBeUndefined();
+    expect(findNode(root, "la9@liabilities")).toBeUndefined();
+    expect(findNode(root, "la4@assets")?.children.map(keyOf)).toEqual([
+      "la4@assets/md2",
+    ]);
+    expect(findNode(root, "la4@liabilities")?.children.map(keyOf)).toEqual([
+      "la4@liabilities/md1",
+    ]);
+  });
+
+  it("splits a fixed-nature control account at the top of its side per supplier, with no side", () => {
+    const books = createSmallBooks();
+    books.accounts.push({
+      ...createControlAccount("la7", "control"),
+      nature: "liabilities",
+    });
+    books.entries[0]?.postings.push({
+      accountId: "la7",
+      debit: ZERO_CENTS,
+      credit: cents(800),
+      counterpart: { kind: "supplier", id: "md2" },
+    });
+    const root = buildAccountTree(books.accounts, books.entries, books.parties);
+
+    expect(findNode(root, "liabilities")?.children.map(keyOf)).toContain("la7");
+    expect(findNode(root, "la7")?.children.map(keyOf)).toEqual(["la7/md2"]);
+    expect(findNode(root, "la7/md2")?.balance).toBe(-800);
+  });
+
   it("splits an individual-expenses control account under a grouping per person, then per residency", () => {
     const books = createSmallBooks();
     const grouping: Account = {
