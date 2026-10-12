@@ -272,7 +272,7 @@ describe("buildAccountTree", () => {
     ).toEqual([undefined, undefined]);
   });
 
-  it("omits the assets side of a control account whose rows all have a credit balance", () => {
+  it("keeps an empty assets side for a control account whose rows all have a credit balance", () => {
     const books = createSmallBooks();
     books.accounts.push(createControlAccount("la7", "control"));
     books.entries[0]?.postings.push({
@@ -283,8 +283,16 @@ describe("buildAccountTree", () => {
     });
     const root = buildAccountTree(books.accounts, books.entries, books.parties);
 
-    expect(findNode(root, "la7@assets")).toBeUndefined();
-    expect(findNode(root, "la7@liabilities")?.balance).toBe(-300);
+    expect(findNode(root, "la7@assets")).toMatchObject({
+      debit: 0,
+      credit: 0,
+      balance: 0,
+      children: [],
+    });
+    expect(findNode(root, "la7@liabilities")).toMatchObject({
+      balance: -300,
+      children: [expect.objectContaining({ key: "la7@liabilities/md1" })],
+    });
   });
 
   it("splits an individual-expenses control account under a grouping per person, then per residency", () => {

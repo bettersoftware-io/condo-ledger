@@ -263,9 +263,9 @@ function accountNode(books: Books, account: Account): AccountNode {
 /**
  * A control account on one side (or on no side, for individual expenses):
  * one row per supplier, or one per person holding one per residency. On a
- * side, only the rows whose balance has that sign. A side with no row is
- * undefined when the other side has rows; with no row on either side, the
- * account appears once, on the assets side, at zero.
+ * side, only the rows whose balance has that sign. The assets side is always
+ * there, at zero with no rows when none has a debit or zero balance, as in
+ * the legacy report; the liabilities side is undefined when it has no row.
  */
 function controlNode(
   books: Books,
@@ -286,11 +286,7 @@ function controlNode(
     return side === null || sideOf(row.balance) === side;
   });
 
-  if (
-    side !== null &&
-    onSide.length === 0 &&
-    (rows.length > 0 || side === "liabilities")
-  ) {
+  if (side === "liabilities" && onSide.length === 0) {
     return undefined;
   }
 

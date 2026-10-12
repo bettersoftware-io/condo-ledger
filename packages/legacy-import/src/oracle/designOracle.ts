@@ -32,12 +32,6 @@ export interface Deviation {
 /** The deviations ruled so far, each by the oracle's id and a reason. No names: acc.json holds real ones. */
 export const DEVIATIONS: Deviation[] = [
   {
-    oracleId: "acc-p36",
-    kind: "oracle-only",
-    reason:
-      "the roundings control account (la159) on the assets side, empty: every row of it is on the liabilities side, and the tree shows no empty mirror of a side that has rows",
-  },
-  {
     oracleId: "acc-p132",
     kind: "moved",
     fixtureKey: "la219",
