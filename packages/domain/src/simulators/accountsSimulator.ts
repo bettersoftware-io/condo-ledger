@@ -49,7 +49,7 @@ export function createAccountsSimulator(seed: LegacySeed): AccountsPort {
         : of(books.parties);
     },
     setBudget: (accountId: string, budget: Cents): Promise<Result> => {
-      // A throw inside the executor is a rejection, as the port promises.
+      // A throw inside the executor is a rejection, as the port promises; an async arrow with no await would trip require-await.
       return new Promise((resolve) => {
         resolve(applyBudget([...periods.values()], accountId, budget));
       });

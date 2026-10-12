@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { cents } from "#/entities/cents.ts";
 
 import { createSmallSeed } from "../testing/createSmallBooks.ts";
+import { createTwoPeriodSeed } from "../testing/createTwoPeriodSeed.ts";
 import { createAccountsSimulator } from "./accountsSimulator.ts";
 
 describe("accounts simulator", () => {
@@ -35,5 +36,22 @@ describe("accounts simulator", () => {
     subscription.unsubscribe();
 
     expect(seen).toEqual([0]);
+  });
+
+  it("leaves another period's accounts and parties out", async () => {
+    const port = createAccountsSimulator(createTwoPeriodSeed());
+    const accounts = await firstValueFrom(port.accounts("p1"));
+    const parties = await firstValueFrom(port.parties("p2"));
+
+    expect(
+      accounts.some((account) => {
+        return account.periodId === "p2";
+      }),
+    ).toBe(false);
+    expect(
+      parties.map((party) => {
+        return party.id;
+      }),
+    ).toEqual(["md1"]);
   });
 });
