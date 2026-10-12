@@ -81,22 +81,22 @@ Four rules about imports:
 - What is written for tests (a `testing/` folder, a `*.page.tsx`, a test) is
   imported only by tests.
 
-The price list is a worked example of every one of these. Copy its shape:
+The Accounts slice is a worked example of every one of these. Copy its shape:
 
 | Pattern | File |
 |---|---|
-| Port | `packages/domain/src/ports/pricePort.ts` |
-| Contract test | `packages/domain/src/ports/__contracts__/PricePortContract.ts` |
-| Simulator | `packages/domain/src/simulators/priceSimulator.ts` |
-| Use case | `packages/domain/src/useCases/trackMovement.ts` |
+| Port | `packages/domain/src/ports/accountsPort.ts` |
+| Contract test | `packages/domain/src/ports/__contracts__/AccountsPortContract.ts` |
+| Simulator | `packages/domain/src/simulators/accountsSimulator.ts` |
+| Use case | `packages/domain/src/useCases/accountTree.ts` (`buildAccountTree`) |
 | Real adapter (the connection; port adapters arrive in M3) | `packages/client-core/src/adapters/wsConnection.ts` |
-| Presenter (shared state, timers) | `packages/client-core/src/presenters/pricesPresenter.ts` |
-| State machine (per-component state) | `packages/client-core/src/machines/selectionMachine.ts` |
+| Presenter (shared state) | `packages/client-core/src/presenters/accountsPresenter.ts` |
+| State machine (per-component state) | `packages/client-core/src/machines/splitMachine.ts` |
 | View model | `packages/react-bindings/src/createViewModel.ts` |
 | Composition root | `packages/client-react/src/app/startApp.tsx` |
 | Client adapter against the real server | `packages/integration/src/readyOverWebSocket.port.test.ts` |
-| Dumb component | `packages/client-react/src/ui/PriceList.tsx` |
-| Page object and its test | `packages/client-react/src/ui/PriceList.page.tsx`, `PriceList.test.tsx` |
+| Dumb component | `packages/client-react/src/ui/Money.tsx` |
+| Page object and its test | `packages/client-react/src/ui/Money.page.tsx`, `Money.test.tsx` |
 
 ## Tests
 
@@ -151,13 +151,13 @@ get past the `package-manager` gate.
   variable, a class property, a cast or a type argument: declare an
   `interface` and use it.
 - One import statement per module, with an inline `type` on each type:
-  `import { type Price, read } from "./price.ts"`. A statement that names only
+  `import { type Cents, cents } from "./cents.ts"`. A statement that names only
   types stays `import type`. (fix)
 - No CommonJS: no `require`, `module.exports`, `__dirname` or `__filename`,
   and no `.cts` file. Use `import` and `import.meta.dirname`.
 - One class in a file, and the file has its name.
 - In a component, take the hooks out of the view model by name:
-  `const { usePrices } = useViewModel()`. Never keep the bundle in a variable
+  `const { useAccountsTree } = useViewModel()`. Never keep the bundle in a variable
   or call through it.
 - A component follows React's rules: a hook is called at the top level, an
   effect lists what it reads, and nothing reads a ref or sets state while
@@ -184,10 +184,10 @@ compile and says nothing, so two checks in `gate:fast` hold it:
 What no check decides:
 
 - **A component that reads the view model is not compiled.** Its hooks come
-  out of a value (`const { usePrices } = useViewModel()`), and the compiler
+  out of a value (`const { useAccountsTree } = useViewModel()`), and the compiler
   skips such a function. Keep that component thin: it reads, and hands plain
   props to components that take only props. Those are compiled.
-  `packages/client-react/src/ui/PriceList.tsx` shows both.
+  `packages/client-react/src/ui/TreeGrid.tsx` is the second kind.
 - **When to add an entry to `compilerTracked`.** When a component depends on
   the compiler to keep something stable or cheap: a costly derived value, a
   callback a child compares. Skip it for a component whose render is cheap
@@ -199,8 +199,8 @@ What no check decides:
 ## Imports inside a package
 
 An import of a file in the same package is relative and climbs one folder at
-most, as in `../entities/price.ts`. Anything deeper is written from the
-package's `src` with the `#/` alias: `#/entities/price.ts`. Every package
+most, as in `../entities/cents.ts`. Anything deeper is written from the
+package's `src` with the `#/` alias: `#/entities/cents.ts`. Every package
 declares it (`"imports": { "#/*": "./src/*" }` in its `package.json`), and
 Node, Vite, Vitest and `tsc` all read it from there. A new package declares it
 too.

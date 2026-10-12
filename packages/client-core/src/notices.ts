@@ -1,7 +1,7 @@
 import { type DefaultedStateObservable, state } from "@rx-state/core";
 import { BehaviorSubject } from "rxjs";
 
-interface Notice {
+export interface Notice {
   id: number;
   text: string;
 }

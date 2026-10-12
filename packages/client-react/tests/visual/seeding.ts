@@ -1,9 +1,4 @@
-import type { App as Application } from "@cl/client-core";
-import { STALE_AFTER_MS } from "@cl/client-core/presenters/pricesPresenter.ts";
-import {
-  type AppHarness,
-  createAppHarness,
-} from "@cl/client-core/testing/appHarness.ts";
+import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
 
 import type { HostClock, Seeded } from "./host/seeded.ts";
 import type { Scenario } from "./scenarios.ts";
@@ -28,52 +23,14 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
   const harness = createAppHarness();
 
   return {
-    app: selectFromTheStart(harness.app, scenario.selected),
-    deliver: () => {
-      deliverAll(harness, scenario.stalePrices ?? []);
-
-      if (scenario.stalePrices !== undefined) {
-        clock.tick(STALE_AFTER_MS);
+    app: harness.app,
+    deliver: (): void => {
+      if (scenario.mode !== undefined) {
+        // Nothing waits: the session simulator applies the preference and resolves at once, and never rejects one.
+        void harness.ports.session.setPreference({ mode: scenario.mode });
       }
 
-      deliverAll(harness, scenario.prices);
-    },
-  };
-}
-
-function deliverAll(
-  { deliverPrice }: AppHarness,
-  prices: Scenario["prices"],
-): void {
-  for (const price of prices) {
-    deliverPrice(price);
-  }
-}
-
-/**
- * The application, with every selection machine it builds already holding the
- * scenario's selection. The selection is set through the machine's own intent,
- * so the picture shows what a click would have produced without a click.
- */
-function selectFromTheStart(
-  app: Application,
-  symbol: string | undefined,
-): Application {
-  if (symbol === undefined) {
-    return app;
-  }
-
-  return {
-    ...app,
-    machines: {
-      ...app.machines,
-      createSelection: () => {
-        const machine = app.machines.createSelection();
-
-        machine.intents.select(symbol);
-
-        return machine;
-      },
+      clock.tick(0);
     },
   };
 }

@@ -4,18 +4,15 @@ export * from "./entities/cents.ts";
 export * from "./entities/journal.ts";
 export * from "./entities/money.ts";
 export * from "./entities/party.ts";
-export type { Movement, Price, PriceTick } from "./entities/price.ts";
 export * from "./entities/result.ts";
 export * from "./entities/session.ts";
 export type { AccountsPort } from "./ports/accountsPort.ts";
 export type { BuildingsPort } from "./ports/buildingsPort.ts";
 export type { JournalPort } from "./ports/journalPort.ts";
-export type { PricePort } from "./ports/pricePort.ts";
 export type { SessionPort } from "./ports/sessionPort.ts";
 export { createAccountsSimulator } from "./simulators/accountsSimulator.ts";
 export { createBuildingsSimulator } from "./simulators/buildingsSimulator.ts";
 export { createJournalSimulator } from "./simulators/journalSimulator.ts";
-export { createPriceSimulator } from "./simulators/priceSimulator.ts";
 export * from "./simulators/seed/legacySeed.ts";
 export {
   createSessionSimulator,
@@ -31,5 +28,4 @@ export * from "./useCases/riparto/computeRiparto.ts";
 export * from "./useCases/riparto/periodTypes.ts";
 export * from "./useCases/riparto/recomputePeriod.ts";
 export * from "./useCases/riparto/types.ts";
-export { trackMovement } from "./useCases/trackMovement.ts";
 export * from "./useCases/validateBudget.ts";

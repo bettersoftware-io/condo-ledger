@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@cl/client-core": "workspace:*",
+    "@cl/domain": "workspace:*",
     "@react-rxjs/core": "^0.10.7",
     "react": "^19.2.3"
   },

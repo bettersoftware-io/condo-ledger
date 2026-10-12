@@ -4,7 +4,6 @@ import { startApp } from "./startApp.tsx";
 
 export interface StartedApp {
   heading: () => string | null;
-  rowCount: () => number;
   /** True when nothing is drawn in #root. */
   isBlank: () => boolean;
   stop: () => Promise<void>;
@@ -23,9 +22,6 @@ export async function startAppOnPage(): Promise<StartedApp> {
   return {
     heading: (): string | null => {
       return document.querySelector("h1")?.textContent ?? null;
-    },
-    rowCount: (): number => {
-      return document.querySelectorAll("tbody tr").length;
     },
     isBlank: (): boolean => {
       return document.getElementById("root")?.childElementCount === 0;

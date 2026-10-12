@@ -1,53 +1,111 @@
 import { act, render } from "@testing-library/react";
 import type { ReactElement } from "react";
 
-import {
-  type AppHarness,
-  createAppHarness,
-} from "@cl/client-core/testing/appHarness.ts";
+import type {
+  AccountDetails,
+  AccountsGridIntents,
+  AccountsGridState,
+  BottomTabIntents,
+  BottomTabState,
+  ColumnSpec,
+  ColumnsIntents,
+  ColumnsState,
+  MaximizeIntents,
+  MaximizeState,
+  NavigationIntents,
+  NavigationState,
+  SidebarIntents,
+  SidebarState,
+  SplitIntents,
+  SplitState,
+} from "@cl/client-core";
+import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
+import type {
+  AccountNode,
+  Building,
+  Cents,
+  Ledger,
+  LegacySeed,
+  Result,
+} from "@cl/domain";
 
-import { createViewModel } from "./createViewModel.ts";
+import {
+  createViewModel,
+  type NoticesView,
+  type SelectedAccountView,
+  type SelectedPeriodView,
+  type SessionView,
+} from "./createViewModel.ts";
+import type { MachineView } from "./useMachine.ts";
 import { useViewModel } from "./useViewModel.ts";
 import { ViewModelProvider } from "./ViewModelProvider.tsx";
 
-/** A price, as the harness takes it. This package does not depend on the domain itself. */
-type Price = Parameters<AppHarness["deliverPrice"]>[0];
-
-export interface ViewModelPage {
-  /** The symbols of the rows the component sees, in order. */
-  symbols: () => string[];
-  /** The symbol the component sees as selected. */
-  selected: () => string | null;
-  deliverPrice: (price: Price) => Promise<void>;
-  select: (symbol: string) => Promise<void>;
+/** What one reader got from every hook of the view model on its latest render. */
+export interface Seen {
+  session: SessionView;
+  buildings: Building[];
+  period: SelectedPeriodView;
+  tree: AccountNode | null;
+  account: SelectedAccountView;
+  ledger: Ledger | null;
+  details: AccountDetails | null;
+  setBudget: (accountId: string, budget: Cents) => Promise<Result>;
+  navigation: MachineView<NavigationState, NavigationIntents>;
+  notices: NoticesView;
+  grid: MachineView<AccountsGridState, AccountsGridIntents>;
+  columns: MachineView<ColumnsState, ColumnsIntents>;
+  split: MachineView<SplitState, SplitIntents>;
+  bottomTab: MachineView<BottomTabState, BottomTabIntents>;
+  maximize: MachineView<MaximizeState, MaximizeIntents>;
+  sidebar: MachineView<SidebarState, SidebarIntents>;
 }
 
-/** Mounts a component that reads everything the view model offers, under a provider, on the real application. */
-export function mountUnderProvider(): ViewModelPage {
-  const harness = createAppHarness();
-  const seen: Seen = { symbols: [], selected: null, select: () => {} };
+export interface ViewModelPage {
+  /** What the given reader (the first by default) saw on its latest render. */
+  read: (reader?: number) => Seen;
+  /** Uses what the given reader saw (an intent, a command) and lets React render what follows. */
+  send: (use: (seen: Seen) => unknown, reader?: number) => Promise<void>;
+}
+
+/** The columns every reader's columns machine is built over. */
+const COLUMNS: readonly ColumnSpec[] = [
+  { def: 200, min: 120, max: 400, grow: true },
+  { def: 90, min: 60, max: 180, grow: false },
+];
+
+/** The tabs every reader's tab machine is built over. */
+const TABS: readonly string[] = ["Ledger", "Details"];
+
+/** Mounts readers of every hook under one provider, on the real application over the given seed. */
+export function mountUnderProvider(
+  seed: LegacySeed,
+  readers: 1 | 2 = 1,
+): ViewModelPage {
+  const viewModel = createViewModel(createAppHarness(seed).app);
+  const seen: (Seen | undefined)[] = [];
 
   render(
-    <ViewModelProvider viewModel={createViewModel(harness.app)}>
-      <Reader seen={seen} />
+    <ViewModelProvider viewModel={viewModel}>
+      <Reader seen={seen} index={0} />
+      {readers === 2 ? <Reader seen={seen} index={1} /> : null}
     </ViewModelProvider>,
   );
 
+  function read(reader = 0): Seen {
+    const entry = seen[reader];
+
+    if (entry === undefined) {
+      throw new Error(`missing: what reader ${reader} saw`);
+    }
+
+    return entry;
+  }
+
   return {
-    symbols: (): string[] => {
-      return seen.symbols;
-    },
-    selected: (): string | null => {
-      return seen.selected;
-    },
-    deliverPrice: async (price: Price): Promise<void> => {
+    read,
+    send: async (use: (seen: Seen) => unknown, reader = 0): Promise<void> => {
       await act(async () => {
-        harness.deliverPrice(price);
-      });
-    },
-    select: async (symbol: string): Promise<void> => {
-      await act(async () => {
-        seen.select(symbol);
+        await use(read(reader));
       });
     },
   };
@@ -55,28 +113,52 @@ export function mountUnderProvider(): ViewModelPage {
 
 /** Mounts the same component with no provider above it. React reports what the component threw. */
 export function mountWithoutProvider(): void {
-  render(<Reader seen={{ symbols: [], selected: null, select: () => {} }} />);
-}
-
-interface Seen {
-  symbols: string[];
-  selected: string | null;
-  select: (symbol: string) => void;
+  render(<Reader seen={[]} index={0} />);
 }
 
 interface ReaderProps {
-  seen: Seen;
+  seen: (Seen | undefined)[];
+  index: number;
 }
 
-function Reader({ seen }: ReaderProps): ReactElement {
-  const { usePrices, useSelection } = useViewModel();
-  const selection = useSelection();
+function Reader({ seen, index }: ReaderProps): ReactElement {
+  const {
+    useSession,
+    useBuildingsTree,
+    useSelectedPeriod,
+    useAccountsTree,
+    useSelectedAccount,
+    useLedger,
+    useAccountDetails,
+    useSetBudget,
+    useNavigation,
+    useNotices,
+    useAccountsGrid,
+    useColumns,
+    useSplit,
+    useBottomTab,
+    useMaximize,
+    useSidebar,
+  } = useViewModel();
 
-  seen.symbols = usePrices().map((row) => {
-    return row.symbol;
-  });
-  seen.selected = selection.state.selected;
-  seen.select = selection.select;
+  seen[index] = {
+    session: useSession(),
+    buildings: useBuildingsTree(),
+    period: useSelectedPeriod(),
+    tree: useAccountsTree(),
+    account: useSelectedAccount(),
+    ledger: useLedger(),
+    details: useAccountDetails(),
+    setBudget: useSetBudget(),
+    navigation: useNavigation(),
+    notices: useNotices(),
+    grid: useAccountsGrid(),
+    columns: useColumns(COLUMNS),
+    split: useSplit(),
+    bottomTab: useBottomTab(TABS),
+    maximize: useMaximize(),
+    sidebar: useSidebar(),
+  };
 
   return <output />;
 }

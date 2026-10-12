@@ -1,12 +1,10 @@
 import type { ReactElement } from "react";
 
-import { PriceList } from "./PriceList.tsx";
-
+/** Stands in for the shell, which arrives with the Accounts screen. */
 export function App(): ReactElement {
   return (
-    <main>
-      <h1>Prices</h1>
-      <PriceList />
+    <main className="app-placeholder">
+      <h1>CondoLedger</h1>
     </main>
   );
 }
