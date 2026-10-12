@@ -13,6 +13,7 @@ export const TESTIDS = {
   schedaRow: "scheda-row",
   treeGrid: "tree-grid",
   treeGridRow: "tree-grid-row",
+  treeGridIndent: "tree-grid-indent",
   treeGridCaret: "tree-grid-caret",
   treeGridResize: "tree-grid-resize",
   treeGridFooter: "tree-grid-footer",

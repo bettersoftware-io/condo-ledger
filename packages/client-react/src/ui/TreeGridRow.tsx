@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
-import type { MouseEvent, ReactElement } from "react";
+import type { KeyboardEvent, MouseEvent, ReactElement } from "react";
 
 import type { TreeGridColumn, TreeGridRowData } from "./TreeGrid.tsx";
 import { TESTIDS } from "./testids.ts";
@@ -17,6 +17,17 @@ export function TreeGridRow({
     onSelect(row.key);
   }
 
+  function selectFromKeyboard(event: KeyboardEvent<HTMLDivElement>): void {
+    if (event.target !== event.currentTarget) {
+      return;
+    }
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onSelect(row.key);
+    }
+  }
+
   function toggle(event: MouseEvent<HTMLButtonElement>): void {
     event.stopPropagation();
     onToggle(row.key);
@@ -32,7 +43,9 @@ export function TreeGridRow({
       data-emphasis={row.emphasis}
       aria-selected={row.selected}
       aria-expanded={row.hasChildren ? row.expanded : undefined}
+      tabIndex={0}
       onClick={select}
+      onKeyDown={selectFromKeyboard}
     >
       <div role="gridcell" className="tree-grid-label">
         {indents(row.depth)}
@@ -73,8 +86,14 @@ export function TreeGridRow({
 
 function indents(depth: number): ReactElement[] {
   return Array.from({ length: depth }, (_, level) => {
-    // biome-ignore lint/suspicious/noArrayIndexKey: a fixed run of identical spacers, never reordered
-    return <span key={level} className="tree-grid-indent" />;
+    return (
+      <span
+        // biome-ignore lint/suspicious/noArrayIndexKey: a fixed run of identical spacers, never reordered
+        key={level}
+        className="tree-grid-indent"
+        data-testid={TESTIDS.treeGridIndent}
+      />
+    );
   });
 }
 

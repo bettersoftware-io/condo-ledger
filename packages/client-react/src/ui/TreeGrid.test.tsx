@@ -14,6 +14,8 @@ describe("TreeGrid", () => {
 
     expect(page.rowLabels()).toEqual(["Assets", "Cash", "Debts"]);
     expect(page.depthOf("Cash")).toBe(2);
+    expect(page.indentCountOf("Cash")).toBe(2);
+    expect(page.indentCountOf("Assets")).toBe(0);
     expect(page.isExpanded("Assets")).toBe(true);
     expect(page.isExpanded("Debts")).toBe(false);
     expect(page.isSelected("Cash")).toBe(true);
@@ -34,6 +36,27 @@ describe("TreeGrid", () => {
 
     expect(onSelect).toHaveBeenCalledExactlyOnceWith("Cash");
     expect(onToggle).toHaveBeenCalledTimes(1);
+  });
+
+  it("selects a row from the keyboard", () => {
+    const onSelect = vi.fn();
+    const page = mountTreeGrid({ onSelect });
+
+    page.pressKeyOnRow("Cash", "Enter");
+    page.pressKeyOnRow("Cash", " ");
+    page.pressKeyOnRow("Cash", "a");
+
+    expect(onSelect).toHaveBeenCalledTimes(2);
+    expect(onSelect).toHaveBeenCalledWith("Cash");
+  });
+
+  it("a key pressed on the caret does not also select the row", () => {
+    const onSelect = vi.fn();
+    const page = mountTreeGrid({ onSelect });
+
+    page.pressKeyOnCaret("Assets", "Enter");
+
+    expect(onSelect).not.toHaveBeenCalled();
   });
 
   it("a row without children has no caret, only a spacer", () => {

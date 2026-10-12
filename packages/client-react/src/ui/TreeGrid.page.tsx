@@ -14,6 +14,9 @@ export interface TreeGridPage {
   depthOf: (label: string) => number;
   isExpanded: (label: string) => boolean;
   isSelected: (label: string) => boolean;
+  indentCountOf: (label: string) => number;
+  pressKeyOnCaret: (label: string, key: string) => void;
+  pressKeyOnRow: (label: string, key: string) => void;
   hasCaret: (label: string) => boolean;
   caretLabel: (label: string) => string;
   clickCaret: (label: string) => void;
@@ -61,6 +64,21 @@ export function mountTreeGrid(props: Partial<TreeGridProps>): TreeGridPage {
     },
     isSelected: (label: string): boolean => {
       return rowOf(label).getAttribute("aria-selected") === "true";
+    },
+    indentCountOf: (label: string): number => {
+      return within(rowOf(label)).queryAllByTestId(TESTIDS.treeGridIndent)
+        .length;
+    },
+    pressKeyOnCaret: (label: string, key: string): void => {
+      fireEvent.keyDown(
+        within(rowOf(label)).getByTestId(TESTIDS.treeGridCaret),
+        {
+          key,
+        },
+      );
+    },
+    pressKeyOnRow: (label: string, key: string): void => {
+      fireEvent.keyDown(rowOf(label), { key });
     },
     hasCaret: (label: string): boolean => {
       return within(rowOf(label)).queryByTestId(TESTIDS.treeGridCaret) !== null;

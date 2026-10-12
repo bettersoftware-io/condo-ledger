@@ -28,8 +28,7 @@
         "rules": {
           "a11y": {
             "useSemanticElements": "off",
-            "useFocusableInteractive": "off",
-            "useKeyWithClickEvents": "off"
+            "useFocusableInteractive": "off"
           }
         }
       }
