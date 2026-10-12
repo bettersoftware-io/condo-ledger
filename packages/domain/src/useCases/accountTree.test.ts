@@ -188,6 +188,30 @@ describe("buildAccountTree", () => {
     }).toThrow("missing: the account la77");
   });
 
+  it("throws, naming the control account, when a control account has a child account", () => {
+    const books = createSmallBooks();
+    books.accounts.push({
+      ...createControlAccount("la7", "control"),
+      parentId: "la4",
+    });
+
+    expect(() => {
+      return buildAccountTree(books.accounts, books.entries, books.parties);
+    }).toThrow("a control account has child accounts: la4");
+  });
+
+  it("throws, naming the parent, for an account whose parent the period does not have", () => {
+    const books = createSmallBooks();
+    books.accounts.push({
+      ...createControlAccount("la7", "control"),
+      parentId: "la99",
+    });
+
+    expect(() => {
+      return buildAccountTree(books.accounts, books.entries, books.parties);
+    }).toThrow("missing: the account la99");
+  });
+
   it("puts a control account's posting with no counterpart in a (no counterpart) row", () => {
     const books = createSmallBooks();
     books.entries[0]?.postings.push(

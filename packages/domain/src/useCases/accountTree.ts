@@ -156,6 +156,7 @@ function index(
 
   for (const account of accounts) {
     if (account.parentId !== null) {
+      must(byId.get(account.parentId), `the account ${account.parentId}`);
       listFor(childrenOf, account.parentId).push(account);
     }
   }
@@ -270,6 +271,10 @@ function controlNode(
   account: Account,
   side: Side | null,
 ): AccountNode | undefined {
+  if (books.childrenOf.has(account.id)) {
+    throw new Error(`a control account has child accounts: ${account.id}`);
+  }
+
   const key = side === null ? account.id : `${account.id}@${side}`;
   const rows =
     account.type === "control"
