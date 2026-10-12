@@ -99,12 +99,17 @@ describe.skipIf(!legacyDumpAvailable())(
 
       expect(entries).toHaveLength(140);
       expect(postings).toHaveLength(540);
+      // Rome time: the dump holds 14:59:29 (UTC, winter, +1h) and 15:05:51 (summer, +2h).
       expect(entries[1]).toMatchObject({
         id: "tx150",
         number: 2,
-        // The dump's datetime as stored (UTC): the legacy journal shows it as 15:59, Rome time.
-        at: "2013-01-10T14:59:29",
+        at: "2013-01-10T15:59:29",
       });
+      expect(
+        entries.find((e) => {
+          return e.id === "tx214";
+        })?.at,
+      ).toBe("2013-07-01T17:05:51");
       expect(
         onControls.every((p) => {
           return p.counterpart !== null;

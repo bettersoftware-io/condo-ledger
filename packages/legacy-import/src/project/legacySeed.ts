@@ -179,11 +179,40 @@ function projectEntries(db: Db, periodId: string): JournalEntryData[] {
         id: `tx${String(row.id)}`,
         periodId: `p${periodId}`,
         number: Number(row.code),
-        at: String(row.timestamp ?? "").replace(" ", "T"),
+        at: romeTime(text(row.timestamp)),
         description: String(row.description ?? ""),
         postings,
       };
     });
+}
+
+// The dump stores UTC; the legacy app showed, and the UI shows, Rome wall-clock
+// time. Converted here with a fixed zone, so the seed never depends on the
+// zone of the machine that runs the generator or reads the seed.
+const ROME = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Europe/Rome",
+  hourCycle: "h23",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+});
+
+/** "YYYY-MM-DD HH:mm:ss" in UTC, as the dump holds it → "YYYY-MM-DDTHH:mm:ss" in Rome time. */
+function romeTime(stored: string | undefined): string {
+  if (stored === undefined) {
+    return "";
+  }
+
+  const parts = new Map(
+    ROME.formatToParts(new Date(`${stored.replace(" ", "T")}Z`)).map((part) => {
+      return [part.type, part.value];
+    }),
+  );
+
+  return `${parts.get("year")}-${parts.get("month")}-${parts.get("day")}T${parts.get("hour")}:${parts.get("minute")}:${parts.get("second")}`;
 }
 
 function counterpartOf(line: Row): Counterpart | null {
