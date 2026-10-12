@@ -8,19 +8,19 @@ import { replaceTextLines } from "./replaceText.ts";
 describe("replaceTextLines", () => {
   it("rewrites full names both ways round, in their case and in ALL CAPS", () => {
     expect(lines).toContain(
-      String.raw`regex:(?<!\w)Zanin Tiziano(?!\w)==>Moro Elio`,
+      String.raw`regex:(?<!\w)Zanin Mario(?!\w)==>Moro Elio`,
     );
     expect(lines).toContain(
-      String.raw`regex:(?<!\w)ZANIN TIZIANO(?!\w)==>MORO ELIO`,
+      String.raw`regex:(?<!\w)ZANIN MARIO(?!\w)==>MORO ELIO`,
     );
     expect(lines).toContain(
-      String.raw`regex:(?<!\w)Tiziano Zanin(?!\w)==>Elio Moro`,
+      String.raw`regex:(?<!\w)Mario Zanin(?!\w)==>Elio Moro`,
     );
   });
 
   it("rewrites a lone surname or first name only from five letters", () => {
     expect(lines).toContain(String.raw`regex:(?<!\w)Zanin(?!\w)==>Moro`);
-    expect(lines).toContain(String.raw`regex:(?<!\w)Tiziano(?!\w)==>Elio`);
+    expect(lines).toContain(String.raw`regex:(?<!\w)Mario(?!\w)==>Elio`);
     expect(lines.join("\n")).not.toMatch(/\(\?<!\\w\)Ugo\(\?!\\w\)/);
     expect(lines.join("\n")).not.toMatch(/\(\?<!\\w\)Bon\(\?!\\w\)/);
     expect(lines).toContain(
@@ -92,7 +92,7 @@ describe("replaceTextLines", () => {
 
   it("orders longer originals first, so a full name goes before its surname", () => {
     const full = lines.indexOf(
-      String.raw`regex:(?<!\w)Zanin Tiziano(?!\w)==>Moro Elio`,
+      String.raw`regex:(?<!\w)Zanin Mario(?!\w)==>Moro Elio`,
     );
     const surname = lines.indexOf(String.raw`regex:(?<!\w)Zanin(?!\w)==>Moro`);
 
@@ -106,7 +106,7 @@ describe("replaceTextLines", () => {
 function createOriginal(): Tables {
   return {
     person: [
-      { masterDataId: "3", firstName: "Tiziano", lastName: "Zanin" },
+      { masterDataId: "3", firstName: "Mario", lastName: "Zanin" },
       { masterDataId: "4", firstName: "Ugo", lastName: "Bon" },
       { masterDataId: "5", firstName: "Elio", lastName: "Conti" },
       { masterDataId: "6", firstName: "Remo", lastName: "Vianello" },

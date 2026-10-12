@@ -14,11 +14,11 @@ import {
 import { mulberry32 } from "./random.ts";
 
 describe("fiscalCode", () => {
-  it("computes the textbook code of Tiziano Floreani, born in Rome on 1 Jan 1980", () => {
+  it("computes the textbook code of Mario Rossi, born in Rome on 1 Jan 1980", () => {
     // RSS (surname consonants) MRA (name: 2 consonants + first vowel)
     // 80 A (January) 01 H501 (Roma). Control: odd positions R8 S12 R8 8→19 A1
     // 1→0 5→13 1→0, even positions S18 M12 A0 0 0 H7 0 → sum 98, 98 % 26 = 20 → U.
-    expect(fiscalCode("Rossi", "Tiziano", "m", "1980-01-01", "H501")).toBe(
+    expect(fiscalCode("Rossi", "Mario", "m", "1980-01-01", "H501")).toBe(
       "RSSMRA80A01H501U",
     );
   });

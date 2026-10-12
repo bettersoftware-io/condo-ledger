@@ -256,7 +256,7 @@ const roleTables: Tables = {
   ],
   person: [
     { masterDataId: "10", firstName: "Nives", lastName: "Bulfon", sex: "F" },
-    { masterDataId: "11", firstName: "Tiziano", lastName: "Rossi", sex: "M" },
+    { masterDataId: "11", firstName: "Mario", lastName: "Rossi", sex: "M" },
   ],
   expenseLA2Role: [
     {

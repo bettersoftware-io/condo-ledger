@@ -42,7 +42,7 @@ const tables: Tables = {
   person: [
     {
       masterDataId: "11",
-      firstName: "Tiziano",
+      firstName: "Mario",
       middleName: null,
       lastName: "Rossi",
       sex: "M",
@@ -77,9 +77,9 @@ describe("projectAnagrafiche", () => {
     })!;
     expect(p).toMatchObject({
       kind: "person",
-      nominativo: "Floreani Tiziano",
+      nominativo: "Rossi Mario",
       cognome: "Rossi",
-      nome: "Tiziano",
+      nome: "Mario",
       sesso: "m",
       stato: "archived",
       codiceFiscale: "RSSMRA80A01L483Z",

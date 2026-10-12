@@ -26,7 +26,7 @@ describe("pseudonymiseTables", () => {
     const mario = rowOf(out, "person", "masterDataId", "3");
     const irene = rowOf(out, "person", "masterDataId", "4");
 
-    expect(mario.firstName).not.toBe("Tiziano");
+    expect(mario.firstName).not.toBe("Mario");
     expect(SURNAMES).toContain(mario.lastName);
     expect(`${s(irene.lastName)} ${s(irene.firstName)}`).not.toBe(
       `${s(mario.lastName)} ${s(mario.firstName)}`,
@@ -304,10 +304,10 @@ describe("pseudonymiseTables", () => {
     const text = JSON.stringify(out);
 
     for (const original of [
-      "Tiziano",
+      "Mario",
       "Zanin",
       "ZANIN",
-      "Lidia",
+      "Irene",
       "Bortoli",
       "Lumen",
       "RSSMRA80A01H501U",
@@ -387,7 +387,7 @@ function createTables(): Tables {
     person: [
       {
         masterDataId: "3",
-        firstName: "Tiziano",
+        firstName: "Mario",
         middleName: null,
         lastName: "Zanin",
         sex: "m",
@@ -399,7 +399,7 @@ function createTables(): Tables {
       },
       {
         masterDataId: "4",
-        firstName: "Lidia",
+        firstName: "Irene",
         middleName: null,
         lastName: "De Bortoli",
         sex: "f",
@@ -411,7 +411,7 @@ function createTables(): Tables {
       },
     ],
     personVariation: [
-      { masterDataVariationId: "1", firstName: "Tiziano", lastName: "Zanin" },
+      { masterDataVariationId: "1", firstName: "Mario", lastName: "Zanin" },
     ],
     company: [
       {
@@ -483,12 +483,12 @@ function createTables(): Tables {
       { id: "1", name: "AG. 1", address: blob("via Lunga, 7", "33100") },
     ],
     ledgerTransaction: [
-      { id: "1", description: "Incasso Rate da Zanin Tiziano: Rata 1" },
+      { id: "1", description: "Incasso Rate da Zanin Mario: Rata 1" },
       {
         id: "2",
         description: "Registrazione fattura Lumen Acque S.p.A n. 4",
       },
-      { id: "3", description: "ZANIN e De Bortoli Lidia, tel 347-1234567" },
+      { id: "3", description: "ZANIN e De Bortoli Irene, tel 347-1234567" },
     ],
     ledgerEntry: [{ id: "1", ledgerTransactionId: "1", amount: "350.00" }],
     ledgerAccount: [
@@ -504,7 +504,7 @@ function createTables(): Tables {
       },
     ],
     qualification: [{ id: "1", name: "Zanin" }],
-    unitType: [{ id: "1", name: "Lidia" }],
+    unitType: [{ id: "1", name: "Irene" }],
     distributionTableItem: [
       { id: "1", coefficient: "300.000000" },
       { id: "2", coefficient: "3456789012.50" },

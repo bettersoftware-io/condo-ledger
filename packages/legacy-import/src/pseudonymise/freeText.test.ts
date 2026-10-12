@@ -9,12 +9,12 @@ import {
 } from "./freeText.ts";
 
 const PEOPLE: NameEntry[] = [
-  { original: "Zanin Tiziano", pseudonym: "Moro Elio" },
+  { original: "Zanin Mario", pseudonym: "Moro Elio" },
   { original: "Zanin", pseudonym: "Moro" },
-  { original: "Tiziano", pseudonym: "Elio" },
+  { original: "Mario", pseudonym: "Elio" },
   { original: "De Bortoli", pseudonym: "Cossio" },
   { original: "Bortoli", pseudonym: "Fabris" },
-  { original: "Lidia", pseudonym: "Nadia" },
+  { original: "Irene", pseudonym: "Nadia" },
   { original: "Bo", pseudonym: "Plos" },
   { original: "Rizzi-Bon (C.)", pseudonym: "Zof" },
 ];
@@ -30,18 +30,18 @@ const FIRMS: NameEntry[] = [
 
 describe("replaceNames", () => {
   it("replaces a full name and single tokens on word boundaries", () => {
-    expect(replaceNames("Incasso Rate da Zanin Tiziano: Rata 1", mapping)).toBe(
+    expect(replaceNames("Incasso Rate da Zanin Mario: Rata 1", mapping)).toBe(
       "Incasso Rate da Moro Elio: Rata 1",
     );
-    expect(replaceNames("nelle tabelle di Tiziano", mapping)).toBe(
+    expect(replaceNames("nelle tabelle di Mario", mapping)).toBe(
       "nelle tabelle di Elio",
     );
   });
 
   it("handles a two-word surname, in ALL CAPS too", () => {
-    expect(replaceNames("De Bortoli Lidia", mapping)).toBe("Cossio Nadia");
+    expect(replaceNames("De Bortoli Irene", mapping)).toBe("Cossio Nadia");
     expect(replaceNames("DE BORTOLI", mapping)).toBe("COSSIO");
-    expect(replaceNames("ZANIN TIZIANO", mapping)).toBe("MORO ELIO");
+    expect(replaceNames("ZANIN MARIO", mapping)).toBe("MORO ELIO");
   });
 
   it("treats regular-expression characters in a name literally", () => {
