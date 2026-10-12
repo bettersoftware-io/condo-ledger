@@ -38,3 +38,7 @@ test-results/
 
 # Pasted render screenshots in domain docs (throwaway; Mermaid renders inline)
 docs/domain/img*.png
+
+# Legacy data: kept on this machine only, never in git (real personal data)
+/old/
+/docs/design/web/v1/reports/

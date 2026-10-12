@@ -1,4 +1,4 @@
-import { readdirSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 import type { ArchitectureConfig } from "./tools/arch/gates/lib/config.mts";
@@ -64,6 +64,11 @@ const config: ArchitectureConfig = {
 /** Every JavaScript file under an archive folder, each with the same reason. */
 function archivedJavascript(folder: string): Record<string, string> {
   const files: string[] = [];
+
+  // old/ is kept on one machine and is not in git: a fresh clone has no such folder.
+  if (!existsSync(join(import.meta.dirname, folder))) {
+    return {};
+  }
 
   function walk(relative: string): void {
     for (const entry of readdirSync(join(import.meta.dirname, relative), {

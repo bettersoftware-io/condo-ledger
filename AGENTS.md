@@ -231,13 +231,14 @@ do not work around the gate or edit the rules to make it pass.
 
 | Package | Role | Holds |
 |---|---|---|
-| `packages/db` | leaf | The legacy schema in Drizzle (94 tables), migrations, and the ETL that seeds Postgres from the dumps in `old/db`. Imports no workspace package |
+| `packages/db` | leaf | The legacy schema in Drizzle (94 tables), migrations, and the ETL that seeds Postgres from the dumps in `old/db` (kept on this machine, not in git; the tests that read them skip without them). Imports no workspace package |
 | `packages/legacy-import` | server | The offline generator: parses the dump, projects it through the domain engine, writes `packages/legacy-import/seed/data.generated.json` and runs the Gherkin parity specs in `packages/legacy-import/specs` |
 
 Both are Node-side: `packages/db` may import nothing from the workspace and may use Node built-ins; `packages/legacy-import` may import `@cl/domain`, `@cl/db` and `@cl/shared` and may use Node built-ins. The "no Node built-in outside `packages/server`" rule above applies to the browser-bound packages.
 
-`old/` is the archived legacy application and the first prototype
-(`old/prototype-web`): reference only, outside the workspace, ignored by lint.
+`old/` (kept on this machine, not in git) is the archived legacy application
+and the first prototype (`old/prototype-web`), with the legacy dumps in
+`old/db`: reference only, outside the workspace, ignored by lint.
 The design the app is built to is `docs/design/web/v1/README.md`.
 
 <!-- BEGIN:turborepo-agent-rules -->

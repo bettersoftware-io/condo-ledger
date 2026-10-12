@@ -201,4 +201,4 @@ Footer buttons: `◀ Back` (hidden on step 1), primary `Next ▶` / final `✓ S
 - `README.md` — this document.
 - `tokens.css` — all color/type/spacing tokens (3 themes × light/dark), ready to replace `apps/web/src/styles/tokens.css` and `theme-dark.css`.
 - `Condomini.dc.html` + `support.js` — the interactive prototype (open `Condomini.dc.html` in a browser; resize below 1180px to see compact mode; use the theme/mode toggles top-right).
-- `reports/` — source datasets and PDF exports for Saturno 2011 and Pozzetto 2013.
+- `reports/` — source datasets and PDF exports for Saturno 2011 and Pozzetto 2013 (real printouts, kept on this machine outside git).
