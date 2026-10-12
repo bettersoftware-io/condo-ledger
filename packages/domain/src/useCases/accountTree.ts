@@ -221,27 +221,26 @@ function natureNodes(
       return accountNode(books, account);
     });
 
-  const controls = ofNature
-    .filter((account) => {
-      return (
-        account.type === "control" || account.type === "controlUnitResident"
-      );
-    })
-    .map((account) => {
-      return must(
-        controlNode(books, account, null),
-        `the control account ${account.id}`,
-      );
-    });
+  const controls = ofNature.filter(isControl).map((account) => {
+    return must(
+      controlNode(books, account, null),
+      `the control account ${account.id}`,
+    );
+  });
 
   return [...pure, ...controls];
 }
 
-/** A plain account: its own postings plus its children's, in legacy order. */
+/** A plain account: its own postings plus its children's, in legacy order. A control account among the children (individual expenses under a grouping) is split per supplier or per person, with no sides. */
 function accountNode(books: Books, account: Account): AccountNode {
   const children = ordered(books.childrenOf.get(account.id) ?? []).map(
     (child) => {
-      return accountNode(books, child);
+      return isControl(child)
+        ? must(
+            controlNode(books, child, null),
+            `the control account ${child.id}`,
+          )
+        : accountNode(books, child);
     },
   );
   const own = sumOf(books.postingsOf.get(account.id) ?? []);
@@ -264,7 +263,9 @@ function accountNode(books: Books, account: Account): AccountNode {
 /**
  * A control account on one side (or on no side, for individual expenses):
  * one row per supplier, or one per person holding one per residency. On a
- * side, only the rows whose balance has that sign; undefined when none has.
+ * side, only the rows whose balance has that sign. A side with no row is
+ * undefined when the other side has rows; with no row on either side, the
+ * account appears once, on the assets side, at zero.
  */
 function controlNode(
   books: Books,
@@ -285,7 +286,11 @@ function controlNode(
     return side === null || sideOf(row.balance) === side;
   });
 
-  if (side !== null && onSide.length === 0) {
+  if (
+    side !== null &&
+    onSide.length === 0 &&
+    (rows.length > 0 || side === "liabilities")
+  ) {
     return undefined;
   }
 
@@ -438,6 +443,10 @@ const NO_COUNTERPART = "(no counterpart)";
 
 function counterpartId(posting: Posting): string {
   return posting.counterpart?.id ?? NONE;
+}
+
+function isControl(account: Account): boolean {
+  return account.type === "control" || account.type === "controlUnitResident";
 }
 
 function iconOf(account: Account, hasChildren: boolean): NodeIcon {

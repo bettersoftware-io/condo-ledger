@@ -245,7 +245,7 @@ describe("buildAccountTree", () => {
     });
   });
 
-  it("omits a control account with no postings from both sides", () => {
+  it("shows a control account with no postings once, on the assets side, at zero and with no rows", () => {
     const books = createSmallBooks();
     books.accounts.push(
       createControlAccount("la7", "control"),
@@ -253,13 +253,71 @@ describe("buildAccountTree", () => {
     );
     const root = buildAccountTree(books.accounts, books.entries, books.parties);
 
+    expect(findNode(root, "la7@assets")).toMatchObject({
+      debit: 0,
+      credit: 0,
+      balance: 0,
+      children: [],
+    });
+    expect(findNode(root, "la8@assets")).toMatchObject({
+      debit: 0,
+      credit: 0,
+      balance: 0,
+      children: [],
+    });
     expect(
-      ["la7@assets", "la7@liabilities", "la8@assets", "la8@liabilities"].map(
-        (key) => {
-          return findNode(root, key);
-        },
-      ),
-    ).toEqual([undefined, undefined, undefined, undefined]);
+      ["la7@liabilities", "la8@liabilities"].map((key) => {
+        return findNode(root, key);
+      }),
+    ).toEqual([undefined, undefined]);
+  });
+
+  it("omits the assets side of a control account whose rows all have a credit balance", () => {
+    const books = createSmallBooks();
+    books.accounts.push(createControlAccount("la7", "control"));
+    books.entries[0]?.postings.push({
+      accountId: "la7",
+      debit: ZERO_CENTS,
+      credit: cents(300),
+      counterpart: { kind: "supplier", id: "md1" },
+    });
+    const root = buildAccountTree(books.accounts, books.entries, books.parties);
+
+    expect(findNode(root, "la7@assets")).toBeUndefined();
+    expect(findNode(root, "la7@liabilities")?.balance).toBe(-300);
+  });
+
+  it("splits an individual-expenses control account under a grouping per person, then per residency", () => {
+    const books = createSmallBooks();
+    const grouping: Account = {
+      ...createControlAccount("la25", "grouping"),
+      name: "Spese individuali",
+      order: 25,
+      nature: "expenses",
+    };
+    books.accounts = books.accounts.map((account) => {
+      return account.id === "la23" ? { ...account, parentId: "la25" } : account;
+    });
+    books.accounts.push(grouping);
+    const root = buildAccountTree(books.accounts, books.entries, books.parties);
+
+    expect(findNode(root, "costs")?.children.map(keyOf)).toEqual([
+      "la20",
+      "la25",
+    ]);
+    expect(findNode(root, "la25")?.children.map(keyOf)).toEqual(["la23"]);
+    expect(findNode(root, "la23")?.children.map(keyOf)).toEqual(["la23/md10"]);
+    expect(findNode(root, "la23/md10/r2")).toMatchObject({
+      label: "A02",
+      debit: 1500,
+      scope: { kind: "residency", accountId: "la23", residentId: "r2" },
+    });
+    expect(findNode(root, "la25")).toMatchObject({
+      debit: 1500,
+      balance: 1500,
+      budget: null,
+      scope: null,
+    });
   });
 });
 
