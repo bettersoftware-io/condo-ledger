@@ -1,11 +1,15 @@
-import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
 import { formatAddress, parseAddressVO } from "../addressVO.ts";
 import { assemble, type Seed } from "../assemble.ts";
 import { buildDb } from "../db.ts";
+import {
+  dumpSuiteName,
+  legacyDumpAvailable,
+  legacyDumpPath,
+} from "../legacyDump.ts";
 import { parseTables, type Tables } from "../loadRows.ts";
 import { identifierReplacements } from "./freeText.ts";
 import { EXTRA_ENTRIES } from "./leftovers.ts";
@@ -18,15 +22,9 @@ import {
 } from "./pseudonymise.ts";
 
 // The real dump must never be committed again (the history is being purged);
-// where it is absent this suite is skipped and says why. cwd is packages/legacy-import under Vitest (see specs/world.ts).
-const DUMP_PATH = resolve(
-  process.cwd(),
-  "../../old/db/it-jtime-condominium.all.sql",
-);
-const HAS_DUMP = existsSync(DUMP_PATH);
-
-describe.skipIf(!HAS_DUMP)(
-  `pseudonymise over the real dump${HAS_DUMP ? "" : " (SKIPPED: old/db/it-jtime-condominium.all.sql is not on this machine)"}`,
+// where it is absent this suite is skipped and says why.
+describe.skipIf(!legacyDumpAvailable())(
+  dumpSuiteName("pseudonymise over the real dump"),
   () => {
     it("leaves no original name, code, contact or address anywhere in the seed", () => {
       const { tables, seed } = load();
@@ -71,7 +69,7 @@ describe.skipIf(!HAS_DUMP)(
 // The seed exactly as generate-data.ts builds it.
 function load(): Loaded {
   if (!cached) {
-    const tables = parseTables(readFileSync(DUMP_PATH, "utf8"));
+    const tables = parseTables(readFileSync(legacyDumpPath(), "utf8"));
     const pseudonymised = pseudonymiseTables(tables);
     cached = {
       tables,

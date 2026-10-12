@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 
+import { dumpSuiteName, legacyDumpAvailable } from "#/legacyDump.ts";
+
 import { legacyDb, makeWorld, resolvePeriod, type SpecWorld } from "./world.ts";
 
-describe("spec world", () => {
+describe.skipIf(!legacyDumpAvailable())(dumpSuiteName("spec world"), () => {
   it("loads the real dump and selects real condominiums", () => {
     const db = legacyDb();
     expect(db.condominiums.length).toBeGreaterThanOrEqual(6);

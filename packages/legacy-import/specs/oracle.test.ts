@@ -1,4 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
+
+import type { Db } from "#/db.ts";
+import { dumpSuiteName, legacyDumpAvailable } from "#/legacyDump.ts";
 
 import {
   entryCount,
@@ -8,7 +11,11 @@ import {
 } from "./oracle.ts";
 import { legacyDb } from "./world.ts";
 
-describe("legacy oracles", () => {
+describe.skipIf(!legacyDumpAvailable())(dumpSuiteName("legacy oracles"), () => {
+  beforeAll(() => {
+    db = legacyDb();
+  });
+
   it("trial balance nets to zero for the reconciling periods", () => {
     expect(Math.abs(rawTrialBalanceCents(db, "1"))).toBeLessThanOrEqual(1);
     expect(Math.abs(rawTrialBalanceCents(db, "36"))).toBeLessThanOrEqual(1);
@@ -29,5 +36,5 @@ describe("legacy oracles", () => {
     expect(installmentItemTotalCents(db, "36")).toBeGreaterThan(0);
   });
 
-  const db = legacyDb();
+  let db: Db;
 });

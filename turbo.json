@@ -15,7 +15,7 @@
     },
     "test": {
       "dependsOn": ["transit"],
-      "env": ["DATABASE_URL", "XDG_DATA_HOME"]
+      "env": ["DATABASE_URL", "XDG_DATA_HOME", "LEGACY_DUMP_DIR"]
     },
     "dev": {
       "cache": false,

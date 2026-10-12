@@ -1,8 +1,13 @@
 import { readFileSync } from "node:fs";
 
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 
 import { parseInserts } from "../etl/parse.ts";
+import {
+  dumpSuiteName,
+  legacyDumpAvailable,
+  legacyDumpFile,
+} from "./legacyDump.ts";
 
 const sql = readFileSync(
   new URL("./fixtures/sample.sql", import.meta.url),
@@ -60,22 +65,25 @@ describe("parseInserts column-less form", () => {
     "INSERT INTO `accountingPeriod` VALUES (1,'2011',NULL),(2,'2012','x');";
 });
 
-describe("parseInserts real mysqldump smoke test", () => {
-  it("finds all 19 column-less INSERT statements in the real dump", () => {
-    const stmts = parseInserts(dump);
-    expect(stmts).toHaveLength(19);
-    const ap = stmts.find((s) => {
-      return s.table === "accountingPeriod";
-    });
-    expect(ap).toBeDefined();
-    expect(ap!.rows[0]![0]).toBe("1");
-  });
+const SATURNO = "it-jtime-condominium-saturno-only.data.sql";
 
-  const dump = readFileSync(
-    new URL(
-      "../../../old/db/it-jtime-condominium-saturno-only.data.sql",
-      import.meta.url,
-    ),
-    "utf8",
-  );
-});
+describe.skipIf(!legacyDumpAvailable(SATURNO))(
+  dumpSuiteName("parseInserts real mysqldump smoke test", SATURNO),
+  () => {
+    beforeAll(() => {
+      dump = readFileSync(legacyDumpFile(SATURNO), "utf8");
+    });
+
+    it("finds all 19 column-less INSERT statements in the real dump", () => {
+      const stmts = parseInserts(dump);
+      expect(stmts).toHaveLength(19);
+      const ap = stmts.find((s) => {
+        return s.table === "accountingPeriod";
+      });
+      expect(ap).toBeDefined();
+      expect(ap!.rows[0]![0]).toBe("1");
+    });
+
+    let dump: string;
+  },
+);

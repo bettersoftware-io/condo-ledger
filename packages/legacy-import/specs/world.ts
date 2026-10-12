@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 
 import { buildDb, type Db } from "#/db.ts";
+import { legacyDumpPath } from "#/legacyDump.ts";
 import { parseTables, type Tables } from "#/loadRows.ts";
 import { pseudonymiseTables } from "#/pseudonymise/pseudonymise.ts";
 
@@ -11,11 +11,7 @@ let cachedDb: Db | null = null;
 /** Parse the 48 MB dump once per worker (cwd = packages/legacy-import under Vitest). */
 function legacyTables(): Tables {
   if (!cachedTables) {
-    const path = resolve(
-      process.cwd(),
-      "../../old/db/it-jtime-condominium.all.sql",
-    );
-    cachedTables = parseTables(readFileSync(path, "utf8"));
+    cachedTables = parseTables(readFileSync(legacyDumpPath(), "utf8"));
   }
 
   return cachedTables;

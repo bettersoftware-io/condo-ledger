@@ -1,8 +1,13 @@
 import { readFileSync } from "node:fs";
 
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 
 import { classify, parseDdl, tableColumns } from "../etl/ddl.ts";
+import {
+  dumpSuiteName,
+  legacyDumpAvailable,
+  legacyDumpFile,
+} from "./legacyDump.ts";
 
 // Inline fixture exercising every column case plus excluded constraint/key lines.
 const fixture = `
@@ -77,40 +82,41 @@ describe("classify", () => {
   });
 });
 
-describe("parseDdl real DDL smoke test", () => {
-  it("yields 95 tables", () => {
-    expect(Object.keys(ddl)).toHaveLength(95);
-  });
+const STRUCTURE = "it-jtime-condominium.structure.sql";
 
-  it("accountingPeriod has 18 columns", () => {
-    expect(ddl.accountingPeriod).toBeDefined();
-    expect(ddl.accountingPeriod).toHaveLength(18);
-  });
-
-  it("accountingPeriod.created classifies as tz", () => {
-    const created = ddl.accountingPeriod!.find((c) => {
-      return c.name === "created";
+describe.skipIf(!legacyDumpAvailable(STRUCTURE))(
+  dumpSuiteName("parseDdl real DDL smoke test", STRUCTURE),
+  () => {
+    beforeAll(() => {
+      ddl = parseDdl(readFileSync(legacyDumpFile(STRUCTURE), "utf8"));
     });
-    expect(created).toBeDefined();
-    expect(classify(created!.sqlType)).toBe("tz");
-  });
 
-  it("accountingPeriod.startDate classifies as date", () => {
-    const startDate = ddl.accountingPeriod!.find((c) => {
-      return c.name === "startDate";
+    it("yields 95 tables", () => {
+      expect(Object.keys(ddl)).toHaveLength(95);
     });
-    expect(startDate).toBeDefined();
-    expect(startDate!.sqlType).toBe("date");
-    expect(classify(startDate!.sqlType)).toBe("date");
-  });
 
-  const structureSql = readFileSync(
-    new URL(
-      "../../../old/db/it-jtime-condominium.structure.sql",
-      import.meta.url,
-    ),
-    "utf8",
-  );
+    it("accountingPeriod has 18 columns", () => {
+      expect(ddl.accountingPeriod).toBeDefined();
+      expect(ddl.accountingPeriod).toHaveLength(18);
+    });
 
-  const ddl = parseDdl(structureSql);
-});
+    it("accountingPeriod.created classifies as tz", () => {
+      const created = ddl.accountingPeriod!.find((c) => {
+        return c.name === "created";
+      });
+      expect(created).toBeDefined();
+      expect(classify(created!.sqlType)).toBe("tz");
+    });
+
+    it("accountingPeriod.startDate classifies as date", () => {
+      const startDate = ddl.accountingPeriod!.find((c) => {
+        return c.name === "startDate";
+      });
+      expect(startDate).toBeDefined();
+      expect(startDate!.sqlType).toBe("date");
+      expect(classify(startDate!.sqlType)).toBe("date");
+    });
+
+    let ddl: ReturnType<typeof parseDdl>;
+  },
+);
