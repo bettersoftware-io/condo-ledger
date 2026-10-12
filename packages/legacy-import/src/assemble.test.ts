@@ -5,6 +5,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { assemble, type Seed } from "./assemble.ts";
 import { buildDb } from "./db.ts";
 import {
+  DUMP_SUITE_TIMEOUT_MS,
   dumpSuiteName,
   legacyDumpAvailable,
   legacyDumpPath,
@@ -13,12 +14,13 @@ import { parseTables } from "./loadRows.ts";
 
 describe.skipIf(!legacyDumpAvailable())(
   dumpSuiteName("assemble (real dump)"),
+  { timeout: DUMP_SUITE_TIMEOUT_MS },
   () => {
     beforeAll(() => {
       seed = assemble(
         buildDb(parseTables(readFileSync(legacyDumpPath(), "utf8"))),
       );
-    });
+    }, DUMP_SUITE_TIMEOUT_MS);
 
     it("emits multiple real condominiums and a large anagrafiche registry", () => {
       expect(seed.tree.length).toBeGreaterThanOrEqual(6);

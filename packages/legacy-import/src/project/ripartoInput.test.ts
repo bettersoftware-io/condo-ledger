@@ -8,6 +8,7 @@ import { buildRiparto } from "@cl/domain";
 
 import { buildDb, type Db } from "../db.ts";
 import {
+  DUMP_SUITE_TIMEOUT_MS,
   dumpSuiteName,
   legacyDumpAvailable,
   legacyDumpPath,
@@ -17,11 +18,12 @@ import { dbToRipartoInput } from "./ripartoInput.ts";
 
 describe.skipIf(!legacyDumpAvailable())(
   dumpSuiteName("dbToRipartoInput"),
+  { timeout: DUMP_SUITE_TIMEOUT_MS },
   () => {
     beforeAll(() => {
       // cwd = packages/legacy-import under Vitest; the dump is read cwd-relative (a known Vitest quirk).
       db = buildDb(parseTables(readFileSync(legacyDumpPath(), "utf8")));
-    });
+    }, DUMP_SUITE_TIMEOUT_MS);
 
     it("produces a non-empty, well-formed input for Pozzetto 2013 (period 36)", () => {
       const input = dbToRipartoInput(db, "36");
