@@ -1,7 +1,7 @@
 import { BehaviorSubject } from "rxjs";
 import { describe, expect, it } from "vitest";
 
-import { type AccountNode, buildAccountTree } from "@cl/domain";
+import { type AccountNode, buildAccountTree, cents } from "@cl/domain";
 import { createSmallBooks } from "@cl/domain/testing/createSmallBooks.ts";
 
 import {
@@ -121,6 +121,37 @@ describe("the accounts grid machine", () => {
     machine.dispose();
   });
 
+  it("hide-empty keeps a node with a budget though nothing is posted to it", () => {
+    const tree = patched(createTree(), (node) => {
+      return node.key === "la3" ? { ...node, budget: cents(1000) } : node;
+    });
+
+    expect(
+      keysOf(visibleRows(tree, new Set(keysUnder(tree)), "", true)),
+    ).toContain("la3");
+  });
+
+  it("hide-empty keeps Total when everything under it is empty", () => {
+    const tree = patched(createTree(), (node) => {
+      return { ...node, debit: cents(0), credit: cents(0), budget: null };
+    });
+
+    expect(keysOf(visibleRows(tree, new Set(["total"]), "", true))).toEqual([
+      "total",
+    ]);
+  });
+
+  it("a search is matched without its surrounding spaces", () => {
+    const tree = createTree();
+
+    expect(keysOf(visibleRows(tree, new Set(), "  cassa  ", false))).toEqual(
+      keysOf(visibleRows(tree, new Set(), "cassa", false)),
+    );
+    expect(keysOf(visibleRows(tree, new Set(), "  cassa  ", false))).toContain(
+      "la1",
+    );
+  });
+
   it("shows nothing until the tree arrives, then the rows", () => {
     const tree$ = new BehaviorSubject<AccountNode | null>(null);
     const machine = createAccountsGridMachine(tree$);
@@ -217,4 +248,19 @@ function countOf(node: AccountNode): number {
 interface GridFixture {
   machine: Machine<AccountsGridState, AccountsGridIntents>;
   tree: AccountNode;
+}
+
+function patched(
+  node: AccountNode,
+  change: (node: AccountNode) => AccountNode,
+): AccountNode {
+  const children = node.children.map((child) => {
+    return patched(child, change);
+  });
+
+  return change({ ...node, children });
+}
+
+function keysUnder(node: AccountNode): string[] {
+  return [node.key, ...node.children.flatMap(keysUnder)];
 }
