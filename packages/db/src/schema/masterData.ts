@@ -1,44 +1,50 @@
 import {
-  pgTable,
-  integer,
-  varchar,
-  char,
-  text,
-  boolean,
-  timestamp,
-  date,
-  numeric,
-  primaryKey,
   type AnyPgColumn,
+  boolean,
+  char,
+  date,
+  integer,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  varchar,
 } from "drizzle-orm/pg-core";
+
 import {
-  recordStatus,
-  accessAccountStatus,
   accessAccountRole,
+  accessAccountStatus,
   masterDataContactType,
   personSex,
+  recordStatus,
 } from "../enums.ts";
-import { country, locale, bank, bankBranch } from "./reference.ts";
-
-// Cross-area tables referenced lazily:
-//   - grant (leftovers.ts), qualification (this file), tribute (accounting.ts),
-//     masterDataCategory (this file), studio (this file)
-import { grant } from "./leftovers.ts";
-import { tribute } from "./accounting.ts";
+import {
+  bank,
+  city,
+  country,
+  district,
+  locale,
+  state,
+  tribute,
+} from "./reference.ts";
 
 // ---------------------------------------------------------------------------
 // studio
 // ---------------------------------------------------------------------------
 export const studio = pgTable("studio", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
-  masterDataId: integer("master_data_id").references(
-    (): AnyPgColumn => masterData.id,
-  ),
+  masterDataId: integer("master_data_id").references((): AnyPgColumn => {
+    return masterData.id;
+  }),
   countryIso31661A2: char("country_iso3166_1_a2", { length: 2 }).references(
-    () => country.iso31661Alpha2,
+    () => {
+      return country.iso31661Alpha2;
+    },
   ),
   defaultLocaleCode: varchar("default_locale_code", { length: 10 }).references(
-    () => locale.code,
+    () => {
+      return locale.code;
+    },
   ),
   headerText: text("header_text"),
   footerText: text("footer_text"),
@@ -52,34 +58,42 @@ export const studio = pgTable("studio", {
 // ---------------------------------------------------------------------------
 export const masterData = pgTable("master_data", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
-  studioId: integer("studio_id").references((): AnyPgColumn => studio.id),
+  studioId: integer("studio_id").references((): AnyPgColumn => {
+    return studio.id;
+  }),
   validFromDate: date("valid_from_date"),
   code: varchar("code", { length: 15 }),
   status: recordStatus("status"),
   taxCode: varchar("tax_code", { length: 31 }),
   vatNumber: varchar("vat_number", { length: 31 }),
-  masterDataCategoryId: integer("master_data_category_id").references(
-    () => masterDataCategory.id,
-  ),
+  masterDataCategoryId: integer("master_data_category_id").references(() => {
+    return masterDataCategory.id;
+  }),
   postalAddress: text("postal_address"),
   preferredLocaleCode: varchar("preferred_locale_code", {
     length: 10,
-  }).references(() => locale.code),
-  qualificationId: integer("qualification_id").references(
-    () => qualification.id,
-  ),
-  bankAccountId: integer("bank_account_id").references(
-    (): AnyPgColumn => bankAccount.id,
-  ),
+  }).references(() => {
+    return locale.code;
+  }),
+  qualificationId: integer("qualification_id").references(() => {
+    return qualification.id;
+  }),
+  bankAccountId: integer("bank_account_id").references((): AnyPgColumn => {
+    return bankAccount.id;
+  }),
   notes: text("notes"),
   variationNotes: text("variation_notes"),
   created: timestamp("created", { withTimezone: true }),
   createdMasterDataId: integer("created_master_data_id").references(
-    (): AnyPgColumn => masterData.id,
+    (): AnyPgColumn => {
+      return masterData.id;
+    },
   ),
   updated: timestamp("updated", { withTimezone: true }),
   lastModifiedMasterDataId: integer("last_modified_master_data_id").references(
-    (): AnyPgColumn => masterData.id,
+    (): AnyPgColumn => {
+      return masterData.id;
+    },
   ),
 });
 
@@ -88,7 +102,9 @@ export const masterData = pgTable("master_data", {
 // ---------------------------------------------------------------------------
 export const masterDataCategory = pgTable("master_data_category", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
-  studioId: integer("studio_id").references(() => studio.id),
+  studioId: integer("studio_id").references(() => {
+    return studio.id;
+  }),
   name: varchar("name", { length: 63 }).notNull(),
   code: varchar("code", { length: 15 }),
   order: integer("order"),
@@ -104,18 +120,26 @@ export const masterDataCategoryI18n = pgTable(
   {
     masterDataCategoryId: integer("master_data_category_id")
       .notNull()
-      .references(() => masterDataCategory.id),
+      .references(() => {
+        return masterDataCategory.id;
+      }),
     localeCode: varchar("locale_code", { length: 10 })
       .notNull()
-      .references(() => locale.code),
-    studioId: integer("studio_id").references(() => studio.id),
+      .references(() => {
+        return locale.code;
+      }),
+    studioId: integer("studio_id").references(() => {
+      return studio.id;
+    }),
     translation: varchar("translation", { length: 127 }).notNull(),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => ({
-    pk: primaryKey({ columns: [t.masterDataCategoryId, t.localeCode] }),
-  }),
+  (t) => {
+    return {
+      pk: primaryKey({ columns: [t.masterDataCategoryId, t.localeCode] }),
+    };
+  },
 );
 
 // ---------------------------------------------------------------------------
@@ -123,11 +147,15 @@ export const masterDataCategoryI18n = pgTable(
 // ---------------------------------------------------------------------------
 export const masterDataContact = pgTable("master_data_contact", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
-  studioId: integer("studio_id").references(() => studio.id),
-  masterDataId: integer("master_data_id").references(() => masterData.id),
-  masterDataVariationId: integer("master_data_variation_id").references(
-    () => masterDataVariation.id,
-  ),
+  studioId: integer("studio_id").references(() => {
+    return studio.id;
+  }),
+  masterDataId: integer("master_data_id").references(() => {
+    return masterData.id;
+  }),
+  masterDataVariationId: integer("master_data_variation_id").references(() => {
+    return masterDataVariation.id;
+  }),
   type: masterDataContactType("type").notNull(),
   label: varchar("label", { length: 31 }).notNull(),
   value: varchar("value", { length: 127 }).notNull(),
@@ -144,18 +172,26 @@ export const masterDataContactI18n = pgTable(
   {
     masterDataContactId: integer("master_data_contact_id")
       .notNull()
-      .references(() => masterDataContact.id),
+      .references(() => {
+        return masterDataContact.id;
+      }),
     localeCode: varchar("locale_code", { length: 10 })
       .notNull()
-      .references(() => locale.code),
-    studioId: integer("studio_id").references(() => studio.id),
+      .references(() => {
+        return locale.code;
+      }),
+    studioId: integer("studio_id").references(() => {
+      return studio.id;
+    }),
     translation: varchar("translation", { length: 127 }).notNull(),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => ({
-    pk: primaryKey({ columns: [t.masterDataContactId, t.localeCode] }),
-  }),
+  (t) => {
+    return {
+      pk: primaryKey({ columns: [t.masterDataContactId, t.localeCode] }),
+    };
+  },
 );
 
 // ---------------------------------------------------------------------------
@@ -163,13 +199,19 @@ export const masterDataContactI18n = pgTable(
 // ---------------------------------------------------------------------------
 export const masterDataCrossRelation = pgTable("master_data_cross_relation", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
-  studioId: integer("studio_id").references(() => studio.id),
+  studioId: integer("studio_id").references(() => {
+    return studio.id;
+  }),
   fromMasterDataId: integer("from_master_data_id")
     .notNull()
-    .references(() => masterData.id),
+    .references(() => {
+      return masterData.id;
+    }),
   toMasterDataId: integer("to_master_data_id")
     .notNull()
-    .references(() => masterData.id),
+    .references(() => {
+      return masterData.id;
+    }),
   relation: varchar("relation", { length: 127 }).notNull(),
   order: integer("order"),
   created: timestamp("created", { withTimezone: true }),
@@ -184,18 +226,26 @@ export const masterDataCrossRelationI18n = pgTable(
   {
     masterDataCrossRelationId: integer("master_data_cross_relation_id")
       .notNull()
-      .references(() => masterDataCrossRelation.id),
+      .references(() => {
+        return masterDataCrossRelation.id;
+      }),
     localeCode: varchar("locale_code", { length: 10 })
       .notNull()
-      .references(() => locale.code),
-    studioId: integer("studio_id").references(() => studio.id),
+      .references(() => {
+        return locale.code;
+      }),
+    studioId: integer("studio_id").references(() => {
+      return studio.id;
+    }),
     translation: varchar("translation", { length: 127 }).notNull(),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => ({
-    pk: primaryKey({ columns: [t.masterDataCrossRelationId, t.localeCode] }),
-  }),
+  (t) => {
+    return {
+      pk: primaryKey({ columns: [t.masterDataCrossRelationId, t.localeCode] }),
+    };
+  },
 );
 
 // ---------------------------------------------------------------------------
@@ -203,15 +253,21 @@ export const masterDataCrossRelationI18n = pgTable(
 // ---------------------------------------------------------------------------
 export const masterDataTaxTreatment = pgTable("master_data_tax_treatment", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
-  studioId: integer("studio_id").references(() => studio.id),
+  studioId: integer("studio_id").references(() => {
+    return studio.id;
+  }),
   masterDataId: integer("master_data_id")
     .notNull()
-    .references(() => masterData.id),
+    .references(() => {
+      return masterData.id;
+    }),
   isDefault: boolean("is_default").notNull().default(false),
   taxAc: boolean("tax_ac").notNull(),
   tax770: boolean("tax_770").notNull(),
   vat: integer("vat"),
-  tributeId: integer("tribute_id").references(() => tribute.id),
+  tributeId: integer("tribute_id").references(() => {
+    return tribute.id;
+  }),
   withholdingTax: integer("withholding_tax"),
   welfareTax: integer("welfare_tax"),
   applyOnWelfareTax: boolean("apply_on_welfare_tax").notNull(),
@@ -224,27 +280,35 @@ export const masterDataTaxTreatment = pgTable("master_data_tax_treatment", {
 // ---------------------------------------------------------------------------
 export const masterDataVariation = pgTable("master_data_variation", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
-  studioId: integer("studio_id").references(() => studio.id),
+  studioId: integer("studio_id").references(() => {
+    return studio.id;
+  }),
   masterDataId: integer("master_data_id")
     .notNull()
-    .references(() => masterData.id),
+    .references(() => {
+      return masterData.id;
+    }),
   validFromDate: date("valid_from_date"),
   validToDate: date("valid_to_date"),
   taxCode: varchar("tax_code", { length: 31 }),
   vatNumber: varchar("vat_number", { length: 31 }),
   postalAddress: text("postal_address"),
-  qualificationId: integer("qualification_id").references(
-    () => qualification.id,
-  ),
-  bankAccountId: integer("bank_account_id").references(() => bankAccount.id),
+  qualificationId: integer("qualification_id").references(() => {
+    return qualification.id;
+  }),
+  bankAccountId: integer("bank_account_id").references(() => {
+    return bankAccount.id;
+  }),
   variationNotes: text("variation_notes"),
   created: timestamp("created", { withTimezone: true }),
-  createdMasterDataId: integer("created_master_data_id").references(
-    () => masterData.id,
-  ),
+  createdMasterDataId: integer("created_master_data_id").references(() => {
+    return masterData.id;
+  }),
   updated: timestamp("updated", { withTimezone: true }),
   lastModifiedMasterDataId: integer("last_modified_master_data_id").references(
-    () => masterData.id,
+    () => {
+      return masterData.id;
+    },
   ),
 });
 
@@ -254,7 +318,9 @@ export const masterDataVariation = pgTable("master_data_variation", {
 export const person = pgTable("person", {
   masterDataId: integer("master_data_id")
     .primaryKey()
-    .references(() => masterData.id),
+    .references(() => {
+      return masterData.id;
+    }),
   firstName: varchar("first_name", { length: 63 }),
   middleName: varchar("middle_name", { length: 63 }),
   lastName: varchar("last_name", { length: 63 }),
@@ -263,7 +329,9 @@ export const person = pgTable("person", {
   birthPlace: text("birth_place"),
   citizenshipIso31661A2: char("citizenship_iso3166_1_a2", {
     length: 2,
-  }).references(() => country.iso31661Alpha2),
+  }).references(() => {
+    return country.iso31661Alpha2;
+  }),
   officeAddress: text("office_address"),
   permanentAddress: text("permanent_address"),
   currentAddress: text("current_address"),
@@ -278,13 +346,17 @@ export const person = pgTable("person", {
 export const personVariation = pgTable("person_variation", {
   masterDataVariationId: integer("master_data_variation_id")
     .primaryKey()
-    .references(() => masterDataVariation.id),
+    .references(() => {
+      return masterDataVariation.id;
+    }),
   firstName: varchar("first_name", { length: 63 }),
   middleName: varchar("middle_name", { length: 63 }),
   lastName: varchar("last_name", { length: 63 }),
   citizenshipIso31661A2: char("citizenship_iso3166_1_a2", {
     length: 2,
-  }).references(() => country.iso31661Alpha2),
+  }).references(() => {
+    return country.iso31661Alpha2;
+  }),
   officeAddress: text("office_address"),
   permanentAddress: text("permanent_address"),
   currentAddress: text("current_address"),
@@ -299,7 +371,9 @@ export const personVariation = pgTable("person_variation", {
 export const company = pgTable("company", {
   masterDataId: integer("master_data_id")
     .primaryKey()
-    .references(() => masterData.id),
+    .references(() => {
+      return masterData.id;
+    }),
   name: varchar("name", { length: 127 }).notNull(),
   registeredOfficeAddress: text("registered_office_address"),
   taxPurposeAddress: text("tax_purpose_address"),
@@ -313,7 +387,9 @@ export const company = pgTable("company", {
 export const companyVariation = pgTable("company_variation", {
   masterDataVariationId: integer("master_data_variation_id")
     .primaryKey()
-    .references(() => masterDataVariation.id),
+    .references(() => {
+      return masterDataVariation.id;
+    }),
   name: varchar("name", { length: 127 }).notNull(),
   registeredOfficeAddress: text("registered_office_address"),
   taxPurposeAddress: text("tax_purpose_address"),
@@ -326,9 +402,13 @@ export const companyVariation = pgTable("company_variation", {
 // ---------------------------------------------------------------------------
 export const accessAccount = pgTable("access_account", {
   username: varchar("username", { length: 63 }).primaryKey(),
-  studioId: integer("studio_id").references(() => studio.id),
+  studioId: integer("studio_id").references(() => {
+    return studio.id;
+  }),
   password: varchar("password", { length: 63 }),
-  masterDataId: integer("master_data_id").references(() => masterData.id),
+  masterDataId: integer("master_data_id").references(() => {
+    return masterData.id;
+  }),
   status: accessAccountStatus("status").notNull(),
   role: accessAccountRole("role").notNull(),
   grantFlatOwner: boolean("grant_flat_owner").notNull(),
@@ -347,7 +427,9 @@ export const accessAccountActivationRequest = pgTable(
   "access_account_activation_request",
   {
     activationCode: varchar("activation_code", { length: 64 }).primaryKey(),
-    studioId: integer("studio_id").references(() => studio.id),
+    studioId: integer("studio_id").references(() => {
+      return studio.id;
+    }),
     url: varchar("url", { length: 255 }),
     username: varchar("username", { length: 63 }),
     password: varchar("password", { length: 63 }),
@@ -375,17 +457,25 @@ export const accessAccountGrant = pgTable(
   {
     username: varchar("username", { length: 63 })
       .notNull()
-      .references(() => accessAccount.username),
+      .references(() => {
+        return accessAccount.username;
+      }),
     grantId: integer("grant_id")
       .notNull()
-      .references(() => grant.id),
-    studioId: integer("studio_id").references(() => studio.id),
+      .references(() => {
+        return grant.id;
+      }),
+    studioId: integer("studio_id").references(() => {
+      return studio.id;
+    }),
     created: timestamp("created", { withTimezone: true }),
     updated: timestamp("updated", { withTimezone: true }),
   },
-  (t) => ({
-    pk: primaryKey({ columns: [t.username, t.grantId] }),
-  }),
+  (t) => {
+    return {
+      pk: primaryKey({ columns: [t.username, t.grantId] }),
+    };
+  },
 );
 
 // ---------------------------------------------------------------------------
@@ -393,10 +483,14 @@ export const accessAccountGrant = pgTable(
 // ---------------------------------------------------------------------------
 export const qualification = pgTable("qualification", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
-  studioId: integer("studio_id").references(() => studio.id),
+  studioId: integer("studio_id").references(() => {
+    return studio.id;
+  }),
   countryIso31661A2: char("country_iso3166_1_a2", { length: 2 })
     .notNull()
-    .references(() => country.iso31661Alpha2),
+    .references(() => {
+      return country.iso31661Alpha2;
+    }),
   name: varchar("name", { length: 31 }).notNull(),
   code: varchar("code", { length: 15 }),
   created: timestamp("created", { withTimezone: true }),
@@ -408,7 +502,9 @@ export const qualification = pgTable("qualification", {
 // ---------------------------------------------------------------------------
 export const passwordResetRequest = pgTable("password_reset_request", {
   resetCode: varchar("reset_code", { length: 64 }).primaryKey(),
-  studioId: integer("studio_id").references(() => studio.id),
+  studioId: integer("studio_id").references(() => {
+    return studio.id;
+  }),
   username: varchar("username", { length: 63 }).notNull(),
   email: varchar("email", { length: 63 }).notNull(),
   clientSessionId: varchar("client_session_id", { length: 63 }),
@@ -423,16 +519,22 @@ export const passwordResetRequest = pgTable("password_reset_request", {
 // ---------------------------------------------------------------------------
 export const bankAccount = pgTable("bank_account", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
-  studioId: integer("studio_id").references(() => studio.id),
-  bankId: integer("bank_id").references(() => bank.id),
+  studioId: integer("studio_id").references(() => {
+    return studio.id;
+  }),
+  bankId: integer("bank_id").references(() => {
+    return bank.id;
+  }),
   countryIso31661A2: char("country_iso3166_1_a2", { length: 2 }).references(
-    () => country.iso31661Alpha2,
+    () => {
+      return country.iso31661Alpha2;
+    },
   ),
   bankName: varchar("bank_name", { length: 255 }),
   nationalBankCode: char("national_bank_code", { length: 8 }),
-  bankBranchId: integer("bank_branch_id").references(
-    (): AnyPgColumn => bankBranch.id,
-  ),
+  bankBranchId: integer("bank_branch_id").references((): AnyPgColumn => {
+    return bankBranch.id;
+  }),
   branchName: varchar("branch_name", { length: 255 }),
   branchCode: char("branch_code", { length: 6 }),
   swift: char("swift", { length: 11 }),
@@ -454,9 +556,94 @@ export const bankAccount = pgTable("bank_account", {
 // ---------------------------------------------------------------------------
 export const bankTransferPo = pgTable("bank_transfer_po", {
   id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
-  studioId: integer("studio_id").references(() => studio.id),
-  bankAccountId: integer("bank_account_id").references(() => bankAccount.id),
+  studioId: integer("studio_id").references(() => {
+    return studio.id;
+  }),
+  bankAccountId: integer("bank_account_id").references(() => {
+    return bankAccount.id;
+  }),
   reasonForPayment: varchar("reason_for_payment", { length: 255 }),
+  created: timestamp("created", { withTimezone: true }),
+  updated: timestamp("updated", { withTimezone: true }),
+});
+
+// ---------------------------------------------------------------------------
+// grant
+// ---------------------------------------------------------------------------
+export const grant = pgTable("grant", {
+  id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
+  studioId: integer("studio_id").references(() => {
+    return studio.id;
+  }),
+  code: varchar("code", { length: 31 }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  order: integer("order"),
+  notes: text("notes"),
+  created: timestamp("created", { withTimezone: true }),
+  updated: timestamp("updated", { withTimezone: true }),
+});
+
+// ---------------------------------------------------------------------------
+// grantI18n
+// ---------------------------------------------------------------------------
+export const grantI18n = pgTable(
+  "grant_i18n",
+  {
+    grantId: integer("grant_id")
+      .notNull()
+      .references(() => {
+        return grant.id;
+      }),
+    localeCode: varchar("locale_code", { length: 10 })
+      .notNull()
+      .references(() => {
+        return locale.code;
+      }),
+    studioId: integer("studio_id").references(() => {
+      return studio.id;
+    }),
+    translation: varchar("translation", { length: 127 }).notNull(),
+    created: timestamp("created", { withTimezone: true }),
+    updated: timestamp("updated", { withTimezone: true }),
+  },
+  (t) => {
+    return {
+      pk: primaryKey({ columns: [t.grantId, t.localeCode] }),
+    };
+  },
+);
+
+// ---------------------------------------------------------------------------
+// bankBranch
+// ---------------------------------------------------------------------------
+export const bankBranch = pgTable("bank_branch", {
+  id: integer("id").generatedAlwaysAsIdentity().primaryKey(),
+  bankId: integer("bank_id")
+    .notNull()
+    .references(() => {
+      return bank.id;
+    }),
+  name: varchar("name", { length: 255 }).notNull(),
+  branchCode: char("branch_code", { length: 6 }),
+  swift: char("swift", { length: 11 }),
+  address: text("address"),
+  masterDataId: integer("master_data_id").references((): AnyPgColumn => {
+    return masterData.id;
+  }),
+  cityId: integer("city_id").references(() => {
+    return city.id;
+  }),
+  districtId: integer("district_id").references(() => {
+    return district.id;
+  }),
+  stateId: integer("state_id").references(() => {
+    return state.id;
+  }),
+  countryIso31661A2: char("country_iso3166_1_a2", { length: 2 }).references(
+    () => {
+      return country.iso31661Alpha2;
+    },
+  ),
   created: timestamp("created", { withTimezone: true }),
   updated: timestamp("updated", { withTimezone: true }),
 });

@@ -1,5 +1,0 @@
-.bar { display: flex; align-items: center; gap: var(--sp-3); height: var(--nav-h);
-  padding: 0 var(--sp-6); background: var(--surface-panel-header); border-bottom: 1px solid var(--border-subtle);
-  color: var(--text-secondary); font-size: var(--fs-sm); }
-.seg { color: var(--text-secondary); }
-.last { color: var(--text-primary); font-weight: var(--fw-medium); }

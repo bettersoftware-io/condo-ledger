@@ -1,0 +1,19 @@
+{
+  "name": "@cl/integration",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#/*": "./src/*"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@cl/client-core": "workspace:*",
+    "@cl/domain": "workspace:*",
+    "@cl/server": "workspace:*",
+    "@cl/shared": "workspace:*",
+    "rxjs": "^7.8.2"
+  }
+}

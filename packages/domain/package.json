@@ -1,14 +1,19 @@
 {
   "name": "@cl/domain",
-  "version": "0.0.0",
+  "private": true,
   "type": "module",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
-  "scripts": {
-    "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*"
   },
-  "devDependencies": {
-    "vitest": "^2.0.5"
+  "imports": {
+    "#/*": "./src/*"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "rxjs": "^7.8.2"
   }
 }

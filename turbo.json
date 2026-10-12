@@ -1,0 +1,26 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["tsconfig.base.json"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"],
+      "env": ["VITE_SERVER_URL"]
+    },
+    "transit": {
+      "dependsOn": ["^transit"]
+    },
+    "typecheck": {
+      "dependsOn": ["transit"]
+    },
+    "test": {
+      "dependsOn": ["transit"],
+      "env": ["DATABASE_URL", "XDG_DATA_HOME", "LEGACY_DUMP_DIR"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "env": ["VITE_SERVER_URL", "PORT"]
+    }
+  }
+}

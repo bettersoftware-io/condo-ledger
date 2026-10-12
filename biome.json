@@ -1,0 +1,35 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": ["./tools/format-lint/biome.base.json"],
+  "files": {
+    "includes": [
+      "!tools",
+      "!.*",
+      "!.claude",
+      "!.codex",
+      "!**/dist",
+      "!**/coverage",
+      "!**/reports",
+      "!**/.turbo",
+      "!old",
+      "!docs",
+      "!packages/legacy-import/seed",
+      "!packages/db/drizzle"
+    ]
+  },
+  "overrides": [
+    {
+      "includes": ["packages/db/**", "packages/legacy-import/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noNonNullAssertion": "off"
+          },
+          "nursery": {
+            "useExplicitType": "off"
+          }
+        }
+      }
+    }
+  ]
+}

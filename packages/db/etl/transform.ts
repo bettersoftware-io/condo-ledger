@@ -4,9 +4,8 @@
 // coerce values by their declared MySQL type (bool / Rome-local datetime ->
 // UTC / calendar date passthrough / raw passthrough).
 
-import type { DdlColumn } from "./ddl.ts";
-import { classify } from "./ddl.ts";
 import { toSnake } from "../src/naming.ts";
+import { classify, type DdlColumn } from "./ddl.ts";
 
 export type TransformValue = string | number | boolean | null;
 
@@ -21,39 +20,54 @@ export function makeTransform(
   // Per-table name->sqlType lookup, built once on first use (the ETL hot loop
   // runs this per column per row over the full dump — avoid a linear find each time).
   const typeByTable = new Map<string, Map<string, string>>();
-  const typesFor = (table: string): Map<string, string> => {
+
+  function typesFor(table: string): Map<string, string> {
     let m = typeByTable.get(table);
+
     if (!m) {
-      m = new Map((ddl[table] ?? []).map((c) => [c.name, c.sqlType]));
+      m = new Map(
+        (ddl[table] ?? []).map((c) => {
+          return [c.name, c.sqlType];
+        }),
+      );
       typeByTable.set(table, m);
     }
+
     return m;
-  };
+  }
 
   return function transformRow(table, columns, values) {
     const types = typesFor(table);
     const row: Record<string, TransformValue> = {};
+
     for (let i = 0; i < columns.length; i++) {
       const col = columns[i]!;
       const v = values[i] ?? null;
       const key = renameColumn(col);
+
       if (v === null) {
         row[key] = null;
         continue;
       }
+
       // ISO-3166-1 alpha-2 country codes are canonically UPPERCASE (the `country`
       // reference table keys on 'IT', 'FR', ...). Legacy master-data stores them
       // lowercase ('it'), which orphans the country FK. Canonicalize to uppercase
       // so the FK resolves to the existing parent — a lossless normalization (the
       // code still denotes the same country), not a data invention.
-      if (key === "country_iso3166_1_a2" || key === "citizenship_iso3166_1_a2") {
+      if (
+        key === "country_iso3166_1_a2" ||
+        key === "citizenship_iso3166_1_a2"
+      ) {
         row[key] = v.toUpperCase();
         continue;
       }
+
       const sqlType = types.get(col);
       // Unknown column (not in DDL): pass through raw. Shouldn't happen for real
       // data, but we never crash on it.
       const kind = sqlType ? classify(sqlType) : "raw";
+
       switch (kind) {
         case "bool":
           row[key] = v === "1" || v === "true";
@@ -65,12 +79,12 @@ export function makeTransform(
           // Calendar date — pass through verbatim, no timezone conversion.
           row[key] = v;
           break;
-        case "raw":
         default:
           row[key] = v;
           break;
       }
     }
+
     return row;
   };
 }
@@ -80,8 +94,14 @@ export function makeTransform(
 // NOTE: the exact-match on the whole string `"lastModified"` means audit-FK
 // columns like `lastModifiedMasterDataId` fall through to toSnake unchanged.
 function renameColumn(col: string): string {
-  if (col === "default") return "is_default";
-  if (col === "lastModified") return "updated";
+  if (col === "default") {
+    return "is_default";
+  }
+
+  if (col === "lastModified") {
+    return "updated";
+  }
+
   return toSnake(col);
 }
 
@@ -103,13 +123,17 @@ function romeToUtcIso(s: string): string {
 // changeover Sundays) are intentionally not special-cased — out of scope for this
 // migration dataset (Module 0), per the plan.
 function isCEST(Y: number, Mo: number, Da: number): boolean {
-  const lastSun = (y: number, m: number) => {
+  function lastSun(y: number, m: number): number {
     const d = new Date(Date.UTC(y, m, 0));
     return d.getUTCDate() - d.getUTCDay();
-  };
+  }
+
   const startDay = lastSun(Y, 3);
   const endDay = lastSun(Y, 10);
-  const after = (mo: number, da: number, bMo: number, bDa: number) =>
-    mo > bMo || (mo === bMo && da >= bDa);
+
+  function after(mo: number, da: number, bMo: number, bDa: number): boolean {
+    return mo > bMo || (mo === bMo && da >= bDa);
+  }
+
   return after(Mo, Da, 3, startDay) && !after(Mo, Da, 10, endDay);
 }

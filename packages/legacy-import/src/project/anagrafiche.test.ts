@@ -1,0 +1,98 @@
+import { describe, expect, it } from "vitest";
+
+import { buildDb } from "../db.ts";
+import type { Tables } from "../loadRows.ts";
+import { projectAnagrafiche, projectCategories } from "./anagrafiche.ts";
+
+const tables: Tables = {
+  masterDataCategory: [
+    { id: "5", name: "Impresa di pulizie", code: "PUL", order: "1" },
+  ],
+  masterDataCategoryI18n: [],
+  masterData: [
+    {
+      id: "10",
+      status: "active",
+      code: "LUCENT",
+      taxCode: null,
+      vatNumber: "02468135790",
+      masterDataCategoryId: "5",
+      postalAddress: `C:9:"AddressVO":1:{a:1:{s:8:"postCode";s:5:"33100";}}`,
+      notes: null,
+    },
+    {
+      id: "11",
+      status: "archived",
+      code: "MRO",
+      taxCode: "RSSMRA80A01L483Z",
+      vatNumber: null,
+      masterDataCategoryId: "5",
+      postalAddress: null,
+      notes: "x",
+    },
+  ],
+  company: [
+    {
+      masterDataId: "10",
+      name: "Lucente Pulizie soc. coop. r.l.",
+      registeredOfficeAddress: null,
+      taxPurposeAddress: null,
+    },
+  ],
+  person: [
+    {
+      masterDataId: "11",
+      firstName: "Mario",
+      middleName: null,
+      lastName: "Rossi",
+      sex: "M",
+      birthDate: "1980-01-01",
+      birthPlace: "Udine",
+      occupation: "Operaio",
+      permanentAddress: null,
+      officeAddress: null,
+      currentAddress: null,
+    },
+  ],
+};
+
+describe("projectAnagrafiche", () => {
+  it("maps a company", () => {
+    const c = out.find((a) => {
+      return a.id === "md10";
+    })!;
+    expect(c).toMatchObject({
+      kind: "company",
+      nominativo: "Lucente Pulizie soc. coop. r.l.",
+      categoria: "Impresa di pulizie",
+      stato: "active",
+      partitaIva: "02468135790",
+      codice: "LUCENT",
+    });
+    expect(c.indirizzo).toContain("33100");
+  });
+  it("maps a person with nominativo 'Cognome Nome' and lowercased sesso", () => {
+    const p = out.find((a) => {
+      return a.id === "md11";
+    })!;
+    expect(p).toMatchObject({
+      kind: "person",
+      nominativo: "Rossi Mario",
+      cognome: "Rossi",
+      nome: "Mario",
+      sesso: "m",
+      stato: "archived",
+      codiceFiscale: "RSSMRA80A01L483Z",
+      professione: "Operaio",
+      luogoNascita: "Udine",
+      dataNascita: "1980-01-01",
+    });
+  });
+  it("category registry is the distinct category names", () => {
+    expect(projectCategories(db)).toEqual(["Impresa di pulizie"]);
+  });
+
+  const db = buildDb(tables);
+
+  const out = projectAnagrafiche(db);
+});

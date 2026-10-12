@@ -1,6 +1,13 @@
-import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
-import { parseDdl, tableColumns, classify } from "../etl/ddl.ts";
+
+import { beforeAll, describe, expect, it } from "vitest";
+
+import { classify, parseDdl, tableColumns } from "../etl/ddl.ts";
+import {
+  dumpSuiteName,
+  legacyDumpAvailable,
+  legacyDumpFile,
+} from "./legacyDump.ts";
 
 // Inline fixture exercising every column case plus excluded constraint/key lines.
 const fixture = `
@@ -22,8 +29,6 @@ CREATE TABLE \`widget\` (
 `;
 
 describe("parseDdl", () => {
-  const ddl = parseDdl(fixture);
-
   it("captures columns in order with correct names and type tokens, dropping constraint/key lines", () => {
     expect(ddl.widget).toEqual([
       { name: "id", sqlType: "int(10)" },
@@ -49,6 +54,8 @@ describe("parseDdl", () => {
       "startDate",
     ]);
   });
+
+  const ddl = parseDdl(fixture);
 });
 
 describe("classify", () => {
@@ -75,32 +82,41 @@ describe("classify", () => {
   });
 });
 
-describe("parseDdl real DDL smoke test", () => {
-  const structureSql = readFileSync(
-    new URL("../../../old/db/it-jtime-condominium.structure.sql", import.meta.url),
-    "utf8",
-  );
-  const ddl = parseDdl(structureSql);
+const STRUCTURE = "it-jtime-condominium.structure.sql";
 
-  it("yields 95 tables", () => {
-    expect(Object.keys(ddl)).toHaveLength(95);
-  });
+describe.skipIf(!legacyDumpAvailable(STRUCTURE))(
+  dumpSuiteName("parseDdl real DDL smoke test", STRUCTURE),
+  () => {
+    beforeAll(() => {
+      ddl = parseDdl(readFileSync(legacyDumpFile(STRUCTURE), "utf8"));
+    });
 
-  it("accountingPeriod has 18 columns", () => {
-    expect(ddl.accountingPeriod).toBeDefined();
-    expect(ddl.accountingPeriod).toHaveLength(18);
-  });
+    it("yields 95 tables", () => {
+      expect(Object.keys(ddl)).toHaveLength(95);
+    });
 
-  it("accountingPeriod.created classifies as tz", () => {
-    const created = ddl.accountingPeriod!.find((c) => c.name === "created");
-    expect(created).toBeDefined();
-    expect(classify(created!.sqlType)).toBe("tz");
-  });
+    it("accountingPeriod has 18 columns", () => {
+      expect(ddl.accountingPeriod).toBeDefined();
+      expect(ddl.accountingPeriod).toHaveLength(18);
+    });
 
-  it("accountingPeriod.startDate classifies as date", () => {
-    const startDate = ddl.accountingPeriod!.find((c) => c.name === "startDate");
-    expect(startDate).toBeDefined();
-    expect(startDate!.sqlType).toBe("date");
-    expect(classify(startDate!.sqlType)).toBe("date");
-  });
-});
+    it("accountingPeriod.created classifies as tz", () => {
+      const created = ddl.accountingPeriod!.find((c) => {
+        return c.name === "created";
+      });
+      expect(created).toBeDefined();
+      expect(classify(created!.sqlType)).toBe("tz");
+    });
+
+    it("accountingPeriod.startDate classifies as date", () => {
+      const startDate = ddl.accountingPeriod!.find((c) => {
+        return c.name === "startDate";
+      });
+      expect(startDate).toBeDefined();
+      expect(startDate!.sqlType).toBe("date");
+      expect(classify(startDate!.sqlType)).toBe("date");
+    });
+
+    let ddl: ReturnType<typeof parseDdl>;
+  },
+);

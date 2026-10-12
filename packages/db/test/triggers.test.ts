@@ -1,6 +1,8 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import type pg from "pg";
 import { readFileSync } from "node:fs";
+
+import type pg from "pg";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+
 import { makePool } from "../src/db.ts";
 
 const url = process.env.DATABASE_URL;
@@ -28,12 +30,19 @@ d("set_timestamps trigger", () => {
   });
 
   it("sets created on insert when null, leaves it on update", async () => {
-    const ins = await pool.query(`INSERT INTO _t_demo DEFAULT VALUES RETURNING id, created, updated`);
+    const ins = await pool.query(
+      `INSERT INTO _t_demo DEFAULT VALUES RETURNING id, created, updated`,
+    );
     const { id, created, updated } = ins.rows[0];
     expect(created).not.toBeNull();
     await pool.query(`UPDATE _t_demo SET id = id WHERE id = $1`, [id]);
-    const after = await pool.query(`SELECT created, updated FROM _t_demo WHERE id = $1`, [id]);
-    expect(new Date(after.rows[0].created).getTime()).toBe(new Date(created).getTime());
+    const after = await pool.query(
+      `SELECT created, updated FROM _t_demo WHERE id = $1`,
+      [id],
+    );
+    expect(new Date(after.rows[0].created).getTime()).toBe(
+      new Date(created).getTime(),
+    );
     expect(new Date(after.rows[0].updated).getTime()).toBeGreaterThan(
       new Date(updated).getTime(),
     );
@@ -42,7 +51,11 @@ d("set_timestamps trigger", () => {
   it("preserves an explicitly provided created (COALESCE semantics)", async () => {
     const ts = "2001-02-03T04:05:06Z";
     const ins = await pool.query(
-      `INSERT INTO _t_demo (created) VALUES ($1) RETURNING created`, [ts]);
-    expect(new Date(ins.rows[0].created).toISOString()).toBe("2001-02-03T04:05:06.000Z");
+      `INSERT INTO _t_demo (created) VALUES ($1) RETURNING created`,
+      [ts],
+    );
+    expect(new Date(ins.rows[0].created).toISOString()).toBe(
+      "2001-02-03T04:05:06.000Z",
+    );
   });
 });

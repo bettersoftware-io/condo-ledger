@@ -10,8 +10,10 @@
 // behavior under test and harmless to the seeded dataset.)
 //
 // Integration suite: skips cleanly without DATABASE_URL (passWithNoTests:true).
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+
 import type pg from "pg";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+
 import { makePool } from "../src/db.ts";
 
 const url = process.env.DATABASE_URL;
@@ -22,10 +24,13 @@ d("sequence health", () => {
   beforeAll(() => {
     pool = makePool(url);
   });
-  afterAll(() => pool.end());
+  afterAll(() => {
+    return pool.end();
+  });
 
   it("unit.id sequence was resynced past the max loaded id", async () => {
     const client = await pool.connect();
+
     try {
       await client.query("BEGIN");
       // Reuse an existing row's NOT NULL FK values so the probe insert is valid

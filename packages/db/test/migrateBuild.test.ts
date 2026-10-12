@@ -1,5 +1,6 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import type pg from "pg";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+
 import { makePool } from "../src/db.ts";
 
 const url = process.env.DATABASE_URL;
@@ -13,7 +14,9 @@ d("migrated schema", () => {
   beforeAll(() => {
     pool = makePool(url);
   });
-  afterAll(() => pool.end());
+  afterAll(() => {
+    return pool.end();
+  });
 
   it("has 94 base tables", async () => {
     // Exclude leading-underscore tables: drizzle's `__drizzle_migrations` and the
@@ -23,16 +26,20 @@ d("migrated schema", () => {
     const r = await pool.query(
       `SELECT count(*)::int n FROM information_schema.tables
        WHERE table_schema='public' AND table_type='BASE TABLE'
-       AND table_name NOT LIKE '\\_%'`);
+       AND table_name NOT LIKE '\\_%'`,
+    );
     expect(r.rows[0].n).toBe(94);
   });
   it("has 23 enum types", async () => {
-    const r = await pool.query(`SELECT count(*)::int n FROM pg_type WHERE typtype='e'`);
+    const r = await pool.query(
+      `SELECT count(*)::int n FROM pg_type WHERE typtype='e'`,
+    );
     expect(r.rows[0].n).toBe(23);
   });
   it("has 6 views", async () => {
     const r = await pool.query(
-      `SELECT count(*)::int n FROM information_schema.views WHERE table_schema='public'`);
+      `SELECT count(*)::int n FROM information_schema.views WHERE table_schema='public'`,
+    );
     expect(r.rows[0].n).toBe(6);
   });
   it("attached set_timestamps to every table with created/updated", async () => {

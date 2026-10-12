@@ -8,26 +8,36 @@
 // plain DDL resolver is fine here.
 
 import { readFileSync } from "node:fs";
-import { parseInserts } from "./parse.ts";
-import { parseDdl, tableColumns } from "./ddl.ts";
-import { FILES } from "./sources.ts";
+
 import { toSnake } from "../src/naming.ts";
+import { parseDdl, tableColumns } from "./ddl.ts";
+import { parseInserts } from "./parse.ts";
+import { FILES } from "./sources.ts";
 
 export function expectedOperationalCounts(): Record<string, number> {
   const ddl = parseDdl(
     readFileSync(
-      new URL("../../../old/db/it-jtime-condominium.structure.sql", import.meta.url),
+      new URL(
+        "../../../old/db/it-jtime-condominium.structure.sql",
+        import.meta.url,
+      ),
       "utf8",
     ),
   );
-  const resolve = (t: string): string[] => tableColumns(ddl, t);
+
+  function resolve(t: string): string[] {
+    return tableColumns(ddl, t);
+  }
+
   const stmts = [
     ...parseInserts(readFileSync(FILES.saturnoOnly, "utf8"), resolve),
     ...parseInserts(readFileSync(FILES.pozzettoOnly, "utf8"), resolve),
   ];
   const counts: Record<string, number> = {};
+
   for (const s of stmts) {
     counts[toSnake(s.table)] = (counts[toSnake(s.table)] ?? 0) + s.rows.length;
   }
+
   return counts;
 }

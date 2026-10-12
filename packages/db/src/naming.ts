@@ -37,12 +37,20 @@ export function toSnake(camel: string): string {
   //   LA -> _la  =>  expense_laUnitException
   //   then the `aU` boundary splits =>  expense_la_unit_exception  (correct).
   let s = camel;
-  for (const [c, snake] of IRREGULAR) s = s.split(c).join(snake);
+
+  for (const [c, snake] of IRREGULAR) {
+    s = s.split(c).join(snake);
+  }
+
   // Split lower/digit -> Upper boundaries (e.g. f24Id -> f24_Id). We deliberately
   // do NOT split letter -> digit: digit-adjacent tokens like iso3166, alpha2, and
   // f24 stay fused, matching the authored schema.
   s = s.replace(/([a-z0-9])([A-Z])/g, "$1_$2");
-  return s.replace(/__+/g, "_").replace(/^_/, "").replace(/_$/, "").toLowerCase();
+  return s
+    .replace(/__+/g, "_")
+    .replace(/^_/, "")
+    .replace(/_$/, "")
+    .toLowerCase();
 }
 
 export function toCamel(snake: string): string {
@@ -59,13 +67,19 @@ export function toCamel(snake: string): string {
     ["tax_770", "tax770"],
   ];
   let s = snake;
-  for (const [sn, c] of rev) s = s.split(sn).join(` ${c} `);
+
+  for (const [sn, c] of rev) {
+    s = s.split(sn).join(` ${c} `);
+  }
+
   return s
     .split(" ")
-    .map((seg) =>
-      seg.includes("_") || /^[a-z0-9]+$/.test(seg)
-        ? seg.replace(/_([a-z0-9])/g, (_, ch: string) => ch.toUpperCase())
-        : seg,
-    )
+    .map((seg) => {
+      return seg.includes("_") || /^[a-z0-9]+$/.test(seg)
+        ? seg.replace(/_([a-z0-9])/g, (_, ch: string) => {
+            return ch.toUpperCase();
+          })
+        : seg;
+    })
     .join("");
 }
