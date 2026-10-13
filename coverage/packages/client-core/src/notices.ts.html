@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/useCases/trackMovement.ts</title>
+    <title>Code coverage report for src/notices.ts</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../../prettify.css" />
-    <link rel="stylesheet" href="../../base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(../../sort-arrow-sprite.png);
+            background-image: url(../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,20 +19,20 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/useCases</a> trackMovement.ts</h1>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">src</a> notices.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>9/9</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>0/0</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>9/9</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
@@ -112,67 +112,67 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { defer, map, type Observable } from "rxjs";
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { type DefaultedStateObservable, state } from "@rx-state/core";
+import { BehaviorSubject } from "rxjs";
 &nbsp;
-import type { Movement, Price, PriceTick } from "../entities/price.ts";
-&nbsp;
-/**
- * Adds to each price the way it moved against the previous price for the same
- * symbol. The memory of previous prices lives inside `defer`, so every
- * subscription starts with its own.
- */
-export function trackMovement(
-  prices$: Observable&lt;Price&gt;,
-): Observable&lt;PriceTick&gt; {
-  return defer(() =&gt; {
-    const previous = new Map&lt;string, number&gt;();
-&nbsp;
-    return prices$.pipe(
-      map((price) =&gt; {
-        const before = previous.get(price.symbol);
-&nbsp;
-        previous.set(price.symbol, price.mid);
-&nbsp;
-        return { ...price, movement: compareWithPrevious(before, price.mid) };
-      }),
-    );
-  });
+export interface Notice {
+  id: number;
+  text: string;
 }
 &nbsp;
-function compareWithPrevious(
-  before: number | undefined,
-  mid: number,
-): Movement {
-  if (before === undefined || before === mid) {
-    return "flat";
-  }
+export interface Notices {
+  notices$: DefaultedStateObservable&lt;Notice[]&gt;;
+  /** For a control the design shows but M1 does not wire: says so instead of doing nothing. */
+  stub: (label: string) =&gt; void;
+  clear: (id: number) =&gt; void;
+}
 &nbsp;
-  return mid &gt; before ? "up" : "down";
+export function createNotices(): Notices {
+  const notices$ = new BehaviorSubject&lt;Notice[]&gt;([]);
+  let nextId = 1;
+&nbsp;
+  return {
+    notices$: state(notices$.asObservable(), []),
+    stub: (label: string): void =&gt; {
+      notices$.next([
+        ...notices$.getValue(),
+        { id: nextId, text: `${label}: not yet available` },
+      ]);
+      nextId += 1;
+    },
+    clear: (id: number): void =&gt; {
+      notices$.next(
+        notices$.getValue().filter((notice) =&gt; {
+          return notice.id !== id;
+        }),
+      );
+    },
+  };
 }
 &nbsp;</pre></td></tr></table></pre>
 
@@ -181,16 +181,16 @@ function compareWithPrevious(
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-12T08:01:57.167Z
+                at 2026-10-13T09:25:48.164Z
             </div>
-        <script src="../../prettify.js"></script>
+        <script src="../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="../../sorter.js"></script>
-        <script src="../../block-navigation.js"></script>
+        <script src="../sorter.js"></script>
+        <script src="../block-navigation.js"></script>
     </body>
 </html>
     

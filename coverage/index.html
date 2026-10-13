@@ -16,18 +16,18 @@
   </head>
   <body>
     <h1>Coverage report</h1>
-    <p class="build">Built from commit a10aad8 (main) on 2026-10-12 08:02 UTC.</p>
+    <p class="build">Built from commit 7adad9e (main) on 2026-10-13 09:26 UTC.</p>
     <p>A published report shows the commit that built it, not the newest one. Compare the commit above with the code you are reading before you trust a number here.</p>
     <p>The bar, for every file: lines ≥ 95%, statements ≥ 95%, functions ≥ 95%, branches ≥ 85%.</p>
     <table>
       <tr><th>Package</th><th>Verdict</th><th>Why</th><th class="number">lines</th><th class="number">statements</th><th class="number">functions</th><th class="number">branches</th></tr>
-      <tr><td><a href="./packages/client-core/index.html">packages/client-core</a></td><td class="pass">PASS</td><td>5 files at or above the bar</td><td class="number">100%</td><td class="number">100%</td><td class="number">100%</td><td class="number">100%</td></tr>
-      <tr><td><a href="./packages/client-react/index.html">packages/client-react</a></td><td class="pass">PASS</td><td>5 files at or above the bar</td><td class="number">100%</td><td class="number">100%</td><td class="number">100%</td><td class="number">100%</td></tr>
+      <tr><td><a href="./packages/client-core/index.html">packages/client-core</a></td><td class="pass">PASS</td><td>14 files at or above the bar</td><td class="number">100%</td><td class="number">100%</td><td class="number">100%</td><td class="number">100%</td></tr>
+      <tr><td><a href="./packages/client-react/index.html">packages/client-react</a></td><td class="pass">PASS</td><td>44 files at or above the bar</td><td class="number">100%</td><td class="number">100%</td><td class="number">100%</td><td class="number">96.42%</td></tr>
       <tr><td>packages/db</td><td class="skip">SKIP</td><td>no file to measure: none matches `include`, or every one is excluded</td><td class="number">–</td><td class="number">–</td><td class="number">–</td><td class="number">–</td></tr>
-      <tr><td><a href="./packages/domain/index.html">packages/domain</a></td><td class="pass">PASS</td><td>9 files at or above the bar</td><td class="number">99.26%</td><td class="number">99.27%</td><td class="number">100%</td><td class="number">95.31%</td></tr>
+      <tr><td><a href="./packages/domain/index.html">packages/domain</a></td><td class="pass">PASS</td><td>18 files at or above the bar</td><td class="number">99.58%</td><td class="number">99.59%</td><td class="number">100%</td><td class="number">97.39%</td></tr>
       <tr><td>packages/integration</td><td class="skip">SKIP</td><td>no file to measure: none matches `include`, or every one is excluded</td><td class="number">–</td><td class="number">–</td><td class="number">–</td><td class="number">–</td></tr>
       <tr><td>packages/legacy-import</td><td class="skip">SKIP</td><td>no file to measure: none matches `include`, or every one is excluded</td><td class="number">–</td><td class="number">–</td><td class="number">–</td><td class="number">–</td></tr>
-      <tr><td><a href="./packages/react-bindings/index.html">packages/react-bindings</a></td><td class="pass">PASS</td><td>5 files at or above the bar</td><td class="number">100%</td><td class="number">100%</td><td class="number">100%</td><td class="number">100%</td></tr>
+      <tr><td><a href="./packages/react-bindings/index.html">packages/react-bindings</a></td><td class="pass">PASS</td><td>6 files at or above the bar</td><td class="number">100%</td><td class="number">100%</td><td class="number">100%</td><td class="number">100%</td></tr>
       <tr><td><a href="./packages/server/index.html">packages/server</a></td><td class="pass">PASS</td><td>1 file at or above the bar</td><td class="number">100%</td><td class="number">100%</td><td class="number">100%</td><td class="number">–</td></tr>
       <tr><td><a href="./packages/shared/index.html">packages/shared</a></td><td class="pass">PASS</td><td>1 file at or above the bar</td><td class="number">100%</td><td class="number">100%</td><td class="number">100%</td><td class="number">100%</td></tr>
     </table>
@@ -45,7 +45,8 @@
       <li><code>packages/server/src/index.ts</code> — the server's entry point: it only reads the port and calls startServer(), which is tested; importing it in a test would start a server</li>
       <li><code>packages/db/src/**</code> — the legacy schema and its connection, carried over from the DB migration; its ETL suites need a live Postgres and skip without one. Measured from M3, when the server adapters are written over it</li>
       <li><code>packages/legacy-import/src/**</code> — the offline generator carried over from the prototype; its correctness is held by the parity specs against the dump, not by per-file coverage. Measured from M3, when it becomes the import path</li>
+      <li><code>packages/domain/src/simulators/seed/legacySeed.generated.ts</code> — generated data, one constant; its content is held by the generator's freshness test against the dump</li>
     </ul>
-    <p><a href="https://github.com/bettersoftware-io/condo-ledger/actions/runs/38221079206">The run that built this report</a></p>
+    <p><a href="https://github.com/bettersoftware-io/condo-ledger/actions/runs/38376198800">The run that built this report</a></p>
   </body>
 </html>

@@ -1,8 +1,8 @@
 {
-  "commit": "a10aad85eea8250cb889cd6f342271d53c39c328",
+  "commit": "7adad9e631430baf6582117faf9a01b2e9ee210b",
   "uncommittedChanges": false,
   "ref": "main",
-  "builtAt": "2026-10-12T08:02:05.213Z",
+  "builtAt": "2026-10-13T09:26:20.434Z",
   "thresholds": {
     "lines": 95,
     "statements": 95,
@@ -19,14 +19,15 @@
     "packages/client-react/src/main.tsx": "the browser's entry point: it only calls startApp(), which is tested; importing it in a test would start the app",
     "packages/server/src/index.ts": "the server's entry point: it only reads the port and calls startServer(), which is tested; importing it in a test would start a server",
     "packages/db/src/**": "the legacy schema and its connection, carried over from the DB migration; its ETL suites need a live Postgres and skip without one. Measured from M3, when the server adapters are written over it",
-    "packages/legacy-import/src/**": "the offline generator carried over from the prototype; its correctness is held by the parity specs against the dump, not by per-file coverage. Measured from M3, when it becomes the import path"
+    "packages/legacy-import/src/**": "the offline generator carried over from the prototype; its correctness is held by the parity specs against the dump, not by per-file coverage. Measured from M3, when it becomes the import path",
+    "packages/domain/src/simulators/seed/legacySeed.generated.ts": "generated data, one constant; its content is held by the generator's freshness test against the dump"
   },
   "packages": [
     {
       "directory": "packages/client-core",
       "verdict": "PASS",
-      "reason": "5 files at or above the bar",
-      "measuredFiles": 5,
+      "reason": "14 files at or above the bar",
+      "measuredFiles": 14,
       "emptyFiles": 2,
       "underTheBar": [],
       "unexplainedIgnores": [],
@@ -35,8 +36,8 @@
     {
       "directory": "packages/client-react",
       "verdict": "PASS",
-      "reason": "5 files at or above the bar",
-      "measuredFiles": 5,
+      "reason": "44 files at or above the bar",
+      "measuredFiles": 44,
       "emptyFiles": 0,
       "underTheBar": [],
       "unexplainedIgnores": [],
@@ -55,9 +56,9 @@
     {
       "directory": "packages/domain",
       "verdict": "PASS",
-      "reason": "9 files at or above the bar",
-      "measuredFiles": 9,
-      "emptyFiles": 5,
+      "reason": "18 files at or above the bar",
+      "measuredFiles": 18,
+      "emptyFiles": 11,
       "underTheBar": [],
       "unexplainedIgnores": [],
       "failedTests": []
@@ -85,8 +86,8 @@
     {
       "directory": "packages/react-bindings",
       "verdict": "PASS",
-      "reason": "5 files at or above the bar",
-      "measuredFiles": 5,
+      "reason": "6 files at or above the bar",
+      "measuredFiles": 6,
       "emptyFiles": 1,
       "underTheBar": [],
       "unexplainedIgnores": [],
