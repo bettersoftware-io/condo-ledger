@@ -189,13 +189,23 @@ describe("AccountsGrid", () => {
     expect(page.natureOf("Rossi Mario")).toBe("assetsOrLiabilities");
   });
 
-  it("a dragged boundary resizes the column on its left", () => {
+  it("lays its columns out by the chart's spec, the first flexible up to 680px", () => {
     const page = mountAccountsGrid();
 
-    expect(page.template()).toMatch(/^minmax\(360px,1fr\) 100px 100px /);
+    expect(page.template()).toBe(
+      "minmax(360px,1fr) 100px 100px 100px 90px 130px 44px 170px 110px 44px 210px 56px 64px",
+    );
 
     page.resizeColumn(1, 150);
 
-    expect(page.template()).toMatch(/^minmax\(360px,1fr\) 150px 100px /);
+    expect(page.template()).toBe(
+      "minmax(360px,1fr) 150px 100px 100px 90px 130px 44px 170px 110px 44px 210px 56px 64px",
+    );
+
+    page.resizeColumn(0, 9999);
+
+    expect(page.template()).toBe(
+      "680px 150px 100px 100px 90px 130px 44px 170px 110px 44px 210px 56px 64px",
+    );
   });
 });

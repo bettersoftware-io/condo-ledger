@@ -1,4 +1,4 @@
-import { act, render } from "@testing-library/react";
+import { act, fireEvent, render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
@@ -6,6 +6,7 @@ import type { LegacySeed } from "@cl/domain";
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 import { createViewModel, ViewModelProvider } from "@cl/react-bindings";
 
+import { polyfillPointerCapture } from "../shell/Splitter.page.tsx";
 import { TESTIDS } from "../testids.ts";
 import { LedgerTab } from "./LedgerTab.tsx";
 
@@ -21,6 +22,9 @@ export interface LedgerTabPage {
   emptyMessage: () => string | null;
   clickRow: (index: number) => Promise<void>;
   isSelected: (index: number) => boolean;
+  template: () => string;
+  /** Drags the boundary on the right of column `index` to the given width. */
+  resizeColumn: (index: number, toPx: number) => void;
 }
 
 /** Mounts the ledger over the real application on the small books, or on the seed given. */
@@ -83,6 +87,23 @@ export function mountLedgerTab(
     },
     isSelected: (index: number): boolean => {
       return rowAt(index).getAttribute("aria-selected") === "true";
+    },
+    template: (): string => {
+      return rendered
+        .getByTestId(TESTIDS.treeGrid)
+        .style.getPropertyValue("--tree-grid-template");
+    },
+    resizeColumn: (index: number, toPx: number): void => {
+      const handle = rendered.getAllByTestId(TESTIDS.treeGridResize)[index];
+
+      if (handle === undefined) {
+        throw new Error(`No boundary ${index}`);
+      }
+
+      polyfillPointerCapture();
+      fireEvent.pointerDown(handle, { clientX: 0, pointerId: 1 });
+      fireEvent.pointerMove(handle, { clientX: toPx, pointerId: 1 });
+      fireEvent.pointerUp(handle, { clientX: toPx, pointerId: 1 });
     },
   };
 }

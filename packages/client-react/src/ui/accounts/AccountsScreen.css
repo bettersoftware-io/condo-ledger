@@ -38,6 +38,13 @@
   display: none;
 }
 
+/* Compact (README "Compact mode", Sidebar.css's breakpoint): the panels keep their split, and the splitter is hidden. */
+@media (max-width: 1179px) {
+  .accounts-screen > .splitter {
+    display: none;
+  }
+}
+
 .accounts-top-body {
   height: 100%;
   display: flex;

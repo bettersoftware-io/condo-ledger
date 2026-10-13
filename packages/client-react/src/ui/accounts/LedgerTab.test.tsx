@@ -88,4 +88,16 @@ describe("LedgerTab", () => {
     expect(page.rows()).toEqual([]);
     expect(page.hasFooter()).toBe(false);
   });
+
+  it("lays its columns out by the ledger's spec, the description flexible up to 640px", () => {
+    const page = mountLedgerTab();
+
+    expect(page.template()).toBe(
+      "140px 48px minmax(200px,1fr) 180px 100px 100px 100px",
+    );
+
+    page.resizeColumn(2, 9999);
+
+    expect(page.template()).toBe("140px 48px 640px 180px 100px 100px 100px");
+  });
 });
