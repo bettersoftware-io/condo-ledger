@@ -43,7 +43,8 @@
     "visual:check:server": "node tools/visual/check-server.mts",
     "worktree": "node tools/agent-workflow/new-worktree.mts",
     "changelog": "node tools/agent-workflow/changelog.mts",
-    "agent-workflow:check": "node tools/agent-workflow/check.mts"
+    "agent-workflow:check": "node tools/agent-workflow/check.mts",
+    "repo:settings": "node tools/ci-security/check-settings.mts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.14",
