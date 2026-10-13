@@ -79,8 +79,10 @@
   font-weight: 600;
 }
 
+/* The indents, the caret and the icon keep their width: a long label is cut, never the tree's indentation. */
 .tree-grid-caret {
   display: inline-block;
+  flex-shrink: 0;
   width: 17px;
   color: var(--acc);
   background: none;
@@ -91,7 +93,12 @@
 
 .tree-grid-indent {
   display: inline-block;
+  flex-shrink: 0;
   width: 16px;
+}
+
+.tree-grid-icon {
+  flex-shrink: 0;
 }
 
 .tree-grid-resize {

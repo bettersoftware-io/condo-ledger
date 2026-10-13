@@ -7,7 +7,8 @@ import type {
   SidebarState,
 } from "@cl/client-core";
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
-import type { Result } from "@cl/domain";
+import { type LegacySeed, loadLegacySeed, type Result } from "@cl/domain";
+import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
 
 import type { HostClock, Seeded } from "./host/seeded.ts";
 import type { Scenario } from "./scenarios.ts";
@@ -29,7 +30,9 @@ import type { Scenario } from "./scenarios.ts";
 
 /** The application and the deliveries of one scenario. Called once, before the first render. */
 export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
-  const harness = createAppHarness();
+  // The seed is a port's memory, so a renamed account goes in before the
+  // harness is built.
+  const harness = createAppHarness(seedOf(scenario));
   const { machines } = harness.app;
   const { buildings, accounts } = harness.app.presenters;
 
@@ -87,6 +90,23 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
 
       clock.tick(0);
     },
+  };
+}
+
+/** The real seed, with the scenario's accounts renamed. */
+function seedOf(scenario: Scenario): LegacySeed {
+  const seed = loadLegacySeed(legacySeedData);
+  const { renamed } = scenario;
+
+  if (renamed === undefined) {
+    return seed;
+  }
+
+  return {
+    ...seed,
+    accounts: seed.accounts.map((account) => {
+      return { ...account, name: renamed[account.id] ?? account.name };
+    }),
   };
 }
 
