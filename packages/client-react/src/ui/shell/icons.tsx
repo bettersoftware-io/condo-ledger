@@ -80,3 +80,47 @@ export const FLAGS: Record<Language, ReactElement> = {
     </svg>
   ),
 };
+
+/** The prototype's export glyph: a document in red, lettered PDF. Decorative: the button names the export. */
+export const PDF_GLYPH: ReactElement = (
+  <svg width="15" height="15" viewBox="0 0 18 18" aria-hidden="true">
+    <path
+      d="M4 1.6h6.4L15 6.1v9.1c0 .7-.5 1.2-1.2 1.2H4c-.7 0-1.2-.5-1.2-1.2V2.8c0-.7.5-1.2 1.2-1.2Z"
+      fill="#d8392b"
+    />
+    <path d="M10.4 1.7 15 6.1h-3.3c-.7 0-1.3-.6-1.3-1.3Z" fill="#f4a99f" />
+    <text
+      x="8.9"
+      y="13.4"
+      fontSize="5"
+      fontWeight="700"
+      fill="#fff"
+      textAnchor="middle"
+      fontFamily="'IBM Plex Sans',sans-serif"
+    >
+      PDF
+    </text>
+  </svg>
+);
+
+/** The prototype's export glyph: a document in green, lettered XLS. Decorative: the button names the export. */
+export const XLS_GLYPH: ReactElement = (
+  <svg width="15" height="15" viewBox="0 0 18 18" aria-hidden="true">
+    <path
+      d="M4 1.6h6.4L15 6.1v9.1c0 .7-.5 1.2-1.2 1.2H4c-.7 0-1.2-.5-1.2-1.2V2.8c0-.7.5-1.2 1.2-1.2Z"
+      fill="#1d7a43"
+    />
+    <path d="M10.4 1.7 15 6.1h-3.3c-.7 0-1.3-.6-1.3-1.3Z" fill="#a7e0bd" />
+    <text
+      x="8.9"
+      y="13.4"
+      fontSize="5"
+      fontWeight="700"
+      fill="#fff"
+      textAnchor="middle"
+      fontFamily="'IBM Plex Sans',sans-serif"
+    >
+      XLS
+    </text>
+  </svg>
+);

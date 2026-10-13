@@ -76,8 +76,8 @@ function pointerAt(splitter: HTMLElement, position: number): PointerAt {
   };
 }
 
-// jsdom has no pointer capture: a flag on the element stands in for it.
-function polyfillPointerCapture(): void {
+/** jsdom has no pointer capture: a flag on the element stands in for it. For any page that drags a handle holding the pointer. */
+export function polyfillPointerCapture(): void {
   const captured = new WeakSet<Element>();
 
   HTMLElement.prototype.setPointerCapture = function setPointerCapture(

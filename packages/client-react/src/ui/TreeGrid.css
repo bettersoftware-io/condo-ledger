@@ -1,6 +1,7 @@
+/* As wide as the columns at their smallest (README: row min-width is the sum of the column widths), so a long text never widens the flexible column past the panel. */
 .tree-grid {
   display: block;
-  min-width: max-content;
+  min-width: min-content;
   overflow: auto;
   height: 100%;
 }
@@ -38,6 +39,12 @@
   display: flex;
   align-items: center;
   padding-left: 8px;
+  min-width: 0;
+}
+.tree-grid-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 [data-align="right"] {
   text-align: right;

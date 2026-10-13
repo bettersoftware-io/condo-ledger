@@ -51,6 +51,7 @@ export function AppRoot(): ReactElement {
           <Screen
             module={navigation.state.module}
             menu={navigation.state.menu}
+            maximize={maximize}
           />
         </main>
       </div>

@@ -48,6 +48,10 @@ export function mountTopBar(): TopBarPage {
     </ViewModelProvider>,
   );
 
+  function modules(): HTMLElement {
+    return rendered.getByRole("tablist", { name: "Modules" });
+  }
+
   function root(): HTMLElement {
     return rendered.getByTestId(TESTIDS.appRoot);
   }
@@ -119,10 +123,12 @@ export function mountTopBar(): TopBarPage {
       });
     },
     activeTab: (): string => {
-      return rendered.getByRole("tab", { selected: true }).textContent ?? "";
+      return (
+        within(modules()).getByRole("tab", { selected: true }).textContent ?? ""
+      );
     },
     clickTab: async (label: string): Promise<void> => {
-      await user.click(rendered.getByRole("tab", { name: label }));
+      await user.click(within(modules()).getByRole("tab", { name: label }));
     },
     rootMode: (): string | null => {
       return root().getAttribute("data-mode");

@@ -13,10 +13,11 @@ export type {
   BottomTabIntents,
   BottomTabState,
 } from "./machines/bottomTabMachine.ts";
-export type {
-  ColumnSpec,
-  ColumnsIntents,
-  ColumnsState,
+export {
+  type ColumnSpec,
+  type ColumnsIntents,
+  type ColumnsState,
+  columnSpecsFrom,
 } from "./machines/columnsMachine.ts";
 export type { Machine } from "./machines/machine.ts";
 export type {

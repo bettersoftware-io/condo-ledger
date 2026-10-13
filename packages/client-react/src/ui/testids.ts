@@ -32,4 +32,6 @@ export const TESTIDS = {
   toast: "toast",
   toastDismiss: "toast-dismiss",
   placeholder: "placeholder",
+  accountsScreen: "accounts-screen",
+  accountIcon: "account-icon",
 } as const;

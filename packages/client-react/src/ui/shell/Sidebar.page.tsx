@@ -40,6 +40,12 @@ export interface SidebarPage {
   clickRail: () => Promise<void>;
   clickScrim: () => Promise<void>;
   isDrawerOpen: () => boolean;
+  /** The title of the main area's first panel: the screen the person is on. */
+  screenTitle: () => string;
+  /** Clicks the maximize button of the main area's first panel. */
+  maximizePanel: () => Promise<void>;
+  /** Which panel of the Accounts screen fills it: top, bottom or none. */
+  accountsMaximized: () => string | null;
 }
 
 export interface SidebarOptions {
@@ -99,6 +105,24 @@ export function mountSidebar(options: SidebarOptions = {}): SidebarPage {
     return Array.from(
       sidebar().querySelectorAll<HTMLElement>(".management-menu-item"),
     );
+  }
+
+  function sidebarSplitter(): HTMLElement {
+    const splitter = rendered
+      .getAllByTestId(TESTIDS.splitter)
+      .find((candidate) => {
+        return candidate.getAttribute("data-direction") === "vertical";
+      });
+
+    if (splitter === undefined) {
+      throw new Error("missing: the sidebar's splitter");
+    }
+
+    return splitter;
+  }
+
+  function main(): HTMLElement {
+    return rendered.getByTestId(TESTIDS.appMain);
   }
 
   function read(): SeenState {
@@ -161,7 +185,7 @@ export function mountSidebar(options: SidebarOptions = {}): SidebarPage {
       });
     },
     dragSplitter: (by: number): void => {
-      dragSplitterElement(rendered.getByTestId(TESTIDS.splitter), by);
+      dragSplitterElement(sidebarSplitter(), by);
     },
     width: (): number => {
       return Number.parseFloat(
@@ -186,6 +210,27 @@ export function mountSidebar(options: SidebarOptions = {}): SidebarPage {
     },
     isDrawerOpen: (): boolean => {
       return sidebar().getAttribute("data-open") === "true";
+    },
+    screenTitle: (): string => {
+      return (
+        within(main()).getAllByTestId(TESTIDS.panelTitle)[0]?.textContent ?? ""
+      );
+    },
+    maximizePanel: async (): Promise<void> => {
+      const [button] = within(main()).getAllByTestId(TESTIDS.panelMaximize);
+
+      if (button === undefined) {
+        throw new Error("missing: a panel's maximize button");
+      }
+
+      await user.click(button);
+    },
+    accountsMaximized: (): string | null => {
+      return (
+        within(main())
+          .queryByTestId(TESTIDS.accountsScreen)
+          ?.getAttribute("data-maximized") ?? null
+      );
     },
   };
 }

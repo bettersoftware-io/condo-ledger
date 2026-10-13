@@ -113,4 +113,28 @@ describe("Sidebar", () => {
     expect(page.isMaximized()).toBe(false);
     expect(page.isDrawerOpen()).toBe(false);
   });
+
+  it("the main area shows the Accounts screen on its menu item, a placeholder elsewhere", async () => {
+    const page = mountSidebar();
+
+    expect(page.screenTitle()).toBe("Accounts, Ledgers & Balance");
+
+    await page.clickMenu("Journal & Daybook");
+
+    expect(page.screenTitle()).toBe("Journal & Daybook");
+  });
+
+  it("maximizing the Accounts panel folds the sidebar, and the rail restores both", async () => {
+    const page = mountSidebar();
+
+    await page.maximizePanel();
+
+    expect(page.isMaximized()).toBe(true);
+    expect(page.accountsMaximized()).toBe("top");
+
+    await page.clickRail();
+
+    expect(page.isMaximized()).toBe(false);
+    expect(page.accountsMaximized()).toBe("none");
+  });
 });

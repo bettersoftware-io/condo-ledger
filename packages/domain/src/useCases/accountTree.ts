@@ -9,7 +9,7 @@ import type { JournalEntry, Posting } from "../entities/journal.ts";
 import type { OwnerParty, Party, SupplierParty } from "../entities/party.ts";
 import { listFor, must } from "../support/must.ts";
 
-type NodeIcon =
+export type NodeIcon =
   | "folder"
   | "document"
   | "cash"
