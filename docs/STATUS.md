@@ -161,13 +161,19 @@ removed.
   pull request #2 is open. Decide for Renovate, merge #2, and take
   `ci-security:renovate` with the kit update above, which removes
   Dependabot's file.
-- **Read the first CodeQL findings.** CodeQL default setup was switched on
-  on 2026-10-13 (with Dependabot security updates and private vulnerability
-  reporting; all nine settings `pnpm repo:settings` reads are now on). Its
-  first scan's findings land under Security → Code scanning; nobody has read
-  them. The plugin's own repository got five on its first scan, two of them
-  in code this project also carries (`repo-hygiene`'s markdown library, the
-  coverage add-on's mutation check).
+- **Seven open code-scanning alerts from the first CodeQL scan** (switched
+  on 2026-10-13, with Dependabot security updates and private vulnerability
+  reporting; all nine settings `pnpm repo:settings` reads are now on). One is
+  CodeQL's: `js/incomplete-sanitization`, a warning, in
+  `tools/arch/gates/lib/files.mts:157`, the kit's own file, replaced by its
+  updates; the plugin's repository got the same class on its first scan, so
+  it is to raise in bettersoftware-io/skills, not patched here. The other six
+  are OpenSSF Scorecard's ratings of the repository's practices shown as
+  errors with no file: CI best practices, code review, maintained, fuzzing,
+  SAST and branch protection. They are not code defects; decide which to act
+  on (code review and branch protection may be Scorecard reading the ruleset
+  and the single-maintainer history its own way) and dismiss the rest with a
+  reason, under Security → Code scanning.
 - **Housekeeping carried from M0.** Delete the pre-rewrite backups beside the
   repository (`condo-ledger-backup-2026-10-12.git`,
   `condo-ledger-legacy-data-2026-10-12/`) once sure; rotate the credentials
