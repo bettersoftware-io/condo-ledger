@@ -161,6 +161,20 @@ removed.
   pull request #2 is open. Decide for Renovate, merge #2, and take
   `ci-security:renovate` with the kit update above, which removes
   Dependabot's file.
+- **Three repository settings are off** (read on 2026-10-13 with the newer
+  `ci-security` add-on's `pnpm repo:settings`, which this project's copy
+  does not have yet; it only reads, and an agent does not run the fixes):
+  Dependabot security updates
+  (`gh api -X PUT repos/bettersoftware-io/condo-ledger/automated-security-fixes`;
+  moot if Renovate is chosen, since it cannot run under the Node floor
+  either way); private vulnerability reporting
+  (`gh api -X PUT repos/bettersoftware-io/condo-ledger/private-vulnerability-reporting`,
+  the button `SECURITY.md` points to); CodeQL default setup with the
+  `actions` language
+  (`gh api -X PATCH repos/bettersoftware-io/condo-ledger/code-scanning/default-setup -f state=configured`).
+  The other six are on: alerts and the dependency graph, read-only workflow
+  permissions, deleted merged branches, and the ruleset on `main` with its
+  six required checks.
 - **Housekeeping carried from M0.** Delete the pre-rewrite backups beside the
   repository (`condo-ledger-backup-2026-10-12.git`,
   `condo-ledger-legacy-data-2026-10-12/`) once sure; rotate the credentials
