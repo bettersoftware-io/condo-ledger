@@ -206,6 +206,17 @@ describe("AccountsGrid", () => {
     expect(page.cellsOf("Total")[3]).toBe("1,700.00");
   });
 
+  it("a click on a budget opens its editor and selects its row too", async () => {
+    const page = mountAccountsGrid();
+    await page.clickCaret("Spese generali");
+
+    await page.clickBudget("Ascensore");
+
+    expect(page.budgetText()).toBe("1,000.00");
+    expect(page.selectedLabel()).toBe("Ascensore");
+    expect(page.appSelectedKey()).toBe("la21");
+  });
+
   it("shows the rejection for text that is not an amount and writes nothing", async () => {
     const page = mountAccountsGrid();
     await page.clickCaret("Spese generali");

@@ -27,6 +27,11 @@ describe("parseAmount", () => {
     expect(parseAmount("-5")).toBe(-500);
   });
 
+  it("rounds to the nearest cent where the binary fraction falls just short", () => {
+    expect(parseAmount("0.29")).toBe(29);
+    expect(parseAmount("-0.29")).toBe(-29);
+  });
+
   it("answers null for anything else", () => {
     expect(parseAmount("abc")).toBeNull();
     expect(parseAmount("1.2.3")).toBeNull();

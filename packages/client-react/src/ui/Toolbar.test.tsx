@@ -78,15 +78,16 @@ describe("Toolbar", () => {
     expect(page.isChecked("Hide empty")).toBe(true);
   });
 
-  it("draws a divider", () => {
+  it("draws a divider where it is placed, between the buttons", () => {
     const page = mountToolbar(
       <>
+        <ToolbarButton label="Add" onClick={vi.fn()} />
         <ToolbarDivider />
-        <ToolbarButton label="x" onClick={vi.fn()} />
+        <ToolbarButton label="Delete" onClick={vi.fn()} />
       </>,
     );
 
-    expect(page.buttonText("x")).toBe("x");
+    expect(page.items()).toEqual(["Add", "|", "Delete"]);
   });
 });
 
