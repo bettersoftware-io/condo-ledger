@@ -198,7 +198,12 @@ removed.
   `tools/agent-workflow/lib/shell.mts` and `lib/outward.mts`. The add-on's
   README states the first as its choice (a command it cannot read passes),
   and the plugin's own status page records the same review as not followed
-  up. The files are the add-on's, replaced by its updates; the host's
-  permission rules (`permissions.ask` in `.claude/settings.json`) are what
-  stops a forced or destructive push. To raise in bettersoftware-io/skills.
+  up. A second review of the push (same day) added that the `ask` rules the
+  add-on merges into `.claude/settings.json` can be escaped by git's
+  abbreviated flags (`--forc`) or bundled short flags, and that the hook's
+  wrapper list is incomplete. The files and the rules are the add-on's,
+  replaced by its updates. The control that holds is the repository's
+  ruleset on `main` (no force-push, no deletion, a pull request required);
+  the hook and the rules only reduce prompts and slips. To raise in
+  bettersoftware-io/skills.
 - **`pnpm dev:fs` throws until M3.**
