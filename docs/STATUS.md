@@ -173,7 +173,11 @@ removed.
   the planning skill); the stop hook judges a subagent's in-flight tree and
   blocks the controller mid-task; the plan assumed the goldens workflow
   pushes a commit, while it uploads an artifact (the add-on's README is right,
-  the plan was wrong).
+  the plan was wrong); the `agent-workflow` installer wrote
+  `.claude/commands/workflow/*.md` into a folder the project's `.gitignore`
+  ignored and said nothing, so CI failed the `agent-docs` gate on files the
+  branch did not carry (an installer could warn when a file it wrote is
+  ignored).
 
 ## Known limits
 
