@@ -1,6 +1,7 @@
 import { connect } from "node:net";
 
 import { describe, expect, it, onTestFinished } from "vitest";
+import { type RawData, WebSocket } from "ws";
 
 import { WS_PATH } from "@cl/shared";
 
@@ -16,15 +17,21 @@ describe("the server", () => {
     expect(greeting).toEqual({ type: "ready" });
   });
 
-  it("greets each client once", async () => {
+  it("greets each client once, and not again when another connects or when it speaks", async () => {
     const server = await startTestServer();
     const first = openClient(server.port);
     const second = openClient(server.port);
 
-    await Promise.all([first.nextMessage(), second.nextMessage()]);
-    await Promise.all([first.close(), second.close()]);
+    await first.nextMessage();
+    await second.nextMessage();
+    first.send("hello");
+    second.send("hello");
+    await Promise.all([first.settled(), second.settled()]);
 
-    expect([first.messages.length, second.messages.length]).toEqual([1, 1]);
+    expect([first.messages, second.messages]).toEqual([
+      [{ type: "ready" }],
+      [{ type: "ready" }],
+    ]);
   });
 
   it("closes every client when it closes", async () => {
@@ -98,10 +105,20 @@ function breakTheProtocol(port: number): Promise<void> {
 }
 
 interface TestClient {
+  /** Every message received so far, in order. */
   messages: unknown[];
+  /** The first message not yet read, whether it landed before the call or lands after. */
   nextMessage: () => Promise<unknown>;
+  send: (text: string) => void;
+  /**
+   * Pings the server and resolves on its pong. The server answers a ping
+   * after every frame the client sent before it, and sends its pong after
+   * everything it sent before, so whatever it sent until then is in
+   * `messages`. (A WebSocket that closes from the client's side would drop
+   * a message arriving while it closes.)
+   */
+  settled: () => Promise<void>;
   closed: () => Promise<void>;
-  close: () => Promise<void>;
 }
 
 /** Connects at once and keeps every message it receives. */
@@ -109,25 +126,20 @@ function openClient(port: number): TestClient {
   const socket = new WebSocket(`ws://127.0.0.1:${port}${WS_PATH}`);
   const messages: unknown[] = [];
   const waiting: Array<(message: unknown) => void> = [];
+  let read = 0;
 
-  socket.addEventListener("message", (event) => {
-    const message: unknown = JSON.parse(String(event.data));
-    messages.push(message);
-    waiting.shift()?.(message);
+  socket.on("message", (data) => {
+    messages.push(JSON.parse(textOf(data)));
+    handOver();
   });
 
-  function whenClosed(): Promise<void> {
-    return new Promise((done) => {
-      if (socket.readyState === WebSocket.CLOSED) {
-        done();
-
-        return;
-      }
-
-      socket.addEventListener("close", () => {
-        done();
-      });
-    });
+  /** Gives each waiting reader the next message nobody has read. */
+  function handOver(): void {
+    while (waiting.length > 0 && read < messages.length) {
+      const message = messages[read];
+      read += 1;
+      waiting.shift()?.(message);
+    }
   }
 
   return {
@@ -135,14 +147,38 @@ function openClient(port: number): TestClient {
     nextMessage: () => {
       return new Promise((received) => {
         waiting.push(received);
+        handOver();
       });
     },
-    closed: whenClosed,
-    close: () => {
-      const done = whenClosed();
-      socket.close();
+    send: (text: string) => {
+      socket.send(text);
+    },
+    settled: () => {
+      return new Promise((done) => {
+        socket.once("pong", () => {
+          done();
+        });
+        socket.ping();
+      });
+    },
+    closed: () => {
+      return new Promise((done) => {
+        if (socket.readyState === WebSocket.CLOSED) {
+          done();
 
-      return done;
+          return;
+        }
+
+        socket.once("close", () => {
+          done();
+        });
+      });
     },
   };
+}
+
+function textOf(data: RawData): string {
+  return new TextDecoder().decode(
+    Array.isArray(data) ? Buffer.concat(data) : data,
+  );
 }
