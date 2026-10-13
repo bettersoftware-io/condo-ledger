@@ -7,7 +7,7 @@ import { DEVIATIONS, renderOracleFixture } from "./designOracle.ts";
 
 const PERIOD_ID = "p36";
 const FIXTURE_URL = new URL(
-  "../../../client-core/src/testing/fixtures/pozzetto2013.oracle.ts",
+  "../../../domain/src/testing/pozzetto2013.oracle.ts",
   import.meta.url,
 );
 

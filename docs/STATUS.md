@@ -63,14 +63,6 @@ Work that has started and is not finished.
   descending-specificity order. The goldens should not move (no colour
   value changes); run `pnpm visual` to prove it.
   Command: `node <plugin root>/scripts/add-to-project.mts . repo-hygiene`.
-- **Move the oracle fixture into the domain.** It lives in
-  `packages/client-core/src/testing/fixtures/pozzetto2013.oracle.ts` and the
-  check in `packages/legacy-import` imports it, so a server-role package
-  devDepends on `@cl/client-core` and the AGENTS.md sentence "may import
-  `@cl/domain`, `@cl/db` and `@cl/shared`" is stale. `packages/domain/src/testing/`
-  lets both reach it. While there, say in the fixture header that the local
-  check pairs a control account's rows order-insensitively, so it proves the
-  multiset of amounts under it, not which party each belongs to.
 - **CI-side tests for what only runs with the dump.** `legacy-import` is
   excluded from coverage wholesale, so `romeTime` (both DST sides),
   `projectLegacySeed` and `parseDesignOracle` run only where the dump and the

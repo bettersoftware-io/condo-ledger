@@ -15,7 +15,7 @@
       "!docs",
       "!packages/legacy-import/seed",
       "!packages/domain/src/simulators/seed/legacySeed.generated.ts",
-      "!packages/client-core/src/testing/fixtures/pozzetto2013.oracle.ts",
+      "!packages/domain/src/testing/pozzetto2013.oracle.ts",
       "!packages/db/drizzle"
     ]
   },

@@ -80,7 +80,7 @@
       // script); the parity specs live outside src/.
       "entry": [
         "src/generate-data.ts",
-        // writes the oracle fixture into client-core; run by the gen:oracle-fixture script
+        // writes the oracle fixture into the domain's testing/; run by the gen:oracle-fixture script
         "src/oracle/writeFixture.ts",
         "src/pseudonymise/exportMapping.ts",
         "specs/**/*.test.ts"

@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import type { AccountNode } from "@cl/domain";
-
-import { createAppHarness } from "../testing/appHarness.ts";
 import {
   type OracleNode,
   POZZETTO_2013_ORACLE,
-} from "../testing/fixtures/pozzetto2013.oracle.ts";
+} from "@cl/domain/testing/pozzetto2013.oracle.ts";
+
+import { createAppHarness } from "../testing/appHarness.ts";
 
 describe("the Accounts screen on Pozzetto 2013", () => {
   it("reconciles every node of the chart of accounts to the oracle: keys, amounts, budgets, children", () => {

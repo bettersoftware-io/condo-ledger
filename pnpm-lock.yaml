@@ -348,10 +348,6 @@ importers:
       '@cl/domain':
         specifier: workspace:*
         version: link:../domain
-    devDependencies:
-      '@cl/client-core':
-        specifier: workspace:*
-        version: link:../client-core
 
   packages/react-bindings:
     dependencies:
