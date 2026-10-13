@@ -1,0 +1,31 @@
+/* README "Accounts": lucide glyphs at 13–14px; folders tinted by the account's nature. */
+.account-icon {
+  display: inline-flex;
+  width: 16px;
+  margin-right: 5px;
+  justify-content: center;
+  align-items: center;
+  flex: none;
+  color: var(--txd);
+}
+.account-icon[data-icon="root"] {
+  color: var(--acc);
+}
+.account-icon[data-icon="folder"] {
+  color: #caa24a;
+}
+.account-icon[data-icon="folder"][data-nature="assets"] {
+  color: #d6453f;
+}
+.account-icon[data-icon="folder"][data-nature="liabilities"] {
+  color: #2f78c4;
+}
+.account-icon[data-icon="folder"][data-nature="expenses"] {
+  color: #d99a1f;
+}
+.account-icon[data-icon="folder"][data-nature="income"] {
+  color: #5aa130;
+}
+.account-icon[data-icon="folder"][data-nature="none"] {
+  color: #7d4fb3;
+}

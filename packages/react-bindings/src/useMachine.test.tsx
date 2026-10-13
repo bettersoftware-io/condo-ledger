@@ -1,25 +1,25 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  createSelectionMachine,
+  createSplitMachine,
   type Machine,
-  type SelectionIntents,
-  type SelectionState,
+  type SplitIntents,
+  type SplitState,
 } from "@cl/client-core";
 
 import { mountMachine } from "./useMachine.page.tsx";
 
 describe("useMachine", () => {
   it("gives the component the machine's state and intents", async () => {
-    const page = mountMachine(createSelectionMachine);
+    const page = mountMachine(createSplitMachine);
 
-    expect(page.state()).toEqual({ selected: null });
+    expect(page.state()).toEqual({ ratio: 0.5 });
 
     await page.send((intents) => {
-      return intents.select("EURUSD");
+      return intents.setRatio(0.3);
     });
 
-    expect(page.state()).toEqual({ selected: "EURUSD" });
+    expect(page.state()).toEqual({ ratio: 0.3 });
   });
 
   it("keeps the machine alive through StrictMode's mount, unmount and remount", async () => {
@@ -27,10 +27,10 @@ describe("useMachine", () => {
     const page = mountMachine(counted.createMachine, { strict: true });
 
     await page.send((intents) => {
-      return intents.select("EURUSD");
+      return intents.setRatio(0.3);
     });
 
-    expect(page.state()).toEqual({ selected: "EURUSD" });
+    expect(page.state()).toEqual({ ratio: 0.3 });
     expect(counted.disposed()).toBe(0);
   });
 
@@ -45,7 +45,7 @@ describe("useMachine", () => {
 });
 
 interface CountedMachines {
-  createMachine: () => Machine<SelectionState, SelectionIntents>;
+  createMachine: () => Machine<SplitState, SplitIntents>;
   disposed: () => number;
 }
 
@@ -53,8 +53,8 @@ function createCountedMachines(): CountedMachines {
   let disposed = 0;
 
   return {
-    createMachine: (): Machine<SelectionState, SelectionIntents> => {
-      const machine = createSelectionMachine();
+    createMachine: (): Machine<SplitState, SplitIntents> => {
+      const machine = createSplitMachine();
 
       return {
         ...machine,

@@ -6,6 +6,7 @@ import { formatAddress, parseAddressVO } from "../addressVO.ts";
 import { assemble, type Seed } from "../assemble.ts";
 import { buildDb } from "../db.ts";
 import {
+  DUMP_SUITE_TIMEOUT_MS,
   dumpSuiteName,
   legacyDumpAvailable,
   legacyDumpPath,
@@ -25,6 +26,7 @@ import {
 // where it is absent this suite is skipped and says why.
 describe.skipIf(!legacyDumpAvailable())(
   dumpSuiteName("pseudonymise over the real dump"),
+  { timeout: DUMP_SUITE_TIMEOUT_MS },
   () => {
     it("leaves no original name, code, contact or address anywhere in the seed", () => {
       const { tables, seed } = load();

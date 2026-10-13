@@ -1,5 +1,6 @@
+import { listFor, must } from "#/support/must.ts";
+
 import { allocate } from "../allocate.ts";
-import { listFor, must } from "../must.ts";
 import type { InstallmentPlan } from "./periodTypes.ts";
 
 /**
@@ -67,7 +68,10 @@ export function computeInstallments(
     }
 
     for (let i = 0; i < ids.length; i++) {
-      cells.set(must(ids[i]), must(amounts[i]));
+      cells.set(
+        must(ids[i], `the id at ${i}`),
+        must(amounts[i], `the amount at ${i}`),
+      );
     }
 
     out.set(residentId, cells);
@@ -87,7 +91,7 @@ function applyOverride(
     return cells;
   }
 
-  const delta = must(cells[index]) - newValue; // amount to redistribute to later cells
+  const delta = must(cells[index], `the cell at ${index}`) - newValue; // amount to redistribute to later cells
   const later = cells.slice(index + 1);
 
   if (later.length === 0) {
@@ -102,7 +106,7 @@ function applyOverride(
   );
 
   const projected = later.map((c, i) => {
-    return c + must(spread[i]);
+    return c + must(spread[i], `the spread at ${i}`);
   });
 
   if (
@@ -117,7 +121,7 @@ function applyOverride(
   next[index] = newValue;
 
   for (let i = 0; i < projected.length; i++) {
-    next[index + 1 + i] = must(projected[i]);
+    next[index + 1 + i] = must(projected[i], `the projected cell ${i}`);
   }
 
   return next;

@@ -14,10 +14,13 @@ import { scenarios } from "./scenarios.ts";
 // One test per scenario: open the visual host on it, wait until the host says
 // it is ready, and compare the frame with the committed image.
 
-for (const name of Object.keys(scenarios)) {
+for (const [name, scenario] of Object.entries(scenarios)) {
   test(name, async ({ page }, testInfo) => {
     const trouble = recordTrouble(page);
 
+    // The scenario's width decides the layout (the full one, or the compact
+    // one under 1180 pixels); the height is the same for every picture.
+    await page.setViewportSize({ width: scenario.width, height: 720 });
     await page.goto(`/?scenario=${encodeURIComponent(name)}`);
 
     const frame = page.getByTestId(FRAME_TESTID);

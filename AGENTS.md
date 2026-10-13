@@ -14,6 +14,10 @@ pnpm gate:full:quiet   # the same commands and verdict, printing only the stage 
 pnpm test
 ```
 
+`pnpm dev:fs` throws until M3: the live port adapters do not exist yet, and
+`buildPorts` (`packages/client-react/src/app/buildPorts.ts`) says so when a
+server URL is set.
+
 Run `pnpm gate:full` before you say work is finished. A red gate means the
 work is not finished, and `gate:fast` alone does not show that it is: it runs
 no test. The stop hook runs `gate:full` for you whenever a file has changed
@@ -81,22 +85,22 @@ Four rules about imports:
 - What is written for tests (a `testing/` folder, a `*.page.tsx`, a test) is
   imported only by tests.
 
-The price list is a worked example of every one of these. Copy its shape:
+The Accounts slice is a worked example of every one of these. Copy its shape:
 
 | Pattern | File |
 |---|---|
-| Port | `packages/domain/src/ports/pricePort.ts` |
-| Contract test | `packages/domain/src/ports/__contracts__/PricePortContract.ts` |
-| Simulator | `packages/domain/src/simulators/priceSimulator.ts` |
-| Use case | `packages/domain/src/useCases/trackMovement.ts` |
-| Real adapter | `packages/client-core/src/adapters/wsPrice.ts` |
-| Presenter (shared state, timers) | `packages/client-core/src/presenters/pricesPresenter.ts` |
-| State machine (per-component state) | `packages/client-core/src/machines/selectionMachine.ts` |
+| Port | `packages/domain/src/ports/accountsPort.ts` |
+| Contract test | `packages/domain/src/ports/__contracts__/AccountsPortContract.ts` |
+| Simulator | `packages/domain/src/simulators/accountsSimulator.ts` |
+| Use case | `packages/domain/src/useCases/accountTree.ts` (`buildAccountTree`) |
+| Real adapter (the connection; port adapters arrive in M3) | `packages/client-core/src/adapters/wsConnection.ts` |
+| Presenter (shared state) | `packages/client-core/src/presenters/accountsPresenter.ts` |
+| State machine (per-component state) | `packages/client-core/src/machines/splitMachine.ts` |
 | View model | `packages/react-bindings/src/createViewModel.ts` |
 | Composition root | `packages/client-react/src/app/startApp.tsx` |
-| Client adapter against the real server | `packages/integration/src/priceOverWebSocket.port.test.ts` |
-| Dumb component | `packages/client-react/src/ui/PriceList.tsx` |
-| Page object and its test | `packages/client-react/src/ui/PriceList.page.tsx`, `PriceList.test.tsx` |
+| Client adapter against the real server | `packages/integration/src/readyOverWebSocket.port.test.ts` |
+| Dumb component | `packages/client-react/src/ui/Money.tsx` |
+| Page object and its test | `packages/client-react/src/ui/Money.page.tsx`, `Money.test.tsx` |
 
 ## Tests
 
@@ -151,13 +155,13 @@ get past the `package-manager` gate.
   variable, a class property, a cast or a type argument: declare an
   `interface` and use it.
 - One import statement per module, with an inline `type` on each type:
-  `import { type Price, read } from "./price.ts"`. A statement that names only
+  `import { type Cents, cents } from "./cents.ts"`. A statement that names only
   types stays `import type`. (fix)
 - No CommonJS: no `require`, `module.exports`, `__dirname` or `__filename`,
   and no `.cts` file. Use `import` and `import.meta.dirname`.
 - One class in a file, and the file has its name.
 - In a component, take the hooks out of the view model by name:
-  `const { usePrices } = useViewModel()`. Never keep the bundle in a variable
+  `const { useAccountsTree } = useViewModel()`. Never keep the bundle in a variable
   or call through it.
 - A component follows React's rules: a hook is called at the top level, an
   effect lists what it reads, and nothing reads a ref or sets state while
@@ -184,10 +188,10 @@ compile and says nothing, so two checks in `gate:fast` hold it:
 What no check decides:
 
 - **A component that reads the view model is not compiled.** Its hooks come
-  out of a value (`const { usePrices } = useViewModel()`), and the compiler
+  out of a value (`const { useAccountsTree } = useViewModel()`), and the compiler
   skips such a function. Keep that component thin: it reads, and hands plain
   props to components that take only props. Those are compiled.
-  `packages/client-react/src/ui/PriceList.tsx` shows both.
+  `packages/client-react/src/ui/TreeGrid.tsx` is the second kind.
 - **When to add an entry to `compilerTracked`.** When a component depends on
   the compiler to keep something stable or cheap: a costly derived value, a
   callback a child compares. Skip it for a component whose render is cheap
@@ -199,8 +203,8 @@ What no check decides:
 ## Imports inside a package
 
 An import of a file in the same package is relative and climbs one folder at
-most, as in `../entities/price.ts`. Anything deeper is written from the
-package's `src` with the `#/` alias: `#/entities/price.ts`. Every package
+most, as in `../entities/cents.ts`. Anything deeper is written from the
+package's `src` with the `#/` alias: `#/entities/cents.ts`. Every package
 declares it (`"imports": { "#/*": "./src/*" }` in its `package.json`), and
 Node, Vite, Vitest and `tsc` all read it from there. A new package declares it
 too.
@@ -232,7 +236,12 @@ do not work around the gate or edit the rules to make it pass.
 | Package | Role | Holds |
 |---|---|---|
 | `packages/db` | leaf | The legacy schema in Drizzle (94 tables), migrations, and the ETL that seeds Postgres from the dumps in `old/db` (kept on this machine, not in git; the tests that read them skip without them). Imports no workspace package |
-| `packages/legacy-import` | server | The offline generator: parses the dump, projects it through the domain engine, writes `packages/legacy-import/seed/data.generated.json` and runs the Gherkin parity specs in `packages/legacy-import/specs` |
+| `packages/legacy-import` | server | The offline generator: parses the dump, projects it through the domain engine, writes `packages/legacy-import/seed/data.generated.json` and runs the Gherkin parity specs in `packages/legacy-import/specs`. `pnpm --filter @cl/legacy-import gen:oracle-fixture` rewrites the committed Pozzetto 2013 fixture (`packages/client-core/src/testing/fixtures/pozzetto2013.oracle.ts`) from the seed; the local oracle check, `packages/legacy-import/specs/oracleFixture.test.ts`, holds that fixture to the design's export (acc.json in docs/design/web/v1/reports/pozzetto, or in the folder `DESIGN_ORACLE_DIR` names) and skips without it: the export holds real names and is not in git |
+
+The seed the domain's simulators and the app run on,
+`packages/domain/src/simulators/seed/legacySeed.generated.ts`, is written by the
+generator (`pnpm --filter @cl/legacy-import gen:data`) and never edited by hand:
+change the generator and run it again.
 
 Both are Node-side: `packages/db` may import nothing from the workspace and may use Node built-ins; `packages/legacy-import` may import `@cl/domain`, `@cl/db` and `@cl/shared` and may use Node built-ins. The "no Node built-in outside `packages/server`" rule above applies to the browser-bound packages.
 

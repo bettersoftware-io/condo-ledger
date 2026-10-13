@@ -1,51 +1,32 @@
 import { describe, expect, it, onTestFinished, vi } from "vitest";
 
-import { installFakeWebSocket } from "@cl/client-core/testing/fakeWebSocket.ts";
-import type { Price } from "@cl/domain";
+import type { Building } from "@cl/domain";
 
 import { buildPorts } from "./buildPorts.ts";
 
 describe("choosing what stands behind the ports", () => {
-  it("runs on the simulator when there is no server URL", () => {
+  it("runs on the simulators over the generated seed when there is no server URL", () => {
     const said = silenceInfo();
-    vi.useFakeTimers();
-    onTestFinished(() => {
-      vi.useRealTimers();
-    });
-    const received: Price[] = [];
+    let buildings: Building[] = [];
 
-    const subscription = buildPorts(undefined)
-      .price.prices()
-      .subscribe((price) => {
-        return received.push(price);
-      });
-    vi.advanceTimersByTime(500);
-    subscription.unsubscribe();
+    // The simulator answers from memory, so the answer is in before the line ends.
+    buildPorts(undefined)
+      .buildings.buildings()
+      .subscribe((answer) => {
+        buildings = answer;
+      })
+      .unsubscribe();
 
-    expect(received).toHaveLength(1);
+    expect(buildings).toHaveLength(2);
     expect(said).toHaveBeenCalledWith(
       "[data] composed sim: no VITE_SERVER_URL",
     );
   });
 
-  it("connects to the server when there is one", () => {
-    const said = silenceInfo();
-    const network = installFakeWebSocket();
-    onTestFinished(network.restore);
-
-    const subscription = buildPorts("ws://example.test/ws")
-      .price.prices()
-      .subscribe();
-    subscription.unsubscribe();
-
-    expect(
-      network.sockets.map((socket) => {
-        return socket.url;
-      }),
-    ).toEqual(["ws://example.test/ws"]);
-    expect(said).toHaveBeenCalledWith(
-      "[data] composed live from ws://example.test/ws",
-    );
+  it("refuses a server URL until the server's ports arrive", () => {
+    expect(() => {
+      return buildPorts("ws://example.test/ws");
+    }).toThrow(/M3/);
   });
 });
 

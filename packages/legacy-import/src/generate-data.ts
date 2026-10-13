@@ -4,6 +4,10 @@ import { fileURLToPath } from "node:url";
 import { assemble } from "./assemble.ts";
 import { buildDb } from "./db.ts";
 import { parseTables } from "./loadRows.ts";
+import {
+  projectLegacySeed,
+  renderLegacySeedModule,
+} from "./project/legacySeed.ts";
 import { loadExtraEntries } from "./pseudonymise/leftovers.ts";
 import { pseudonymiseTables } from "./pseudonymise/pseudonymise.ts";
 import { reconcilePeriods } from "./reconcile.ts";
@@ -13,6 +17,10 @@ const DUMP_URL = new URL(
   import.meta.url,
 );
 const OUT_URL = new URL("../seed/data.generated.json", import.meta.url);
+const SEED_MODULE_URL = new URL(
+  "../../domain/src/simulators/seed/legacySeed.generated.ts",
+  import.meta.url,
+);
 
 // The dump holds real people: every identity is replaced by a fake one before
 // anything is projected from it.
@@ -58,3 +66,7 @@ for (const c of seed.tree) {
 writeFileSync(OUT_URL, `${JSON.stringify(seed, null, 2)}\n`);
 console.log("");
 console.log(`Wrote ${OUT_URL.pathname}`);
+
+// The M1 simulators' seed, from the same pseudonymised db.
+writeFileSync(SEED_MODULE_URL, renderLegacySeedModule(projectLegacySeed(db)));
+console.log(`Wrote ${SEED_MODULE_URL.pathname}`);

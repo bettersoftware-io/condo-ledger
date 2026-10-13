@@ -1,12 +1,8 @@
 import type { ReactElement } from "react";
 
-import { PriceList } from "./PriceList.tsx";
+import { AppRoot } from "./shell/AppRoot.tsx";
 
+/** The whole UI: the shell, which draws the screen the person is on. */
 export function App(): ReactElement {
-  return (
-    <main>
-      <h1>Prices</h1>
-      <PriceList />
-    </main>
-  );
+  return <AppRoot />;
 }

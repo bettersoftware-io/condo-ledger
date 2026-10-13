@@ -10,11 +10,15 @@
   },
   "scripts": {
     "gen:data": "node src/generate-data.ts",
+    "gen:oracle-fixture": "node src/oracle/writeFixture.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run"
   },
   "dependencies": {
     "@cl/db": "workspace:*",
     "@cl/domain": "workspace:*"
+  },
+  "devDependencies": {
+    "@cl/client-core": "workspace:*"
   }
 }

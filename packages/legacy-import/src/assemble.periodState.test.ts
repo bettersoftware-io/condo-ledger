@@ -7,6 +7,7 @@ import { type ResidentBalance, recomputePeriod } from "@cl/domain";
 import { assemble, type Seed } from "./assemble.ts";
 import { buildDb } from "./db.ts";
 import {
+  DUMP_SUITE_TIMEOUT_MS,
   dumpSuiteName,
   legacyDumpAvailable,
   legacyDumpPath,
@@ -15,10 +16,11 @@ import { parseTables } from "./loadRows.ts";
 
 describe.skipIf(!legacyDumpAvailable())(
   dumpSuiteName("assemble: periodStateByPeriod / individualByPeriod"),
+  { timeout: DUMP_SUITE_TIMEOUT_MS },
   () => {
     beforeAll(() => {
       seed = loadSeed();
-    });
+    }, DUMP_SUITE_TIMEOUT_MS);
 
     it("emits a PeriodState for every period (matching the distribution gate)", () => {
       const dist = seed.distributionByPeriod;

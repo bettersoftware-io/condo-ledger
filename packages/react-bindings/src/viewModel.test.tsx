@@ -1,26 +1,158 @@
 import { describe, expect, it, onTestFinished, vi } from "vitest";
 
-import { mountUnderProvider, mountWithoutProvider } from "./viewModel.page.tsx";
+import {
+  cents,
+  DESIGN_FIRM,
+  DESIGN_PRINCIPAL,
+  type LegacySeed,
+} from "@cl/domain";
+import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
+
+import {
+  mountUnderProvider,
+  mountWithoutProvider,
+  type Seen,
+} from "./viewModel.page.tsx";
 
 describe("the view model", () => {
-  it("gives a component under the provider the application's prices as they arrive", async () => {
-    const page = mountUnderProvider();
+  it("reads the buildings and the selected period", () => {
+    const page = mountUnderProvider(createSmallSeed());
 
-    expect(page.symbols()).toEqual([]);
-
-    await page.deliverPrice({ symbol: "EURUSD", mid: 1.1 });
-
-    expect(page.symbols()).toEqual(["EURUSD"]);
+    expect(
+      page.read().buildings.map((building) => {
+        return building.id;
+      }),
+    ).toEqual(["c1"]);
+    expect(page.read().period.selected).toEqual({
+      buildingId: "c1",
+      periodId: "p1",
+    });
   });
 
-  it("gives a component a selection it can read and change", async () => {
-    const page = mountUnderProvider();
+  it("selectPeriod moves the selection", async () => {
+    const page = mountUnderProvider(createSeedWithASecondPeriod());
 
-    expect(page.selected()).toBeNull();
+    await page.send((seen) => {
+      seen.period.selectPeriod("p2");
+    });
 
-    await page.select("EURUSD");
+    expect(page.read().period.selected).toEqual({
+      buildingId: "c1",
+      periodId: "p2",
+    });
+  });
 
-    expect(page.selected()).toBe("EURUSD");
+  it("reads the accounts tree of the selected period", () => {
+    const page = mountUnderProvider(createSmallSeed());
+
+    expect(page.read().tree?.debit).toBe(212619);
+  });
+
+  it("the navigation is shared between two readers", async () => {
+    const page = mountUnderProvider(createSmallSeed(), 2);
+
+    expect(page.read(1).navigation.state.menu).toBe("accounts");
+
+    await page.send((seen) => {
+      seen.navigation.selectMenu("journal");
+    });
+
+    expect(page.read(0).navigation.state.menu).toBe("journal");
+    expect(page.read(1).navigation.state.menu).toBe("journal");
+  });
+
+  it("reads the session and changes a preference", async () => {
+    const page = mountUnderProvider(createSmallSeed());
+
+    expect(page.read().session.principal).toEqual(DESIGN_PRINCIPAL);
+    expect(page.read().session.firm).toEqual(DESIGN_FIRM);
+
+    await page.send((seen) => {
+      return seen.session.setMode("dark");
+    });
+    await page.send((seen) => {
+      return seen.session.setTheme("sage");
+    });
+    await page.send((seen) => {
+      return seen.session.setLanguage("it");
+    });
+
+    expect(page.read().session.preferences).toMatchObject({
+      mode: "dark",
+      theme: "sage",
+      language: "it",
+    });
+  });
+
+  it("starts on Total, and a selected account brings its ledger and details", async () => {
+    const page = mountUnderProvider(createSmallSeed());
+
+    expect(page.read().account.key).toBe("total");
+    expect(page.read().ledger?.lines).toHaveLength(20);
+
+    await page.send((seen) => {
+      seen.account.select("la21");
+    });
+
+    expect(page.read().account.key).toBe("la21");
+    expect(page.read().account.node?.key).toBe("la21");
+    expect(page.read().ledger?.lines).toHaveLength(1);
+    expect(page.read().details?.path).toBe(
+      "Total › Costs › Spese generali › Ascensore",
+    );
+  });
+
+  it("sets a budget the details then show", async () => {
+    const page = mountUnderProvider(createSmallSeed());
+
+    await page.send((seen) => {
+      seen.account.select("la21");
+    });
+    await page.send((seen) => {
+      return seen.setBudget("la21", cents(120000));
+    });
+
+    expect(page.read().details?.budget).toBe(120000);
+  });
+
+  it("raises a notice for a stub and clears it", async () => {
+    const page = mountUnderProvider(createSmallSeed());
+
+    await page.send((seen) => {
+      seen.notices.stub("Print");
+    });
+
+    expect(page.read().notices.notices).toEqual([
+      { id: 1, text: "Print: not yet available" },
+    ]);
+
+    await page.send((seen) => {
+      seen.notices.clear(1);
+    });
+
+    expect(page.read().notices.notices).toEqual([]);
+  });
+
+  it("gives each reader machines of its own", async () => {
+    const page = mountUnderProvider(createSmallSeed(), 2);
+    const before = machineStatesOf(page.read(1));
+
+    await page.send((seen) => {
+      seen.grid.toggle("la10");
+      seen.columns.resize(1, 120);
+      seen.split.setRatio(0.3);
+      seen.bottomTab.activate("Details");
+      seen.maximize.toggle("top");
+      seen.sidebar.open();
+    });
+
+    expect(page.read(0).grid.state.expanded).toContain("la10");
+    expect(page.read(0).columns.state.widths).toEqual([null, 120]);
+    expect(page.read(0).split.state).toEqual({ ratio: 0.3 });
+    expect(page.read(0).bottomTab.state).toEqual({ active: "Details" });
+    expect(page.read(0).maximize.state).toEqual({ maximized: "top" });
+    expect(page.read(0).sidebar.state.open).toBe(true);
+    expect(machineStatesOf(page.read(1))).toEqual(before);
   });
 
   it("tells a component with no provider above it what is missing", () => {
@@ -35,3 +167,31 @@ describe("the view model", () => {
     }).toThrow("useViewModel needs a <ViewModelProvider> above it in the tree");
   });
 });
+
+/** The small seed with a second, empty period, p2, in the same building: somewhere to move the selection to. */
+function createSeedWithASecondPeriod(): LegacySeed {
+  const seed = createSmallSeed();
+
+  return {
+    ...seed,
+    buildings: seed.buildings.map((building) => {
+      return {
+        ...building,
+        periods: building.periods.flatMap((period) => {
+          return [period, { ...period, id: "p2", name: "2014" }];
+        }),
+      };
+    }),
+  };
+}
+
+function machineStatesOf(seen: Seen): unknown[] {
+  return [
+    seen.grid.state.expanded,
+    seen.columns.state,
+    seen.split.state,
+    seen.bottomTab.state,
+    seen.maximize.state,
+    seen.sidebar.state,
+  ];
+}

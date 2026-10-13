@@ -16,7 +16,8 @@ function formatPct(raw: string | undefined): string {
   return Number.isInteger(n) ? String(n) : n.toFixed(2).replace(/\.?0+$/, "");
 }
 
-function residentName(db: Db, masterDataId: string): string {
+/** The name master data gives a person (surname first) or a company. */
+export function masterDataName(db: Db, masterDataId: string): string {
   const p = db.by("person", "masterDataId").get(masterDataId);
 
   if (p) {
@@ -133,7 +134,7 @@ export function projectUnits(db: Db, periodId: string): UnitRow[] {
 
     const resRows: UnitRow[] = residents.map(({ r, up }) => {
       const mdId = String(r.masterDataId);
-      const name = residentName(db, mdId);
+      const name = masterDataName(db, mdId);
       const pct = formatPct(str(r.percentage));
       const abbr = roleAbbrev(
         db,

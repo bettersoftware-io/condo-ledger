@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { must } from "../must.ts";
+import { must } from "#/support/must.ts";
+
 import type { PeriodState } from "./periodTypes.ts";
 import { recomputePeriod } from "./recomputePeriod.ts";
 
@@ -13,10 +14,11 @@ describe("recomputePeriod", () => {
         r.balances.find((b) => {
           return b.residentId === "r1";
         }),
+        "balance of r1",
       ).preventivoCents,
     ).toBe(60000);
     // installments: r1 preventivo 60000 over 2 → 30000,30000
-    const r1cells = must(r.installments.get("r1"));
+    const r1cells = must(r.installments.get("r1"), "the cells of r1");
     expect(r1cells.get("i1")).toBe(30000);
     expect(r1cells.get("i2")).toBe(30000);
   });

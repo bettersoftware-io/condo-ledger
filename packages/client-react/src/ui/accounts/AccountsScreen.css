@@ -1,0 +1,101 @@
+/* README "Accounts, Ledgers & Balance" and "Splitters": two stacked panels sharing the column by the split ratio. */
+.accounts-screen {
+  --split-ratio: 0.5;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+.accounts-top,
+.accounts-bottom {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: 3000px;
+  transition:
+    max-height 0.26s ease,
+    flex-basis 0.26s ease;
+}
+.accounts-top {
+  flex: calc(var(--split-ratio) * 100) 1 0;
+}
+.accounts-bottom {
+  flex: calc((1 - var(--split-ratio)) * 100) 1 0;
+}
+.accounts-top > .panel,
+.accounts-bottom > .tabbed {
+  flex: 1;
+}
+
+/* A maximized panel leaves the other one its header strip. */
+.accounts-screen[data-maximized="top"] .accounts-bottom,
+.accounts-screen[data-maximized="bottom"] .accounts-top {
+  flex: 0 0 auto;
+  max-height: 34px;
+}
+.accounts-screen[data-maximized]:not([data-maximized="none"]) > .splitter {
+  display: none;
+}
+
+/* Compact (README "Compact mode", Sidebar.css's breakpoint): the panels keep their split, and the splitter is hidden. */
+@media (max-width: 1179px) {
+  .accounts-screen > .splitter {
+    display: none;
+  }
+}
+
+.accounts-top-body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.accounts-grid,
+.accounts-tab-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* An expense leaf's budget: drawn as the amount it shows, edited in place on a click. */
+.accounts-budget {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  font: inherit;
+  text-align: right;
+  cursor: text;
+}
+.accounts-budget:hover,
+.accounts-budget:focus-visible {
+  outline: 1px dashed var(--bd);
+  outline-offset: 1px;
+}
+
+/* The print menu's button carries its ▾ beside the glyph. */
+.accounts-top .toolbar-button[data-icon-only="true"] {
+  width: auto;
+  min-width: 26px;
+  padding: 0 5px;
+}
+.accounts-menu-caret {
+  font-size: 8px;
+  color: var(--txd);
+  margin-left: 3px;
+}
+.accounts-toolbar-spacer {
+  flex: 1;
+}
+
+.account-details-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.account-details-note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--txd);
+}

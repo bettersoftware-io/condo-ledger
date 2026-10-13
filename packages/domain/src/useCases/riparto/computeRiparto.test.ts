@@ -1,29 +1,38 @@
 // packages/domain/src/useCases/riparto/computeRiparto.test.ts
 import { describe, expect, it } from "vitest";
 
-import { must } from "../must.ts";
+import { must } from "#/support/must.ts";
+
 import { buildRiparto } from "./computeRiparto.ts";
 import type { RipartoInput } from "./types.ts";
 
 describe("computeRiparto", () => {
   it("exposes one column for the linked account", () => {
-    const eng = buildRiparto(base);
+    const eng = buildRiparto(createMinimalInput());
     expect(
       eng.columns.map((c) => {
         return c.legacyAccountId;
       }),
     ).toEqual(["A"]);
-    expect(must(eng.columns[0]).displayTableId).toBe("T");
+    expect(must(eng.columns[0], "the first column").displayTableId).toBe("T");
+  });
+
+  it("subtree throws for an account the input does not have", () => {
+    const engine = buildRiparto(createMinimalInput());
+
+    expect(() => {
+      return engine.subtree("nope");
+    }).toThrow("missing: the account nope");
   });
 
   it("splits the estimate per unit by coefficient", () => {
-    const eng = buildRiparto(base);
+    const eng = buildRiparto(createMinimalInput());
     expect(eng.perUnitAmount("A", "estimate", "u1")).toBe(60000);
     expect(eng.perUnitAmount("A", "estimate", "u2")).toBe(40000);
   });
 
   it("routes a unit's amount to its single owner resident", () => {
-    const eng = buildRiparto(base);
+    const eng = buildRiparto(createMinimalInput());
     const r = eng.perResidentAmount("A", "estimate", "u1");
     expect(r.get("r1")).toBe(60000);
     expect(
@@ -35,7 +44,7 @@ describe("computeRiparto", () => {
 
   it("applies an owner/tenant role split (priority 1 = owner 70%, priority 3 = tenant 30%)", () => {
     const withRoles: RipartoInput = {
-      ...base,
+      ...createMinimalInput(),
       links: [
         { accountId: "A", linkId: "L1", tableId: "T", pct: 100, type: null },
       ],
@@ -71,7 +80,7 @@ describe("computeRiparto", () => {
   });
 
   it("conserves money: Σ per-unit equals the rolled-up subtree estimate", () => {
-    const eng = buildRiparto(base);
+    const eng = buildRiparto(createMinimalInput());
     const total = eng.unitLegacyIds.reduce((s, u) => {
       return s + eng.perUnitAmount("A", "estimate", u);
     }, 0);
@@ -83,7 +92,7 @@ describe("computeRiparto", () => {
       // u1 share = 100000 * 60/100 = 60000 cents.
       // Owners 75% and 25% (total 100): o1 = 60000*75/100 = 45000, o2 = 15000.
       const eng = buildRiparto({
-        ...base,
+        ...createMinimalInput(),
         residents: [owner("o1", 75), owner("o2", 25)],
       });
       const r = eng.perResidentAmount("A", "estimate", "u1");
@@ -96,7 +105,7 @@ describe("computeRiparto", () => {
       // u1 alone holds the table: share = 100 cents. Owners 1%, 1%, 1% (total 3):
       // o1 = round(100*1/3) = 33, o2 = 33, o3 = 100 - 66 = 34 (not round = 33).
       const eng = buildRiparto({
-        ...base,
+        ...createMinimalInput(),
         estimateCentsByAccount: { A: 100 },
         tableItems: [{ tableId: "T", unitId: "u1", coefficient: 100 }],
         residents: [owner("o1", 1), owner("o2", 1), owner("o3", 1)],
@@ -112,7 +121,7 @@ describe("computeRiparto", () => {
       // Share = 100 cents over three owners at 0%: o1 = round(100/3) = 33,
       // o2 = 33, o3 = 100 - 66 = 34.
       const eng = buildRiparto({
-        ...base,
+        ...createMinimalInput(),
         estimateCentsByAccount: { A: 100 },
         tableItems: [{ tableId: "T", unitId: "u1", coefficient: 100 }],
         residents: [owner("o1", 0), owner("o2", 0), owner("o3", 0)],
@@ -128,7 +137,7 @@ describe("computeRiparto", () => {
       // Role priority 3 takes 100%, but u1 has only owners: owners get 60000,
       // split 50/50 by percentage = 30000 and 30000.
       const eng = buildRiparto({
-        ...base,
+        ...createMinimalInput(),
         roles: [{ linkId: "L1", priorityId: "3", percentage: 100 }],
         residents: [owner("o1", 50), owner("o2", 50)],
       });
@@ -142,7 +151,7 @@ describe("computeRiparto", () => {
       // Roles: owner 100%, tenant 0% -> owner 60000, the tenant's residual is
       // 60000 - 60000 = 0 and nobody is credited for it.
       const eng = buildRiparto({
-        ...base,
+        ...createMinimalInput(),
         roles: [
           { linkId: "L1", priorityId: "1", percentage: 100 },
           { linkId: "L1", priorityId: "3", percentage: 0 },
@@ -159,7 +168,7 @@ describe("computeRiparto", () => {
     });
 
     it("credits nobody when the unit has no residents", () => {
-      const eng = buildRiparto({ ...base, residents: [] });
+      const eng = buildRiparto({ ...createMinimalInput(), residents: [] });
       expect(eng.perResidentAmount("A", "estimate", "u1").size).toBe(0);
     });
   });
@@ -171,7 +180,7 @@ describe("computeRiparto", () => {
       // actual: u1 = 50000 * 0.5 * 0.6 = 15000, u2 = 50000 * 0.5 * 0.4 = 10000
       // (the estimate link would give 30000 / 20000).
       const eng = buildRiparto({
-        ...base,
+        ...createMinimalInput(),
         actualCentsByAccount: { A: 50000 },
         links: [
           {
@@ -198,7 +207,7 @@ describe("computeRiparto", () => {
 
     it("charges nothing in a mode the account has no link for", () => {
       const eng = buildRiparto({
-        ...base,
+        ...createMinimalInput(),
         links: [
           {
             accountId: "A",
@@ -215,7 +224,7 @@ describe("computeRiparto", () => {
 
     it("charges nothing through a table with no coefficients, or for an unknown account", () => {
       const eng = buildRiparto({
-        ...base,
+        ...createMinimalInput(),
         links: [
           {
             accountId: "A",
@@ -235,7 +244,7 @@ describe("computeRiparto", () => {
       // P 100000 + child C 50000 = 150000; the linked grandchild G (20000) is
       // excluded from P and stands alone.
       const eng = buildRiparto({
-        ...base,
+        ...createMinimalInput(),
         accounts: [
           { id: "P", name: "Padre", order: 2, parentId: null },
           { id: "C", name: "Figlio", order: 3, parentId: "P" },
@@ -261,22 +270,26 @@ describe("computeRiparto", () => {
 
 // One expense account A (linked to table T at 100%), two units u1/u2 with coeffs 60/40,
 // estimate 1000.00 € = 100000 cents. No role rows → goes to owners.
-const base: RipartoInput = {
-  accounts: [{ id: "A", name: "Spese", order: 1, parentId: null }],
-  links: [{ accountId: "A", linkId: "L1", tableId: "T", pct: 100, type: null }],
-  estimateCentsByAccount: { A: 100000 },
-  actualCentsByAccount: { A: 0 },
-  tableItems: [
-    { tableId: "T", unitId: "u1", coefficient: 60 },
-    { tableId: "T", unitId: "u2", coefficient: 40 },
-  ],
-  roles: [],
-  residents: [
-    { unitId: "u1", residentId: "r1", priorityId: "1", percentage: 100 },
-    { unitId: "u2", residentId: "r2", priorityId: "1", percentage: 100 },
-  ],
-  unitLegacyIds: ["u1", "u2"],
-};
+function createMinimalInput(): RipartoInput {
+  return {
+    accounts: [{ id: "A", name: "Spese", order: 1, parentId: null }],
+    links: [
+      { accountId: "A", linkId: "L1", tableId: "T", pct: 100, type: null },
+    ],
+    estimateCentsByAccount: { A: 100000 },
+    actualCentsByAccount: { A: 0 },
+    tableItems: [
+      { tableId: "T", unitId: "u1", coefficient: 60 },
+      { tableId: "T", unitId: "u2", coefficient: 40 },
+    ],
+    roles: [],
+    residents: [
+      { unitId: "u1", residentId: "r1", priorityId: "1", percentage: 100 },
+      { unitId: "u2", residentId: "r2", priorityId: "1", percentage: 100 },
+    ],
+    unitLegacyIds: ["u1", "u2"],
+  };
+}
 
 function sum(m: Map<string, number>): number {
   return [...m.values()].reduce((s, c) => {

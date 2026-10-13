@@ -1,54 +1,70 @@
-import type { Price } from "@cl/domain";
-
 /**
  * One picture: a name and the state the screen is in when it is taken. The
  * state is data, never a click. The visual host turns it into deliveries on
- * the app harness, so the real presenters decide what the rows look like.
+ * the app harness, so the real presenters decide what the screen looks like.
  */
 export interface Scenario {
-  /**
-   * Prices that arrived long enough ago for their rows to have gone stale.
-   * Delivered first, in order; then the stale wait passes on the host's clock.
-   */
-  stalePrices?: readonly Price[];
-  /**
-   * Prices that have just arrived, in order. A second price for a symbol shows
-   * as a movement against the first.
-   */
-  prices: readonly Price[];
-  /** The symbol of the row that is selected. */
-  selected?: string;
+  /** The page's width in pixels; the height is the same for every scenario. */
+  width: number;
+  /** The colour mode, set as the person would set it. */
+  mode: "light" | "dark";
+  /** The period the sidebar has selected. */
+  periodId: string;
+  /** The account the grid has selected; Total when absent. */
+  selectedKey?: string;
+  /** The grid's open rows; the grid's own starting set when absent. */
+  expanded?: string[];
+  /** Whether the sidebar is open as a drawer over the screen (compact widths). */
+  drawerOpen?: boolean;
 }
 
-/** Two symbols that have each moved once: EURUSD up, GBPUSD down. */
-const MOVES: readonly Price[] = [
-  { symbol: "EURUSD", mid: 1.1 },
-  { symbol: "GBPUSD", mid: 1.25 },
-  { symbol: "EURUSD", mid: 1.1012 },
-  { symbol: "GBPUSD", mid: 1.2488 },
+/** Total, the five levels, and the cash account's group: the cash account in view. */
+const OPEN_TO_CASH = [
+  "total",
+  "patrimonial",
+  "assets",
+  "liabilities",
+  "costs",
+  "revenue",
+  "la153",
 ];
-
-const USDJPY: Price = { symbol: "USDJPY", mid: 151.2 };
 
 /**
  * Every scenario, keyed by name. The name is the golden's file name
  * (`goldens/<platform>/<name>.png`) and the test's title, so keep it short,
  * lower-case and dashed. Each scenario needs a golden on every platform that
- * runs the tier; `pnpm visual` says which are missing.
+ * runs the tier; `pnpm visual` says which are missing. Pozzetto 2013 (`p36`)
+ * with its cash account (`la154`) selected, at the full layout (1280) and the
+ * compact one (1100, the sidebar folded to its rail or open as a drawer).
  */
 export const scenarios: Record<string, Scenario> = {
-  empty: {
-    prices: [],
+  "accounts-1280-light": {
+    width: 1280,
+    mode: "light",
+    periodId: "p36",
+    selectedKey: "la154",
+    expanded: OPEN_TO_CASH,
   },
-  "rows-up-and-down": {
-    prices: [...MOVES, USDJPY],
+  "accounts-1280-dark": {
+    width: 1280,
+    mode: "dark",
+    periodId: "p36",
+    selectedKey: "la154",
+    expanded: OPEN_TO_CASH,
   },
-  "row-selected": {
-    prices: [...MOVES, USDJPY],
-    selected: "GBPUSD",
+  "accounts-1100-light": {
+    width: 1100,
+    mode: "light",
+    periodId: "p36",
+    selectedKey: "la154",
+    expanded: OPEN_TO_CASH,
   },
-  "row-stale": {
-    stalePrices: [USDJPY],
-    prices: MOVES,
+  "accounts-1100-drawer": {
+    width: 1100,
+    mode: "light",
+    periodId: "p36",
+    selectedKey: "la154",
+    expanded: OPEN_TO_CASH,
+    drawerOpen: true,
   },
 };

@@ -27,7 +27,9 @@ const config: ArchitectureConfig = {
       entry: ["main.tsx", "index.css", "*.d.ts"],
       noNodeBuiltins: true,
       reactCompiler: true,
-      compilerTracked: [{ file: "src/ui/PriceList.tsx", fn: "PriceRowView" }],
+      // The grid re-renders on every tree change; a row that did not change
+      // is skipped only while the compiler memoizes it.
+      compilerTracked: [{ file: "src/ui/TreeGridRow.tsx", fn: "TreeGridRow" }],
     },
     "packages/server": { role: "server" },
     "packages/integration": { role: "integration" },

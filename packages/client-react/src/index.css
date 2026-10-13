@@ -1,40 +1,37 @@
-:root {
-  /* Every colour has a name here, and a rule uses the name. `pnpm lint:css`,
-     where the project has it, fails a colour written in a rule. */
-  --color-up: #1a8f4c;
-  --color-down: #c0392b;
+@import "./styles/tokens.css";
+@import "./styles/fonts.css";
 
-  font-family: system-ui, sans-serif;
-  color-scheme: light dark;
+/* The prototype's global rules (Condomini.dc.html, lines 14–26). */
+* {
+  box-sizing: border-box;
 }
-
-table {
-  border-collapse: collapse;
-  font-variant-numeric: tabular-nums;
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
 }
-
-th,
-td {
-  padding: 0.4rem 1rem;
-  text-align: left;
+body {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--tx);
+  background: var(--app);
 }
-
-tbody tr {
-  cursor: pointer;
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
 }
-
-tr[data-selected="true"] {
-  background: color-mix(in srgb, currentcolor 18%, transparent);
+::-webkit-scrollbar-thumb {
+  background: #c2c8d0;
+  border-radius: 6px;
 }
-
-tr[data-stale="true"] {
-  opacity: 0.45;
-}
-
-td[data-movement="up"] {
-  color: var(--color-up);
-}
-
-td[data-movement="down"] {
-  color: var(--color-down);
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }

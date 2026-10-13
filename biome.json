@@ -14,10 +14,26 @@
       "!old",
       "!docs",
       "!packages/legacy-import/seed",
+      "!packages/domain/src/simulators/seed/legacySeed.generated.ts",
+      "!packages/client-core/src/testing/fixtures/pozzetto2013.oracle.ts",
       "!packages/db/drizzle"
     ]
   },
   "overrides": [
+    {
+      "includes": [
+        "packages/client-react/src/ui/TreeGrid.tsx",
+        "packages/client-react/src/ui/TreeGridRow.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "useSemanticElements": "off",
+            "useFocusableInteractive": "off"
+          }
+        }
+      }
+    },
     {
       "includes": ["packages/db/**", "packages/legacy-import/**"],
       "linter": {

@@ -1,0 +1,61 @@
+.scheda {
+  padding: 14px 18px;
+  max-width: 900px;
+  display: grid;
+  gap: 9px;
+}
+.scheda-row {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  font-size: 12.5px;
+  align-items: center;
+}
+.scheda-fieldset .scheda-row {
+  grid-template-columns: 156px 1fr;
+}
+.scheda[data-wide="true"] .scheda-row {
+  grid-template-columns: 300px 1fr;
+}
+.scheda[data-wide="true"] .scheda-fieldset .scheda-row {
+  grid-template-columns: 283px 1fr;
+}
+.scheda-fieldset {
+  border: 1px solid var(--bd2);
+  border-radius: 7px;
+  padding: 6px 14px 12px;
+  max-width: 760px;
+  margin: 0;
+  display: grid;
+  gap: 9px;
+}
+.scheda-fieldset legend {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--txd);
+  letter-spacing: 0.04em;
+  padding: 0 6px;
+}
+.scheda-label {
+  color: var(--txd);
+  font-weight: 600;
+}
+.scheda-value {
+  color: var(--tx);
+}
+.scheda-value[data-tone="accent"] {
+  color: var(--acc);
+}
+.scheda-value[data-tone="mono"] {
+  font-family: var(--font-mono);
+}
+.scheda-value[data-tone="muted"] {
+  color: var(--txd);
+}
+.scheda-value[data-tone="ok"] {
+  color: var(--ok);
+}
+.scheda-value[data-tone="num"] {
+  color: var(--num);
+  font-weight: 600;
+}

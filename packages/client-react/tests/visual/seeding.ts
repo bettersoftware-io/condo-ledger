@@ -1,9 +1,13 @@
-import type { App as Application } from "@cl/client-core";
-import { STALE_AFTER_MS } from "@cl/client-core/presenters/pricesPresenter.ts";
-import {
-  type AppHarness,
-  createAppHarness,
-} from "@cl/client-core/testing/appHarness.ts";
+import type {
+  AccountsGridIntents,
+  AccountsGridState,
+  App,
+  Machine,
+  SidebarIntents,
+  SidebarState,
+} from "@cl/client-core";
+import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
+import type { Result } from "@cl/domain";
 
 import type { HostClock, Seeded } from "./host/seeded.ts";
 import type { Scenario } from "./scenarios.ts";
@@ -26,54 +30,96 @@ import type { Scenario } from "./scenarios.ts";
 /** The application and the deliveries of one scenario. Called once, before the first render. */
 export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
   const harness = createAppHarness();
+  const { machines } = harness.app;
+  const { buildings, accounts } = harness.app.presenters;
 
-  return {
-    app: selectFromTheStart(harness.app, scenario.selected),
-    deliver: () => {
-      deliverAll(harness, scenario.stalePrices ?? []);
+  // The mode is a preference the session port answers from memory, so it goes
+  // in before the first render, as the person would set it. Nothing may wait:
+  // the host's contract is synchronous. The simulator applies the preference
+  // at once; a refusal or a failure is rethrown where the visual run sees it,
+  // as an uncaught error on the page.
+  void harness.ports.session
+    .setPreference({ mode: scenario.mode })
+    .then(failOnRefusal)
+    .catch(reportOnThePage);
 
-      if (scenario.stalePrices !== undefined) {
-        clock.tick(STALE_AFTER_MS);
-      }
-
-      deliverAll(harness, scenario.prices);
-    },
-  };
-}
-
-function deliverAll(
-  { deliverPrice }: AppHarness,
-  prices: Scenario["prices"],
-): void {
-  for (const price of prices) {
-    deliverPrice(price);
-  }
-}
-
-/**
- * The application, with every selection machine it builds already holding the
- * scenario's selection. The selection is set through the machine's own intent,
- * so the picture shows what a click would have produced without a click.
- */
-function selectFromTheStart(
-  app: Application,
-  symbol: string | undefined,
-): Application {
-  if (symbol === undefined) {
-    return app;
-  }
-
-  return {
-    ...app,
+  const app: App = {
+    ...harness.app,
     machines: {
-      ...app.machines,
-      createSelection: () => {
-        const machine = app.machines.createSelection();
+      ...machines,
+      // The grid opens the scenario's rows, through its own toggle.
+      createAccountsGrid: (): Machine<
+        AccountsGridState,
+        AccountsGridIntents
+      > => {
+        const grid = machines.createAccountsGrid();
 
-        machine.intents.select(symbol);
+        if (scenario.expanded !== undefined) {
+          openOnly(grid, scenario.expanded);
+        }
 
-        return machine;
+        return grid;
+      },
+      // The sidebar starts open as a drawer, through its own intent.
+      createSidebar: (): Machine<SidebarState, SidebarIntents> => {
+        const sidebar = machines.createSidebar();
+
+        if (scenario.drawerOpen === true) {
+          sidebar.intents.open();
+        }
+
+        return sidebar;
       },
     },
   };
+
+  return {
+    app,
+    deliver: (): void => {
+      // The period first: choosing one starts the selection again at Total.
+      // The account's selection is read only while the screen listens, so
+      // both arrive after the first render.
+      buildings.selectPeriod(scenario.periodId);
+
+      if (scenario.selectedKey !== undefined) {
+        accounts.select(scenario.selectedKey);
+      }
+
+      clock.tick(0);
+    },
+  };
+}
+
+/** Toggles every row whose state differs from the wanted set, so exactly those rows are open. */
+function openOnly(
+  grid: Machine<AccountsGridState, AccountsGridIntents>,
+  wanted: readonly string[],
+): void {
+  const open = new Set(grid.state$.getValue().expanded);
+  const want = new Set(wanted);
+  const differing = [
+    ...[...open].filter((key) => {
+      return !want.has(key);
+    }),
+    ...[...want].filter((key) => {
+      return !open.has(key);
+    }),
+  ];
+
+  for (const key of differing) {
+    grid.intents.toggle(key);
+  }
+}
+
+function failOnRefusal(result: Result): void {
+  if (!result.ok) {
+    throw new Error(`the scenario's mode was refused: ${result.reason}`);
+  }
+}
+
+/** The host's fake clock leaves microtasks alone, so this throw is never held back. */
+function reportOnThePage(error: unknown): void {
+  queueMicrotask(() => {
+    throw error;
+  });
 }

@@ -1,40 +1,145 @@
-import type { PricePort } from "@cl/domain";
+import {
+  type AccountsPort,
+  type BuildingsPort,
+  createAccountsSimulator,
+  createBuildingsSimulator,
+  createJournalSimulator,
+  createSessionSimulator,
+  DESIGN_FIRM,
+  DESIGN_PRINCIPAL,
+  type JournalPort,
+  type LegacySeed,
+  type SessionPort,
+} from "@cl/domain";
 
+import {
+  type AccountsGridIntents,
+  type AccountsGridState,
+  createAccountsGridMachine,
+} from "./machines/accountsGridMachine.ts";
+import {
+  type BottomTabIntents,
+  type BottomTabState,
+  createBottomTabMachine,
+} from "./machines/bottomTabMachine.ts";
+import {
+  type ColumnSpec,
+  type ColumnsIntents,
+  type ColumnsState,
+  createColumnsMachine,
+} from "./machines/columnsMachine.ts";
 import type { Machine } from "./machines/machine.ts";
 import {
-  createSelectionMachine,
-  type SelectionIntents,
-  type SelectionState,
-} from "./machines/selectionMachine.ts";
+  createMaximizeMachine,
+  type MaximizeIntents,
+  type MaximizeState,
+} from "./machines/maximizeMachine.ts";
 import {
-  createPricesPresenter,
-  type PricesPresenter,
-} from "./presenters/pricesPresenter.ts";
+  createNavigationMachine,
+  type NavigationIntents,
+  type NavigationState,
+} from "./machines/navigationMachine.ts";
+import {
+  createSidebarMachine,
+  type SidebarIntents,
+  type SidebarState,
+} from "./machines/sidebarMachine.ts";
+import {
+  createSplitMachine,
+  type SplitIntents,
+  type SplitState,
+} from "./machines/splitMachine.ts";
+import { createNotices, type Notices } from "./notices.ts";
+import {
+  type AccountsPresenter,
+  createAccountsPresenter,
+} from "./presenters/accountsPresenter.ts";
+import {
+  type BuildingsPresenter,
+  createBuildingsPresenter,
+} from "./presenters/buildingsPresenter.ts";
+import {
+  createSessionPresenter,
+  type SessionPresenter,
+} from "./presenters/sessionPresenter.ts";
 
 /** Everything the application needs from the outside world. The client's
  * composition root decides what stands behind each port. */
 export interface AppPorts {
-  price: PricePort;
+  session: SessionPort;
+  buildings: BuildingsPort;
+  accounts: AccountsPort;
+  journal: JournalPort;
 }
 
-/** The application, built once at startup. Presenters are shared; machine
- * factories build one machine per component that asks. */
+/** The shared state: one of each per application, however many readers. */
+interface AppPresenters {
+  session: SessionPresenter;
+  buildings: BuildingsPresenter;
+  accounts: AccountsPresenter;
+}
+
+/** Per-component state: each call builds a machine of its own. */
+interface AppMachines {
+  createAccountsGrid: () => Machine<AccountsGridState, AccountsGridIntents>;
+  createColumns: (
+    spec: readonly ColumnSpec[],
+  ) => Machine<ColumnsState, ColumnsIntents>;
+  createSplit: () => Machine<SplitState, SplitIntents>;
+  createBottomTab: (
+    tabs: readonly string[],
+  ) => Machine<BottomTabState, BottomTabIntents>;
+  createMaximize: () => Machine<MaximizeState, MaximizeIntents>;
+  createSidebar: () => Machine<SidebarState, SidebarIntents>;
+}
+
+/** The application, built once at startup. Presenters, the navigation and
+ * the notices are shared; machine factories build one machine per component
+ * that asks. */
 export interface App {
-  presenters: {
-    prices: PricesPresenter;
-  };
-  machines: {
-    createSelection: () => Machine<SelectionState, SelectionIntents>;
-  };
+  presenters: AppPresenters;
+  navigation: Machine<NavigationState, NavigationIntents>;
+  notices: Notices;
+  machines: AppMachines;
 }
 
 export function createApp(ports: AppPorts): App {
+  const session = createSessionPresenter(ports.session);
+  const buildings = createBuildingsPresenter(ports.buildings);
+  const accounts = createAccountsPresenter(
+    { accounts: ports.accounts, journal: ports.journal },
+    buildings.selected$,
+  );
+
   return {
-    presenters: {
-      prices: createPricesPresenter(ports.price),
-    },
+    presenters: { session, buildings, accounts },
+    navigation: createNavigationMachine(),
+    notices: createNotices(),
     machines: {
-      createSelection: createSelectionMachine,
+      createAccountsGrid: (): Machine<
+        AccountsGridState,
+        AccountsGridIntents
+      > => {
+        return createAccountsGridMachine(accounts.tree$);
+      },
+      createColumns: createColumnsMachine,
+      createSplit: createSplitMachine,
+      createBottomTab: createBottomTabMachine,
+      createMaximize: createMaximizeMachine,
+      createSidebar: createSidebarMachine,
     },
+  };
+}
+
+/** The four simulators over one seed: what `pnpm dev` and the harness run on. */
+export function createSimulatorPorts(seed: LegacySeed): AppPorts {
+  return {
+    session: createSessionSimulator({
+      principal: DESIGN_PRINCIPAL,
+      firm: DESIGN_FIRM,
+    }),
+    buildings: createBuildingsSimulator(seed),
+    accounts: createAccountsSimulator(seed),
+    journal: createJournalSimulator(seed),
   };
 }

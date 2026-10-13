@@ -1,4 +1,4 @@
-import { type Mode, type Money, recomputePeriod } from "@cl/domain";
+import { type Money, type RipartoMode, recomputePeriod } from "@cl/domain";
 
 import type {
   DistributionColumn,
@@ -74,7 +74,7 @@ export function projectDistribution(
   });
 
   function buildMatrix(mode: DistributionType): DistributionMatrix {
-    const engMode: Mode = mode === "estimate" ? "estimate" : "current";
+    const engMode: RipartoMode = mode === "estimate" ? "estimate" : "current";
 
     const unitRows: DistributionRow[] = eng.unitLegacyIds.map(
       (legacyUnitId) => {
