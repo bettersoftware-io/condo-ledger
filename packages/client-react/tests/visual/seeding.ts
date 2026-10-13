@@ -1,3 +1,11 @@
+import type {
+  AccountsGridIntents,
+  AccountsGridState,
+  App,
+  Machine,
+  SidebarIntents,
+  SidebarState,
+} from "@cl/client-core";
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
 import type { Result } from "@cl/domain";
 
@@ -22,25 +30,85 @@ import type { Scenario } from "./scenarios.ts";
 /** The application and the deliveries of one scenario. Called once, before the first render. */
 export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
   const harness = createAppHarness();
+  const { machines } = harness.app;
+  const { buildings, accounts } = harness.app.presenters;
 
   // The mode is a preference the session port answers from memory, so it goes
-  // in before the first render, as the person would set it.
-  if (scenario.mode !== undefined) {
-    // Nothing may wait: the host's contract is synchronous. The simulator
-    // applies the preference at once; a refusal or a failure is rethrown
-    // where the visual run sees it, as an uncaught error on the page.
-    void harness.ports.session
-      .setPreference({ mode: scenario.mode })
-      .then(failOnRefusal)
-      .catch(reportOnThePage);
-  }
+  // in before the first render, as the person would set it. Nothing may wait:
+  // the host's contract is synchronous. The simulator applies the preference
+  // at once; a refusal or a failure is rethrown where the visual run sees it,
+  // as an uncaught error on the page.
+  void harness.ports.session
+    .setPreference({ mode: scenario.mode })
+    .then(failOnRefusal)
+    .catch(reportOnThePage);
+
+  const app: App = {
+    ...harness.app,
+    machines: {
+      ...machines,
+      // The grid opens the scenario's rows, through its own toggle.
+      createAccountsGrid: (): Machine<
+        AccountsGridState,
+        AccountsGridIntents
+      > => {
+        const grid = machines.createAccountsGrid();
+
+        if (scenario.expanded !== undefined) {
+          openOnly(grid, scenario.expanded);
+        }
+
+        return grid;
+      },
+      // The sidebar starts open as a drawer, through its own intent.
+      createSidebar: (): Machine<SidebarState, SidebarIntents> => {
+        const sidebar = machines.createSidebar();
+
+        if (scenario.drawerOpen === true) {
+          sidebar.intents.open();
+        }
+
+        return sidebar;
+      },
+    },
+  };
 
   return {
-    app: harness.app,
+    app,
     deliver: (): void => {
+      // The period first: choosing one starts the selection again at Total.
+      // The account's selection is read only while the screen listens, so
+      // both arrive after the first render.
+      buildings.selectPeriod(scenario.periodId);
+
+      if (scenario.selectedKey !== undefined) {
+        accounts.select(scenario.selectedKey);
+      }
+
       clock.tick(0);
     },
   };
+}
+
+/** Toggles every row whose state differs from the wanted set, so exactly those rows are open. */
+function openOnly(
+  grid: Machine<AccountsGridState, AccountsGridIntents>,
+  wanted: readonly string[],
+): void {
+  const open = new Set(grid.state$.getValue().expanded);
+  const want = new Set(wanted);
+  const differing = [
+    ...[...open].filter((key) => {
+      return !want.has(key);
+    }),
+    ...[...want].filter((key) => {
+      return !open.has(key);
+    }),
+  ];
+
+  for (const key of differing) {
+    grid.intents.toggle(key);
+  }
 }
 
 function failOnRefusal(result: Result): void {

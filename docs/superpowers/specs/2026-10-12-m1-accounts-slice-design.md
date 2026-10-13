@@ -1,6 +1,6 @@
 # M1 — Accounts, Ledgers & Balance slice — design
 
-Date: 2026-10-12. Status: pending written review.
+Date: 2026-10-12. Status: implemented on feat/m1-accounts (2026-10-13).
 
 Parent spec: `docs/superpowers/specs/2026-10-11-app-v2-design.md`, whose
 Section 3 names this slice. This document is the detail that section left to

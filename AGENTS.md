@@ -14,6 +14,10 @@ pnpm gate:full:quiet   # the same commands and verdict, printing only the stage 
 pnpm test
 ```
 
+`pnpm dev:fs` throws until M3: the live port adapters do not exist yet, and
+`buildPorts` (`packages/client-react/src/app/buildPorts.ts`) says so when a
+server URL is set.
+
 Run `pnpm gate:full` before you say work is finished. A red gate means the
 work is not finished, and `gate:fast` alone does not show that it is: it runs
 no test. The stop hook runs `gate:full` for you whenever a file has changed
@@ -232,7 +236,12 @@ do not work around the gate or edit the rules to make it pass.
 | Package | Role | Holds |
 |---|---|---|
 | `packages/db` | leaf | The legacy schema in Drizzle (94 tables), migrations, and the ETL that seeds Postgres from the dumps in `old/db` (kept on this machine, not in git; the tests that read them skip without them). Imports no workspace package |
-| `packages/legacy-import` | server | The offline generator: parses the dump, projects it through the domain engine, writes `packages/legacy-import/seed/data.generated.json` and runs the Gherkin parity specs in `packages/legacy-import/specs` |
+| `packages/legacy-import` | server | The offline generator: parses the dump, projects it through the domain engine, writes `packages/legacy-import/seed/data.generated.json` and runs the Gherkin parity specs in `packages/legacy-import/specs`. `pnpm --filter @cl/legacy-import gen:oracle-fixture` rewrites the committed Pozzetto 2013 fixture (`packages/client-core/src/testing/fixtures/pozzetto2013.oracle.ts`) from the seed; the local oracle check, `packages/legacy-import/specs/oracleFixture.test.ts`, holds that fixture to the design's export (acc.json in docs/design/web/v1/reports/pozzetto, or in the folder `DESIGN_ORACLE_DIR` names) and skips without it: the export holds real names and is not in git |
+
+The seed the domain's simulators and the app run on,
+`packages/domain/src/simulators/seed/legacySeed.generated.ts`, is written by the
+generator (`pnpm --filter @cl/legacy-import gen:data`) and never edited by hand:
+change the generator and run it again.
 
 Both are Node-side: `packages/db` may import nothing from the workspace and may use Node built-ins; `packages/legacy-import` may import `@cl/domain`, `@cl/db` and `@cl/shared` and may use Node built-ins. The "no Node built-in outside `packages/server`" rule above applies to the browser-bound packages.
 
