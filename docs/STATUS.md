@@ -16,21 +16,13 @@ removed.
 
 ## In progress
 
-- **M1, the Accounts, Ledgers & Balance slice.** Built and reviewed on
-  `feat/m1-accounts`; pull request #3 is open with every required check
-  green. It merges once the three decisions under "Waiting on a person" are
-  taken. Spec:
-  [2026-10-12-m1-accounts-slice-design.md](superpowers/specs/2026-10-12-m1-accounts-slice-design.md);
-  plan:
-  [2026-10-12-m1-accounts-slice.md](superpowers/plans/2026-10-12-m1-accounts-slice.md).
-- **This branch (`chore/workflow-and-status`).** Adds the `agent-workflow`
-  add-on, this page and `IDEAS.md`. It sits on top of `feat/m1-accounts` and
-  merges after #3.
+Work that has started and is not finished.
 
 ## Designed, not built
 
 - **M2, the rest of the Buildings module, and M3, the server on Node and
-  Postgres with the live port adapters.** The parent design names them:
+  Postgres with the live port adapters.** M1 is on `main` (pull request #3,
+  2026-10-13). The parent design names the next two:
   [2026-10-11-app-v2-design.md](superpowers/specs/2026-10-11-app-v2-design.md).
   No plan yet for either. Until M3, `pnpm dev:fs` throws by design
   (`packages/client-react/src/app/buildPorts.ts`).
@@ -145,8 +137,6 @@ removed.
 
 ## Waiting on a person
 
-- **Merge #3.** `gh pr merge 3 --auto --merge`, after the three decisions
-  below.
 - **Negative budgets.** Allow them (the legacy application does, for
   deduction accounts) or keep the spec's rule. See "Planned, and held".
 - **Two design ambiguities, visible in the goldens
