@@ -9,7 +9,11 @@ import { TESTIDS } from "./testids.ts";
 
 import "./InlineEditor.css";
 
-/** A text input focused on mount: Enter and blur commit, Escape cancels. */
+/**
+ * A text input focused on mount: Enter and blur commit, Escape cancels. A
+ * text is committed once: the blur after Enter commits nothing, until the
+ * text is changed again (after a rejection, say).
+ */
 export function InlineEditor({
   value,
   error,
@@ -28,7 +32,12 @@ export function InlineEditor({
       return;
     }
 
+    settled.current = true;
     onCommit(input.current?.value ?? value);
+  }
+
+  function unsettle(): void {
+    settled.current = false;
   }
 
   function commitOrCancelOnKey(event: KeyboardEvent<HTMLInputElement>): void {
@@ -47,6 +56,7 @@ export function InlineEditor({
         className="inline-editor"
         data-testid={TESTIDS.inlineEditor}
         defaultValue={value}
+        onChange={unsettle}
         onKeyDown={commitOrCancelOnKey}
         onBlur={commit}
       />

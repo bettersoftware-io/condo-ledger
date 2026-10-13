@@ -1,9 +1,10 @@
-import { type RenderResult, render, within } from "@testing-library/react";
+import { act, type RenderResult, render, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { type ReactElement, useEffect } from "react";
 
 import type { App } from "@cl/client-core";
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
+import type { AccountsPort, Cents, Result } from "@cl/domain";
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 import {
   createViewModel,
@@ -142,12 +143,24 @@ export interface MountedScreen {
   app: App;
   /** The account the whole app has selected, read back through the view model. */
   selectedKey: () => string;
+  /** The budget writes that reached the accounts store. */
+  budgetWrites: BudgetWrites;
+}
+
+/** Counts the budget writes that reach the accounts store, and can hold their answers back. */
+interface BudgetWrites {
+  count: () => number;
+  /** From now on, a write is saved at once but its verdict waits for release. */
+  hold: () => void;
+  /** Hands every held verdict back, and stops holding. */
+  release: () => Promise<void>;
 }
 
 /** Mounts the screen, the toasts and a reader of the app-wide selection over the small books. */
 export function mountScreen(): MountedScreen {
   const user = userEvent.setup();
-  const { app } = createAppHarness(createSmallSeed());
+  const { app, ports } = createAppHarness(createSmallSeed());
+  const budgetWrites = recordBudgetWrites(ports.accounts);
   let seen: string | undefined;
 
   function record(key: string): void {
@@ -172,6 +185,50 @@ export function mountScreen(): MountedScreen {
       }
 
       return seen;
+    },
+    budgetWrites,
+  };
+}
+
+/** Wraps the simulator's budget write: counted, and its verdict held back while asked to. */
+function recordBudgetWrites(accounts: AccountsPort): BudgetWrites {
+  const save = accounts.setBudget.bind(accounts);
+  const waiting: (() => void)[] = [];
+  let count = 0;
+  let holding = false;
+
+  accounts.setBudget = async (
+    accountId: string,
+    budget: Cents,
+  ): Promise<Result> => {
+    count += 1;
+    const result = await save(accountId, budget);
+
+    if (holding) {
+      await new Promise<void>((resolve) => {
+        waiting.push(resolve);
+      });
+    }
+
+    return result;
+  };
+
+  return {
+    count: (): number => {
+      return count;
+    },
+    hold: (): void => {
+      holding = true;
+    },
+    release: async (): Promise<void> => {
+      holding = false;
+      await act(async () => {
+        for (const resolve of waiting.splice(0)) {
+          resolve();
+        }
+
+        await Promise.resolve();
+      });
     },
   };
 }

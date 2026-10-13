@@ -35,12 +35,25 @@ export function AccountsGrid({
     };
   }
 
-  function committingBudgetOf(accountId: string): (text: string) => void {
+  /** The commit of the editor on row `key`, which opened showing `before`. */
+  function committingBudgetOf(
+    key: string,
+    accountId: string,
+    before: string,
+  ): (text: string) => void {
     return (text: string): void => {
+      // Leaving the text as it was is a cancel: nothing to write, and nothing
+      // to reject for a value the grid itself shows.
+      if (text === before) {
+        settleBudgetOf(key, NOT_EDITING);
+
+        return;
+      }
+
       const amount = parseAmount(text);
 
       if (amount === null) {
-        setBudgetEdit({ editing: budgetEdit.editing, error: "not an amount" });
+        settleBudgetOf(key, { editing: key, error: "not an amount" });
 
         return;
       }
@@ -48,17 +61,27 @@ export function AccountsGrid({
       // A keypress waits for nothing: the new budget comes back on the tree's
       // stream, and the verdict is shown when it arrives.
       void onSetBudget(accountId, amount)
-        .then(showVerdict)
+        .then(showingVerdictOf(key))
         .catch(reportUnsaved);
     };
   }
 
-  function showVerdict(result: Result): void {
-    setBudgetEdit(
-      result.ok
-        ? NOT_EDITING
-        : { editing: budgetEdit.editing, error: reasonText(result.reason) },
-    );
+  function showingVerdictOf(key: string): (result: Result) => void {
+    return (result: Result): void => {
+      settleBudgetOf(
+        key,
+        result.ok
+          ? NOT_EDITING
+          : { editing: key, error: reasonText(result.reason) },
+      );
+    };
+  }
+
+  /** Applies what a commit on row `key` decided, unless another row's editor has opened since. */
+  function settleBudgetOf(key: string, next: BudgetEdit): void {
+    setBudgetEdit((current) => {
+      return current.editing === key ? next : current;
+    });
   }
 
   function cancelBudget(): void {
@@ -79,12 +102,14 @@ export function AccountsGrid({
     }
 
     if (budgetEdit.editing === row.key) {
+      const before = formatCents(node.budget ?? ZERO_CENTS);
+
       return (
         <InlineEditor
           key="budget"
-          value={formatCents(node.budget ?? ZERO_CENTS)}
+          value={before}
           error={budgetEdit.error}
-          onCommit={committingBudgetOf(accountId)}
+          onCommit={committingBudgetOf(row.key, accountId, before)}
           onCancel={cancelBudget}
         />
       );

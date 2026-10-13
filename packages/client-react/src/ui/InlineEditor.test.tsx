@@ -29,6 +29,29 @@ describe("InlineEditor", () => {
     expect(onCommit).toHaveBeenCalledExactlyOnceWith("7");
   });
 
+  it("Enter then blur commits once", async () => {
+    const onCommit = vi.fn();
+    const page = mountInlineEditor({ value: "1", onCommit });
+
+    await page.type("42,50");
+    page.pressEnter();
+    page.blur();
+
+    expect(onCommit).toHaveBeenCalledExactlyOnceWith("42,50");
+  });
+
+  it("commits again once the text is changed after a commit", async () => {
+    const onCommit = vi.fn();
+    const page = mountInlineEditor({ value: "1", onCommit });
+
+    await page.type("abc");
+    page.pressEnter();
+    await page.type("42,50");
+    page.pressEnter();
+
+    expect(onCommit.mock.calls).toEqual([["abc"], ["42,50"]]);
+  });
+
   it("cancels on Escape and the blur that follows does not commit", async () => {
     const onCommit = vi.fn();
     const onCancel = vi.fn();

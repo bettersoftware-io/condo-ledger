@@ -40,13 +40,21 @@ export interface AccountsGridPage {
   typeBudget: (text: string) => Promise<void>;
   pressEnter: () => Promise<void>;
   pressEscape: () => Promise<void>;
+  /** Leaves the open budget editor by clicking outside it, as the person does. */
+  blurBudget: () => Promise<void>;
   /** What the open budget editor says is wrong, if anything. */
   budgetError: () => string | null;
+  /** How many budget writes reached the accounts store. */
+  budgetWrites: () => number;
+  /** From now on, a budget is saved at once but its verdict waits for release. */
+  holdBudgetVerdicts: () => void;
+  /** Hands every held verdict back to the screen. */
+  releaseBudgetVerdicts: () => Promise<void>;
 }
 
 /** Mounts the Accounts screen over the small books, as the person sees its top panel. */
 export function mountAccountsGrid(): AccountsGridPage {
-  const { rendered, user, selectedKey } = mountScreen();
+  const { rendered, user, selectedKey, budgetWrites } = mountScreen();
 
   function top(): HTMLElement {
     const element =
@@ -189,11 +197,17 @@ export function mountAccountsGrid(): AccountsGridPage {
     pressEscape: async (): Promise<void> => {
       await user.keyboard("{Escape}");
     },
+    blurBudget: async (): Promise<void> => {
+      await user.click(document.body);
+    },
     budgetError: (): string | null => {
       return (
         within(top()).queryByTestId(TESTIDS.inlineEditorError)?.textContent ??
         null
       );
     },
+    budgetWrites: budgetWrites.count,
+    holdBudgetVerdicts: budgetWrites.hold,
+    releaseBudgetVerdicts: budgetWrites.release,
   };
 }

@@ -234,6 +234,36 @@ describe("AccountsGrid", () => {
     expect(page.cellsOf("Spese generali")[3]).toBe("1,500.00");
   });
 
+  it("leaving a budget cell unchanged writes nothing and shows no error", async () => {
+    const page = mountAccountsGrid();
+    await page.clickCaret("Spese generali");
+
+    await page.clickBudget("Ascensore");
+    await page.blurBudget();
+
+    expect(page.budgetError()).toBeNull();
+    expect(page.cellsOf("Ascensore")[3]).toBe("1,000.00");
+    expect(page.cellsOf("Spese generali")[3]).toBe("1,500.00");
+    expect(page.budgetWrites()).toBe(0);
+  });
+
+  it("a verdict that arrives after another row's editor opened leaves that editor open", async () => {
+    const page = mountAccountsGrid();
+    await page.clickCaret("Spese generali");
+    page.holdBudgetVerdicts();
+
+    await page.clickBudget("Ascensore");
+    await page.typeBudget("1,200.00");
+    await page.pressEnter();
+    await page.clickBudget("Pulizie");
+    await page.releaseBudgetVerdicts();
+
+    expect(page.budgetText()).toBe("500.00");
+    expect(page.budgetError()).toBeNull();
+    expect(page.cellsOf("Ascensore")[3]).toBe("1,200.00");
+    expect(page.budgetWrites()).toBe(1);
+  });
+
   it("Escape cancels", async () => {
     const page = mountAccountsGrid();
     await page.clickCaret("Spese generali");
