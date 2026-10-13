@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import type { Account, AccountType } from "../entities/account.ts";
 import { cents, ZERO_CENTS } from "../entities/cents.ts";
+import { legacySeedData } from "../simulators/seed/legacySeed.generated.ts";
+import { loadLegacySeed } from "../simulators/seed/legacySeed.ts";
 import { createSmallBooks } from "../testing/createSmallBooks.ts";
 import {
   type AccountNode,
@@ -198,6 +200,45 @@ describe("buildAccountTree", () => {
     expect(() => {
       return buildAccountTree(books.accounts, books.entries, books.parties);
     }).toThrow("a control account has child accounts: la4");
+  });
+
+  it("throws, naming the account, for a posting on an account that has child accounts", () => {
+    const books = createSmallBooks();
+    books.entries[0]?.postings.push({
+      accountId: "la10",
+      debit: cents(777),
+      credit: ZERO_CENTS,
+      counterpart: null,
+    });
+
+    expect(() => {
+      return buildAccountTree(books.accounts, books.entries, books.parties);
+    }).toThrow("an account with child accounts has postings: la10");
+  });
+
+  it("builds every period of the generated seed: no account with child accounts has a posting", () => {
+    const seed = loadLegacySeed(legacySeedData);
+    const periodIds = seed.buildings.flatMap((building) => {
+      return building.periods.map((period) => {
+        return period.id;
+      });
+    });
+
+    expect(periodIds).toHaveLength(2);
+
+    for (const periodId of periodIds) {
+      const tree = buildAccountTree(
+        seed.accounts.filter((account) => {
+          return account.periodId === periodId;
+        }),
+        seed.entries.filter((entry) => {
+          return entry.periodId === periodId;
+        }),
+        seed.parties,
+      );
+
+      expect(tree.key).toBe(ROOT_KEY);
+    }
   });
 
   it("throws, naming the parent, for an account whose parent the period does not have", () => {

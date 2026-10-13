@@ -161,9 +161,22 @@ function index(
     }
   }
 
+  // A node with children has no posting scope, so a posting of its own would
+  // be summed in the tree and reach no ledger. A control account with
+  // children is refused where it is split, with a message of its own.
   for (const entry of entries) {
     for (const posting of entry.postings) {
-      must(byId.get(posting.accountId), `the account ${posting.accountId}`);
+      const account = must(
+        byId.get(posting.accountId),
+        `the account ${posting.accountId}`,
+      );
+
+      if (childrenOf.has(account.id) && !isControl(account)) {
+        throw new Error(
+          `an account with child accounts has postings: ${account.id}`,
+        );
+      }
+
       listFor(postingsOf, posting.accountId).push(posting);
     }
   }
