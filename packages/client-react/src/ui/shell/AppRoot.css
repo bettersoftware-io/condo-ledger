@@ -14,18 +14,22 @@
   color: var(--tx);
   background: var(--app);
 }
+
 .app-root[data-mode="light"] {
   color-scheme: light;
 }
+
 .app-root[data-mode="dark"] {
   color-scheme: dark;
 }
+
 .app-body {
   flex: 1;
   display: flex;
   min-height: 0;
   position: relative;
 }
+
 .app-main {
   flex: 1;
   display: flex;

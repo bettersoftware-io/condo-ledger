@@ -8,24 +8,31 @@
   flex: none;
   color: var(--txd);
 }
+
 .account-icon[data-icon="root"] {
   color: var(--acc);
 }
+
 .account-icon[data-icon="folder"] {
-  color: #caa24a;
+  color: var(--icon-folder);
 }
+
 .account-icon[data-icon="folder"][data-nature="assets"] {
-  color: #d6453f;
+  color: var(--icon-assets);
 }
+
 .account-icon[data-icon="folder"][data-nature="liabilities"] {
-  color: #2f78c4;
+  color: var(--icon-liabilities);
 }
+
 .account-icon[data-icon="folder"][data-nature="expenses"] {
-  color: #d99a1f;
+  color: var(--icon-expenses);
 }
+
 .account-icon[data-icon="folder"][data-nature="income"] {
-  color: #5aa130;
+  color: var(--icon-income);
 }
+
 .account-icon[data-icon="folder"][data-nature="none"] {
-  color: #7d4fb3;
+  color: var(--icon-none);
 }

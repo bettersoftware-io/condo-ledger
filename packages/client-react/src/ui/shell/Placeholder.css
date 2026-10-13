@@ -5,9 +5,11 @@
   flex-direction: column;
   min-height: 0;
 }
+
 .placeholder-screen > .panel {
   flex: 1;
 }
+
 .placeholder {
   height: 100%;
   display: flex;

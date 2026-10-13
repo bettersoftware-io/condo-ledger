@@ -1,7 +1,7 @@
 /* IBM Plex, self-hosted: the visual host refuses any request that leaves it, and the app must not depend on a font CDN. */
-@import "@fontsource/ibm-plex-sans/400.css";
-@import "@fontsource/ibm-plex-sans/500.css";
-@import "@fontsource/ibm-plex-sans/600.css";
-@import "@fontsource/ibm-plex-sans/700.css";
-@import "@fontsource/ibm-plex-mono/400.css";
-@import "@fontsource/ibm-plex-mono/500.css";
+@import url("@fontsource/ibm-plex-sans/400.css");
+@import url("@fontsource/ibm-plex-sans/500.css");
+@import url("@fontsource/ibm-plex-sans/600.css");
+@import url("@fontsource/ibm-plex-sans/700.css");
+@import url("@fontsource/ibm-plex-mono/400.css");
+@import url("@fontsource/ibm-plex-mono/500.css");

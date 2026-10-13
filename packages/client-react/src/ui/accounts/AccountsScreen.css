@@ -1,12 +1,14 @@
 /* README "Accounts, Ledgers & Balance" and "Splitters": two stacked panels sharing the column by the split ratio. */
 .accounts-screen {
   --split-ratio: 0.5;
+
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 6px;
   min-height: 0;
 }
+
 .accounts-top,
 .accounts-bottom {
   display: flex;
@@ -17,12 +19,15 @@
     max-height 0.26s ease,
     flex-basis 0.26s ease;
 }
+
 .accounts-top {
   flex: calc(var(--split-ratio) * 100) 1 0;
 }
+
 .accounts-bottom {
   flex: calc((1 - var(--split-ratio)) * 100) 1 0;
 }
+
 .accounts-top > .panel,
 .accounts-bottom > .tabbed {
   flex: 1;
@@ -34,12 +39,13 @@
   flex: 0 0 auto;
   max-height: 34px;
 }
+
 .accounts-screen[data-maximized]:not([data-maximized="none"]) > .splitter {
   display: none;
 }
 
 /* Compact (README "Compact mode", Sidebar.css's breakpoint): the panels keep their split, and the splitter is hidden. */
-@media (max-width: 1179px) {
+@media (width <= 1179px) {
   .accounts-screen > .splitter {
     display: none;
   }
@@ -50,6 +56,7 @@
   display: flex;
   flex-direction: column;
 }
+
 .accounts-grid,
 .accounts-tab-body {
   flex: 1;
@@ -68,6 +75,7 @@
   text-align: right;
   cursor: text;
 }
+
 .accounts-budget:hover,
 .accounts-budget:focus-visible {
   outline: 1px dashed var(--bd);
@@ -80,11 +88,13 @@
   min-width: 26px;
   padding: 0 5px;
 }
+
 .accounts-menu-caret {
   font-size: 8px;
   color: var(--txd);
   margin-left: 3px;
 }
+
 .accounts-toolbar-spacer {
   flex: 1;
 }
@@ -94,6 +104,7 @@
   align-items: center;
   gap: 8px;
 }
+
 .account-details-note {
   margin: 0;
   font-size: 12px;

@@ -9,8 +9,8 @@
   --chrome2: #f4f6f8;
   --cfg: #dbe4f0; /* text on chrome */
   --cfgd: #8ea0b8; /* dim text on chrome */
-  --panel: #ffffff; /* panel/card surface */
-  --ctrl: #ffffff; /* inputs, buttons */
+  --panel: #fff; /* panel/card surface */
+  --ctrl: #fff; /* inputs, buttons */
   --ph: #eef1f5; /* panel header + grid header bg */
   --phf: #2b3442; /* panel header text */
   --bd: #d3d8e0; /* strong border */
@@ -18,7 +18,7 @@
   --tx: #1f2733; /* primary text */
   --txd: #828a97; /* dim text, labels, zero amounts */
   --acc: #2f6fed; /* accent */
-  --accf: #ffffff; /* text on accent */
+  --accf: #fff; /* text on accent */
   --sel: #dceaff; /* selected row bg */
   --selbd: #9cc2ff;
   --hover: #f2f6fc;
@@ -28,6 +28,7 @@
   --ok: #2e9e5b; /* add, active, settled */
   --warn: #e08a2b; /* pending, priority */
 }
+
 [data-theme="slate"][data-mode="dark"] {
   --app: #0e131a;
   --chrome: #080b10;
@@ -43,7 +44,7 @@
   --tx: #e3ebf3;
   --txd: #8794a4;
   --acc: #5790ff;
-  --accf: #ffffff;
+  --accf: #fff;
   --sel: #1d3252;
   --selbd: #315788;
   --hover: #1c2733;
@@ -53,14 +54,15 @@
   --ok: #46c074;
   --warn: #e6a449;
 }
+
 [data-theme="carbon"] {
   --app: #e7e8ec;
   --chrome: #12131a;
   --chrome2: #ededf2;
   --cfg: #e6e7f0;
   --cfgd: #8f90a3;
-  --panel: #ffffff;
-  --ctrl: #ffffff;
+  --panel: #fff;
+  --ctrl: #fff;
   --ph: #ececf3;
   --phf: #2a2b38;
   --bd: #d3d4dd;
@@ -68,7 +70,7 @@
   --tx: #1d1e26;
   --txd: #82838f;
   --acc: #5b54e6;
-  --accf: #ffffff;
+  --accf: #fff;
   --sel: #e7e4ff;
   --selbd: #b3adff;
   --hover: #f5f4fc;
@@ -78,6 +80,7 @@
   --ok: #2e9e5b;
   --warn: #e08a2b;
 }
+
 [data-theme="carbon"][data-mode="dark"] {
   --app: #0c0d12;
   --chrome: #070709;
@@ -93,7 +96,7 @@
   --tx: #e6e7f1;
   --txd: #8a8b99;
   --acc: #8079ff;
-  --accf: #ffffff;
+  --accf: #fff;
   --sel: #241f4c;
   --selbd: #443c8c;
   --hover: #1b1c27;
@@ -103,6 +106,7 @@
   --ok: #46c074;
   --warn: #e6a449;
 }
+
 [data-theme="sage"] {
   --app: #e9e7e0;
   --chrome: #2b2a25;
@@ -110,7 +114,7 @@
   --cfg: #ece9df;
   --cfgd: #a39e8d;
   --panel: #fbfaf6;
-  --ctrl: #ffffff;
+  --ctrl: #fff;
   --ph: #efece3;
   --phf: #34322a;
   --bd: #d8d4c8;
@@ -118,7 +122,7 @@
   --tx: #2a2822;
   --txd: #8b8678;
   --acc: #0f8a63;
-  --accf: #ffffff;
+  --accf: #fff;
   --sel: #d8f0e4;
   --selbd: #93d4b8;
   --hover: #f1f5ee;
@@ -128,6 +132,7 @@
   --ok: #2e9e5b;
   --warn: #c98a2b;
 }
+
 [data-theme="sage"][data-mode="dark"] {
   --app: #14130d;
   --chrome: #100f0a;
@@ -155,6 +160,20 @@
 }
 
 :root {
+  /* colours the themes share: account-icon tints by nature, the chrome controls, the scrollbar */
+  --icon-folder: #caa24a;
+  --icon-assets: #d6453f;
+  --icon-liabilities: #2f78c4;
+  --icon-expenses: #d99a1f;
+  --icon-income: #5aa130;
+  --icon-none: #7d4fb3;
+  --chrome-name: #fff; /* the wordmark on the top bar */
+  --chrome-ctrl: rgb(255 255 255 / 7%); /* a picker on the top bar */
+  --chrome-ctrl-bd: rgb(255 255 255 / 12%);
+  --chrome-danger: #e98a8a; /* log out, on the top bar */
+  --scrollbar: #c2c8d0;
+  --resize-hover: rgb(120 140 170 / 22%); /* a column's resize handle */
+
   /* typography */
   --font-sans: "IBM Plex Sans", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
@@ -166,6 +185,7 @@
   --fs-lg: 13px; /* body default, modal titles */
   --fs-xl: 17px; /* brand wordmark */
   --lh: 1.4;
+
   /* spacing */
   --sp-1: 2px;
   --sp-2: 4px;
@@ -175,6 +195,7 @@
   --sp-6: 12px;
   --sp-7: 16px;
   --sp-8: 18px;
+
   /* sizing */
   --ctl-h: 24px; /* toolbar buttons */
   --ctl-h-sm: 22px; /* sidebar toolbar buttons */
@@ -187,6 +208,7 @@
   --sidebar-w: 272px;
   --splitter: 12px; /* draggable separator hit area; 4×42px pill inside */
   --compact-bp: 1180px; /* below this, sidebars become overlay drawers */
+
   /* radius */
   --r-ctl: 5px;
   --r-field: 6px;
@@ -194,14 +216,16 @@
   --r-pop: 9px;
   --r-modal: 10px;
   --r-logo: 12px;
+
   /* elevation */
-  --shadow-pop: 0 14px 34px rgba(10, 15, 25, 0.28);
-  --shadow-modal: 0 24px 60px rgba(10, 15, 25, 0.35);
-  --scrim: rgba(20, 26, 36, 0.42);
-  --scrim-drawer: rgba(15, 20, 30, 0.28);
+  --shadow-pop: 0 14px 34px rgb(10 15 25 / 28%);
+  --shadow-modal: 0 24px 60px rgb(10 15 25 / 35%);
+  --scrim: rgb(20 26 36 / 42%);
+  --scrim-drawer: rgb(15 20 30 / 28%);
   --sel-bar: inset 3px 0 0 var(--acc); /* selected row left bar */
+
   /* motion */
-  --ease-pop: 0.12s ease; /* popovers (popIn: opacity 0→1, translateY 6px→0, scale .985→1) */
+  --ease-pop: 0.12s ease; /* popovers (pop-in: opacity 0→1, translateY 6px→0, scale .985→1) */
   --ease-modal: 0.16s ease;
   --ease-panel: 0.18s ease; /* panel maximize/restore, sidebar collapse */
 }

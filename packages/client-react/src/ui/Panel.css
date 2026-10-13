@@ -7,6 +7,7 @@
   flex-direction: column;
   min-height: 0;
 }
+
 .panel-header {
   background: var(--ph);
   border-bottom: 1px solid var(--bd);
@@ -15,16 +16,19 @@
   align-items: center;
   gap: 8px;
 }
+
 .panel-title {
   font-size: 12px;
   font-weight: 600;
   color: var(--phf);
 }
+
 .panel-meta {
   margin-left: auto;
   font-size: 11.5px;
   color: var(--txd);
 }
+
 .panel-maximize {
   margin-left: auto;
   width: 22px;
@@ -39,9 +43,11 @@
   padding: 0;
   cursor: pointer;
 }
+
 .panel-meta + .panel-maximize {
   margin-left: 0;
 }
+
 .panel-body {
   flex: 1;
   min-height: 0;

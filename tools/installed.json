@@ -233,5 +233,23 @@
       "docs/IDEAS.md",
       "docs/STATUS.md"
     ]
+  },
+  "repo-hygiene": {
+    "files": {
+      "tools/repo-hygiene/check-css.mts": "1118e984e5c54b2b853b4550eaf48125945a5b2e7de40a96ee83de93664ccb06",
+      "tools/repo-hygiene/check-doc-links.mts": "8b7e8bad228b4d9572b1138366e10556e7845576d22ebaf183f5cd4ffb9f8200",
+      "tools/repo-hygiene/check-versions.mts": "0a28582970b2bb5838aa7ed619b5bd1cac126f55bab8e70c0d5a92ce9eb0b06b",
+      "tools/repo-hygiene/lib/files.mts": "ad34a06246191bc43dc7a68b56eacfb4acbc3d1ab57cbd5b725c612dceedf577",
+      "tools/repo-hygiene/lib/markdown.mts": "742c94e1adc979818e8f5ae75889c03fcf5c08eb81210ae041e18b3a44877150",
+      "tools/repo-hygiene/lib/run.mts": "70bba5152fc002adb1303a2d405beed8d1610337681e39cd4d4a221e892f1b2f",
+      "tools/repo-hygiene/lib/slug.mts": "1f38db3b299385f169784426d4a1d7eb17ca8db86f2cf289ec3836c784051375",
+      "tools/repo-hygiene/stylelint.base.json": "9defab3c0488e96e6a31761f089d3629614ecc1c33510e7deebf56572bf725e2",
+      "tools/templates/repo-hygiene.tools__repo-hygiene__stylelint.json.txt": "3f5948821caf872971488ab89b0df3a2ef531c09b75adbdb1c6ca8f41c59e696",
+      "tools/templates/repo-hygiene.tools__repo-hygiene__syncpack.json.txt": "2bb932ca623dc94d6d4f30ae35f62c56a1af7a9290da88a1b667de539843a038"
+    },
+    "starting": [
+      "tools/repo-hygiene/stylelint.json",
+      "tools/repo-hygiene/syncpack.json"
+    ]
   }
 }

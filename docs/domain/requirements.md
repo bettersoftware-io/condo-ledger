@@ -31,7 +31,7 @@ Status columns:
 | **App** | ✅ in the current React prototype · 🟡 partial/mock · — not yet built |
 
 The prototype deliberately implements a **read-mostly subset** centred on the accounting core
-(see [`apps/web/README.md`](../../apps/web/README.md)); breadth items (resident portal, fiscal
+(the prototype, archived outside the repository in `old/prototype-web`); breadth items (resident portal, fiscal
 filings, dunning, documents) live in the legacy schema but not in the prototype.
 
 ---

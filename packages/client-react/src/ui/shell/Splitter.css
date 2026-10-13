@@ -8,28 +8,34 @@
   justify-content: center;
   touch-action: none;
 }
+
 .splitter:hover {
   background: var(--bd2);
 }
+
 .splitter-pill {
   border-radius: 3px;
   background: var(--bd);
 }
+
 .splitter[data-direction="vertical"] {
   width: 12px;
   align-self: stretch;
   margin-right: -6px;
   cursor: col-resize;
 }
+
 .splitter[data-direction="vertical"] .splitter-pill {
   width: 4px;
   height: 42px;
 }
+
 .splitter[data-direction="horizontal"] {
   height: 12px;
   margin: -6px 0;
   cursor: row-resize;
 }
+
 .splitter[data-direction="horizontal"] .splitter-pill {
   width: 42px;
   height: 4px;
