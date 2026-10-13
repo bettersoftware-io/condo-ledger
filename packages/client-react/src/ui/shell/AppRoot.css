@@ -1,5 +1,10 @@
-/* README "Global layout" and "Body". */
+/* README "Global layout" and "Body". As wide as the viewport whatever holds
+   it, never as wide as its content: a wide grid scrolls inside its panel and
+   never widens the page. */
 .app-root {
+  width: 100vw;
+  max-width: 100%;
+  min-width: 0;
   height: 100vh;
   display: flex;
   flex-direction: column;
