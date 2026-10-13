@@ -29,12 +29,6 @@ Work that has started and is not finished.
 
 ## Planned, and held by something
 
-- **Bring the project's copy of the kit and the add-ons up to the plugin's
-  0.15.0.** The project runs the kit as installed in M0 (plugin 0.13.1): the
-  `ci-security` add-on with Renovate support, three gates and one hook are
-  newer upstream. Held by the merge of #3 and by the update-bot decision below.
-  Command: `node <plugin root>/scripts/add-to-project.mts . kit`, then each
-  add-on.
 - **Negative budgets.** Pozzetto 2013 holds two on editable expense leaves
   (`la215` −1,200.00 and `la216` −380.00, deduction accounts). The spec's rule
   "a budget is never negative" stays; an unchanged text on blur cancels, so
@@ -45,24 +39,6 @@ Work that has started and is not finished.
 
 ## Next, with no plan yet
 
-- **Add the `repo-hygiene` add-on and fix what it finds.** Installed and run
-  once on 2026-10-13, not kept, because its three checks join `gate:fast` and
-  two of them fail today. `pnpm check:versions` passes (55 entries, 8 files
-  agree). `pnpm check:doc-links` finds 6 dead links: two in-page anchors in
-  `docs/PROJECT_BRIEF.md` (`#naming`, `#competitive-landscape`), two links to
-  the archived `apps/web/` in `docs/domain/README.md` and
-  `docs/domain/requirements.md`, and two in
-  `packages/legacy-import/specs/README.md` with one `../` too many.
-  `pnpm lint:css` finds 277 findings in 21 stylesheets: 265 that
-  `stylelint --fix` repairs (blank lines before rules, `rgba()` → modern
-  `rgb(… / 12%)`, `#ffffff` → `#fff`, `@import` notation), 12 hard-coded
-  colours that need a token each (six account-icon tints in
-  `packages/client-react/src/ui/accounts/AccountIcon.css`, three whites and
-  a red in `ui/shell/TopBar.css`, the scrollbar thumb in `src/index.css`, the
-  resize-handle hover in `ui/TreeGrid.css`), a keyframes name and one
-  descending-specificity order. The goldens should not move (no colour
-  value changes); run `pnpm visual` to prove it.
-  Command: `node <plugin root>/scripts/add-to-project.mts . repo-hygiene`.
 - **Per-grid persistence.** The design says a column resize persists per
   grid; today every per-component machine (grid expansion, columns, split,
   bottom tab) is rebuilt when its component mounts, so leaving the Accounts
@@ -98,9 +74,6 @@ Work that has started and is not finished.
   `data-tone="muted"`; `tokens.css` still names the prototype's path in its
   header; the `knip.jsonc` client-react workspace repeats the `packages/*`
   settings (keep in sync).
-- **`ubuntu-latest` becomes Ubuntu 26 on 19 October 2026.** Every workflow
-  here uses that label. Decide whether to pin `ubuntu-24.04` or move with it,
-  then re-run CI.
 - **AGENTS.md:** the oracle's path is written without backticks so the
   `agent-docs` gate does not look for a file that is not in git; pointing at
   the test and `DESIGN_ORACLE_DIR` instead would be cleaner.
@@ -118,16 +91,18 @@ Work that has started and is not finished.
 - **One update bot.** Dependabot cannot update a project on this kit: its
   updater runs Node 24 and the root pins `devEngines.runtime >= 26`, so every
   run fails (recorded in the plugin's own status page). Renovate's onboarding
-  pull request #2 is open. Decide for Renovate, merge #2, and take
-  `ci-security:renovate` with the kit update above, which removes
-  Dependabot's file.
+  pull request #2 is open. Decide for Renovate, merge #2, then run
+  `node <plugin root>/scripts/add-to-project.mts . ci-security:renovate`,
+  which removes Dependabot's file. The kit and the add-ons are at the
+  plugin's 0.15.0 since 2026-10-13; only this option is left.
 - **Seven open code-scanning alerts from the first CodeQL scan** (switched
   on 2026-10-13, with Dependabot security updates and private vulnerability
-  reporting; all nine settings `pnpm repo:settings` reads are now on). One is
+  reporting; all nine settings `pnpm repo:settings` reads are now on). One was
   CodeQL's: `js/incomplete-sanitization`, a warning, in
-  `tools/arch/gates/lib/files.mts:157`, the kit's own file, replaced by its
-  updates; the plugin's repository got the same class on its first scan, so
-  it is to raise in bettersoftware-io/skills, not patched here. The other six
+  `tools/arch/gates/lib/files.mts`, the kit's own file; the kit's 0.15.0
+  (on `main` with this entry) replaces the `*` through a function, so the
+  alert should close at the next scan of `main`. Check it did, and dismiss
+  it by hand if it did not. The other six
   are OpenSSF Scorecard's ratings of the repository's practices shown as
   errors with no file: CI best practices, code review, maintained, fuzzing,
   SAST and branch protection. They are not code defects; decide which to act
@@ -150,7 +125,10 @@ Work that has started and is not finished.
   `.claude/commands/workflow/*.md` into a folder the project's `.gitignore`
   ignored and said nothing, so CI failed the `agent-docs` gate on files the
   branch did not carry (an installer could warn when a file it wrote is
-  ignored).
+  ignored); the `visual` add-on's `visual.pw.ts` sets no viewport per
+  scenario, so M1 edited it for the 1100-pixel scenarios, and every later
+  update of the add-on refuses that file until it is forced (a `width` on
+  the scenario is what the host could take).
 
 ## Known limits
 
@@ -183,4 +161,10 @@ Work that has started and is not finished.
   ruleset on `main` (no force-push, no deletion, a pull request required);
   the hook and the rules only reduce prompts and slips. To raise in
   bettersoftware-io/skills.
+- **`ubuntu-latest` becomes Ubuntu 26 on 19 October 2026.** Every workflow
+  here uses the label, as the plugin's templates do, and each job installs
+  its own Node and pnpm (the Playwright jobs run in a container), so the
+  project moves with it rather than pinning `ubuntu-24.04`. Watch the first
+  runs of `main` after that date; a runner-image failure is not the change
+  that merged.
 - **`pnpm dev:fs` throws until M3.**
