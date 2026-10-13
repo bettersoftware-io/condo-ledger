@@ -192,4 +192,13 @@ removed.
   counterpart with no side. The legacy report agrees; the spec did not say.
 - **An export exists only once something imports it** (knip refuses the rest), so
   a later task that needs a name from an earlier one adds the export then.
+- **The outward-command hook is a guard against joined commands, not a
+  security boundary.** A review of the commit that added it (2026-10-13)
+  named parser differentials, a fail-open path and guard bypasses in
+  `tools/agent-workflow/lib/shell.mts` and `lib/outward.mts`. The add-on's
+  README states the first as its choice (a command it cannot read passes),
+  and the plugin's own status page records the same review as not followed
+  up. The files are the add-on's, replaced by its updates; the host's
+  permission rules (`permissions.ask` in `.claude/settings.json`) are what
+  stops a forced or destructive push. To raise in bettersoftware-io/skills.
 - **`pnpm dev:fs` throws until M3.**
