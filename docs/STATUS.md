@@ -83,14 +83,6 @@ Work that has started and is not finished.
   inline editor's input has no label, `aria-invalid` or `role="alert"` on its
   error; the disabled checkbox in Account Details has no accessible name; the
   splitter has no `onPointerCancel`.
-- **Tests worth tightening** (each cheap): the server greeting test's
-  `nextMessage()` misses a message that landed before the call; a later
-  second greeting would pass; `validateBudget` tests do not pin the check
-  order; `ordered()` in `accountTree.ts` is unproven by the fixture; the
-  `budget === 0` half of hide-empty; `parseAmount("0.29")` for the rounding;
-  "draws a divider" asserts only a button; a budget click also selects its
-  row (unpinned either way); the splitter tests drag one step at a time; the
-  TreeGrid `min-content` change has no test (a golden with a long label).
 - **Structural tidy-ups:** `NONE` duplicated in `ledger.ts` (export it from
   `accountTree.ts`); `missing()` duplicated across the two simulators;
   `TopBar.tsx` has two near-identical picker blocks; `LedgerTab` is a
