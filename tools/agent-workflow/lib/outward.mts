@@ -1,0 +1,234 @@
+// Decides whether a shell command joins an outward step to anything else.
+//
+// An outward step sends something off this machine or changes shared state:
+// a push, a pull request written to, a workflow started. Each one is meant to
+// be a tool call of its own, so that the permission prompt it raises names
+// what is being approved and nothing else waits behind it.
+
+import { DEEPEST_NESTING, LimitError, parseShell, type Script, ShellError, type Stage } from "./shell.mts";
+
+/** `gh <group> <action>` pairs that write. Every other pair reads. */
+const GH_OUTWARD: Record<string, string[]> = {
+  pr: ["create", "merge", "edit", "comment", "close", "reopen", "ready", "review"],
+  issue: ["create", "comment", "edit", "close", "reopen"],
+  workflow: ["run", "enable", "disable"],
+  run: ["rerun", "cancel", "delete"],
+  release: ["create", "delete", "edit", "upload"],
+  repo: ["create", "delete", "edit", "fork"],
+};
+const GIT_OUTWARD = ["push"];
+const WRITE_METHODS = ["POST", "PATCH", "PUT", "DELETE"];
+/** `gh api` sends these as a request body, which makes the call a write unless a method says otherwise. */
+const GH_API_FIELDS = ["-f", "-F", "--field", "--raw-field", "--input"];
+/** `git` options that take their value as the next word. */
+const GIT_OPTIONS_WITH_VALUE = ["-C", "-c", "--git-dir", "--work-tree", "--namespace", "--exec-path"];
+/** Words a shell allows before a command that are not the command. */
+const LEADING_WORDS = ["then", "do", "else", "elif", "if", "while", "until", "!", "{", "}", "time", "command", "exec", "nohup", "env", "xargs"];
+const SHELLS = ["bash", "sh", "zsh", "dash", "ksh"];
+/**
+ * A word nothing hides in: letters, digits and `. _ - / = ,`. Any other
+ * character is a colon, or one the shell may read as something to fill in:
+ * an expansion, an escape left as written, a pattern for file names. The
+ * plain ones are listed, not the others: a list of what to look out for is
+ * never whole.
+ */
+const PLAIN_WORD = /^[A-Za-z0-9._/=,-]+$/;
+
+export interface Verdict {
+  /** The outward steps found, as the first words of each. */
+  outward: string[];
+  /** True when an outward step shares the command with anything else. */
+  chained: boolean;
+  /** True when a push among them may write to another branch than the one it names first, or delete one: a word of it is not plain. */
+  redirected: boolean;
+}
+
+/**
+ * Judges one command line. Undefined when it cannot be read: then this has no
+ * verdict, and the host's own permission rules are the only judge. Throws
+ * `LimitError` for a command it will not read: too long, or nested too deep.
+ */
+export function judgeCommand(command: string): Verdict | undefined {
+  try {
+    return judgeScript(parseShell(command));
+  } catch (error) {
+    if (error instanceof ShellError) {
+      return undefined;
+    }
+
+    throw error;
+  }
+}
+
+function judgeScript(script: Script, depth = 0): Verdict {
+  // `bash -c "bash -c '…'"`: each level is read by a reader of its own, so the reader's bound does not count them.
+  if (depth > DEEPEST_NESTING) {
+    throw new LimitError(`the command nests commands more than ${DEEPEST_NESTING} deep`);
+  }
+
+  const outward: string[] = [];
+  let chained = false;
+  let redirected = false;
+  let steps = 0;
+
+  for (const step of script.steps) {
+    const stages = step.filter((stage) => commandWords(stage).length > 0);
+
+    if (stages.length > 0) {
+      steps += 1;
+    }
+
+    for (const stage of stages) {
+      const words = commandWords(stage);
+
+      if (isOutward(words)) {
+        outward.push(words.slice(0, 3).join(" "));
+        redirected ||= isRedirectedPush(stage, words);
+      }
+
+      // `bash -c "…"` and `eval "…"` run what their argument says.
+      const inline = inlineScript(words);
+
+      if (inline !== undefined) {
+        const inner = judgeScript(inline, depth + 1);
+
+        outward.push(...inner.outward);
+        chained ||= inner.chained;
+        redirected ||= inner.redirected;
+      }
+    }
+  }
+
+  for (const nested of script.nested) {
+    const inner = judgeScript(nested, depth + 1);
+
+    outward.push(...inner.outward);
+    chained ||= inner.chained;
+    redirected ||= inner.redirected;
+  }
+
+  // One outward step with a filter behind a pipe, or with a `$(cat …)` that
+  // only feeds it, is still one step. Two of them, or one beside any other
+  // step, is a chain.
+  return { outward, chained: chained || (outward.length > 0 && (steps > 1 || outward.length > 1)), redirected };
+}
+
+/**
+ * Whether the text holds a word an outward step is written with. Asked only
+ * about a command that was not read, where the choice is between refusing a
+ * command that may be local and letting a chain through unread.
+ */
+export function mentionsOutward(text: string): boolean {
+  return /(?:^|[^A-Za-z0-9_-])(?:push|gh)(?:$|[^A-Za-z0-9_-])/.test(text);
+}
+
+/** The command's own words: no `VAR=value` in front, no `then`, `time`, `env` or `xargs`. Claude Code matches an `allow` rule for a command to `xargs` and that command too. */
+export function commandWords(stage: Stage): string[] {
+  let words = stage;
+
+  while (words[0] !== undefined && (LEADING_WORDS.includes(words[0]) || /^[A-Za-z_][A-Za-z0-9_]*=/.test(words[0]))) {
+    words = words.slice(1);
+  }
+
+  return words;
+}
+
+export function isOutward(words: string[]): boolean {
+  const program = (words[0] ?? "").split("/").pop();
+
+  if (program === "git") {
+    return GIT_OUTWARD.includes(skipGitOptions(words.slice(1))[0] ?? "");
+  }
+
+  if (program === "gh") {
+    const rest = skipGhOptions(words.slice(1));
+    const [group = "", action = ""] = rest;
+
+    return group === "api" ? isWritingApiCall(rest) : (GH_OUTWARD[group] ?? []).includes(action);
+  }
+
+  return false;
+}
+
+/**
+ * Whether an outward step is a `git push` that may write elsewhere than it
+ * names first: a word of it is not plain. A colon says so: `source:target`,
+ * `:target` (which deletes it), `-c remote.origin.push=a:b`, and also a
+ * remote written as a URL. So does a word the shell turns into another
+ * before git sees it (`"$BRANCH"`, a backtick, an escape, braces, a pattern
+ * for file names): what it becomes is not read here. The whole stage is
+ * read, with what is set in front of `git`: git takes
+ * `GIT_CONFIG_VALUE_0=a:b` there as a setting.
+ */
+function isRedirectedPush(stage: Stage, outward: string[]): boolean {
+  const program = (outward[0] ?? "").split("/").pop();
+
+  return program === "git" && stage.some((word) => !PLAIN_WORD.test(word));
+}
+
+/** `git -C dir -c key=value push` → `push`. */
+function skipGitOptions(words: string[]): string[] {
+  let rest = words;
+
+  while (rest[0]?.startsWith("-")) {
+    rest = rest.slice(GIT_OPTIONS_WITH_VALUE.includes(rest[0]) ? 2 : 1);
+  }
+
+  return rest;
+}
+
+/** `gh -R owner/name pr merge` → `pr merge`. */
+function skipGhOptions(words: string[]): string[] {
+  let rest = words;
+
+  while (rest[0]?.startsWith("-")) {
+    rest = rest.slice(["-R", "--repo"].includes(rest[0]) ? 2 : 1);
+  }
+
+  return rest;
+}
+
+/** The first method named decides; with none, a request body makes it a write. */
+function isWritingApiCall(words: string[]): boolean {
+  for (const [index, word] of words.entries()) {
+    if (word === "-X" || word === "--method") {
+      return WRITE_METHODS.includes((words[index + 1] ?? "").toUpperCase());
+    }
+
+    const joined = /^(?:--method=|-X)(.+)$/.exec(word)?.[1];
+
+    if (joined !== undefined) {
+      return WRITE_METHODS.includes(joined.toUpperCase());
+    }
+  }
+
+  return words.some((word) => GH_API_FIELDS.includes(word) || /^(?:--field|--raw-field|--input)=/.test(word));
+}
+
+/** What `bash -c <text>` or `eval <text>` will run, when it can be read. */
+function inlineScript(words: string[]): Script | undefined {
+  const program = (words[0] ?? "").split("/").pop() ?? "";
+  let text: string | undefined;
+
+  if (program === "eval") {
+    text = words.slice(1).join(" ");
+  } else if (SHELLS.includes(program)) {
+    const flag = words.findIndex((word) => /^-[a-z]*c[a-z]*$/.test(word));
+
+    text = flag === -1 ? undefined : words[flag + 1];
+  }
+
+  if (text === undefined) {
+    return undefined;
+  }
+
+  try {
+    return parseShell(text);
+  } catch (error) {
+    if (error instanceof ShellError) {
+      return undefined;
+    }
+
+    throw error;
+  }
+}
