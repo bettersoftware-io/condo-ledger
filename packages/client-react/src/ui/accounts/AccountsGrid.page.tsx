@@ -32,6 +32,16 @@ export interface AccountsGridPage {
   resizeColumn: (index: number, toPx: number) => void;
   template: () => string;
   emptyMessage: () => string | null;
+  /** Opens the budget editor of an expense leaf's row. */
+  clickBudget: (label: string) => Promise<void>;
+  /** The open budget editor's text. */
+  budgetText: () => string;
+  /** Replaces the open budget editor's text. */
+  typeBudget: (text: string) => Promise<void>;
+  pressEnter: () => Promise<void>;
+  pressEscape: () => Promise<void>;
+  /** What the open budget editor says is wrong, if anything. */
+  budgetError: () => string | null;
 }
 
 /** Mounts the Accounts screen over the small books, as the person sees its top panel. */
@@ -160,6 +170,30 @@ export function mountAccountsGrid(): AccountsGridPage {
     },
     emptyMessage: (): string | null => {
       return top().querySelector(".tree-grid-empty")?.textContent ?? null;
+    },
+    clickBudget: async (label: string): Promise<void> => {
+      await user.click(within(rowOf(label)).getByTestId(TESTIDS.budgetCell));
+    },
+    budgetText: (): string => {
+      return within(top()).getByTestId<HTMLInputElement>(TESTIDS.inlineEditor)
+        .value;
+    },
+    typeBudget: async (text: string): Promise<void> => {
+      const editor = within(top()).getByTestId(TESTIDS.inlineEditor);
+      await user.clear(editor);
+      await user.type(editor, text);
+    },
+    pressEnter: async (): Promise<void> => {
+      await user.keyboard("{Enter}");
+    },
+    pressEscape: async (): Promise<void> => {
+      await user.keyboard("{Escape}");
+    },
+    budgetError: (): string | null => {
+      return (
+        within(top()).queryByTestId(TESTIDS.inlineEditorError)?.textContent ??
+        null
+      );
     },
   };
 }

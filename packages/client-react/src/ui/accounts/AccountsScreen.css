@@ -57,6 +57,23 @@
   overflow: auto;
 }
 
+/* An expense leaf's budget: drawn as the amount it shows, edited in place on a click. */
+.accounts-budget {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  font: inherit;
+  text-align: right;
+  cursor: text;
+}
+.accounts-budget:hover,
+.accounts-budget:focus-visible {
+  outline: 1px dashed var(--bd);
+  outline-offset: 1px;
+}
+
 /* The print menu's button carries its ▾ beside the glyph. */
 .accounts-top .toolbar-button[data-icon-only="true"] {
   width: auto;

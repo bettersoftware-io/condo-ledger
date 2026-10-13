@@ -34,4 +34,5 @@ export const TESTIDS = {
   placeholder: "placeholder",
   accountsScreen: "accounts-screen",
   accountIcon: "account-icon",
+  budgetCell: "budget-cell",
 } as const;

@@ -189,6 +189,64 @@ describe("AccountsGrid", () => {
     expect(page.natureOf("Rossi Mario")).toBe("assetsOrLiabilities");
   });
 
+  it("commits a budget and the tree shows it, rolled up", async () => {
+    const page = mountAccountsGrid();
+    await page.clickCaret("Spese generali");
+
+    await page.clickBudget("Ascensore");
+
+    expect(page.budgetText()).toBe("1,000.00");
+
+    await page.typeBudget("1,200.00");
+    await page.pressEnter();
+
+    expect(page.budgetError()).toBeNull();
+    expect(page.cellsOf("Ascensore")[3]).toBe("1,200.00");
+    expect(page.cellsOf("Spese generali")[3]).toBe("1,700.00");
+    expect(page.cellsOf("Total")[3]).toBe("1,700.00");
+  });
+
+  it("shows the rejection for text that is not an amount and writes nothing", async () => {
+    const page = mountAccountsGrid();
+    await page.clickCaret("Spese generali");
+
+    await page.clickBudget("Ascensore");
+    await page.typeBudget("abc");
+    await page.pressEnter();
+
+    expect(page.budgetError()).toBe("not an amount");
+    expect(page.cellsOf("Spese generali")[3]).toBe("1,500.00");
+
+    await page.pressEscape();
+
+    expect(page.cellsOf("Ascensore")[3]).toBe("1,000.00");
+  });
+
+  it("shows the domain's reason for a negative budget", async () => {
+    const page = mountAccountsGrid();
+    await page.clickCaret("Spese generali");
+
+    await page.clickBudget("Ascensore");
+    await page.typeBudget("-5");
+    await page.pressEnter();
+
+    expect(page.budgetError()).toBe("a budget cannot be negative");
+    expect(page.cellsOf("Spese generali")[3]).toBe("1,500.00");
+  });
+
+  it("Escape cancels", async () => {
+    const page = mountAccountsGrid();
+    await page.clickCaret("Spese generali");
+
+    await page.clickBudget("Ascensore");
+    await page.typeBudget("999");
+    await page.pressEscape();
+
+    expect(page.budgetError()).toBeNull();
+    expect(page.cellsOf("Ascensore")[3]).toBe("1,000.00");
+    expect(page.cellsOf("Spese generali")[3]).toBe("1,500.00");
+  });
+
   it("lays its columns out by the chart's spec, the first flexible up to 680px", () => {
     const page = mountAccountsGrid();
 

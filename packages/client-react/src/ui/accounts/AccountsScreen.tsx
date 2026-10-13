@@ -32,6 +32,7 @@ export function AccountsScreen({
     useSplit,
     useBottomTab,
     useNotices,
+    useSetBudget,
   } = useViewModel();
   const grid = useAccountsGrid();
   const columns = useColumns(ACCOUNTS_COLUMN_SPECS);
@@ -39,6 +40,7 @@ export function AccountsScreen({
   const split = useSplit();
   const tabs = useBottomTab(BOTTOM_TABS);
   const { stub } = useNotices();
+  const setBudget = useSetBudget();
   const screen = useRef<HTMLDivElement>(null);
   const ratio = split.state.ratio;
   const maximized = maximize.state.maximized;
@@ -91,6 +93,7 @@ export function AccountsScreen({
                 onToggle={grid.toggle}
                 onSelect={selection.select}
                 onResize={columns.resize}
+                onSetBudget={setBudget}
               />
             </div>
           </div>
