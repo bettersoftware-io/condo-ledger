@@ -63,14 +63,6 @@ Work that has started and is not finished.
   descending-specificity order. The goldens should not move (no colour
   value changes); run `pnpm visual` to prove it.
   Command: `node <plugin root>/scripts/add-to-project.mts . repo-hygiene`.
-- **Generator: silent fallbacks should throw.** In
-  `packages/legacy-import/src/project/legacySeed.ts`: a missing timestamp
-  gives `at: ""`, a missing unit code `"?"`, a missing order `0`, a parent
-  outside the period `null`, two role columns on one account keep the last;
-  a posting's `accountId` is not checked against the period's accounts; the
-  account `nature`/`type` are unchecked casts. In
-  `src/oracle/designOracle.ts`, `toCents("")` gives 0. None occurs in
-  today's dump (verified); make each one throw, naming the id.
 - **Move the oracle fixture into the domain.** It lives in
   `packages/client-core/src/testing/fixtures/pozzetto2013.oracle.ts` and the
   check in `packages/legacy-import` imports it, so a server-role package

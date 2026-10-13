@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { assemble } from "./assemble.ts";
 import { buildDb } from "./db.ts";
@@ -12,9 +12,13 @@ import { loadExtraEntries } from "./pseudonymise/leftovers.ts";
 import { pseudonymiseTables } from "./pseudonymise/pseudonymise.ts";
 import { reconcilePeriods } from "./reconcile.ts";
 
+// old/db under the repository root, or the folder LEGACY_DUMP_DIR names (a
+// worktree has no old/: it is kept in the project's own checkout).
 const DUMP_URL = new URL(
-  "../../../old/db/it-jtime-condominium.all.sql",
-  import.meta.url,
+  "it-jtime-condominium.all.sql",
+  process.env.LEGACY_DUMP_DIR === undefined
+    ? new URL("../../../old/db/", import.meta.url)
+    : pathToFileURL(`${process.env.LEGACY_DUMP_DIR}/`),
 );
 const OUT_URL = new URL("../seed/data.generated.json", import.meta.url);
 const SEED_MODULE_URL = new URL(
