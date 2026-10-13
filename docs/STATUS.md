@@ -63,12 +63,6 @@ Work that has started and is not finished.
   descending-specificity order. The goldens should not move (no colour
   value changes); run `pnpm visual` to prove it.
   Command: `node <plugin root>/scripts/add-to-project.mts . repo-hygiene`.
-- **CI-side tests for what only runs with the dump.** `legacy-import` is
-  excluded from coverage wholesale, so `romeTime` (both DST sides),
-  `projectLegacySeed` and `parseDesignOracle` run only where the dump and the
-  oracle exist. A unit test on synthetic input for each would run in CI; a
-  test that regenerates the fixture header from `DEVIATIONS` and compares it
-  with the committed file would catch header drift.
 - **Per-grid persistence.** The design says a column resize persists per
   grid; today every per-component machine (grid expansion, columns, split,
   bottom tab) is rebuilt when its component mounts, so leaving the Accounts

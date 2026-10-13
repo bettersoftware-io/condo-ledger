@@ -2,6 +2,39 @@ import { describe, expect, it } from "vitest";
 
 import { parseDesignOracle } from "./designOracle.ts";
 
+describe("parseDesignOracle", () => {
+  it("reads the Italian amounts as cents, the fourth as the budget, and the rows under each", () => {
+    const design = parseDesignOracle(
+      JSON.stringify({
+        id: "acc-1",
+        label: "Totale",
+        m: ["1.234,56", "234,56", "1.000,00", "3.800,00"],
+        kids: [{ id: "acc-2", label: "Spese", m: ["-0,50", "0,00", "-0,5"] }],
+      }),
+    );
+
+    expect(design).toEqual({
+      id: "acc-1",
+      label: "Totale",
+      debit: 123456,
+      credit: 23456,
+      balance: 100000,
+      budget: 380000,
+      kids: [
+        {
+          id: "acc-2",
+          label: "Spese",
+          debit: -50,
+          credit: 0,
+          balance: -50,
+          budget: null,
+          kids: [],
+        },
+      ],
+    });
+  });
+});
+
 describe("parseDesignOracle refuses an amount it cannot read, naming the row", () => {
   it("refuses an empty amount, which Number() would read as zero", () => {
     expect(() => {
