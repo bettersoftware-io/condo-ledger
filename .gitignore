@@ -22,6 +22,7 @@ test-results/
 # Claude Code: share project settings (enabled plugins, hooks), keep everything else local
 .claude/*
 !.claude/settings.json
+!.claude/commands/
 
 # Local env files (e.g. packages/db/.env holds the dev DATABASE_URL). Keep .env.example tracked.
 .env
