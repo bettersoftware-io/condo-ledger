@@ -1,15 +1,16 @@
-import type {
-  AccountData,
-  AccountNature,
-  AccountRole,
-  AccountType,
-  Building,
-  Counterpart,
-  EntryKind,
-  JournalEntryData,
-  LegacySeedData,
-  Party,
-  PostingData,
+import {
+  type AccountData,
+  type AccountNature,
+  type AccountRole,
+  type AccountType,
+  type Building,
+  type Counterpart,
+  type EntryKind,
+  type JournalEntryData,
+  type LegacySeedData,
+  type Party,
+  type PostingData,
+  romeTime,
 } from "@cl/domain";
 
 import { eur } from "../amounts.ts";
@@ -241,9 +242,8 @@ function projectEntries(
         periodId: `p${periodId}`,
         number: Number(row.code),
         at: romeTime(
-          must(
-            text(row.timestamp),
-            `the timestamp of the transaction ${String(row.id)}`,
+          new Date(
+            `${must(text(row.timestamp), `the timestamp of the transaction ${String(row.id)}`).replace(" ", "T")}Z`,
           ),
         ),
         kind: kindOf(row),
@@ -251,31 +251,6 @@ function projectEntries(
         postings,
       };
     });
-}
-
-// The dump stores UTC; the legacy app showed, and the UI shows, Rome wall-clock
-// time. Converted here with a fixed zone, so the seed never depends on the
-// zone of the machine that runs the generator or reads the seed.
-const ROME = new Intl.DateTimeFormat("en-GB", {
-  timeZone: "Europe/Rome",
-  hourCycle: "h23",
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-});
-
-/** "YYYY-MM-DD HH:mm:ss" in UTC, as the dump holds it → "YYYY-MM-DDTHH:mm:ss" in Rome time. */
-function romeTime(stored: string): string {
-  const parts = new Map(
-    ROME.formatToParts(new Date(`${stored.replace(" ", "T")}Z`)).map((part) => {
-      return [part.type, part.value];
-    }),
-  );
-
-  return `${parts.get("year")}-${parts.get("month")}-${parts.get("day")}T${parts.get("hour")}:${parts.get("minute")}:${parts.get("second")}`;
 }
 
 function kindOf(row: Row): EntryKind {

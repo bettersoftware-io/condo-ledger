@@ -19,6 +19,8 @@ export {
   DESIGN_FIRM,
   DESIGN_PRINCIPAL,
 } from "./simulators/sessionSimulator.ts";
+export * from "./support/clock.ts";
+export * from "./support/romeTime.ts";
 export * from "./useCases/accountTree.ts";
 export * from "./useCases/allocate.ts";
 export * from "./useCases/ledger.ts";
