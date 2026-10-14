@@ -8,10 +8,21 @@ export interface Rejected {
   readonly reason: string;
 }
 
+/** A command that answers with a value when it is done. */
+export interface Accepted<T> extends Ok {
+  readonly value: T;
+}
+
 export type Result = Ok | Rejected;
+
+export type ResultOf<T> = Accepted<T> | Rejected;
 
 export function ok(): Ok {
   return { ok: true };
+}
+
+export function accepted<T>(value: T): Accepted<T> {
+  return { ok: true, value };
 }
 
 export function rejected(reason: string): Rejected {
