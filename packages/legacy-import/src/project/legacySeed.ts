@@ -5,6 +5,7 @@ import type {
   AccountType,
   Building,
   Counterpart,
+  EntryKind,
   JournalEntryData,
   LegacySeedData,
   Party,
@@ -41,6 +42,20 @@ const TYPES: Record<AccountType, true> = {
   regular: true,
   control: true,
   controlUnitResident: true,
+};
+
+/** The dump's ledgerTransaction.type, in the domain's words. An untyped transaction is a generic entry. */
+export const ENTRY_KIND_OF_TYPE: Record<string, EntryKind> = {
+  startingBalance: "openingBalances",
+  closingBalance: "closingBalances",
+  ledgerInvoiceRegistration: "invoice",
+  ledgerInvoicePayment: "invoicePayment",
+  unitResidentTakings: "collection",
+  estimateDistribution: "budgetAllocation",
+  individualExpense: "individualExpense",
+  directPaymentInCash: "directPaymentCash",
+  checkingAccountDirectPayment: "directPaymentBank",
+  withholdingTaxPayment: "withholdingPayment",
 };
 
 /** The periods with balanced books, as the M1 simulators read them. */
@@ -231,6 +246,7 @@ function projectEntries(
             `the timestamp of the transaction ${String(row.id)}`,
           ),
         ),
+        kind: kindOf(row),
         description: String(row.description ?? ""),
         postings,
       };
@@ -260,6 +276,24 @@ function romeTime(stored: string): string {
   );
 
   return `${parts.get("year")}-${parts.get("month")}-${parts.get("day")}T${parts.get("hour")}:${parts.get("minute")}:${parts.get("second")}`;
+}
+
+function kindOf(row: Row): EntryKind {
+  const type = text(row.type);
+
+  if (type === undefined) {
+    return "generic";
+  }
+
+  const kind = ENTRY_KIND_OF_TYPE[type];
+
+  if (kind === undefined) {
+    throw new Error(
+      `the transaction ${String(row.id)} has the type ${type}, which the domain does not know`,
+    );
+  }
+
+  return kind;
 }
 
 function counterpartOf(line: Row): Counterpart | null {

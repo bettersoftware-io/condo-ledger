@@ -7,6 +7,7 @@ import type {
 import { cents } from "../entities/cents.ts";
 import type {
   Counterpart,
+  EntryKind,
   JournalEntry,
   Posting,
 } from "../entities/journal.ts";
@@ -116,41 +117,53 @@ export function createSmallBooks(): SmallBooks {
       }),
     ],
     entries: [
-      createEntry(1, "2013-01-10T10:00:00", "Fattura Alfa", [
+      createEntry(1, "2013-01-10T10:00:00", "Fattura Alfa", "invoice", [
         createPosting("la21", 36018, 0),
         createPosting("la4", 0, 36018, supplier("md1")),
       ]),
-      createEntry(2, "2013-01-15T10:00:00", "Fattura Beta", [
+      createEntry(2, "2013-01-15T10:00:00", "Fattura Beta", "invoice", [
         createPosting("la22", 20000, 0),
         createPosting("la4", 0, 20000, supplier("md2")),
       ]),
-      createEntry(3, "2013-02-01T10:00:00", "Pagamento Beta", [
-        createPosting("la4", 20000, 0, supplier("md2")),
-        createPosting("la2", 0, 20000),
-      ]),
-      createEntry(4, "2013-02-10T10:00:00", "Riparto", [
+      createEntry(
+        3,
+        "2013-02-01T10:00:00",
+        "Pagamento Beta",
+        "invoicePayment",
+        [
+          createPosting("la4", 20000, 0, supplier("md2")),
+          createPosting("la2", 0, 20000),
+        ],
+      ),
+      createEntry(4, "2013-02-10T10:00:00", "Riparto", "budgetAllocation", [
         createPosting("la5", 60000, 0, owner("r1")),
         createPosting("la5", 10000, 0, owner("r2")),
         createPosting("la5", 30000, 0, owner("r3")),
         createPosting("la30", 0, 100000),
       ]),
-      createEntry(5, "2013-03-01T10:00:00", "Incasso Bianchi", [
+      createEntry(5, "2013-03-01T10:00:00", "Incasso Bianchi", "collection", [
         createPosting("la1", 35000, 0),
         createPosting("la5", 0, 35000, owner("r3")),
       ]),
-      createEntry(6, "2013-03-05T10:00:00", "Arrotondamento", [
+      createEntry(6, "2013-03-05T10:00:00", "Arrotondamento", "generic", [
         createPosting("la6", 1, 0, owner("r1")),
         createPosting("la1", 0, 1),
       ]),
-      createEntry(7, "2013-03-06T10:00:00", "Spesa individuale", [
-        createPosting("la23", 1500, 0, owner("r2")),
-        createPosting("la5", 0, 1500, owner("r2")),
-      ]),
-      createEntry(8, "2013-03-07T10:00:00", "Movimento nullo", [
+      createEntry(
+        7,
+        "2013-03-06T10:00:00",
+        "Spesa individuale",
+        "individualExpense",
+        [
+          createPosting("la23", 1500, 0, owner("r2")),
+          createPosting("la5", 0, 1500, owner("r2")),
+        ],
+      ),
+      createEntry(8, "2013-03-07T10:00:00", "Movimento nullo", "generic", [
         createPosting("la1", 0, 0),
         createPosting("la2", 0, 0),
       ]),
-      createEntry(9, "2013-01-05T10:00:00", "Fuori ordine", [
+      createEntry(9, "2013-01-05T10:00:00", "Fuori ordine", "generic", [
         createPosting("la1", 100, 0),
         createPosting("la30", 0, 100),
       ]),
@@ -239,6 +252,7 @@ function createEntry(
   number: number,
   at: string,
   description: string,
+  kind: EntryKind,
   postings: Posting[],
 ): JournalEntry {
   return {
@@ -246,6 +260,7 @@ function createEntry(
     periodId: "p1",
     number,
     at,
+    kind,
     description,
     postings,
   };

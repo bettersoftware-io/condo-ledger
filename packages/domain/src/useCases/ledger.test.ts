@@ -95,6 +95,7 @@ describe("ledgerOf", () => {
         periodId: "p1",
         number: 10,
         at: "2013-04-01T10:00:00",
+        kind: "generic",
         description: "Senza controparte",
         postings: [
           {
@@ -124,6 +125,7 @@ describe("ledgerOf", () => {
         periodId: "p1",
         number: 11,
         at: "2013-04-02T10:00:00",
+        kind: "generic",
         description: "Senza condomino",
         postings: [
           {

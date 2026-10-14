@@ -117,6 +117,23 @@ describe.skipIf(!legacyDumpAvailable())(
       ).toBe(true);
     });
 
+    it("types every entry: Pozzetto 2013 has eleven generic ones, Saturno 2011 five bank purchases", () => {
+      const counts = new Map<string, number>();
+
+      for (const entry of seed.entries) {
+        const key = `${entry.periodId}:${entry.kind}`;
+        counts.set(key, (counts.get(key) ?? 0) + 1);
+      }
+
+      expect(counts.get("p36:generic")).toBe(11);
+      expect(counts.get("p36:invoice")).toBe(47);
+      expect(counts.get("p36:invoicePayment")).toBe(43);
+      expect(counts.get("p36:collection")).toBe(36);
+      expect(counts.get("p1:directPaymentBank")).toBe(5);
+      expect(counts.get("p1:directPaymentCash")).toBe(1);
+      expect(counts.get("p1:withholdingPayment")).toBe(1);
+    });
+
     it("names every counterpart in parties, with pseudonymised names", () => {
       const ids = new Set(
         seed.parties.map((p) => {
