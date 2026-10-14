@@ -35,3 +35,10 @@ export interface JournalEntry {
   description: string;
   postings: Posting[];
 }
+
+/** What a wizard hands the port: the port adds the id, the number and the stamp. */
+export interface EntryDraft {
+  kind: EntryKind;
+  description: string;
+  postings: Posting[];
+}
