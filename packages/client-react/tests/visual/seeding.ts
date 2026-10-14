@@ -2,9 +2,6 @@ import type {
   AccountsGridIntents,
   AccountsGridState,
   App,
-  DirectPaymentForm,
-  DirectPaymentKind,
-  DirectPaymentSummary,
   JournalDialogIntents,
   JournalDialogState,
   JournalGridIntents,
@@ -12,8 +9,6 @@ import type {
   Machine,
   SidebarIntents,
   SidebarState,
-  WizardIntents,
-  WizardState,
 } from "@cl/client-core";
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
 import { type LegacySeed, loadLegacySeed, type Result } from "@cl/domain";
@@ -103,33 +98,12 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
         JournalDialogIntents
       > => {
         const dialog = machines.createJournalDialog();
-        const wanted = scenario.dialog;
 
-        if (wanted === "delete") {
+        if (scenario.dialog === "delete") {
           dialog.intents.openDelete();
-        } else if (wanted !== undefined) {
-          dialog.intents.openWizard(wanted.wizard);
         }
 
         return dialog;
-      },
-      // A direct payment holds the scenario's account and amount. Each edit
-      // carries only its field, so the description stays the prefilled one.
-      createDirectPaymentWizard: (
-        kind: DirectPaymentKind,
-      ): Machine<
-        WizardState<DirectPaymentForm, DirectPaymentSummary>,
-        WizardIntents<DirectPaymentForm>
-      > => {
-        const wizard = machines.createDirectPaymentWizard(kind);
-        const wanted = scenario.dialog;
-
-        if (typeof wanted === "object" && wanted.wizard === kind) {
-          wizard.intents.edit({ targetId: wanted.targetId });
-          wizard.intents.edit({ amount: wanted.amount });
-        }
-
-        return wizard;
       },
     },
   };

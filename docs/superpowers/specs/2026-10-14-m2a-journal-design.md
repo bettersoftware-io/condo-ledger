@@ -478,19 +478,15 @@ worth holding; otherwise nothing.
   ledger of the account; the delete flow both ways; the toolbar's stubs.
   Fake timers, no sleeps.
 - Goldens, both platforms: `journal-1280-light`, `journal-1280-dark`
-  (Pozzetto 2013, page 1, entry 2 expanded and selected: three postings),
-  `journal-wizard-withholding` (the withholding payment with its tax account
-  chosen and an amount; built in place of the bank purchase, whose dialog
-  scrolls at the host's viewport and does not draw stably),
-  `journal-delete-confirm`. The generic wizard has no golden: its card is
-  centred at a half-pixel offset, and on linux-x64 the rounded corners of the
-  boxes inside it are redrawn one or two colour levels apart from frame to
-  frame, so the host never gets two identical frames. `Scenario` gains `menu`,
+  (Pozzetto 2013, page 1, entry 2 expanded and selected: three postings) and
+  `journal-delete-confirm`. No wizard has a golden: on linux-x64 a dialog card
+  centred at a half-pixel offset redraws its inner boxes' rounded corners one
+  or two colour levels apart from frame to frame, so the host never gets two
+  identical frames (the bank purchase also scrolls, which draws unstably).
+  `Scenario` gains `menu`,
   `expandedEntries`, `selectedEntry` and `dialog`, delivered in
   `seeding.ts` through the machines' own intents and the screen's dialog
-  state; the host stays untouched. `dialog` is `"delete"` or a wizard with
-  its form's fields flat beside its name: `{ wizard: "withholdingPayment", targetId,
-  amount }`. `selectedEntry` goes through the grid's `reveal`, so an entry
+  state; the host stays untouched. `dialog` is `"delete"`. `selectedEntry` goes through the grid's `reveal`, so an entry
   on a later page is shown on its page, selected. The linux set comes from
   the goldens workflow.
 - Coverage holds at the add-on's bar for every new file.
@@ -535,6 +531,6 @@ worktree `m2a-journal`, one pull request:
    goldens unchanged), `Dialog`, `ConfirmAlert`, `FormField`,
    `SelectableList`, `MenuItem`.
 7. The Journal screen, toolbar, grid, paging, delete confirm; the screen
-   routed; the two journal goldens.
+   routed; the two journal goldens and the delete golden.
 8. `WizardDialog` and the five wizards; the screen test through to the
-   ledger; the two dialog goldens; STATUS and IDEAS.
+   ledger; STATUS and IDEAS.
