@@ -9,7 +9,7 @@ import { must } from "../support/must.ts";
 import { type AccountNode, ROOT_KEY, scopeOwns } from "./accountTree.ts";
 import { type Owner, ownersUnder, PATH_SEPARATOR } from "./ledger.ts";
 
-interface PostingView {
+export interface PostingView {
   /** The posting's row without a side: `la1`, `la4/md2`, `la5/md10/r1`. */
   key: string;
   /** The row's labels from Total, joined; a control row's path leaves the side level out, as the design's export does. */
