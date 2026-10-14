@@ -10,8 +10,20 @@ import type {
   ColumnSpec,
   ColumnsIntents,
   ColumnsState,
+  DirectPaymentForm,
+  DirectPaymentKind,
+  DirectPaymentSummary,
+  GenericEntryForm,
+  GenericEntrySummary,
+  JournalContext,
+  JournalDialogIntents,
+  JournalDialogState,
+  JournalGridIntents,
+  JournalGridState,
   MaximizeIntents,
   MaximizeState,
+  MultiCostPaymentForm,
+  MultiCostPaymentSummary,
   NavigationIntents,
   NavigationState,
   Notice,
@@ -20,12 +32,15 @@ import type {
   SidebarState,
   SplitIntents,
   SplitState,
+  WizardIntents,
+  WizardState,
 } from "@cl/client-core";
 import type {
   AccountNode,
   Building,
   Cents,
   Firm,
+  JournalEntryView,
   Language,
   Ledger,
   Mode,
@@ -58,6 +73,12 @@ export interface SelectedAccountView {
   node: AccountNode | null;
   select: (key: string) => void;
 }
+
+/** A wizard as the UI reads it: its state and its intents. */
+type WizardView<TForm, TSummary> = MachineView<
+  WizardState<TForm, TSummary>,
+  WizardIntents<TForm>
+>;
 
 export interface NoticesView {
   notices: Notice[];
@@ -92,11 +113,28 @@ export interface ViewModel {
   ) => MachineView<BottomTabState, BottomTabIntents>;
   useMaximize: () => MachineView<MaximizeState, MaximizeIntents>;
   useSidebar: () => MachineView<SidebarState, SidebarIntents>;
+  useJournalEntries: () => JournalEntryView[];
+  useJournalContext: () => JournalContext | null;
+  useDeleteEntry: () => (id: string) => Promise<Result>;
+  useJournalGrid: () => MachineView<JournalGridState, JournalGridIntents>;
+  useJournalDialog: () => MachineView<JournalDialogState, JournalDialogIntents>;
+  /** `kind` is read on the first render only: the wizard is built once, for the kind it opened as. */
+  useDirectPaymentWizard: (
+    kind: DirectPaymentKind,
+  ) => WizardView<DirectPaymentForm, DirectPaymentSummary>;
+  useMultiCostPaymentWizard: () => WizardView<
+    MultiCostPaymentForm,
+    MultiCostPaymentSummary
+  >;
+  useGenericEntryWizard: () => WizardView<
+    GenericEntryForm,
+    GenericEntrySummary
+  >;
 }
 
 /** Built once at startup, in the composition root, from the application. */
 export function createViewModel(app: App): ViewModel {
-  const { session, buildings, accounts } = app.presenters;
+  const { session, buildings, accounts, journal } = app.presenters;
 
   return {
     useSession: (): SessionView => {
@@ -178,6 +216,43 @@ export function createViewModel(app: App): ViewModel {
     },
     useSidebar: (): MachineView<SidebarState, SidebarIntents> => {
       return useMachine(app.machines.createSidebar);
+    },
+    useJournalEntries: (): JournalEntryView[] => {
+      return useStateObservable(journal.entries$);
+    },
+    useJournalContext: (): JournalContext | null => {
+      return useStateObservable(journal.context$);
+    },
+    useDeleteEntry: (): ((id: string) => Promise<Result>) => {
+      return journal.deleteEntry;
+    },
+    useJournalGrid: (): MachineView<JournalGridState, JournalGridIntents> => {
+      return useMachine(app.machines.createJournalGrid);
+    },
+    useJournalDialog: (): MachineView<
+      JournalDialogState,
+      JournalDialogIntents
+    > => {
+      return useMachine(app.machines.createJournalDialog);
+    },
+    useDirectPaymentWizard: (
+      kind: DirectPaymentKind,
+    ): WizardView<DirectPaymentForm, DirectPaymentSummary> => {
+      return useMachine(() => {
+        return app.machines.createDirectPaymentWizard(kind);
+      });
+    },
+    useMultiCostPaymentWizard: (): WizardView<
+      MultiCostPaymentForm,
+      MultiCostPaymentSummary
+    > => {
+      return useMachine(app.machines.createMultiCostPaymentWizard);
+    },
+    useGenericEntryWizard: (): WizardView<
+      GenericEntryForm,
+      GenericEntrySummary
+    > => {
+      return useMachine(app.machines.createGenericEntryWizard);
     },
   };
 }

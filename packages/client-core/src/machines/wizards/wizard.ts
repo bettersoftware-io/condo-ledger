@@ -33,7 +33,7 @@ export interface WizardChoice {
  * contract, computed here so the UI only formats it: the account paid from,
  * the lines' total, the running balances.
  */
-interface WizardState<TForm, TSummary> {
+export interface WizardState<TForm, TSummary> {
   /** 1-based. */
   step: number;
   stepCount: number;
@@ -49,7 +49,7 @@ interface WizardState<TForm, TSummary> {
   saving: boolean;
 }
 
-interface WizardIntents<TForm> {
+export interface WizardIntents<TForm> {
   edit: (patch: Partial<TForm>) => void;
   next: () => void;
   back: () => void;

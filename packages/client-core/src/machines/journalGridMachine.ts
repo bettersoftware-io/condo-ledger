@@ -46,7 +46,7 @@ export interface JournalGridIntents {
   setSearch: (text: string) => void;
   setPage: (page: number) => void;
   setPageSize: (size: PageSize) => void;
-  /** The page that holds the entry, selected: what a saved entry gets. Unknown ids change nothing. */
+  /** The page that holds the entry, selected: what a saved entry gets. A search that hides the entry is cleared first; unknown ids change nothing. */
   reveal: (id: string) => void;
 }
 
@@ -128,15 +128,20 @@ export function createJournalGridMachine(
         update({ pageSize: size, page: 1 });
       },
       reveal: (id: string): void => {
-        const index = visible().findIndex((entry) => {
-          return entry.id === id;
-        });
-
-        if (index === -1) {
+        if (!latest.getValue().some(isEntry(id))) {
           return;
         }
 
+        const search = visible().some(isEntry(id))
+          ? preferences$.getValue().search
+          : "";
+
+        const index = matching(latest.getValue(), search).findIndex(
+          isEntry(id),
+        );
+
         update({
+          search,
           selectedId: id,
           page: Math.floor(index / preferences$.getValue().pageSize) + 1,
         });
@@ -228,4 +233,10 @@ function matching(
 
 function idOf(entry: JournalEntryView): string {
   return entry.id;
+}
+
+function isEntry(id: string): (entry: JournalEntryView) => boolean {
+  return (entry: JournalEntryView): boolean => {
+    return entry.id === id;
+  };
 }

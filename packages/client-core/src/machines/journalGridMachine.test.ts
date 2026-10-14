@@ -263,6 +263,67 @@ describe("the journal grid machine", () => {
       selectedId: "m17",
     });
   });
+
+  it("reveal under a search that shows the entry keeps the search and pages within what it found", () => {
+    const { machine, entries$ } = createGrid();
+
+    entries$.next(manyEntries(40));
+    // "Riga 3" finds m3 and m30..m39: two pages, m30 second on the first, m39 alone on the second.
+    machine.intents.setSearch("Riga 3");
+    machine.intents.reveal("m30");
+
+    expect(machine.state$.getValue()).toMatchObject({
+      search: "Riga 3",
+      page: 1,
+      pageCount: 2,
+      selectedId: "m30",
+      total: 11,
+    });
+
+    machine.intents.reveal("m39");
+
+    expect(machine.state$.getValue()).toMatchObject({
+      search: "Riga 3",
+      page: 2,
+      selectedId: "m39",
+    });
+  });
+
+  it("reveal under a search that hides the entry clears the search, then pages to it", () => {
+    const { machine, entries$ } = createGrid();
+
+    entries$.next(manyEntries(23));
+    machine.intents.setSearch("Riga 2");
+    machine.intents.reveal("m17");
+
+    expect(machine.state$.getValue()).toMatchObject({
+      search: "",
+      page: 2,
+      selectedId: "m17",
+      total: 23,
+    });
+  });
+
+  it("reveal pages by the chosen size: at 25 per page, the 25th is on page 1 and the 26th on page 2", () => {
+    const { machine, entries$ } = createGrid();
+
+    entries$.next(manyEntries(60));
+    machine.intents.setPageSize(25);
+    machine.intents.reveal("m25");
+
+    expect(machine.state$.getValue()).toMatchObject({
+      page: 1,
+      selectedId: "m25",
+    });
+
+    machine.intents.reveal("m26");
+
+    expect(machine.state$.getValue()).toMatchObject({
+      page: 2,
+      pageSize: 25,
+      selectedId: "m26",
+    });
+  });
 });
 
 interface Grid {

@@ -20,6 +20,14 @@ export {
   type ColumnsState,
   columnSpecsFrom,
 } from "./machines/columnsMachine.ts";
+export type {
+  JournalDialogIntents,
+  JournalDialogState,
+} from "./machines/journalDialogMachine.ts";
+export type {
+  JournalGridIntents,
+  JournalGridState,
+} from "./machines/journalGridMachine.ts";
 export type { Machine } from "./machines/machine.ts";
 export type {
   MaximizeIntents,
@@ -38,6 +46,24 @@ export {
   type SplitIntents,
   type SplitState,
 } from "./machines/splitMachine.ts";
+export type {
+  DirectPaymentForm,
+  DirectPaymentKind,
+  DirectPaymentSummary,
+} from "./machines/wizards/directPaymentWizard.ts";
+export type {
+  GenericEntryForm,
+  GenericEntrySummary,
+} from "./machines/wizards/genericEntryWizard.ts";
+export type {
+  MultiCostPaymentForm,
+  MultiCostPaymentSummary,
+} from "./machines/wizards/multiCostPaymentWizard.ts";
+export type {
+  WizardIntents,
+  WizardState,
+} from "./machines/wizards/wizard.ts";
 export type { Notice } from "./notices.ts";
 export type { AccountDetails } from "./presenters/accountsPresenter.ts";
 export type { PeriodSelection } from "./presenters/buildingsPresenter.ts";
+export type { JournalContext } from "./presenters/journalPresenter.ts";
