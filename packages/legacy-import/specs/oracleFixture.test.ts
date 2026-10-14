@@ -9,14 +9,13 @@ import {
 
 import { DUMP_SUITE_TIMEOUT_MS } from "#/legacyDump.ts";
 import {
-  DEVIATIONS,
   type DesignNode,
-  type Deviation,
   designOracleAvailable,
   designOraclePath,
   oracleSuiteName,
   parseDesignOracle,
 } from "#/oracle/designOracle.ts";
+import { deviates, isControlAccount, kidsToPair } from "#/oracle/pairing.ts";
 
 describe.skipIf(!designOracleAvailable())(
   oracleSuiteName("the committed fixture against the design's acc.json"),
@@ -63,29 +62,11 @@ function compare(
     return;
   }
 
-  const kids = design.kids.filter((kid) => {
-    return !deviates(kid.id, "oracle-only");
-  });
+  const { kids, children, moved } = kidsToPair(design, fixture.children);
 
-  const moved = new Map(
-    DEVIATIONS.filter((deviation) => {
-      return deviation.kind === "moved";
-    }).map((deviation) => {
-      return [deviation.oracleId, deviation.fixtureKey];
-    }),
-  );
-  const movedKeys = new Set(moved.values());
-  const ownKids = kids.filter((kid) => {
-    return !moved.has(kid.id);
-  });
-
-  const children = fixture.children.filter((child) => {
-    return !movedKeys.has(child.key);
-  });
-
-  if (ownKids.length !== children.length) {
+  if (kids.length !== children.length) {
     mismatches.push(
-      `${design.id} "${design.label}" has ${ownKids.length} children, ${fixture.key} has ${children.length}: [${children
+      `${design.id} "${design.label}" has ${kids.length} children, ${fixture.key} has ${children.length}: [${children
         .map((child) => {
           return child.key;
         })
@@ -96,7 +77,7 @@ function compare(
   }
 
   const control = isControlAccount(fixture);
-  const pairedKids = control ? inAmountOrder(ownKids, kidCount) : ownKids;
+  const pairedKids = control ? inAmountOrder(kids, kidCount) : kids;
   const pairedChildren = control
     ? inAmountOrder(children, childCount)
     : children;
@@ -105,35 +86,15 @@ function compare(
     compare(kid, pairedChildren[index] as OracleNode, mismatches);
   });
 
-  for (const kid of kids) {
-    const key = moved.get(kid.id);
+  for (const { kid, key } of moved) {
+    const target = findKey(POZZETTO_2013_ORACLE, key);
 
-    if (key !== undefined) {
-      const target = findKey(POZZETTO_2013_ORACLE, key);
-
-      if (target === undefined) {
-        mismatches.push(`moved ${kid.id} names an unknown fixture key ${key}`);
-      } else {
-        compare(kid, target, mismatches);
-      }
+    if (target === undefined) {
+      mismatches.push(`moved ${kid.id} names an unknown fixture key ${key}`);
+    } else {
+      compare(kid, target, mismatches);
     }
   }
-}
-
-function deviates(oracleId: string, kind: Deviation["kind"]): boolean {
-  return DEVIATIONS.some((deviation) => {
-    return deviation.oracleId === oracleId && deviation.kind === kind;
-  });
-}
-
-/** A control account's node: its rows' keys extend its own (`la157@assets/md80`), where an account's children have their own ids. */
-function isControlAccount(node: OracleNode): boolean {
-  return (
-    node.children.length > 0 &&
-    node.children.every((child) => {
-      return child.key.startsWith(`${node.key}/`);
-    })
-  );
 }
 
 /** A person row: every child is a residency leaf (`la158@assets/md104/r177`). */
