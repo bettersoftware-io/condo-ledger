@@ -37,6 +37,14 @@ describe("AccountsScreen", () => {
     expect(page.splitRatio()).toBeCloseTo(0.4);
   });
 
+  it("a drag of several moves ends at the split of the last one", () => {
+    const page = mountAccountsScreen();
+
+    page.dragSplitterThrough([60, 120, 90], 600);
+
+    expect(page.splitRatio()).toBeCloseTo(0.65);
+  });
+
   it("a screen with no height yet leaves the split alone", () => {
     const page = mountAccountsScreen();
 

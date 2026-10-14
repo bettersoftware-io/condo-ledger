@@ -66,6 +66,27 @@ describe("buildAccountTree", () => {
     ]);
   });
 
+  it("orders the accounts at each level by their legacy order, not by the order they come in", () => {
+    const books = createSmallBooks();
+    const root = buildAccountTree(
+      books.accounts.slice().reverse(),
+      books.entries,
+      books.parties,
+    );
+
+    expect(findNode(root, "assets")?.children.map(keyOf)).toEqual([
+      "la10",
+      "la4@assets",
+      "la5@assets",
+      "la6@assets",
+    ]);
+    expect(findNode(root, "la10")?.children.map(keyOf)).toEqual(["la1", "la2"]);
+    expect(findNode(root, "la20")?.children.map(keyOf)).toEqual([
+      "la21",
+      "la22",
+    ]);
+  });
+
   it("splits a supplier control account per supplier by the sign of each balance; zero goes to assets", () => {
     const assets = must("la4@assets");
     const liabilities = must("la4@liabilities");

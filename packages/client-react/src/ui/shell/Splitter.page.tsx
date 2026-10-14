@@ -24,10 +24,10 @@ export function mountSplitter(props: SplitterProps): SplitterPage {
 
   return {
     dragSplitter: (by: number): void => {
-      dragSplitterElement(splitter(), by);
+      dragSplitterElement(splitter(), [by]);
     },
     dragSplitterThrough: (steps: number[]): void => {
-      dragThrough(splitter(), steps);
+      dragSplitterElement(splitter(), steps);
     },
     hoverSplitter: (by: number): void => {
       fireEvent.pointerMove(splitter(), pointerAt(splitter(), START + by));
@@ -38,10 +38,13 @@ export function mountSplitter(props: SplitterProps): SplitterPage {
   };
 }
 
-/** Drags a splitter some other page drew: press, move by the given pixels along its axis, let go. */
-export function dragSplitterElement(splitter: HTMLElement, by: number): void {
+/** Drags a splitter some other page drew: press, move to each position in turn along its axis (each measured from the press), let go. */
+export function dragSplitterElement(
+  splitter: HTMLElement,
+  steps: number[],
+): void {
   polyfillPointerCapture();
-  dragThrough(splitter, [by]);
+  dragThrough(splitter, steps);
 }
 
 const START = 100;

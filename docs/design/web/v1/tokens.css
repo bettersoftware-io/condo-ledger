@@ -8,8 +8,8 @@
   --chrome2: #f4f6f8;
   --cfg: #dbe4f0;        /* text on chrome */
   --cfgd: #8ea0b8;       /* dim text on chrome */
-  --panel: #ffffff;      /* panel/card surface */
-  --ctrl: #ffffff;       /* inputs, buttons */
+  --panel: #fff;      /* panel/card surface */
+  --ctrl: #fff;       /* inputs, buttons */
   --ph: #eef1f5;         /* panel header + grid header bg */
   --phf: #2b3442;        /* panel header text */
   --bd: #d3d8e0;         /* strong border */
@@ -17,7 +17,7 @@
   --tx: #1f2733;         /* primary text */
   --txd: #828a97;        /* dim text, labels, zero amounts */
   --acc: #2f6fed;        /* accent */
-  --accf: #ffffff;       /* text on accent */
+  --accf: #fff;       /* text on accent */
   --sel: #dceaff;        /* selected row bg */
   --selbd: #9cc2ff;
   --hover: #f2f6fc;
@@ -27,26 +27,31 @@
   --ok: #2e9e5b;         /* add, active, settled */
   --warn: #e08a2b;       /* pending, priority */
 }
+
 [data-theme="slate"][data-mode="dark"] {
   --app:#0e131a; --chrome:#080b10; --chrome2:#141b24; --cfg:#cdd8e6; --cfgd:#6c7a8c; --panel:#161d27; --ctrl:#1e2935;
-  --ph:#1c2530; --phf:#cdd8e6; --bd:#2b3744; --bd2:#222c37; --tx:#e3ebf3; --txd:#8794a4; --acc:#5790ff; --accf:#ffffff;
+  --ph:#1c2530; --phf:#cdd8e6; --bd:#2b3744; --bd2:#222c37; --tx:#e3ebf3; --txd:#8794a4; --acc:#5790ff; --accf:#fff;
   --sel:#1d3252; --selbd:#315788; --hover:#1c2733; --zebra:#131a23; --num:#74a6ff; --neg:#ff6f6f; --ok:#46c074; --warn:#e6a449;
 }
+
 [data-theme="carbon"] {
-  --app:#e7e8ec; --chrome:#12131a; --chrome2:#ededf2; --cfg:#e6e7f0; --cfgd:#8f90a3; --panel:#ffffff; --ctrl:#ffffff;
-  --ph:#ececf3; --phf:#2a2b38; --bd:#d3d4dd; --bd2:#e7e7ee; --tx:#1d1e26; --txd:#82838f; --acc:#5b54e6; --accf:#ffffff;
+  --app:#e7e8ec; --chrome:#12131a; --chrome2:#ededf2; --cfg:#e6e7f0; --cfgd:#8f90a3; --panel:#fff; --ctrl:#fff;
+  --ph:#ececf3; --phf:#2a2b38; --bd:#d3d4dd; --bd2:#e7e7ee; --tx:#1d1e26; --txd:#82838f; --acc:#5b54e6; --accf:#fff;
   --sel:#e7e4ff; --selbd:#b3adff; --hover:#f5f4fc; --zebra:#fafafd; --num:#443ec9; --neg:#cc3a3a; --ok:#2e9e5b; --warn:#e08a2b;
 }
+
 [data-theme="carbon"][data-mode="dark"] {
   --app:#0c0d12; --chrome:#070709; --chrome2:#15161e; --cfg:#d4d5e1; --cfgd:#6f7080; --panel:#15161e; --ctrl:#1e2030;
-  --ph:#1c1d27; --phf:#d4d5e1; --bd:#2a2b37; --bd2:#22232d; --tx:#e6e7f1; --txd:#8a8b99; --acc:#8079ff; --accf:#ffffff;
+  --ph:#1c1d27; --phf:#d4d5e1; --bd:#2a2b37; --bd2:#22232d; --tx:#e6e7f1; --txd:#8a8b99; --acc:#8079ff; --accf:#fff;
   --sel:#241f4c; --selbd:#443c8c; --hover:#1b1c27; --zebra:#13141d; --num:#9b94ff; --neg:#ff6f6f; --ok:#46c074; --warn:#e6a449;
 }
+
 [data-theme="sage"] {
-  --app:#e9e7e0; --chrome:#2b2a25; --chrome2:#f3f1ea; --cfg:#ece9df; --cfgd:#a39e8d; --panel:#fbfaf6; --ctrl:#ffffff;
-  --ph:#efece3; --phf:#34322a; --bd:#d8d4c8; --bd2:#ece9e0; --tx:#2a2822; --txd:#8b8678; --acc:#0f8a63; --accf:#ffffff;
+  --app:#e9e7e0; --chrome:#2b2a25; --chrome2:#f3f1ea; --cfg:#ece9df; --cfgd:#a39e8d; --panel:#fbfaf6; --ctrl:#fff;
+  --ph:#efece3; --phf:#34322a; --bd:#d8d4c8; --bd2:#ece9e0; --tx:#2a2822; --txd:#8b8678; --acc:#0f8a63; --accf:#fff;
   --sel:#d8f0e4; --selbd:#93d4b8; --hover:#f1f5ee; --zebra:#f8f7f1; --num:#156b4b; --neg:#b8503a; --ok:#2e9e5b; --warn:#c98a2b;
 }
+
 [data-theme="sage"][data-mode="dark"] {
   --app:#14130d; --chrome:#100f0a; --chrome2:#1e1c14; --cfg:#e7e3d5; --cfgd:#7e7869; --panel:#1c1b14; --ctrl:#262318;
   --ph:#24221a; --phf:#e7e3d5; --bd:#322f25; --bd2:#27241b; --tx:#ece8db; --txd:#8f8a78; --acc:#2bb583; --accf:#06231a;
@@ -65,8 +70,10 @@
   --fs-lg: 13px;    /* body default, modal titles */
   --fs-xl: 17px;    /* brand wordmark */
   --lh: 1.4;
+
   /* spacing */
   --sp-1: 2px; --sp-2: 4px; --sp-3: 6px; --sp-4: 8px; --sp-5: 10px; --sp-6: 12px; --sp-7: 16px; --sp-8: 18px;
+
   /* sizing */
   --ctl-h: 24px;        /* toolbar buttons */
   --ctl-h-sm: 22px;     /* sidebar toolbar buttons */
@@ -79,14 +86,17 @@
   --sidebar-w: 272px;
   --splitter: 12px;     /* draggable separator hit area; 4×42px pill inside */
   --compact-bp: 1180px; /* below this, sidebars become overlay drawers */
+
   /* radius */
   --r-ctl: 5px;  --r-field: 6px; --r-panel: 7px; --r-pop: 9px; --r-modal: 10px; --r-logo: 12px;
+
   /* elevation */
-  --shadow-pop: 0 14px 34px rgba(10,15,25,.28);
-  --shadow-modal: 0 24px 60px rgba(10,15,25,.35);
-  --scrim: rgba(20,26,36,.42);
-  --scrim-drawer: rgba(15,20,30,.28);
+  --shadow-pop: 0 14px 34px rgb(10 15 25 / 28%);
+  --shadow-modal: 0 24px 60px rgb(10 15 25 / 35%);
+  --scrim: rgb(20 26 36 / 42%);
+  --scrim-drawer: rgb(15 20 30 / 28%);
   --sel-bar: inset 3px 0 0 var(--acc); /* selected row left bar */
+
   /* motion */
   --ease-pop: .12s ease;   /* popovers (popIn: opacity 0→1, translateY 6px→0, scale .985→1) */
   --ease-modal: .16s ease;

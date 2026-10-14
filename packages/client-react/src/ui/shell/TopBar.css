@@ -8,12 +8,14 @@
   gap: 18px;
   color: var(--cfg);
 }
+
 .topbar-brand {
   display: flex;
   align-items: center;
   gap: 13px;
   padding: 9px 0;
 }
+
 .logo-tile {
   width: 44px;
   height: 44px;
@@ -23,27 +25,33 @@
   align-items: center;
   justify-content: center;
 }
+
 .logo-badge {
   fill: var(--acc);
 }
+
 .topbar-wordmark {
   line-height: 1.14;
 }
+
 .topbar-name {
   font-weight: 700;
   font-size: 17px;
   letter-spacing: 0.3px;
-  color: #fff;
+  color: var(--chrome-name);
 }
+
 .topbar-tagline {
   font-size: 10px;
   letter-spacing: 0.16em;
   color: var(--cfgd);
   text-transform: uppercase;
 }
+
 .topbar-spacer {
   flex: 1;
 }
+
 .topbar-right {
   display: flex;
   flex-direction: column;
@@ -52,11 +60,13 @@
   gap: 6px;
   padding: 7px 0 0;
 }
+
 .topbar-row {
   display: flex;
   align-items: center;
   gap: 12px;
 }
+
 .topbar-account {
   display: flex;
   align-items: center;
@@ -64,18 +74,22 @@
   font-size: 12px;
   color: var(--cfgd);
 }
+
 .topbar-account b {
   color: var(--cfg);
   font-weight: 600;
 }
+
 .topbar-separator {
   opacity: 0.4;
 }
+
 .topbar-controls {
   display: flex;
   align-items: center;
   gap: 6px;
 }
+
 .topbar-anchor {
   position: relative;
 }
@@ -88,48 +102,55 @@
   height: 28px;
   padding: 0 10px;
   border-radius: 7px;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--chrome-ctrl);
+  border: 1px solid var(--chrome-ctrl-bd);
   color: var(--cfg);
   font: inherit;
   font-size: 12px;
   cursor: pointer;
 }
+
 .topbar-mode {
   width: 30px;
   padding: 0;
   justify-content: center;
 }
+
 .topbar-language {
   padding: 0 9px;
 }
+
 .topbar-chevron {
   color: var(--cfgd);
 }
+
 .topbar-swatch {
   width: 11px;
   height: 11px;
   border-radius: 3px;
   background: var(--acc);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 18%);
 }
+
 .topbar-swatch-option {
   width: 13px;
   height: 13px;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 12%);
 }
+
 .flag {
   display: block;
   flex: none;
   border-radius: 2px;
 }
+
 .topbar-log-out {
   display: flex;
   align-items: center;
   gap: 5px;
   background: none;
   border: none;
-  color: #e98a8a;
+  color: var(--chrome-danger);
   font: inherit;
   font-size: 12px;
   font-weight: 600;
@@ -143,6 +164,7 @@
   gap: 3px;
   justify-content: flex-end;
 }
+
 .module-tab {
   display: flex;
   align-items: center;
@@ -157,11 +179,13 @@
   color: var(--cfgd);
   cursor: pointer;
 }
+
 .module-tab[aria-selected="true"] {
   background: var(--panel);
   color: var(--tx);
   font-weight: 600;
 }
+
 .module-tab[aria-selected="false"] .module-tab-dot circle {
   fill: var(--cfgd);
 }

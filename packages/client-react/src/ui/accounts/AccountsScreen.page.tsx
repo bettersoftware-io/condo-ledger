@@ -29,6 +29,8 @@ export interface AccountsScreenPage {
   showsLedger: () => boolean;
   /** Drags the splitter between the panels on a screen of the given height. */
   dragSplitter: (by: number, screenHeight?: number) => void;
+  /** Presses on the splitter, moves to each position in turn (each measured from the press), and lets go, on a screen of the given height. */
+  dragSplitterThrough: (steps: number[], screenHeight?: number) => void;
   /** The top panel's share, as written for the stylesheet. */
   splitRatio: () => number;
   maximizeLabel: () => string;
@@ -68,6 +70,14 @@ export function mountAccountsScreen(): AccountsScreenPage {
     return element;
   }
 
+  function dragThrough(steps: number[], screenHeight: number): void {
+    screen().getBoundingClientRect = (): DOMRect => {
+      return { height: screenHeight } as DOMRect;
+    };
+
+    dragSplitterElement(within(screen()).getByTestId(TESTIDS.splitter), steps);
+  }
+
   return {
     title: (): string => {
       return within(top()).getByTestId(TESTIDS.panelTitle).textContent ?? "";
@@ -94,11 +104,10 @@ export function mountAccountsScreen(): AccountsScreenPage {
       return within(bottom()).queryByTestId(TESTIDS.treeGrid) !== null;
     },
     dragSplitter: (by: number, screenHeight = 600): void => {
-      screen().getBoundingClientRect = (): DOMRect => {
-        return { height: screenHeight } as DOMRect;
-      };
-
-      dragSplitterElement(within(screen()).getByTestId(TESTIDS.splitter), by);
+      dragThrough([by], screenHeight);
+    },
+    dragSplitterThrough: (steps: number[], screenHeight = 600): void => {
+      dragThrough(steps, screenHeight);
     },
     splitRatio: (): number => {
       return Number.parseFloat(

@@ -3,10 +3,12 @@
   flex-direction: column;
   min-height: 0;
 }
+
 .tabbed-tabs {
   display: flex;
   gap: 3px;
 }
+
 .tabbed-tab {
   padding: 6px 16px;
   border: 1px solid var(--bd);
@@ -19,6 +21,7 @@
   font-family: inherit;
   cursor: pointer;
 }
+
 .tabbed-tab[aria-selected="true"] {
   background: var(--panel);
   border-bottom-color: var(--panel);
@@ -27,9 +30,10 @@
   position: relative;
   z-index: 2;
 }
+
 .tabbed-body {
   border: 1px solid var(--bd);
-  border-radius: 0 7px 7px 7px;
+  border-radius: 0 7px 7px;
   background: var(--panel);
   overflow: hidden;
   flex: 1;

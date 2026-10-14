@@ -7,21 +7,27 @@
   white-space: nowrap;
   font-weight: 500;
 }
+
 .money[data-emphasis="true"] {
   font-weight: 700;
 }
+
 .money[data-variant="colored"][data-tone="neg"] {
   color: var(--neg);
 }
+
 .money[data-variant="colored"][data-tone="zero"] {
   color: var(--txd);
 }
+
 .money[data-variant="colored"][data-tone="pos"] {
   color: var(--num);
 }
+
 .money[data-variant="plain"] {
   color: var(--tx);
 }
+
 .money[data-variant="plain"][data-tone="zero"] {
   color: var(--txd);
 }

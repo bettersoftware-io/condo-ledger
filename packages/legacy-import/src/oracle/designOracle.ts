@@ -108,7 +108,8 @@ export function renderOracleFixture(
     }),
     "// The check pairs the two trees' nodes by position, with two rules besides:",
     "//   - the rows of a control account match whatever their order (the tree orders them by label, the report by",
-    "//     its own order): both lists are sorted by debit, credit, balance and number of children before pairing;",
+    "//     its own order): both lists are sorted by debit, credit, balance and number of children before pairing,",
+    "//     so for a control account the check proves the multiset of amounts under it, not which party each belongs to;",
     "//   - a person row the report prints as a leaf is compared on its amounts only: its residency rows, which the",
     "//     report does not print, sum to it by construction.",
     "",
@@ -153,19 +154,25 @@ function designNode(raw: RawDesignNode): DesignNode {
   return {
     id: raw.id,
     label: raw.label,
-    debit: toCents(must(debit, raw.id)),
-    credit: toCents(must(credit, raw.id)),
-    balance: toCents(must(balance, raw.id)),
-    budget: budget === undefined ? null : toCents(budget),
+    debit: toCents(must(debit, raw.id), raw.id),
+    credit: toCents(must(credit, raw.id), raw.id),
+    balance: toCents(must(balance, raw.id), raw.id),
+    budget: budget === undefined ? null : toCents(budget, raw.id),
     kids: (raw.kids ?? []).map(designNode),
   };
 }
 
-function toCents(amount: string): number {
-  const value = Number(amount.replace(/\./g, "").replace(",", "."));
+function toCents(amount: string, id: string): number {
+  // Number("") is 0: an empty cell would read as a zero amount.
+  const value =
+    amount.trim() === ""
+      ? Number.NaN
+      : Number(amount.replace(/\./g, "").replace(",", "."));
 
   if (Number.isNaN(value)) {
-    throw new Error(`not an amount in the design's oracle: ${amount}`);
+    throw new Error(
+      `not an amount in the design's oracle: "${amount}" on ${id}`,
+    );
   }
 
   return Math.round(value * 100);

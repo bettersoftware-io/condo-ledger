@@ -19,11 +19,11 @@ works in the code.
 
 ## Parity specs
 
-**Parity specs** — `apps/web/tools/gen/specs/features/*.feature` are executable Gherkin
+**Parity specs** — `packages/legacy-import/specs/features/*.feature` are executable Gherkin
 acceptance specs proving the new accounting **projections** (the generator that produces
 the app's seed) reproduce the legacy dump (the oracle) — not the prototype UI, and not the
-legacy app itself. Run with `pnpm --filter @cl/web spec`. See
-[`apps/web/tools/gen/specs/README.md`](../../apps/web/tools/gen/specs/README.md) for
+legacy app itself. Run with `pnpm --filter @cl/legacy-import test`. See
+[`packages/legacy-import/specs/README.md`](../../packages/legacy-import/specs/README.md) for
 exactly what is and isn't covered; design:
 `docs/superpowers/specs/2026-06-14-accounting-parity-specs-design.md`.
 

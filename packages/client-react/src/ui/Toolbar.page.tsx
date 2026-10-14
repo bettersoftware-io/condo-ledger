@@ -15,6 +15,8 @@ export interface ToolbarPage {
   isDisabled: (label: string) => boolean;
   searchValue: () => string;
   isChecked: (label: string) => boolean;
+  /** What the toolbar holds, in order: a button by its label, a divider as `|`. */
+  items: () => string[];
 }
 
 export function mountToolbar(children: ReactNode): ToolbarPage {
@@ -57,6 +59,15 @@ export function mountToolbar(children: ReactNode): ToolbarPage {
     },
     isChecked: (label: string): boolean => {
       return checkbox(label).checked;
+    },
+    items: (): string[] => {
+      const toolbar = rendered.container.firstElementChild;
+
+      return Array.from(toolbar?.children ?? []).map((item) => {
+        return item.matches("hr, [role='separator']")
+          ? "|"
+          : (item.getAttribute("aria-label") ?? "");
+      });
     },
   };
 }

@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
   type OracleNode,
   POZZETTO_2013_ORACLE,
-} from "@cl/client-core/testing/fixtures/pozzetto2013.oracle.ts";
+} from "@cl/domain/testing/pozzetto2013.oracle.ts";
 
 import { DUMP_SUITE_TIMEOUT_MS } from "#/legacyDump.ts";
 import {

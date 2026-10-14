@@ -33,6 +33,8 @@ export interface SidebarPage {
   clickTool: (label: string) => Promise<void>;
   toasts: () => string[];
   dragSplitter: (by: number) => void;
+  /** Presses on the splitter, moves to each position in turn (each measured from the press), and lets go. */
+  dragSplitterThrough: (steps: number[]) => void;
   /** The sidebar's width in pixels, as written for the stylesheet. */
   width: () => number;
   hasSidebar: () => boolean;
@@ -185,7 +187,10 @@ export function mountSidebar(options: SidebarOptions = {}): SidebarPage {
       });
     },
     dragSplitter: (by: number): void => {
-      dragSplitterElement(sidebarSplitter(), by);
+      dragSplitterElement(sidebarSplitter(), [by]);
+    },
+    dragSplitterThrough: (steps: number[]): void => {
+      dragSplitterElement(sidebarSplitter(), steps);
     },
     width: (): number => {
       return Number.parseFloat(

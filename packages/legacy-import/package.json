@@ -17,8 +17,5 @@
   "dependencies": {
     "@cl/db": "workspace:*",
     "@cl/domain": "workspace:*"
-  },
-  "devDependencies": {
-    "@cl/client-core": "workspace:*"
   }
 }

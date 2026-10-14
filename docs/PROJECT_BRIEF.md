@@ -1,6 +1,6 @@
 # Project Brief — Condominium Management & Accounting Platform
 
-> **Working title:** CondoLedger _(name not finalized — see [Naming](#naming))_
+> **Working title:** CondoLedger _(name not finalized — see [Naming](#2-naming))_
 > **Type:** Web application (SaaS) for property managers / condominium administrators
 > **Core idea:** Building administration + full double-entry accounting, built to work across jurisdictions (Italian _millesimi_ first, international via country-specific customization).
 > **Status:** Early concept. This brief was generated from a research/scoping session in June 2026 and is meant as living context — refine as decisions are made.
@@ -14,7 +14,7 @@ A web platform for property managers (_amministratori di condominio_) that combi
 - **Building administration** — registry of buildings, units, and owners; shared-expense allocation; assemblies and budgets; payments, dues, and reserve funds.
 - **Double-entry accounting** — a proper general ledger so accounts always balance, with statutory reports per jurisdiction.
 
-The differentiator is **not** double-entry itself (that turned out to be table stakes — see [Competitive landscape](#competitive-landscape)). It is the combination of **multi-jurisdiction by design + AI-native + clean modern architecture**, targeted at the shared-ownership segment (condo / copropriété / WEG) that current AI-native players ignore.
+The differentiator is **not** double-entry itself (that turned out to be table stakes — see [Competitive landscape](#5-competitive-landscape)). It is the combination of **multi-jurisdiction by design + AI-native + clean modern architecture**, targeted at the shared-ownership segment (condo / copropriété / WEG) that current AI-native players ignore.
 
 ---
 

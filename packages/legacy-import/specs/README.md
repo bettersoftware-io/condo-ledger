@@ -8,8 +8,8 @@ The parity specs and the other dump-based tests need `old/db/it-jtime-condominiu
 
 Run them: `pnpm --filter @cl/legacy-import test` (the parity specs run with the package's unit tests; to run only the specs: `pnpm --filter @cl/legacy-import exec vitest run specs`).
 
-Design rationale: [`docs/superpowers/specs/2026-06-14-accounting-parity-specs-design.md`](../../../../../docs/superpowers/specs/2026-06-14-accounting-parity-specs-design.md).
-Domain background: [`docs/domain/accounting-and-distribution.md`](../../../../../docs/domain/accounting-and-distribution.md).
+Design rationale: [`docs/superpowers/specs/2026-06-14-accounting-parity-specs-design.md`](../../../docs/superpowers/specs/2026-06-14-accounting-parity-specs-design.md).
+Domain background: [`docs/domain/accounting-and-distribution.md`](../../../docs/domain/accounting-and-distribution.md).
 
 ## What these tests actually exercise
 

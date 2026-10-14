@@ -35,6 +35,18 @@ describe("validateBudget", () => {
       reason: "not-a-leaf",
     });
   });
+
+  it("names the first thing wrong: the nature, then the leaf, then the sign", () => {
+    expect(
+      validateBudget(
+        createAccount({ nature: "income", type: "grouping" }),
+        cents(-1),
+      ),
+    ).toEqual({ ok: false, reason: "not-a-cost-account" });
+    expect(
+      validateBudget(createAccount({ type: "grouping" }), cents(-1)),
+    ).toEqual({ ok: false, reason: "not-a-leaf" });
+  });
 });
 
 function createAccount(overrides: Partial<Account>): Account {

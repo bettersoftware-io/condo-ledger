@@ -89,6 +89,14 @@ describe("Sidebar", () => {
     expect(page.width()).toBe(180);
   });
 
+  it("a drag of several moves ends at the width of the last one", () => {
+    const page = mountSidebar();
+
+    page.dragSplitterThrough([40, 100, 70]);
+
+    expect(page.width()).toBe(342);
+  });
+
   it("the rail opens the drawer and the scrim closes it", async () => {
     const page = mountSidebar();
 

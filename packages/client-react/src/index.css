@@ -1,35 +1,41 @@
-@import "./styles/tokens.css";
-@import "./styles/fonts.css";
+@import url("./styles/tokens.css");
+@import url("./styles/fonts.css");
 
 /* The prototype's global rules (Condomini.dc.html, lines 14–26). */
 * {
   box-sizing: border-box;
 }
+
 html,
 body,
 #root {
   height: 100%;
   margin: 0;
 }
+
 body {
   font-family: var(--font-sans);
   font-size: 13px;
   color: var(--tx);
   background: var(--app);
 }
+
 ::-webkit-scrollbar {
   width: 11px;
   height: 11px;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #c2c8d0;
+  background: var(--scrollbar);
   border-radius: 6px;
 }
-@keyframes popIn {
+
+@keyframes pop-in {
   from {
     opacity: 0;
     transform: scale(0.98);
   }
+
   to {
     opacity: 1;
     transform: none;

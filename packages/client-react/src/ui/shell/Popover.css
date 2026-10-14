@@ -8,6 +8,7 @@
   background: transparent;
   cursor: default;
 }
+
 .popover {
   position: absolute;
   top: 34px;
@@ -20,11 +21,13 @@
   box-shadow: var(--shadow-pop);
   padding: 5px;
   outline: none;
-  animation: popIn var(--ease-pop);
+  animation: pop-in var(--ease-pop);
 }
+
 .popover[data-width="wide"] {
   width: 184px;
 }
+
 .popover-label {
   font-size: 10.5px;
   font-weight: 700;
@@ -33,6 +36,7 @@
   text-transform: uppercase;
   padding: 5px 9px 6px;
 }
+
 .popover-option {
   display: flex;
   align-items: center;
@@ -49,20 +53,25 @@
   text-align: left;
   cursor: pointer;
 }
+
 .popover-option:hover {
   background: var(--hover);
 }
+
 .popover-option[aria-checked="true"] {
   background: var(--sel);
   font-weight: 600;
 }
+
 .popover-option-name {
   flex: 1;
 }
+
 .popover-option-check {
   font-weight: 700;
   color: transparent;
 }
+
 .popover-option[aria-checked="true"] .popover-option-check {
   color: var(--acc);
 }

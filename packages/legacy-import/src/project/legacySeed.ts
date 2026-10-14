@@ -26,6 +26,23 @@ const ROLE_COLUMNS: Record<string, AccountRole> = {
   flatResidentRoundingOffLedgerAccountId: "roundings",
 };
 
+// Every nature and type the domain knows, so a value the dump has and the
+// domain does not is refused here rather than cast through.
+const NATURES: Record<AccountNature, true> = {
+  assets: true,
+  liabilities: true,
+  assetsOrLiabilities: true,
+  income: true,
+  expenses: true,
+};
+
+const TYPES: Record<AccountType, true> = {
+  grouping: true,
+  regular: true,
+  control: true,
+  controlUnitResident: true,
+};
+
 /** The periods with balanced books, as the M1 simulators read them. */
 export function projectLegacySeed(db: Db): LegacySeedData {
   const status = reconcilePeriods(db);
@@ -69,7 +86,19 @@ export function projectLegacySeed(db: Db): LegacySeedData {
   });
 
   const entries = periodIds.flatMap((periodId) => {
-    return projectEntries(db, periodId);
+    return projectEntries(
+      db,
+      periodId,
+      new Set(
+        accounts
+          .filter((account) => {
+            return account.periodId === `p${periodId}`;
+          })
+          .map((account) => {
+            return account.id;
+          }),
+      ),
+    );
   });
 
   return { buildings, accounts, entries, parties: projectParties(db, entries) };
@@ -107,7 +136,7 @@ function projectAccounts(db: Db, periodId: string): AccountData[] {
     const id = text(period[column]);
 
     if (id !== undefined) {
-      roles.set(id, role);
+      assignRole(roles, id, role);
     }
   }
 
@@ -117,11 +146,11 @@ function projectAccounts(db: Db, periodId: string): AccountData[] {
       id === undefined ? undefined : db.by("ledgerAccount", "id").get(id);
 
     if (id !== undefined && ids.has(id)) {
-      roles.set(id, "tax");
+      assignRole(roles, id, "tax");
       const parent = text(account?.parentLedgerAccountId);
 
       if (parent !== undefined && ids.has(parent)) {
-        roles.set(parent, "tax");
+        assignRole(roles, parent, "tax");
       }
     }
   }
@@ -133,21 +162,31 @@ function projectAccounts(db: Db, periodId: string): AccountData[] {
     const parent = text(row.parentLedgerAccountId);
     const estimate = text(estimates.get(id)?.estimate);
 
+    if (parent !== undefined && !ids.has(parent)) {
+      throw new Error(
+        `the account ${id} has the parent ${parent}, which is not an account of the period ${periodId}`,
+      );
+    }
+
     return {
       id: `la${id}`,
       periodId: `p${periodId}`,
-      parentId: parent !== undefined && ids.has(parent) ? `la${parent}` : null,
+      parentId: parent === undefined ? null : `la${parent}`,
       name: String(row.name),
-      order: Number(row.order ?? 0),
-      nature: String(row.kind) as AccountNature,
-      type: String(row.type) as AccountType,
+      order: orderOf(row, id),
+      nature: natureOf(row, id),
+      type: typeOf(row, id),
       role: roles.get(id) ?? null,
       budget: estimate === undefined ? null : eur(estimate).cents,
     };
   });
 }
 
-function projectEntries(db: Db, periodId: string): JournalEntryData[] {
+function projectEntries(
+  db: Db,
+  periodId: string,
+  accountIds: Set<string>,
+): JournalEntryData[] {
   const byTransaction = db.group("ledgerEntry", "ledgerTransactionId");
 
   return db
@@ -166,9 +205,16 @@ function projectEntries(db: Db, periodId: string): JournalEntryData[] {
         })
         .map((line) => {
           const amount = eur(text(line.amount) ?? null).cents;
+          const accountId = `la${must(text(line.postingAccountId), `the account of the posting ${String(line.id)}`)}`;
+
+          if (!accountIds.has(accountId)) {
+            throw new Error(
+              `the posting ${String(line.id)} of the transaction ${String(row.id)} is on ${accountId}, which is not an account of the period ${periodId}`,
+            );
+          }
 
           return {
-            accountId: `la${String(line.postingAccountId)}`,
+            accountId,
             debit: amount > 0 ? amount : 0,
             credit: amount < 0 ? -amount : 0,
             counterpart: counterpartOf(line),
@@ -179,7 +225,12 @@ function projectEntries(db: Db, periodId: string): JournalEntryData[] {
         id: `tx${String(row.id)}`,
         periodId: `p${periodId}`,
         number: Number(row.code),
-        at: romeTime(text(row.timestamp)),
+        at: romeTime(
+          must(
+            text(row.timestamp),
+            `the timestamp of the transaction ${String(row.id)}`,
+          ),
+        ),
         description: String(row.description ?? ""),
         postings,
       };
@@ -201,11 +252,7 @@ const ROME = new Intl.DateTimeFormat("en-GB", {
 });
 
 /** "YYYY-MM-DD HH:mm:ss" in UTC, as the dump holds it → "YYYY-MM-DDTHH:mm:ss" in Rome time. */
-function romeTime(stored: string | undefined): string {
-  if (stored === undefined) {
-    return "";
-  }
-
+function romeTime(stored: string): string {
   const parts = new Map(
     ROME.formatToParts(new Date(`${stored.replace(" ", "T")}Z`)).map((part) => {
       return [part.type, part.value];
@@ -280,8 +327,69 @@ function ownerParty(db: Db, residentId: string): Party {
     id: `r${residentId}`,
     personId: `md${personId}`,
     name: masterDataName(db, personId),
-    unitCode: text(unit.code) ?? "?",
+    unitCode: must(
+      text(unit.code),
+      `the code of the unit ${String(unit.id)} of resident ${residentId}`,
+    ),
   };
+}
+
+function assignRole(
+  roles: Map<string, AccountRole>,
+  id: string,
+  role: AccountRole,
+): void {
+  const held = roles.get(id);
+
+  if (held !== undefined && held !== role) {
+    throw new Error(`the account ${id} has two roles: ${held} and ${role}`);
+  }
+
+  roles.set(id, role);
+}
+
+function orderOf(row: Row, id: string): number {
+  const order = Number(must(text(row.order), `the order of the account ${id}`));
+
+  if (!Number.isInteger(order)) {
+    throw new Error(
+      `the account ${id} has the order ${String(row.order)}, which is not a whole number`,
+    );
+  }
+
+  return order;
+}
+
+function natureOf(row: Row, id: string): AccountNature {
+  const nature = String(row.kind);
+
+  if (!isNature(nature)) {
+    throw new Error(
+      `the account ${id} has the nature ${nature}, which the domain does not know`,
+    );
+  }
+
+  return nature;
+}
+
+function typeOf(row: Row, id: string): AccountType {
+  const type = String(row.type);
+
+  if (!isType(type)) {
+    throw new Error(
+      `the account ${id} has the type ${type}, which the domain does not know`,
+    );
+  }
+
+  return type;
+}
+
+function isNature(value: string): value is AccountNature {
+  return Object.hasOwn(NATURES, value);
+}
+
+function isType(value: string): value is AccountType {
+  return Object.hasOwn(TYPES, value);
 }
 
 function text(value: unknown): string | undefined {

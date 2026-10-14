@@ -11,10 +11,8 @@ keeps it.
 One bullet or one short section for each idea: what it is, and why it might
 be worth doing. Not how.
 
-- **Goldens for the carbon and sage themes.** The four goldens show the slate
+- **Goldens for the carbon and sage themes.** The goldens show the slate
   theme in light and dark only; a theme regression would pass.
-- **A golden with a long account label.** It would pin the tree grid's
-  `min-content` width and ellipsis, which no jsdom test can see.
 - **Maximize as an app-wide machine.** It is built once in `AppRoot` and
   passed down as a prop; moving it into the composition beside `navigation`
   would let any screen fold the sidebar without the prop chain.

@@ -131,6 +131,19 @@ describe("the accounts grid machine", () => {
     ).toContain("la3");
   });
 
+  it("hide-empty drops a node whose budget is zero and that has no amounts", () => {
+    const tree = patched(createTree(), (node) => {
+      return node.key === "la3" ? { ...node, budget: cents(0) } : node;
+    });
+
+    expect(
+      keysOf(visibleRows(tree, new Set(keysUnder(tree)), "", true)),
+    ).not.toContain("la3");
+    expect(
+      keysOf(visibleRows(tree, new Set(keysUnder(tree)), "", false)),
+    ).toContain("la3");
+  });
+
   it("hide-empty keeps Total when everything under it is empty", () => {
     const tree = patched(createTree(), (node) => {
       return { ...node, debit: cents(0), credit: cents(0), budget: null };

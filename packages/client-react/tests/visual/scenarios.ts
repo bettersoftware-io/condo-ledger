@@ -16,6 +16,8 @@ export interface Scenario {
   expanded?: string[];
   /** Whether the sidebar is open as a drawer over the screen (compact widths). */
   drawerOpen?: boolean;
+  /** Accounts given another name, by id: a label the seed does not have. */
+  renamed?: Record<string, string>;
 }
 
 /** Total, the five levels, and the cash account's group: the cash account in view. */
@@ -66,5 +68,18 @@ export const scenarios: Record<string, Scenario> = {
     selectedKey: "la154",
     expanded: OPEN_TO_CASH,
     drawerOpen: true,
+  },
+  // The selected cash account under a name far wider than the tree column:
+  // the label is cut with an ellipsis and the amounts stay in their columns.
+  "accounts-long-label": {
+    width: 1280,
+    mode: "light",
+    periodId: "p36",
+    selectedKey: "la154",
+    expanded: OPEN_TO_CASH,
+    renamed: {
+      la154:
+        "Cassa contanti per le piccole spese della gestione ordinaria, straordinaria e del riscaldamento, con il riporto dei saldi dell'esercizio precedente",
+    },
   },
 };

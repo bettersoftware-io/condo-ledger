@@ -8,6 +8,7 @@
   align-items: flex-end;
   gap: 8px;
 }
+
 .toast {
   display: flex;
   align-items: center;
@@ -19,8 +20,9 @@
   padding: 9px 12px;
   font-size: 12px;
   color: var(--tx);
-  animation: popIn var(--ease-pop);
+  animation: pop-in var(--ease-pop);
 }
+
 .toast-dismiss {
   display: inline-flex;
   align-items: center;
@@ -31,6 +33,7 @@
   color: var(--txd);
   cursor: pointer;
 }
+
 .toast-dismiss:hover {
   color: var(--tx);
 }

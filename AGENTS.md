@@ -236,7 +236,7 @@ do not work around the gate or edit the rules to make it pass.
 | Package | Role | Holds |
 |---|---|---|
 | `packages/db` | leaf | The legacy schema in Drizzle (94 tables), migrations, and the ETL that seeds Postgres from the dumps in `old/db` (kept on this machine, not in git; the tests that read them skip without them). Imports no workspace package |
-| `packages/legacy-import` | server | The offline generator: parses the dump, projects it through the domain engine, writes `packages/legacy-import/seed/data.generated.json` and runs the Gherkin parity specs in `packages/legacy-import/specs`. `pnpm --filter @cl/legacy-import gen:oracle-fixture` rewrites the committed Pozzetto 2013 fixture (`packages/client-core/src/testing/fixtures/pozzetto2013.oracle.ts`) from the seed; the local oracle check, `packages/legacy-import/specs/oracleFixture.test.ts`, holds that fixture to the design's export (acc.json in docs/design/web/v1/reports/pozzetto, or in the folder `DESIGN_ORACLE_DIR` names) and skips without it: the export holds real names and is not in git |
+| `packages/legacy-import` | server | The offline generator: parses the dump, projects it through the domain engine, writes `packages/legacy-import/seed/data.generated.json` and runs the Gherkin parity specs in `packages/legacy-import/specs`. `pnpm --filter @cl/legacy-import gen:oracle-fixture` rewrites the committed Pozzetto 2013 fixture (`packages/domain/src/testing/pozzetto2013.oracle.ts`, read by the Accounts presenter's oracle test in client-core) from the seed; the local oracle check, `packages/legacy-import/specs/oracleFixture.test.ts`, holds that fixture to the design's export (acc.json in docs/design/web/v1/reports/pozzetto, or in the folder `DESIGN_ORACLE_DIR` names) and skips without it: the export holds real names and is not in git |
 
 The seed the domain's simulators and the app run on,
 `packages/domain/src/simulators/seed/legacySeed.generated.ts`, is written by the
@@ -435,6 +435,7 @@ needs none and is in `gate:fast`. This section is what they cannot decide.
 pnpm lint:workflows              # actionlint (valid?) then zizmor (safe?)
 pnpm lint:workflows zizmor       # one of them
 pnpm check:dockerfiles           # images by digest, no root, no package outside a lockfile
+pnpm repo:settings               # which repository settings on GitHub are off; it only reads
 ```
 
 Exit 0 is a pass. Exit 1 is a finding, named in the linter's output above the
@@ -442,6 +443,16 @@ Exit 0 is a pass. Exit 1 is a finding, named in the linter's output above the
 network on the first run, no build for this machine, a wrong checksum). Report
 a `SKIP` as "not run". Never report it as a pass, and do not retry in a loop: a
 sandbox with no network will not get one.
+
+### The repository's settings
+
+`pnpm repo:settings` asks GitHub which of the settings these checks depend on
+are on. Run it after the project's first push to GitHub, and when a check
+fails for a reason the diff cannot have caused, such as Dependency Review
+saying the dependency graph is off. Skip it otherwise. It only reads.
+Switching a setting on is a person's step: show the user the `fix:` command
+it prints, and do not run it. Report a `SKIP` line as "not read", never as on
+or as off.
 
 ### When you add or change a workflow
 
@@ -624,6 +635,7 @@ The rules serve three aims, in this order when they pull apart:
 
 ```bash
 pnpm worktree <name> [--ready]     # a worktree beside the project, on worktree-<name>, cut from origin's main
+pnpm worktree:audit [part of a name]   # which worktrees are finished, and which hold work; it only reads
 pnpm changelog weeks               # the weeks CHANGELOG.md has no entry for
 pnpm changelog prs <week>          # what was merged in a week (reads GitHub)
 pnpm changelog check <week>        # every merged pull request cited, every citation defined
@@ -675,8 +687,9 @@ for a push now.
 ### Every outward step asks
 
 The hook never lets a command run without a prompt. It refuses a chain, and
-of Claude Code it asks about a push that holds a colon
-(`git push origin a:b`), whatever rule allows a push. It says nothing else,
+of Claude Code it asks about a push that is not written plainly
+(a colon as in `git push origin a:b`, an option that forces or deletes, a
+quote, a variable), whatever rule allows a push. It says nothing else,
 so each push, each pull request step and each merge asks a person, under the
 host's own rules. Do not add an `allow` rule for one to
 `.claude/settings.json`, and do not change the hook under
@@ -842,7 +855,9 @@ git merge --ff-only origin/main                      # see below
 Remove the worktree only after the second line exits 0. Removing it deletes
 every file in it, the ones git ignores too: notes or reports to keep are
 committed, or written outside the worktree, before this. Remove only the
-worktree you made: another one belongs to another session. A merged pull
+worktree you made: another one belongs to another session. For those that
+others left, `pnpm worktree:audit` says which are finished; it removes
+nothing, and nor do you without a yes. A merged pull
 request whose worktree is still on disk is not finished.
 
 If the branch is still on `origin` after the merge, say so and leave it:
@@ -946,8 +961,65 @@ Claude Code, the `workflow-changelog` skill in Codex). What the entry says is
 your judgement; that it cites every merged pull request is checked by
 `pnpm changelog check <week>`. Never create or move a week's tag by hand.
 
-Two more runbooks sit beside it, and each stops at its first step when the
-add-on it needs is not in the project:
-`.claude/commands/workflow/coverage-backfill.md` (needs `coverage`) and
-`.claude/commands/workflow/visual-tolerance-audit.md` (needs `visual`).
+### The other runbooks
+
+Each is a command in Claude Code (`/workflow:status`) and a skill of the same
+name in Codex (`workflow-status`). The steps are in the file, and it runs
+nothing by itself.
+
+- `.claude/commands/workflow/status.md`: where the project stands. This
+  checkout, the open pull requests, the last runs on main, and the headings
+  of `docs/STATUS.md`. It reads and changes nothing.
+- `.claude/commands/workflow/docs.md`: write what a session worked out into
+  the project's documents. It says where each kind of finding goes, and stops
+  for a yes before it writes.
+- `.claude/commands/workflow/worktrees.md`: which worktrees are finished and
+  which hold work someone stopped in the middle of, from
+  `pnpm worktree:audit`. Nothing is removed before the user says yes to a
+  list that names what goes.
+
+Three more stop at their first step when the add-on they need is not in the
+project:
+`.claude/commands/workflow/coverage-backfill.md` (needs `coverage`),
+`.claude/commands/workflow/visual-tolerance-audit.md` (needs `visual`) and
+`.claude/commands/workflow/perf-audit.md` (needs `performance`).
 <!-- /add-on: agent-workflow -->
+
+<!-- add-on: repo-hygiene -->
+## Repo hygiene
+
+Three checks run in `gate:fast`: `pnpm check:versions`, `pnpm check:doc-links`
+and `pnpm lint:css`. Each fails with the file and what to change. What they
+cannot decide is below.
+
+**Versions.** When you add a dependency a second package already has, copy
+that package's range. When the check fails, change the ranges to agree; do not
+add a version group to get past it. A version group in
+`tools/repo-hygiene/syncpack.json` is for a difference the project wants (two
+majors during a migration), and its `label` says why and until when. Skip
+this when the project has one package.
+
+**Links.** When you rename a heading, move a file or delete a document, run
+`pnpm check:doc-links` before you commit, and repair each link it names:
+point it at the new place. Remove a link only when what it pointed to is gone
+for good. Do not work out an anchor in your head. GitHub drops punctuation and
+keeps the spaces around it, so `## A -- B` is `#a----b`; the check prints the
+anchor the file really has. It does not follow `https:` links, and it does not
+read `tools/`. Those are yours to check by reading. Skip this for a change
+that touches no markdown.
+
+**CSS.** Fix what stylelint reports. A colour is written once, as a custom
+property where the project's other tokens are (`:root` in the client's
+`src/index.css`), and used as `var(--name)`. Before you add a token, look for
+one that already means the same thing, and name a new one for what it means
+(`--color-up`), not for how it looks (`--green`). A class is camelCase in a
+`*.module.css` file and kebab-case in any other stylesheet. Turn a rule off
+in `tools/repo-hygiene/stylelint.json` only when the project as a whole does
+not want it, never for one file that breaks it, and say why in the commit
+message. Do not edit `stylelint.base.json`: an update of the add-on replaces
+it. A `stylelint-disable` comment needs ` -- ` and the reason after the rule's
+name; use one only for a line that is a true exception. Skip this for a
+change that touches no `.css` file.
+
+Do not weaken a check to make it pass. If a finding looks wrong, say so.
+<!-- /add-on: repo-hygiene -->
