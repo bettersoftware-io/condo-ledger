@@ -5,8 +5,6 @@ import type {
   DirectPaymentForm,
   DirectPaymentKind,
   DirectPaymentSummary,
-  GenericEntryForm,
-  GenericEntrySummary,
   JournalDialogIntents,
   JournalDialogState,
   JournalGridIntents,
@@ -114,22 +112,6 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
         }
 
         return dialog;
-      },
-      // The generic wizard holds the scenario's description and lines, typed
-      // one field at a time, as the person types them.
-      createGenericEntryWizard: (): Machine<
-        WizardState<GenericEntryForm, GenericEntrySummary>,
-        WizardIntents<GenericEntryForm>
-      > => {
-        const wizard = machines.createGenericEntryWizard();
-        const wanted = scenario.dialog;
-
-        if (typeof wanted === "object" && wanted.wizard === "genericEntry") {
-          wizard.intents.edit({ description: wanted.description });
-          wizard.intents.edit({ lines: wanted.lines });
-        }
-
-        return wizard;
       },
       // A direct payment holds the scenario's account and amount. Each edit
       // carries only its field, so the description stays the prefilled one.

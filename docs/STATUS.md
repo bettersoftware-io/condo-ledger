@@ -165,7 +165,7 @@ Work that has started and is not finished.
   the scenario is what the host could take); the host pads its frame by
   16 pixels and pictures the frame, so a `position: fixed` layer (the
   Journal's dialogs) is drawn against the viewport, 16 pixels up and left of
-  the app: the three dialog goldens leave a 16-pixel strip of the app at the
+  the app: the two dialog goldens leave a 16-pixel strip of the app at the
   right and the bottom outside the scrim, and the card is centred on the
   viewport, not on the app; a dialog whose body scrolls does not draw
   stably: Chromium redraws the rounded corners inside the scroller one
@@ -175,7 +175,13 @@ Work that has started and is not finished.
   body not scrolling held 10 in 10. The host should pin it (how Chromium is
   launched, or a viewport per scenario); until then the bank purchase has no
   golden, and the direct-payment body is pictured by
-  `journal-wizard-withholding`, whose dialog does not scroll.
+  `journal-wizard-withholding`, whose dialog does not scroll; a dialog card
+  centred at a half-pixel offset (the generic wizard's, at (720 - 521) / 2)
+  redraws its inner boxes' rounded corners one or two colour levels apart
+  from frame to frame on linux-x64 (51 to 79 pixels), so
+  `journal-wizard-generic` was removed, and the generic wizard has no golden
+  until the host pins it (for instance by snapping the card to whole pixels
+  or by disabling the antialiasing variance).
 
 ## Known limits
 

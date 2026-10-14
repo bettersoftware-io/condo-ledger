@@ -1,5 +1,3 @@
-import type { GenericLine } from "@cl/client-core";
-
 /**
  * One picture: a name and the state the screen is in when it is taken. The
  * state is data, never a click. The visual host turns it into deliveries on
@@ -30,13 +28,6 @@ export interface Scenario {
   dialog?: ScenarioDialog;
 }
 
-/** The generic wizard, with its description and lines typed. */
-interface GenericEntryDialog {
-  wizard: "genericEntry";
-  description: string;
-  lines: GenericLine[];
-}
-
 /** The withholding payment, with its tax account chosen and its amount typed. */
 interface WithholdingPaymentDialog {
   wizard: "withholdingPayment";
@@ -45,7 +36,7 @@ interface WithholdingPaymentDialog {
 }
 
 /** A wizard with its form as typed, or the delete confirmation of the selected entry. */
-type ScenarioDialog = GenericEntryDialog | WithholdingPaymentDialog | "delete";
+type ScenarioDialog = WithholdingPaymentDialog | "delete";
 
 /** Total, the five levels, and the cash account's group: the cash account in view. */
 const OPEN_TO_CASH = [
@@ -127,27 +118,13 @@ export const scenarios: Record<string, Scenario> = {
     expandedEntries: ["tx150"],
     selectedEntry: "tx150",
   },
-  // Two lines that do not balance, typed: the balance message shows under
-  // the postings, and Save is disabled.
-  "journal-wizard-generic": {
-    width: 1280,
-    mode: "light",
-    periodId: "p36",
-    menu: "journal",
-    dialog: {
-      wizard: "genericEntry",
-      description: "Nota di credito",
-      lines: [
-        { scopeKey: "la154", debit: "50", credit: "" },
-        { scopeKey: "la173", debit: "", credit: "30" },
-      ],
-    },
-  },
   // A direct payment: the withholding tax paid from the bank, its account
   // chosen and its amount typed; the description follows the account. The
   // bank purchase has the same body, but its cost list makes the dialog
   // taller than the viewport, and a scrolling body is redrawn a shade apart
-  // from frame to frame, so it has no golden until the host pins that.
+  // from frame to frame, so it has no golden until the host pins that. The
+  // generic wizard has none either: its card is centred at a half-pixel
+  // offset, and its boxes' rounded corners are redrawn a shade apart.
   "journal-wizard-withholding": {
     width: 1280,
     mode: "light",

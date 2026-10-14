@@ -58,7 +58,6 @@ export type {
 export type {
   GenericEntryForm,
   GenericEntrySummary,
-  GenericLine,
 } from "./machines/wizards/genericEntryWizard.ts";
 export type {
   MultiCostPaymentForm,

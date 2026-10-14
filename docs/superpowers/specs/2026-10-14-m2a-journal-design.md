@@ -479,16 +479,17 @@ worth holding; otherwise nothing.
   Fake timers, no sleeps.
 - Goldens, both platforms: `journal-1280-light`, `journal-1280-dark`
   (Pozzetto 2013, page 1, entry 2 expanded and selected: three postings),
-  `journal-wizard-generic` (two filled lines and the balance message),
   `journal-wizard-withholding` (the withholding payment with its tax account
   chosen and an amount; built in place of the bank purchase, whose dialog
   scrolls at the host's viewport and does not draw stably),
-  `journal-delete-confirm`. `Scenario` gains `menu`,
+  `journal-delete-confirm`. The generic wizard has no golden: its card is
+  centred at a half-pixel offset, and on linux-x64 the rounded corners of the
+  boxes inside it are redrawn one or two colour levels apart from frame to
+  frame, so the host never gets two identical frames. `Scenario` gains `menu`,
   `expandedEntries`, `selectedEntry` and `dialog`, delivered in
   `seeding.ts` through the machines' own intents and the screen's dialog
   state; the host stays untouched. `dialog` is `"delete"` or a wizard with
-  its form's fields flat beside its name: `{ wizard: "genericEntry",
-  description, lines }` or `{ wizard: "withholdingPayment", targetId,
+  its form's fields flat beside its name: `{ wizard: "withholdingPayment", targetId,
   amount }`. `selectedEntry` goes through the grid's `reveal`, so an entry
   on a later page is shown on its page, selected. The linux set comes from
   the goldens workflow.
@@ -536,4 +537,4 @@ worktree `m2a-journal`, one pull request:
 7. The Journal screen, toolbar, grid, paging, delete confirm; the screen
    routed; the two journal goldens.
 8. `WizardDialog` and the five wizards; the screen test through to the
-   ledger; the three dialog goldens; STATUS and IDEAS.
+   ledger; the two dialog goldens; STATUS and IDEAS.
