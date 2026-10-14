@@ -98,15 +98,3 @@
 .accounts-toolbar-spacer {
   flex: 1;
 }
-
-.account-details-check {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.account-details-note {
-  margin: 0;
-  font-size: 12px;
-  color: var(--txd);
-}

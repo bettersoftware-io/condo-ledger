@@ -1,0 +1,69 @@
+/* README "Journal & Daybook": one panel filling the column. */
+.journal-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.journal-screen > .panel {
+  flex: 1;
+}
+
+.journal-body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.journal-grid {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* Focused by the screen when a dialog closes, so the keyboard carries on from the grid; the rows draw their own focus. */
+.journal-grid:focus {
+  outline: none;
+}
+
+/* A toolbar button and the menu that hangs from it. */
+.journal-menu-anchor {
+  position: relative;
+}
+
+.journal-menu-anchor > .popover {
+  top: 28px;
+  right: auto;
+  left: 0;
+}
+
+.journal-menu-anchor[data-align="right"] > .popover {
+  right: 0;
+  left: auto;
+}
+
+.journal-toolbar-spacer {
+  flex: 1;
+}
+
+.journal-paging {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* The design's paging arrows at an end. */
+.journal-paging .toolbar-button:disabled {
+  opacity: 0.4;
+}
+
+.journal-page-text {
+  font-size: 11.5px;
+  color: var(--txd);
+  white-space: nowrap;
+}
+
+.journal-page-text b {
+  color: var(--tx);
+}

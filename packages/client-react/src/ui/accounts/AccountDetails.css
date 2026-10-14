@@ -1,0 +1,12 @@
+/* README "Account Details": the inherited checkbox and the note under an empty fieldset. */
+.account-details-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.account-details-note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--txd);
+}

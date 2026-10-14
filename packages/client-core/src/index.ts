@@ -23,10 +23,14 @@ export {
 export type {
   JournalDialogIntents,
   JournalDialogState,
+  WizardName,
 } from "./machines/journalDialogMachine.ts";
-export type {
-  JournalGridIntents,
-  JournalGridState,
+export {
+  type JournalGridIntents,
+  type JournalGridRow,
+  type JournalGridState,
+  PAGE_SIZES,
+  type PageSize,
 } from "./machines/journalGridMachine.ts";
 export type { Machine } from "./machines/machine.ts";
 export type {

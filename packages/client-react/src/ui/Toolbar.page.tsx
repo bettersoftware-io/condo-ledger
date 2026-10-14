@@ -13,6 +13,8 @@ export interface ToolbarPage {
   buttonText: (label: string) => string;
   buttonTone: (label: string) => string;
   isDisabled: (label: string) => boolean;
+  /** `menu open` or `menu closed` for a button that opens a menu, null for any other. */
+  menuState: (label: string) => string | null;
   searchValue: () => string;
   isChecked: (label: string) => boolean;
   /** What the toolbar holds, in order: a button by its label, a divider as `|`. */
@@ -53,6 +55,17 @@ export function mountToolbar(children: ReactNode): ToolbarPage {
     },
     isDisabled: (label: string): boolean => {
       return (button(label) as HTMLButtonElement).disabled;
+    },
+    menuState: (label: string): string | null => {
+      const popup = button(label).getAttribute("aria-haspopup");
+
+      if (popup === null) {
+        return null;
+      }
+
+      return button(label).getAttribute("aria-expanded") === "true"
+        ? `${popup} open`
+        : `${popup} closed`;
     },
     searchValue: (): string => {
       return search().value;

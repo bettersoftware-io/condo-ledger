@@ -7,7 +7,7 @@ import { formatCents } from "../format.ts";
 import { Row } from "../Row.tsx";
 import { Scheda } from "../Scheda.tsx";
 
-import "./AccountsScreen.css";
+import "./AccountDetails.css";
 
 /**
  * The selected account's sheet (README "Account Details", with the

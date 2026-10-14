@@ -28,8 +28,13 @@ const config: ArchitectureConfig = {
       noNodeBuiltins: true,
       reactCompiler: true,
       // The grid re-renders on every tree change; a row that did not change
-      // is skipped only while the compiler memoizes it.
-      compilerTracked: [{ file: "src/ui/TreeGridRow.tsx", fn: "TreeGridRow" }],
+      // is skipped only while the compiler memoizes it. The Journal grid's
+      // rows are mapped afresh from the machine's on each render; memoized,
+      // the mapping and the rows it hands the tree grid keep their identity.
+      compilerTracked: [
+        { file: "src/ui/TreeGridRow.tsx", fn: "TreeGridRow" },
+        { file: "src/ui/journal/JournalGrid.tsx", fn: "JournalGrid" },
+      ],
     },
     "packages/server": { role: "server" },
     "packages/integration": { role: "integration" },

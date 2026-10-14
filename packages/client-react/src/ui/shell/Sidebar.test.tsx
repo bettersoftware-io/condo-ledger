@@ -133,14 +133,18 @@ describe("Sidebar", () => {
     expect(page.isDrawerOpen()).toBe(false);
   });
 
-  it("the main area shows the Accounts screen on its menu item, a placeholder elsewhere", async () => {
+  it("the main area shows the Accounts and Journal screens on their menu items, a placeholder elsewhere", async () => {
     const page = mountSidebar();
 
     expect(page.screenTitle()).toBe("Accounts, Ledgers & Balance");
 
     await page.clickMenu("Journal & Daybook");
 
-    expect(page.screenTitle()).toBe("Journal & Daybook");
+    expect(page.screenTitle()).toBe("Journal");
+
+    await page.clickMenu("Installment Schedule");
+
+    expect(page.screenTitle()).toBe("Installment Schedule");
   });
 
   it("maximizing the Accounts panel folds the sidebar, and the rail restores both", async () => {

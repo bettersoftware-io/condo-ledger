@@ -47,4 +47,8 @@ export const TESTIDS = {
   selectableList: "selectable-list",
   selectableItem: "selectable-item",
   menuItem: "menu-item",
+  journalScreen: "journal-screen",
+  journalGrid: "journal-grid",
+  journalPageText: "journal-page-text",
+  entryIcon: "entry-icon",
 } as const;
