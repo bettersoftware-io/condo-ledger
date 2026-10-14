@@ -39,9 +39,27 @@ export function leafChoices(
     .map(choiceOf);
 }
 
-/** Every row of the tree that owns postings, in tree order: keyed by node, so a control account's row names its party. */
+/**
+ * Every row of the tree a posting can land on, in tree order: keyed by node,
+ * so a control account's row names its party. A grouping with nothing under
+ * it is a row of the tree, and no leaf.
+ */
 export function rowChoices(books: Books): WizardChoice[] {
-  return postingRows(books).map(choiceOf);
+  const groupings = new Set(
+    books.accounts
+      .filter((account) => {
+        return account.type === "grouping";
+      })
+      .map((account) => {
+        return account.id;
+      }),
+  );
+
+  return postingRows(books)
+    .filter((row) => {
+      return !groupings.has(row.scope.accountId);
+    })
+    .map(choiceOf);
 }
 
 /** The regular account with the role, or null. */

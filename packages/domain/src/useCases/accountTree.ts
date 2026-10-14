@@ -477,7 +477,7 @@ function node(parts: NodeParts): AccountNode {
 }
 
 /** The id accountTree gives the row of postings that name no counterpart. */
-const NONE = "none";
+export const NONE = "none";
 const NO_COUNTERPART = "(no counterpart)";
 
 function counterpartId(posting: Posting): string {

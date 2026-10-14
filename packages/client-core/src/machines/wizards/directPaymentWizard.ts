@@ -40,7 +40,7 @@ export interface DirectPaymentSummary {
   paidFrom: string | null;
 }
 
-const DIRECT_PAYMENT_DESCRIPTIONS: Record<DirectPaymentKind, string> = {
+export const DIRECT_PAYMENT_DESCRIPTIONS: Record<DirectPaymentKind, string> = {
   directPaymentCash: "Direct cash purchase",
   directPaymentBank: "Direct purchase via bank account",
   withholdingPayment: "Withholding payment",

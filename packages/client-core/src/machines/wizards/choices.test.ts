@@ -100,6 +100,30 @@ describe("the wizards' choices", () => {
     );
   });
 
+  it("a grouping with nothing under it is no row to post on", () => {
+    const books = createBooks([
+      ...createSmallBooks().accounts,
+      {
+        id: "la40",
+        periodId: "p1",
+        parentId: null,
+        name: "Straordinarie",
+        order: 40,
+        nature: "expenses",
+        type: "grouping",
+        role: null,
+        budget: null,
+      },
+    ]);
+
+    expect(
+      rowChoices(books).map((choice) => {
+        return choice.key;
+      }),
+    ).not.toContain("la40");
+    expect(rowChoices(books)).toHaveLength(13);
+  });
+
   it("the account with a role is the regular one, or none", () => {
     expect(roleAccount(createBooks(), "bank")?.id).toBe("la2");
     expect(roleAccount(createBooks(), "tax")).toBeNull();

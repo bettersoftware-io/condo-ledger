@@ -166,6 +166,25 @@ export function createWizardMachine<TForm, TSummary>(
   };
 }
 
+/** A form of lines the person adds and removes. */
+interface Lined<TLine> {
+  lines: TLine[];
+}
+
+/** The machine, with `edit` keeping one line at least: an empty `lines` becomes the one empty line. */
+export function keepingOneLine<TLine, TForm extends Lined<TLine>, TSummary>(
+  machine: WizardMachine<TForm, TSummary>,
+  emptyLine: TLine,
+): WizardMachine<TForm, TSummary> {
+  function edit(patch: Partial<TForm>): void {
+    machine.intents.edit(
+      patch.lines?.length === 0 ? { ...patch, lines: [emptyLine] } : patch,
+    );
+  }
+
+  return { ...machine, intents: { ...machine.intents, edit } };
+}
+
 /** A form refused for a reason of the wizard's own, before there is anything to preview. */
 export function refused(reason: string): Derived {
   return { preview: [], verdict: rejected(reason), draft: null };
