@@ -20,15 +20,10 @@ Work that has started and is not finished.
 
 ## Designed, not built
 
-- **M2b, the five remaining journal wizards and the rest of the Buildings
-  module, and M3, the server on Node and Postgres with the live port
-  adapters.** M1 is on `main` (pull request #3, 2026-10-13); M2a, the Journal
-  & Daybook screen with its five self-contained wizards, is built on the
-  simulators
-  ([2026-10-14-m2a-journal-design.md](superpowers/specs/2026-10-14-m2a-journal-design.md)).
-  The parent design names what follows:
+- **M3, the server on Node and Postgres with the live port adapters.** The
+  parent design names it:
   [2026-10-11-app-v2-design.md](superpowers/specs/2026-10-11-app-v2-design.md).
-  No plan yet for M2b or M3. Until M3, `pnpm dev:fs` throws by design
+  No plan yet. Until M3, `pnpm dev:fs` throws by design
   (`packages/client-react/src/app/buildPorts.ts`).
 
 ## Planned, and held by something
@@ -48,7 +43,11 @@ Work that has started and is not finished.
   in suppliers and invoices, installments, the functional-account settings
   and the allocation engine; the delete of their kinds (`canDeleteEntry`
   loosens per kind as each flow models its side effects); and `✎` on an
-  entry, which edits it. The M2a spec's "Out of scope" lists them.
+  entry, which edits it. The M2a spec's "Out of scope" lists them
+  ([2026-10-14-m2a-journal-design.md](superpowers/specs/2026-10-14-m2a-journal-design.md)).
+  After them, the rest of the Buildings module the parent design names for
+  M2: Installments, Tables & Allocation, Building Data & Units, Contacts and
+  Calendar, one spec per group.
 - **Per-grid persistence.** The design says a column resize persists per
   grid; today every per-component machine (grid expansion, columns, split,
   bottom tab) is rebuilt when its component mounts, so leaving the Accounts
@@ -85,8 +84,8 @@ Work that has started and is not finished.
 - **Structural tidy-ups:** `missing()` duplicated across the two simulators;
   `TopBar.tsx` has two near-identical picker blocks; `LedgerTab` is a
   view-model reader that builds every row itself (split it like
-  `AccountsGrid`); `.accounts-top .toolbar-button[data-icon-only]` reaches wider than its
-  comment; `createSeedWithASecondPeriod` duplicates half of
+  `AccountsGrid`); `.accounts-top .toolbar-button[data-icon-only]` reaches
+  wider than its comment; `createSeedWithASecondPeriod` duplicates half of
   `createTwoPeriodSeed`; `twoBuildings()` is not named `create…`;
   `Counterpart.kind` is never checked against the account's role;
   `validateBudget` rejects only `grouping` as "not a leaf" (use
@@ -224,9 +223,12 @@ Work that has started and is not finished.
   lines' total alone, not against the amount paid; `validateEntry` judges an
   entry line by line, so the reason shown is the first faulty line's, not
   the weightiest across the lines.
-- **A wizard can offer the old period's accounts once the adapters are
-  asynchronous (M3).** A wizard opened between a period switch and the new
-  period's books arriving offers the old period's accounts, while `addEntry`
-  posts to the new period; the port refuses the entry as `unknown-account`.
-  The simulators answer synchronously, so it cannot happen before M3.
+- **A wizard can be left on the old period's accounts.** The dialog traps
+  no focus, so the keyboard can leave an open wizard (Tab to the sidebar),
+  switch the period and come back: the wizard still offers the old period's
+  accounts while `addEntry` posts to the new period, and the port refuses
+  the entry as `unknown-account`, which the wizard words as "The period
+  changed while this was open: cancel and open it again". This holds until
+  the dialog traps focus. With asynchronous adapters (M3) a wizard opened
+  between a period switch and the new period's books arriving does the same.
 - **`pnpm dev:fs` throws until M3.**

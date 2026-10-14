@@ -484,10 +484,14 @@ worth holding; otherwise nothing.
   chosen and an amount; built in place of the bank purchase, whose dialog
   scrolls at the host's viewport and does not draw stably),
   `journal-delete-confirm`. `Scenario` gains `menu`,
-  `expandedEntries`, `selectedEntry` and `dialog` (`{ wizard, form }` or
-  `"delete"`), delivered in `seeding.ts` through the machines' own intents
-  and the screen's dialog state; the host stays untouched. The linux set
-  comes from the goldens workflow.
+  `expandedEntries`, `selectedEntry` and `dialog`, delivered in
+  `seeding.ts` through the machines' own intents and the screen's dialog
+  state; the host stays untouched. `dialog` is `"delete"` or a wizard with
+  its form's fields flat beside its name: `{ wizard: "genericEntry",
+  description, lines }` or `{ wizard: "withholdingPayment", targetId,
+  amount }`. `selectedEntry` goes through the grid's `reveal`, so an entry
+  on a later page is shown on its page, selected. The linux set comes from
+  the goldens workflow.
 - Coverage holds at the add-on's bar for every new file.
 
 ## Housekeeping folded into M2a
