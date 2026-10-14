@@ -1,0 +1,186 @@
+/* README "Journal-entry wizards": 680px, label column 200, the "Entry postings" summary last. */
+
+.wizard-note {
+  font-size: 11.5px;
+  color: var(--txd);
+}
+
+.wizard-footer-spacer {
+  flex: 1;
+}
+
+/* An amount the person types: right-aligned in a box 160px wide. */
+.form-field-box:has(> .wizard-amount) {
+  justify-self: start;
+  width: 160px;
+}
+
+.form-field-box > .wizard-amount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.wizard-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.wizard-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--txd);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* The summary and the lines grids: a bordered table of grid rows. */
+.wizard-preview,
+.wizard-lines {
+  --wizard-columns: 46px 1fr 110px 110px;
+
+  border: 1px solid var(--bd2);
+  border-radius: 7px;
+  overflow: hidden;
+  font-size: 11.5px;
+  color: var(--tx);
+}
+
+/* The multi-cost lines: # | Cost account | Amount. */
+.wizard-lines[data-columns="3"] {
+  --wizard-columns: 46px 1fr 140px;
+}
+
+/* The generic lines: # | Account (Partita) | Debit | Credit | Balance. */
+.wizard-lines[data-columns="5"] {
+  --wizard-columns: 46px 1fr 110px 110px 110px;
+}
+
+.wizard-preview-head,
+.wizard-preview-row,
+.wizard-lines-head,
+.wizard-lines-row,
+.wizard-lines-foot {
+  display: grid;
+  grid-template-columns: var(--wizard-columns);
+  align-items: center;
+}
+
+.wizard-preview-head,
+.wizard-lines-head {
+  background: var(--ph);
+  color: var(--phf);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.wizard-preview-head > span,
+.wizard-preview-row > span,
+.wizard-lines-head > span,
+.wizard-lines-foot > span {
+  min-width: 0;
+  padding: 6px 8px;
+}
+
+.wizard-lines-row > span {
+  min-width: 0;
+  padding: 3px 6px;
+}
+
+.wizard-preview-row,
+.wizard-lines-row,
+.wizard-lines-foot {
+  border-top: 1px solid var(--bd2);
+}
+
+.wizard-preview-row > span:first-child,
+.wizard-lines-row > span:first-child {
+  font-size: 11px;
+  color: var(--txd);
+}
+
+.wizard-path {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wizard-amount-cell {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.wizard-lines-foot {
+  background: var(--zebra);
+}
+
+.wizard-total-label {
+  text-align: right;
+  color: var(--txd);
+}
+
+.wizard-balance {
+  color: var(--num);
+}
+
+/* A cell of a lines grid the person edits. */
+.wizard-lines-row .wizard-input {
+  width: 100%;
+  min-width: 0;
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  background: var(--ctrl);
+  color: var(--tx);
+  font: inherit;
+  font-size: 11.5px;
+}
+
+.wizard-lines-row .wizard-input:focus {
+  border-color: var(--acc);
+  outline: none;
+}
+
+.wizard-line-amount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.wizard-line-buttons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.wizard-line-button {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--bd);
+  border-radius: 5px;
+  background: var(--ctrl);
+  color: var(--ok);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wizard-line-button[data-action="remove"] {
+  color: var(--neg);
+}
+
+.wizard-paid-from {
+  font-size: 12.5px;
+  color: var(--txd);
+}
+
+.wizard-paid-from[data-missing="true"],
+.wizard-message {
+  color: var(--neg);
+}
+
+.wizard-message {
+  font-size: 11.5px;
+}

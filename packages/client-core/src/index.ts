@@ -64,6 +64,7 @@ export type {
   MultiCostPaymentSummary,
 } from "./machines/wizards/multiCostPaymentWizard.ts";
 export type {
+  WizardChoice,
   WizardIntents,
   WizardState,
 } from "./machines/wizards/wizard.ts";

@@ -1,19 +1,29 @@
 import { render, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import type { ReactElement } from "react";
 
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
-import { cents, type JournalEntry, type LegacySeed } from "@cl/domain";
-import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 import {
-  createViewModel,
-  useViewModel,
-  ViewModelProvider,
-} from "@cl/react-bindings";
+  type Account,
+  type AccountRole,
+  cents,
+  type EntryAdded,
+  type EntryDraft,
+  type JournalEntry,
+  type JournalPort,
+  type LegacySeed,
+  type ResultOf,
+  rejected,
+} from "@cl/domain";
+import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
+import { createViewModel, ViewModelProvider } from "@cl/react-bindings";
 
-import { ToastHost } from "../shell/ToastHost.tsx";
+import { accountsScreenIn } from "../accounts/AccountsScreen.page.tsx";
+import { AppRoot } from "../shell/AppRoot.tsx";
 import { TESTIDS } from "../testids.ts";
-import { JournalScreen } from "./JournalScreen.tsx";
+import {
+  type WizardDialogPage,
+  wizardDialogPage,
+} from "./wizards/WizardDialog.page.tsx";
 
 /** What a test can do with, and ask of, the Journal screen. */
 export interface JournalScreenPage {
@@ -60,6 +70,16 @@ export interface JournalScreenPage {
   gridHasFocus: () => boolean;
   toasts: () => string[];
   dialogOpen: () => boolean;
+  /** Opens the Add transaction menu and chooses this wizard. */
+  openWizard: (menuLabel: string) => Promise<WizardDialogPage>;
+  /** The wizard open over the screen. */
+  wizard: () => WizardDialogPage;
+  /** The journal store refuses the next entry added, for this reason; the ones after it are written. */
+  refuseNextAdd: (reason: string) => void;
+  /** The open wizard's choice of the control account's row for this party. */
+  rowChoiceLabel: (accountId: string, partyId: string) => string;
+  /** Switches to Accounts through the sidebar, opens the rows of the path and selects its last, and reads the Ledger tab's lines. */
+  ledgerOf: (path: string[]) => Promise<string[][]>;
 }
 
 /** What the books hold besides the small books' nine entries. */
@@ -68,18 +88,24 @@ export interface JournalScreenOptions {
   extraEntries?: number;
   /** A period with no entry at all. */
   empty?: boolean;
+  /** The account with this role loses it: the period has no such account. */
+  withoutRole?: AccountRole;
+  /** Two tax accounts, Ritenute 1019 and Ritenute 1020, that a withholding settles. */
+  taxAccounts?: boolean;
 }
 
-/** Mounts the Journal screen over the small books, with the toasts its stubs post. */
+/** Mounts the shell on the Journal screen over the small books, the menu chosen through the navigation's own intent. */
 export function mountJournalScreen(
   options: JournalScreenOptions = {},
 ): JournalScreenPage {
   const user = userEvent.setup();
-  const { app } = createAppHarness(createJournalSeed(options));
+  const { app, ports } = createAppHarness(createJournalSeed(options));
+
+  app.navigation.intents.selectMenu("journal");
+
   const rendered = render(
     <ViewModelProvider viewModel={createViewModel(app)}>
-      <ScreenHost />
-      <ToastHost />
+      <AppRoot />
     </ViewModelProvider>,
   );
 
@@ -283,20 +309,92 @@ export function mountJournalScreen(
     dialogOpen: (): boolean => {
       return rendered.queryByTestId(TESTIDS.dialog) !== null;
     },
+    openWizard: async (menuLabel: string): Promise<WizardDialogPage> => {
+      await user.click(tool("Add transaction"));
+      await user.click(
+        within(screen()).getByRole("menuitem", { name: menuLabel }),
+      );
+
+      return wizardDialogPage(rendered, user);
+    },
+    wizard: (): WizardDialogPage => {
+      return wizardDialogPage(rendered, user);
+    },
+    refuseNextAdd: (reason: string): void => {
+      refuseNextAdd(ports.journal, reason);
+    },
+    rowChoiceLabel: (accountId: string, partyId: string): string => {
+      const option = Array.from(
+        rendered.getByTestId(TESTIDS.dialog).querySelectorAll("option"),
+      ).find((candidate) => {
+        return (
+          candidate.value.startsWith(`${accountId}@`) &&
+          candidate.value.endsWith(`/${partyId}`)
+        );
+      });
+
+      if (option === undefined) {
+        throw new Error(`No choice of ${accountId} for ${partyId}`);
+      }
+
+      return option.textContent ?? "";
+    },
+    ledgerOf: async (path: string[]): Promise<string[][]> => {
+      await user.click(
+        within(rendered.getByTestId(TESTIDS.sidebar)).getByRole("button", {
+          name: "Accounts, Ledgers & Balance",
+        }),
+      );
+
+      const accounts = accountsScreenIn({ rendered, user });
+
+      await accounts.activateTab("Ledger");
+
+      for (const [index, label] of path.entries()) {
+        await (index < path.length - 1
+          ? accounts.clickAccountCaret(label)
+          : accounts.clickAccount(label));
+      }
+
+      return accounts.ledgerRows();
+    },
   };
 }
 
-/** Holds the maximize machine as the shell does, and hands it to the screen. */
-function ScreenHost(): ReactElement {
-  const { useMaximize } = useViewModel();
-  const maximize = useMaximize();
+/** The store answers the next add with a refusal, then hands back to the simulator. */
+function refuseNextAdd(journal: JournalPort, reason: string): void {
+  const add = journal.addEntry.bind(journal);
 
-  return <JournalScreen maximize={maximize} />;
+  journal.addEntry = (
+    _periodId: string,
+    _draft: EntryDraft,
+  ): Promise<ResultOf<EntryAdded>> => {
+    journal.addEntry = add;
+
+    return Promise.resolve(rejected(reason));
+  };
 }
 
-/** The small books, with the entries the options ask for. */
+/** The small books, with the accounts and the entries the options ask for. */
 function createJournalSeed(options: JournalScreenOptions): LegacySeed {
-  const seed = createSmallSeed();
+  const small = createSmallSeed();
+  const seed: LegacySeed = {
+    ...small,
+    accounts: [
+      ...small.accounts.map((account) => {
+        return options.withoutRole !== undefined &&
+          account.role === options.withoutRole
+          ? { ...account, role: null }
+          : account;
+      }),
+      ...(options.taxAccounts === true
+        ? [
+            createTaxAccount("la7", "Ritenute 1019"),
+            createTaxAccount("la8", "Ritenute 1020"),
+          ]
+        : []),
+    ],
+  };
 
   if (options.empty === true) {
     return { ...seed, entries: [] };
@@ -335,5 +433,20 @@ function createExtraEntry(number: number): JournalEntry {
         counterpart: null,
       },
     ],
+  };
+}
+
+/** A regular tax account at the top of the liabilities, numbered by its id. */
+function createTaxAccount(id: string, name: string): Account {
+  return {
+    id,
+    periodId: "p1",
+    parentId: null,
+    name,
+    order: Number(id.slice(2)),
+    nature: "liabilities",
+    type: "regular",
+    role: "tax",
+    budget: null,
   };
 }

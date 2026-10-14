@@ -1,6 +1,10 @@
 import { type ReactElement, useRef, useState } from "react";
 
-import type { MaximizeIntents, MaximizeState } from "@cl/client-core";
+import type {
+  MaximizeIntents,
+  MaximizeState,
+  WizardName,
+} from "@cl/client-core";
 import type { Result } from "@cl/domain";
 import { type MachineView, useViewModel } from "@cl/react-bindings";
 
@@ -10,6 +14,10 @@ import { JOURNAL_COLUMN_SPECS } from "./columns.ts";
 import { DeleteEntryConfirm } from "./DeleteEntryConfirm.tsx";
 import { JournalGrid } from "./JournalGrid.tsx";
 import { JournalToolbar } from "./JournalToolbar.tsx";
+import { DirectPaymentWizard } from "./wizards/DirectPaymentWizard.tsx";
+import { GenericEntryWizard } from "./wizards/GenericEntryWizard.tsx";
+import { MultiCostPaymentWizard } from "./wizards/MultiCostPaymentWizard.tsx";
+import type { WizardProps } from "./wizards/WizardDialog.tsx";
 
 import "./JournalScreen.css";
 
@@ -17,7 +25,8 @@ import "./JournalScreen.css";
  * Journal & Daybook: the period's entries by number, a page at a time, with
  * the dialog open over them. Reads the view model and hands plain props down.
  * The maximize machine is the shell's, so a maximized panel also folds the
- * sidebar. When the delete alert closes, the focus goes back to the grid.
+ * sidebar. When a dialog closes, the focus goes back to the grid; a saved
+ * entry is revealed there, selected.
  */
 export function JournalScreen({ maximize }: JournalScreenProps): ReactElement {
   const {
@@ -55,6 +64,11 @@ export function JournalScreen({ maximize }: JournalScreenProps): ReactElement {
   function closeDialog(): void {
     dialog.close();
     gridArea.current?.focus();
+  }
+
+  function revealSaved(id: string): void {
+    closeDialog();
+    grid.reveal(id);
   }
 
   /** The alert is drawn only while an entry is selected: the selection is what Yes deletes. */
@@ -129,6 +143,14 @@ export function JournalScreen({ maximize }: JournalScreenProps): ReactElement {
           onNo={closeDialog}
         />
       ) : null}
+      {open?.kind === "wizard" ? (
+        <JournalWizard
+          key={open.wizard}
+          wizard={open.wizard}
+          onSaved={revealSaved}
+          onCancel={closeDialog}
+        />
+      ) : null}
     </div>
   );
 }
@@ -136,6 +158,34 @@ export function JournalScreen({ maximize }: JournalScreenProps): ReactElement {
 export interface JournalScreenProps {
   /** The shell's: whether the journal fills the screen, shared with the sidebar's rail. */
   maximize: MachineView<MaximizeState, MaximizeIntents>;
+}
+
+/** The wizard the dialog machine names. Each mounts its own machine, so a wizard opened again starts clean. */
+function JournalWizard({
+  wizard,
+  onSaved,
+  onCancel,
+}: JournalWizardProps): ReactElement {
+  switch (wizard) {
+    case "directPaymentCash":
+    case "directPaymentBank":
+    case "withholdingPayment":
+      return (
+        <DirectPaymentWizard
+          kind={wizard}
+          onSaved={onSaved}
+          onCancel={onCancel}
+        />
+      );
+    case "multiCostPayment":
+      return <MultiCostPaymentWizard onSaved={onSaved} onCancel={onCancel} />;
+    case "genericEntry":
+      return <GenericEntryWizard onSaved={onSaved} onCancel={onCancel} />;
+  }
+}
+
+interface JournalWizardProps extends WizardProps {
+  wizard: WizardName;
 }
 
 /** The domain's reasons as the person reads them; a reason not listed here is shown as it is. */

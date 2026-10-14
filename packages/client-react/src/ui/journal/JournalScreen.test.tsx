@@ -259,6 +259,40 @@ describe("JournalScreen", () => {
     expect(page.menuItems()).toEqual([]);
   });
 
+  it("a generic entry saved from the Add menu is selected in the grid and posted in its account's ledger", async () => {
+    const page = mountJournalScreen();
+    const wizard = await page.openWizard("Generic entry");
+
+    await wizard.fill("Description", "Spesa ascensore");
+    await wizard.select(0, "Costs › Spese generali › Ascensore");
+    await wizard.fillLine(0, "debit", "70");
+    await wizard.addLine();
+    await wizard.select(1, "Patrimonial › (Assets) › Liquidità › Cassa");
+    await wizard.fillLine(1, "credit", "70");
+    await wizard.save();
+
+    expect(page.dialogOpen()).toBe(false);
+    expect(page.isSelected("Spesa ascensore")).toBe(true);
+    expect(page.rowTexts()[9]?.slice(1)).toEqual([
+      "10",
+      "Spesa ascensore",
+      "70.00",
+      "70.00",
+      "0.00",
+    ]);
+    expect(await page.ledgerOf(["Spese generali", "Ascensore"])).toContainEqual(
+      [
+        "14/10/2026 10:00",
+        "10",
+        "Spesa ascensore",
+        "Total › Costs › Spese generali › Ascensore",
+        "70.00",
+        "0.00",
+        "430.18",
+      ],
+    );
+  });
+
   it("delete asks, and Yes removes the entry and closes the numbering", async () => {
     const page = mountJournalScreen();
 
