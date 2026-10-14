@@ -32,6 +32,26 @@ describe("journalOf", () => {
     });
   });
 
+  it("puts entries given out of order into number order, leaving the input as it was", () => {
+    const reversed = entries().reverse();
+    const numbersBefore = reversed.map((entry) => {
+      return entry.number;
+    });
+
+    const views = journalOf(root(), reversed);
+
+    expect(
+      views.map((view) => {
+        return view.number;
+      }),
+    ).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(
+      reversed.map((entry) => {
+        return entry.number;
+      }),
+    ).toEqual(numbersBefore);
+  });
+
   it("writes a plain leaf's path through the tree, side level included", () => {
     expect(postingsOf(9)).toEqual([
       [
