@@ -67,6 +67,18 @@ describe("the generic-entry wizard", () => {
     ]);
   });
 
+  it("a control account's rows of postings that name no party are not offered: a line there could never be saved", () => {
+    const { machine } = createWizard(createBooksWithUnnamedParties());
+    const keys = machine.state$.getValue().choices.map((choice) => {
+      return choice.key;
+    });
+
+    expect(keys).not.toContain("la4@assets/none");
+    expect(keys).not.toContain("la5@assets/none/none");
+    expect(keys).toContain("la4@liabilities/md1");
+    expect(keys).toContain("la5@assets/md10/r1");
+  });
+
   it("with a description, a line with no row is no target", () => {
     const { machine } = createWizard();
 

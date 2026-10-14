@@ -2,6 +2,7 @@ import {
   type Account,
   type AccountNode,
   type AccountRole,
+  NONE,
   PATH_SEPARATOR,
   type PostingScope,
   pathOf,
@@ -42,7 +43,8 @@ export function leafChoices(
 /**
  * Every row of the tree a posting can land on, in tree order: keyed by node,
  * so a control account's row names its party. A grouping with nothing under
- * it is a row of the tree, and no leaf.
+ * it is a row of the tree, and no leaf; a control account's row of postings
+ * that name no party is one no new posting may join (it needs a party).
  */
 export function rowChoices(books: Books): WizardChoice[] {
   const groupings = new Set(
@@ -57,7 +59,7 @@ export function rowChoices(books: Books): WizardChoice[] {
 
   return postingRows(books)
     .filter((row) => {
-      return !groupings.has(row.scope.accountId);
+      return !groupings.has(row.scope.accountId) && namesItsParty(row.scope);
     })
     .map(choiceOf);
 }
@@ -118,6 +120,18 @@ function postingRows(books: Books): PostingRow[] {
   underLevel(books.tree, []);
 
   return rows;
+}
+
+/** Whether a posting on this row has its party: always on a plain account's, never on a control account's row of postings without one. */
+function namesItsParty(scope: PostingScope): boolean {
+  switch (scope.kind) {
+    case "account":
+      return true;
+    case "supplier":
+      return scope.supplierId !== NONE;
+    case "residency":
+      return scope.residentId !== NONE;
+  }
 }
 
 function choiceOf(row: PostingRow): WizardChoice {
