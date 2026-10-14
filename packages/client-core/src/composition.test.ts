@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { cents, type JournalEntryView } from "@cl/domain";
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 
 import { createAppHarness } from "./testing/appHarness.ts";
@@ -10,6 +11,42 @@ describe("the application", () => {
     const subscription = app.presenters.accounts.tree$.subscribe();
 
     expect(app.presenters.accounts.tree$.getValue()?.debit).toBe(212619);
+
+    subscription.unsubscribe();
+  });
+
+  it("wires the journal presenter to the selected period, stamping with the application's clock", async () => {
+    const { app } = createAppHarness(createSmallSeed());
+    let entries: JournalEntryView[] = [];
+    const subscription = app.presenters.journal.entries$.subscribe((next) => {
+      entries = next;
+    });
+
+    expect(
+      await app.presenters.journal.addEntry({
+        kind: "generic",
+        description: "Prova",
+        postings: [
+          {
+            accountId: "la21",
+            debit: cents(100),
+            credit: cents(0),
+            counterpart: null,
+          },
+          {
+            accountId: "la1",
+            debit: cents(0),
+            credit: cents(100),
+            counterpart: null,
+          },
+        ],
+      }),
+    ).toEqual({ ok: true, value: { id: "new1" } });
+    expect(entries.at(-1)).toMatchObject({
+      id: "new1",
+      number: 10,
+      at: "2026-10-14T10:00:00",
+    });
 
     subscription.unsubscribe();
   });

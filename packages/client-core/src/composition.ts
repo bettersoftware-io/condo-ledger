@@ -57,9 +57,17 @@ import {
   createAccountsPresenter,
 } from "./presenters/accountsPresenter.ts";
 import {
+  type BooksPresenter,
+  createBooksPresenter,
+} from "./presenters/booksPresenter.ts";
+import {
   type BuildingsPresenter,
   createBuildingsPresenter,
 } from "./presenters/buildingsPresenter.ts";
+import {
+  createJournalPresenter,
+  type JournalPresenter,
+} from "./presenters/journalPresenter.ts";
 import {
   createSessionPresenter,
   type SessionPresenter,
@@ -78,7 +86,9 @@ export interface AppPorts {
 interface AppPresenters {
   session: SessionPresenter;
   buildings: BuildingsPresenter;
+  books: BooksPresenter;
   accounts: AccountsPresenter;
+  journal: JournalPresenter;
 }
 
 /** Per-component state: each call builds a machine of its own. */
@@ -108,13 +118,20 @@ export interface App {
 export function createApp(ports: AppPorts): App {
   const session = createSessionPresenter(ports.session);
   const buildings = createBuildingsPresenter(ports.buildings);
-  const accounts = createAccountsPresenter(
+  const books = createBooksPresenter(
     { accounts: ports.accounts, journal: ports.journal },
     buildings.selected$,
   );
+  const accounts = createAccountsPresenter(books.books$, ports.accounts);
+  const journal = createJournalPresenter(
+    books.books$,
+    buildings.tree$,
+    buildings.selected$,
+    ports.journal,
+  );
 
   return {
-    presenters: { session, buildings, accounts },
+    presenters: { session, buildings, books, accounts, journal },
     navigation: createNavigationMachine(),
     notices: createNotices(),
     machines: {

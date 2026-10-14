@@ -17,6 +17,7 @@ import {
   type AccountsPresenter,
   createAccountsPresenter,
 } from "./accountsPresenter.ts";
+import { createBooksPresenter } from "./booksPresenter.ts";
 import type { PeriodSelection } from "./buildingsPresenter.ts";
 
 describe("the accounts presenter", () => {
@@ -129,6 +130,15 @@ describe("the accounts presenter", () => {
     });
   });
 
+  it("does not re-emit the same key when only the books change", async () => {
+    const { presenter, keys } = createPresented(createSmallSeed());
+
+    presenter.select("la21");
+    await presenter.setBudget("la21", cents(120000));
+
+    expect(keys()).toEqual(["total", "la21"]);
+  });
+
   it("answers null for everything while no period is selected", () => {
     const { latest } = createPresented(createSmallSeed(), null);
 
@@ -155,6 +165,8 @@ interface Presented {
   selected$: BehaviorSubject<PeriodSelection | null>;
   latest: () => Latest;
   errors: () => string[];
+  /** Every key selectedKey$ emitted, in order. */
+  keys: () => string[];
 }
 
 const POZZETTO_2013: PeriodSelection = { buildingId: "c1", periodId: "p1" };
@@ -164,13 +176,12 @@ function createPresented(
   initial: PeriodSelection | null = POZZETTO_2013,
 ): Presented {
   const selected$ = new BehaviorSubject<PeriodSelection | null>(initial);
-  const presenter = createAccountsPresenter(
-    {
-      accounts: createAccountsSimulator(seed),
-      journal: createJournalSimulator(seed),
-    },
+  const accounts = createAccountsSimulator(seed);
+  const books = createBooksPresenter(
+    { accounts, journal: createJournalSimulator(seed) },
     selected$,
   );
+  const presenter = createAccountsPresenter(books.books$, accounts);
 
   const latest: Latest = {
     tree: null,
@@ -180,6 +191,7 @@ function createPresented(
     details: null,
   };
   const errors: string[] = [];
+  const keys: string[] = [];
 
   function recordError(error: Error): void {
     errors.push(error.message);
@@ -194,6 +206,7 @@ function createPresented(
   presenter.selectedKey$.subscribe({
     next: (next: string) => {
       latest.selectedKey = next;
+      keys.push(next);
     },
     error: recordError,
   });
@@ -224,6 +237,9 @@ function createPresented(
     },
     errors: () => {
       return errors;
+    },
+    keys: () => {
+      return keys;
     },
   };
 }

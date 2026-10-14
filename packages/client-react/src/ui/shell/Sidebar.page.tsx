@@ -4,6 +4,7 @@ import { type ReactElement, useEffect } from "react";
 
 import type { App } from "@cl/client-core";
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
+import type { LegacySeed } from "@cl/domain";
 import { createTwoPeriodSeed } from "@cl/domain/testing/createTwoPeriodSeed.ts";
 import {
   createViewModel,
@@ -53,13 +54,15 @@ export interface SidebarPage {
 export interface SidebarOptions {
   /** Start with a panel of the main area maximized, as the screen would leave it. */
   maximized?: boolean;
+  /** The books the app runs on; a building with two periods unless given. */
+  seed?: LegacySeed;
 }
 
 /** Mounts the shell over a building with two periods, with a reader of the app-wide selection and navigation. */
 export function mountSidebar(options: SidebarOptions = {}): SidebarPage {
   const user = userEvent.setup();
   const app = maximizedFromTheStart(
-    createAppHarness(createTwoPeriodSeed()).app,
+    createAppHarness(options.seed ?? createTwoPeriodSeed()).app,
     options.maximized ?? false,
   );
   let seen: SeenState | undefined;

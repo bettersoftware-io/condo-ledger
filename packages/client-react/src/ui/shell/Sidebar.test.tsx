@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 
+import type { LegacySeed } from "@cl/domain";
+import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
+
 import { mountSidebar } from "./Sidebar.page.tsx";
 
 describe("Sidebar", () => {
@@ -9,6 +12,14 @@ describe("Sidebar", () => {
     expect(page.buildingLabels()).toEqual(["Pozzetto (Building)"]);
     expect(page.periodLabels()).toEqual(["2013 (Ordinary)", "2014 (Ordinary)"]);
     expect(page.selectedPeriod()).toBe("2013 (Ordinary)");
+  });
+
+  it("with no building, lists nothing and marks no period", () => {
+    const page = mountSidebar({ seed: createSeedWithoutBuildings() });
+
+    expect(page.buildingLabels()).toEqual([]);
+    expect(page.selectedPeriod()).toBeNull();
+    expect(page.appPeriodId()).toBeNull();
   });
 
   it("selecting a period changes the app-wide selection", async () => {
@@ -146,3 +157,8 @@ describe("Sidebar", () => {
     expect(page.accountsMaximized()).toBe("none");
   });
 });
+
+/** The small books with no building over them: nothing to select. */
+function createSeedWithoutBuildings(): LegacySeed {
+  return { ...createSmallSeed(), buildings: [] };
+}
