@@ -95,14 +95,20 @@ Work that has started and is not finished.
   `node <plugin root>/scripts/add-to-project.mts . ci-security:renovate`,
   which removes Dependabot's file. The kit and the add-ons are at the
   plugin's 0.15.0 since 2026-10-13; only this option is left.
-- **Seven open code-scanning alerts from the first CodeQL scan** (switched
-  on 2026-10-13, with Dependabot security updates and private vulnerability
+- **Eight open code-scanning alerts.** Seven are from the first CodeQL scan
+  (switched on 2026-10-13, with Dependabot security updates and private vulnerability
   reporting; all nine settings `pnpm repo:settings` reads are now on). One was
   CodeQL's: `js/incomplete-sanitization`, a warning, in
   `tools/arch/gates/lib/files.mts`, the kit's own file; the kit's 0.15.0
   (on `main` with this entry) replaces the `*` through a function, so the
   alert should close at the next scan of `main`. Check it did, and dismiss
-  it by hand if it did not. The other six
+  it by hand if it did not. The eighth came with the housekeeping
+  branch (pull request #8): `js/incomplete-multi-character-sanitization`,
+  rated high, in `tools/repo-hygiene/lib/markdown.mts:100`, the add-on's
+  heading reader stripping tags to make an anchor that is never rendered. The
+  plugin's own status page lists that same line as an open, unread alert, so
+  it is upstream's; dismiss it here as a false positive with that reason.
+  The CodeQL check is not in the ruleset, and #8 merged with it red. The other six
   are OpenSSF Scorecard's ratings of the repository's practices shown as
   errors with no file: CI best practices, code review, maintained, fuzzing,
   SAST and branch protection. They are not code defects; decide which to act
