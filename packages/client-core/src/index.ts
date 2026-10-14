@@ -1,4 +1,5 @@
 export { createWsConnection } from "./adapters/wsConnection.ts";
+export { parseAmount } from "./amounts.ts";
 export {
   type App,
   type AppPorts,

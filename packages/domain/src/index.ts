@@ -32,3 +32,4 @@ export * from "./useCases/riparto/periodTypes.ts";
 export * from "./useCases/riparto/recomputePeriod.ts";
 export * from "./useCases/riparto/types.ts";
 export * from "./useCases/validateBudget.ts";
+export * from "./useCases/validateEntry.ts";

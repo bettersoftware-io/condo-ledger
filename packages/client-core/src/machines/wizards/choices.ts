@@ -1,0 +1,107 @@
+import {
+  type Account,
+  type AccountNode,
+  type AccountRole,
+  PATH_SEPARATOR,
+  type PostingScope,
+  pathOf,
+} from "@cl/domain";
+
+import type { Books } from "#/presenters/booksPresenter.ts";
+
+import type { WizardChoice } from "./wizard.ts";
+
+/** A row of the tree that owns postings, as a choice, with what a posting on it is. */
+interface PostingRow {
+  choice: WizardChoice;
+  scope: PostingScope;
+}
+
+/** The period's regular accounts `keep` accepts, in tree order: keyed by account id, labelled by path, grouped under their top-level account. */
+export function leafChoices(
+  books: Books,
+  keep: (account: Account) => boolean,
+): WizardChoice[] {
+  const kept = new Set(
+    books.accounts
+      .filter((account) => {
+        return account.type === "regular" && keep(account);
+      })
+      .map((account) => {
+        return account.id;
+      }),
+  );
+
+  return postingRows(books)
+    .filter((row) => {
+      return row.scope.kind === "account" && kept.has(row.scope.accountId);
+    })
+    .map(choiceOf);
+}
+
+/** Every row of the tree that owns postings, in tree order: keyed by node, so a control account's row names its party. */
+export function rowChoices(books: Books): WizardChoice[] {
+  return postingRows(books).map(choiceOf);
+}
+
+/** The regular account with the role, or null. */
+export function roleAccount(books: Books, role: AccountRole): Account | null {
+  return (
+    books.accounts.find((account) => {
+      return account.type === "regular" && account.role === role;
+    }) ?? null
+  );
+}
+
+/** A cost account: what a purchase debits. */
+export function isExpenseLeaf(account: Account): boolean {
+  return account.nature === "expenses";
+}
+
+/** The node's path without Total, as the pickers and the preview show it. */
+export function shortPath(books: Books, key: string): string {
+  return pathOf(books.tree, key).slice(
+    books.tree.label.length + PATH_SEPARATOR.length,
+  );
+}
+
+function postingRows(books: Books): PostingRow[] {
+  const rows: PostingRow[] = [];
+
+  function underLevel(node: AccountNode, above: string[]): void {
+    for (const child of node.children) {
+      if (child.accountId === null) {
+        underLevel(child, [...above, child.label]);
+      } else {
+        underAccount(child, above, child.label);
+      }
+    }
+  }
+
+  function underAccount(
+    node: AccountNode,
+    above: string[],
+    group: string,
+  ): void {
+    const labels = [...above, node.label];
+
+    if (node.scope !== null) {
+      rows.push({
+        choice: { key: node.key, label: labels.join(PATH_SEPARATOR), group },
+        scope: node.scope,
+      });
+    }
+
+    for (const child of node.children) {
+      underAccount(child, labels, group);
+    }
+  }
+
+  underLevel(books.tree, []);
+
+  return rows;
+}
+
+function choiceOf(row: PostingRow): WizardChoice {
+  return row.choice;
+}
