@@ -1,3 +1,5 @@
+import type { GenericLine } from "@cl/client-core";
+
 /**
  * One picture: a name and the state the screen is in when it is taken. The
  * state is data, never a click. The visual host turns it into deliveries on
@@ -18,7 +20,32 @@ export interface Scenario {
   drawerOpen?: boolean;
   /** Accounts given another name, by id: a label the seed does not have. */
   renamed?: Record<string, string>;
+  /** The Buildings menu item on screen; Accounts when absent. */
+  menu?: "accounts" | "journal";
+  /** The journal entries open, by id. */
+  expandedEntries?: string[];
+  /** The journal entry selected, by id, on the page that holds it. */
+  selectedEntry?: string;
+  /** A dialog open over the Journal, with what is typed in it. */
+  dialog?: ScenarioDialog;
 }
+
+/** The generic wizard, with its description and lines typed. */
+interface GenericEntryDialog {
+  wizard: "genericEntry";
+  description: string;
+  lines: GenericLine[];
+}
+
+/** The bank purchase, with its account chosen and its amount typed. */
+interface DirectPaymentBankDialog {
+  wizard: "directPaymentBank";
+  targetId: string;
+  amount: string;
+}
+
+/** A wizard with its form as typed, or the delete confirmation of the selected entry. */
+type ScenarioDialog = GenericEntryDialog | DirectPaymentBankDialog | "delete";
 
 /** Total, the five levels, and the cash account's group: the cash account in view. */
 const OPEN_TO_CASH = [
@@ -38,6 +65,8 @@ const OPEN_TO_CASH = [
  * runs the tier; `pnpm visual` says which are missing. Pozzetto 2013 (`p36`)
  * with its cash account (`la154`) selected, at the full layout (1280) and the
  * compact one (1100, the sidebar folded to its rail or open as a drawer).
+ * The Journal of the same period: entry 2 (`tx150`, an invoice of three
+ * postings) open and selected, and the three dialogs over it.
  */
 export const scenarios: Record<string, Scenario> = {
   "accounts-1280-light": {
@@ -81,5 +110,60 @@ export const scenarios: Record<string, Scenario> = {
       la154:
         "Cassa contanti per le piccole spese della gestione ordinaria, straordinaria e del riscaldamento, con il riporto dei saldi dell'esercizio precedente",
     },
+  },
+  "journal-1280-light": {
+    width: 1280,
+    mode: "light",
+    periodId: "p36",
+    menu: "journal",
+    expandedEntries: ["tx150"],
+    selectedEntry: "tx150",
+  },
+  "journal-1280-dark": {
+    width: 1280,
+    mode: "dark",
+    periodId: "p36",
+    menu: "journal",
+    expandedEntries: ["tx150"],
+    selectedEntry: "tx150",
+  },
+  // Two lines that do not balance, typed: the balance message shows under
+  // the postings, and Save is disabled.
+  "journal-wizard-generic": {
+    width: 1280,
+    mode: "light",
+    periodId: "p36",
+    menu: "journal",
+    dialog: {
+      wizard: "genericEntry",
+      description: "Nota di credito",
+      lines: [
+        { scopeKey: "la154", debit: "50", credit: "" },
+        { scopeKey: "la173", debit: "", credit: "30" },
+      ],
+    },
+  },
+  // The bank purchase of an expense account: the preview debits it and
+  // credits the bank.
+  "journal-wizard-direct": {
+    width: 1280,
+    mode: "light",
+    periodId: "p36",
+    menu: "journal",
+    dialog: {
+      wizard: "directPaymentBank",
+      targetId: "la173",
+      amount: "1,200.00",
+    },
+  },
+  // Entry 41 (`tx109`, a generic entry), selected on its page, and the
+  // question whether to delete it.
+  "journal-delete-confirm": {
+    width: 1280,
+    mode: "light",
+    periodId: "p36",
+    menu: "journal",
+    selectedEntry: "tx109",
+    dialog: "delete",
   },
 };

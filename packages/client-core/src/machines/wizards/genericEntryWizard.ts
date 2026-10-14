@@ -28,7 +28,7 @@ import {
 } from "./wizard.ts";
 
 /** One line of the entry: the row of the tree it lands on, and its debit and credit as typed. */
-interface GenericLine {
+export interface GenericLine {
   scopeKey: string | null;
   debit: string;
   credit: string;

@@ -2,9 +2,20 @@ import type {
   AccountsGridIntents,
   AccountsGridState,
   App,
+  DirectPaymentForm,
+  DirectPaymentKind,
+  DirectPaymentSummary,
+  GenericEntryForm,
+  GenericEntrySummary,
+  JournalDialogIntents,
+  JournalDialogState,
+  JournalGridIntents,
+  JournalGridState,
   Machine,
   SidebarIntents,
   SidebarState,
+  WizardIntents,
+  WizardState,
 } from "@cl/client-core";
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
 import { type LegacySeed, loadLegacySeed, type Result } from "@cl/domain";
@@ -73,6 +84,71 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
 
         return sidebar;
       },
+      // The Journal grid opens the scenario's entries and shows the selected
+      // one on its page, through its own intents.
+      createJournalGrid: (): Machine<JournalGridState, JournalGridIntents> => {
+        const grid = machines.createJournalGrid();
+
+        for (const id of scenario.expandedEntries ?? []) {
+          grid.intents.toggle(id);
+        }
+
+        if (scenario.selectedEntry !== undefined) {
+          grid.intents.reveal(scenario.selectedEntry);
+        }
+
+        return grid;
+      },
+      // The Journal's dialog starts open, through its own intent.
+      createJournalDialog: (): Machine<
+        JournalDialogState,
+        JournalDialogIntents
+      > => {
+        const dialog = machines.createJournalDialog();
+        const wanted = scenario.dialog;
+
+        if (wanted === "delete") {
+          dialog.intents.openDelete();
+        } else if (wanted !== undefined) {
+          dialog.intents.openWizard(wanted.wizard);
+        }
+
+        return dialog;
+      },
+      // The generic wizard holds the scenario's description and lines, typed
+      // one field at a time, as the person types them.
+      createGenericEntryWizard: (): Machine<
+        WizardState<GenericEntryForm, GenericEntrySummary>,
+        WizardIntents<GenericEntryForm>
+      > => {
+        const wizard = machines.createGenericEntryWizard();
+        const wanted = scenario.dialog;
+
+        if (typeof wanted === "object" && wanted.wizard === "genericEntry") {
+          wizard.intents.edit({ description: wanted.description });
+          wizard.intents.edit({ lines: wanted.lines });
+        }
+
+        return wizard;
+      },
+      // The bank purchase holds the scenario's account and amount. Each edit
+      // carries only its field, so the description stays the prefilled one.
+      createDirectPaymentWizard: (
+        kind: DirectPaymentKind,
+      ): Machine<
+        WizardState<DirectPaymentForm, DirectPaymentSummary>,
+        WizardIntents<DirectPaymentForm>
+      > => {
+        const wizard = machines.createDirectPaymentWizard(kind);
+        const wanted = scenario.dialog;
+
+        if (typeof wanted === "object" && wanted.wizard === kind) {
+          wizard.intents.edit({ targetId: wanted.targetId });
+          wizard.intents.edit({ amount: wanted.amount });
+        }
+
+        return wizard;
+      },
     },
   };
 
@@ -87,6 +163,10 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
       if (scenario.selectedKey !== undefined) {
         accounts.select(scenario.selectedKey);
       }
+
+      // The menu last: the Journal's grid and dialog are built when it
+      // mounts, over the period already chosen.
+      harness.app.navigation.intents.selectMenu(scenario.menu ?? "accounts");
 
       clock.tick(0);
     },

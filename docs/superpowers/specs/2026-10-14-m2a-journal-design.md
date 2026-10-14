@@ -1,6 +1,6 @@
 # M2a — Journal & Daybook, with the self-contained wizards — design
 
-Date: 2026-10-14. Status: approved in conversation, not built.
+Date: 2026-10-14. Status: implemented on worktree-m2a-journal (2026-10-14).
 
 Parent spec: `docs/superpowers/specs/2026-10-11-app-v2-design.md`, whose
 Section 5 names M2 as "Journal + ten wizards → Installments → Tables &

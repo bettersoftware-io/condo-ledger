@@ -20,11 +20,15 @@ Work that has started and is not finished.
 
 ## Designed, not built
 
-- **M2, the rest of the Buildings module, and M3, the server on Node and
-  Postgres with the live port adapters.** M1 is on `main` (pull request #3,
-  2026-10-13). The parent design names the next two:
+- **M2b, the five remaining journal wizards and the rest of the Buildings
+  module, and M3, the server on Node and Postgres with the live port
+  adapters.** M1 is on `main` (pull request #3, 2026-10-13); M2a, the Journal
+  & Daybook screen with its five self-contained wizards, is built on the
+  simulators
+  ([2026-10-14-m2a-journal-design.md](superpowers/specs/2026-10-14-m2a-journal-design.md)).
+  The parent design names what follows:
   [2026-10-11-app-v2-design.md](superpowers/specs/2026-10-11-app-v2-design.md).
-  No plan yet for either. Until M3, `pnpm dev:fs` throws by design
+  No plan yet for M2b or M3. Until M3, `pnpm dev:fs` throws by design
   (`packages/client-react/src/app/buildPorts.ts`).
 
 ## Planned, and held by something
@@ -39,6 +43,12 @@ Work that has started and is not finished.
 
 ## Next, with no plan yet
 
+- **M2b, the Journal's other five wizards.** New Invoice, Invoice Payment,
+  Record Owner Collection, Opening Balances and Budget Allocation, which pull
+  in suppliers and invoices, installments, the functional-account settings
+  and the allocation engine; the delete of their kinds (`canDeleteEntry`
+  loosens per kind as each flow models its side effects); and `✎` on an
+  entry, which edits it. The M2a spec's "Out of scope" lists them.
 - **Per-grid persistence.** The design says a column resize persists per
   grid; today every per-component machine (grid expansion, columns, split,
   bottom tab) is rebuilt when its component mounts, so leaving the Accounts
@@ -47,24 +57,35 @@ Work that has started and is not finished.
   first render's argument only; document that in the `ViewModel` interface
   until it changes.
 - **Presenter robustness before the live adapters (M3).** In
-  `packages/client-core/src/presenters/accountsPresenter.ts`: add
-  `distinctUntilChanged` on `selectedKey$` (it re-emits on every books
-  emission); a key the tree no longer has should fall back to Total rather
-  than error the stream for good (today unreachable, since no M1 port changes
-  the tree's structure); `buildingsPresenter.selectPeriod` before the tree
-  loads reads as "no such period". The screen has no error boundary: a period
-  with broken references crashes the whole app on render.
+  `packages/client-core/src/presenters/accountsPresenter.ts`, a key the tree
+  no longer has should fall back to Total rather than error the stream for
+  good (today unreachable, since no port changes the tree's structure);
+  `buildingsPresenter.selectPeriod` before the tree loads reads as "no such
+  period". The screen has no error boundary: a period with broken references
+  crashes the whole app on render. In the Journal: the journal presenter's
+  eager `selected$` subscription has no error handler, and its `context$` and
+  `addEntry` follow `selected$` while its entries follow the books, so the
+  two can disagree briefly; the journal port's contract test "adds an entry"
+  relies on a synchronous first emission and has one subscriber; the
+  simulator keeps a draft's postings by reference; the delete alert is
+  hidden, not closed, when the selection vanishes while it is open, and
+  comes back on the next selection.
 - **Accessibility polish.** The tabbed panel lacks `aria-labelledby` and
   arrow keys; the popover menus have no focus return and no arrow keys; the
   inline editor's input has no label, `aria-invalid` or `role="alert"` on its
   error; the disabled checkbox in Account Details has no accessible name; the
-  splitter has no `onPointerCancel`.
-- **Structural tidy-ups:** `NONE` duplicated in `ledger.ts` (export it from
-  `accountTree.ts`); `missing()` duplicated across the two simulators;
+  splitter has no `onPointerCancel`. From the Journal: `ConfirmAlert` is a
+  `dialog` with no `aria-describedby`, so its question may not be read (an
+  `alertdialog`); `Dialog` traps no focus and gives none back when a wizard
+  closes on its own; one Escape would close two stacked dialogs; a
+  `FormField` read-only row is a `<label>` naming nothing, and the required
+  star is not announced (`aria-required`); after a dialog closes, the focus
+  lands on the grid's wrapper, whose outline is removed, so nothing shows
+  where it is.
+- **Structural tidy-ups:** `missing()` duplicated across the two simulators;
   `TopBar.tsx` has two near-identical picker blocks; `LedgerTab` is a
   view-model reader that builds every row itself (split it like
-  `AccountsGrid`); `AccountDetails` borrows `AccountsScreen.css`;
-  `.accounts-top .toolbar-button[data-icon-only]` reaches wider than its
+  `AccountsGrid`); `.accounts-top .toolbar-button[data-icon-only]` reaches wider than its
   comment; `createSeedWithASecondPeriod` duplicates half of
   `createTwoPeriodSeed`; `twoBuildings()` is not named `create…`;
   `Counterpart.kind` is never checked against the account's role;
@@ -73,7 +94,15 @@ Work that has started and is not finished.
   doc comment are inaccurate; `Breadcrumb` keys rows by their text; a dead
   `data-tone="muted"`; `tokens.css` still names the prototype's path in its
   header; the `knip.jsonc` client-react workspace repeats the `packages/*`
-  settings (keep in sync).
+  settings (keep in sync). From the Journal: `judgedPayment` and `Debit`
+  live in `directPaymentWizard.ts`, though the multi-cost wizard uses them
+  too (beside `payingOf` in `choices.ts`); the three wizard machine tests
+  copy one create-and-dispose harness, and the three wizard readers repeat
+  one skeleton; `JournalScreen` restates the grid machine's blank-search rule
+  (a `searching` flag on the grid's state); `JournalPaging` and
+  `JournalToolbar` use classes from `JournalScreen.css` without importing it;
+  `Wizards.css` reaches into `FormField`'s class with `:has()`; posting keys
+  (`entryId/index`) assume an entry id holds no slash.
 - **AGENTS.md:** the oracle's path is written without backticks so the
   `agent-docs` gate does not look for a file that is not in git; pointing at
   the test and `DESIGN_ORACLE_DIR` instead would be cleaner.
@@ -134,7 +163,12 @@ Work that has started and is not finished.
   ignored); the `visual` add-on's `visual.pw.ts` sets no viewport per
   scenario, so M1 edited it for the 1100-pixel scenarios, and every later
   update of the add-on refuses that file until it is forced (a `width` on
-  the scenario is what the host could take).
+  the scenario is what the host could take); the host pads its frame by
+  16 pixels and pictures the frame, so a `position: fixed` layer (the
+  Journal's dialogs) is drawn against the viewport, 16 pixels up and left of
+  the app: the three dialog goldens leave a 16-pixel strip of the app at the
+  right and the bottom outside the scrim, and the card is centred on the
+  viewport, not on the app.
 
 ## Known limits
 
@@ -177,4 +211,24 @@ Work that has started and is not finished.
   project moves with it rather than pinning `ubuntu-24.04`. Watch the first
   runs of `main` after that date; a runner-image failure is not the change
   that merged.
+- **The Journal's small gaps.** A delete refused for a reason no sentence
+  words shows the reason's code; the multi-cost wizard's footer shows the
+  lines' total alone, not against the amount paid; `validateEntry` judges an
+  entry line by line, so the reason shown is the first faulty line's, not
+  the weightiest across the lines.
+- **A wizard can offer the old period's accounts once the adapters are
+  asynchronous (M3).** A wizard opened between a period switch and the new
+  period's books arriving offers the old period's accounts, while `addEntry`
+  posts to the new period; the port refuses the entry as `unknown-account`.
+  The simulators answer synchronously, so it cannot happen before M3.
+- **`journal-wizard-direct` is unstable on darwin-arm64.** The bank
+  purchase is taller than the 720-pixel viewport lets the dialog be, so its
+  body scrolls, and Chromium draws the rounded corners inside that scroller
+  one colour level apart from frame to frame: `pnpm visual` fails it about
+  seven runs in ten with "Failed to take two consecutive stable
+  screenshots", while the other nine scenarios held over ten repeats. With
+  the body not scrolling (`.dialog-body` set to `overflow: hidden`, an
+  experiment only) it held ten in ten. The fix is the host's (how Chromium
+  is launched, or a taller viewport for that scenario) or the scenario's; not
+  decided. The `linux-x64` run is not measured yet.
 - **`pnpm dev:fs` throws until M3.**

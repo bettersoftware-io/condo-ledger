@@ -30,3 +30,5 @@ be worth doing. Not how.
 - **A check on `docs/STATUS.md` itself**: that it has its six sections, that
   its date moved with an edit, that each linked file exists. The
   `repo-hygiene` add-on already checks the links.
+- **Dragging a dialog by its title bar**, with the position kept per dialog
+  id for the session, as the design describes; nothing depends on it.
