@@ -138,6 +138,31 @@
   font-size: 11.5px;
 }
 
+/* An account cell: a select painted as a plain box, its chevron drawn over the right edge. */
+.wizard-select-box {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.wizard-lines-row .wizard-select {
+  appearance: none;
+  padding-right: 22px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.wizard-select-chevron {
+  position: absolute;
+  top: 50%;
+  right: 7px;
+  color: var(--txd);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
 .wizard-lines-row .wizard-input:focus {
   border-color: var(--acc);
   outline: none;
