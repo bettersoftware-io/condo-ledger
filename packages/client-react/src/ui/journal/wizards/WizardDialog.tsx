@@ -23,6 +23,7 @@ export function WizardDialog({
   state,
   refusal,
   reasonText,
+  shownInBody,
   onNext,
   onBack,
   onSave,
@@ -34,9 +35,11 @@ export function WizardDialog({
       ? name
       : `${name} — Step ${state.step}: ${stepTitle}`;
 
-  const reason =
-    refusal ??
-    (!state.verdict.ok && state.touched ? state.verdict.reason : null);
+  const verdictReason =
+    !state.verdict.ok && state.touched && state.verdict.reason !== shownInBody
+      ? state.verdict.reason
+      : null;
+  const reason = refusal ?? verdictReason;
   const last = state.step === state.stepCount;
 
   return (
@@ -140,6 +143,8 @@ export interface WizardDialogProps {
   refusal: string | null;
   /** The wizard's own words for a reason. */
   reasonText: (reason: string) => string;
+  /** A verdict's reason the body already shows in its own place: the message leaves it out. A store's refusal always shows. */
+  shownInBody?: string;
   onNext: () => void;
   onBack: () => void;
   onSave: () => void;

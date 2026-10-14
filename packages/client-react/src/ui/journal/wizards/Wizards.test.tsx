@@ -119,7 +119,9 @@ describe("the journal wizards", () => {
 
     await wizard.pick("Costs › Spese generali › Pulizie");
 
-    expect(wizard.message()).toBe("This period has no cash account");
+    expect(wizard.message()).toBeNull();
+    expect(wizard.paidFrom()).toBe("This period has no cash account");
+    expect(wizard.isSaveDisabled()).toBe(true);
   });
 
   it("a period with no bank account says so in the bank wizards", async () => {
@@ -130,7 +132,9 @@ describe("the journal wizards", () => {
 
     await direct.fill("Amount", "5");
 
-    expect(direct.message()).toBe("This period has no default bank account");
+    expect(direct.message()).toBeNull();
+    expect(direct.paidFrom()).toBe("This period has no default bank account");
+    expect(direct.isSaveDisabled()).toBe(true);
 
     await direct.cancel();
     const multi = await page.openWizard(
@@ -141,7 +145,8 @@ describe("the journal wizards", () => {
 
     await multi.fill("Amount paid", "5");
 
-    expect(multi.message()).toBe("This period has no default bank account");
+    expect(multi.message()).toBeNull();
+    expect(multi.paidFrom()).toBe("This period has no default bank account");
     expect(multi.isSaveDisabled()).toBe(true);
   });
 

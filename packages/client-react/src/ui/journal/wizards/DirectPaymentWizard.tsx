@@ -97,6 +97,7 @@ function DirectPaymentBody({
       state={state}
       refusal={refusal}
       reasonText={wordReason}
+      shownInBody="no-paid-from-account"
       onNext={onNext}
       onBack={onBack}
       onSave={onSave}
