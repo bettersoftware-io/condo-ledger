@@ -1,12 +1,4 @@
-import {
-  type Account,
-  addCents,
-  type Cents,
-  type EntryDraft,
-  type Posting,
-  validateEntry,
-  ZERO_CENTS,
-} from "@cl/domain";
+import { addCents, type Cents, ZERO_CENTS } from "@cl/domain";
 
 import { parseAmount } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
@@ -14,10 +6,14 @@ import type { Books } from "#/presenters/booksPresenter.ts";
 import {
   isExpenseLeaf,
   leafChoices,
-  roleAccount,
-  shortPath,
+  type Paying,
+  payingOf,
 } from "./choices.ts";
-import { DIRECT_PAYMENT_DESCRIPTIONS } from "./directPaymentWizard.ts";
+import {
+  type Debit,
+  DIRECT_PAYMENT_DESCRIPTIONS,
+  judgedPayment,
+} from "./directPaymentWizard.ts";
 import {
   type AddEntry,
   createWizardMachine,
@@ -49,22 +45,10 @@ export interface MultiCostPaymentSummary {
   linesTotal: Cents;
 }
 
-/** A cost line resolved: the leaf chosen and its amount. */
-interface Cost {
-  choice: WizardChoice;
-  amount: Cents;
-}
-
 /** A cost line as read: the leaf, when one offered is chosen, and the amount, when it reads. */
 interface ReadLine {
   choice: WizardChoice | undefined;
   amount: Cents | null;
-}
-
-/** What the wizard works on: the books, and the bank account paid from. */
-interface Paying {
-  books: Books;
-  paidFrom: Account;
 }
 
 const EMPTY_LINE: CostLine = { accountId: null, amount: "" };
@@ -77,9 +61,7 @@ export function createMultiCostPaymentWizard(
   books: Books | null,
   addEntry: AddEntry,
 ): WizardMachine<MultiCostPaymentForm, MultiCostPaymentSummary> {
-  const paidFrom = books === null ? null : roleAccount(books, "bank");
-  const paying =
-    books === null || paidFrom === null ? null : { books, paidFrom };
+  const paying = payingOf(books, "bank");
   const choices = books === null ? [] : leafChoices(books, isExpenseLeaf);
 
   return keepingOneLine(
@@ -97,7 +79,7 @@ export function createMultiCostPaymentWizard(
         },
         summarize: (form: MultiCostPaymentForm): MultiCostPaymentSummary => {
           return {
-            paidFrom: paidFrom?.name ?? null,
+            paidFrom: paying?.paidFrom.name ?? null,
             linesTotal: linesTotal(form.lines),
           };
         },
@@ -149,50 +131,16 @@ function derive(
     return refused("lines-do-not-sum");
   }
 
-  const { books } = paying;
-  const draft: EntryDraft = {
-    kind: "directPaymentBank",
-    description: form.description,
-    postings: [
-      ...costs.map((cost): Posting => {
-        return {
-          accountId: cost.choice.key,
-          debit: cost.amount,
-          credit: ZERO_CENTS,
-          counterpart: null,
-        };
-      }),
-      {
-        accountId: paying.paidFrom.id,
-        debit: ZERO_CENTS,
-        credit: paid,
-        counterpart: null,
-      },
-    ],
-  };
-
-  const preview = [
-    ...costs.map((cost) => {
-      return {
-        path: cost.choice.label,
-        debit: cost.amount,
-        credit: ZERO_CENTS,
-      };
-    }),
-    {
-      path: shortPath(books, paying.paidFrom.id),
-      debit: ZERO_CENTS,
-      credit: paid,
-    },
-  ];
-  const verdict = validateEntry(draft, books.accounts);
-
-  return verdict.ok
-    ? { preview, verdict, draft }
-    : { preview, verdict, draft: null };
+  return judgedPayment(
+    "directPaymentBank",
+    form.description,
+    paying,
+    costs,
+    paid,
+  );
 }
 
-function isCost(line: ReadLine): line is Cost {
+function isCost(line: ReadLine): line is Debit {
   return line.choice !== undefined && line.amount !== null;
 }
 

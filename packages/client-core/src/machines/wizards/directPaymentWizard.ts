@@ -1,7 +1,9 @@
 import {
   type Account,
+  type Cents,
   type EntryDraft,
-  validateEntry,
+  type EntryKind,
+  type Posting,
   ZERO_CENTS,
 } from "@cl/domain";
 
@@ -11,13 +13,15 @@ import type { Books } from "#/presenters/booksPresenter.ts";
 import {
   isExpenseLeaf,
   leafChoices,
-  roleAccount,
+  type Paying,
+  payingOf,
   shortPath,
 } from "./choices.ts";
 import {
   type AddEntry,
   createWizardMachine,
   type Derived,
+  judged,
   refused,
   type WizardChoice,
   type WizardMachine,
@@ -46,10 +50,10 @@ export const DIRECT_PAYMENT_DESCRIPTIONS: Record<DirectPaymentKind, string> = {
   withholdingPayment: "Withholding payment",
 };
 
-/** What the wizard works on: the books, and the account paid from. */
-interface Paying {
-  books: Books;
-  paidFrom: Account;
+/** A leaf a payment debits: the one chosen, and its amount. */
+export interface Debit {
+  choice: WizardChoice;
+  amount: Cents;
 }
 
 /**
@@ -62,7 +66,11 @@ export function createDirectPaymentWizard(
   books: Books | null,
   addEntry: AddEntry,
 ): WizardMachine<DirectPaymentForm, DirectPaymentSummary> {
-  const paying = payingOf(kind, books);
+  const paying = payingOf(
+    books,
+    kind === "directPaymentCash" ? "cash" : "bank",
+  );
+
   const choices =
     books === null
       ? []
@@ -116,20 +124,6 @@ export function createDirectPaymentWizard(
   return { ...machine, intents: { ...machine.intents, edit } };
 }
 
-/** The books and the account the kind pays from, or null when there are no books or the period has no such account. */
-function payingOf(kind: DirectPaymentKind, books: Books | null): Paying | null {
-  if (books === null) {
-    return null;
-  }
-
-  const paidFrom = roleAccount(
-    books,
-    kind === "directPaymentCash" ? "cash" : "bank",
-  );
-
-  return paidFrom === null ? null : { books, paidFrom };
-}
-
 function derive(
   kind: DirectPaymentKind,
   paying: Paying | null,
@@ -154,35 +148,60 @@ function derive(
     return refused("not-an-amount");
   }
 
+  return judgedPayment(
+    kind,
+    form.description,
+    paying,
+    [{ choice: target, amount }],
+    amount,
+  );
+}
+
+/**
+ * A payment's draft: each debit on its leaf, then the account paid from
+ * credited with the amount paid; previewed in that order, and judged.
+ */
+export function judgedPayment(
+  kind: EntryKind,
+  description: string,
+  paying: Paying,
+  debits: Debit[],
+  paid: Cents,
+): Derived {
   const { books, paidFrom } = paying;
   const draft: EntryDraft = {
     kind,
-    description: form.description,
+    description,
     postings: [
-      {
-        accountId: target.key,
-        debit: amount,
-        credit: ZERO_CENTS,
-        counterpart: null,
-      },
+      ...debits.map((debit): Posting => {
+        return {
+          accountId: debit.choice.key,
+          debit: debit.amount,
+          credit: ZERO_CENTS,
+          counterpart: null,
+        };
+      }),
       {
         accountId: paidFrom.id,
         debit: ZERO_CENTS,
-        credit: amount,
+        credit: paid,
         counterpart: null,
       },
     ],
   };
 
   const preview = [
-    { path: target.label, debit: amount, credit: ZERO_CENTS },
-    { path: shortPath(books, paidFrom.id), debit: ZERO_CENTS, credit: amount },
+    ...debits.map((debit) => {
+      return {
+        path: debit.choice.label,
+        debit: debit.amount,
+        credit: ZERO_CENTS,
+      };
+    }),
+    { path: shortPath(books, paidFrom.id), debit: ZERO_CENTS, credit: paid },
   ];
-  const verdict = validateEntry(draft, books.accounts);
 
-  return verdict.ok
-    ? { preview, verdict, draft }
-    : { preview, verdict, draft: null };
+  return judged(preview, draft, books.accounts);
 }
 
 /** The description the wizard proposes: a withholding names the tax account chosen. */

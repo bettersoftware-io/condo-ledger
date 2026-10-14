@@ -8,7 +8,6 @@ import {
   type Posting,
   type PostingScope,
   subtractCents,
-  validateEntry,
   ZERO_CENTS,
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
@@ -21,6 +20,7 @@ import {
   type AddEntry,
   createWizardMachine,
   type Derived,
+  judged,
   keepingOneLine,
   refused,
   type WizardChoice,
@@ -144,11 +144,7 @@ function derive(
       credit: line.posting.credit,
     };
   });
-  const verdict = validateEntry(draft, books?.accounts ?? []);
-
-  return verdict.ok
-    ? { preview, verdict, draft }
-    : { preview, verdict, draft: null };
+  return judged(preview, draft, books?.accounts ?? []);
 }
 
 /** The line's row and posting, or why it has none: no row chosen, or a text that does not read. */

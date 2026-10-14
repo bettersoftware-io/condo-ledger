@@ -64,6 +64,22 @@ export function rowChoices(books: Books): WizardChoice[] {
     .map(choiceOf);
 }
 
+/** What a payment wizard works on: the books, and the account paid from. */
+export interface Paying {
+  books: Books;
+  paidFrom: Account;
+}
+
+/** The books and their regular account with the role, or null when there are no books or the period has no such account. */
+export function payingOf(
+  books: Books | null,
+  role: AccountRole,
+): Paying | null {
+  const paidFrom = books === null ? null : roleAccount(books, role);
+
+  return books === null || paidFrom === null ? null : { books, paidFrom };
+}
+
 /** The regular account with the role, or null. */
 export function roleAccount(books: Books, role: AccountRole): Account | null {
   return (

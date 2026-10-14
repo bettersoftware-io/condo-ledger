@@ -2,6 +2,7 @@ import { type DefaultedStateObservable, state } from "@rx-state/core";
 import { BehaviorSubject, map } from "rxjs";
 
 import {
+  type Account,
   type Cents,
   type EntryAdded,
   type EntryDraft,
@@ -10,6 +11,7 @@ import {
   type Result,
   type ResultOf,
   rejected,
+  validateEntry,
 } from "@cl/domain";
 
 import type { Machine } from "../machine.ts";
@@ -183,6 +185,19 @@ export function keepingOneLine<TLine, TForm extends Lined<TLine>, TSummary>(
   }
 
   return { ...machine, intents: { ...machine.intents, edit } };
+}
+
+/** The draft as the domain judges it, beside its preview: the draft is kept only when the verdict accepts. */
+export function judged(
+  preview: PreviewLine[],
+  draft: EntryDraft,
+  accounts: Account[],
+): Derived {
+  const verdict = validateEntry(draft, accounts);
+
+  return verdict.ok
+    ? { preview, verdict, draft }
+    : { preview, verdict, draft: null };
 }
 
 /** A form refused for a reason of the wizard's own, before there is anything to preview. */
