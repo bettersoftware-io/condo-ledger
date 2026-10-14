@@ -2,6 +2,7 @@ import { type DefaultedStateObservable, state } from "@rx-state/core";
 import {
   combineLatest,
   distinctUntilChanged,
+  filter,
   map,
   type Observable,
   of,
@@ -14,11 +15,8 @@ import {
   type AccountNature,
   type AccountNode,
   type AccountsPort,
-  buildAccountTree,
   type Cents,
   findNode,
-  type JournalEntry,
-  type JournalPort,
   type Ledger,
   ledgerOf,
   pathOf,
@@ -26,7 +24,7 @@ import {
   ROOT_KEY,
 } from "@cl/domain";
 
-import type { PeriodSelection } from "./buildingsPresenter.ts";
+import type { Books } from "./booksPresenter.ts";
 
 export interface AccountDetails {
   path: string;
@@ -38,11 +36,6 @@ export interface AccountDetails {
   balance: Cents;
   budget: Cents | null;
   systemId: string;
-}
-
-export interface AccountsPresenterPorts {
-  accounts: AccountsPort;
-  journal: JournalPort;
 }
 
 export interface AccountsPresenter {
@@ -65,12 +58,6 @@ const NATURE_LABELS: Record<AccountNature, string> = {
 
 const NO_VALUE = "—";
 
-/** A period's raw books, read together so the tree is built from one consistent set. */
-interface Books {
-  tree: AccountNode;
-  entries: JournalEntry[];
-}
-
 /** Everything the screen shows for one period and one selected key, worked out together. */
 interface View {
   tree: AccountNode;
@@ -82,20 +69,20 @@ interface View {
 
 /** The Accounts screen: the tree of the selected period, the selected node, its ledger and its details. */
 export function createAccountsPresenter(
-  ports: AccountsPresenterPorts,
-  selected$: Observable<PeriodSelection | null>,
+  books$: Observable<Books | null>,
+  accounts: AccountsPort,
 ): AccountsPresenter {
   const chosenKey$ = new Subject<string>();
-  const periodId$ = selected$.pipe(
-    map((selection) => {
-      return selection?.periodId ?? null;
+  const periodId$ = books$.pipe(
+    map((books) => {
+      return books?.periodId ?? null;
     }),
     distinctUntilChanged(),
   );
 
-  // The books and the key switch together, so no reader ever sees a new
-  // period's tree with the last period's key. Every period change starts the
-  // selection again at Total.
+  // The key restarts at Total on every period change; the books of that
+  // period and the key are then combined, so no reader sees a new period's
+  // tree with the last period's key.
   const view$ = state(
     periodId$.pipe(
       switchMap((periodId): Observable<View | null> => {
@@ -104,7 +91,11 @@ export function createAccountsPresenter(
         }
 
         return combineLatest([
-          booksOf(ports, periodId),
+          books$.pipe(
+            filter((books): books is Books => {
+              return books !== null && books.periodId === periodId;
+            }),
+          ),
           chosenKey$.pipe(startWith(ROOT_KEY)),
         ]).pipe(
           map(([books, key]) => {
@@ -130,6 +121,7 @@ export function createAccountsPresenter(
         map((view) => {
           return view?.key ?? ROOT_KEY;
         }),
+        distinctUntilChanged(),
       ),
       ROOT_KEY,
     ),
@@ -161,24 +153,9 @@ export function createAccountsPresenter(
       chosenKey$.next(key);
     },
     setBudget: (accountId: string, budget: Cents): Promise<Result> => {
-      return ports.accounts.setBudget(accountId, budget);
+      return accounts.setBudget(accountId, budget);
     },
   };
-}
-
-function booksOf(
-  ports: AccountsPresenterPorts,
-  periodId: string,
-): Observable<Books> {
-  return combineLatest([
-    ports.accounts.accounts(periodId),
-    ports.journal.entries(periodId),
-    ports.accounts.parties(periodId),
-  ]).pipe(
-    map(([accounts, entries, parties]) => {
-      return { tree: buildAccountTree(accounts, entries, parties), entries };
-    }),
-  );
 }
 
 /** Errors, naming the key, for a key the tree does not have: the key comes from a row of this tree. */

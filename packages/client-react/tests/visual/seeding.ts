@@ -2,6 +2,10 @@ import type {
   AccountsGridIntents,
   AccountsGridState,
   App,
+  JournalDialogIntents,
+  JournalDialogState,
+  JournalGridIntents,
+  JournalGridState,
   Machine,
   SidebarIntents,
   SidebarState,
@@ -73,6 +77,34 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
 
         return sidebar;
       },
+      // The Journal grid opens the scenario's entries and shows the selected
+      // one on its page, through its own intents.
+      createJournalGrid: (): Machine<JournalGridState, JournalGridIntents> => {
+        const grid = machines.createJournalGrid();
+
+        for (const id of scenario.expandedEntries ?? []) {
+          grid.intents.toggle(id);
+        }
+
+        if (scenario.selectedEntry !== undefined) {
+          grid.intents.reveal(scenario.selectedEntry);
+        }
+
+        return grid;
+      },
+      // The Journal's dialog starts open, through its own intent.
+      createJournalDialog: (): Machine<
+        JournalDialogState,
+        JournalDialogIntents
+      > => {
+        const dialog = machines.createJournalDialog();
+
+        if (scenario.dialog === "delete") {
+          dialog.intents.openDelete();
+        }
+
+        return dialog;
+      },
     },
   };
 
@@ -87,6 +119,10 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
       if (scenario.selectedKey !== undefined) {
         accounts.select(scenario.selectedKey);
       }
+
+      // The menu last: the Journal's grid and dialog are built when it
+      // mounts, over the period already chosen.
+      harness.app.navigation.intents.selectMenu(scenario.menu ?? "accounts");
 
       clock.tick(0);
     },

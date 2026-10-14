@@ -1,14 +1,16 @@
-import type {
-  AccountData,
-  AccountNature,
-  AccountRole,
-  AccountType,
-  Building,
-  Counterpart,
-  JournalEntryData,
-  LegacySeedData,
-  Party,
-  PostingData,
+import {
+  type AccountData,
+  type AccountNature,
+  type AccountRole,
+  type AccountType,
+  type Building,
+  type Counterpart,
+  type EntryKind,
+  type JournalEntryData,
+  type LegacySeedData,
+  type Party,
+  type PostingData,
+  romeTime,
 } from "@cl/domain";
 
 import { eur } from "../amounts.ts";
@@ -41,6 +43,20 @@ const TYPES: Record<AccountType, true> = {
   regular: true,
   control: true,
   controlUnitResident: true,
+};
+
+/** The dump's ledgerTransaction.type, in the domain's words. An untyped transaction is a generic entry. */
+export const ENTRY_KIND_OF_TYPE: Record<string, EntryKind> = {
+  startingBalance: "openingBalances",
+  closingBalance: "closingBalances",
+  ledgerInvoiceRegistration: "invoice",
+  ledgerInvoicePayment: "invoicePayment",
+  unitResidentTakings: "collection",
+  estimateDistribution: "budgetAllocation",
+  individualExpense: "individualExpense",
+  directPaymentInCash: "directPaymentCash",
+  checkingAccountDirectPayment: "directPaymentBank",
+  withholdingTaxPayment: "withholdingPayment",
 };
 
 /** The periods with balanced books, as the M1 simulators read them. */
@@ -226,40 +242,31 @@ function projectEntries(
         periodId: `p${periodId}`,
         number: Number(row.code),
         at: romeTime(
-          must(
-            text(row.timestamp),
-            `the timestamp of the transaction ${String(row.id)}`,
+          new Date(
+            `${must(text(row.timestamp), `the timestamp of the transaction ${String(row.id)}`).replace(" ", "T")}Z`,
           ),
         ),
+        kind: kindOf(row),
         description: String(row.description ?? ""),
         postings,
       };
     });
 }
 
-// The dump stores UTC; the legacy app showed, and the UI shows, Rome wall-clock
-// time. Converted here with a fixed zone, so the seed never depends on the
-// zone of the machine that runs the generator or reads the seed.
-const ROME = new Intl.DateTimeFormat("en-GB", {
-  timeZone: "Europe/Rome",
-  hourCycle: "h23",
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-});
+function kindOf(row: Row): EntryKind {
+  const type = text(row.type);
 
-/** "YYYY-MM-DD HH:mm:ss" in UTC, as the dump holds it → "YYYY-MM-DDTHH:mm:ss" in Rome time. */
-function romeTime(stored: string): string {
-  const parts = new Map(
-    ROME.formatToParts(new Date(`${stored.replace(" ", "T")}Z`)).map((part) => {
-      return [part.type, part.value];
-    }),
-  );
+  if (type === undefined) {
+    return "generic";
+  }
 
-  return `${parts.get("year")}-${parts.get("month")}-${parts.get("day")}T${parts.get("hour")}:${parts.get("minute")}:${parts.get("second")}`;
+  if (!Object.hasOwn(ENTRY_KIND_OF_TYPE, type)) {
+    throw new Error(
+      `the transaction ${String(row.id)} has the type ${type}, which the domain does not know`,
+    );
+  }
+
+  return ENTRY_KIND_OF_TYPE[type] as EntryKind;
 }
 
 function counterpartOf(line: Row): Counterpart | null {

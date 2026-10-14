@@ -26,6 +26,8 @@ export interface TreeGridPage {
   emptyMessage: () => string | null;
   footerTexts: () => string[];
   cellTexts: (label: string) => string[];
+  alignmentsOf: (label: string) => string[];
+  toneOf: (label: string) => string | null;
   template: () => string;
   rerender: (props: Partial<TreeGridProps>) => void;
 }
@@ -134,6 +136,14 @@ export function mountTreeGrid(props: Partial<TreeGridProps>): TreeGridPage {
       return Array.from(rowOf(label).children).map((cell) => {
         return cell.textContent ?? "";
       });
+    },
+    alignmentsOf: (label: string): string[] => {
+      return Array.from(rowOf(label).children).map((cell) => {
+        return cell.getAttribute("data-align") ?? "left";
+      });
+    },
+    toneOf: (label: string): string | null => {
+      return rowOf(label).getAttribute("data-tone");
     },
     footerTexts: (): string[] => {
       const footer = rendered.queryByTestId(TESTIDS.treeGridFooter);

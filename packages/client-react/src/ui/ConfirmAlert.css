@@ -1,0 +1,39 @@
+/* README "Dialog", the confirm alert: the glyph in a 34px circle beside the text. */
+.confirm-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+}
+
+.confirm-alert-glyph {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--alert-glyph-bg);
+  color: var(--alert-glyph);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirm-alert-message {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.confirm-alert-text {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--tx);
+}
+
+.confirm-alert-error {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--neg);
+}

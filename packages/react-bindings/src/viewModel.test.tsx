@@ -5,6 +5,7 @@ import {
   DESIGN_FIRM,
   DESIGN_PRINCIPAL,
   type LegacySeed,
+  type Result,
 } from "@cl/domain";
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 
@@ -144,6 +145,11 @@ describe("the view model", () => {
       seen.bottomTab.activate("Details");
       seen.maximize.toggle("top");
       seen.sidebar.open();
+      seen.journalGrid.toggle("e1");
+      seen.journalDialog.openDelete();
+      seen.directPayment.edit({ amount: "1" });
+      seen.multiCostPayment.edit({ amount: "2" });
+      seen.genericEntry.edit({ description: "Prova" });
     });
 
     expect(page.read(0).grid.state.expanded).toContain("la10");
@@ -152,7 +158,81 @@ describe("the view model", () => {
     expect(page.read(0).bottomTab.state).toEqual({ active: "Details" });
     expect(page.read(0).maximize.state).toEqual({ maximized: "top" });
     expect(page.read(0).sidebar.state.open).toBe(true);
+    expect(page.read(0).journalGrid.state.expanded).toEqual(["e1"]);
+    expect(page.read(0).journalDialog.state.open).toEqual({ kind: "delete" });
+    expect(page.read(0).directPayment.state.form.amount).toBe("1");
+    expect(page.read(0).multiCostPayment.state.form.amount).toBe("2");
+    expect(page.read(0).genericEntry.state.form.description).toBe("Prova");
     expect(machineStatesOf(page.read(1))).toEqual(before);
+  });
+
+  it("reads the selected period's journal entries and the context the wizards show", async () => {
+    const page = mountUnderProvider(createSmallSeed());
+
+    await page.send((seen) => {
+      seen.period.selectPeriod("p1");
+    });
+
+    expect(page.read().journalEntries).toHaveLength(9);
+    expect(page.read().journalGrid.state.total).toBe(9);
+    expect(page.read().journalContext).toEqual({
+      building: "Pozzetto",
+      period: "2013",
+    });
+  });
+
+  it("deletes an entry, which leaves the journal", async () => {
+    const page = mountUnderProvider(createSmallSeed());
+    let answer: Result | null = null;
+
+    await page.send(async (seen) => {
+      answer = await seen.deleteEntry("e8");
+    });
+
+    expect(answer).toEqual({ ok: true });
+    expect(
+      page.read().journalEntries.map((entry) => {
+        return entry.id;
+      }),
+    ).not.toContain("e8");
+    expect(page.read().journalEntries).toHaveLength(8);
+  });
+
+  it("the journal dialog reads back the wizard it opened", async () => {
+    const page = mountUnderProvider(createSmallSeed());
+
+    expect(page.read().journalDialog.state.open).toBeNull();
+
+    await page.send((seen) => {
+      seen.journalDialog.openWizard("genericEntry");
+    });
+
+    expect(page.read().journalDialog.state.open).toEqual({
+      kind: "wizard",
+      wizard: "genericEntry",
+    });
+  });
+
+  it("a wizard hook's edit changes its state, on the selected period's books", async () => {
+    const page = mountUnderProvider(createSmallSeed());
+
+    expect(page.read().directPayment.state.summary).toEqual({
+      paidFrom: "Cassa",
+    });
+
+    await page.send((seen) => {
+      seen.directPayment.edit({ targetId: "la21", amount: "12.50" });
+      seen.multiCostPayment.edit({ amount: "3" });
+      seen.genericEntry.edit({ description: "Giroconto" });
+    });
+
+    expect(page.read().directPayment.state).toMatchObject({
+      form: { targetId: "la21", amount: "12.50" },
+      verdict: { ok: true },
+      touched: true,
+    });
+    expect(page.read().multiCostPayment.state.form.amount).toBe("3");
+    expect(page.read().genericEntry.state.form.description).toBe("Giroconto");
   });
 
   it("tells a component with no provider above it what is missing", () => {
@@ -193,5 +273,10 @@ function machineStatesOf(seen: Seen): unknown[] {
     seen.bottomTab.state,
     seen.maximize.state,
     seen.sidebar.state,
+    seen.journalGrid.state.expanded,
+    seen.journalDialog.state,
+    seen.directPayment.state.form,
+    seen.multiCostPayment.state.form,
+    seen.genericEntry.state.form,
   ];
 }

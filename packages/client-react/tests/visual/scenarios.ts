@@ -18,6 +18,14 @@ export interface Scenario {
   drawerOpen?: boolean;
   /** Accounts given another name, by id: a label the seed does not have. */
   renamed?: Record<string, string>;
+  /** The Buildings menu item on screen; Accounts when absent. */
+  menu?: "accounts" | "journal";
+  /** The journal entries open, by id. */
+  expandedEntries?: string[];
+  /** The journal entry selected, by id, on the page that holds it. */
+  selectedEntry?: string;
+  /** A dialog open over the Journal: the delete confirmation of the selected entry. */
+  dialog?: "delete";
 }
 
 /** Total, the five levels, and the cash account's group: the cash account in view. */
@@ -38,6 +46,8 @@ const OPEN_TO_CASH = [
  * runs the tier; `pnpm visual` says which are missing. Pozzetto 2013 (`p36`)
  * with its cash account (`la154`) selected, at the full layout (1280) and the
  * compact one (1100, the sidebar folded to its rail or open as a drawer).
+ * The Journal of the same period: entry 2 (`tx150`, an invoice of three
+ * postings) open and selected, and the delete confirmation over it.
  */
 export const scenarios: Record<string, Scenario> = {
   "accounts-1280-light": {
@@ -81,5 +91,36 @@ export const scenarios: Record<string, Scenario> = {
       la154:
         "Cassa contanti per le piccole spese della gestione ordinaria, straordinaria e del riscaldamento, con il riporto dei saldi dell'esercizio precedente",
     },
+  },
+  "journal-1280-light": {
+    width: 1280,
+    mode: "light",
+    periodId: "p36",
+    menu: "journal",
+    expandedEntries: ["tx150"],
+    selectedEntry: "tx150",
+  },
+  "journal-1280-dark": {
+    width: 1280,
+    mode: "dark",
+    periodId: "p36",
+    menu: "journal",
+    expandedEntries: ["tx150"],
+    selectedEntry: "tx150",
+  },
+  // No wizard has a golden. On linux-x64 a dialog card centred at a
+  // half-pixel offset redraws its inner boxes' rounded corners one or two
+  // colour levels apart from frame to frame, and the host never gets two
+  // identical frames: the scrolling bank purchase, the generic entry and the
+  // withholding payment were removed for it.
+  // Entry 41 (`tx109`, a generic entry), selected on its page, and the
+  // question whether to delete it.
+  "journal-delete-confirm": {
+    width: 1280,
+    mode: "light",
+    periodId: "p36",
+    menu: "journal",
+    selectedEntry: "tx109",
+    dialog: "delete",
   },
 };

@@ -1,0 +1,12 @@
+/* README "Journal & Daybook": the entry row's date and number before the tree column. */
+.journal-date {
+  font-size: 11px;
+  color: var(--txd);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.journal-number {
+  font-size: 11px;
+  font-weight: 600;
+}

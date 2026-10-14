@@ -1,0 +1,79 @@
+/* README "Journal-entry wizards": the section label, then rows 6px 10px under --bd2 rules. */
+.selectable-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.selectable-list-legend {
+  padding: 0;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--txd);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.selectable-list-rows {
+  max-height: 240px;
+  overflow: auto;
+  border: 1px solid var(--bd);
+  border-radius: var(--r-panel);
+  background: var(--ctrl);
+}
+
+.selectable-list-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--tx);
+  cursor: pointer;
+}
+
+.selectable-list-item + .selectable-list-item {
+  border-top: 1px solid var(--bd2);
+}
+
+.selectable-list-item:hover {
+  background: var(--hover);
+}
+
+.selectable-list-item[data-selected="true"] {
+  background: var(--sel);
+}
+
+.selectable-list-item:focus-within {
+  outline: 2px solid var(--acc);
+  outline-offset: -2px;
+}
+
+/* The radio stays in the page for the keyboard and assistive technology; the row draws the choice. */
+.selectable-list-radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.selectable-list-icon {
+  display: flex;
+  flex: none;
+  color: var(--txd);
+}
+
+.selectable-list-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

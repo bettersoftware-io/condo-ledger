@@ -1,9 +1,9 @@
 import { type ReactElement, type ReactNode, useState } from "react";
 
-import type { AccountsGridState } from "@cl/client-core";
+import { type AccountsGridState, parseAmount } from "@cl/client-core";
 import { type Cents, type Result, ROOT_KEY, ZERO_CENTS } from "@cl/domain";
 
-import { formatCents, parseAmount } from "../format.ts";
+import { formatCents } from "../format.ts";
 import { InlineEditor } from "../InlineEditor.tsx";
 import { Money } from "../Money.tsx";
 import { TreeGrid, type TreeGridRowData } from "../TreeGrid.tsx";

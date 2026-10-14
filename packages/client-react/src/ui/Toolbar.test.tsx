@@ -35,6 +35,28 @@ describe("Toolbar", () => {
     expect(page.buttonText("Delete")).toBe("");
   });
 
+  it("shows its text in place of the label, which stays its name", () => {
+    const page = mountToolbar(
+      <ToolbarButton label="Page size" text="25 ▾" onClick={vi.fn()} />,
+    );
+
+    expect(page.buttonText("Page size")).toBe("25 ▾");
+  });
+
+  it("a button that opens a menu says so, and whether it is open", () => {
+    const page = mountToolbar(
+      <>
+        <ToolbarButton label="Add" menuOpen={false} onClick={vi.fn()} />
+        <ToolbarButton label="Sizes" menuOpen onClick={vi.fn()} />
+        <ToolbarButton label="Save" onClick={vi.fn()} />
+      </>,
+    );
+
+    expect(page.menuState("Add")).toBe("menu closed");
+    expect(page.menuState("Sizes")).toBe("menu open");
+    expect(page.menuState("Save")).toBeNull();
+  });
+
   it("does not call back from a disabled button", async () => {
     const onClick = vi.fn();
     const page = mountToolbar(

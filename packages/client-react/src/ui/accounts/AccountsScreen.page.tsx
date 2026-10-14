@@ -40,12 +40,30 @@ export interface AccountsScreenPage {
   toolLabels: () => string[];
   clickTool: (label: string) => Promise<void>;
   toasts: () => string[];
+  /** Clicks the chart of accounts' row with this label: the account the whole app selects. */
+  clickAccount: (label: string) => Promise<void>;
+  /** Opens or closes the chart of accounts' row with this label. */
+  clickAccountCaret: (label: string) => Promise<void>;
+  /** The Ledger tab's lines, each as its cells' texts. */
+  ledgerRows: () => string[][];
 }
 
 /** Mounts the Accounts screen over the small books, with the toasts its stubs post. */
 export function mountAccountsScreen(): AccountsScreenPage {
-  const { rendered, user } = mountScreen();
+  return accountsScreenIn(mountScreen());
+}
 
+/** What a mounted page holds for a page object: what it drew, and the person at the keyboard. */
+interface Drawn {
+  rendered: RenderResult;
+  user: User;
+}
+
+/** The Accounts screen wherever it is drawn: on its own, or in the shell another page object mounted. */
+export function accountsScreenIn({
+  rendered,
+  user,
+}: Drawn): AccountsScreenPage {
   function screen(): HTMLElement {
     return rendered.getByTestId(TESTIDS.accountsScreen);
   }
@@ -68,6 +86,32 @@ export function mountAccountsScreen(): AccountsScreenPage {
     }
 
     return element;
+  }
+
+  function rowTexts(panel: HTMLElement): string[][] {
+    return within(panel)
+      .queryAllByTestId(TESTIDS.treeGridRow)
+      .map((row) => {
+        return Array.from(row.children).map((cell) => {
+          return cell.textContent ?? "";
+        });
+      });
+  }
+
+  function accountRow(label: string): HTMLElement {
+    const row = within(top())
+      .queryAllByTestId(TESTIDS.treeGridRow)
+      .find((candidate) => {
+        return (
+          candidate.querySelector(".tree-grid-text")?.textContent === label
+        );
+      });
+
+    if (row === undefined) {
+      throw new Error(`No account labelled ${label}`);
+    }
+
+    return row;
   }
 
   function dragThrough(steps: number[], screenHeight: number): void {
@@ -141,6 +185,17 @@ export function mountAccountsScreen(): AccountsScreenPage {
       return rendered.queryAllByTestId(TESTIDS.toast).map((toast) => {
         return toast.querySelector(".toast-text")?.textContent ?? "";
       });
+    },
+    clickAccount: async (label: string): Promise<void> => {
+      await user.click(accountRow(label));
+    },
+    clickAccountCaret: async (label: string): Promise<void> => {
+      await user.click(
+        within(accountRow(label)).getByTestId(TESTIDS.treeGridCaret),
+      );
+    },
+    ledgerRows: (): string[][] => {
+      return rowTexts(bottom());
     },
   };
 }

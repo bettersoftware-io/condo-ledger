@@ -8,7 +8,7 @@ export * from "./entities/result.ts";
 export * from "./entities/session.ts";
 export type { AccountsPort } from "./ports/accountsPort.ts";
 export type { BuildingsPort } from "./ports/buildingsPort.ts";
-export type { JournalPort } from "./ports/journalPort.ts";
+export type { EntryAdded, JournalPort } from "./ports/journalPort.ts";
 export type { SessionPort } from "./ports/sessionPort.ts";
 export { createAccountsSimulator } from "./simulators/accountsSimulator.ts";
 export { createBuildingsSimulator } from "./simulators/buildingsSimulator.ts";
@@ -19,8 +19,11 @@ export {
   DESIGN_FIRM,
   DESIGN_PRINCIPAL,
 } from "./simulators/sessionSimulator.ts";
+export * from "./support/clock.ts";
+export * from "./support/romeTime.ts";
 export * from "./useCases/accountTree.ts";
 export * from "./useCases/allocate.ts";
+export * from "./useCases/journal.ts";
 export * from "./useCases/ledger.ts";
 export * from "./useCases/riparto/computeBalances.ts";
 export * from "./useCases/riparto/computeInstallments.ts";
@@ -29,3 +32,4 @@ export * from "./useCases/riparto/periodTypes.ts";
 export * from "./useCases/riparto/recomputePeriod.ts";
 export * from "./useCases/riparto/types.ts";
 export * from "./useCases/validateBudget.ts";
+export * from "./useCases/validateEntry.ts";

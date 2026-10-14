@@ -9,7 +9,7 @@ import type {
 
 import { buildDb } from "../db.ts";
 import type { Row, Tables } from "../loadRows.ts";
-import { projectLegacySeed } from "./legacySeed.ts";
+import { ENTRY_KIND_OF_TYPE, projectLegacySeed } from "./legacySeed.ts";
 
 describe("projectLegacySeed on a small synthetic dump", () => {
   it("projects the buildings, accounts, entries and parties of the balanced periods", () => {
@@ -97,6 +97,7 @@ describe("projectLegacySeed on a small synthetic dump", () => {
           periodId: "p10",
           number: 1,
           at: "2013-03-31T01:59:59",
+          kind: "generic",
           description: "Bolletta",
           postings: [
             { accountId: "la105", debit: 12000, credit: 0, counterpart: null },
@@ -113,6 +114,7 @@ describe("projectLegacySeed on a small synthetic dump", () => {
           periodId: "p10",
           number: 2,
           at: "2013-03-31T03:00:00",
+          kind: "collection",
           description: "Rata",
           postings: [
             { accountId: "la102", debit: 5000, credit: 0, counterpart: null },
@@ -177,6 +179,43 @@ describe("projectLegacySeed refuses what it cannot project, naming the id", () =
     expect(() => {
       return projectLegacySeed(buildDb(tables));
     }).toThrow("missing: the timestamp of the transaction 201");
+  });
+
+  it("refuses a transaction type the domain does not know", () => {
+    const tables = edit(createSmallDump(), "ledgerTransaction", "201", {
+      type: "giroconto",
+    });
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow(
+      "the transaction 201 has the type giroconto, which the domain does not know",
+    );
+  });
+
+  it("refuses a transaction type named like a member of Object.prototype", () => {
+    const tables = edit(createSmallDump(), "ledgerTransaction", "201", {
+      type: "constructor",
+    });
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow(
+      "the transaction 201 has the type constructor, which the domain does not know",
+    );
+  });
+
+  it("maps every legacy transaction type to a kind", () => {
+    const kinds = Object.entries(ENTRY_KIND_OF_TYPE).map(([type, kind]) => {
+      const tables = edit(createSmallDump(), "ledgerTransaction", "201", {
+        type,
+      });
+
+      return projectLegacySeed(buildDb(tables)).entries[1]?.kind === kind;
+    });
+
+    expect(kinds).toHaveLength(10);
+    expect(kinds.every(Boolean)).toBe(true);
   });
 
   it("refuses an owner whose unit has no code", () => {
@@ -337,6 +376,7 @@ function createSmallDump(): Tables {
         accountingPeriodId: "10",
         code: "2",
         timestamp: "2013-03-31 01:00:00",
+        type: "unitResidentTakings",
         description: "Rata",
       },
       {
@@ -344,6 +384,7 @@ function createSmallDump(): Tables {
         accountingPeriodId: "10",
         code: "1",
         timestamp: "2013-03-31 00:59:59",
+        type: null,
         description: "Bolletta",
       },
     ],

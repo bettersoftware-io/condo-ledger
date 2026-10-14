@@ -10,20 +10,34 @@ import type {
   ColumnSpec,
   ColumnsIntents,
   ColumnsState,
+  DirectPaymentForm,
+  DirectPaymentSummary,
+  GenericEntryForm,
+  GenericEntrySummary,
+  JournalContext,
+  JournalDialogIntents,
+  JournalDialogState,
+  JournalGridIntents,
+  JournalGridState,
   MaximizeIntents,
   MaximizeState,
+  MultiCostPaymentForm,
+  MultiCostPaymentSummary,
   NavigationIntents,
   NavigationState,
   SidebarIntents,
   SidebarState,
   SplitIntents,
   SplitState,
+  WizardIntents,
+  WizardState,
 } from "@cl/client-core";
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
 import type {
   AccountNode,
   Building,
   Cents,
+  JournalEntryView,
   Ledger,
   LegacySeed,
   Result,
@@ -58,6 +72,24 @@ export interface Seen {
   bottomTab: MachineView<BottomTabState, BottomTabIntents>;
   maximize: MachineView<MaximizeState, MaximizeIntents>;
   sidebar: MachineView<SidebarState, SidebarIntents>;
+  journalEntries: JournalEntryView[];
+  journalContext: JournalContext | null;
+  deleteEntry: (id: string) => Promise<Result>;
+  journalGrid: MachineView<JournalGridState, JournalGridIntents>;
+  journalDialog: MachineView<JournalDialogState, JournalDialogIntents>;
+  /** The cash purchase: the kind every reader's direct-payment wizard is built for. */
+  directPayment: MachineView<
+    WizardState<DirectPaymentForm, DirectPaymentSummary>,
+    WizardIntents<DirectPaymentForm>
+  >;
+  multiCostPayment: MachineView<
+    WizardState<MultiCostPaymentForm, MultiCostPaymentSummary>,
+    WizardIntents<MultiCostPaymentForm>
+  >;
+  genericEntry: MachineView<
+    WizardState<GenericEntryForm, GenericEntrySummary>,
+    WizardIntents<GenericEntryForm>
+  >;
 }
 
 export interface ViewModelPage {
@@ -139,6 +171,14 @@ function Reader({ seen, index }: ReaderProps): ReactElement {
     useBottomTab,
     useMaximize,
     useSidebar,
+    useJournalEntries,
+    useJournalContext,
+    useDeleteEntry,
+    useJournalGrid,
+    useJournalDialog,
+    useDirectPaymentWizard,
+    useMultiCostPaymentWizard,
+    useGenericEntryWizard,
   } = useViewModel();
 
   seen[index] = {
@@ -158,6 +198,14 @@ function Reader({ seen, index }: ReaderProps): ReactElement {
     bottomTab: useBottomTab(TABS),
     maximize: useMaximize(),
     sidebar: useSidebar(),
+    journalEntries: useJournalEntries(),
+    journalContext: useJournalContext(),
+    deleteEntry: useDeleteEntry(),
+    journalGrid: useJournalGrid(),
+    journalDialog: useJournalDialog(),
+    directPayment: useDirectPaymentWizard("directPaymentCash"),
+    multiCostPayment: useMultiCostPaymentWizard(),
+    genericEntry: useGenericEntryWizard(),
   };
 
   return <output />;

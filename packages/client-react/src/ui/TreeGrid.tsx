@@ -107,12 +107,16 @@ export interface TreeGridRowData {
   /** Drawn in the label cell before the text. */
   icon: ReactNode;
   label: string;
-  /** One per column after the first. */
+  /** Cells drawn before the label cell, one per leading column; the tree column follows these cells. */
+  leading?: ReactNode[];
+  /** One per column after the tree column. */
   cells: ReactNode[];
+  /** A row that stands under another (a posting under its entry): small and dim. */
+  tone?: "muted";
 }
 
 export interface TreeGridProps {
-  /** The first is the tree column. */
+  /** The tree column is the one after the rows' leading cells (the first when they have none). */
   columns: TreeGridColumn[];
   /** grid-template-columns, from the columns machine. */
   template: string;

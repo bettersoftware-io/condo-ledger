@@ -1602,6 +1602,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p1",
       "number": 1,
       "at": "2011-01-01T14:04:43",
+      "kind": "openingBalances",
       "description": "Inserimento saldi apertura",
       "postings": [
         {
@@ -1755,6 +1756,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p1",
       "number": 2,
       "at": "2011-01-01T16:05:19",
+      "kind": "generic",
       "description": "Incremento fondo accantonamento",
       "postings": [
         {
@@ -1776,6 +1778,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p1",
       "number": 3,
       "at": "2011-02-23T14:06:51",
+      "kind": "directPaymentBank",
       "description": "Acquisto contenitore per pubblicità condominiale da posizionare nell'androne",
       "postings": [
         {
@@ -1797,6 +1800,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p1",
       "number": 4,
       "at": "2011-03-13T14:07:00",
+      "kind": "directPaymentBank",
       "description": "Bolletta elettricità Gen-Feb 2011",
       "postings": [
         {
@@ -1824,6 +1828,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p1",
       "number": 5,
       "at": "2011-03-15T14:12:50",
+      "kind": "budgetAllocation",
       "description": "Riparto preventivo (n°1 del 14/03/2011)",
       "postings": [
         {
@@ -1938,6 +1943,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p1",
       "number": 6,
       "at": "2011-03-15T16:13:05",
+      "kind": "collection",
       "description": "Incasso rate 2011 (Ordinario) n.1 del (Sarcinelli Albino)",
       "postings": [
         {
@@ -1971,6 +1977,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p1",
       "number": 7,
       "at": "2011-03-31T15:16:35",
+      "kind": "directPaymentBank",
       "description": "Competenze bancarie 1° trimestre",
       "postings": [
         {
@@ -1992,6 +1999,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p1",
       "number": 8,
       "at": "2011-04-11T16:15:36",
+      "kind": "directPaymentCash",
       "description": "Acquisto zerbino per l'ingresso principale",
       "postings": [
         {
@@ -2013,6 +2021,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p1",
       "number": 9,
       "at": "2011-04-18T16:16:06",
+      "kind": "directPaymentBank",
       "description": "Premio polizza assicurazione fabbricato",
       "postings": [
         {
@@ -2034,6 +2043,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p1",
       "number": 10,
       "at": "2011-04-23T16:17:09",
+      "kind": "invoice",
       "description": "Registrazione fattura Cragno Giardinaggio soc. coop. n. 42 del 23/04/2011: Taglio siepe giardino",
       "postings": [
         {
@@ -2064,6 +2074,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p1",
       "number": 11,
       "at": "2011-04-23T18:17:21",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Cragno Giardinaggio soc. coop. n. 42 del 23/04/2011: Taglio siepe giardino",
       "postings": [
         {
@@ -2088,6 +2099,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p1",
       "number": 12,
       "at": "2011-04-23T19:18:45",
+      "kind": "withholdingPayment",
       "description": "Versamento R/A (Società di persone - trib. 1019)",
       "postings": [
         {
@@ -2109,6 +2121,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p1",
       "number": 13,
       "at": "2011-05-01T16:19:20",
+      "kind": "invoice",
       "description": "Registrazione fattura Cragno Giardinaggio soc. coop. n. 76 del 01/05/2011: Trattamento antiparassitario sequioia",
       "postings": [
         {
@@ -2139,6 +2152,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p1",
       "number": 14,
       "at": "2011-05-03T16:20:49",
+      "kind": "directPaymentBank",
       "description": "Bolletta elettricità Mar-Apr 2011",
       "postings": [
         {
@@ -2166,6 +2180,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p1",
       "number": 15,
       "at": "2011-12-31T15:21:22",
+      "kind": "closingBalances",
       "description": "Conguaglio a consuntivo",
       "postings": [
         {
@@ -2271,6 +2286,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p1",
       "number": 16,
       "at": "2011-12-06T15:55:04",
+      "kind": "collection",
       "description": "Incasso Rate 2011 (Ordinario) / Minisini Ilaria",
       "postings": [
         {
@@ -2304,6 +2320,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p1",
       "number": 17,
       "at": "2011-12-06T15:56:01",
+      "kind": "collection",
       "description": "Incasso Rate 2011 (Ordinario) / Cargnelutti Lidia",
       "postings": [
         {
@@ -2355,6 +2372,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p1",
       "number": 18,
       "at": "2011-12-28T15:56:44",
+      "kind": "collection",
       "description": "Incasso Rate 2011 (Ordinario) / Forgiarini Lino",
       "postings": [
         {
@@ -2379,6 +2397,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 1,
       "at": "2013-01-10T11:09:01",
+      "kind": "openingBalances",
       "description": "Inserimento saldi apertura",
       "postings": [
         {
@@ -2565,6 +2584,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 2,
       "at": "2013-01-10T15:59:29",
+      "kind": "invoice",
       "description": "Registrazione fattura Cargnelutti Elevatori s.n.c. n. 1358 del 01/12/2012: controllo ascensori",
       "postings": [
         {
@@ -2595,6 +2615,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 3,
       "at": "2013-01-11T15:48:34",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Cargnelutti Elevatori s.n.c. n. 1358 effettuato il 10/01/2013: controllo ascensori",
       "postings": [
         {
@@ -2619,6 +2640,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 4,
       "at": "2013-01-18T15:36:16",
+      "kind": "collection",
       "description": "Incasso Parziale Rate da Buttazzoni Laura: Rata 1 (20/01/2013)",
       "postings": [
         {
@@ -2643,6 +2665,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 5,
       "at": "2013-01-20T15:44:27",
+      "kind": "collection",
       "description": "Incasso Parziale Rate da Fornasier Marco: Rata 1 (20/01/2013)",
       "postings": [
         {
@@ -2667,6 +2690,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 6,
       "at": "2013-01-31T15:16:48",
+      "kind": "invoice",
       "description": "Registrazione fattura Energie del Ledra S.p.A. n. 41117 del 13/01/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - dicembre '12 - gennaio '13",
       "postings": [
         {
@@ -2691,6 +2715,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 7,
       "at": "2013-01-31T15:37:21",
+      "kind": "collection",
       "description": "Incasso Rate da Buttazzoni Laura: Rata 1 (20/01/2013)",
       "postings": [
         {
@@ -2715,6 +2740,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 8,
       "at": "2013-02-05T12:30:07",
+      "kind": "invoice",
       "description": "Registrazione fattura Energie del Ledra S.p.A. n. 43116 del 13/01/2013: Spese luci utenza n. 395 123 456: dicembre '09 - gennaio '10",
       "postings": [
         {
@@ -2739,6 +2765,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 9,
       "at": "2013-02-09T14:31:02",
+      "kind": "invoice",
       "description": "Registrazione fattura Natisone Gas S.p.A. n. 7736 del 13/01/2013: spese gas dicembre '09",
       "postings": [
         {
@@ -2769,6 +2796,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 10,
       "at": "2013-02-15T14:51:57",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Energie del Ledra S.p.A. n. 43116 effettuato il 13/02/2013: Spese luci utenza n. 395 123 456: dicembre '12 - gennaio '13",
       "postings": [
         {
@@ -2793,6 +2821,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 11,
       "at": "2013-02-15T15:08:39",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Energie del Ledra S.p.A. n. 41117 effettuato il 13/02/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - dicembre '12 - gennaio '13",
       "postings": [
         {
@@ -2817,6 +2846,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 12,
       "at": "2013-02-15T15:10:52",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Natisone Gas S.p.A. n. 7736 effettuato il 13/02/2013: spese gas dicembre '12",
       "postings": [
         {
@@ -2841,6 +2871,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 13,
       "at": "2013-02-15T16:00:36",
+      "kind": "collection",
       "description": "Incasso Rate da Scarbolo Flavio: Rata 1 (20/01/2013)",
       "postings": [
         {
@@ -2865,6 +2896,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 14,
       "at": "2013-02-18T10:47:00",
+      "kind": "budgetAllocation",
       "description": "Riparto relatvo al bilancio preventivo approvato il 13/02/2012",
       "postings": [
         {
@@ -3366,6 +3398,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 15,
       "at": "2013-02-20T15:42:05",
+      "kind": "collection",
       "description": "Incasso Rate da Fattori Gilda: Rata 1 (20/01/2013)",
       "postings": [
         {
@@ -3390,6 +3423,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 16,
       "at": "2013-02-21T15:11:16",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Natisone Gas S.p.A. n. 7736 effettuato il 20/02/2013: spese gas dicembre '12",
       "postings": [
         {
@@ -3414,6 +3448,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 17,
       "at": "2013-02-28T12:20:20",
+      "kind": "invoice",
       "description": "Registrazione fattura Ferramenta Cossio s.a.s. n. 223 del 04/02/2013: Riparazione porte",
       "postings": [
         {
@@ -3444,6 +3479,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 18,
       "at": "2013-02-28T16:04:00",
+      "kind": "collection",
       "description": "Incasso Rate da Bearzi Servizi s.a.s.: Rata 1 (20/01/2013), Rata 2 (20/02/2013)",
       "postings": [
         {
@@ -3477,6 +3513,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 19,
       "at": "2013-03-04T15:50:24",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Ferramenta Cossio s.a.s. n. 223 effettuato il 04/03/2013: Riparazione porte",
       "postings": [
         {
@@ -3501,6 +3538,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 20,
       "at": "2013-03-12T15:39:42",
+      "kind": "collection",
       "description": "Incasso Rate da Iacuzzi Tullio: Rata 1 (20/01/2013), Rata 2 (20/02/2013), Rata 3 (20/03/2013)",
       "postings": [
         {
@@ -3543,6 +3581,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 21,
       "at": "2013-03-15T15:11:35",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Natisone Gas S.p.A. n. 7736 effettuato il 05/03/2013: spese gas dicembre '12",
       "postings": [
         {
@@ -3567,6 +3606,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 22,
       "at": "2013-03-15T16:21:47",
+      "kind": "invoice",
       "description": "Registrazione fattura Cargnelutti Elevatori s.n.c. n. 472 del 01/03/2013: controllo ascensori",
       "postings": [
         {
@@ -3597,6 +3637,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 23,
       "at": "2013-03-15T16:52:47",
+      "kind": "invoice",
       "description": "Registrazione fattura Cassin Certificazioni S.p.A. n. 1106378 del 02/03/2013: verifica straordinaria",
       "postings": [
         {
@@ -3627,6 +3668,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 24,
       "at": "2013-03-20T15:45:42",
+      "kind": "collection",
       "description": "Incasso Rate da Fornasier Marco: Rata 1 (20/01/2013), Rata 2 (20/02/2013), Rata 3 (20/03/2013)",
       "postings": [
         {
@@ -3669,6 +3711,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 25,
       "at": "2013-03-24T12:31:38",
+      "kind": "invoice",
       "description": "Registrazione fattura n. 43117 del 13/03/2013 (Energie del Ledra S.p.A. / Spese luci utenza n. 395 123 456: febbraio - marzo)",
       "postings": [
         {
@@ -3693,6 +3736,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 26,
       "at": "2013-03-27T15:19:21",
+      "kind": "invoice",
       "description": "Registrazione fattura Energie del Ledra S.p.A. n. 41118 del 13/03/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - febbraio - marzo",
       "postings": [
         {
@@ -3717,6 +3761,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 27,
       "at": "2013-03-29T14:35:30",
+      "kind": "invoice",
       "description": "Registrazione fattura Natisone Gas S.p.A. n. 64135 del 11/03/2013: spese gas gennaio",
       "postings": [
         {
@@ -3747,6 +3792,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 28,
       "at": "2013-04-01T16:52:53",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Cargnelutti Elevatori s.n.c. n. 472 effettuato il 01/04/2013: controllo ascensori",
       "postings": [
         {
@@ -3771,6 +3817,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 29,
       "at": "2013-04-02T13:24:39",
+      "kind": "invoice",
       "description": "Registrazione fattura Estintori Toniutti & C. s.a.s. n. 274 del 22/03/2013: Sostituzione estintori",
       "postings": [
         {
@@ -3801,6 +3848,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 30,
       "at": "2013-04-02T16:54:04",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Cassin Certificazioni S.p.A. n. 1106378 effettuato il 02/04/2013: verifica straordinaria",
       "postings": [
         {
@@ -3825,6 +3873,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 31,
       "at": "2013-04-04T15:37:11",
+      "kind": "invoice",
       "description": "Registrazione fattura Natisone Gas S.p.A. n. 86391 del 24/03/2013: spese gas febbraio",
       "postings": [
         {
@@ -3855,6 +3904,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 32,
       "at": "2013-04-07T12:17:14",
+      "kind": "invoice",
       "description": "Registrazione fattura Adami Valerio n. 74 del 01/04/2013: Spese di amministrazione condominiale",
       "postings": [
         {
@@ -3885,6 +3935,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 33,
       "at": "2013-04-10T16:33:08",
+      "kind": "collection",
       "description": "Incasso Rate da Variola Dina: Rata 3 (20/03/2013), Rata 4 (20/04/2013)",
       "postings": [
         {
@@ -3918,6 +3969,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 34,
       "at": "2013-04-12T12:12:44",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Natisone Gas S.p.A. n. 64135 effettuato il 11/04/2013: spese gas gennaio",
       "postings": [
         {
@@ -3942,6 +3994,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 35,
       "at": "2013-04-13T13:55:30",
+      "kind": "invoice",
       "description": "Registrazione fattura Pontoni Servizi di Pulizia s.n.c. n. 2165 del 31/03/2013: pulizia marciapiedi",
       "postings": [
         {
@@ -3972,6 +4025,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 36,
       "at": "2013-04-13T16:55:16",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Energie del Ledra S.p.A. n. 43117 effettuato il 13/04/2013: Spese luci utenza n. 395 123 456: febbraio - marzo",
       "postings": [
         {
@@ -3996,6 +4050,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 37,
       "at": "2013-04-13T16:56:03",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Energie del Ledra S.p.A. n. 41118 effettuato il 13/04/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - febbraio - marzo",
       "postings": [
         {
@@ -4020,6 +4075,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 38,
       "at": "2013-04-14T13:53:28",
+      "kind": "invoice",
       "description": "Registrazione fattura Pontoni Servizi di Pulizia s.n.c. n. 1022 del 31/03/2013: pulizia marciapiedi",
       "postings": [
         {
@@ -4050,6 +4106,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 39,
       "at": "2013-04-17T16:38:00",
+      "kind": "collection",
       "description": "Incasso Rate da Buttazzoni Laura: Rata 2 (20/02/2013), Rata 3 (20/03/2013), Rata 4 (20/04/2013)",
       "postings": [
         {
@@ -4092,6 +4149,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 40,
       "at": "2013-04-19T15:39:23",
+      "kind": "invoice",
       "description": "Registrazione fattura Natisone Gas S.p.A. n. 114419 del 15/04/2013: spese gas marzo",
       "postings": [
         {
@@ -4122,6 +4180,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 41,
       "at": "2013-04-21T13:08:14",
+      "kind": "generic",
       "description": "Pagamento in contanti di spese postali",
       "postings": [
         {
@@ -4143,6 +4202,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 42,
       "at": "2013-04-22T16:56:44",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Estintori Toniutti & C. s.a.s. n. 274 effettuato il 22/04/2013: Sostituzione estintori",
       "postings": [
         {
@@ -4167,6 +4227,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 43,
       "at": "2013-04-22T17:02:40",
+      "kind": "collection",
       "description": "Incasso Rate da Candotti Diego: Rata 1 (20/01/2013), Rata 2 (20/02/2013), Rata 3 (20/03/2013), Rata 4 (20/04/2013), Rata 5 (20/05/2013), Rata 6 (20/06/2013), Rata 7 (20/07/2013)",
       "postings": [
         {
@@ -4245,6 +4306,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 44,
       "at": "2013-04-23T13:42:17",
+      "kind": "invoice",
       "description": "Registrazione fattura Energie del Ledra S.p.A. n. 43112 del 04/11/2013: Spese luci utenza n. 395 123 456: ottobre - novembre",
       "postings": [
         {
@@ -4269,6 +4331,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 45,
       "at": "2013-04-24T16:57:33",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Natisone Gas S.p.A. n. 86391 effettuato il 24/04/2013: spese gas febbraio",
       "postings": [
         {
@@ -4293,6 +4356,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 46,
       "at": "2013-05-03T16:58:28",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Adami Valerio n. 74 effettuato il 03/05/2013: Spese di amministrazione condominiale",
       "postings": [
         {
@@ -4317,6 +4381,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 47,
       "at": "2013-05-04T13:18:21",
+      "kind": "invoice",
       "description": "Registrazione fattura Treppo Impianti Elettrici S.p.A. n. 72 del 27/04/2013: Revisione caldaia",
       "postings": [
         {
@@ -4347,6 +4412,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 48,
       "at": "2013-05-12T16:58:04",
+      "kind": "collection",
       "description": "Incasso Rate da Morandini Olga: Rata 3 (20/03/2013), Rata 4 (20/04/2013), Rata 5 (20/05/2013)",
       "postings": [
         {
@@ -4389,6 +4455,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 49,
       "at": "2013-05-15T16:59:51",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Natisone Gas S.p.A. n. 114419 effettuato il 15/05/2013: spese gas marzo",
       "postings": [
         {
@@ -4413,6 +4480,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 50,
       "at": "2013-05-17T16:21:03",
+      "kind": "invoice",
       "description": "Registrazione fattura Energie del Ledra S.p.A. n. 41119 del 14/05/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - aprile - maggio",
       "postings": [
         {
@@ -4437,6 +4505,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 51,
       "at": "2013-05-20T16:40:40",
+      "kind": "collection",
       "description": "Incasso Rate da Iacuzzi Tullio: Rata 4 (20/04/2013), Rata 5 (20/05/2013)",
       "postings": [
         {
@@ -4470,6 +4539,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 52,
       "at": "2013-05-20T16:55:59",
+      "kind": "collection",
       "description": "Incasso Rate da Masotti Sabrina: Rata 1 (20/01/2013), Rata 2 (20/02/2013), Rata 3 (20/03/2013), Rata 4 (20/04/2013), Rata 5 (20/05/2013), Rata 6 (20/06/2013)",
       "postings": [
         {
@@ -4539,6 +4609,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 53,
       "at": "2013-05-27T17:01:37",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Treppo Impianti Elettrici S.p.A. n. 72 effettuato il 27/05/2013: Revisione caldaia",
       "postings": [
         {
@@ -4563,6 +4634,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 54,
       "at": "2013-06-03T15:41:09",
+      "kind": "invoice",
       "description": "Registrazione fattura Natisone Gas S.p.A. n. 131841 del 19/05/2013: spese gas aprile",
       "postings": [
         {
@@ -4593,6 +4665,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 55,
       "at": "2013-06-06T13:34:12",
+      "kind": "invoice",
       "description": "Registrazione fattura Energie del Ledra S.p.A. n. 43118 del 14/05/2013: Spese luci utenza n. 395 123 456: aprile - maggio",
       "postings": [
         {
@@ -4617,6 +4690,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 56,
       "at": "2013-06-07T16:32:43",
+      "kind": "invoice",
       "description": "Registrazione fattura Acque Fella s.r.l. n. 42961 del 20/05/2013: bolletta acqua",
       "postings": [
         {
@@ -4647,6 +4721,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 57,
       "at": "2013-06-10T17:01:21",
+      "kind": "collection",
       "description": "Incasso Rate da Scarbolo Flavio: Rata 2 (20/02/2013), Rata 3 (20/03/2013), Rata 4 (20/04/2013), Rata 5 (20/05/2013), Rata 6 (20/06/2013)",
       "postings": [
         {
@@ -4707,6 +4782,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 58,
       "at": "2013-06-14T17:03:04",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Energie del Ledra S.p.A. n. 43118 effettuato il 14/06/2013: Spese luci utenza n. 395 123 456: aprile - maggio",
       "postings": [
         {
@@ -4731,6 +4807,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 59,
       "at": "2013-06-14T17:04:04",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Energie del Ledra S.p.A. n. 41119 effettuato il 14/06/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - aprile - maggio",
       "postings": [
         {
@@ -4755,6 +4832,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 60,
       "at": "2013-06-14T17:22:38",
+      "kind": "invoice",
       "description": "Registrazione fattura Cargnelutti Elevatori s.n.c. n. 1320 del 01/06/2013: controllo ascensori",
       "postings": [
         {
@@ -4785,6 +4863,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 61,
       "at": "2013-06-15T17:00:33",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Natisone Gas S.p.A. n. 114419 effettuato il 15/06/2013: spese gas marzo",
       "postings": [
         {
@@ -4809,6 +4888,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 62,
       "at": "2013-06-17T17:04:44",
+      "kind": "collection",
       "description": "Incasso Rate da Bearzi Servizi s.a.s.: Rata 3 (20/03/2013), Rata 4 (20/04/2013), Rata 5 (20/05/2013), Rata 6 (20/06/2013)",
       "postings": [
         {
@@ -4860,6 +4940,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 63,
       "at": "2013-06-19T14:46:43",
+      "kind": "collection",
       "description": "Incasso Rate da Morandini Dina: Rata 6 (20/06/2013)",
       "postings": [
         {
@@ -4884,6 +4965,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 64,
       "at": "2013-06-19T17:04:41",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Natisone Gas S.p.A. n. 131841 effettuato il 19/06/2013: spese gas aprile",
       "postings": [
         {
@@ -4908,6 +4990,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 65,
       "at": "2013-06-20T17:05:15",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Acque Fella s.r.l. n. 42961 effettuato il 20/06/2013: bolletta acqua",
       "postings": [
         {
@@ -4932,6 +5015,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 66,
       "at": "2013-06-30T15:42:45",
+      "kind": "invoice",
       "description": "Registrazione fattura Natisone Gas S.p.A. n. 167930 del 16/06/2013: spese gas maggio",
       "postings": [
         {
@@ -4962,6 +5046,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 67,
       "at": "2013-07-01T17:05:51",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Cargnelutti Elevatori s.n.c. n. 1320 effettuato il 01/07/2013: controllo ascensori",
       "postings": [
         {
@@ -4986,6 +5071,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 68,
       "at": "2013-07-03T16:34:00",
+      "kind": "collection",
       "description": "Incasso Rate da Variola Dina: Rata 5 (20/05/2013), Rata 6 (20/06/2013), Rata 7 (20/07/2013)",
       "postings": [
         {
@@ -5028,6 +5114,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 69,
       "at": "2013-07-12T12:29:49",
+      "kind": "invoice",
       "description": "Registrazione fattura Adami Valerio n. 149 del 30/06/2013: Spese di amministrazione condominiale",
       "postings": [
         {
@@ -5058,6 +5145,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 70,
       "at": "2013-07-16T17:06:56",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Natisone Gas S.p.A. n. 167930 effettuato il 16/07/2013: spese gas maggio",
       "postings": [
         {
@@ -5082,6 +5170,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 71,
       "at": "2013-07-17T16:22:47",
+      "kind": "invoice",
       "description": "Registrazione fattura Energie del Ledra S.p.A. n. 41111 del 03/07/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - giugno - luglio",
       "postings": [
         {
@@ -5106,6 +5195,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 72,
       "at": "2013-07-20T13:10:09",
+      "kind": "generic",
       "description": "Pagamento di noleggio sala riunioni",
       "postings": [
         {
@@ -5127,6 +5217,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 73,
       "at": "2013-07-20T14:48:52",
+      "kind": "collection",
       "description": "Incasso Rate da Morandini Dina: Rata 7 (20/07/2013)",
       "postings": [
         {
@@ -5151,6 +5242,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 74,
       "at": "2013-07-20T16:54:29",
+      "kind": "collection",
       "description": "Incasso Rate da Zuliani Selene: Rata 4 (20/04/2013), Rata 5 (20/05/2013), Rata 6 (20/06/2013), Rata 7 (20/07/2013)",
       "postings": [
         {
@@ -5202,6 +5294,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 75,
       "at": "2013-07-20T17:00:04",
+      "kind": "collection",
       "description": "Incasso Rate da Blasutig Livia: Rata 6 (20/06/2013), Rata 7 (20/07/2013)",
       "postings": [
         {
@@ -5235,6 +5328,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 76,
       "at": "2013-07-21T13:36:08",
+      "kind": "invoice",
       "description": "Registrazione fattura Energie del Ledra S.p.A. n. 43119 del 03/07/2013: Spese luci utenza n. 395 123 456: giugno - luglio",
       "postings": [
         {
@@ -5259,6 +5353,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 77,
       "at": "2013-07-22T16:57:24",
+      "kind": "collection",
       "description": "Incasso Rate da Bertossi Lidia: Rata 4 (20/04/2013), Rata 5 (20/05/2013), Rata 6 (20/06/2013), Rata 7 (20/07/2013)",
       "postings": [
         {
@@ -5310,6 +5405,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 78,
       "at": "2013-07-27T15:44:25",
+      "kind": "invoice",
       "description": "Registrazione fattura Natisone Gas S.p.A. n. 192606 del 13/07/2013: spese gas giugno",
       "postings": [
         {
@@ -5340,6 +5436,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 79,
       "at": "2013-07-29T16:46:42",
+      "kind": "collection",
       "description": "Incasso Rate da Fornasier Marco: Rata 3 (20/03/2013), Rata 4 (20/04/2013), Rata 5 (20/05/2013), Rata 6 (20/06/2013), Rata 7 (20/07/2013)",
       "postings": [
         {
@@ -5400,6 +5497,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 80,
       "at": "2013-07-29T16:48:18",
+      "kind": "collection",
       "description": "Incasso Rate da Zanier Lidia: Rata 4 (20/04/2013), Rata 5 (20/05/2013), Rata 6 (20/06/2013), Rata 7 (20/07/2013)",
       "postings": [
         {
@@ -5451,6 +5549,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 81,
       "at": "2013-07-30T17:16:47",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Adami Valerio n. 149 effettuato il 30/07/2013: Spese di amministrazione condominiale",
       "postings": [
         {
@@ -5475,6 +5574,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 82,
       "at": "2013-08-01T16:38:49",
+      "kind": "collection",
       "description": "Incasso Rate da Buttazzoni Laura: Rata 5 (20/05/2013), Rata 6 (20/06/2013), Rata 7 (20/07/2013), Rata 8 (20/08/2013)",
       "postings": [
         {
@@ -5526,6 +5626,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 83,
       "at": "2013-08-04T17:05:54",
+      "kind": "collection",
       "description": "Incasso Rate da Bearzi Servizi s.a.s.: Rata 7 (20/07/2013), Rata 8 (20/08/2013), Rata 9 (20/09/2013)",
       "postings": [
         {
@@ -5568,6 +5669,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 84,
       "at": "2013-08-05T16:43:15",
+      "kind": "collection",
       "description": "Incasso Rate da Fattori Gilda: Rata 2 (20/02/2013), Rata 3 (20/03/2013), Rata 4 (20/04/2013), Rata 5 (20/05/2013), Rata 6 (20/06/2013), Rata 7 (20/07/2013), Rata 8 (20/08/2013)",
       "postings": [
         {
@@ -5646,6 +5748,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 85,
       "at": "2013-08-06T17:17:16",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Energie del Ledra S.p.A. n. 43119 effettuato il 03/08/2013: Spese luci utenza n. 395 123 456: giugno - luglio",
       "postings": [
         {
@@ -5670,6 +5773,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 86,
       "at": "2013-08-06T17:27:50",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Energie del Ledra S.p.A. n. 41111 effettuato il 03/08/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - giugno - luglio",
       "postings": [
         {
@@ -5694,6 +5798,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 87,
       "at": "2013-08-09T16:41:16",
+      "kind": "collection",
       "description": "Incasso Rate da Iacuzzi Tullio: Rata 6 (20/06/2013), Rata 7 (20/07/2013), Rata 8 (20/08/2013)",
       "postings": [
         {
@@ -5736,6 +5841,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 88,
       "at": "2013-08-10T16:31:31",
+      "kind": "collection",
       "description": "Incasso Rate da Morandini Dina: Rata 8 (20/08/2013)",
       "postings": [
         {
@@ -5760,6 +5866,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 89,
       "at": "2013-08-10T16:58:33",
+      "kind": "collection",
       "description": "Incasso Rate da Morandini Olga: Rata 6 (20/06/2013), Rata 7 (20/07/2013), Rata 8 (20/08/2013)",
       "postings": [
         {
@@ -5802,6 +5909,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 90,
       "at": "2013-08-11T17:03:14",
+      "kind": "collection",
       "description": "Incasso Rate da Candotti Diego: Rata 7 (20/07/2013), Rata 8 (20/08/2013)",
       "postings": [
         {
@@ -5835,6 +5943,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 91,
       "at": "2013-08-13T20:53:03",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Natisone Gas S.p.A. n. 192606 effettuato il 13/08/2013: spese gas giugno",
       "postings": [
         {
@@ -5859,6 +5968,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 92,
       "at": "2013-08-20T16:48:54",
+      "kind": "collection",
       "description": "Incasso Rate da Zanier Lidia: Rata 7 (20/07/2013), Rata 8 (20/08/2013)",
       "postings": [
         {
@@ -5892,6 +6002,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 93,
       "at": "2013-08-20T16:56:37",
+      "kind": "collection",
       "description": "Incasso Rate da Masotti Sabrina: Rata 6 (20/06/2013), Rata 7 (20/07/2013), Rata 8 (20/08/2013)",
       "postings": [
         {
@@ -5934,6 +6045,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 94,
       "at": "2013-08-25T15:46:28",
+      "kind": "invoice",
       "description": "Registrazione fattura Natisone Gas S.p.A. n. 224757 del 13/08/2013: spese gas luglio",
       "postings": [
         {
@@ -5964,6 +6076,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 95,
       "at": "2013-08-28T16:59:15",
+      "kind": "collection",
       "description": "Incasso Rate da Cozzi Ivo: Rata 7 (20/07/2013), Rata 8 (20/08/2013)",
       "postings": [
         {
@@ -5997,6 +6110,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 96,
       "at": "2013-08-28T17:01:49",
+      "kind": "collection",
       "description": "Incasso Rate da Scarbolo Flavio: Rata 7 (20/07/2013), Rata 8 (20/08/2013)",
       "postings": [
         {
@@ -6030,6 +6144,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 97,
       "at": "2013-09-01T16:34:50",
+      "kind": "collection",
       "description": "Incasso Rate da Variola Dina: Rata 8 (20/08/2013)",
       "postings": [
         {
@@ -6054,6 +6169,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 98,
       "at": "2013-09-02T13:25:49",
+      "kind": "invoice",
       "description": "Registrazione fattura Estintori Toniutti & C. s.a.s. n. 617 del 25/08/2013: Revisione estintori",
       "postings": [
         {
@@ -6084,6 +6200,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 99,
       "at": "2013-09-10T13:22:19",
+      "kind": "invoice",
       "description": "Registrazione fattura Ferramenta Cossio s.a.s. n. 1474 del 23/08/2013: Riparazione porte",
       "postings": [
         {
@@ -6114,6 +6231,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 100,
       "at": "2013-09-11T16:23:47",
+      "kind": "invoice",
       "description": "Registrazione fattura Energie del Ledra S.p.A. n. 41112 del 02/09/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - agosto - settembre",
       "postings": [
         {
@@ -6138,6 +6256,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 101,
       "at": "2013-09-13T20:54:14",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Natisone Gas S.p.A. n. 224757 effettuato il 13/09/2013: spese gas luglio",
       "postings": [
         {
@@ -6162,6 +6281,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 102,
       "at": "2013-09-22T17:27:21",
+      "kind": "invoice",
       "description": "Registrazione fattura Cargnelutti Elevatori s.n.c. n. 2157 del 01/09/2013: controllo ascensori",
       "postings": [
         {
@@ -6192,6 +6312,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 103,
       "at": "2013-09-23T20:54:51",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Ferramenta Cossio s.a.s. n. 1474 effettuato il 23/09/2013: Riparazione porte",
       "postings": [
         {
@@ -6216,6 +6337,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 104,
       "at": "2013-09-25T20:55:08",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Estintori Toniutti & C. s.a.s. n. 617 effettuato il 25/09/2013: Revisione estintori",
       "postings": [
         {
@@ -6240,6 +6362,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 105,
       "at": "2013-09-27T13:38:55",
+      "kind": "invoice",
       "description": "Registrazione fattura Energie del Ledra S.p.A. n. 43111 del 02/09/2013: Spese luci utenza n. 395 123 456: agosto - settembre",
       "postings": [
         {
@@ -6264,6 +6387,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 106,
       "at": "2013-09-29T15:48:34",
+      "kind": "invoice",
       "description": "Registrazione fattura Natisone Gas S.p.A. n. 251755 del 14/09/2013: spese gas agosto",
       "postings": [
         {
@@ -6294,6 +6418,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 107,
       "at": "2013-10-01T20:56:32",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Cargnelutti Elevatori s.n.c. n. 2157 effettuato il 01/10/2013: controllo ascensori",
       "postings": [
         {
@@ -6318,6 +6443,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 108,
       "at": "2013-10-02T20:57:05",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Energie del Ledra S.p.A. n. 43111 effettuato il 02/10/2013: Spese luci utenza n. 395 123 456: agosto - settembre",
       "postings": [
         {
@@ -6342,6 +6468,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 109,
       "at": "2013-10-02T20:57:34",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Energie del Ledra S.p.A. n. 41112 effettuato il 02/10/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - agosto - settembre",
       "postings": [
         {
@@ -6366,6 +6493,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 110,
       "at": "2013-10-05T13:07:03",
+      "kind": "generic",
       "description": "Pagamento diretto di spese bancarie",
       "postings": [
         {
@@ -6387,6 +6515,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 111,
       "at": "2013-10-14T20:58:26",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Natisone Gas S.p.A. n. 251755 effettuato il 14/10/2013: spese gas agosto",
       "postings": [
         {
@@ -6411,6 +6540,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 112,
       "at": "2013-10-17T12:31:07",
+      "kind": "invoice",
       "description": "Registrazione fattura Adami Valerio n. 223 del 01/10/2013: Spese di amministrazione condominiale",
       "postings": [
         {
@@ -6441,6 +6571,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 113,
       "at": "2013-10-17T13:57:18",
+      "kind": "invoice",
       "description": "Registrazione fattura Pontoni Servizi di Pulizia s.n.c. n. 3171 del 30/09/2013: pulizia marciapiedi",
       "postings": [
         {
@@ -6471,6 +6602,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 114,
       "at": "2013-10-21T16:36:43",
+      "kind": "generic",
       "description": "Deduzione Quota fissa Acque Fella",
       "postings": [
         {
@@ -6492,6 +6624,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 115,
       "at": "2013-11-02T15:00:24",
+      "kind": "invoice",
       "description": "Registrazione fattura Natisone Gas S.p.A. n. 291113 del 21/10/2013: spese gas settembre",
       "postings": [
         {
@@ -6522,6 +6655,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 116,
       "at": "2013-11-02T19:58:43",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Adami Valerio n. 223 effettuato il 02/11/2013: Spese di amministrazione condominiale",
       "postings": [
         {
@@ -6546,6 +6680,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 117,
       "at": "2013-11-03T15:41:14",
+      "kind": "generic",
       "description": "Imputazione quota tra acqua calda e fredda",
       "postings": [
         {
@@ -6567,6 +6702,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 118,
       "at": "2013-11-17T15:03:26",
+      "kind": "invoice",
       "description": "Registrazione fattura Natisone Gas S.p.A. n. 304836 del 12/11/2013: spese gas ottobre",
       "postings": [
         {
@@ -6597,6 +6733,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 119,
       "at": "2013-11-21T19:59:22",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Natisone Gas S.p.A. n. 291113 effettuato il 21/11/2013: spese gas settembre",
       "postings": [
         {
@@ -6621,6 +6758,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 120,
       "at": "2013-11-28T22:39:04",
+      "kind": "generic",
       "description": "Spese singole - postali per solleciti",
       "postings": [
         {
@@ -6654,6 +6792,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 121,
       "at": "2013-11-30T15:25:19",
+      "kind": "invoice",
       "description": "Registrazione fattura Energie del Ledra S.p.A. n. 41113 del 04/11/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - ottobre - novembre",
       "postings": [
         {
@@ -6678,6 +6817,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 122,
       "at": "2013-12-01T15:34:04",
+      "kind": "invoice",
       "description": "Registrazione fattura Acque Fella s.r.l. n. 107104 del 16/11/2013: bolletta acqua",
       "postings": [
         {
@@ -6708,6 +6848,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 123,
       "at": "2013-12-04T20:00:01",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Energie del Ledra S.p.A. n. 43112 effettuato il 04/12/2013: Spese luci utenza n. 395 123 456: ottobre - novembre",
       "postings": [
         {
@@ -6732,6 +6873,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 124,
       "at": "2013-12-04T20:00:35",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Energie del Ledra S.p.A. n. 41113 effettuato il 04/12/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - ottobre - novembre",
       "postings": [
         {
@@ -6756,6 +6898,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 125,
       "at": "2013-12-12T16:45:42",
+      "kind": "invoice",
       "description": "Registrazione fattura Cargnelutti Elevatori s.n.c. n. 2959 del 01/12/2013: controllo ascensori",
       "postings": [
         {
@@ -6786,6 +6929,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 126,
       "at": "2013-12-12T16:51:26",
+      "kind": "invoice",
       "description": "Registrazione fattura Cargnelutti Elevatori s.n.c. n. 3163 del 01/12/2013: controllo ascensori",
       "postings": [
         {
@@ -6816,6 +6960,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 127,
       "at": "2013-12-12T20:01:09",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Natisone Gas S.p.A. n. 304836 effettuato il 12/12/2013: spese gas ottobre",
       "postings": [
         {
@@ -6840,6 +6985,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 128,
       "at": "2013-12-16T20:01:52",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Acque Fella s.r.l. n. 107104 effettuato il 16/12/2013: bolletta acqua",
       "postings": [
         {
@@ -6864,6 +7010,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 129,
       "at": "2013-12-20T20:02:22",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Acque Fella s.r.l. n. 107104 effettuato il 20/12/2013: bolletta acqua",
       "postings": [
         {
@@ -6888,6 +7035,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 130,
       "at": "2013-12-26T18:08:00",
+      "kind": "invoice",
       "description": "Registrazione fattura Adami Valerio n. 309 del 23/12/2013: Spese amministrazione condominiale - parziale - caso particolare con attribuzione costi individuale",
       "postings": [
         {
@@ -6918,6 +7066,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 131,
       "at": "2013-12-27T23:22:46",
+      "kind": "generic",
       "description": "Pagamento diretto polizza assicurativa",
       "postings": [
         {
@@ -6939,6 +7088,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 132,
       "at": "2013-12-27T23:41:16",
+      "kind": "generic",
       "description": "Pagamento in contanti al Comune Nimis per fotocopie",
       "postings": [
         {
@@ -6960,6 +7110,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 133,
       "at": "2013-12-28T22:10:15",
+      "kind": "generic",
       "description": "Spese singole - postali per invio raccomandate",
       "postings": [
         {
@@ -7137,6 +7288,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 134,
       "at": "2013-12-28T22:33:10",
+      "kind": "generic",
       "description": "Spese singole - manutenzione antenna",
       "postings": [
         {
@@ -7308,6 +7460,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 135,
       "at": "2013-12-28T22:36:55",
+      "kind": "generic",
       "description": "Spese singole - Fattura parziale n. 309: amministrazione condominiale",
       "postings": [
         {
@@ -7344,6 +7497,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 136,
       "at": "2013-12-30T15:04:52",
+      "kind": "invoice",
       "description": "Registrazione fattura Natisone Gas S.p.A n. 346562 del 23/12/2013: spese gas novembre",
       "postings": [
         {
@@ -7374,6 +7528,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 137,
       "at": "2013-12-30T20:06:42",
+      "kind": "invoicePayment",
       "description": "Pagamento fattura Adami Valerio n. 309 effettuato il 30/12/2013: Spese amministrazione condominiale - parziale - caso particolare con attribuzione costi individuale",
       "postings": [
         {
@@ -7398,6 +7553,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 138,
       "at": "2014-01-10T12:59:57",
+      "kind": "invoice",
       "description": "Registrazione fattura Pontoni Servizi di Pulizia s.n.c. n. 4350 del 31/12/2013: pulizia marciapiedi",
       "postings": [
         {
@@ -7428,6 +7584,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 139,
       "at": "2014-01-10T13:03:29",
+      "kind": "invoice",
       "description": "Registrazione fattura Puntel Claudio n. 334 del 31/12/2013: revisione caldaia",
       "postings": [
         {
@@ -7458,6 +7615,7 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p36",
       "number": 140,
       "at": "2014-01-11T10:42:06",
+      "kind": "closingBalances",
       "description": "Conguaglio a consuntivo",
       "postings": [
         {

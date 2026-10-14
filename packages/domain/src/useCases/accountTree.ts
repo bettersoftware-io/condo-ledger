@@ -139,6 +139,28 @@ export function findNode(
   return undefined;
 }
 
+/** Whether a posting belongs to the row this scope describes. */
+export function scopeOwns(scope: PostingScope, posting: Posting): boolean {
+  if (posting.accountId !== scope.accountId) {
+    return false;
+  }
+
+  switch (scope.kind) {
+    case "account":
+      return true;
+    case "supplier":
+      return scope.supplierId === NONE
+        ? posting.counterpart === null
+        : posting.counterpart?.kind === "supplier" &&
+            posting.counterpart.id === scope.supplierId;
+    case "residency":
+      return scope.residentId === NONE
+        ? posting.counterpart === null
+        : posting.counterpart?.kind === "owner" &&
+            posting.counterpart.id === scope.residentId;
+  }
+}
+
 function index(
   accounts: Account[],
   entries: JournalEntry[],
@@ -454,7 +476,8 @@ function node(parts: NodeParts): AccountNode {
   };
 }
 
-const NONE = "none";
+/** The id accountTree gives the row of postings that name no counterpart. */
+export const NONE = "none";
 const NO_COUNTERPART = "(no counterpart)";
 
 function counterpartId(posting: Posting): string {

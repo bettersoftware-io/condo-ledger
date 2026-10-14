@@ -4,12 +4,12 @@ import {
   subtractCents,
   ZERO_CENTS,
 } from "../entities/cents.ts";
-import type { JournalEntry, Posting } from "../entities/journal.ts";
+import type { JournalEntry } from "../entities/journal.ts";
 import { must } from "../support/must.ts";
 import {
   type AccountNode,
-  findNode,
   type PostingScope,
+  scopeOwns,
 } from "./accountTree.ts";
 
 interface LedgerLine {
@@ -30,11 +30,14 @@ export interface Ledger {
   balance: Cents;
 }
 
-const PATH_SEPARATOR = " › ";
+export const PATH_SEPARATOR = " › ";
 
-/** A leaf that owns postings, with the path the ledger shows for it. */
-interface Owner {
+/** A leaf that owns postings: the path the ledger shows for it, and the nodes that path is made of. */
+export interface Owner {
+  node: AccountNode;
   scope: PostingScope;
+  /** The nodes from Total down to this leaf. */
+  trail: AccountNode[];
   path: string;
 }
 
@@ -57,7 +60,7 @@ export function ledgerOf(
   for (const entry of chronological(entries)) {
     for (const posting of entry.postings) {
       const owner = owners.find((candidate) => {
-        return owns(candidate.scope, posting);
+        return scopeOwns(candidate.scope, posting);
       });
 
       if (owner === undefined) {
@@ -85,59 +88,50 @@ export function ledgerOf(
 
 /** The node's labels from Total, joined. */
 export function pathOf(root: AccountNode, key: string): string {
-  return must(trail(root, key, []), `the node ${key}`).join(PATH_SEPARATOR);
+  return joined(must(trail(root, key, []), `the node ${key}`));
 }
 
-function ownersUnder(root: AccountNode, key: string): Owner[] {
-  const path = pathOf(root, key);
-  const start = must(findNode(root, key), `the node ${key}`);
+/** Every leaf under the node with this key that owns postings, in tree order. */
+export function ownersUnder(root: AccountNode, key: string): Owner[] {
+  const above = must(trail(root, key, []), `the node ${key}`);
   const owners: Owner[] = [];
 
-  function collect(node: AccountNode, nodePath: string): void {
+  function collect(nodes: AccountNode[]): void {
+    const node = must(nodes.at(-1), `the node ${key}`);
+
     if (node.scope !== null) {
-      owners.push({ scope: node.scope, path: nodePath });
+      owners.push({
+        node,
+        scope: node.scope,
+        trail: nodes,
+        path: joined(nodes),
+      });
     }
 
     for (const child of node.children) {
-      collect(child, `${nodePath}${PATH_SEPARATOR}${child.label}`);
+      collect([...nodes, child]);
     }
   }
 
-  collect(start, path);
+  collect(above);
 
   return owners;
 }
 
-function owns(scope: PostingScope, posting: Posting): boolean {
-  if (posting.accountId !== scope.accountId) {
-    return false;
-  }
-
-  switch (scope.kind) {
-    case "account":
-      return true;
-    case "supplier":
-      return scope.supplierId === NONE
-        ? posting.counterpart === null
-        : posting.counterpart?.kind === "supplier" &&
-            posting.counterpart.id === scope.supplierId;
-    case "residency":
-      return scope.residentId === NONE
-        ? posting.counterpart === null
-        : posting.counterpart?.kind === "owner" &&
-            posting.counterpart.id === scope.residentId;
-  }
+function joined(nodes: AccountNode[]): string {
+  return nodes
+    .map((node) => {
+      return node.label;
+    })
+    .join(PATH_SEPARATOR);
 }
-
-/** The id accountTree gives the row of postings that name no counterpart. */
-const NONE = "none";
 
 function trail(
   node: AccountNode,
   key: string,
-  above: string[],
-): string[] | undefined {
-  const here = [...above, node.label];
+  above: AccountNode[],
+): AccountNode[] | undefined {
+  const here = [...above, node];
 
   if (node.key === key) {
     return here;
