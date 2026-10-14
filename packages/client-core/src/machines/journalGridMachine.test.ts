@@ -91,7 +91,7 @@ describe("the journal grid machine", () => {
   it("pages: size 25 then 10, page 2 holds the rest, a page past the end is clamped", () => {
     const { machine, entries$ } = createGrid();
 
-    entries$.next(manyEntries(23));
+    entries$.next(createManyEntries(23));
     expect(machine.state$.getValue()).toMatchObject({
       pageCount: 3,
       total: 23,
@@ -119,7 +119,7 @@ describe("the journal grid machine", () => {
     const { machine, entries$ } = createGrid();
     const pagesOf: Record<PageSize, number> = { 10: 11, 25: 5, 50: 3, 100: 2 };
 
-    entries$.next(manyEntries(101));
+    entries$.next(createManyEntries(101));
 
     expect(PAGE_SIZES).toEqual([10, 25, 50, 100]);
 
@@ -136,7 +136,7 @@ describe("the journal grid machine", () => {
   it("a new page size starts again from page 1, even where the old page still exists", () => {
     const { machine, entries$ } = createGrid();
 
-    entries$.next(manyEntries(60));
+    entries$.next(createManyEntries(60));
     machine.intents.setPage(2);
     machine.intents.setPageSize(25);
 
@@ -146,7 +146,7 @@ describe("the journal grid machine", () => {
   it("search matches the description or the exact number, and goes back to page 1", () => {
     const { machine, entries$ } = createGrid();
 
-    entries$.next(manyEntries(23));
+    entries$.next(createManyEntries(23));
     machine.intents.setPage(2);
     machine.intents.setSearch("fattura");
 
@@ -164,7 +164,7 @@ describe("the journal grid machine", () => {
     machine.intents.setSearch("Riga 3");
     expect(machine.state$.getValue().rows.map(kindAndId)).toEqual(["entry m3"]);
 
-    entries$.next(journalOf(root(), createSmallBooks().entries));
+    entries$.next(journalOf(createRoot(), createSmallBooks().entries));
     machine.intents.setSearch("FATTURA");
     expect(machine.state$.getValue().rows.map(kindAndId)).toEqual([
       "entry e1",
@@ -181,7 +181,7 @@ describe("the journal grid machine", () => {
   it("a number matches the whole number, not a part of it", () => {
     const { machine, entries$ } = createGrid();
 
-    entries$.next([3, 13, 23].map(numbered));
+    entries$.next([3, 13, 23].map(createNumbered));
     machine.intents.setSearch("3");
 
     expect(machine.state$.getValue().rows.map(kindAndId)).toEqual(["entry n3"]);
@@ -206,11 +206,11 @@ describe("the journal grid machine", () => {
   it("a selected or expanded entry that is gone is dropped; a page past the new end becomes the last", () => {
     const { machine, entries$ } = createGrid();
 
-    entries$.next(manyEntries(11));
+    entries$.next(createManyEntries(11));
     machine.intents.setPage(2);
     machine.intents.select("m11");
     machine.intents.toggle("m11");
-    entries$.next(manyEntries(10));
+    entries$.next(createManyEntries(10));
 
     expect(machine.state$.getValue()).toMatchObject({
       page: 1,
@@ -223,10 +223,10 @@ describe("the journal grid machine", () => {
   it("deleting the only entry on the last page lands on the new last page, never an empty one", () => {
     const { machine, entries$ } = createGrid();
 
-    entries$.next(manyEntries(21));
+    entries$.next(createManyEntries(21));
     machine.intents.setPage(3);
     machine.intents.select("m21");
-    entries$.next(manyEntries(20));
+    entries$.next(createManyEntries(20));
 
     expect(machine.state$.getValue()).toMatchObject({
       page: 2,
@@ -244,7 +244,7 @@ describe("the journal grid machine", () => {
   it("reveal pages to the entry and selects it, without expanding it", () => {
     const { machine, entries$ } = createGrid();
 
-    entries$.next(manyEntries(23));
+    entries$.next(createManyEntries(23));
     machine.intents.reveal("m17");
 
     expect(machine.state$.getValue()).toMatchObject({
@@ -267,7 +267,7 @@ describe("the journal grid machine", () => {
   it("reveal under a search that shows the entry keeps the search and pages within what it found", () => {
     const { machine, entries$ } = createGrid();
 
-    entries$.next(manyEntries(40));
+    entries$.next(createManyEntries(40));
     // "Riga 3" finds m3 and m30..m39: two pages, m30 second on the first, m39 alone on the second.
     machine.intents.setSearch("Riga 3");
     machine.intents.reveal("m30");
@@ -292,7 +292,7 @@ describe("the journal grid machine", () => {
   it("reveal under a search that hides the entry clears the search, then pages to it", () => {
     const { machine, entries$ } = createGrid();
 
-    entries$.next(manyEntries(23));
+    entries$.next(createManyEntries(23));
     machine.intents.setSearch("Riga 2");
     machine.intents.reveal("m17");
 
@@ -307,7 +307,7 @@ describe("the journal grid machine", () => {
   it("reveal pages by the chosen size: at 25 per page, the 25th is on page 1 and the 26th on page 2", () => {
     const { machine, entries$ } = createGrid();
 
-    entries$.next(manyEntries(60));
+    entries$.next(createManyEntries(60));
     machine.intents.setPageSize(25);
     machine.intents.reveal("m25");
 
@@ -333,7 +333,7 @@ interface Grid {
 
 function createGrid(): Grid {
   const entries$ = new BehaviorSubject<JournalEntryView[]>(
-    journalOf(root(), createSmallBooks().entries),
+    journalOf(createRoot(), createSmallBooks().entries),
   );
   const machine = createJournalGridMachine(entries$);
 
@@ -342,7 +342,7 @@ function createGrid(): Grid {
   return { machine, entries$ };
 }
 
-function root(): AccountNode {
+function createRoot(): AccountNode {
   const books = createSmallBooks();
 
   return buildAccountTree(books.accounts, books.entries, books.parties);
@@ -364,17 +364,17 @@ function selectedRows(rows: JournalGridRow[]): string[] {
     .map(kindAndId);
 }
 
-function manyEntries(count: number): JournalEntryView[] {
+function createManyEntries(count: number): JournalEntryView[] {
   return Array.from({ length: count }, (_, index) => {
-    return entryView(`m${index + 1}`, index + 1, `Riga ${index + 1}`);
+    return createEntryView(`m${index + 1}`, index + 1, `Riga ${index + 1}`);
   });
 }
 
-function numbered(number: number): JournalEntryView {
-  return entryView(`n${number}`, number, "Altro");
+function createNumbered(number: number): JournalEntryView {
+  return createEntryView(`n${number}`, number, "Altro");
 }
 
-function entryView(
+function createEntryView(
   id: string,
   number: number,
   description: string,

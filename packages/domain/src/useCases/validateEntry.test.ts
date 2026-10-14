@@ -10,8 +10,11 @@ describe("validateEntry", () => {
   it("accepts a balanced draft on leaves, with a party on a control account", () => {
     expect(
       validateEntry(
-        draft([line("la21", 1000, 0), line("la4", 0, 1000, "md1")]),
-        accounts(),
+        createDraft([
+          createLine("la21", 1000, 0),
+          createLine("la4", 0, 1000, "md1"),
+        ]),
+        createAccounts(),
       ),
     ).toEqual({ ok: true });
   });
@@ -19,25 +22,46 @@ describe("validateEntry", () => {
   it.each([
     [
       "blank-description",
-      draft([line("la21", 1000, 0), line("la1", 0, 1000)], "  "),
+      createDraft(
+        [createLine("la21", 1000, 0), createLine("la1", 0, 1000)],
+        "  ",
+      ),
     ],
-    ["no-postings", draft([])],
-    ["unknown-account", draft([line("la99", 1000, 0), line("la1", 0, 1000)])],
-    ["not-a-leaf", draft([line("la20", 1000, 0), line("la1", 0, 1000)])],
-    ["empty-line", draft([line("la21", 0, 0), line("la1", 0, 0)])],
-    ["both-sides", draft([line("la21", 1000, 1000)])],
-    ["negative", draft([line("la21", -1000, 0), line("la1", 0, -1000)])],
+    ["no-postings", createDraft([])],
+    [
+      "unknown-account",
+      createDraft([createLine("la99", 1000, 0), createLine("la1", 0, 1000)]),
+    ],
+    [
+      "not-a-leaf",
+      createDraft([createLine("la20", 1000, 0), createLine("la1", 0, 1000)]),
+    ],
+    [
+      "empty-line",
+      createDraft([createLine("la21", 0, 0), createLine("la1", 0, 0)]),
+    ],
+    ["both-sides", createDraft([createLine("la21", 1000, 1000)])],
+    [
+      "negative",
+      createDraft([createLine("la21", -1000, 0), createLine("la1", 0, -1000)]),
+    ],
     [
       "counterpart-required",
-      draft([line("la21", 1000, 0), line("la4", 0, 1000)]),
+      createDraft([createLine("la21", 1000, 0), createLine("la4", 0, 1000)]),
     ],
     [
       "counterpart-not-allowed",
-      draft([line("la21", 1000, 0, "md1"), line("la1", 0, 1000)]),
+      createDraft([
+        createLine("la21", 1000, 0, "md1"),
+        createLine("la1", 0, 1000),
+      ]),
     ],
-    ["unbalanced", draft([line("la21", 1000, 0), line("la1", 0, 900)])],
+    [
+      "unbalanced",
+      createDraft([createLine("la21", 1000, 0), createLine("la1", 0, 900)]),
+    ],
   ])("refuses %s", (reason, candidate) => {
-    expect(validateEntry(candidate, accounts())).toEqual({
+    expect(validateEntry(candidate, createAccounts())).toEqual({
       ok: false,
       reason,
     });
@@ -45,29 +69,35 @@ describe("validateEntry", () => {
 
   it("checks the reasons in the spec's order: a blank description on an unbalanced draft is blank-description", () => {
     expect(
-      validateEntry(draft([line("la21", 1000, 0)], ""), accounts()),
+      validateEntry(
+        createDraft([createLine("la21", 1000, 0)], ""),
+        createAccounts(),
+      ),
     ).toEqual({ ok: false, reason: "blank-description" });
   });
 
   it("an owner residency on the owners control account is a counterpart too", () => {
     expect(
       validateEntry(
-        draft([line("la1", 500, 0), owed("la5", 0, 500, "r3")]),
-        accounts(),
+        createDraft([
+          createLine("la1", 500, 0),
+          createOwnerLine("la5", 0, 500, "r3"),
+        ]),
+        createAccounts(),
       ),
     ).toEqual({ ok: true });
   });
 });
 
-function accounts(): Account[] {
+function createAccounts(): Account[] {
   return createSmallBooks().accounts;
 }
 
-function draft(postings: Posting[], description = "Spesa"): EntryDraft {
+function createDraft(postings: Posting[], description = "Spesa"): EntryDraft {
   return { kind: "generic", description, postings };
 }
 
-function line(
+function createLine(
   accountId: string,
   debit: number,
   credit: number,
@@ -82,7 +112,7 @@ function line(
   };
 }
 
-function owed(
+function createOwnerLine(
   accountId: string,
   debit: number,
   credit: number,

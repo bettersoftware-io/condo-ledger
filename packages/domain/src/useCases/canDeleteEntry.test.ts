@@ -14,23 +14,25 @@ describe("canDeleteEntry", () => {
     ]);
 
     for (const kind of DELETABLE_KINDS) {
-      expect(canDeleteEntry({ ...entry("e6"), kind })).toEqual({ ok: true });
+      expect(canDeleteEntry({ ...createEntry("e6"), kind })).toEqual({
+        ok: true,
+      });
     }
   });
 
   it("refuses the kinds whose side effects are not modelled yet, naming the reason", () => {
-    expect(canDeleteEntry(entry("e1"))).toEqual({
+    expect(canDeleteEntry(createEntry("e1"))).toEqual({
       ok: false,
       reason: "kind-not-deletable",
     });
-    expect(canDeleteEntry(entry("e5"))).toEqual({
+    expect(canDeleteEntry(createEntry("e5"))).toEqual({
       ok: false,
       reason: "kind-not-deletable",
     });
   });
 });
 
-function entry(id: string): JournalEntry {
+function createEntry(id: string): JournalEntry {
   const found = createSmallBooks().entries.find((candidate) => {
     return candidate.id === id;
   });

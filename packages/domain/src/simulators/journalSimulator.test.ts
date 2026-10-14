@@ -71,7 +71,7 @@ describe("journal simulator", () => {
 
     await port.addEntry("p2", {
       ...createDraft(),
-      postings: [line("x1", 100, 0), line("x4", 0, 100, "md1")],
+      postings: [createLine("x1", 100, 0), createLine("x4", 0, 100, "md1")],
     });
 
     expect(
@@ -120,11 +120,11 @@ function createDraft(): EntryDraft {
   return {
     kind: "generic",
     description: "Spesa in contanti",
-    postings: [line("la21", 1200, 0), line("la1", 0, 1200)],
+    postings: [createLine("la21", 1200, 0), createLine("la1", 0, 1200)],
   };
 }
 
-function line(
+function createLine(
   accountId: string,
   debit: number,
   credit: number,

@@ -8,7 +8,7 @@ import { journalOf } from "./journal.ts";
 
 describe("journalOf", () => {
   it("lists the entries in number order with their totals and kind", () => {
-    const views = journalOf(root(), entries());
+    const views = journalOf(createRoot(), createEntries());
 
     expect(
       views.map((view) => {
@@ -33,12 +33,12 @@ describe("journalOf", () => {
   });
 
   it("puts entries given out of order into number order, leaving the input as it was", () => {
-    const reversed = entries().reverse();
+    const reversed = createEntries().reverse();
     const numbersBefore = reversed.map((entry) => {
       return entry.number;
     });
 
-    const views = journalOf(root(), reversed);
+    const views = journalOf(createRoot(), reversed);
 
     expect(
       views.map((view) => {
@@ -113,7 +113,7 @@ describe("journalOf", () => {
 
   it("throws, naming the account, for a posting no node of the tree owns", () => {
     const stray: JournalEntry = {
-      ...(entries()[0] as JournalEntry),
+      ...(createEntries()[0] as JournalEntry),
       id: "stray",
       number: 10,
       postings: [
@@ -127,25 +127,25 @@ describe("journalOf", () => {
     };
 
     expect(() => {
-      return journalOf(root(), [...entries(), stray]);
+      return journalOf(createRoot(), [...createEntries(), stray]);
     }).toThrow("missing: the node of the posting on la20");
   });
 });
 
-function root(): AccountNode {
+function createRoot(): AccountNode {
   const books = createSmallBooks();
 
   return buildAccountTree(books.accounts, books.entries, books.parties);
 }
 
-function entries(): JournalEntry[] {
+function createEntries(): JournalEntry[] {
   return createSmallBooks().entries;
 }
 
 function postingsOf(
   number: number,
 ): [string, string, number, number, number][] {
-  const view = journalOf(root(), entries()).find((candidate) => {
+  const view = journalOf(createRoot(), createEntries()).find((candidate) => {
     return candidate.number === number;
   });
 
