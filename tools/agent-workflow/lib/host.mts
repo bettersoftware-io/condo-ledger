@@ -30,7 +30,7 @@ export const HOOK_COMMANDS: Record<string, string> = {
  * These rules are the backstop for a project that adds an `allow` rule of its
  * own: a rule here wins over any `allow`. None holds `:*`: Claude Code reads
  * that at the end of a rule as its older prefix form, and warns about it
- * anywhere else. The hook asks about a push with a colon in their place.
+ * anywhere else. The hook asks about a push that is not written plainly in their place.
  */
 export const ASK_RULES = [
   "Bash(git push *--force*)",
@@ -70,7 +70,11 @@ export const WIDE_ALLOW = /^Bash\((?:git push|gh pr create|gh pr merge)\b.*\*.*\
 
 /** Slash commands that work only with another add-on in the project. */
 export const COMMAND_NEEDS: Record<string, string | undefined> = {
+  status: undefined,
+  docs: undefined,
+  worktrees: undefined,
   changelog: undefined,
   "coverage-backfill": "coverage",
   "visual-tolerance-audit": "visual",
+  "perf-audit": "performance",
 };

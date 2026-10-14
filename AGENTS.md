@@ -635,6 +635,7 @@ The rules serve three aims, in this order when they pull apart:
 
 ```bash
 pnpm worktree <name> [--ready]     # a worktree beside the project, on worktree-<name>, cut from origin's main
+pnpm worktree:audit [part of a name]   # which worktrees are finished, and which hold work; it only reads
 pnpm changelog weeks               # the weeks CHANGELOG.md has no entry for
 pnpm changelog prs <week>          # what was merged in a week (reads GitHub)
 pnpm changelog check <week>        # every merged pull request cited, every citation defined
@@ -686,8 +687,9 @@ for a push now.
 ### Every outward step asks
 
 The hook never lets a command run without a prompt. It refuses a chain, and
-of Claude Code it asks about a push that holds a colon
-(`git push origin a:b`), whatever rule allows a push. It says nothing else,
+of Claude Code it asks about a push that is not written plainly
+(a colon as in `git push origin a:b`, an option that forces or deletes, a
+quote, a variable), whatever rule allows a push. It says nothing else,
 so each push, each pull request step and each merge asks a person, under the
 host's own rules. Do not add an `allow` rule for one to
 `.claude/settings.json`, and do not change the hook under
@@ -853,7 +855,9 @@ git merge --ff-only origin/main                      # see below
 Remove the worktree only after the second line exits 0. Removing it deletes
 every file in it, the ones git ignores too: notes or reports to keep are
 committed, or written outside the worktree, before this. Remove only the
-worktree you made: another one belongs to another session. A merged pull
+worktree you made: another one belongs to another session. For those that
+others left, `pnpm worktree:audit` says which are finished; it removes
+nothing, and nor do you without a yes. A merged pull
 request whose worktree is still on disk is not finished.
 
 If the branch is still on `origin` after the merge, say so and leave it:
@@ -957,10 +961,28 @@ Claude Code, the `workflow-changelog` skill in Codex). What the entry says is
 your judgement; that it cites every merged pull request is checked by
 `pnpm changelog check <week>`. Never create or move a week's tag by hand.
 
-Two more runbooks sit beside it, and each stops at its first step when the
-add-on it needs is not in the project:
-`.claude/commands/workflow/coverage-backfill.md` (needs `coverage`) and
-`.claude/commands/workflow/visual-tolerance-audit.md` (needs `visual`).
+### The other runbooks
+
+Each is a command in Claude Code (`/workflow:status`) and a skill of the same
+name in Codex (`workflow-status`). The steps are in the file, and it runs
+nothing by itself.
+
+- `.claude/commands/workflow/status.md`: where the project stands. This
+  checkout, the open pull requests, the last runs on main, and the headings
+  of `docs/STATUS.md`. It reads and changes nothing.
+- `.claude/commands/workflow/docs.md`: write what a session worked out into
+  the project's documents. It says where each kind of finding goes, and stops
+  for a yes before it writes.
+- `.claude/commands/workflow/worktrees.md`: which worktrees are finished and
+  which hold work someone stopped in the middle of, from
+  `pnpm worktree:audit`. Nothing is removed before the user says yes to a
+  list that names what goes.
+
+Three more stop at their first step when the add-on they need is not in the
+project:
+`.claude/commands/workflow/coverage-backfill.md` (needs `coverage`),
+`.claude/commands/workflow/visual-tolerance-audit.md` (needs `visual`) and
+`.claude/commands/workflow/perf-audit.md` (needs `performance`).
 <!-- /add-on: agent-workflow -->
 
 <!-- add-on: repo-hygiene -->

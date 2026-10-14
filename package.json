@@ -47,7 +47,8 @@
     "repo:settings": "node tools/ci-security/check-settings.mts",
     "check:versions": "node tools/repo-hygiene/check-versions.mts",
     "check:doc-links": "node tools/repo-hygiene/check-doc-links.mts",
-    "lint:css": "node tools/repo-hygiene/check-css.mts"
+    "lint:css": "node tools/repo-hygiene/check-css.mts",
+    "worktree:audit": "node tools/agent-workflow/audit-worktrees.mts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.14",

@@ -12,7 +12,7 @@ One bullet for each entry: its name in bold, what is left, and a link to its
 plan when it has one. `AGENTS.md` says when an entry is added, moved and
 removed.
 
-**Last updated: 2026-10-13**
+**Last updated: 2026-10-14**
 
 ## In progress
 
@@ -156,11 +156,15 @@ Work that has started and is not finished.
   up. A second review of the push (same day) added that the `ask` rules the
   add-on merges into `.claude/settings.json` can be escaped by git's
   abbreviated flags (`--forc`) or bundled short flags, and that the hook's
-  wrapper list is incomplete. The files and the rules are the add-on's,
-  replaced by its updates. The control that holds is the repository's
-  ruleset on `main` (no force-push, no deletion, a pull request required);
-  the hook and the rules only reduce prompts and slips. To raise in
-  bettersoftware-io/skills.
+  wrapper list is incomplete. The add-on's version on `main` since
+  2026-10-14 closes those two and three more (a wrapper the host looks past,
+  `xargs`, the Monitor tool): the hook now asks about every push that is
+  not written plainly, and registers for Monitor. What the hook looks past
+  is a copy of what Claude Code 2.1.296 looks past, so a later host can open
+  the gap again; the plugin's own status page records that, and the first
+  review's chain-detection points, as open. The control that holds is the
+  repository's ruleset on `main` (no force-push, no deletion, a pull
+  request required); the hook and the rules only reduce prompts and slips.
 - **`ubuntu-latest` becomes Ubuntu 26 on 19 October 2026.** Every workflow
   here uses the label, as the plugin's templates do, and each job installs
   its own Node and pnpm (the Playwright jobs run in a container), so the
