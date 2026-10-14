@@ -173,6 +173,8 @@
   --chrome-danger: #e98a8a; /* log out, on the top bar */
   --scrollbar: #c2c8d0;
   --resize-hover: rgb(120 140 170 / 22%); /* a column's resize handle */
+  --alert-glyph-bg: #fdf0d5; /* the circle behind the confirm alert's warning glyph */
+  --alert-glyph: #e08a2b;
 
   /* typography */
   --font-sans: "IBM Plex Sans", system-ui, sans-serif;

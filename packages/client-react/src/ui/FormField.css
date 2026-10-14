@@ -1,0 +1,52 @@
+/* README "Form field (dialogs)"; the wizards' label column is 200px. */
+.form-field {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.form-field-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--txd);
+}
+
+.form-field[data-required="true"] .form-field-label {
+  color: var(--acc);
+}
+
+.form-field-box {
+  display: flex;
+  align-items: center;
+  min-height: var(--field-h);
+  min-width: 0;
+  padding: 6px 9px;
+  background: var(--ctrl);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-field);
+  font-size: 12.5px;
+  color: var(--tx);
+}
+
+.form-field-box:focus-within {
+  border-color: var(--acc);
+}
+
+.form-field[data-read-only="true"] .form-field-box {
+  background: var(--zebra);
+  border-color: var(--bd2);
+  color: var(--txd);
+}
+
+.form-field-box > input,
+.form-field-box > select {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
