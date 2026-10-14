@@ -193,6 +193,18 @@ describe("projectLegacySeed refuses what it cannot project, naming the id", () =
     );
   });
 
+  it("refuses a transaction type named like a member of Object.prototype", () => {
+    const tables = edit(createSmallDump(), "ledgerTransaction", "201", {
+      type: "constructor",
+    });
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow(
+      "the transaction 201 has the type constructor, which the domain does not know",
+    );
+  });
+
   it("maps every legacy transaction type to a kind", () => {
     const kinds = Object.entries(ENTRY_KIND_OF_TYPE).map(([type, kind]) => {
       const tables = edit(createSmallDump(), "ledgerTransaction", "201", {

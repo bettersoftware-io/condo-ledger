@@ -285,15 +285,13 @@ function kindOf(row: Row): EntryKind {
     return "generic";
   }
 
-  const kind = ENTRY_KIND_OF_TYPE[type];
-
-  if (kind === undefined) {
+  if (!Object.hasOwn(ENTRY_KIND_OF_TYPE, type)) {
     throw new Error(
       `the transaction ${String(row.id)} has the type ${type}, which the domain does not know`,
     );
   }
 
-  return kind;
+  return ENTRY_KIND_OF_TYPE[type] as EntryKind;
 }
 
 function counterpartOf(line: Row): Counterpart | null {
