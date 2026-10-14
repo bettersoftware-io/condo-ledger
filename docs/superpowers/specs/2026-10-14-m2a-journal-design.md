@@ -480,8 +480,10 @@ worth holding; otherwise nothing.
 - Goldens, both platforms: `journal-1280-light`, `journal-1280-dark`
   (Pozzetto 2013, page 1, entry 2 expanded and selected: three postings),
   `journal-wizard-generic` (two filled lines and the balance message),
-  `journal-wizard-direct` (the bank purchase with an account chosen and an
-  amount), `journal-delete-confirm`. `Scenario` gains `menu`,
+  `journal-wizard-withholding` (the withholding payment with its tax account
+  chosen and an amount; built in place of the bank purchase, whose dialog
+  scrolls at the host's viewport and does not draw stably),
+  `journal-delete-confirm`. `Scenario` gains `menu`,
   `expandedEntries`, `selectedEntry` and `dialog` (`{ wizard, form }` or
   `"delete"`), delivered in `seeding.ts` through the machines' own intents
   and the screen's dialog state; the host stays untouched. The linux set

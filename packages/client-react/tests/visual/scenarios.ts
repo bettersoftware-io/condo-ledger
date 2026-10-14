@@ -37,15 +37,15 @@ interface GenericEntryDialog {
   lines: GenericLine[];
 }
 
-/** The bank purchase, with its account chosen and its amount typed. */
-interface DirectPaymentBankDialog {
-  wizard: "directPaymentBank";
+/** The withholding payment, with its tax account chosen and its amount typed. */
+interface WithholdingPaymentDialog {
+  wizard: "withholdingPayment";
   targetId: string;
   amount: string;
 }
 
 /** A wizard with its form as typed, or the delete confirmation of the selected entry. */
-type ScenarioDialog = GenericEntryDialog | DirectPaymentBankDialog | "delete";
+type ScenarioDialog = GenericEntryDialog | WithholdingPaymentDialog | "delete";
 
 /** Total, the five levels, and the cash account's group: the cash account in view. */
 const OPEN_TO_CASH = [
@@ -143,16 +143,19 @@ export const scenarios: Record<string, Scenario> = {
       ],
     },
   },
-  // The bank purchase of an expense account: the preview debits it and
-  // credits the bank.
-  "journal-wizard-direct": {
+  // A direct payment: the withholding tax paid from the bank, its account
+  // chosen and its amount typed; the description follows the account. The
+  // bank purchase has the same body, but its cost list makes the dialog
+  // taller than the viewport, and a scrolling body is redrawn a shade apart
+  // from frame to frame, so it has no golden until the host pins that.
+  "journal-wizard-withholding": {
     width: 1280,
     mode: "light",
     periodId: "p36",
     menu: "journal",
     dialog: {
-      wizard: "directPaymentBank",
-      targetId: "la173",
+      wizard: "withholdingPayment",
+      targetId: "la165",
       amount: "1,200.00",
     },
   },

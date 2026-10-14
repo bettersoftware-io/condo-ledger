@@ -168,7 +168,15 @@ Work that has started and is not finished.
   Journal's dialogs) is drawn against the viewport, 16 pixels up and left of
   the app: the three dialog goldens leave a 16-pixel strip of the app at the
   right and the bottom outside the scrim, and the card is centred on the
-  viewport, not on the app.
+  viewport, not on the app; a dialog whose body scrolls does not draw
+  stably: Chromium redraws the rounded corners inside the scroller one
+  colour level apart from frame to frame, and the bank purchase's dialog
+  (taller than the 720-pixel viewport) failed 7 runs in 10 with "Failed to
+  take two consecutive stable screenshots", while the same dialog with its
+  body not scrolling held 10 in 10. The host should pin it (how Chromium is
+  launched, or a viewport per scenario); until then the bank purchase has no
+  golden, and the direct-payment body is pictured by
+  `journal-wizard-withholding`, whose dialog does not scroll.
 
 ## Known limits
 
@@ -221,14 +229,4 @@ Work that has started and is not finished.
   period's books arriving offers the old period's accounts, while `addEntry`
   posts to the new period; the port refuses the entry as `unknown-account`.
   The simulators answer synchronously, so it cannot happen before M3.
-- **`journal-wizard-direct` is unstable on darwin-arm64.** The bank
-  purchase is taller than the 720-pixel viewport lets the dialog be, so its
-  body scrolls, and Chromium draws the rounded corners inside that scroller
-  one colour level apart from frame to frame: `pnpm visual` fails it about
-  seven runs in ten with "Failed to take two consecutive stable
-  screenshots", while the other nine scenarios held over ten repeats. With
-  the body not scrolling (`.dialog-body` set to `overflow: hidden`, an
-  experiment only) it held ten in ten. The fix is the host's (how Chromium
-  is launched, or a taller viewport for that scenario) or the scenario's; not
-  decided. The `linux-x64` run is not measured yet.
 - **`pnpm dev:fs` throws until M3.**

@@ -131,7 +131,7 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
 
         return wizard;
       },
-      // The bank purchase holds the scenario's account and amount. Each edit
+      // A direct payment holds the scenario's account and amount. Each edit
       // carries only its field, so the description stays the prefilled one.
       createDirectPaymentWizard: (
         kind: DirectPaymentKind,
