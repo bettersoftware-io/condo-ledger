@@ -16,6 +16,8 @@ export interface WizardDialogPage {
   /** Clears the form field with this label and types the text into it. */
   fill: (label: string, text: string) => Promise<void>;
   fieldValue: (label: string) => string;
+  /** The selectable list's rows, as the person reads them. */
+  choices: () => string[];
   /** Chooses the selectable list's row with this label. */
   pick: (label: string) => Promise<void>;
   /** Chooses the option with this label in a line's account cell, counted from 0. */
@@ -128,6 +130,9 @@ export function wizardDialogPage(
     },
     fieldValue: (label: string): string => {
       return input(label).value;
+    },
+    choices: (): string[] => {
+      return textsOf(within(dialog()).queryAllByTestId(TESTIDS.selectableItem));
     },
     pick: async (label: string): Promise<void> => {
       await user.click(within(dialog()).getByRole("radio", { name: label }));

@@ -1,4 +1,4 @@
-/** The design's sentence for an entry that does not hold together. */
+/** The design's sentence for a generic entry that does not hold together. */
 const MUST_BALANCE =
   "The entry must balance — the transaction balance must be 0 and a description is required.";
 
@@ -11,17 +11,25 @@ const COMMON_REASONS: Readonly<Record<string, string>> = {
   "not-an-amount": "Enter an amount",
   "empty-line": "Enter an amount above zero",
   "both-sides": "A line is either a debit or a credit",
+  negative: "An amount cannot be negative",
   "lines-do-not-sum": "The lines must add up to the amount paid",
   saving: "Saving…",
+  "unknown-account":
+    "The period changed while this was open: cancel and open it again",
 };
+
+/** The payment wizards' word for a blank description: nothing in them can be unbalanced. */
+const DESCRIPTION_REQUIRED = "A description is required";
 
 /** The cash purchase's own words: it pays from the cash account. */
 export const CASH_REASONS: Readonly<Record<string, string>> = {
+  "blank-description": DESCRIPTION_REQUIRED,
   "no-paid-from-account": "This period has no cash account",
 };
 
 /** The bank purchases' and the withholding's own words: they pay from the default bank account. */
 export const BANK_REASONS: Readonly<Record<string, string>> = {
+  "blank-description": DESCRIPTION_REQUIRED,
   "no-paid-from-account": "This period has no default bank account",
 };
 

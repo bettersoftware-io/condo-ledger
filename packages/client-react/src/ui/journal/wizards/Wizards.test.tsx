@@ -83,6 +83,7 @@ describe("the journal wizards", () => {
     const wizard = await page.openWizard("Withholding-tax payment");
 
     expect(wizard.fieldValue("Description")).toBe("Withholding payment");
+    expect(wizard.choices()).toEqual([]);
     expect(wizard.paidFrom()).toBe("Paid from: Banca");
     expect(wizard.isSaveDisabled()).toBe(true);
     expect(wizard.message()).toBeNull();
@@ -91,6 +92,11 @@ describe("the journal wizards", () => {
   it("the withholding's description follows the tax account chosen, until it is edited", async () => {
     const page = mountJournalScreen({ taxAccounts: true });
     const wizard = await page.openWizard("Withholding-tax payment");
+
+    expect(wizard.choices()).toEqual([
+      "Patrimonial › (Liabilities) › Ritenute 1019",
+      "Patrimonial › (Liabilities) › Ritenute 1020",
+    ]);
 
     await wizard.pick("Patrimonial › (Liabilities) › Ritenute 1019");
     await wizard.fill("Amount", "7.59");
@@ -309,6 +315,74 @@ describe("the journal wizards", () => {
     await wizard.fillLine(0, "credit", "");
 
     expect(wizard.message()).toBe("Enter an amount above zero");
+  });
+
+  it("a negative amount is refused in plain words", async () => {
+    const page = mountJournalScreen();
+    const wizard = await page.openWizard("Direct purchase with cash");
+
+    await wizard.pick("Costs › Spese generali › Pulizie");
+    await wizard.fill("Amount", "-5");
+
+    expect(wizard.message()).toBe("An amount cannot be negative");
+    expect(wizard.isSaveDisabled()).toBe(true);
+  });
+
+  it("a negative line in a generic entry is refused in the same words", async () => {
+    const page = mountJournalScreen();
+    const wizard = await page.openWizard("Generic entry");
+
+    await wizard.fill("Description", "Storno");
+    await wizard.select(0, "Costs › Spese generali › Ascensore");
+    await wizard.fillLine(0, "debit", "-5");
+
+    expect(wizard.message()).toBe("An amount cannot be negative");
+    expect(wizard.isSaveDisabled()).toBe(true);
+  });
+
+  it.each(["Direct purchase with cash", "Direct purchase via bank"])(
+    "%s with a blank description asks for one, in its own words",
+    async (menuLabel) => {
+      const page = mountJournalScreen();
+      const wizard = await page.openWizard(menuLabel);
+
+      await wizard.pick("Costs › Spese generali › Pulizie");
+      await wizard.fill("Amount", "5");
+      await wizard.fill("Description", "");
+
+      expect(wizard.message()).toBe("A description is required");
+      expect(wizard.isSaveDisabled()).toBe(true);
+    },
+  );
+
+  it("the multi-cost payment with a blank description asks for one, in its own words", async () => {
+    const page = mountJournalScreen();
+    const wizard = await page.openWizard(
+      "Direct payment to multiple cost accounts",
+    );
+
+    await wizard.fill("Amount paid", "60");
+    await wizard.select(0, "Costs › Spese generali › Ascensore");
+    await wizard.fillLine(0, "amount", "60");
+    await wizard.fill("Description", "");
+
+    expect(wizard.message()).toBe("A description is required");
+    expect(wizard.isSaveDisabled()).toBe(true);
+  });
+
+  it("a save on books the period has left is refused in plain words", async () => {
+    const page = mountJournalScreen();
+    page.refuseNextAdd("unknown-account");
+    const wizard = await page.openWizard("Direct purchase with cash");
+
+    await wizard.pick("Costs › Spese generali › Pulizie");
+    await wizard.fill("Amount", "23.50");
+    await wizard.save();
+
+    expect(page.dialogOpen()).toBe(true);
+    expect(wizard.message()).toBe(
+      "The period changed while this was open: cancel and open it again",
+    );
   });
 
   it("Cancel and Escape close without saving; a reopened wizard starts clean", async () => {
