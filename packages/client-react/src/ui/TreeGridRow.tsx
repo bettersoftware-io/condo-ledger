@@ -13,6 +13,8 @@ export function TreeGridRow({
   onToggle,
   onSelect,
 }: TreeGridRowProps): ReactElement {
+  const leading = row.leading ?? [];
+
   function select(): void {
     onSelect(row.key);
   }
@@ -41,12 +43,24 @@ export function TreeGridRow({
       data-depth={row.depth}
       data-zebra={row.zebra}
       data-emphasis={row.emphasis}
+      data-tone={row.tone}
       aria-selected={row.selected}
       aria-expanded={row.hasChildren ? row.expanded : undefined}
       tabIndex={0}
       onClick={select}
       onKeyDown={selectFromKeyboard}
     >
+      {leading.map((cell, index) => {
+        return (
+          <div
+            key={columns[index]?.header ?? index}
+            role="gridcell"
+            data-align={columns[index]?.align ?? "left"}
+          >
+            {cell}
+          </div>
+        );
+      })}
       <div role="gridcell" className="tree-grid-label">
         {indents(row.depth)}
         {row.hasChildren ? (
@@ -72,9 +86,9 @@ export function TreeGridRow({
       {row.cells.map((cell, index) => {
         return (
           <div
-            key={columns[index + 1]?.header ?? index}
+            key={columns[index + leading.length + 1]?.header ?? index}
             role="gridcell"
-            data-align={columns[index + 1]?.align ?? "left"}
+            data-align={columns[index + leading.length + 1]?.align ?? "left"}
           >
             {cell}
           </div>

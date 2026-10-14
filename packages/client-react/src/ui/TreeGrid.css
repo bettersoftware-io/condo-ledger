@@ -70,6 +70,13 @@
   font-weight: 700;
 }
 
+/* A posting row under an entry: the path, small and dim. */
+.tree-grid-row[data-tone="muted"] .tree-grid-text {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--txd);
+}
+
 .tree-grid-row[aria-selected="true"] {
   background: var(--sel);
   box-shadow: inset 3px 0 0 var(--acc);

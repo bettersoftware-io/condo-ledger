@@ -118,6 +118,46 @@ describe("TreeGrid", () => {
     expect(page.cellTexts("Wide")).toEqual(["Wide", "a", "b", "c"]);
   });
 
+  it("draws leading cells before the tree cell, so the tree is not the first column", () => {
+    const page = mountTreeGrid({
+      columns: [
+        { header: "Date" },
+        { header: "P.N.", align: "center" },
+        { header: "Entry" },
+        { header: "Debit", align: "right" },
+      ],
+      template: "120px 48px minmax(200px,1fr) 100px",
+      rows: [
+        createRow("Fattura", {
+          leading: ["10/01/2013", "1"],
+          cells: ["360.18"],
+        }),
+      ],
+    });
+
+    expect(page.cellTexts("Fattura")).toEqual([
+      "10/01/2013",
+      "1",
+      "Fattura",
+      "360.18",
+    ]);
+    expect(page.alignmentsOf("Fattura")).toEqual([
+      "left",
+      "center",
+      "left",
+      "right",
+    ]);
+  });
+
+  it("a muted row says so for its stylesheet", () => {
+    const page = mountTreeGrid({
+      rows: [createRow("Path", { tone: "muted" }), createRow("Plain")],
+    });
+
+    expect(page.toneOf("Path")).toBe("muted");
+    expect(page.toneOf("Plain")).toBeNull();
+  });
+
   it("applies the template it is given", () => {
     const page = mountTreeGrid({});
 
