@@ -8,6 +8,11 @@ import "./SelectableList.css";
  * A list to choose one item from, as a group of radios under its label: the
  * rows are the radios' labels, the chosen one drawn selected. The arrow keys
  * move the choice, as they do in any radio group.
+ *
+ * The group is a `div` with the radiogroup role, not a `fieldset`: a
+ * fieldset's content box ignores the height its flex parent gives it, so its
+ * rows could not shrink when a dialog is short, and the dialog's body would
+ * scroll around a list that scrolls too.
  */
 export function SelectableList({
   label,
@@ -16,10 +21,18 @@ export function SelectableList({
   onSelect,
 }: SelectableListProps): ReactElement {
   const name = useId();
+  const labelId = `${name}-label`;
 
   return (
-    <fieldset className="selectable-list" data-testid={TESTIDS.selectableList}>
-      <legend className="selectable-list-legend">{label}</legend>
+    <div
+      className="selectable-list"
+      role="radiogroup"
+      aria-labelledby={labelId}
+      data-testid={TESTIDS.selectableList}
+    >
+      <div className="selectable-list-legend" id={labelId}>
+        {label}
+      </div>
       <div className="selectable-list-rows">
         {items.map((item) => {
           const selected = item.key === selectedKey;
@@ -53,7 +66,7 @@ export function SelectableList({
           );
         })}
       </div>
-    </fieldset>
+    </div>
   );
 }
 

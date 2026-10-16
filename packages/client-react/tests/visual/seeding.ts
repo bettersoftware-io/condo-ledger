@@ -2,6 +2,8 @@ import type {
   AccountsGridIntents,
   AccountsGridState,
   App,
+  GenericEntryForm,
+  GenericEntrySummary,
   JournalDialogIntents,
   JournalDialogState,
   JournalGridIntents,
@@ -9,6 +11,8 @@ import type {
   Machine,
   SidebarIntents,
   SidebarState,
+  WizardIntents,
+  WizardState,
 } from "@cl/client-core";
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
 import { type LegacySeed, loadLegacySeed, type Result } from "@cl/domain";
@@ -98,12 +102,31 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
         JournalDialogIntents
       > => {
         const dialog = machines.createJournalDialog();
+        const wanted = scenario.dialog;
 
-        if (scenario.dialog === "delete") {
+        if (wanted === "delete") {
           dialog.intents.openDelete();
+        } else if (wanted !== undefined) {
+          dialog.intents.openWizard(wanted.wizard);
         }
 
         return dialog;
+      },
+      // The generic wizard holds the scenario's description and lines, typed
+      // one field at a time, as the person types them.
+      createGenericEntryWizard: (): Machine<
+        WizardState<GenericEntryForm, GenericEntrySummary>,
+        WizardIntents<GenericEntryForm>
+      > => {
+        const wizard = machines.createGenericEntryWizard();
+        const wanted = scenario.dialog;
+
+        if (typeof wanted === "object" && wanted.wizard === "genericEntry") {
+          wizard.intents.edit({ description: wanted.description });
+          wizard.intents.edit({ lines: wanted.lines });
+        }
+
+        return wizard;
       },
     },
   };
