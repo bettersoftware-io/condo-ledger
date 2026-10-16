@@ -53,6 +53,27 @@ export default defineConfig({
     locale: "en-GB",
     timezoneId: "UTC",
   },
+  // PROBE (not for main): one project per candidate set of Chromium flags.
+  projects: Object.entries({
+    base: [],
+    all: [
+      "--disable-partial-raster",
+      "--disable-threaded-scrolling",
+      "--disable-threaded-animation",
+      "--disable-checker-imaging",
+      "--run-all-compositor-stages-before-draw",
+      "--disable-new-content-rendering-timeout",
+      "--force-color-profile=srgb",
+      "--disable-lcd-text",
+    ],
+    partialRaster: ["--disable-partial-raster"],
+    threadedScroll: ["--disable-threaded-scrolling"],
+    compositorStages: ["--run-all-compositor-stages-before-draw"],
+    lcdText: ["--disable-lcd-text"],
+    noGpu: ["--disable-gpu"],
+  }).map(([name, args]) => {
+    return { name, use: { launchOptions: { args } } };
+  }),
   webServer: {
     cwd: PACKAGE,
     // The package's own vite, called directly. Through `pnpm exec` the wrapper

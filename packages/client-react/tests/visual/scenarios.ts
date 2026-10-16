@@ -37,8 +37,26 @@ interface GenericEntryDialog {
   lines: GenericLine[];
 }
 
+/** The withholding payment, with its tax account chosen and its amount typed. */
+interface WithholdingPaymentDialog {
+  wizard: "withholdingPayment";
+  targetId: string;
+  amount: string;
+}
+
 /** A wizard with its form as typed, or the delete confirmation of the selected entry. */
-type ScenarioDialog = GenericEntryDialog | "delete";
+/** The purchase paid from the bank, with its cost account chosen and its amount typed. */
+interface BankPurchaseDialog {
+  wizard: "directPaymentBank";
+  targetId: string;
+  amount: string;
+}
+
+type ScenarioDialog =
+  | GenericEntryDialog
+  | WithholdingPaymentDialog
+  | BankPurchaseDialog
+  | "delete";
 
 /** Total, the five levels, and the cash account's group: the cash account in view. */
 const OPEN_TO_CASH = [
@@ -59,7 +77,7 @@ const OPEN_TO_CASH = [
  * with its cash account (`la154`) selected, at the full layout (1280) and the
  * compact one (1100, the sidebar folded to its rail or open as a drawer).
  * The Journal of the same period: entry 2 (`tx150`, an invoice of three
- * postings) open and selected, and two dialogs over it.
+ * postings) open and selected, and the three dialogs over it.
  */
 export const scenarios: Record<string, Scenario> = {
   "accounts-1280-light": {
@@ -136,11 +154,34 @@ export const scenarios: Record<string, Scenario> = {
       ],
     },
   },
-  // No direct payment has a golden. On linux-x64 Chromium shades the
-  // rounded corners of boxes that land on fractional heights inside the
-  // dialog one or two levels apart from run to run, and the bank purchase's
-  // scrolling list flickers between frames; docs/STATUS.md holds the choice
-  // the visual add-on needs.
+  // A direct payment: the withholding tax paid from the bank, its account
+  // chosen and its amount typed; the description follows the account. The
+  // bank purchase has the same body, but its cost list scrolls, and on
+  // linux-x64 Chromium redraws a scrolling list a shade apart from frame to
+  // frame (a clipped list draws stable), so it has no golden of its own.
+  "journal-wizard-withholding": {
+    width: 1280,
+    mode: "light",
+    periodId: "p36",
+    menu: "journal",
+    dialog: {
+      wizard: "withholdingPayment",
+      targetId: "la165",
+      amount: "1,200.00",
+    },
+  },
+  // Probe: the bank purchase, whose cost list scrolls.
+  "journal-wizard-direct": {
+    width: 1280,
+    mode: "light",
+    periodId: "p36",
+    menu: "journal",
+    dialog: {
+      wizard: "directPaymentBank",
+      targetId: "la173",
+      amount: "1,200.00",
+    },
+  },
   // Entry 41 (`tx109`, a generic entry), selected on its page, and the
   // question whether to delete it.
   "journal-delete-confirm": {
