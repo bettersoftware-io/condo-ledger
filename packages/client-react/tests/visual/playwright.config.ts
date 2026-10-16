@@ -14,7 +14,7 @@ export default defineConfig({
   // Not `*.spec.ts` or `*.test.ts`: the package's unit test runner collects
   // those names, and this file can only run under Playwright.
   testMatch: "visual.pw.ts",
-  snapshotPathTemplate: `${GOLDENS_DIRECTORY}/{arg}{ext}`,
+  snapshotPathTemplate: `${GOLDENS_DIRECTORY}/{projectName}/{arg}{ext}`,
   // A plain run never writes a golden. Playwright's default writes a missing
   // one, which lets a new scenario's first picture in unseen and makes the
   // second run pass. Only `pnpm visual:update` writes.

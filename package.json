@@ -37,7 +37,7 @@
     "lint:workflows": "node tools/ci-security/lint-workflows.mts",
     "check:dockerfiles": "node tools/ci-security/check-dockerfiles.mts",
     "visual": "pnpm --dir packages/client-react exec playwright test --config tests/visual/playwright.config.ts",
-    "visual:update": "pnpm --dir packages/client-react exec playwright test --config tests/visual/playwright.config.ts --update-snapshots=all -g journal-wizard --repeat-each 4",
+    "visual:update": "pnpm --dir packages/client-react exec playwright test --config tests/visual/playwright.config.ts --update-snapshots=all --grep-invert \"every golden\" --repeat-each 2",
     "visual:jitter": "node tools/visual/jitter.mts",
     "visual:check": "pnpm --dir packages/client-react run typecheck:visual",
     "visual:check:server": "node tools/visual/check-server.mts",
