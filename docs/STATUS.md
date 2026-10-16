@@ -108,6 +108,18 @@ Work that has started and is not finished.
 
 ## Waiting on a person
 
+- **How the visual tier should treat sub-pixel shading (the user, in the
+  `visual` add-on).** On linux-x64, Chromium shades the rounded corners of
+  boxes that land on fractional heights one or two colour levels apart from
+  run to run, and a scrolling list flickers between frames. The zero
+  tolerance turns either into a failure, so no direct-payment wizard has a
+  golden (the generic wizard's lands cleanly). Choose one, upstream in
+  bettersoftware-io/skills: start Chromium with flags that make raster
+  deterministic, or allow a small pixel budget measured with
+  `pnpm visual:jitter` on linux-x64. A scenario that pictures only the
+  dialog card would make those goldens smaller but would not cure the
+  shading by itself. Then restore the withholding payment and the bank
+  purchase.
 - **Negative budgets.** Allow them (the legacy application does, for
   deduction accounts) or keep the spec's rule. See "Planned, and held".
 - **Two design ambiguities, visible in the goldens
@@ -176,7 +188,7 @@ Work that has started and is not finished.
   both would save the next project the hunt); on linux-x64 a scrolling list
   inside a dialog still flickers by a few pixels between frames (a clipped
   one does not), so the bank purchase, whose 41 cost accounts scroll, has no
-  golden: the host could freeze scroll layers before it pictures.
+  golden; see "Waiting on a person".
 
 ## Known limits
 
