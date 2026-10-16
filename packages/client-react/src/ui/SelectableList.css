@@ -23,8 +23,7 @@
   flex: 0 1 auto;
   min-height: 0;
   max-height: 240px;
-  overflow: auto;
-  scrollbar-width: none;
+  overflow: hidden;
   border: 1px solid var(--bd);
   border-radius: var(--r-panel);
   background: var(--ctrl);
