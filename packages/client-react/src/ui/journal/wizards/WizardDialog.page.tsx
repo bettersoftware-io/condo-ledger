@@ -22,6 +22,8 @@ export interface WizardDialogPage {
   pick: (label: string) => Promise<void>;
   /** Chooses the option with this label in a line's account cell, counted from 0. */
   select: (lineIndex: number, optionLabel: string) => Promise<void>;
+  /** What each line's account cell shows, in order. */
+  shownAccounts: () => string[];
   fillLine: (
     lineIndex: number,
     column: LineColumn,
@@ -151,6 +153,11 @@ export function wizardDialogPage(
       }
 
       await user.selectOptions(cell, option);
+    },
+    shownAccounts: (): string[] => {
+      return textsOf(
+        within(dialog()).queryAllByTestId(TESTIDS.wizardSelectText),
+      );
     },
     fillLine: async (
       lineIndex: number,

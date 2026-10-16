@@ -145,13 +145,29 @@
   min-width: 0;
 }
 
+/* The select's own text is not drawn: the cell's text is the span over it. */
 .wizard-lines-row .wizard-select {
   appearance: none;
   padding-right: 22px;
+  color: transparent;
+  cursor: pointer;
+}
+
+.wizard-lines-row .wizard-select option,
+.wizard-lines-row .wizard-select optgroup {
+  color: var(--tx);
+}
+
+.wizard-select-text {
+  position: absolute;
+  inset: 1px 22px 1px 7px;
   overflow: hidden;
+  font-size: 11.5px;
+  line-height: 24px;
+  color: var(--tx);
   text-overflow: ellipsis;
   white-space: nowrap;
-  cursor: pointer;
+  pointer-events: none;
 }
 
 .wizard-select-chevron {

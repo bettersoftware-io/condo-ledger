@@ -52,6 +52,18 @@ export default defineConfig({
     reducedMotion: "reduce",
     locale: "en-GB",
     timezoneId: "UTC",
+    // Chromium's partial raster redraws only the changed part of a tile, so
+    // the same rounded corner can be shaded two ways, a level or two apart,
+    // from frame to frame. Measured 2026-10-16 on linux-x64 in the pinned
+    // container, three runs on separate runners, every scenario drawn twice:
+    // without the flag the bank purchase never held still; with it all eleven
+    // scenarios were byte-identical across the runs, and seven of the nine
+    // goldens then on main did not change (the two dialogs moved by up to 7
+    // levels on their corners). `--disable-lcd-text` also held the frames
+    // still but redrew every piece of text and left one image differing
+    // between runs. This project's own line until the visual add-on carries
+    // it: an update of the add-on reports this file as changed.
+    launchOptions: { args: ["--disable-partial-raster"] },
   },
   webServer: {
     cwd: PACKAGE,

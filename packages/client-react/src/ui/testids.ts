@@ -56,6 +56,7 @@ export const TESTIDS = {
   wizardPaidFrom: "wizard-paid-from",
   wizardLinesTotal: "wizard-lines-total",
   wizardLineBalance: "wizard-line-balance",
+  wizardSelectText: "wizard-select-text",
   wizardTotals: "wizard-totals",
   wizardAddLine: "wizard-add-line",
   wizardRemoveLine: "wizard-remove-line",

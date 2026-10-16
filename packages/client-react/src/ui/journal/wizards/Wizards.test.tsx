@@ -216,8 +216,13 @@ describe("the journal wizards", () => {
     expect(wizard.message()).toBeNull();
     expect(wizard.previewRows()).toHaveLength(2);
 
+    expect(wizard.shownAccounts()).toEqual([
+      "Costs › Spese generali › Ascensore",
+    ]);
+
     await wizard.select(0, "Choose an account…");
 
+    expect(wizard.shownAccounts()).toEqual(["Choose an account…"]);
     expect(wizard.message()).toBe("Choose an account");
     expect(wizard.previewRows()).toEqual([]);
 
