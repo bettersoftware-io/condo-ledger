@@ -480,15 +480,18 @@ worth holding; otherwise nothing.
 - Goldens, both platforms: `journal-1280-light`, `journal-1280-dark`
   (Pozzetto 2013, page 1, entry 2 expanded and selected: three postings),
   `journal-wizard-generic` (two filled lines and the balance message),
-  `journal-wizard-direct` (the bank purchase with an account chosen and an
-  amount) and `journal-delete-confirm`. The dialog card is centred on whole
-  pixels, and a dialog at its 90vh ceiling shrinks its choice list rather
-  than scroll its body around it: a half-pixel card and a scroller inside a
-  scroller both redraw a shade apart from frame to frame.
+  `journal-wizard-withholding` (the direct-payment body: a tax account
+  chosen and an amount) and `journal-delete-confirm`. The dialog card is
+  centred on whole pixels, and a dialog at its 90vh ceiling shrinks its
+  choice list rather than scroll its body around it: a half-pixel card and a
+  scroller inside a scroller both redraw a shade apart from frame to frame.
+  The bank purchase has no golden of its own: its cost list scrolls, and on
+  linux-x64 Chromium redraws a scrolling list a shade apart from frame to
+  frame (a clipped list draws stable).
   `Scenario` gains `menu`,
   `expandedEntries`, `selectedEntry` and `dialog`, delivered in
   `seeding.ts` through the machines' own intents and the screen's dialog
-  state; the host stays untouched. `dialog` is `"delete"`, or a wizard with its fields beside its name (`{ wizard: "genericEntry", description, lines }`, `{ wizard: "directPaymentBank", targetId, amount }`). `selectedEntry` goes through the grid's `reveal`, so an entry
+  state; the host stays untouched. `dialog` is `"delete"`, or a wizard with its fields beside its name (`{ wizard: "genericEntry", description, lines }`, `{ wizard: "withholdingPayment", targetId, amount }`). `selectedEntry` goes through the grid's `reveal`, so an entry
   on a later page is shown on its page, selected. The linux set comes from
   the goldens workflow.
 - Coverage holds at the add-on's bar for every new file.

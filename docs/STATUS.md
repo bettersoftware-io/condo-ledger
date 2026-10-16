@@ -173,7 +173,10 @@ Work that has started and is not finished.
   full-app picture kept for a few; the host's zero tolerance turns any
   frame-to-frame shading into a failure, so the app keeps its dialogs on
   whole pixels and never nests one scroller in another (a host note on
-  both would save the next project the hunt).
+  both would save the next project the hunt); on linux-x64 a scrolling list
+  inside a dialog still flickers by a few pixels between frames (a clipped
+  one does not), so the bank purchase, whose 41 cost accounts scroll, has no
+  golden: the host could freeze scroll layers before it pictures.
 
 ## Known limits
 

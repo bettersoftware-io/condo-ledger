@@ -37,15 +37,15 @@ interface GenericEntryDialog {
   lines: GenericLine[];
 }
 
-/** The purchase paid from the bank, with its cost account chosen and its amount typed. */
-interface BankPurchaseDialog {
-  wizard: "directPaymentBank";
+/** The withholding payment, with its tax account chosen and its amount typed. */
+interface WithholdingPaymentDialog {
+  wizard: "withholdingPayment";
   targetId: string;
   amount: string;
 }
 
 /** A wizard with its form as typed, or the delete confirmation of the selected entry. */
-type ScenarioDialog = GenericEntryDialog | BankPurchaseDialog | "delete";
+type ScenarioDialog = GenericEntryDialog | WithholdingPaymentDialog | "delete";
 
 /** Total, the five levels, and the cash account's group: the cash account in view. */
 const OPEN_TO_CASH = [
@@ -143,17 +143,19 @@ export const scenarios: Record<string, Scenario> = {
       ],
     },
   },
-  // The purchase paid from the bank: a cost account chosen and an amount
-  // typed. Its cost list is long enough that the dialog meets its 90vh
-  // ceiling: the list gives way and scrolls, and the body does not.
-  "journal-wizard-direct": {
+  // A direct payment: the withholding tax paid from the bank, its account
+  // chosen and its amount typed; the description follows the account. The
+  // bank purchase has the same body, but its cost list scrolls, and on
+  // linux-x64 Chromium redraws a scrolling list a shade apart from frame to
+  // frame (a clipped list draws stable), so it has no golden of its own.
+  "journal-wizard-withholding": {
     width: 1280,
     mode: "light",
     periodId: "p36",
     menu: "journal",
     dialog: {
-      wizard: "directPaymentBank",
-      targetId: "la173",
+      wizard: "withholdingPayment",
+      targetId: "la165",
       amount: "1,200.00",
     },
   },
