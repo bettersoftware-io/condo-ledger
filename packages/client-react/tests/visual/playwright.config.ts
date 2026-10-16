@@ -56,7 +56,6 @@ export default defineConfig({
   // PROBE (not for main): one project per candidate set of Chromium flags.
   projects: Object.entries({
     partialRaster: ["--disable-partial-raster"],
-    lcdText: ["--disable-lcd-text"],
     both: ["--disable-partial-raster", "--disable-lcd-text"],
   }).map(([name, args]) => {
     return { name, use: { launchOptions: { args } } };
