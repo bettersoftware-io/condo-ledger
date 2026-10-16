@@ -1,3 +1,5 @@
+import type { GenericLine } from "@cl/client-core";
+
 /**
  * One picture: a name and the state the screen is in when it is taken. The
  * state is data, never a click. The visual host turns it into deliveries on
@@ -24,9 +26,26 @@ export interface Scenario {
   expandedEntries?: string[];
   /** The journal entry selected, by id, on the page that holds it. */
   selectedEntry?: string;
-  /** A dialog open over the Journal: the delete confirmation of the selected entry. */
-  dialog?: "delete";
+  /** A dialog open over the Journal, with what is typed in it. */
+  dialog?: ScenarioDialog;
 }
+
+/** The generic wizard, with its description and lines typed. */
+interface GenericEntryDialog {
+  wizard: "genericEntry";
+  description: string;
+  lines: GenericLine[];
+}
+
+/** The purchase paid from the bank, with its cost account chosen and its amount typed. */
+interface BankPurchaseDialog {
+  wizard: "directPaymentBank";
+  targetId: string;
+  amount: string;
+}
+
+/** A wizard with its form as typed, or the delete confirmation of the selected entry. */
+type ScenarioDialog = GenericEntryDialog | BankPurchaseDialog | "delete";
 
 /** Total, the five levels, and the cash account's group: the cash account in view. */
 const OPEN_TO_CASH = [
@@ -47,7 +66,7 @@ const OPEN_TO_CASH = [
  * with its cash account (`la154`) selected, at the full layout (1280) and the
  * compact one (1100, the sidebar folded to its rail or open as a drawer).
  * The Journal of the same period: entry 2 (`tx150`, an invoice of three
- * postings) open and selected, and the delete confirmation over it.
+ * postings) open and selected, and the three dialogs over it.
  */
 export const scenarios: Record<string, Scenario> = {
   "accounts-1280-light": {
@@ -108,11 +127,36 @@ export const scenarios: Record<string, Scenario> = {
     expandedEntries: ["tx150"],
     selectedEntry: "tx150",
   },
-  // No wizard has a golden. On linux-x64 a dialog card centred at a
-  // half-pixel offset redraws its inner boxes' rounded corners one or two
-  // colour levels apart from frame to frame, and the host never gets two
-  // identical frames: the scrolling bank purchase, the generic entry and the
-  // withholding payment were removed for it.
+  // Two lines that do not balance, typed: the balance message shows under
+  // the postings, and Save is disabled.
+  "journal-wizard-generic": {
+    width: 1280,
+    mode: "light",
+    periodId: "p36",
+    menu: "journal",
+    dialog: {
+      wizard: "genericEntry",
+      description: "Nota di credito",
+      lines: [
+        { scopeKey: "la154", debit: "50", credit: "" },
+        { scopeKey: "la173", debit: "", credit: "30" },
+      ],
+    },
+  },
+  // The purchase paid from the bank: a cost account chosen and an amount
+  // typed. Its cost list is long enough that the dialog meets its 90vh
+  // ceiling: the list gives way and scrolls, and the body does not.
+  "journal-wizard-direct": {
+    width: 1280,
+    mode: "light",
+    periodId: "p36",
+    menu: "journal",
+    dialog: {
+      wizard: "directPaymentBank",
+      targetId: "la173",
+      amount: "1,200.00",
+    },
+  },
   // Entry 41 (`tx109`, a generic entry), selected on its page, and the
   // question whether to delete it.
   "journal-delete-confirm": {

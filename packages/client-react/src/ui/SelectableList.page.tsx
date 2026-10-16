@@ -7,7 +7,7 @@ import { TESTIDS } from "./testids.ts";
 
 /** What a test can do with, and ask of, a selectable list. */
 export interface SelectableListPage {
-  /** Whether assistive technology finds a group by this name. */
+  /** Whether assistive technology finds a radio group by this name. */
   isGroupNamed: (name: string) => boolean;
   /** Each row as drawn, the icon's text before the label. */
   rows: () => string[];
@@ -46,7 +46,7 @@ export function mountSelectableList(
 
   return {
     isGroupNamed: (name: string): boolean => {
-      return rendered.queryByRole("group", { name }) !== null;
+      return rendered.queryByRole("radiogroup", { name }) !== null;
     },
     rows: (): string[] => {
       return rows().map((row) => {

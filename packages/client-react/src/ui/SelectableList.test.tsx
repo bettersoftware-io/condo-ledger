@@ -4,7 +4,7 @@ import { mountSelectableList } from "./SelectableList.page.tsx";
 import type { SelectableItem } from "./SelectableList.tsx";
 
 describe("SelectableList", () => {
-  it("is a group named by its label", () => {
+  it("is a radio group named by its label", () => {
     const page = mountSelectableList({ label: "Cost account" });
 
     expect(page.isGroupNamed("Cost account")).toBe(true);

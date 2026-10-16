@@ -1,17 +1,17 @@
-/* README "Journal-entry wizards": the section label, then rows 6px 10px under --bd2 rules. */
+/* README "Journal-entry wizards": the section label, then rows 6px 10px under
+   --bd2 rules. In a column that runs short (a dialog at its 90vh ceiling),
+   the list is what gives way: its rows shrink and scroll, down to a few rows,
+   so the dialog's body need not scroll around a list that scrolls too. */
 .selectable-list {
   display: flex;
+  flex: 0 1 auto;
   flex-direction: column;
   gap: 6px;
   min-width: 0;
-  margin: 0;
-  padding: 0;
-  border: none;
+  min-height: 96px;
 }
 
 .selectable-list-legend {
-  padding: 0;
-  margin-bottom: 6px;
   font-size: 11px;
   font-weight: 700;
   color: var(--txd);
@@ -20,6 +20,8 @@
 }
 
 .selectable-list-rows {
+  flex: 0 1 auto;
+  min-height: 0;
   max-height: 240px;
   overflow: auto;
   border: 1px solid var(--bd);

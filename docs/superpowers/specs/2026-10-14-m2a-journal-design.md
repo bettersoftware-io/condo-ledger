@@ -478,15 +478,17 @@ worth holding; otherwise nothing.
   ledger of the account; the delete flow both ways; the toolbar's stubs.
   Fake timers, no sleeps.
 - Goldens, both platforms: `journal-1280-light`, `journal-1280-dark`
-  (Pozzetto 2013, page 1, entry 2 expanded and selected: three postings) and
-  `journal-delete-confirm`. No wizard has a golden: on linux-x64 a dialog card
-  centred at a half-pixel offset redraws its inner boxes' rounded corners one
-  or two colour levels apart from frame to frame, so the host never gets two
-  identical frames (the bank purchase also scrolls, which draws unstably).
+  (Pozzetto 2013, page 1, entry 2 expanded and selected: three postings),
+  `journal-wizard-generic` (two filled lines and the balance message),
+  `journal-wizard-direct` (the bank purchase with an account chosen and an
+  amount) and `journal-delete-confirm`. The dialog card is centred on whole
+  pixels, and a dialog at its 90vh ceiling shrinks its choice list rather
+  than scroll its body around it: a half-pixel card and a scroller inside a
+  scroller both redraw a shade apart from frame to frame.
   `Scenario` gains `menu`,
   `expandedEntries`, `selectedEntry` and `dialog`, delivered in
   `seeding.ts` through the machines' own intents and the screen's dialog
-  state; the host stays untouched. `dialog` is `"delete"`. `selectedEntry` goes through the grid's `reveal`, so an entry
+  state; the host stays untouched. `dialog` is `"delete"`, or a wizard with its fields beside its name (`{ wizard: "genericEntry", description, lines }`, `{ wizard: "directPaymentBank", targetId, amount }`). `selectedEntry` goes through the grid's `reveal`, so an entry
   on a later page is shown on its page, selected. The linux set comes from
   the goldens workflow.
 - Coverage holds at the add-on's bar for every new file.

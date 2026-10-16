@@ -12,7 +12,7 @@ One bullet for each entry: its name in bold, what is left, and a link to its
 plan when it has one. `AGENTS.md` says when an entry is added, moved and
 removed.
 
-**Last updated: 2026-10-14**
+**Last updated: 2026-10-16**
 
 ## In progress
 
@@ -48,8 +48,6 @@ Work that has started and is not finished.
   After them, the rest of the Buildings module the parent design names for
   M2: Installments, Tables & Allocation, Building Data & Units, Contacts and
   Calendar, one spec per group.
-- **Wizard goldens.** Snap the dialog card to whole pixels (or get the host
-  to), then restore `journal-wizard-generic` and a direct-payment golden.
 - **Per-grid persistence.** The design says a column resize persists per
   grid; today every per-component machine (grid expansion, columns, split,
   bottom tab) is rebuilt when its component mounts, so leaving the Accounts
@@ -169,12 +167,13 @@ Work that has started and is not finished.
   Journal's dialogs) is drawn against the viewport, 16 pixels up and left of
   the app: the dialog golden leaves a 16-pixel strip of the app at the
   right and the bottom outside the scrim, and the card is centred on the
-  viewport, not on the app; on linux-x64 a dialog card centred at a
-  half-pixel offset redraws its inner boxes' rounded corners one or two
-  colour levels apart from frame to frame, so no wizard has a golden (the
-  scrolling bank purchase, the generic entry and the withholding payment were
-  removed); the cure is the card on whole pixels, either pinned by the host
-  or snapped by the app's `Dialog`.
+  viewport, not on the app; the host pictures the whole frame, so a dialog's
+  golden always carries the app behind it: a scenario that names the element
+  to picture (the dialog card) would give dialog-only goldens, with the
+  full-app picture kept for a few; the host's zero tolerance turns any
+  frame-to-frame shading into a failure, so the app keeps its dialogs on
+  whole pixels and never nests one scroller in another (a host note on
+  both would save the next project the hunt).
 
 ## Known limits
 
