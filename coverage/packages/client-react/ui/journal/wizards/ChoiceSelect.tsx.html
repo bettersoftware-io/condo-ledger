@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>12/12</span>
+                <span class='fraction'>15/15</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>6/6</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>12/12</span>
+                <span class='fraction'>15/15</span>
             </div>
         
             
@@ -151,7 +151,31 @@
 <a name='L86'></a><a href='#L86'>86</a>
 <a name='L87'></a><a href='#L87'>87</a>
 <a name='L88'></a><a href='#L88'>88</a>
-<a name='L89'></a><a href='#L89'>89</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -173,6 +197,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">192x</span>
+<span class="cline-any cline-yes">1499x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">192x</span>
@@ -206,6 +234,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -244,14 +282,19 @@ import type { ChangeEvent, ReactElement } from "react";
 &nbsp;
 import type { WizardChoice } from "@cl/client-core";
 &nbsp;
+import { TESTIDS } from "#/ui/testids.ts";
+&nbsp;
 /**
  * A line's account cell: a native select over the wizard's choices, one
  * `&lt;optgroup&gt;` per group in the order the choices come, and an empty first
  * option while none is chosen.
  *
  * The select paints as a plain box (`appearance: none`) with a drawn chevron
- * over its right edge: in Chromium on Linux a native select's text, painted
- * through the platform theme, differed from one screenshot to the next.
+ * over its right edge, and the chosen account's name is drawn over it as
+ * ordinary text: Chromium on Linux painted a select's own text one of two
+ * ways from one run to the next, while the same text in a plain element was
+ * identical in every run. The select stays underneath, so the keyboard, the
+ * list of options and the accessible name are the native ones.
  */
 export function ChoiceSelect({
   label,
@@ -263,6 +306,10 @@ export function ChoiceSelect({
     onChoose(event.target.value === "" ? null : event.target.value);
   }
 &nbsp;
+  const chosen = choices.find((choice) =&gt; {
+    return choice.key === value;
+  });
+&nbsp;
   return (
     &lt;span className="wizard-select-box"&gt;
       &lt;select
@@ -271,7 +318,7 @@ export function ChoiceSelect({
         value={value ?? ""}
         onChange={choose}
       &gt;
-        &lt;option value=""&gt;Choose an account…&lt;/option&gt;
+        &lt;option value=""&gt;{NO_ACCOUNT}&lt;/option&gt;
         {groupsOf(choices).map((group) =&gt; {
           return (
             &lt;optgroup key={group.label} label={group.label}&gt;
@@ -286,6 +333,13 @@ export function ChoiceSelect({
           );
         })}
       &lt;/select&gt;
+      &lt;span
+        className="wizard-select-text"
+        aria-hidden="true"
+        data-testid={TESTIDS.wizardSelectText}
+      &gt;
+        {chosen === undefined ? NO_ACCOUNT : chosen.label}
+      &lt;/span&gt;
       &lt;ChevronDown
         className="wizard-select-chevron"
         size={12}
@@ -294,6 +348,9 @@ export function ChoiceSelect({
     &lt;/span&gt;
   );
 }
+&nbsp;
+/** The empty first option, and what the cell shows while no account is chosen. */
+const NO_ACCOUNT = "Choose an account…";
 &nbsp;
 export interface ChoiceSelectProps {
   /** The cell's accessible name: which line, which column. */
@@ -334,7 +391,7 @@ function groupsOf(choices: WizardChoice[]): ChoiceGroup[] {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-16T07:32:57.801Z
+                at 2026-10-16T09:36:25.010Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
