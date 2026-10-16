@@ -55,22 +55,9 @@ export default defineConfig({
   },
   // PROBE (not for main): one project per candidate set of Chromium flags.
   projects: Object.entries({
-    base: [],
-    all: [
-      "--disable-partial-raster",
-      "--disable-threaded-scrolling",
-      "--disable-threaded-animation",
-      "--disable-checker-imaging",
-      "--run-all-compositor-stages-before-draw",
-      "--disable-new-content-rendering-timeout",
-      "--force-color-profile=srgb",
-      "--disable-lcd-text",
-    ],
     partialRaster: ["--disable-partial-raster"],
-    threadedScroll: ["--disable-threaded-scrolling"],
-    compositorStages: ["--run-all-compositor-stages-before-draw"],
     lcdText: ["--disable-lcd-text"],
-    noGpu: ["--disable-gpu"],
+    both: ["--disable-partial-raster", "--disable-lcd-text"],
   }).map(([name, args]) => {
     return { name, use: { launchOptions: { args } } };
   }),
