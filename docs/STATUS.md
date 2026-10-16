@@ -108,6 +108,86 @@ Work that has started and is not finished.
 
 ## Waiting on a person
 
+- **Negative budgets.** Pozzetto 2013 holds two on editable expense leaves
+  (`la215` −1,200.00 and `la216` −380.00, deduction accounts). The spec's rule
+  "a budget is never negative" stays; an unchanged text on blur cancels, so
+  they are not an error trap. Held by the decision below; if negatives are
+  allowed, drop the `negative` reason in
+  `packages/domain/src/useCases/validateBudget.ts` and its message in
+  `packages/client-react/src/ui/accounts/AccountsGrid.tsx`.
+
+## Next, with no plan yet
+
+- **M2b, the Journal's other five wizards.** New Invoice, Invoice Payment,
+  Record Owner Collection, Opening Balances and Budget Allocation, which pull
+  in suppliers and invoices, installments, the functional-account settings
+  and the allocation engine; the delete of their kinds (`canDeleteEntry`
+  loosens per kind as each flow models its side effects); and `✎` on an
+  entry, which edits it. The M2a spec's "Out of scope" lists them
+  ([2026-10-14-m2a-journal-design.md](superpowers/specs/2026-10-14-m2a-journal-design.md)).
+  After them, the rest of the Buildings module the parent design names for
+  M2: Installments, Tables & Allocation, Building Data & Units, Contacts and
+  Calendar, one spec per group.
+- **Per-grid persistence.** The design says a column resize persists per
+  grid; today every per-component machine (grid expansion, columns, split,
+  bottom tab) is rebuilt when its component mounts, so leaving the Accounts
+  menu and coming back resets them, and the Ledger's column widths reset on
+  every tab switch. `useColumns(spec)` and `useBottomTab(tabs)` also take the
+  first render's argument only; document that in the `ViewModel` interface
+  until it changes.
+- **Presenter robustness before the live adapters (M3).** In
+  `packages/client-core/src/presenters/accountsPresenter.ts`, a key the tree
+  no longer has should fall back to Total rather than error the stream for
+  good (today unreachable, since no port changes the tree's structure);
+  `buildingsPresenter.selectPeriod` before the tree loads reads as "no such
+  period". The screen has no error boundary: a period with broken references
+  crashes the whole app on render. In the Journal: the journal presenter's
+  eager `selected$` subscription has no error handler, and its `context$` and
+  `addEntry` follow `selected$` while its entries follow the books, so the
+  two can disagree briefly; the journal port's contract test "adds an entry"
+  relies on a synchronous first emission and has one subscriber; the
+  simulator keeps a draft's postings by reference; the delete alert is
+  hidden, not closed, when the selection vanishes while it is open, and
+  comes back on the next selection.
+- **Accessibility polish.** The tabbed panel lacks `aria-labelledby` and
+  arrow keys; the popover menus have no focus return and no arrow keys; the
+  inline editor's input has no label, `aria-invalid` or `role="alert"` on its
+  error; the disabled checkbox in Account Details has no accessible name; the
+  splitter has no `onPointerCancel`. From the Journal: `ConfirmAlert` is a
+  `dialog` with no `aria-describedby`, so its question may not be read (an
+  `alertdialog`); `Dialog` traps no focus and gives none back when a wizard
+  closes on its own; one Escape would close two stacked dialogs; a
+  `FormField` read-only row is a `<label>` naming nothing, and the required
+  star is not announced (`aria-required`); after a dialog closes, the focus
+  lands on the grid's wrapper, whose outline is removed, so nothing shows
+  where it is.
+- **Structural tidy-ups:** `missing()` duplicated across the two simulators;
+  `TopBar.tsx` has two near-identical picker blocks; `LedgerTab` is a
+  view-model reader that builds every row itself (split it like
+  `AccountsGrid`); `.accounts-top .toolbar-button[data-icon-only]` reaches
+  wider than its comment; `createSeedWithASecondPeriod` duplicates half of
+  `createTwoPeriodSeed`; `twoBuildings()` is not named `create…`;
+  `Counterpart.kind` is never checked against the account's role;
+  `validateBudget` rejects only `grouping` as "not a leaf" (use
+  `type !== "regular"`); the `compilerTracked` rationale and `AccountsGrid`'s
+  doc comment are inaccurate; `Breadcrumb` keys rows by their text; a dead
+  `data-tone="muted"`; `tokens.css` still names the prototype's path in its
+  header; the `knip.jsonc` client-react workspace repeats the `packages/*`
+  settings (keep in sync). From the Journal: `judgedPayment` and `Debit`
+  live in `directPaymentWizard.ts`, though the multi-cost wizard uses them
+  too (beside `payingOf` in `choices.ts`); the three wizard machine tests
+  copy one create-and-dispose harness, and the three wizard readers repeat
+  one skeleton; `JournalScreen` restates the grid machine's blank-search rule
+  (a `searching` flag on the grid's state); `JournalPaging` and
+  `JournalToolbar` use classes from `JournalScreen.css` without importing it;
+  `Wizards.css` reaches into `FormField`'s class with `:has()`; posting keys
+  (`entryId/index`) assume an entry id holds no slash.
+- **AGENTS.md:** the oracle's path is written without backticks so the
+  `agent-docs` gate does not look for a file that is not in git; pointing at
+  the test and `DESIGN_ORACLE_DIR` instead would be cleaner.
+
+## Waiting on a person
+
 - **How the visual tier should treat sub-pixel shading (the user, in the
   `visual` add-on).** On linux-x64, Chromium shades the rounded corners of
   boxes that land on fractional heights one or two colour levels apart from
@@ -183,12 +263,15 @@ Work that has started and is not finished.
   golden always carries the app behind it: a scenario that names the element
   to picture (the dialog card) would give dialog-only goldens, with the
   full-app picture kept for a few; the host's zero tolerance turns any
-  frame-to-frame shading into a failure, so the app keeps its dialogs on
-  whole pixels and never nests one scroller in another (a host note on
-  both would save the next project the hunt); on linux-x64 a scrolling list
-  inside a dialog still flickers by a few pixels between frames (a clipped
-  one does not), so the bank purchase, whose 41 cost accounts scroll, has no
-  golden; see "Waiting on a person".
+  frame-to-frame shading into a failure, and Chromium's partial raster
+  shades the same rounded corner two ways from frame to frame: the add-on's
+  `playwright.config.ts` should launch Chromium with
+  `--disable-partial-raster` (measured in this project on 2026-10-16: three
+  linux-x64 runs, every image byte-identical, no golden outside the dialogs
+  changed). This project sets it in its own copy until the add-on does, so
+  an update of the add-on reports that file as changed; the redesign asked
+  of the add-on (levels from component to page, per-scenario tolerance,
+  visual reach coverage) was handed to a session in that repository.
 
 ## Known limits
 

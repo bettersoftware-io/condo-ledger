@@ -480,17 +480,16 @@ worth holding; otherwise nothing.
 - Goldens, both platforms: `journal-1280-light`, `journal-1280-dark`
   (Pozzetto 2013, page 1, entry 2 expanded and selected: three postings),
   `journal-wizard-generic` (two filled lines and the balance message),
-  and `journal-delete-confirm`. The dialog card is centred on whole pixels,
-  and a dialog at its 90vh ceiling shrinks its choice list rather than
-  scroll its body around it. No direct payment has a golden: on linux-x64
-  Chromium shades the rounded corners of boxes that land on fractional
-  heights inside the dialog one or two levels apart from run to run, and a
-  scrolling list flickers between frames; the visual add-on's choice is in
-  docs/STATUS.md.
+  `journal-wizard-direct` (the bank purchase with an account chosen and an
+  amount) and `journal-delete-confirm`. The dialog card is centred on whole
+  pixels, a dialog at its 90vh ceiling shrinks its choice list rather than
+  scroll its body around it, and the visual tier launches Chromium with
+  `--disable-partial-raster`, without which rounded corners are shaded a
+  level or two apart from frame to frame.
   `Scenario` gains `menu`,
   `expandedEntries`, `selectedEntry` and `dialog`, delivered in
   `seeding.ts` through the machines' own intents and the screen's dialog
-  state; the host stays untouched. `dialog` is `"delete"`, or a wizard with its fields beside its name (`{ wizard: "genericEntry", description, lines }`). `selectedEntry` goes through the grid's `reveal`, so an entry
+  state; the host stays untouched. `dialog` is `"delete"`, or a wizard with its fields beside its name (`{ wizard: "genericEntry", description, lines }`, `{ wizard: "directPaymentBank", targetId, amount }`). `selectedEntry` goes through the grid's `reveal`, so an entry
   on a later page is shown on its page, selected. The linux set comes from
   the goldens workflow.
 - Coverage holds at the add-on's bar for every new file.
