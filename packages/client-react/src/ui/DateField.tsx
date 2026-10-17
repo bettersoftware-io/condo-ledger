@@ -1,4 +1,4 @@
-import type { ChangeEvent, ReactElement } from "react";
+import { type ChangeEvent, type ReactElement, useId } from "react";
 
 import { FormField } from "./FormField.tsx";
 import { formatDate } from "./format.ts";
@@ -22,14 +22,22 @@ export function DateField({
     onChange(event.target.value);
   }
 
+  const parsedId = useId();
   const showParsed = parsed !== null && !FULL_FORM.test(value.trim());
 
   return (
     <FormField label={label} required={required}>
-      <input type="text" value={value} onChange={change} />
+      <input
+        type="text"
+        aria-label={label}
+        aria-describedby={showParsed ? parsedId : undefined}
+        value={value}
+        onChange={change}
+      />
       {showParsed ? (
         <span
           className="date-field-parsed"
+          id={parsedId}
           data-testid={TESTIDS.dateFieldParsed}
         >
           {formatDate(parsed)}

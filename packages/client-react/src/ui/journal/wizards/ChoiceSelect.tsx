@@ -23,6 +23,7 @@ export function ChoiceSelect({
   value,
   onChoose,
   disabled = false,
+  placeholder = NO_ACCOUNT,
 }: ChoiceSelectProps): ReactElement {
   function choose(event: ChangeEvent<HTMLSelectElement>): void {
     onChoose(event.target.value === "" ? null : event.target.value);
@@ -41,7 +42,7 @@ export function ChoiceSelect({
         onChange={choose}
         disabled={disabled}
       >
-        <option value="">{NO_ACCOUNT}</option>
+        <option value="">{placeholder}</option>
         {groupsOf(choices).map((group) => {
           return (
             <optgroup key={group.label} label={group.label}>
@@ -61,7 +62,7 @@ export function ChoiceSelect({
         aria-hidden="true"
         data-testid={TESTIDS.wizardSelectText}
       >
-        {chosen === undefined ? NO_ACCOUNT : chosen.label}
+        {chosen === undefined ? placeholder : chosen.label}
       </span>
       <ChevronDown
         className="wizard-select-chevron"
@@ -83,6 +84,8 @@ export interface ChoiceSelectProps {
   onChoose: (key: string | null) => void;
   /** The choice is fixed: the select is shown but cannot be changed. */
   disabled?: boolean;
+  /** What the empty first option and the cell say while nothing is chosen. */
+  placeholder?: string;
 }
 
 /** Choices of one group, kept together. */

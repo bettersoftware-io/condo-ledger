@@ -11,6 +11,8 @@ export interface DateFieldPage {
   text: () => string;
   /** The parsed date drawn beside the text, or null when none is. */
   parsedText: () => string | null;
+  /** The accessible description of the box, or null when it has none. */
+  description: () => string | null;
   isRequired: () => boolean;
   type: (text: string) => Promise<void>;
 }
@@ -28,7 +30,7 @@ export function mountDateField(props: Partial<DateFieldProps>): DateFieldPage {
   );
 
   function box(): HTMLInputElement {
-    return rendered.getByRole("textbox", { name: /^Date/ }) as HTMLInputElement;
+    return rendered.getByRole("textbox", { name: "Date" }) as HTMLInputElement;
   }
 
   return {
@@ -39,6 +41,13 @@ export function mountDateField(props: Partial<DateFieldProps>): DateFieldPage {
       const parsed = rendered.queryByTestId(TESTIDS.dateFieldParsed);
 
       return parsed === null ? null : (parsed.textContent ?? "");
+    },
+    description: (): string | null => {
+      const id = box().getAttribute("aria-describedby");
+
+      return id === null
+        ? null
+        : (document.getElementById(id)?.textContent ?? null);
     },
     isRequired: (): boolean => {
       return (

@@ -31,6 +31,7 @@ export function SupplierSelect({
           value={value}
           onChoose={onChange}
           disabled={locked}
+          placeholder="Choose a supplier…"
         />
       </FormField>
       {note === undefined ? null : (

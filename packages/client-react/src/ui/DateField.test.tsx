@@ -8,12 +8,14 @@ describe("DateField", () => {
 
     expect(page.text()).toBe("23/4");
     expect(page.parsedText()).toBe("23/04/2013");
+    expect(page.description()).toBe("23/04/2013");
   });
 
   it("shows nothing beside a text that is already in full form", () => {
     const page = mountDateField({ value: "23/04/2013", parsed: "2013-04-23" });
 
     expect(page.parsedText()).toBeNull();
+    expect(page.description()).toBeNull();
   });
 
   it("shows nothing beside a text that does not parse", () => {

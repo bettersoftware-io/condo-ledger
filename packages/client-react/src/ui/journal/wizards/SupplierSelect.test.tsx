@@ -30,6 +30,12 @@ describe("SupplierSelect", () => {
     expect(page.drawnText()).toBe("Supplier B");
   });
 
+  it("asks for a supplier while none is chosen", () => {
+    const page = mountSupplierSelect({ choices: CHOICES });
+
+    expect(page.drawnText()).toBe("Choose a supplier…");
+  });
+
   it("hands the key of the supplier picked to onChange", async () => {
     const onChange = vi.fn();
     const page = mountSupplierSelect({ choices: CHOICES, onChange });
