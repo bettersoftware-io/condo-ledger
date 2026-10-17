@@ -9,10 +9,13 @@ import {
 import { createSmallBooks } from "@cl/domain/testing/createSmallBooks.ts";
 
 import type { Books } from "#/presenters/booksPresenter.ts";
+import { createAppHarness } from "#/testing/appHarness.ts";
 import { createBooks } from "#/testing/createBooks.ts";
+import { currentBooks, currentEntry } from "#/testing/harnessBooks.ts";
 
 import {
   createMultiCostPaymentWizard,
+  fitsMultiCost,
   type MultiCostPaymentForm,
   type MultiCostPaymentSummary,
 } from "./multiCostPaymentWizard.ts";
@@ -244,6 +247,81 @@ describe("the multi-cost payment wizard", () => {
   });
 });
 
+describe("editing a bank purchase of several costs", () => {
+  it("a seeded one opens on its lines and the amount paid, and judges as written", () => {
+    const harness = createAppHarness();
+    const machine = harness.app.machines.createMultiCostPaymentWizard("tx4");
+
+    created.push(machine);
+
+    expect(machine.state$.getValue()).toMatchObject({
+      editing: "tx4",
+      form: {
+        description: currentEntry(harness, "tx4").description,
+        amount: "286.50",
+        lines: [
+          { accountId: "la38", amount: "57.30" },
+          { accountId: "la41", amount: "229.20" },
+        ],
+      },
+      verdict: { ok: true },
+      stepVerdict: { ok: true },
+      summary: { linesTotal: 28650 },
+    });
+  });
+
+  it("saving it unchanged rewrites it in place: its id, its number and its stamp stay", async () => {
+    const harness = createAppHarness();
+    const before = currentBooks(harness).entries.length;
+    const machine = harness.app.machines.createMultiCostPaymentWizard("tx4");
+
+    created.push(machine);
+
+    expect(await machine.intents.save()).toEqual({
+      ok: true,
+      value: { id: "tx4" },
+    });
+    expect(currentBooks(harness).entries).toHaveLength(before);
+    expect(currentEntry(harness, "tx4")).toMatchObject({
+      number: 4,
+      at: "2011-03-13T14:07:00",
+      kind: "directPaymentBank",
+    });
+  });
+});
+
+describe("fitsMultiCost", () => {
+  it("fits a bank purchase of expense leaves, of one cost or several", () => {
+    const harness = createAppHarness();
+    const books = currentBooks(harness);
+
+    expect(fitsMultiCost(currentEntry(harness, "tx4"), books)).toBe(true);
+    expect(fitsMultiCost(currentEntry(harness, "tx3"), books)).toBe(true);
+  });
+
+  it("does not fit a cash purchase, a withholding, or a cost on a leaf that is no expense", () => {
+    const harness = createAppHarness();
+    const books = currentBooks(harness);
+    const purchase = currentEntry(harness, "tx4");
+
+    expect(fitsMultiCost(currentEntry(harness, "tx8"), books)).toBe(false);
+    expect(fitsMultiCost(currentEntry(harness, "tx12"), books)).toBe(false);
+    expect(
+      fitsMultiCost(
+        {
+          ...purchase,
+          postings: purchase.postings.map((posting) => {
+            return posting.accountId === "la41"
+              ? { ...posting, accountId: "la25" }
+              : posting;
+          }),
+        },
+        books,
+      ),
+    ).toBe(false);
+  });
+});
+
 interface CreatedWizard {
   machine: WizardMachine<MultiCostPaymentForm, MultiCostPaymentSummary>;
   calls: () => EntryDraft[];
@@ -258,7 +336,7 @@ function createWizard(books: Books | null = createBooks()): CreatedWizard {
     return Promise.resolve(accepted({ id: "new1" }));
   }
 
-  const machine = createMultiCostPaymentWizard(books, addEntry);
+  const machine = createMultiCostPaymentWizard(books, addEntry, null);
 
   created.push(machine);
 

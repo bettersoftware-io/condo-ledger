@@ -5,8 +5,10 @@ import {
   type EntryContext,
   NONE,
   PATH_SEPARATOR,
+  type Posting,
   type PostingScope,
   pathOf,
+  scopeOwns,
 } from "@cl/domain";
 
 import type { Books } from "#/presenters/booksPresenter.ts";
@@ -48,21 +50,16 @@ export function leafChoices(
  * that name no party is one no new posting may join (it needs a party).
  */
 export function rowChoices(books: Books): WizardChoice[] {
-  const groupings = new Set(
-    books.accounts
-      .filter((account) => {
-        return account.type === "grouping";
-      })
-      .map((account) => {
-        return account.id;
-      }),
-  );
+  return offeredRows(books).map(choiceOf);
+}
 
-  return postingRows(books)
-    .filter((row) => {
-      return !groupings.has(row.scope.accountId) && namesItsParty(row.scope);
-    })
-    .map(choiceOf);
+/** The key of the row `rowChoices` offers that owns the posting: where the generic wizard shows a line it did not write. Null when no row offered owns it. */
+export function rowKeyOf(books: Books, posting: Posting): string | null {
+  const row = offeredRows(books).find((candidate) => {
+    return scopeOwns(candidate.scope, posting);
+  });
+
+  return row?.choice.key ?? null;
 }
 
 /** What the domain judges a wizard's draft against: the books as they stand, and the entry an edit rewrites. */
@@ -115,6 +112,23 @@ export function shortPath(books: Books, key: string): string {
   return pathOf(books.tree, key).slice(
     books.tree.label.length + PATH_SEPARATOR.length,
   );
+}
+
+/** The rows a new posting may land on: not a grouping, and with its party. */
+function offeredRows(books: Books): PostingRow[] {
+  const groupings = new Set(
+    books.accounts
+      .filter((account) => {
+        return account.type === "grouping";
+      })
+      .map((account) => {
+        return account.id;
+      }),
+  );
+
+  return postingRows(books).filter((row) => {
+    return !groupings.has(row.scope.accountId) && namesItsParty(row.scope);
+  });
 }
 
 function postingRows(books: Books): PostingRow[] {

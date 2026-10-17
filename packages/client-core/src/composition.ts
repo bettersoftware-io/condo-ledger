@@ -8,10 +8,13 @@ import {
   createSessionSimulator,
   DESIGN_FIRM,
   DESIGN_PRINCIPAL,
+  type EntryKind,
+  type JournalEntry,
   type JournalPort,
   type LegacySeed,
   type SessionPort,
 } from "@cl/domain";
+import { must } from "@cl/domain/support/must.ts";
 
 import {
   type AccountsGridIntents,
@@ -76,7 +79,11 @@ import {
   type MultiCostPaymentForm,
   type MultiCostPaymentSummary,
 } from "./machines/wizards/multiCostPaymentWizard.ts";
-import type { WizardMachine } from "./machines/wizards/wizard.ts";
+import {
+  replacing,
+  type WizardMachine,
+  type WriteEntry,
+} from "./machines/wizards/wizard.ts";
 import { createNotices, type Notices } from "./notices.ts";
 import {
   type AccountsPresenter,
@@ -133,18 +140,24 @@ interface AppMachines {
   createSidebar: () => Machine<SidebarState, SidebarIntents>;
   createJournalGrid: () => Machine<JournalGridState, JournalGridIntents>;
   createJournalDialog: () => Machine<JournalDialogState, JournalDialogIntents>;
-  /** The wizards are built over the selected period's books as they stand: with no period, no choices and a refused verdict. */
+  /**
+   * The wizards are built over the selected period's books as they stand:
+   * with no period, no choices and a refused verdict. `editing` names an entry
+   * of those books to rewrite; one they do not hold throws. Left out, the
+   * wizard writes a new entry.
+   */
   createDirectPaymentWizard: (
     kind: DirectPaymentKind,
+    editing?: string | null,
   ) => WizardMachine<DirectPaymentForm, DirectPaymentSummary>;
-  createMultiCostPaymentWizard: () => WizardMachine<
-    MultiCostPaymentForm,
-    MultiCostPaymentSummary
-  >;
-  createGenericEntryWizard: () => WizardMachine<
-    GenericEntryForm,
-    GenericEntrySummary
-  >;
+  createMultiCostPaymentWizard: (
+    editing?: string | null,
+  ) => WizardMachine<MultiCostPaymentForm, MultiCostPaymentSummary>;
+  /** `kind` is what the generic wizard writes: generic unless it rewrites an entry of a kind no other wizard can write. */
+  createGenericEntryWizard: (
+    editing?: string | null,
+    kind?: EntryKind,
+  ) => WizardMachine<GenericEntryForm, GenericEntrySummary>;
 }
 
 /** The application, built once at startup. Presenters, the navigation and
@@ -179,6 +192,25 @@ export function createApp(ports: AppPorts): App {
     latestBooks = next;
   });
 
+  /** The entry of the books as they stand that a wizard rewrites; null for a new entry. */
+  function editedEntry(editing: string | null): JournalEntry | null {
+    return editing === null
+      ? null
+      : must(
+          latestBooks?.entries.find((entry) => {
+            return entry.id === editing;
+          }),
+          `the entry ${editing}`,
+        );
+  }
+
+  /** How a wizard writes: a new entry is added, an edited one replaced. */
+  function writeOf(entry: JournalEntry | null): WriteEntry {
+    return entry === null
+      ? journal.addEntry
+      : replacing(entry.id, journal.replaceEntry);
+  }
+
   return {
     presenters: { session, buildings, books, accounts, journal },
     navigation: createNavigationMachine(),
@@ -201,20 +233,36 @@ export function createApp(ports: AppPorts): App {
       createJournalDialog: createJournalDialogMachine,
       createDirectPaymentWizard: (
         kind: DirectPaymentKind,
+        editing: string | null = null,
       ): WizardMachine<DirectPaymentForm, DirectPaymentSummary> => {
-        return createDirectPaymentWizard(kind, latestBooks, journal.addEntry);
+        const entry = editedEntry(editing);
+
+        return createDirectPaymentWizard(
+          kind,
+          latestBooks,
+          writeOf(entry),
+          entry,
+        );
       },
-      createMultiCostPaymentWizard: (): WizardMachine<
-        MultiCostPaymentForm,
-        MultiCostPaymentSummary
-      > => {
-        return createMultiCostPaymentWizard(latestBooks, journal.addEntry);
+      createMultiCostPaymentWizard: (
+        editing: string | null = null,
+      ): WizardMachine<MultiCostPaymentForm, MultiCostPaymentSummary> => {
+        const entry = editedEntry(editing);
+
+        return createMultiCostPaymentWizard(latestBooks, writeOf(entry), entry);
       },
-      createGenericEntryWizard: (): WizardMachine<
-        GenericEntryForm,
-        GenericEntrySummary
-      > => {
-        return createGenericEntryWizard(latestBooks, journal.addEntry);
+      createGenericEntryWizard: (
+        editing: string | null = null,
+        kind: EntryKind = "generic",
+      ): WizardMachine<GenericEntryForm, GenericEntrySummary> => {
+        const entry = editedEntry(editing);
+
+        return createGenericEntryWizard(
+          latestBooks,
+          writeOf(entry),
+          entry,
+          kind,
+        );
       },
     },
   };

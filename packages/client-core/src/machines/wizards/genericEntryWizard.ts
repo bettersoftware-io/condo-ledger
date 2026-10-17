@@ -3,21 +3,23 @@ import {
   type Cents,
   type Counterpart,
   type EntryDraft,
+  type EntryKind,
   findNode,
+  type JournalEntry,
   NONE,
   type Posting,
   type PostingScope,
+  type Result,
   subtractCents,
   ZERO_CENTS,
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
-import { parseAmount } from "#/amounts.ts";
+import { amountText, parseAmount } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 
-import { contextOf, rowChoices } from "./choices.ts";
+import { contextOf, rowChoices, rowKeyOf } from "./choices.ts";
 import {
-  type AddEntry,
   createWizardMachine,
   type Derived,
   judged,
@@ -25,6 +27,7 @@ import {
   refused,
   type WizardChoice,
   type WizardMachine,
+  type WriteEntry,
 } from "./wizard.ts";
 
 /** One line of the entry: the row of the tree it lands on, and its debit and credit as typed. */
@@ -63,28 +66,49 @@ interface Sides {
 
 const EMPTY_LINE: GenericLine = { scopeKey: null, debit: "", credit: "" };
 
+/** What a generic draft is written as, beside its lines: its kind, and the entry it rewrites. */
+interface Writing {
+  kind: EntryKind;
+  replacing: string | null;
+}
+
 /**
  * Any entry, line by line: each line lands on a row of the tree, so a line on
- * a control account names its party by construction.
+ * a control account names its party by construction. It writes `kind`: a new
+ * entry is generic, and an entry no other wizard can write keeps its own kind
+ * here. Editing an entry, the form is its description and its postings, each
+ * on the row that owns it.
  */
 export function createGenericEntryWizard(
   books: Books | null,
-  addEntry: AddEntry,
+  write: WriteEntry,
+  editing: JournalEntry | null,
+  kind: EntryKind = "generic",
 ): WizardMachine<GenericEntryForm, GenericEntrySummary> {
   const choices = books === null ? [] : rowChoices(books);
+  const writing: Writing = { kind, replacing: editing?.id ?? null };
+
+  function derived(form: GenericEntryForm): Derived {
+    return derive(books, choices, form, writing);
+  }
 
   return keepingOneLine(
     createWizardMachine<GenericEntryForm, GenericEntrySummary>(
       {
-        initial: { description: "", lines: [EMPTY_LINE] },
+        initial:
+          editing === null
+            ? { description: "", lines: [EMPTY_LINE] }
+            : formOf(books, editing),
         stepCount: 1,
         choices,
-        derive: (form: GenericEntryForm): Derived => {
-          return derive(books, choices, form);
-        },
+        derive: derived,
         summarize,
+        stepVerdict: (form: GenericEntryForm): Result => {
+          return derived(form).verdict;
+        },
+        editing: writing.replacing,
       },
-      addEntry,
+      write,
     ),
     EMPTY_LINE,
   );
@@ -110,10 +134,29 @@ export function postingOf(
   };
 }
 
+/** The form an entry was written from: a line per posting, on the row offered that owns it (none when no row does), a side of zero left blank. */
+function formOf(books: Books | null, entry: JournalEntry): GenericEntryForm {
+  return {
+    description: entry.description,
+    lines: entry.postings.map((posting): GenericLine => {
+      return {
+        scopeKey: books === null ? null : rowKeyOf(books, posting),
+        debit: sideText(posting.debit),
+        credit: sideText(posting.credit),
+      };
+    }),
+  };
+}
+
+function sideText(amount: Cents): string {
+  return amount === ZERO_CENTS ? "" : amountText(amount);
+}
+
 function derive(
   books: Books | null,
   choices: WizardChoice[],
   form: GenericEntryForm,
+  writing: Writing,
 ): Derived {
   const read: ReadLine[] = [];
 
@@ -133,7 +176,7 @@ function derive(
   }
 
   const draft: EntryDraft = {
-    kind: "generic",
+    kind: writing.kind,
     description: form.description,
     postings: read.map((line) => {
       return line.posting;
@@ -147,7 +190,7 @@ function derive(
       credit: line.posting.credit,
     };
   });
-  return judged(preview, draft, contextOf(books, null));
+  return judged(preview, draft, contextOf(books, writing.replacing));
 }
 
 /** A line's reason, after the blank description the domain would answer first. */

@@ -146,6 +146,18 @@ describe("the application", () => {
     generic.dispose();
   });
 
+  it("a wizard asked to edit an entry the selected period does not hold is not built", () => {
+    const { app } = createAppHarness(createSmallSeed());
+    const { app: withNoPeriod } = createAppHarness(createSeedWithNoBuilding());
+
+    expect(() => {
+      return app.machines.createMultiCostPaymentWizard("nope");
+    }).toThrow("missing: the entry nope");
+    expect(() => {
+      return withNoPeriod.machines.createGenericEntryWizard("e9");
+    }).toThrow("missing: the entry e9");
+  });
+
   it("runs on the real seed by default", () => {
     expect(createAppHarness().seed.buildings).toHaveLength(2);
   });
