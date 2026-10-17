@@ -230,7 +230,10 @@
 <a name='L165'></a><a href='#L165'>165</a>
 <a name='L166'></a><a href='#L166'>166</a>
 <a name='L167'></a><a href='#L167'>167</a>
-<a name='L168'></a><a href='#L168'>168</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L168'></a><a href='#L168'>168</a>
+<a name='L169'></a><a href='#L169'>169</a>
+<a name='L170'></a><a href='#L170'>170</a>
+<a name='L171'></a><a href='#L171'>171</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -256,18 +259,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">111x</span>
-<span class="cline-any cline-yes">111x</span>
-<span class="cline-any cline-yes">111x</span>
-<span class="cline-any cline-yes">111x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">119x</span>
+<span class="cline-any cline-yes">119x</span>
+<span class="cline-any cline-yes">119x</span>
+<span class="cline-any cline-yes">119x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">69x</span>
-<span class="cline-any cline-yes">69x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">73x</span>
+<span class="cline-any cline-yes">73x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">111x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">119x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -297,17 +300,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">111x</span>
-<span class="cline-any cline-yes">111x</span>
-<span class="cline-any cline-yes">214x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">119x</span>
+<span class="cline-any cline-yes">119x</span>
+<span class="cline-any cline-yes">230x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">134x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">144x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -315,14 +321,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">37x</span>
+<span class="cline-any cline-yes">40x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">111x</span>
+<span class="cline-any cline-yes">119x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -417,14 +423,15 @@ import { BANK_REASONS, CASH_REASONS, reasonText } from "./reasons.ts";
 import { useWizardSave } from "./useWizardSave.ts";
 import { WizardDialog, type WizardProps } from "./WizardDialog.tsx";
 &nbsp;
-/** Reads the direct-payment wizard of its kind and hands its body plain props. */
+/** Reads the direct-payment wizard of its kind, new or editing a payment, and hands its body plain props. */
 export function DirectPaymentWizard({
   kind,
+  editing,
   onSaved,
   onCancel,
 }: DirectPaymentWizardProps): ReactElement {
   const { useDirectPaymentWizard, useJournalContext } = useViewModel();
-  const wizard = useDirectPaymentWizard(kind);
+  const wizard = useDirectPaymentWizard(kind, editing);
   const context = useJournalContext();
   const saving = useWizardSave(wizard.save, onSaved);
 &nbsp;
@@ -450,6 +457,8 @@ export function DirectPaymentWizard({
 &nbsp;
 export interface DirectPaymentWizardProps extends WizardProps {
   kind: DirectPaymentKind;
+  /** The payment entry the wizard rewrites; null for a new payment. */
+  editing: string | null;
 }
 &nbsp;
 /** The three one-step payments of the design: a target chosen from a list, an amount, the account paid from. */
@@ -571,7 +580,7 @@ const OWN_REASONS: Record&lt;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-17T00:44:06.109Z
+                at 2026-10-17T16:51:18.684Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

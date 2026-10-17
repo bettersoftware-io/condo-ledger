@@ -269,7 +269,13 @@
 <a name='L204'></a><a href='#L204'>204</a>
 <a name='L205'></a><a href='#L205'>205</a>
 <a name='L206'></a><a href='#L206'>206</a>
-<a name='L207'></a><a href='#L207'>207</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L207'></a><a href='#L207'>207</a>
+<a name='L208'></a><a href='#L208'>208</a>
+<a name='L209'></a><a href='#L209'>209</a>
+<a name='L210'></a><a href='#L210'>210</a>
+<a name='L211'></a><a href='#L211'>211</a>
+<a name='L212'></a><a href='#L212'>212</a>
+<a name='L213'></a><a href='#L213'>213</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -295,21 +301,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">107x</span>
-<span class="cline-any cline-yes">107x</span>
-<span class="cline-any cline-yes">107x</span>
-<span class="cline-any cline-yes">107x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">134x</span>
+<span class="cline-any cline-yes">134x</span>
+<span class="cline-any cline-yes">134x</span>
+<span class="cline-any cline-yes">134x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">82x</span>
-<span class="cline-any cline-yes">82x</span>
+<span class="cline-any cline-yes">105x</span>
+<span class="cline-any cline-yes">105x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">107x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">134x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -330,10 +333,19 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">107x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">48x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">134x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">71x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -354,7 +366,7 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">107x</span>
+<span class="cline-any cline-yes">134x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -383,7 +395,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">127x</span>
+<span class="cline-any cline-yes">181x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
@@ -397,7 +409,7 @@
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">127x</span>
+<span class="cline-any cline-yes">181x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -496,13 +508,14 @@ import { reasonText } from "./reasons.ts";
 import { useWizardSave } from "./useWizardSave.ts";
 import { WizardDialog, type WizardProps } from "./WizardDialog.tsx";
 &nbsp;
-/** Reads the generic wizard and hands its body plain props. */
+/** Reads the generic wizard, new or editing any entry in its own kind, and hands its body plain props. */
 export function GenericEntryWizard({
+  editing,
   onSaved,
   onCancel,
-}: WizardProps): ReactElement {
+}: GenericEntryWizardProps): ReactElement {
   const { useGenericEntryWizard, useJournalContext } = useViewModel();
-  const wizard = useGenericEntryWizard();
+  const wizard = useGenericEntryWizard(editing);
   const context = useJournalContext();
   const saving = useWizardSave(wizard.save, onSaved);
 &nbsp;
@@ -523,6 +536,11 @@ export function GenericEntryWizard({
       onCancel={onCancel}
     /&gt;
   );
+}
+&nbsp;
+export interface GenericEntryWizardProps extends WizardProps {
+  /** The entry the wizard rewrites, which keeps its kind; null for a new generic entry. */
+  editing: string | null;
 }
 &nbsp;
 /** Any entry, line by line: each line a row of the tree with its debit or its credit, the balance running down the lines. */
@@ -688,7 +706,7 @@ interface GenericEntryBodyProps {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-17T00:44:06.109Z
+                at 2026-10-17T16:51:18.684Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
