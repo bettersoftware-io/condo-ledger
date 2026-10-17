@@ -7,7 +7,8 @@ export type WizardName =
   | DirectPaymentKind
   | "multiCostPayment"
   | "genericEntry"
-  | "invoice";
+  | "invoice"
+  | "invoicePayment";
 
 interface WizardDialog {
   kind: "wizard";

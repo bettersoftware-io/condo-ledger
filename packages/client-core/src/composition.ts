@@ -75,6 +75,11 @@ import {
   type GenericEntrySummary,
 } from "./machines/wizards/genericEntryWizard.ts";
 import {
+  createInvoicePaymentWizard,
+  type InvoicePaymentForm,
+  type InvoicePaymentSummary,
+} from "./machines/wizards/invoicePaymentWizard.ts";
+import {
   createInvoiceWizard,
   type InvoiceForm,
   type InvoiceSummary,
@@ -167,6 +172,10 @@ interface AppMachines {
   createInvoiceWizard: (
     editing: string | null,
   ) => WizardMachine<InvoiceForm, InvoiceSummary>;
+  /** The Invoice payment wizard, its overdue marking from the application's clock; `editing` names an invoice payment to rewrite, from step 2. */
+  createInvoicePaymentWizard: (
+    editing: string | null,
+  ) => WizardMachine<InvoicePaymentForm, InvoicePaymentSummary>;
 }
 
 /** The application, built once at startup. Presenters, the navigation and
@@ -279,6 +288,18 @@ export function createApp(ports: AppPorts): App {
         const entry = editedEntry(editing);
 
         return createInvoiceWizard(
+          latestBooks,
+          ports.clock,
+          writeOf(entry),
+          entry,
+        );
+      },
+      createInvoicePaymentWizard: (
+        editing: string | null,
+      ): WizardMachine<InvoicePaymentForm, InvoicePaymentSummary> => {
+        const entry = editedEntry(editing);
+
+        return createInvoicePaymentWizard(
           latestBooks,
           ports.clock,
           writeOf(entry),

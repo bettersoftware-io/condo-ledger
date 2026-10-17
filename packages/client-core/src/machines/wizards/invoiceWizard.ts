@@ -1,5 +1,4 @@
 import {
-  type AccountNode,
   type Cents,
   type ClockPort,
   type EntryDraft,
@@ -10,8 +9,6 @@ import {
   invoiceTotals,
   type JournalEntry,
   ok,
-  PATH_SEPARATOR,
-  type Posting,
   paidOn,
   type Rate,
   type Result,
@@ -29,8 +26,7 @@ import {
   contextOf,
   isExpenseLeaf,
   leafChoices,
-  rowKeyOf,
-  shortPath,
+  previewPath,
 } from "./choices.ts";
 import {
   createWizardMachine,
@@ -483,7 +479,7 @@ function derive(
 
   const preview = postings.value.map((posting) => {
     return {
-      path: pathOf(books, posting),
+      path: previewPath(books, posting),
       debit: posting.debit,
       credit: posting.credit,
     };
@@ -632,46 +628,6 @@ function withholdingChoices(books: Books): WizardChoice[] {
     .sort((a, b) => {
       return a.key.localeCompare(b.key);
     });
-}
-
-/** A posting as the preview shows it: the path of the row it lands on; for a supplier with no row yet, its account's path and its name. */
-function pathOf(books: Books, posting: Posting): string {
-  const row = rowKeyOf(books, posting);
-
-  if (row !== null) {
-    return shortPath(books, row);
-  }
-
-  const supplier = must(
-    books.parties.find((party) => {
-      return party.id === posting.counterpart?.id;
-    }),
-    `the supplier of a posting on ${posting.accountId}`,
-  );
-
-  const account = must(
-    keyOfAccount(books.tree, posting.accountId),
-    `the node of ${posting.accountId}`,
-  );
-
-  return `${shortPath(books, account)}${PATH_SEPARATOR}${supplier.name}`;
-}
-
-/** The key of the first node of the account, in tree order: a control account's own node, on its first side. */
-function keyOfAccount(node: AccountNode, accountId: string): string | null {
-  if (node.accountId === accountId) {
-    return node.key;
-  }
-
-  for (const child of node.children) {
-    const key = keyOfAccount(child, accountId);
-
-    if (key !== null) {
-      return key;
-    }
-  }
-
-  return null;
 }
 
 function offers(choices: WizardChoice[], key: string | null): boolean {
