@@ -87,14 +87,17 @@ export interface Debit {
  * One target leaf debited, the cash or bank account credited: the three
  * one-step wizards of the design. A withholding's description names the tax
  * account chosen, until the person edits it. Editing an entry, the form is
- * its description, its debit line and that line's amount.
+ * its description, its debit line and that line's amount, and the kind is the
+ * entry's own whatever `requested` says: the port refuses a replace that
+ * changes it.
  */
 export function createDirectPaymentWizard(
-  kind: DirectPaymentKind,
+  requested: DirectPaymentKind,
   books: Books | null,
   write: WriteEntry,
   editing: JournalEntry | null,
 ): WizardMachine<DirectPaymentForm, DirectPaymentSummary> {
+  const kind = directKindOf(editing) ?? requested;
   const paying = payingOf(books, ROLES[kind]);
 
   const choices = books === null ? [] : leafChoices(books, TARGETS[kind]);
@@ -151,12 +154,10 @@ export function createDirectPaymentWizard(
 
 /** Whether the direct-payment wizard can write this entry's postings: one debit on a leaf it offers, then its amount credited to the account its kind pays from. */
 export function fitsDirectPayment(entry: JournalEntry, books: Books): boolean {
-  const kind = DIRECT_PAYMENT_KINDS.find((candidate) => {
-    return candidate === entry.kind;
-  });
+  const kind = directKindOf(entry);
 
   return (
-    kind !== undefined &&
+    kind !== null &&
     paymentDebits(entry, books, ROLES[kind], TARGETS[kind])?.length === 1
   );
 }
@@ -202,6 +203,15 @@ export function paymentDebits(
     });
 
   return written ? debits : null;
+}
+
+/** The entry's kind when it is a direct payment's; null for no entry or another kind. */
+function directKindOf(entry: JournalEntry | null): DirectPaymentKind | null {
+  return (
+    DIRECT_PAYMENT_KINDS.find((candidate) => {
+      return candidate === entry?.kind;
+    }) ?? null
+  );
 }
 
 function emptyForm(kind: DirectPaymentKind): DirectPaymentForm {

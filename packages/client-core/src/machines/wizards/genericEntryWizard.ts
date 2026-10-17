@@ -74,16 +74,16 @@ interface Writing {
 
 /**
  * Any entry, line by line: each line lands on a row of the tree, so a line on
- * a control account names its party by construction. It writes `kind`: a new
- * entry is generic, and an entry no other wizard can write keeps its own kind
- * here. Editing an entry, the form is its description and its postings, each
- * on the row that owns it.
+ * a control account names its party by construction. It writes `kind`: by
+ * default generic for a new entry, and an edited entry's own kind (the port
+ * refuses a replace that changes it). Editing an entry, the form is its
+ * description and its postings, each on the row that owns it.
  */
 export function createGenericEntryWizard(
   books: Books | null,
   write: WriteEntry,
   editing: JournalEntry | null,
-  kind: EntryKind = "generic",
+  kind: EntryKind = editing?.kind ?? "generic",
 ): WizardMachine<GenericEntryForm, GenericEntrySummary> {
   const choices = books === null ? [] : rowChoices(books);
   const writing: Writing = { kind, replacing: editing?.id ?? null };

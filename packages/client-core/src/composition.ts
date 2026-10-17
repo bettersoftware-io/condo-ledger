@@ -143,8 +143,8 @@ interface AppMachines {
   /**
    * The wizards are built over the selected period's books as they stand:
    * with no period, no choices and a refused verdict. `editing` names an entry
-   * of those books to rewrite; one they do not hold throws. Left out, the
-   * wizard writes a new entry.
+   * of those books to rewrite, keeping its kind; one they do not hold throws.
+   * Left out, the wizard writes a new entry.
    */
   createDirectPaymentWizard: (
     kind: DirectPaymentKind,
@@ -153,7 +153,7 @@ interface AppMachines {
   createMultiCostPaymentWizard: (
     editing?: string | null,
   ) => WizardMachine<MultiCostPaymentForm, MultiCostPaymentSummary>;
-  /** `kind` is what the generic wizard writes: generic unless it rewrites an entry of a kind no other wizard can write. */
+  /** `kind` is what the generic wizard writes; left out, generic for a new entry and the edited entry's own kind for an edit. */
   createGenericEntryWizard: (
     editing?: string | null,
     kind?: EntryKind,
@@ -253,7 +253,7 @@ export function createApp(ports: AppPorts): App {
       },
       createGenericEntryWizard: (
         editing: string | null = null,
-        kind: EntryKind = "generic",
+        kind?: EntryKind,
       ): WizardMachine<GenericEntryForm, GenericEntrySummary> => {
         const entry = editedEntry(editing);
 

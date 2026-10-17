@@ -443,6 +443,20 @@ describe("editing an entry line by line", () => {
     });
   });
 
+  it("an entry of another kind edited with no kind named keeps its own", async () => {
+    const harness = createAppHarness();
+    const machine = harness.app.machines.createGenericEntryWizard("tx1");
+
+    created.push(machine);
+
+    expect(machine.state$.getValue().verdict).toEqual({ ok: true });
+    expect(await machine.intents.save()).toEqual({
+      ok: true,
+      value: { id: "tx1" },
+    });
+    expect(currentEntry(harness, "tx1").kind).toBe("openingBalances");
+  });
+
   it("a line on a row no new posting may join opens with no row chosen", () => {
     const books = createBooksWithUnnamedParties();
     const { machine } = createWizard(

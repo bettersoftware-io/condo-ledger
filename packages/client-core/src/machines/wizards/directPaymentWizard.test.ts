@@ -308,6 +308,36 @@ describe("editing a direct payment", () => {
     });
   });
 
+  it("an entry edited under another direct kind is written as its own kind, paid from its own account", async () => {
+    const harness = createAppHarness();
+    const machine = harness.app.machines.createDirectPaymentWizard(
+      "directPaymentCash",
+      "tx3",
+    );
+
+    const bank = must(
+      currentBooks(harness).accounts.find((account) => {
+        return account.role === "bank";
+      }),
+      "the bank",
+    );
+
+    created.push(machine);
+
+    expect(machine.state$.getValue()).toMatchObject({
+      verdict: { ok: true },
+      summary: { paidFrom: bank.name },
+    });
+    expect(await machine.intents.save()).toEqual({
+      ok: true,
+      value: { id: "tx3" },
+    });
+    expect(currentEntry(harness, "tx3")).toMatchObject({
+      kind: "directPaymentBank",
+      number: 3,
+    });
+  });
+
   it("a withholding keeps its own description when its target changes", () => {
     const harness = createAppHarness();
     const machine = harness.app.machines.createDirectPaymentWizard(
