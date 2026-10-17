@@ -62,4 +62,8 @@ export const TESTIDS = {
   wizardRemoveLine: "wizard-remove-line",
   wizardSave: "wizard-save",
   wizardCancel: "wizard-cancel",
+  dateFieldParsed: "date-field-parsed",
+  segmentedControl: "segmented-control",
+  segment: "segment",
+  supplierSelectNote: "supplier-select-note",
 } as const;

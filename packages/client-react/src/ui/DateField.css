@@ -1,0 +1,7 @@
+.date-field-parsed {
+  flex: none;
+  margin-left: 8px;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--txd);
+}

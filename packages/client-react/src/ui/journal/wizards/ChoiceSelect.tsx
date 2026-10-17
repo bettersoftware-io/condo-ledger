@@ -22,6 +22,7 @@ export function ChoiceSelect({
   choices,
   value,
   onChoose,
+  disabled = false,
 }: ChoiceSelectProps): ReactElement {
   function choose(event: ChangeEvent<HTMLSelectElement>): void {
     onChoose(event.target.value === "" ? null : event.target.value);
@@ -38,6 +39,7 @@ export function ChoiceSelect({
         aria-label={label}
         value={value ?? ""}
         onChange={choose}
+        disabled={disabled}
       >
         <option value="">{NO_ACCOUNT}</option>
         {groupsOf(choices).map((group) => {
@@ -79,6 +81,8 @@ export interface ChoiceSelectProps {
   choices: WizardChoice[];
   value: string | null;
   onChoose: (key: string | null) => void;
+  /** The choice is fixed: the select is shown but cannot be changed. */
+  disabled?: boolean;
 }
 
 /** Choices of one group, kept together. */
