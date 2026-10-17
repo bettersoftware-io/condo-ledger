@@ -872,15 +872,6 @@ describe("editing an invoice and a payment", () => {
     expect(wizard.isSaveDisabled()).toBe(true);
   });
 
-  it("the opening balances wizard has no screen yet: nothing is drawn", () => {
-    const wizard = mountJournalWizard(
-      { wizard: "openingBalances", editing: null },
-      { invoices: true },
-    );
-
-    expect(wizard.isShown()).toBe(false);
-  });
-
   it("a payment's edit starts on step 2, with no Back to the invoice it pays", async () => {
     const wizard = mountJournalWizard(
       { wizard: "invoicePayment", editing: "e3" },
@@ -899,5 +890,167 @@ describe("editing an invoice and a payment", () => {
   });
 });
 
+describe("the Opening balances wizard", () => {
+  it("lists the assets, the liabilities and each resident; the transaction balance is in --neg while not zero", async () => {
+    const page = mountJournalScreen();
+    const wizard = await page.openWizard("Opening balances");
+
+    expect(wizard.title()).toBe("Opening Balances Entry");
+    expect(wizard.fieldValue("Description")).toBe("Opening balances");
+    expect(wizard.openingRows()).toEqual([
+      [CASSA, "", ""],
+      [BANCA, "", ""],
+      [FONDI, "", ""],
+      [ROSSI_A01, "", ""],
+      [ROSSI_A02, "", ""],
+      [BIANCHI_B01, "", ""],
+    ]);
+    expect(wizard.openingBalance()).toBe("0.00");
+    expect(wizard.isBalanceNegative()).toBe(false);
+
+    await wizard.fillOpening(CASSA, "debit", "1,250.50");
+
+    expect(wizard.openingBalance()).toBe("1,250.50");
+    expect(wizard.isBalanceNegative()).toBe(true);
+    expect(wizard.isSaveDisabled()).toBe(true);
+
+    await wizard.fillOpening(FONDI, "credit", "1250.50");
+
+    expect(wizard.openingBalance()).toBe("0.00");
+    expect(wizard.isBalanceNegative()).toBe(false);
+    expect(wizard.previewRows()).toEqual([
+      ["1", CASSA, "1,250.50", ""],
+      ["2", FONDI, "", "1,250.50"],
+    ]);
+
+    await wizard.save();
+
+    expect(page.dialogOpen()).toBe(false);
+    expect(page.isSelected("Opening balances")).toBe(true);
+  });
+
+  it("the search narrows the rows by label, whatever the case", async () => {
+    const page = mountJournalScreen();
+    const wizard = await page.openWizard("Opening balances");
+
+    await wizard.searchOpening("rossi");
+
+    expect(wizard.openingRows().map(labelOf)).toEqual([ROSSI_A01, ROSSI_A02]);
+
+    await wizard.searchOpening("");
+
+    expect(wizard.openingRows()).toHaveLength(6);
+  });
+
+  it("Show only rows with an amount narrows the rows to those with one", async () => {
+    const page = mountJournalScreen();
+    const wizard = await page.openWizard("Opening balances");
+
+    await wizard.fillOpening(BANCA, "debit", "10");
+    await wizard.fillOpening(ROSSI_A02, "credit", "10");
+    await wizard.fillOpening(FONDI, "debit", "0");
+    await wizard.check("Show only rows with an amount");
+
+    expect(wizard.isChecked("Show only rows with an amount")).toBe(true);
+    expect(wizard.openingRows()).toEqual([
+      [BANCA, "10", ""],
+      [ROSSI_A02, "", "10"],
+    ]);
+
+    await wizard.check("Show only rows with an amount");
+
+    expect(wizard.openingRows()).toHaveLength(6);
+  });
+
+  it("Enter or Tab in a Debit field moves to the next row's Debit field", async () => {
+    const page = mountJournalScreen();
+    const wizard = await page.openWizard("Opening balances");
+
+    await wizard.focusOpening(CASSA, "debit");
+    await wizard.pressEnter();
+
+    expect(wizard.focusedLabel()).toBe(`${BANCA} debit`);
+    expect(page.dialogOpen()).toBe(true);
+
+    await wizard.pressTab();
+
+    expect(wizard.focusedLabel()).toBe(`${FONDI} debit`);
+
+    await wizard.focusOpening(FONDI, "credit");
+    await wizard.pressTab();
+
+    expect(wizard.focusedLabel()).toBe(`${ROSSI_A01} debit`);
+  });
+
+  it("an amount below zero names its row, and the entry cannot be saved", async () => {
+    const page = mountJournalScreen();
+    const wizard = await page.openWizard("Opening balances");
+
+    await wizard.fillOpening(BANCA, "debit", "-50");
+
+    expect(wizard.message()).toBe(
+      `Enter an amount of zero or more for ${BANCA}`,
+    );
+    expect(wizard.isSaveDisabled()).toBe(true);
+  });
+
+  it("a blank description is refused with the design's sentence", async () => {
+    const page = mountJournalScreen();
+    const wizard = await page.openWizard("Opening balances");
+
+    await wizard.fillOpening(CASSA, "debit", "10");
+    await wizard.fillOpening(FONDI, "credit", "10");
+    await wizard.fill("Description", "");
+
+    expect(wizard.message()).toBe(UNBALANCED);
+    expect(wizard.isSaveDisabled()).toBe(true);
+  });
+
+  it("once the period has an opening, the menu item edits it, with its own lines", async () => {
+    const page = mountJournalScreen();
+    const first = await page.openWizard("Opening balances");
+
+    await first.fillOpening(BANCA, "debit", "500");
+    await first.fillOpening(BIANCHI_B01, "credit", "500");
+    await first.save();
+
+    const wizard = await page.openWizard("Opening balances");
+
+    expect(wizard.title()).toBe("Edit Opening Balances Entry");
+    expect(wizard.openingRows()).toEqual([
+      [CASSA, "", ""],
+      [BANCA, "500.00", ""],
+      [FONDI, "", ""],
+      [ROSSI_A01, "", ""],
+      [ROSSI_A02, "", ""],
+      [BIANCHI_B01, "", "500.00"],
+    ]);
+
+    await wizard.fillOpening(BANCA, "debit", "600");
+    await wizard.fillOpening(BIANCHI_B01, "credit", "600");
+    await wizard.save();
+
+    expect(page.entryLabels()).toHaveLength(10);
+    expect(page.rowTexts()[9]?.slice(1)).toEqual([
+      "10",
+      "Opening balances",
+      "600.00",
+      "600.00",
+      "0.00",
+    ]);
+  });
+});
+
 const UNBALANCED =
   "The entry must balance — the transaction balance must be 0 and a description is required.";
+
+const CASSA = "Patrimonial › (Assets) › Liquidità › Cassa";
+const BANCA = "Patrimonial › (Assets) › Liquidità › Banca";
+const FONDI = "Patrimonial › (Liabilities) › Fondi";
+const ROSSI_A01 = "Condòmini › Rossi Mario › A01";
+const ROSSI_A02 = "Condòmini › Rossi Mario › A02";
+const BIANCHI_B01 = "Condòmini › Bianchi Anna › B01";
+
+function labelOf(row: string[]): string {
+  return row[0] ?? "";
+}

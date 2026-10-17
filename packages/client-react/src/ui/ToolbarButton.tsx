@@ -7,7 +7,8 @@ import "./Toolbar.css";
 /**
  * A button with an icon and a label; `iconOnly` keeps the label for assistive
  * technology alone, and `text` shows something else in its place (a chip's
- * value). A button that opens a menu says so, and whether it is open.
+ * value). A button that opens a menu says so, and whether it is open. A
+ * `title` is its tooltip: why it is disabled, say.
  */
 export function ToolbarButton({
   label,
@@ -17,6 +18,7 @@ export function ToolbarButton({
   iconOnly = false,
   disabled = false,
   menuOpen,
+  title,
   onClick,
 }: ToolbarButtonProps): ReactElement {
   return (
@@ -27,6 +29,7 @@ export function ToolbarButton({
       data-tone={tone}
       data-icon-only={iconOnly}
       aria-label={label}
+      title={title}
       aria-haspopup={menuOpen === undefined ? undefined : "menu"}
       aria-expanded={menuOpen}
       disabled={disabled}
@@ -49,5 +52,7 @@ export interface ToolbarButtonProps {
   disabled?: boolean;
   /** Set on a button that opens a menu: whether that menu is open. */
   menuOpen?: boolean;
+  /** The tooltip; none when left out. */
+  title?: string;
   onClick: () => void;
 }

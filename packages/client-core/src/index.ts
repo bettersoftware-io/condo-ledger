@@ -78,7 +78,9 @@ export type {
   MultiCostPaymentSummary,
 } from "./machines/wizards/multiCostPaymentWizard.ts";
 export type {
+  OpeningAmount,
   OpeningForm,
+  OpeningRowView,
   OpeningSummary,
 } from "./machines/wizards/openingBalancesWizard.ts";
 export type {

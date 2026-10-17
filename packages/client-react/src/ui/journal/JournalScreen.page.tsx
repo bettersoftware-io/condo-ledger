@@ -13,6 +13,7 @@ import {
   type JournalEntry,
   type JournalPort,
   type LegacySeed,
+  type Result,
   type ResultOf,
   rate,
   rejected,
@@ -41,6 +42,8 @@ export interface JournalScreenPage {
   isExpanded: (label: string) => boolean;
   isSelected: (label: string) => boolean;
   clickRow: (label: string) => Promise<void>;
+  /** Double-clicks the entry's row. */
+  doubleClickRow: (label: string) => Promise<void>;
   clickCaret: (label: string) => Promise<void>;
   /** The `index`-th posting row on screen, counted from 0. */
   clickPostingRow: (index: number) => Promise<void>;
@@ -52,6 +55,8 @@ export interface JournalScreenPage {
   toolLabels: () => string[];
   clickTool: (label: string) => Promise<void>;
   isToolDisabled: (label: string) => boolean;
+  /** The tool's tooltip; null when it has none. */
+  toolTitle: (label: string) => string | null;
   /** Whether the tool says it opens a menu, and whether that menu is open. */
   toolMenu: (label: string) => string | null;
   openAddMenu: () => Promise<void>;
@@ -80,6 +85,8 @@ export interface JournalScreenPage {
   wizard: () => WizardDialogPage;
   /** The journal store refuses the next entry added, for this reason; the ones after it are written. */
   refuseNextAdd: (reason: string) => void;
+  /** The journal store refuses the next delete, for this reason; the ones after it go through. */
+  refuseNextDelete: (reason: string) => void;
   /** Another payment of the invoice lands in the store, from the bank, as if made from another window. */
   payElsewhere: (
     invoiceId: string,
@@ -242,6 +249,9 @@ export function mountJournalScreen(
     clickRow: async (label: string): Promise<void> => {
       await user.click(rowOf(label));
     },
+    doubleClickRow: async (label: string): Promise<void> => {
+      await user.dblClick(rowOf(label));
+    },
     clickCaret: async (label: string): Promise<void> => {
       await user.click(within(rowOf(label)).getByTestId(TESTIDS.treeGridCaret));
     },
@@ -278,6 +288,9 @@ export function mountJournalScreen(
     },
     isToolDisabled: (label: string): boolean => {
       return tool(label).disabled;
+    },
+    toolTitle: (label: string): string | null => {
+      return tool(label).getAttribute("title");
     },
     toolMenu: (label: string): string | null => {
       const button = tool(label);
@@ -371,6 +384,9 @@ export function mountJournalScreen(
     refuseNextAdd: (reason: string): void => {
       refuseNextAdd(ports.journal, reason);
     },
+    refuseNextDelete: (reason: string): void => {
+      refuseNextDelete(ports.journal, reason);
+    },
     payElsewhere: async (
       invoiceId: string,
       supplierId: string,
@@ -447,6 +463,17 @@ function refuseNextAdd(journal: JournalPort, reason: string): void {
     _draft: EntryDraft,
   ): Promise<ResultOf<EntryAdded>> => {
     journal.addEntry = add;
+
+    return Promise.resolve(rejected(reason));
+  };
+}
+
+/** The store answers the next delete with a refusal, then hands back to the simulator. */
+function refuseNextDelete(journal: JournalPort, reason: string): void {
+  const remove = journal.deleteEntry.bind(journal);
+
+  journal.deleteEntry = (_entryId: string): Promise<Result> => {
+    journal.deleteEntry = remove;
 
     return Promise.resolve(rejected(reason));
   };

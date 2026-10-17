@@ -19,13 +19,14 @@ import { reasonText } from "./reasons.ts";
 import { useWizardSave } from "./useWizardSave.ts";
 import { WizardDialog, type WizardProps } from "./WizardDialog.tsx";
 
-/** Reads the generic wizard and hands its body plain props. */
+/** Reads the generic wizard, new or editing any entry in its own kind, and hands its body plain props. */
 export function GenericEntryWizard({
+  editing,
   onSaved,
   onCancel,
-}: WizardProps): ReactElement {
+}: GenericEntryWizardProps): ReactElement {
   const { useGenericEntryWizard, useJournalContext } = useViewModel();
-  const wizard = useGenericEntryWizard(null);
+  const wizard = useGenericEntryWizard(editing);
   const context = useJournalContext();
   const saving = useWizardSave(wizard.save, onSaved);
 
@@ -46,6 +47,11 @@ export function GenericEntryWizard({
       onCancel={onCancel}
     />
   );
+}
+
+export interface GenericEntryWizardProps extends WizardProps {
+  /** The entry the wizard rewrites, which keeps its kind; null for a new generic entry. */
+  editing: string | null;
 }
 
 /** Any entry, line by line: each line a row of the tree with its debit or its credit, the balance running down the lines. */

@@ -73,4 +73,6 @@ export const TESTIDS = {
   segmentedControl: "segmented-control",
   segment: "segment",
   supplierSelectNote: "supplier-select-note",
+  openingBalance: "opening-balance",
+  openingRow: "opening-row",
 } as const;

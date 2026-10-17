@@ -18,6 +18,8 @@ const COMMON_REASONS: Readonly<Record<string, string>> = {
     "The period changed while this was open: cancel and open it again",
   "entry-gone":
     "This entry was deleted while it was open: cancel to close this window",
+  "kind-not-editable":
+    "This kind of entry is edited through its own flow, which is not built yet.",
 };
 
 /** The payment wizards' word for a blank description: nothing in them can be unbalanced. */

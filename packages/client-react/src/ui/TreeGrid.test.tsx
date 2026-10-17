@@ -38,6 +38,27 @@ describe("TreeGrid", () => {
     expect(onToggle).toHaveBeenCalledTimes(1);
   });
 
+  it("a double click on a row activates it; on its caret it does not", () => {
+    const onActivate = vi.fn();
+    const page = mountTreeGrid({ onActivate });
+
+    page.doubleClickCaret("Assets");
+
+    expect(onActivate).not.toHaveBeenCalled();
+
+    page.doubleClickRow("Cash");
+
+    expect(onActivate).toHaveBeenCalledExactlyOnceWith("Cash");
+  });
+
+  it("a double click with no one to activate does nothing", () => {
+    const page = mountTreeGrid({});
+
+    page.doubleClickRow("Cash");
+
+    expect(page.rowLabels()).toEqual(["Assets", "Cash"]);
+  });
+
   it("selects a row from the keyboard", () => {
     const onSelect = vi.fn();
     const page = mountTreeGrid({ onSelect });

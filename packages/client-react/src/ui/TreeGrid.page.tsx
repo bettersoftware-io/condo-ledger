@@ -21,6 +21,8 @@ export interface TreeGridPage {
   caretLabel: (label: string) => string;
   clickCaret: (label: string) => void;
   clickRow: (label: string) => void;
+  doubleClickRow: (label: string) => void;
+  doubleClickCaret: (label: string) => void;
   moveOverBoundary: (index: number, byPx: number) => void;
   dragBoundary: (index: number, byPx: number, startWidthPx?: number) => void;
   emptyMessage: () => string | null;
@@ -97,6 +99,14 @@ export function mountTreeGrid(props: Partial<TreeGridProps>): TreeGridPage {
     },
     clickRow: (label: string): void => {
       fireEvent.click(rowOf(label));
+    },
+    doubleClickRow: (label: string): void => {
+      fireEvent.doubleClick(rowOf(label));
+    },
+    doubleClickCaret: (label: string): void => {
+      fireEvent.doubleClick(
+        within(rowOf(label)).getByTestId(TESTIDS.treeGridCaret),
+      );
     },
     moveOverBoundary: (index: number, byPx: number): void => {
       const handle = rendered.getAllByTestId(TESTIDS.treeGridResize)[index];

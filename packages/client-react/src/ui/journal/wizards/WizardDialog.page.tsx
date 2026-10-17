@@ -8,6 +8,9 @@ type User = ReturnType<typeof userEvent.setup>;
 /** A lines grid's typed columns. */
 type LineColumn = "amount" | "debit" | "credit";
 
+/** A side of an opening row. */
+type OpeningSide = "debit" | "credit";
+
 /** What a test can do with, and ask of, the wizard open over the Journal screen. */
 export interface WizardDialogPage {
   title: () => string;
@@ -71,10 +74,28 @@ export interface WizardDialogPage {
   /** What the open invoices grid says when it has no row; null when it has rows. */
   emptyText: () => string | null;
   trancheNote: () => string | null;
+  /** The opening list's rows on screen, each as its label, its Debit and its Credit. */
+  openingRows: () => string[][];
+  /** Clears a side of the opening row with this label and types the text into it. */
+  fillOpening: (
+    label: string,
+    side: OpeningSide,
+    text: string,
+  ) => Promise<void>;
+  /** Puts the focus on a side of the opening row with this label. */
+  focusOpening: (label: string, side: OpeningSide) => Promise<void>;
+  /** Types into the opening list's search box. */
+  searchOpening: (text: string) => Promise<void>;
+  /** The "Transaction balance" amount above the opening list. */
+  openingBalance: () => string;
+  /** Whether the "Transaction balance" is drawn in the negative tone. */
+  isBalanceNegative: () => boolean;
   /** The name of the field that has the keyboard's focus; null when the focus is outside the dialog's fields. */
   focusedLabel: () => string | null;
   /** Presses Enter where the focus is. */
   pressEnter: () => Promise<void>;
+  /** Presses Tab where the focus is. */
+  pressTab: () => Promise<void>;
   save: () => Promise<void>;
   cancel: () => Promise<void>;
   pressEscape: () => Promise<void>;
@@ -181,6 +202,16 @@ export function wizardDialogPage(
     }
 
     await user.selectOptions(select, option);
+  }
+
+  function openingBox(label: string, side: OpeningSide): HTMLInputElement {
+    return within(dialog()).getByRole<HTMLInputElement>("textbox", {
+      name: `${label} ${side}`,
+    });
+  }
+
+  function balance(): HTMLElement {
+    return within(dialog()).getByTestId(TESTIDS.openingBalance);
   }
 
   return {
@@ -335,6 +366,43 @@ export function wizardDialogPage(
     trancheNote: (): string | null => {
       return textOf(TESTIDS.wizardTrancheNote);
     },
+    openingRows: (): string[][] => {
+      return within(dialog())
+        .queryAllByTestId(TESTIDS.openingRow)
+        .map((row) => {
+          const [debit, credit] = Array.from(row.querySelectorAll("input"));
+
+          return [
+            row.querySelector(".opening-label")?.textContent ?? "",
+            debit?.value ?? "",
+            credit?.value ?? "",
+          ];
+        });
+    },
+    fillOpening: async (
+      label: string,
+      side: OpeningSide,
+      text: string,
+    ): Promise<void> => {
+      await retype(openingBox(label, side), text);
+    },
+    focusOpening: async (label: string, side: OpeningSide): Promise<void> => {
+      await user.click(openingBox(label, side));
+    },
+    searchOpening: async (text: string): Promise<void> => {
+      await retype(
+        within(dialog()).getByRole("searchbox", { name: "Search accounts" }),
+        text,
+      );
+    },
+    openingBalance: (): string => {
+      return (
+        balance().querySelector(".opening-balance-amount")?.textContent ?? ""
+      );
+    },
+    isBalanceNegative: (): boolean => {
+      return balance().getAttribute("data-tone") === "neg";
+    },
     focusedLabel: (): string | null => {
       const active = document.activeElement;
 
@@ -355,6 +423,9 @@ export function wizardDialogPage(
     },
     pressEnter: async (): Promise<void> => {
       await user.keyboard("{Enter}");
+    },
+    pressTab: async (): Promise<void> => {
+      await user.tab();
     },
     save: async (): Promise<void> => {
       await user.click(button(TESTIDS.wizardSave));

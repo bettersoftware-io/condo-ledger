@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { mountJournalScreen } from "./JournalScreen.page.tsx";
+import {
+  type JournalScreenPage,
+  mountJournalScreen,
+} from "./JournalScreen.page.tsx";
 
 describe("JournalScreen", () => {
   it("shows the period's entries by number, with the count in the meta", () => {
@@ -189,14 +192,12 @@ describe("JournalScreen", () => {
       "Refresh",
     ]);
 
-    await page.clickTool("Edit entry");
     await page.clickTool("Print journal");
     await page.clickTool("Export to PDF");
     await page.clickTool("Export to Excel");
     await page.clickTool("Refresh");
 
     expect(page.toasts()).toEqual([
-      "Edit entry: not yet available",
       "Print journal: not yet available",
       "Export to PDF: not yet available",
       "Export to Excel: not yet available",
@@ -333,6 +334,18 @@ describe("JournalScreen", () => {
     expect(page.confirmError()).toBeNull();
   });
 
+  it("a refusal with no words of its own is shown as the store gives it", async () => {
+    const page = mountJournalScreen();
+
+    await page.clickRow("Arrotondamento");
+    await page.clickTool("Delete entry");
+    page.refuseNextDelete("store-offline");
+    await page.confirmYes();
+
+    expect(page.confirmError()).toBe("store-offline");
+    expect(page.entryLabels()).toContain("Arrotondamento");
+  });
+
   it("No and Escape close the alert, deleting nothing, and hand the focus back to the grid", async () => {
     const page = mountJournalScreen();
 
@@ -351,6 +364,118 @@ describe("JournalScreen", () => {
     expect(page.entryLabels()).toHaveLength(9);
   });
 
+  it("an invoice paid in two tranches: its payments are edited, and it is deleted only once they are", async () => {
+    const page = mountJournalScreen({ invoices: true });
+
+    await page.choosePageSize(25);
+
+    const invoice = await page.openWizard("New invoice");
+
+    await invoice.choose("Supplier", "Beta S.p.A.");
+    await invoice.fill("Invoice number", "56");
+    await invoice.next();
+    await invoice.fill("Taxable amount", "100");
+    await invoice.fill("Description", "Fattura Beta 56");
+    await invoice.save();
+
+    expect(page.isSelected("Fattura Beta 56")).toBe(true);
+
+    await payInvoice56(page, "50", "Acconto 56");
+    await payInvoice56(page, "70", "Saldo 56");
+
+    const payments = await page.openWizard("Invoice payment");
+
+    expect(payments.openInvoices().map(numberOf)).toEqual(["101"]);
+
+    await payments.cancel();
+    await page.clickRow("Acconto 56");
+
+    expect(page.isToolDisabled("Edit entry")).toBe(false);
+    expect(page.toolTitle("Edit entry")).toBeNull();
+
+    await page.clickTool("Edit entry");
+
+    const edit = page.wizard();
+
+    expect(edit.title()).toBe(
+      "Edit Invoice Payment — Step 2: Liquidity account and amount",
+    );
+    expect(edit.fieldValue("Amount to pay")).toBe("50.00");
+
+    await edit.fill("Amount to pay", "40");
+    await edit.next();
+    await edit.save();
+
+    expect(page.dialogOpen()).toBe(false);
+    expect(page.isSelected("Acconto 56")).toBe(true);
+    expect(rowOf(page, "Acconto 56").slice(1)).toEqual([
+      "11",
+      "Acconto 56",
+      "40.00",
+      "40.00",
+      "0.00",
+    ]);
+
+    await page.clickRow("Fattura Beta 56");
+    await page.clickTool("Delete entry");
+    await page.confirmYes();
+
+    expect(page.confirmError()).toBe(
+      "This invoice has payments. Delete them first.",
+    );
+    expect(page.entryLabels()).toContain("Fattura Beta 56");
+
+    await page.confirmNo();
+    await deleteEntry(page, "Saldo 56");
+    await deleteEntry(page, "Acconto 56");
+    await deleteEntry(page, "Fattura Beta 56");
+
+    expect(page.entryLabels()).toHaveLength(9);
+    expect(page.entryLabels()).not.toContain("Fattura Beta 56");
+  });
+
+  it("a double click on a generic entry opens it; the saved edit keeps its number", async () => {
+    const page = mountJournalScreen();
+
+    await page.doubleClickRow("Fuori ordine");
+
+    const wizard = page.wizard();
+
+    expect(wizard.title()).toBe("Edit Add Accounting Entry");
+    expect(wizard.fieldValue("Description")).toBe("Fuori ordine");
+
+    await wizard.fill("Description", "Fuori ordine, corretto");
+    await wizard.save();
+
+    expect(page.dialogOpen()).toBe(false);
+    expect(page.entryLabels()).toHaveLength(9);
+    expect(page.isSelected("Fuori ordine, corretto")).toBe(true);
+    expect(rowOf(page, "Fuori ordine, corretto").slice(1)).toEqual([
+      "9",
+      "Fuori ordine, corretto",
+      "1.00",
+      "1.00",
+      "0.00",
+    ]);
+  });
+
+  it("with a collection selected, ✎ is disabled and says why", async () => {
+    const page = mountJournalScreen();
+
+    expect(page.isToolDisabled("Edit entry")).toBe(true);
+
+    await page.clickRow("Incasso Bianchi");
+
+    expect(page.isToolDisabled("Edit entry")).toBe(true);
+    expect(page.toolTitle("Edit entry")).toBe(
+      "This kind of entry is edited through its own flow, which is not built yet.",
+    );
+
+    await page.doubleClickRow("Incasso Bianchi");
+
+    expect(page.dialogOpen()).toBe(false);
+  });
+
   it("maximize fills the screen with the journal, and restores it", async () => {
     const page = mountJournalScreen();
 
@@ -365,3 +490,47 @@ describe("JournalScreen", () => {
     expect(page.maximized()).toBe("none");
   });
 });
+
+/** Pays Beta's invoice 56 from the bank: this amount, under this description. */
+async function payInvoice56(
+  page: JournalScreenPage,
+  amount: string,
+  description: string,
+): Promise<void> {
+  const payment = await page.openWizard("Invoice payment");
+
+  await payment.pick("Invoice 56 — Beta S.p.A.");
+  await payment.next();
+  await payment.pick("Patrimonial › (Assets) › Liquidità › Banca");
+  await payment.fill("Amount to pay", amount);
+  await payment.next();
+  await payment.fill("Description", description);
+  await payment.save();
+}
+
+/** Selects the entry, asks to delete it and says Yes. */
+async function deleteEntry(
+  page: JournalScreenPage,
+  label: string,
+): Promise<void> {
+  await page.clickRow(label);
+  await page.clickTool("Delete entry");
+  await page.confirmYes();
+}
+
+/** The cells of the entry row with this description. */
+function rowOf(page: JournalScreenPage, label: string): string[] {
+  const row = page.rowTexts().find((cells) => {
+    return cells[2] === label;
+  });
+
+  if (row === undefined) {
+    throw new Error(`No entry row labelled ${label}`);
+  }
+
+  return row;
+}
+
+function numberOf(row: string[]): string {
+  return row[0] ?? "";
+}
