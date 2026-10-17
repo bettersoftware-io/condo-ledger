@@ -1,10 +1,6 @@
 import { type ReactElement, useRef, useState } from "react";
 
-import type {
-  MaximizeIntents,
-  MaximizeState,
-  WizardName,
-} from "@cl/client-core";
+import type { MaximizeIntents, MaximizeState } from "@cl/client-core";
 import type { Result } from "@cl/domain";
 import { type MachineView, useViewModel } from "@cl/react-bindings";
 
@@ -14,10 +10,7 @@ import { JOURNAL_COLUMN_SPECS } from "./columns.ts";
 import { DeleteEntryConfirm } from "./DeleteEntryConfirm.tsx";
 import { JournalGrid } from "./JournalGrid.tsx";
 import { JournalToolbar } from "./JournalToolbar.tsx";
-import { DirectPaymentWizard } from "./wizards/DirectPaymentWizard.tsx";
-import { GenericEntryWizard } from "./wizards/GenericEntryWizard.tsx";
-import { MultiCostPaymentWizard } from "./wizards/MultiCostPaymentWizard.tsx";
-import type { WizardProps } from "./wizards/WizardDialog.tsx";
+import { JournalWizard } from "./JournalWizard.tsx";
 
 import "./JournalScreen.css";
 
@@ -145,8 +138,9 @@ export function JournalScreen({ maximize }: JournalScreenProps): ReactElement {
       ) : null}
       {open?.kind === "wizard" ? (
         <JournalWizard
-          key={open.wizard}
+          key={`${open.wizard}:${open.editing ?? "new"}`}
           wizard={open.wizard}
+          editing={open.editing}
           onSaved={revealSaved}
           onCancel={closeDialog}
         />
@@ -158,42 +152,6 @@ export function JournalScreen({ maximize }: JournalScreenProps): ReactElement {
 export interface JournalScreenProps {
   /** The shell's: whether the journal fills the screen, shared with the sidebar's rail. */
   maximize: MachineView<MaximizeState, MaximizeIntents>;
-}
-
-/** The wizard the dialog machine names. Each mounts its own machine, so a wizard opened again starts clean. The invoice and opening balances wizards have no screen yet, and nothing opens them: they show nothing. */
-function JournalWizard({
-  wizard,
-  onSaved,
-  onCancel,
-}: JournalWizardProps): ReactElement | null {
-  if (
-    wizard === "invoice" ||
-    wizard === "invoicePayment" ||
-    wizard === "openingBalances"
-  ) {
-    return null;
-  }
-
-  switch (wizard) {
-    case "directPaymentCash":
-    case "directPaymentBank":
-    case "withholdingPayment":
-      return (
-        <DirectPaymentWizard
-          kind={wizard}
-          onSaved={onSaved}
-          onCancel={onCancel}
-        />
-      );
-    case "multiCostPayment":
-      return <MultiCostPaymentWizard onSaved={onSaved} onCancel={onCancel} />;
-    case "genericEntry":
-      return <GenericEntryWizard onSaved={onSaved} onCancel={onCancel} />;
-  }
-}
-
-interface JournalWizardProps extends WizardProps {
-  wizard: WizardName;
 }
 
 /** The domain's reasons as the person reads them; a reason not listed here is shown as it is. */

@@ -52,6 +52,40 @@ describe("Dialog", () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
+  it("Enter in a text field does what onEnter says; Enter in a checkbox or on the card does not", () => {
+    const onEnter = vi.fn();
+    const page = mountDialog({
+      onEnter,
+      children: (
+        <>
+          <input aria-label="Amount" />
+          <input type="checkbox" aria-label="Apply" />
+        </>
+      ),
+    });
+
+    page.pressIn("Apply", "Enter");
+    page.press("Enter");
+
+    expect(onEnter).not.toHaveBeenCalled();
+
+    page.pressIn("Amount", "Enter");
+
+    expect(onEnter).toHaveBeenCalledTimes(1);
+  });
+
+  it("Enter in a text field of a dialog with no onEnter does nothing", () => {
+    const onClose = vi.fn();
+    const page = mountDialog({
+      onClose,
+      children: <input aria-label="Amount" />,
+    });
+
+    page.pressIn("Amount", "Enter");
+
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
   it("closes on a click on the scrim", async () => {
     const onClose = vi.fn();
     const page = mountDialog({ onClose });

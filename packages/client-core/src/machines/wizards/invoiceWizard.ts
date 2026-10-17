@@ -81,6 +81,10 @@ export interface InvoiceSummary {
   /** The supplier already has an invoice with this number in the period: a warning, not a refusal. */
   duplicate: boolean;
   nonTaxableShown: boolean;
+  /** The invoice date as it reads, "YYYY-MM-DD"; null while it reads as none. */
+  date: string | null;
+  /** The due date as it reads; null while blank, or while it reads as none. */
+  dueDate: string | null;
 }
 
 /** The group of the choices that are the period's suppliers. */
@@ -222,6 +226,8 @@ export function createInvoiceWizard(
           paid: opened?.paid ?? ZERO_CENTS,
           duplicate: isDuplicate(read, form),
           nonTaxableShown: form.preset === "nonSubject",
+          date: parseDate(form.date, read.year),
+          dueDate: optionalDate(form.dueDate, read.year) ?? null,
         };
       },
       stepVerdict: (form: InvoiceForm, step: number): Result => {

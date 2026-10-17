@@ -1,6 +1,7 @@
 import { render, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+import type { WizardName } from "@cl/client-core";
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
 import {
   type Account,
@@ -8,10 +9,12 @@ import {
   cents,
   type EntryAdded,
   type EntryDraft,
+  type Invoice,
   type JournalEntry,
   type JournalPort,
   type LegacySeed,
   type ResultOf,
+  rate,
   rejected,
 } from "@cl/domain";
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
@@ -20,6 +23,7 @@ import { createViewModel, ViewModelProvider } from "@cl/react-bindings";
 import { accountsScreenIn } from "../accounts/AccountsScreen.page.tsx";
 import { AppRoot } from "../shell/AppRoot.tsx";
 import { TESTIDS } from "../testids.ts";
+import { JournalWizard } from "./JournalWizard.tsx";
 import {
   type WizardDialogPage,
   wizardDialogPage,
@@ -76,6 +80,12 @@ export interface JournalScreenPage {
   wizard: () => WizardDialogPage;
   /** The journal store refuses the next entry added, for this reason; the ones after it are written. */
   refuseNextAdd: (reason: string) => void;
+  /** Another payment of the invoice lands in the store, from the bank, as if made from another window. */
+  payElsewhere: (
+    invoiceId: string,
+    supplierId: string,
+    amount: number,
+  ) => Promise<void>;
   /** The open wizard's choice of the control account's row for this party. */
   rowChoiceLabel: (accountId: string, partyId: string) => string;
   /** Switches to Accounts through the sidebar, opens the rows of the path and selects its last, and reads the Ledger tab's lines. */
@@ -92,6 +102,44 @@ export interface JournalScreenOptions {
   withoutRole?: AccountRole;
   /** Two tax accounts, Ritenute 1019 and Ritenute 1020, that a withholding settles. */
   taxAccounts?: boolean;
+  /**
+   * The two invoices the small books register, with the tax accounts and code
+   * 1019 at 4%: li1, Alfa's 101 of 360.18, due 10/02/2013 and open; li2,
+   * Beta's 55 of 200.00, which the entry Pagamento Beta pays in full.
+   */
+  invoices?: boolean;
+}
+
+/** The dialog the Journal screen would open: which wizard, and the entry it edits. */
+export interface JournalWizardDialog {
+  wizard: WizardName;
+  editing: string | null;
+}
+
+/** Mounts one wizard alone over the small books, as the Journal screen's dialog opens it. */
+export function mountJournalWizard(
+  dialog: JournalWizardDialog,
+  options: JournalScreenOptions = {},
+): WizardDialogPage {
+  const user = userEvent.setup();
+  const { app } = createAppHarness(createJournalSeed(options));
+
+  function ignore(): void {
+    // Saving or cancelling closes the dialog on the Journal screen; alone, it stays.
+  }
+
+  const rendered = render(
+    <ViewModelProvider viewModel={createViewModel(app)}>
+      <JournalWizard
+        wizard={dialog.wizard}
+        editing={dialog.editing}
+        onSaved={ignore}
+        onCancel={ignore}
+      />
+    </ViewModelProvider>,
+  );
+
+  return wizardDialogPage(rendered, user);
 }
 
 /** Mounts the shell on the Journal screen over the small books, the menu chosen through the navigation's own intent. */
@@ -323,6 +371,35 @@ export function mountJournalScreen(
     refuseNextAdd: (reason: string): void => {
       refuseNextAdd(ports.journal, reason);
     },
+    payElsewhere: async (
+      invoiceId: string,
+      supplierId: string,
+      amount: number,
+    ): Promise<void> => {
+      const result = await ports.journal.addEntry("p1", {
+        kind: "invoicePayment",
+        description: "Paid elsewhere",
+        invoiceId,
+        postings: [
+          {
+            accountId: "la4",
+            debit: cents(amount),
+            credit: cents(0),
+            counterpart: { kind: "supplier", id: supplierId },
+          },
+          {
+            accountId: "la2",
+            debit: cents(0),
+            credit: cents(amount),
+            counterpart: null,
+          },
+        ],
+      });
+
+      if (!result.ok) {
+        throw new Error(`the payment elsewhere was refused: ${result.reason}`);
+      }
+    },
     rowChoiceLabel: (accountId: string, partyId: string): string => {
       const option = Array.from(
         rendered.getByTestId(TESTIDS.dialog).querySelectorAll("option"),
@@ -378,8 +455,26 @@ function refuseNextAdd(journal: JournalPort, reason: string): void {
 /** The small books, with the accounts and the entries the options ask for. */
 function createJournalSeed(options: JournalScreenOptions): LegacySeed {
   const small = createSmallSeed();
+  const invoices = options.invoices === true;
   const seed: LegacySeed = {
     ...small,
+    entries: invoices
+      ? small.entries.map((entry) => {
+          return entry.id === "e3" ? { ...entry, invoiceId: "li2" } : entry;
+        })
+      : small.entries,
+    invoices: invoices ? [createAlfaInvoice(), createBetaInvoice()] : [],
+    withholdingTaxes: invoices
+      ? [
+          {
+            periodId: "p1",
+            code: "1019",
+            name: "Ritenuta 4%",
+            rate: rate(400),
+            accountId: "la7",
+          },
+        ]
+      : [],
     accounts: [
       ...small.accounts.map((account) => {
         return options.withoutRole !== undefined &&
@@ -387,7 +482,7 @@ function createJournalSeed(options: JournalScreenOptions): LegacySeed {
           ? { ...account, role: null }
           : account;
       }),
-      ...(options.taxAccounts === true
+      ...(options.taxAccounts === true || invoices
         ? [
             createTaxAccount("la7", "Ritenute 1019"),
             createTaxAccount("la8", "Ritenute 1020"),
@@ -408,6 +503,43 @@ function createJournalSeed(options: JournalScreenOptions): LegacySeed {
   );
 
   return { ...seed, entries: [...seed.entries, ...extra] };
+}
+
+/** Alfa's invoice 101, registered by Fattura Alfa: 300.15 taxable and 20% VAT, 360.18 due by 10/02/2013. */
+function createAlfaInvoice(): Invoice {
+  return {
+    id: "li1",
+    periodId: "p1",
+    entryId: "e1",
+    supplierId: "md1",
+    number: "101",
+    reason: "Manutenzione ascensore",
+    date: "2013-01-10",
+    dueDate: "2013-02-10",
+    costAccountId: "la21",
+    taxable: cents(30015),
+    socialSecurityRate: rate(0),
+    vatRate: rate(2000),
+    nonTaxable: cents(0),
+    withholdingCode: null,
+    withholdingOnSocialSecurity: false,
+  };
+}
+
+/** Beta's invoice 55, registered by Fattura Beta: 166.67 taxable and 20% VAT, 200.00 due. */
+function createBetaInvoice(): Invoice {
+  return {
+    ...createAlfaInvoice(),
+    id: "li2",
+    entryId: "e2",
+    supplierId: "md2",
+    number: "55",
+    reason: "Pulizie scale",
+    date: "2013-01-15",
+    dueDate: null,
+    costAccountId: "la22",
+    taxable: cents(16667),
+  };
 }
 
 /** A one-cent generic entry from cash to cash, numbered `number`. */

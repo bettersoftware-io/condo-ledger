@@ -1,0 +1,126 @@
+/* README "New Invoice Entry" step 2: label column 240, a total on the zebra in bold. */
+.invoice-calc {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  max-width: 560px;
+}
+
+.invoice-calc .form-field {
+  grid-template-columns: 240px 1fr;
+}
+
+.invoice-calc-row {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 10px;
+  align-items: center;
+  font-size: 12.5px;
+}
+
+.invoice-calc-row[data-control="rate"] {
+  grid-template-columns: 240px 80px 1fr;
+}
+
+.invoice-calc-row[data-control="select"] {
+  grid-template-columns: 240px 1fr 110px;
+}
+
+.invoice-calc-row[data-strong="true"] {
+  padding: 7px 9px;
+  border-radius: 6px;
+  background: var(--zebra);
+  font-weight: 700;
+}
+
+.invoice-calc-label {
+  color: var(--txd);
+}
+
+.invoice-calc-row[data-strong="true"] .invoice-calc-label {
+  color: var(--tx);
+}
+
+/* A computed amount: a read-only box on the zebra, the figure at its right. */
+.invoice-calc-amount {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: var(--field-h);
+  padding: 6px 9px;
+  border: 1px solid var(--bd2);
+  border-radius: var(--r-field);
+  background: var(--zebra);
+  font-variant-numeric: tabular-nums;
+}
+
+.invoice-calc-row[data-strong="true"] .invoice-calc-amount {
+  min-height: 0;
+  padding: 0;
+  border: none;
+}
+
+/* A rate and a withholding code: boxes the person changes, as a form row's. */
+.invoice-calc-rate,
+.invoice-calc-row[data-control="select"] > .wizard-select-box {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  min-height: var(--field-h);
+  padding: 6px 9px;
+  border: 1px solid var(--bd);
+  border-radius: var(--r-field);
+  background: var(--ctrl);
+}
+
+.invoice-calc-rate:focus-within,
+.invoice-calc-row[data-control="select"] > .wizard-select-box:focus-within {
+  border-color: var(--acc);
+}
+
+.invoice-calc-rate > input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--tx);
+  font: inherit;
+  text-align: center;
+}
+
+.invoice-calc-row[data-control="select"] .wizard-select {
+  appearance: none;
+  width: 100%;
+  min-width: 0;
+  height: 18px;
+  padding: 0 22px 0 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.invoice-calc-row[data-control="select"] .wizard-select option {
+  color: var(--tx);
+}
+
+.invoice-calc-row[data-control="select"] .wizard-select-text {
+  inset: 0 22px 0 9px;
+  font-size: 12.5px;
+  line-height: var(--field-h);
+}
+
+.invoice-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--tx);
+  cursor: pointer;
+}

@@ -225,3 +225,71 @@
 .wizard-message {
   font-size: 11.5px;
 }
+
+/* The step's own fields: laid out by the dialog's body as if the wrapper were not there. */
+.wizard-body {
+  display: contents;
+}
+
+/* A choice select in a form row: it fills the box, its text drawn by the overlay. */
+.form-field-box .wizard-select-box {
+  flex: 1;
+  height: 100%;
+}
+
+.form-field-box .wizard-select {
+  appearance: none;
+  width: 100%;
+  min-width: 0;
+  height: 24px;
+  padding: 0 22px 0 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.form-field-box .wizard-select:disabled {
+  cursor: default;
+}
+
+.form-field-box .wizard-select option,
+.form-field-box .wizard-select optgroup {
+  color: var(--tx);
+}
+
+.form-field-box .wizard-select-text {
+  inset: 0 22px 0 0;
+  font-size: 12.5px;
+  line-height: 24px;
+}
+
+/* A field with a warning under its box, aligned with the box. */
+.wizard-field-with-note {
+  display: grid;
+  gap: 4px;
+}
+
+.wizard-field-note {
+  margin: 0 0 0 210px;
+  font-size: 11.5px;
+  color: var(--warn);
+}
+
+.wizard-hint {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--txd);
+}
+
+/* A choice that cannot change (a locked supplier): its box dimmed, as a read-only row's. Last, to win over the boxes above. */
+.form-field-box:has(.wizard-select:disabled) {
+  background: var(--zebra);
+  border-color: var(--bd2);
+}
+
+.form-field-box:has(.wizard-select:disabled) .wizard-select-text {
+  color: var(--txd);
+}

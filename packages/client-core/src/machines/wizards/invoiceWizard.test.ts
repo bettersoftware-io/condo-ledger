@@ -64,8 +64,28 @@ describe("the New invoice wizard", () => {
         paid: 0,
         duplicate: false,
         nonTaxableShown: false,
+        date: "2013-12-31",
+        dueDate: null,
       },
       preview: [],
+    });
+  });
+
+  it("the summary reads the dates as typed, in the period's year; a date that reads as none is null", () => {
+    const { machine } = createWizard();
+
+    machine.intents.edit({ date: "23/4", dueDate: "5/6/2014" });
+
+    expect(machine.state$.getValue().summary).toMatchObject({
+      date: "2013-04-23",
+      dueDate: "2014-06-05",
+    });
+
+    machine.intents.edit({ date: "31/2", dueDate: "" });
+
+    expect(machine.state$.getValue().summary).toMatchObject({
+      date: null,
+      dueDate: null,
     });
   });
 

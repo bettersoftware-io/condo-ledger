@@ -14,12 +14,15 @@ import "./Dialog.css";
 /**
  * A modal card over a scrim: the title bar, the body, the footer. The card
  * takes the focus when it mounts; Escape, or a click on the scrim, closes it.
- * Its parent decides whether it is open: it draws only while mounted.
+ * Enter in a text field of the card does what `onEnter` says, when it says
+ * anything. Its parent decides whether it is open: it draws only while
+ * mounted.
  */
 export function Dialog({
   title,
   width = "default",
   onClose,
+  onEnter,
   footer,
   children,
 }: DialogProps): ReactElement {
@@ -30,9 +33,20 @@ export function Dialog({
     card.current?.focus();
   }, []);
 
-  function closeOnEscape(event: KeyboardEvent<HTMLDivElement>): void {
+  function closeOrConfirm(event: KeyboardEvent<HTMLDivElement>): void {
     if (event.key === "Escape") {
       onClose();
+
+      return;
+    }
+
+    if (
+      event.key === "Enter" &&
+      onEnter !== undefined &&
+      isTextField(event.target)
+    ) {
+      event.preventDefault();
+      onEnter();
     }
   }
 
@@ -55,7 +69,7 @@ export function Dialog({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        onKeyDown={closeOnEscape}
+        onKeyDown={closeOrConfirm}
       >
         <div
           id={titleId}
@@ -76,7 +90,14 @@ export interface DialogProps {
   /** 380px (`alert`), 560px (`default`) or 680px (`wizard`), as the README's dialogs. */
   width?: "alert" | "default" | "wizard";
   onClose: () => void;
+  /** Enter in a text field of the card: what the primary button does. */
+  onEnter?: () => void;
   /** The footer's content: its buttons take the `dialog-button` class. */
   footer: ReactNode;
   children: ReactNode;
+}
+
+/** A field the person types a line of text into: Enter there means "go on", not a new line. */
+function isTextField(target: EventTarget): boolean {
+  return target instanceof HTMLInputElement && target.type === "text";
 }

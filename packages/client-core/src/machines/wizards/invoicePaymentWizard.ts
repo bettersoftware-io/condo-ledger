@@ -1,6 +1,7 @@
 import {
   type Cents,
   type ClockPort,
+  type EntryAdded,
   type EntryDraft,
   type JournalEntry,
   type OpenInvoice,
@@ -9,6 +10,7 @@ import {
   type Posting,
   paidOn,
   type Result,
+  type ResultOf,
   rejected,
   ZERO_CENTS,
 } from "@cl/domain";
@@ -63,7 +65,7 @@ export interface OpenInvoiceRow {
 export interface InvoicePaymentSummary {
   /** The invoices waiting to be paid, by due date (none last), then date, then number. */
   open: OpenInvoiceRow[];
-  /** What the chosen invoice still owes, the edited payment's own amount added back: the most this payment may be. Null with no open invoice chosen. */
+  /** What the chosen invoice still owes, the edited payment's own amount added back: the most this payment may be. 0 for an invoice settled since the wizard opened; null with none chosen. */
   remaining: Cents | null;
 }
 
@@ -87,6 +89,8 @@ interface PaymentBooks {
   books: Books | null;
   /** The open invoices, the edited payment left out of what they have been paid. */
   open: OpenInvoice[];
+  /** Step 1's grid: the open invoices as the person reads them. */
+  rows: OpenInvoiceRow[];
   liquidity: WizardChoice[];
   /** The id of the payment the wizard rewrites; null for a new one. */
   replacing: string | null;
@@ -99,34 +103,24 @@ interface PaymentBooks {
  * {number} — {supplier}", until the person types either. Editing, the wizard
  * starts at step 2 on the payment's invoice, which stays put, and the most it
  * may pay is what the invoice owes plus the payment's own amount.
+ *
+ * The wizard reads the books as they stand when it opens. Another payment can
+ * land while it is open, and the store then refuses the save: after a refused
+ * save the wizard reads the books again through `latest`, so what it says the
+ * invoice still owes is what it owes now.
  */
 export function createInvoicePaymentWizard(
   books: Books | null,
   clock: ClockPort,
   write: WriteEntry,
   editing: JournalEntry | null,
+  latest: () => Books | null = (): Books | null => {
+    return books;
+  },
 ): WizardMachine<InvoicePaymentForm, InvoicePaymentSummary> {
   const replacing = editing?.id ?? null;
-  const read: PaymentBooks = {
-    books,
-    open:
-      books === null
-        ? []
-        : openInvoices(
-            books.invoices,
-            books.entries.filter((entry) => {
-              return entry.id !== replacing;
-            }),
-            books.withholdingTaxes,
-          ),
-    liquidity: books === null ? [] : liquidityChoices(books),
-    replacing,
-  };
-
   const today = todayOf(clock);
-  const rows = read.open.map((open) => {
-    return rowOf(read, open, today);
-  });
+  let read = readOf(books, replacing, today);
 
   const machine = createWizardMachine<
     InvoicePaymentForm,
@@ -142,8 +136,8 @@ export function createInvoicePaymentWizard(
       },
       summarize: (form: InvoicePaymentForm): InvoicePaymentSummary => {
         return {
-          open: rows,
-          remaining: openOf(read, form.invoiceId)?.remaining ?? null,
+          open: read.rows,
+          remaining: remainingOn(read, form.invoiceId),
         };
       },
       stepVerdict: (form: InvoicePaymentForm, step: number): Result => {
@@ -163,7 +157,69 @@ export function createInvoicePaymentWizard(
     );
   }
 
-  return { ...machine, intents: { ...machine.intents, edit } };
+  async function save(): Promise<ResultOf<EntryAdded>> {
+    const result = await machine.intents.save();
+
+    if (!result.ok) {
+      read = readOf(latest(), replacing, today);
+      // The definition reads `read`: an edit that changes nothing has the
+      // machine derive its state again, over the books as they stand now.
+      machine.intents.edit({});
+    }
+
+    return result;
+  }
+
+  return { ...machine, intents: { ...machine.intents, edit, save } };
+}
+
+/** The books as the wizard reads them: the open invoices, the edited payment left out of what they have been paid, their rows, and the liquidity accounts. */
+function readOf(
+  books: Books | null,
+  replacing: string | null,
+  today: string,
+): PaymentBooks {
+  const read: PaymentBooks = {
+    books,
+    open:
+      books === null
+        ? []
+        : openInvoices(
+            books.invoices,
+            books.entries.filter((entry) => {
+              return entry.id !== replacing;
+            }),
+            books.withholdingTaxes,
+          ),
+    rows: [],
+    liquidity: books === null ? [] : liquidityChoices(books),
+    replacing,
+  };
+
+  return {
+    ...read,
+    rows: read.open.map((open) => {
+      return rowOf(read, open, today);
+    }),
+  };
+}
+
+/** What the chosen invoice still owes: an open one's remaining amount, 0 for one of the books that is settled, null for none. */
+function remainingOn(
+  read: PaymentBooks,
+  invoiceId: string | null,
+): Cents | null {
+  const open = openOf(read, invoiceId);
+
+  if (open !== null) {
+    return open.remaining;
+  }
+
+  const held = read.books?.invoices.some((invoice) => {
+    return invoice.id === invoiceId;
+  });
+
+  return held === true ? ZERO_CENTS : null;
 }
 
 /** The rules of one step: step 1 the invoice; step 2 the account, the amount and the domain on the payment, its description aside; step 3 the whole verdict. */

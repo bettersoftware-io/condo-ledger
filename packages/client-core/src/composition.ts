@@ -348,6 +348,9 @@ export function createApp(ports: AppPorts): App {
           ports.clock,
           writeOf(entry),
           entry,
+          (): Books | null => {
+            return latestBooks;
+          },
         );
       },
       createOpeningBalancesWizard: (

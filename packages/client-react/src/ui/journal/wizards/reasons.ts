@@ -16,6 +16,8 @@ const COMMON_REASONS: Readonly<Record<string, string>> = {
   saving: "Saving…",
   "unknown-account":
     "The period changed while this was open: cancel and open it again",
+  "entry-gone":
+    "This entry was deleted while it was open: cancel to close this window",
 };
 
 /** The payment wizards' word for a blank description: nothing in them can be unbalanced. */
@@ -31,6 +33,28 @@ export const CASH_REASONS: Readonly<Record<string, string>> = {
 export const BANK_REASONS: Readonly<Record<string, string>> = {
   "blank-description": DESCRIPTION_REQUIRED,
   "no-paid-from-account": "This period has no default bank account",
+};
+
+/** The New invoice wizard's own words; "below-paid" names what was paid, and the wizard words it. */
+export const INVOICE_REASONS: Readonly<Record<string, string>> = {
+  "no-supplier": "Choose a supplier",
+  "no-number": "Enter the invoice number",
+  "no-reason": "Enter the invoice reason",
+  "no-cost-account": "Choose a cost account",
+  "not-a-date": "Enter a date as day/month/year",
+  "due-before-date": "The due date cannot be before the invoice date",
+  "not-a-rate": "Enter a rate as a percentage",
+  "unknown-withholding": "Choose a withholding tax of this period",
+  "supplier-has-payments":
+    "This invoice has payments: its supplier cannot change.",
+  "blank-description": DESCRIPTION_REQUIRED,
+};
+
+/** The Invoice payment wizard's own words; "over-remaining" names what is owed, and the wizard words it. */
+export const PAYMENT_REASONS: Readonly<Record<string, string>> = {
+  "no-invoice": "Choose an invoice",
+  "no-liquidity-account": "Choose a liquidity account",
+  "blank-description": DESCRIPTION_REQUIRED,
 };
 
 /** A reason in the wizard's words: its own first, then the common ones; a reason no one words is shown as it is. */

@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from "react";
+import { type ReactElement, type ReactNode, useEffect, useRef } from "react";
 
 import type { JournalContext, WizardState } from "@cl/client-core";
 import { type Cents, ZERO_CENTS } from "@cl/domain";
@@ -13,8 +13,12 @@ import "./Wizards.css";
 /**
  * Any wizard's dialog: the building and period first, the step's body, then
  * the "Entry postings" the draft would write and, once the person has edited
- * something, why it cannot be saved yet. Takes only props: the wizard that
- * mounts it reads the machine.
+ * something, why the step cannot go on yet. An edit is titled "Edit {name}".
+ * Next waits for the step's own verdict, Save for the whole one; Back shows
+ * past the step the wizard starts at. Each step puts the focus on its first
+ * field to fill, and Enter in a text field does what the primary button does
+ * while it is enabled. Takes only props: the wizard that mounts it reads the
+ * machine.
  */
 export function WizardDialog({
   name,
@@ -30,29 +34,52 @@ export function WizardDialog({
   onCancel,
   children,
 }: WizardDialogProps): ReactElement {
+  const body = useRef<HTMLDivElement>(null);
+  const step = state.step;
+  const named = state.editing === null ? name : `Edit ${name}`;
   const title =
-    stepTitle === undefined
-      ? name
-      : `${name} — Step ${state.step}: ${stepTitle}`;
+    stepTitle === undefined ? named : `${named} — Step ${step}: ${stepTitle}`;
 
+  const last = step === state.stepCount;
+  const judged = last ? state.verdict : state.stepVerdict;
   const verdictReason =
-    !state.verdict.ok && state.touched && state.verdict.reason !== shownInBody
-      ? state.verdict.reason
+    !judged.ok && state.touched && judged.reason !== shownInBody
+      ? judged.reason
       : null;
   const reason = refusal ?? verdictReason;
-  const last = state.step === state.stepCount;
+  const canSave = state.verdict.ok && !state.saving;
+  const canGoOn = state.stepVerdict.ok;
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: the effect reads the body's fields, which the step decides: each step must focus its own, so the step is what runs it again
+  useEffect(() => {
+    focusFirstField(body.current);
+  }, [step]);
+
+  function pressPrimary(): void {
+    if (last && canSave) {
+      onSave();
+    } else if (!last && canGoOn) {
+      onNext();
+    }
+  }
 
   return (
     <Dialog
       title={title}
       width="wizard"
       onClose={onCancel}
+      onEnter={pressPrimary}
       footer={
         <>
           <span className="wizard-note">Required fields are marked with *</span>
           <span className="wizard-footer-spacer" />
-          {state.step > 1 ? (
-            <button type="button" className="dialog-button" onClick={onBack}>
+          {step > state.firstStep ? (
+            <button
+              type="button"
+              className="dialog-button"
+              data-testid={TESTIDS.wizardBack}
+              onClick={onBack}
+            >
               ◀ Back
             </button>
           ) : null}
@@ -62,7 +89,7 @@ export function WizardDialog({
               className="dialog-button"
               data-primary="true"
               data-testid={TESTIDS.wizardSave}
-              disabled={!state.verdict.ok || state.saving}
+              disabled={!canSave}
               onClick={onSave}
             >
               ✓ Save entry
@@ -72,7 +99,8 @@ export function WizardDialog({
               type="button"
               className="dialog-button"
               data-primary="true"
-              disabled={!state.verdict.ok}
+              data-testid={TESTIDS.wizardNext}
+              disabled={!canGoOn}
               onClick={onNext}
             >
               Next ▶
@@ -92,7 +120,9 @@ export function WizardDialog({
       <FormField label="Building / Period" readOnly>
         {context === null ? "" : `${context.building} / ${context.period}`}
       </FormField>
-      {children}
+      <div ref={body} className="wizard-body">
+        {children}
+      </div>
       <div className="wizard-section">
         <div className="wizard-section-label">Entry postings</div>
         <div className="wizard-preview">
@@ -158,6 +188,86 @@ export interface WizardProps {
   /** The entry is written: its id. */
   onSaved: (id: string) => void;
   onCancel: () => void;
+}
+
+/**
+ * Puts the focus on the step's first field to fill: the first required one
+ * that is empty, else the first that is empty or required, else the first.
+ * A field that cannot change is passed over; a group of radios is one field,
+ * empty while none is chosen.
+ */
+function focusFirstField(root: HTMLElement | null): void {
+  if (root === null) {
+    return;
+  }
+
+  const fields = fieldsIn(root);
+  const chosen =
+    fields.find((field) => {
+      return isRequired(field) && isEmpty(root, field);
+    }) ??
+    fields.find((field) => {
+      return isRequired(field) || isEmpty(root, field);
+    }) ??
+    fields[0];
+
+  chosen?.focus();
+}
+
+/** The controls the person can change, one per group of radios: its chosen radio, or its first. */
+function fieldsIn(root: HTMLElement): HTMLElement[] {
+  const controls = Array.from(
+    root.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
+      "input, select",
+    ),
+  ).filter((control) => {
+    return !control.disabled;
+  });
+
+  return controls.filter((control) => {
+    if (!(control instanceof HTMLInputElement) || control.type !== "radio") {
+      return true;
+    }
+
+    const group = radiosOf(root, control.name);
+    const lead =
+      group.find((radio) => {
+        return radio.checked;
+      }) ?? group[0];
+
+    return lead === control;
+  });
+}
+
+function isRequired(field: HTMLElement): boolean {
+  return field.closest('[data-required="true"]') !== null;
+}
+
+/** A text or a select with nothing in it, or a group of radios with none chosen; a checkbox is never empty. */
+function isEmpty(root: HTMLElement, field: HTMLElement): boolean {
+  if (field instanceof HTMLSelectElement) {
+    return field.value === "";
+  }
+
+  if (!(field instanceof HTMLInputElement) || field.type === "checkbox") {
+    return false;
+  }
+
+  if (field.type === "radio") {
+    return !radiosOf(root, field.name).some((radio) => {
+      return radio.checked;
+    });
+  }
+
+  return field.value.trim() === "";
+}
+
+function radiosOf(root: HTMLElement, name: string): HTMLInputElement[] {
+  return Array.from(
+    root.querySelectorAll<HTMLInputElement>('input[type="radio"]'),
+  ).filter((radio) => {
+    return radio.name === name;
+  });
 }
 
 /** A side of a preview line: a zero side is an empty cell. */

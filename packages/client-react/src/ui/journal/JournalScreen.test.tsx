@@ -225,9 +225,9 @@ describe("JournalScreen", () => {
       "Direct payment to multiple cost accounts",
     ]);
 
-    await page.clickMenuItem("New invoice");
+    await page.clickMenuItem("Record collection");
 
-    expect(page.toasts()).toEqual(["New invoice: not yet available"]);
+    expect(page.toasts()).toEqual(["Record collection: not yet available"]);
     expect(page.dialogOpen()).toBe(false);
     expect(page.menuItems()).toEqual([]);
   });

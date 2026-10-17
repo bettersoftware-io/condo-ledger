@@ -144,7 +144,7 @@ describe("the Invoice payment wizard", () => {
     });
   });
 
-  it("step 1 is no-invoice until an open invoice is chosen; a settled one is no invoice", () => {
+  it("step 1 is no-invoice until an open invoice is chosen; a settled one is no invoice, and owes nothing", () => {
     const { machine } = createWizard();
 
     machine.intents.next();
@@ -153,8 +153,11 @@ describe("the Invoice payment wizard", () => {
     machine.intents.edit({ invoiceId: "li45" });
     expect(machine.state$.getValue()).toMatchObject({
       stepVerdict: { ok: false, reason: "no-invoice" },
-      summary: { remaining: null },
+      summary: { remaining: 0 },
     });
+
+    machine.intents.edit({ invoiceId: "li-none" });
+    expect(machine.state$.getValue().summary.remaining).toBeNull();
 
     machine.intents.edit({ invoiceId: "li49" });
     machine.intents.next();
@@ -317,6 +320,54 @@ describe("the Invoice payment wizard", () => {
       reason: "over-remaining",
     });
     expect(machine.state$.getValue().saving).toBe(false);
+    expect(machine.state$.getValue().summary.remaining).toBe(0);
+  });
+
+  it("after a refused save the remaining amount is what the invoice owes now, and the grid is the books as they stand", async () => {
+    const harness = harnessOnP36();
+    const machine = wizardOn(harness);
+
+    machine.intents.edit({ invoiceId: "li49" });
+
+    expect(machine.state$.getValue().summary.remaining).toBe(37313);
+
+    const elsewhere = await harness.ports.journal.addEntry("p36", {
+      kind: "invoicePayment",
+      description: "Paid in part elsewhere",
+      invoiceId: "li49",
+      postings: [
+        {
+          accountId: "la157",
+          debit: cents(10000),
+          credit: cents(0),
+          counterpart: { kind: "supplier", id: "md78" },
+        },
+        {
+          accountId: "la156",
+          debit: cents(0),
+          credit: cents(10000),
+          counterpart: null,
+        },
+      ],
+    });
+
+    expect(elsewhere.ok).toBe(true);
+    expect(machine.state$.getValue().summary.remaining).toBe(37313);
+    expect(await machine.intents.save()).toEqual({
+      ok: false,
+      reason: "over-remaining",
+    });
+
+    const state = machine.state$.getValue();
+
+    expect(state.summary.remaining).toBe(27313);
+    expect(
+      state.summary.open.find((row) => {
+        return row.id === "li49";
+      })?.remaining,
+    ).toBe(27313);
+    expect(state.form.amount).toBe("373.13");
+    expect(state.verdict).toEqual({ ok: false, reason: "over-remaining" });
   });
 
   it("a new payment is written through the write it is given, with its invoice on the draft", async () => {
