@@ -10,7 +10,7 @@ import { validateBudget } from "#/useCases/validateBudget.ts";
 
 import type { LegacySeed } from "./seed/legacySeed.ts";
 
-/** A period's accounts, kept in memory, and the parties its postings name. */
+/** A period's accounts, kept in memory, and its parties: the building's suppliers and the period's residents. */
 interface PeriodBooks {
   accounts$: BehaviorSubject<Account[]>;
   parties: Party[];
@@ -28,7 +28,10 @@ export function createAccountsSimulator(seed: LegacySeed): AccountsPort {
             return account.periodId === period.id;
           }),
         ),
-        parties: partiesOf(seed, period.id),
+        parties:
+          seed.parties.find((list) => {
+            return list.periodId === period.id;
+          })?.parties ?? [],
       });
     }
   }
@@ -90,26 +93,6 @@ function applyBudget(
   }
 
   return verdict;
-}
-
-function partiesOf(seed: LegacySeed, periodId: string): Party[] {
-  const named = new Set<string>();
-
-  for (const entry of seed.entries) {
-    if (entry.periodId !== periodId) {
-      continue;
-    }
-
-    for (const posting of entry.postings) {
-      if (posting.counterpart !== null) {
-        named.add(`${posting.counterpart.kind}:${posting.counterpart.id}`);
-      }
-    }
-  }
-
-  return seed.parties.filter((party) => {
-    return named.has(`${party.kind}:${party.id}`);
-  });
 }
 
 function missing<T>(what: string): Observable<T> {

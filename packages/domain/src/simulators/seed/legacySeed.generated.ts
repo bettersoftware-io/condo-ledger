@@ -1749,7 +1749,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r10"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx2",
@@ -1771,7 +1772,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 50000,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx3",
@@ -1793,7 +1795,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 4420,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx4",
@@ -1821,7 +1824,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 28650,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx5",
@@ -1936,7 +1940,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 740000,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx6",
@@ -1970,7 +1975,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r10"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx7",
@@ -1992,7 +1998,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 7840,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx8",
@@ -2014,7 +2021,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 2350,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx9",
@@ -2036,7 +2044,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 80000,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx10",
@@ -2067,7 +2076,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 759,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li1"
     },
     {
       "id": "tx11",
@@ -2092,7 +2102,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 22000,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li1"
     },
     {
       "id": "tx12",
@@ -2114,7 +2125,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 759,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li1"
     },
     {
       "id": "tx13",
@@ -2145,7 +2157,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 655,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li2"
     },
     {
       "id": "tx14",
@@ -2173,7 +2186,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 29845,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx99",
@@ -2279,7 +2293,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 0,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx166",
@@ -2313,7 +2328,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r4"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx167",
@@ -2365,7 +2381,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r2"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx168",
@@ -2390,7 +2407,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r3"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx100",
@@ -2577,7 +2595,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 0,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx150",
@@ -2608,7 +2627,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 1201,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li45"
     },
     {
       "id": "tx198",
@@ -2633,7 +2653,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 34817,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li45"
     },
     {
       "id": "tx254",
@@ -2658,7 +2679,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r165"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx263",
@@ -2683,7 +2705,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r168"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx140",
@@ -2708,7 +2731,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "md15"
           }
         }
-      ]
+      ],
+      "invoiceId": "li37"
     },
     {
       "id": "tx255",
@@ -2733,7 +2757,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r165"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx116",
@@ -2758,7 +2783,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "md15"
           }
         }
-      ]
+      ],
+      "invoiceId": "li13"
     },
     {
       "id": "tx127",
@@ -2789,7 +2815,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 10352,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li24"
     },
     {
       "id": "tx191",
@@ -2814,7 +2841,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 10739,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li13"
     },
     {
       "id": "tx194",
@@ -2839,7 +2867,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 47938,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li37"
     },
     {
       "id": "tx195",
@@ -2864,7 +2893,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 100000,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li24"
     },
     {
       "id": "tx276",
@@ -2889,7 +2919,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r186"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx291",
@@ -3391,7 +3422,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 3800000,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx261",
@@ -3416,7 +3448,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r167"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx196",
@@ -3441,7 +3474,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 100000,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li24"
     },
     {
       "id": "tx112",
@@ -3472,7 +3506,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 400,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li9"
     },
     {
       "id": "tx281",
@@ -3506,7 +3541,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r188"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx199",
@@ -3531,7 +3567,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 11600,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li9"
     },
     {
       "id": "tx258",
@@ -3574,7 +3611,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r166"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx197",
@@ -3599,7 +3637,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 100214,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li24"
     },
     {
       "id": "tx151",
@@ -3630,7 +3669,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 1287,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li46"
     },
     {
       "id": "tx156",
@@ -3661,7 +3701,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 280,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li51"
     },
     {
       "id": "tx264",
@@ -3704,7 +3745,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r168"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx117",
@@ -3729,7 +3771,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "md15"
           }
         }
-      ]
+      ],
+      "invoiceId": "li14"
     },
     {
       "id": "tx141",
@@ -3754,7 +3797,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "md15"
           }
         }
-      ]
+      ],
+      "invoiceId": "li38"
     },
     {
       "id": "tx128",
@@ -3785,7 +3829,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 10451,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li25"
     },
     {
       "id": "tx200",
@@ -3810,7 +3855,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 37313,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li46"
     },
     {
       "id": "tx114",
@@ -3841,7 +3887,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 124,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li11"
     },
     {
       "id": "tx201",
@@ -3866,7 +3913,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 8120,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li51"
     },
     {
       "id": "tx129",
@@ -3897,7 +3945,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 10905,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li26"
     },
     {
       "id": "tx101",
@@ -3928,7 +3977,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 7956,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li3"
     },
     {
       "id": "tx250",
@@ -3962,7 +4012,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r163"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx188",
@@ -3987,7 +4038,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 303087,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li25"
     },
     {
       "id": "tx123",
@@ -4018,7 +4070,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 2480,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li20"
     },
     {
       "id": "tx202",
@@ -4043,7 +4096,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 8922,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li14"
     },
     {
       "id": "tx203",
@@ -4068,7 +4122,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 65262,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li38"
     },
     {
       "id": "tx122",
@@ -4099,7 +4154,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 2480,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li19"
     },
     {
       "id": "tx256",
@@ -4142,7 +4198,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r165"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx130",
@@ -4173,7 +4230,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 6752,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li27"
     },
     {
       "id": "tx109",
@@ -4195,7 +4253,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 3180,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx204",
@@ -4220,7 +4279,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 3596,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li11"
     },
     {
       "id": "tx279",
@@ -4299,7 +4359,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r187"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx121",
@@ -4324,7 +4385,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "md15"
           }
         }
-      ]
+      ],
+      "invoiceId": "li18"
     },
     {
       "id": "tx205",
@@ -4349,7 +4411,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 316240,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li26"
     },
     {
       "id": "tx206",
@@ -4374,7 +4437,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 39780,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li3"
     },
     {
       "id": "tx111",
@@ -4405,7 +4469,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 640,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li8"
     },
     {
       "id": "tx272",
@@ -4448,7 +4513,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r181"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx207",
@@ -4473,7 +4539,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 100000,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li27"
     },
     {
       "id": "tx142",
@@ -4498,7 +4565,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "md15"
           }
         }
-      ]
+      ],
+      "invoiceId": "li39"
     },
     {
       "id": "tx259",
@@ -4532,7 +4600,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r166"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx269",
@@ -4602,7 +4671,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r178"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx209",
@@ -4627,7 +4697,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 18560,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li8"
     },
     {
       "id": "tx131",
@@ -4658,7 +4729,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 3012,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li28"
     },
     {
       "id": "tx118",
@@ -4683,7 +4755,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "md15"
           }
         }
-      ]
+      ],
+      "invoiceId": "li15"
     },
     {
       "id": "tx146",
@@ -4714,7 +4787,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 3813,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li43"
     },
     {
       "id": "tx277",
@@ -4775,7 +4849,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r186"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx210",
@@ -4800,7 +4875,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 11399,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li15"
     },
     {
       "id": "tx211",
@@ -4825,7 +4901,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 51814,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li39"
     },
     {
       "id": "tx152",
@@ -4856,7 +4933,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 1287,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li47"
     },
     {
       "id": "tx208",
@@ -4881,7 +4959,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 95796,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li27"
     },
     {
       "id": "tx282",
@@ -4933,7 +5012,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r188"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx245",
@@ -4958,7 +5038,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r162"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx212",
@@ -4983,7 +5064,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 87342,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li28"
     },
     {
       "id": "tx213",
@@ -5008,7 +5090,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 110587,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li43"
     },
     {
       "id": "tx132",
@@ -5039,7 +5122,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 1023,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li29"
     },
     {
       "id": "tx214",
@@ -5064,7 +5148,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 37313,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li47"
     },
     {
       "id": "tx251",
@@ -5107,7 +5192,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r163"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx102",
@@ -5138,7 +5224,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 7956,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li4"
     },
     {
       "id": "tx215",
@@ -5163,7 +5250,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 29678,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li29"
     },
     {
       "id": "tx143",
@@ -5188,7 +5276,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "md15"
           }
         }
-      ]
+      ],
+      "invoiceId": "li40"
     },
     {
       "id": "tx110",
@@ -5210,7 +5299,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 5000,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx246",
@@ -5235,7 +5325,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r162"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx268",
@@ -5287,7 +5378,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r174"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx275",
@@ -5321,7 +5413,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r184"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx119",
@@ -5346,7 +5439,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "md15"
           }
         }
-      ]
+      ],
+      "invoiceId": "li16"
     },
     {
       "id": "tx271",
@@ -5398,7 +5492,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r180"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx133",
@@ -5429,7 +5524,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 949,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li30"
     },
     {
       "id": "tx265",
@@ -5490,7 +5586,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r168"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx266",
@@ -5542,7 +5639,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r172"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx216",
@@ -5567,7 +5665,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 39780,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li4"
     },
     {
       "id": "tx257",
@@ -5619,7 +5718,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r165"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx283",
@@ -5662,7 +5762,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r188"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx262",
@@ -5741,7 +5842,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r167"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx217",
@@ -5766,7 +5868,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 10781,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li16"
     },
     {
       "id": "tx218",
@@ -5791,7 +5894,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 26081,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li40"
     },
     {
       "id": "tx260",
@@ -5834,7 +5938,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r166"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx249",
@@ -5859,7 +5964,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r162"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx273",
@@ -5902,7 +6008,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r181"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx280",
@@ -5936,7 +6043,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r187"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx219",
@@ -5961,7 +6069,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 27526,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li30"
     },
     {
       "id": "tx267",
@@ -5995,7 +6104,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r172"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx270",
@@ -6038,7 +6148,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r178"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx134",
@@ -6069,7 +6180,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 1312,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li31"
     },
     {
       "id": "tx274",
@@ -6103,7 +6215,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r183"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx278",
@@ -6137,7 +6250,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r186"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx253",
@@ -6162,7 +6276,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "r163"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx115",
@@ -6193,7 +6308,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 88,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li12"
     },
     {
       "id": "tx113",
@@ -6224,7 +6340,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 383,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li10"
     },
     {
       "id": "tx144",
@@ -6249,7 +6366,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "md15"
           }
         }
-      ]
+      ],
+      "invoiceId": "li41"
     },
     {
       "id": "tx220",
@@ -6274,7 +6392,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 38044,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li31"
     },
     {
       "id": "tx153",
@@ -6305,7 +6424,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 1287,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li48"
     },
     {
       "id": "tx221",
@@ -6330,7 +6450,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 11117,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li10"
     },
     {
       "id": "tx222",
@@ -6355,7 +6476,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 2552,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li12"
     },
     {
       "id": "tx120",
@@ -6380,7 +6502,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "md15"
           }
         }
-      ]
+      ],
+      "invoiceId": "li17"
     },
     {
       "id": "tx135",
@@ -6411,7 +6534,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 996,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li32"
     },
     {
       "id": "tx223",
@@ -6436,7 +6560,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 37313,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li48"
     },
     {
       "id": "tx224",
@@ -6461,7 +6586,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 11049,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li17"
     },
     {
       "id": "tx225",
@@ -6486,7 +6612,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 30126,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li41"
     },
     {
       "id": "tx108",
@@ -6508,7 +6635,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 34464,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx226",
@@ -6533,7 +6661,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 28889,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li32"
     },
     {
       "id": "tx103",
@@ -6564,7 +6693,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 7956,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li5"
     },
     {
       "id": "tx124",
@@ -6595,7 +6725,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 2480,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li21"
     },
     {
       "id": "tx148",
@@ -6617,7 +6748,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 120219,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx137",
@@ -6648,7 +6780,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 419,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li34"
     },
     {
       "id": "tx227",
@@ -6673,7 +6806,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 39780,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li5"
     },
     {
       "id": "tx149",
@@ -6695,7 +6829,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 37700,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx138",
@@ -6726,7 +6861,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 2546,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li35"
     },
     {
       "id": "tx228",
@@ -6751,7 +6887,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 12137,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li34"
     },
     {
       "id": "tx165",
@@ -6785,7 +6922,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 1170,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx145",
@@ -6810,7 +6948,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "md15"
           }
         }
-      ]
+      ],
+      "invoiceId": "li42"
     },
     {
       "id": "tx147",
@@ -6841,7 +6980,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 3907,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li44"
     },
     {
       "id": "tx229",
@@ -6866,7 +7006,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 11613,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li18"
     },
     {
       "id": "tx230",
@@ -6891,7 +7032,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 40517,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li42"
     },
     {
       "id": "tx154",
@@ -6922,7 +7064,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 1287,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li49"
     },
     {
       "id": "tx155",
@@ -6953,7 +7096,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 220,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li50"
     },
     {
       "id": "tx231",
@@ -6978,7 +7122,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 73834,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li35"
     },
     {
       "id": "tx232",
@@ -7003,7 +7148,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 60000,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li44"
     },
     {
       "id": "tx233",
@@ -7028,7 +7174,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 53293,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li44"
     },
     {
       "id": "tx157",
@@ -7059,7 +7206,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 25886,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li52"
     },
     {
       "id": "tx159",
@@ -7081,7 +7229,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 213149,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx160",
@@ -7103,7 +7252,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 1226,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx162",
@@ -7281,7 +7431,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 27705,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx163",
@@ -7453,7 +7604,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "md86"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx164",
@@ -7490,7 +7642,8 @@ export const legacySeedData: LegacySeedData = {
             "id": "md76"
           }
         }
-      ]
+      ],
+      "invoiceId": null
     },
     {
       "id": "tx139",
@@ -7521,7 +7674,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 6764,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li36"
     },
     {
       "id": "tx234",
@@ -7546,7 +7700,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 129428,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li52"
     },
     {
       "id": "tx125",
@@ -7577,7 +7732,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 2480,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li22"
     },
     {
       "id": "tx126",
@@ -7608,7 +7764,8 @@ export const legacySeedData: LegacySeedData = {
           "credit": 18333,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": "li23"
     },
     {
       "id": "tx292",
@@ -8110,343 +8267,1299 @@ export const legacySeedData: LegacySeedData = {
           "credit": 0,
           "counterpart": null
         }
-      ]
+      ],
+      "invoiceId": null
     }
   ],
   "parties": [
     {
-      "kind": "supplier",
-      "id": "md9",
-      "name": "Ascensori Castellarin s.a.s."
+      "periodId": "p1",
+      "parties": [
+        {
+          "kind": "supplier",
+          "id": "md9",
+          "name": "Ascensori Castellarin s.a.s."
+        },
+        {
+          "kind": "supplier",
+          "id": "md10",
+          "name": "Cragno Giardinaggio soc. coop."
+        },
+        {
+          "kind": "supplier",
+          "id": "md11",
+          "name": "Zanon Servizi di Pulizia s.n.c."
+        },
+        {
+          "kind": "supplier",
+          "id": "md13",
+          "name": "Mutua Assicuratrice del Livenza"
+        },
+        {
+          "kind": "supplier",
+          "id": "md15",
+          "name": "Energie del Ledra S.p.A."
+        },
+        {
+          "kind": "supplier",
+          "id": "md17",
+          "name": "Acque Arzino s.n.c."
+        },
+        {
+          "kind": "owner",
+          "id": "r1",
+          "personId": "md3",
+          "name": "Cargnelutti Lidia",
+          "unitCode": "A1",
+          "startingBalance": 3000
+        },
+        {
+          "kind": "owner",
+          "id": "r2",
+          "personId": "md3",
+          "name": "Cargnelutti Lidia",
+          "unitCode": "A2",
+          "startingBalance": 1322
+        },
+        {
+          "kind": "owner",
+          "id": "r3",
+          "personId": "md4",
+          "name": "Forgiarini Lino",
+          "unitCode": "A2",
+          "startingBalance": -760
+        },
+        {
+          "kind": "owner",
+          "id": "r4",
+          "personId": "md7",
+          "name": "Minisini Ilaria",
+          "unitCode": "A3",
+          "startingBalance": 1930
+        },
+        {
+          "kind": "owner",
+          "id": "r5",
+          "personId": "md6",
+          "name": "Sarcinelli Albino",
+          "unitCode": "A4",
+          "startingBalance": 3450
+        },
+        {
+          "kind": "owner",
+          "id": "r6",
+          "personId": "md3",
+          "name": "Cargnelutti Lidia",
+          "unitCode": "B1",
+          "startingBalance": 1122
+        },
+        {
+          "kind": "owner",
+          "id": "r7",
+          "personId": "md4",
+          "name": "Forgiarini Lino",
+          "unitCode": "B1",
+          "startingBalance": -1267
+        },
+        {
+          "kind": "owner",
+          "id": "r8",
+          "personId": "md3",
+          "name": "Cargnelutti Lidia",
+          "unitCode": "B2",
+          "startingBalance": 2140
+        },
+        {
+          "kind": "owner",
+          "id": "r9",
+          "personId": "md5",
+          "name": "Tavano Ornella",
+          "unitCode": "B3",
+          "startingBalance": 13455
+        },
+        {
+          "kind": "owner",
+          "id": "r10",
+          "personId": "md6",
+          "name": "Sarcinelli Albino",
+          "unitCode": "B4",
+          "startingBalance": 4500
+        }
+      ]
     },
     {
-      "kind": "supplier",
-      "id": "md11",
-      "name": "Zanon Servizi di Pulizia s.n.c."
+      "periodId": "p36",
+      "parties": [
+        {
+          "kind": "supplier",
+          "id": "md15",
+          "name": "Energie del Ledra S.p.A."
+        },
+        {
+          "kind": "supplier",
+          "id": "md76",
+          "name": "Adami Valerio"
+        },
+        {
+          "kind": "supplier",
+          "id": "md78",
+          "name": "Cargnelutti Elevatori s.n.c."
+        },
+        {
+          "kind": "supplier",
+          "id": "md79",
+          "name": "Natisone Gas S.p.A."
+        },
+        {
+          "kind": "supplier",
+          "id": "md80",
+          "name": "Treppo Impianti Elettrici S.p.A."
+        },
+        {
+          "kind": "supplier",
+          "id": "md81",
+          "name": "Ferramenta Cossio s.a.s."
+        },
+        {
+          "kind": "supplier",
+          "id": "md82",
+          "name": "Pontoni Servizi di Pulizia s.n.c."
+        },
+        {
+          "kind": "supplier",
+          "id": "md83",
+          "name": "Estintori Toniutti & C. s.a.s."
+        },
+        {
+          "kind": "supplier",
+          "id": "md84",
+          "name": "Cassin Certificazioni S.p.A."
+        },
+        {
+          "kind": "supplier",
+          "id": "md85",
+          "name": "Acque Fella s.r.l."
+        },
+        {
+          "kind": "supplier",
+          "id": "md86",
+          "name": "Antenne Sion s.a.s."
+        },
+        {
+          "kind": "supplier",
+          "id": "md119",
+          "name": "Puntel Claudio"
+        },
+        {
+          "kind": "owner",
+          "id": "r162",
+          "personId": "md89",
+          "name": "Morandini Dina",
+          "unitCode": "A01",
+          "startingBalance": -86065
+        },
+        {
+          "kind": "owner",
+          "id": "r163",
+          "personId": "md90",
+          "name": "Variola Dina",
+          "unitCode": "A02",
+          "startingBalance": -43739
+        },
+        {
+          "kind": "owner",
+          "id": "r164",
+          "personId": "md91",
+          "name": "Rosso Sergio",
+          "unitCode": "A02",
+          "startingBalance": 0
+        },
+        {
+          "kind": "owner",
+          "id": "r165",
+          "personId": "md92",
+          "name": "Buttazzoni Laura",
+          "unitCode": "A03",
+          "startingBalance": 352842
+        },
+        {
+          "kind": "owner",
+          "id": "r166",
+          "personId": "md93",
+          "name": "Iacuzzi Tullio",
+          "unitCode": "A04",
+          "startingBalance": 0
+        },
+        {
+          "kind": "owner",
+          "id": "r167",
+          "personId": "md94",
+          "name": "Fattori Gilda",
+          "unitCode": "A04",
+          "startingBalance": 269711
+        },
+        {
+          "kind": "owner",
+          "id": "r168",
+          "personId": "md95",
+          "name": "Fornasier Marco",
+          "unitCode": "A05",
+          "startingBalance": 25484
+        },
+        {
+          "kind": "owner",
+          "id": "r169",
+          "personId": "md96",
+          "name": "Quaglia Selene",
+          "unitCode": "A06",
+          "startingBalance": -183567
+        },
+        {
+          "kind": "owner",
+          "id": "r170",
+          "personId": "md97",
+          "name": "Tondolo Rino",
+          "unitCode": "A07",
+          "startingBalance": -304241
+        },
+        {
+          "kind": "owner",
+          "id": "r171",
+          "personId": "md98",
+          "name": "Colautti Iolanda",
+          "unitCode": "A07",
+          "startingBalance": 0
+        },
+        {
+          "kind": "owner",
+          "id": "r172",
+          "personId": "md99",
+          "name": "Zanier Lidia",
+          "unitCode": "A08",
+          "startingBalance": -48571
+        },
+        {
+          "kind": "owner",
+          "id": "r173",
+          "personId": "md100",
+          "name": "Treppo",
+          "unitCode": "A08",
+          "startingBalance": 0
+        },
+        {
+          "kind": "owner",
+          "id": "r174",
+          "personId": "md101",
+          "name": "Zuliani Selene",
+          "unitCode": "A09",
+          "startingBalance": -59131
+        },
+        {
+          "kind": "owner",
+          "id": "r175",
+          "personId": "md102",
+          "name": "Feruglio Silvano",
+          "unitCode": "A09",
+          "startingBalance": 0
+        },
+        {
+          "kind": "owner",
+          "id": "r176",
+          "personId": "md103",
+          "name": "Flebus Beatrice",
+          "unitCode": "A09",
+          "startingBalance": -11929
+        },
+        {
+          "kind": "owner",
+          "id": "r177",
+          "personId": "md104",
+          "name": "Adami Pietro",
+          "unitCode": "A10",
+          "startingBalance": -129616
+        },
+        {
+          "kind": "owner",
+          "id": "r178",
+          "personId": "md105",
+          "name": "Masotti Sabrina",
+          "unitCode": "A11",
+          "startingBalance": -13294
+        },
+        {
+          "kind": "owner",
+          "id": "r179",
+          "personId": "md106",
+          "name": "Carlutti Zaira",
+          "unitCode": "A12",
+          "startingBalance": -179882
+        },
+        {
+          "kind": "owner",
+          "id": "r180",
+          "personId": "md107",
+          "name": "Bertossi Lidia",
+          "unitCode": "A13",
+          "startingBalance": -51414
+        },
+        {
+          "kind": "owner",
+          "id": "r181",
+          "personId": "md108",
+          "name": "Morandini Olga",
+          "unitCode": "A14",
+          "startingBalance": -93802
+        },
+        {
+          "kind": "owner",
+          "id": "r182",
+          "personId": "md109",
+          "name": "Cozzi Ivo",
+          "unitCode": "A14",
+          "startingBalance": 0
+        },
+        {
+          "kind": "owner",
+          "id": "r183",
+          "personId": "md109",
+          "name": "Cozzi Ivo",
+          "unitCode": "A15",
+          "startingBalance": -113949
+        },
+        {
+          "kind": "owner",
+          "id": "r184",
+          "personId": "md110",
+          "name": "Blasutig Livia",
+          "unitCode": "A16",
+          "startingBalance": -110587
+        },
+        {
+          "kind": "owner",
+          "id": "r185",
+          "personId": "md111",
+          "name": "Petris Bruno",
+          "unitCode": "A16",
+          "startingBalance": 0
+        },
+        {
+          "kind": "owner",
+          "id": "r186",
+          "personId": "md112",
+          "name": "Scarbolo Flavio",
+          "unitCode": "A17",
+          "startingBalance": 151778
+        },
+        {
+          "kind": "owner",
+          "id": "r187",
+          "personId": "md113",
+          "name": "Candotti Diego",
+          "unitCode": "A18",
+          "startingBalance": 4873
+        },
+        {
+          "kind": "owner",
+          "id": "r188",
+          "personId": "md114",
+          "name": "Bearzi Servizi s.a.s.",
+          "unitCode": "A18",
+          "startingBalance": 0
+        }
+      ]
+    }
+  ],
+  "invoices": [
+    {
+      "id": "li1",
+      "periodId": "p1",
+      "entryId": "tx10",
+      "supplierId": "md10",
+      "number": "42",
+      "reason": "Intervento di manutenzione giardino: siepe e vialetto",
+      "date": "2012-04-23",
+      "dueDate": null,
+      "costAccountId": "la35",
+      "taxable": 18237,
+      "socialSecurityRate": 400,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1019",
+      "withholdingOnSocialSecurity": true
     },
     {
-      "kind": "supplier",
-      "id": "md10",
-      "name": "Cragno Giardinaggio soc. coop."
+      "id": "li2",
+      "periodId": "p1",
+      "entryId": "tx13",
+      "supplierId": "md10",
+      "number": "76",
+      "reason": "Trattamento antiparassitario alla sequoia centinaria del giardino posteriore",
+      "date": "2012-05-01",
+      "dueDate": null,
+      "costAccountId": "la35",
+      "taxable": 15749,
+      "socialSecurityRate": 400,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1019",
+      "withholdingOnSocialSecurity": true
     },
     {
-      "kind": "supplier",
-      "id": "md78",
-      "name": "Cargnelutti Elevatori s.n.c."
+      "id": "li3",
+      "periodId": "p36",
+      "entryId": "tx101",
+      "supplierId": "md76",
+      "number": "74",
+      "reason": "Spese di amministrazione condominiale",
+      "date": "2013-04-01",
+      "dueDate": null,
+      "costAccountId": "la174",
+      "taxable": 39780,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1040",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "supplier",
-      "id": "md15",
-      "name": "Energie del Ledra S.p.A."
+      "id": "li4",
+      "periodId": "p36",
+      "entryId": "tx102",
+      "supplierId": "md76",
+      "number": "149",
+      "reason": "Spese di amministrazione condominiale",
+      "date": "2013-06-30",
+      "dueDate": null,
+      "costAccountId": "la174",
+      "taxable": 39780,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1040",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "supplier",
-      "id": "md79",
-      "name": "Natisone Gas S.p.A."
+      "id": "li5",
+      "periodId": "p36",
+      "entryId": "tx103",
+      "supplierId": "md76",
+      "number": "223",
+      "reason": "Spese di amministrazione condominiale",
+      "date": "2013-10-01",
+      "dueDate": null,
+      "costAccountId": "la174",
+      "taxable": 39780,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1040",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "supplier",
-      "id": "md81",
-      "name": "Ferramenta Cossio s.a.s."
+      "id": "li8",
+      "periodId": "p36",
+      "entryId": "tx111",
+      "supplierId": "md80",
+      "number": "72",
+      "reason": "Revisione caldaia",
+      "date": "2013-04-27",
+      "dueDate": null,
+      "costAccountId": "la193",
+      "taxable": 16000,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "supplier",
-      "id": "md84",
-      "name": "Cassin Certificazioni S.p.A."
+      "id": "li9",
+      "periodId": "p36",
+      "entryId": "tx112",
+      "supplierId": "md81",
+      "number": "223",
+      "reason": "Riparazione porte",
+      "date": "2013-02-04",
+      "dueDate": null,
+      "costAccountId": "la196",
+      "taxable": 10000,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1019",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "supplier",
-      "id": "md83",
-      "name": "Estintori Toniutti & C. s.a.s."
+      "id": "li10",
+      "periodId": "p36",
+      "entryId": "tx113",
+      "supplierId": "md81",
+      "number": "1474",
+      "reason": "Riparazione porte",
+      "date": "2013-08-23",
+      "dueDate": null,
+      "costAccountId": "la196",
+      "taxable": 9583,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1019",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "supplier",
-      "id": "md76",
-      "name": "Adami Valerio"
+      "id": "li11",
+      "periodId": "p36",
+      "entryId": "tx114",
+      "supplierId": "md83",
+      "number": "274",
+      "reason": "Sostituzione estintori",
+      "date": "2013-03-22",
+      "dueDate": null,
+      "costAccountId": "la197",
+      "taxable": 3100,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1019",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "supplier",
-      "id": "md82",
-      "name": "Pontoni Servizi di Pulizia s.n.c."
+      "id": "li12",
+      "periodId": "p36",
+      "entryId": "tx115",
+      "supplierId": "md83",
+      "number": "617",
+      "reason": "Revisione estintori",
+      "date": "2013-08-25",
+      "dueDate": null,
+      "costAccountId": "la197",
+      "taxable": 2200,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1019",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "supplier",
-      "id": "md80",
-      "name": "Treppo Impianti Elettrici S.p.A."
+      "id": "li13",
+      "periodId": "p36",
+      "entryId": "tx116",
+      "supplierId": "md15",
+      "number": "43116",
+      "reason": "Spese luci utenza n. 395 123 456: dicembre '12 - gennaio '13",
+      "date": "2013-01-13",
+      "dueDate": null,
+      "costAccountId": "la198",
+      "taxable": 8949,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": null,
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "supplier",
-      "id": "md85",
-      "name": "Acque Fella s.r.l."
+      "id": "li14",
+      "periodId": "p36",
+      "entryId": "tx117",
+      "supplierId": "md15",
+      "number": "43117",
+      "reason": "Spese luci utenza n. 395 123 456: febbraio - marzo",
+      "date": "2013-03-13",
+      "dueDate": null,
+      "costAccountId": "la198",
+      "taxable": 7435,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": null,
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "supplier",
-      "id": "md86",
-      "name": "Antenne Sion s.a.s."
+      "id": "li15",
+      "periodId": "p36",
+      "entryId": "tx118",
+      "supplierId": "md15",
+      "number": "43118",
+      "reason": "Spese luci utenza n. 395 123 456: aprile - maggio",
+      "date": "2013-05-14",
+      "dueDate": null,
+      "costAccountId": "la198",
+      "taxable": 9499,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": null,
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "supplier",
-      "id": "md119",
-      "name": "Puntel Claudio"
+      "id": "li16",
+      "periodId": "p36",
+      "entryId": "tx119",
+      "supplierId": "md15",
+      "number": "43119",
+      "reason": "Spese luci utenza n. 395 123 456: giugno - luglio",
+      "date": "2013-07-03",
+      "dueDate": null,
+      "costAccountId": "la198",
+      "taxable": 8984,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": null,
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r1",
-      "personId": "md3",
-      "name": "Cargnelutti Lidia",
-      "unitCode": "A1"
+      "id": "li17",
+      "periodId": "p36",
+      "entryId": "tx120",
+      "supplierId": "md15",
+      "number": "43111",
+      "reason": "Spese luci utenza n. 395 123 456: agosto - settembre",
+      "date": "2013-09-02",
+      "dueDate": null,
+      "costAccountId": "la198",
+      "taxable": 9207,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 1,
+      "withholdingCode": null,
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r2",
-      "personId": "md3",
-      "name": "Cargnelutti Lidia",
-      "unitCode": "A2"
+      "id": "li18",
+      "periodId": "p36",
+      "entryId": "tx121",
+      "supplierId": "md15",
+      "number": "43112",
+      "reason": "Spese luci utenza n. 395 123 456: ottobre - novembre",
+      "date": "2013-11-04",
+      "dueDate": null,
+      "costAccountId": "la198",
+      "taxable": 9677,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 1,
+      "withholdingCode": null,
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r3",
-      "personId": "md4",
-      "name": "Forgiarini Lino",
-      "unitCode": "A2"
+      "id": "li19",
+      "periodId": "p36",
+      "entryId": "tx122",
+      "supplierId": "md82",
+      "number": "1022",
+      "reason": "pulizia marciapiedi",
+      "date": "2013-03-31",
+      "dueDate": null,
+      "costAccountId": "la199",
+      "taxable": 61998,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1019",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r4",
-      "personId": "md7",
-      "name": "Minisini Ilaria",
-      "unitCode": "A3"
+      "id": "li20",
+      "periodId": "p36",
+      "entryId": "tx123",
+      "supplierId": "md82",
+      "number": "2165",
+      "reason": "pulizia marciapiedi",
+      "date": "2013-03-31",
+      "dueDate": null,
+      "costAccountId": "la199",
+      "taxable": 61998,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1019",
+      "withholdingOnSocialSecurity": true
     },
     {
-      "kind": "owner",
-      "id": "r5",
-      "personId": "md6",
-      "name": "Sarcinelli Albino",
-      "unitCode": "A4"
+      "id": "li21",
+      "periodId": "p36",
+      "entryId": "tx124",
+      "supplierId": "md82",
+      "number": "3171",
+      "reason": "pulizia marciapiedi",
+      "date": "2013-09-30",
+      "dueDate": null,
+      "costAccountId": "la199",
+      "taxable": 61998,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1019",
+      "withholdingOnSocialSecurity": true
     },
     {
-      "kind": "owner",
-      "id": "r6",
-      "personId": "md3",
-      "name": "Cargnelutti Lidia",
-      "unitCode": "B1"
+      "id": "li22",
+      "periodId": "p36",
+      "entryId": "tx125",
+      "supplierId": "md82",
+      "number": "4350",
+      "reason": "pulizia marciapiedi",
+      "date": "2013-12-31",
+      "dueDate": null,
+      "costAccountId": "la205",
+      "taxable": 61998,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1019",
+      "withholdingOnSocialSecurity": true
     },
     {
-      "kind": "owner",
-      "id": "r7",
-      "personId": "md4",
-      "name": "Forgiarini Lino",
-      "unitCode": "B1"
+      "id": "li23",
+      "periodId": "p36",
+      "entryId": "tx126",
+      "supplierId": "md119",
+      "number": "334",
+      "reason": "revisione caldaia",
+      "date": "2013-12-31",
+      "dueDate": null,
+      "costAccountId": "la203",
+      "taxable": 91667,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1040",
+      "withholdingOnSocialSecurity": true
     },
     {
-      "kind": "owner",
-      "id": "r8",
-      "personId": "md3",
-      "name": "Cargnelutti Lidia",
-      "unitCode": "B2"
+      "id": "li24",
+      "periodId": "p36",
+      "entryId": "tx127",
+      "supplierId": "md79",
+      "number": "7736",
+      "reason": "spese gas dicembre '12",
+      "date": "2013-01-13",
+      "dueDate": null,
+      "costAccountId": "la208",
+      "taxable": 258805,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": true
     },
     {
-      "kind": "owner",
-      "id": "r9",
-      "personId": "md5",
-      "name": "Tavano Ornella",
-      "unitCode": "B3"
+      "id": "li25",
+      "periodId": "p36",
+      "entryId": "tx128",
+      "supplierId": "md79",
+      "number": "64135",
+      "reason": "spese gas gennaio",
+      "date": "2013-03-11",
+      "dueDate": null,
+      "costAccountId": "la208",
+      "taxable": 261282,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": true
     },
     {
-      "kind": "owner",
-      "id": "r10",
-      "personId": "md6",
-      "name": "Sarcinelli Albino",
-      "unitCode": "B4"
+      "id": "li26",
+      "periodId": "p36",
+      "entryId": "tx129",
+      "supplierId": "md79",
+      "number": "86391",
+      "reason": "spese gas febbraio",
+      "date": "2013-03-24",
+      "dueDate": null,
+      "costAccountId": "la208",
+      "taxable": 272621,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r162",
-      "personId": "md89",
-      "name": "Morandini Dina",
-      "unitCode": "A01"
+      "id": "li27",
+      "periodId": "p36",
+      "entryId": "tx130",
+      "supplierId": "md79",
+      "number": "114419",
+      "reason": "spese gas marzo",
+      "date": "2013-04-15",
+      "dueDate": null,
+      "costAccountId": "la208",
+      "taxable": 168790,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r163",
-      "personId": "md90",
-      "name": "Variola Dina",
-      "unitCode": "A02"
+      "id": "li28",
+      "periodId": "p36",
+      "entryId": "tx131",
+      "supplierId": "md79",
+      "number": "131841",
+      "reason": "spese gas aprile",
+      "date": "2013-05-19",
+      "dueDate": null,
+      "costAccountId": "la208",
+      "taxable": 75295,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r165",
-      "personId": "md92",
-      "name": "Buttazzoni Laura",
-      "unitCode": "A03"
+      "id": "li29",
+      "periodId": "p36",
+      "entryId": "tx132",
+      "supplierId": "md79",
+      "number": "167930",
+      "reason": "spese gas maggio",
+      "date": "2013-06-16",
+      "dueDate": null,
+      "costAccountId": "la208",
+      "taxable": 25584,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r167",
-      "personId": "md94",
-      "name": "Fattori Gilda",
-      "unitCode": "A04"
+      "id": "li30",
+      "periodId": "p36",
+      "entryId": "tx133",
+      "supplierId": "md79",
+      "number": "192606",
+      "reason": "spese gas giugno",
+      "date": "2013-07-13",
+      "dueDate": null,
+      "costAccountId": "la208",
+      "taxable": 23729,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r168",
-      "personId": "md95",
-      "name": "Fornasier Marco",
-      "unitCode": "A05"
+      "id": "li31",
+      "periodId": "p36",
+      "entryId": "tx134",
+      "supplierId": "md79",
+      "number": "224757",
+      "reason": "spese gas luglio",
+      "date": "2013-08-13",
+      "dueDate": null,
+      "costAccountId": "la208",
+      "taxable": 32797,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r169",
-      "personId": "md96",
-      "name": "Quaglia Selene",
-      "unitCode": "A06"
+      "id": "li32",
+      "periodId": "p36",
+      "entryId": "tx135",
+      "supplierId": "md79",
+      "number": "251755",
+      "reason": "spese gas agosto",
+      "date": "2013-09-14",
+      "dueDate": null,
+      "costAccountId": "la208",
+      "taxable": 24904,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r170",
-      "personId": "md97",
-      "name": "Tondolo Rino",
-      "unitCode": "A07"
+      "id": "li34",
+      "periodId": "p36",
+      "entryId": "tx137",
+      "supplierId": "md79",
+      "number": "291113",
+      "reason": "spese gas settembre",
+      "date": "2013-10-21",
+      "dueDate": null,
+      "costAccountId": "la208",
+      "taxable": 10463,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r172",
-      "personId": "md99",
-      "name": "Zanier Lidia",
-      "unitCode": "A08"
+      "id": "li35",
+      "periodId": "p36",
+      "entryId": "tx138",
+      "supplierId": "md79",
+      "number": "304836",
+      "reason": "spese gas ottobre",
+      "date": "2013-11-12",
+      "dueDate": null,
+      "costAccountId": "la208",
+      "taxable": 63650,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r174",
-      "personId": "md101",
-      "name": "Zuliani Selene",
-      "unitCode": "A09"
+      "id": "li36",
+      "periodId": "p36",
+      "entryId": "tx139",
+      "supplierId": "md79",
+      "number": "346562",
+      "reason": "spese gas novembre",
+      "date": "2013-12-23",
+      "dueDate": null,
+      "costAccountId": "la208",
+      "taxable": 169091,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r176",
-      "personId": "md103",
-      "name": "Flebus Beatrice",
-      "unitCode": "A09"
+      "id": "li37",
+      "periodId": "p36",
+      "entryId": "tx140",
+      "supplierId": "md15",
+      "number": "41117",
+      "reason": "Energie del Ledra riscaldamento utenza n. 395 123 555 - dicembre '12 - gennaio '13",
+      "date": "2013-01-13",
+      "dueDate": null,
+      "costAccountId": "la209",
+      "taxable": 39948,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": null,
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r177",
-      "personId": "md104",
-      "name": "Adami Pietro",
-      "unitCode": "A10"
+      "id": "li38",
+      "periodId": "p36",
+      "entryId": "tx141",
+      "supplierId": "md15",
+      "number": "41118",
+      "reason": "Energie del Ledra riscaldamento utenza n. 395 123 555 - febbraio - marzo",
+      "date": "2013-03-13",
+      "dueDate": null,
+      "costAccountId": "la209",
+      "taxable": 54385,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": null,
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r178",
-      "personId": "md105",
-      "name": "Masotti Sabrina",
-      "unitCode": "A11"
+      "id": "li39",
+      "periodId": "p36",
+      "entryId": "tx142",
+      "supplierId": "md15",
+      "number": "41119",
+      "reason": "Energie del Ledra riscaldamento utenza n. 395 123 555 - aprile - maggio",
+      "date": "2013-05-14",
+      "dueDate": null,
+      "costAccountId": "la209",
+      "taxable": 43178,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": null,
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r179",
-      "personId": "md106",
-      "name": "Carlutti Zaira",
-      "unitCode": "A12"
+      "id": "li40",
+      "periodId": "p36",
+      "entryId": "tx143",
+      "supplierId": "md15",
+      "number": "41111",
+      "reason": "Energie del Ledra riscaldamento utenza n. 395 123 555 - giugno - luglio",
+      "date": "2013-07-03",
+      "dueDate": null,
+      "costAccountId": "la209",
+      "taxable": 21734,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": null,
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r180",
-      "personId": "md107",
-      "name": "Bertossi Lidia",
-      "unitCode": "A13"
+      "id": "li41",
+      "periodId": "p36",
+      "entryId": "tx144",
+      "supplierId": "md15",
+      "number": "41112",
+      "reason": "Energie del Ledra riscaldamento utenza n. 395 123 555 - agosto - settembre",
+      "date": "2013-09-02",
+      "dueDate": null,
+      "costAccountId": "la209",
+      "taxable": 25105,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": null,
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r181",
-      "personId": "md108",
-      "name": "Morandini Olga",
-      "unitCode": "A14"
+      "id": "li42",
+      "periodId": "p36",
+      "entryId": "tx145",
+      "supplierId": "md15",
+      "number": "41113",
+      "reason": "Energie del Ledra riscaldamento utenza n. 395 123 555 - ottobre - novembre",
+      "date": "2013-11-04",
+      "dueDate": null,
+      "costAccountId": "la209",
+      "taxable": 33764,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": null,
+      "withholdingOnSocialSecurity": true
     },
     {
-      "kind": "owner",
-      "id": "r183",
-      "personId": "md109",
-      "name": "Cozzi Ivo",
-      "unitCode": "A15"
+      "id": "li43",
+      "periodId": "p36",
+      "entryId": "tx146",
+      "supplierId": "md85",
+      "number": "42961",
+      "reason": "bolletta acqua",
+      "date": "2013-05-20",
+      "dueDate": null,
+      "costAccountId": "la214",
+      "taxable": 95333,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1019",
+      "withholdingOnSocialSecurity": true
     },
     {
-      "kind": "owner",
-      "id": "r184",
-      "personId": "md110",
-      "name": "Blasutig Livia",
-      "unitCode": "A16"
+      "id": "li44",
+      "periodId": "p36",
+      "entryId": "tx147",
+      "supplierId": "md85",
+      "number": "107104",
+      "reason": "bolletta acqua",
+      "date": "2013-11-16",
+      "dueDate": null,
+      "costAccountId": "la214",
+      "taxable": 97667,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": true
     },
     {
-      "kind": "owner",
-      "id": "r186",
-      "personId": "md112",
-      "name": "Scarbolo Flavio",
-      "unitCode": "A17"
+      "id": "li45",
+      "periodId": "p36",
+      "entryId": "tx150",
+      "supplierId": "md78",
+      "number": "1358",
+      "reason": "controllo ascensori",
+      "date": "2012-12-01",
+      "dueDate": null,
+      "costAccountId": "la219",
+      "taxable": 30015,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": true
     },
     {
-      "kind": "owner",
-      "id": "r187",
-      "personId": "md113",
-      "name": "Candotti Diego",
-      "unitCode": "A18"
+      "id": "li46",
+      "periodId": "p36",
+      "entryId": "tx151",
+      "supplierId": "md78",
+      "number": "472",
+      "reason": "controllo ascensori",
+      "date": "2013-03-01",
+      "dueDate": null,
+      "costAccountId": "la219",
+      "taxable": 32167,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r164",
-      "personId": "md91",
-      "name": "Rosso Sergio",
-      "unitCode": "A02"
+      "id": "li47",
+      "periodId": "p36",
+      "entryId": "tx152",
+      "supplierId": "md78",
+      "number": "1320",
+      "reason": "controllo ascensori",
+      "date": "2013-06-01",
+      "dueDate": null,
+      "costAccountId": "la219",
+      "taxable": 32167,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r166",
-      "personId": "md93",
-      "name": "Iacuzzi Tullio",
-      "unitCode": "A04"
+      "id": "li48",
+      "periodId": "p36",
+      "entryId": "tx153",
+      "supplierId": "md78",
+      "number": "2157",
+      "reason": "controllo ascensori",
+      "date": "2013-09-01",
+      "dueDate": null,
+      "costAccountId": "la219",
+      "taxable": 32167,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r171",
-      "personId": "md98",
-      "name": "Colautti Iolanda",
-      "unitCode": "A07"
+      "id": "li49",
+      "periodId": "p36",
+      "entryId": "tx154",
+      "supplierId": "md78",
+      "number": "2959",
+      "reason": "controllo ascensori",
+      "date": "2013-12-01",
+      "dueDate": null,
+      "costAccountId": "la219",
+      "taxable": 32167,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r173",
-      "personId": "md100",
-      "name": "Treppo",
-      "unitCode": "A08"
+      "id": "li50",
+      "periodId": "p36",
+      "entryId": "tx155",
+      "supplierId": "md78",
+      "number": "3163",
+      "reason": "controllo ascensori",
+      "date": "2013-12-01",
+      "dueDate": null,
+      "costAccountId": "la219",
+      "taxable": 5500,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r175",
-      "personId": "md102",
-      "name": "Feruglio Silvano",
-      "unitCode": "A09"
+      "id": "li51",
+      "periodId": "p36",
+      "entryId": "tx156",
+      "supplierId": "md84",
+      "number": "1106378",
+      "reason": "verifica straordinaria",
+      "date": "2013-03-02",
+      "dueDate": null,
+      "costAccountId": "la219",
+      "taxable": 7000,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1020",
+      "withholdingOnSocialSecurity": false
     },
     {
-      "kind": "owner",
-      "id": "r182",
-      "personId": "md109",
-      "name": "Cozzi Ivo",
-      "unitCode": "A14"
+      "id": "li52",
+      "periodId": "p36",
+      "entryId": "tx157",
+      "supplierId": "md76",
+      "number": "309",
+      "reason": "Spese amministrazione condominiale - parziale - caso particolare con attribuzione costi individuale",
+      "date": "2013-12-23",
+      "dueDate": null,
+      "costAccountId": "la180",
+      "taxable": 129428,
+      "socialSecurityRate": 0,
+      "vatRate": 2000,
+      "nonTaxable": 0,
+      "withholdingCode": "1040",
+      "withholdingOnSocialSecurity": false
+    }
+  ],
+  "withholdingTaxes": [
+    {
+      "periodId": "p1",
+      "code": "1004",
+      "name": "Amm. di condomìnio senza P.IVA",
+      "rate": 0,
+      "accountId": "la24"
     },
     {
-      "kind": "owner",
-      "id": "r185",
-      "personId": "md111",
-      "name": "Petris Bruno",
-      "unitCode": "A16"
+      "periodId": "p1",
+      "code": "1019",
+      "name": "Società di persone",
+      "rate": 400,
+      "accountId": "la25"
     },
     {
-      "kind": "owner",
-      "id": "r188",
-      "personId": "md114",
-      "name": "Bearzi Servizi s.a.s.",
-      "unitCode": "A18"
+      "periodId": "p1",
+      "code": "1020",
+      "name": "Società di capitali",
+      "rate": 400,
+      "accountId": "la26"
+    },
+    {
+      "periodId": "p1",
+      "code": "1040",
+      "name": "Professionisti con P.IVA",
+      "rate": 2000,
+      "accountId": "la23"
+    },
+    {
+      "periodId": "p36",
+      "code": "1004",
+      "name": "Amm. di condomìnio senza P.IVA",
+      "rate": 0,
+      "accountId": "la166"
+    },
+    {
+      "periodId": "p36",
+      "code": "1019",
+      "name": "Società di persone",
+      "rate": 400,
+      "accountId": "la167"
+    },
+    {
+      "periodId": "p36",
+      "code": "1020",
+      "name": "Società di capitali",
+      "rate": 400,
+      "accountId": "la168"
+    },
+    {
+      "periodId": "p36",
+      "code": "1040",
+      "name": "Professionisti con P.IVA",
+      "rate": 2000,
+      "accountId": "la165"
     }
   ]
 };

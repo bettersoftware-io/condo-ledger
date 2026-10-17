@@ -36,6 +36,13 @@ export interface InvoiceTerms {
   withholdingOnSocialSecurity: boolean;
 }
 
+/** A registered invoice: its terms, its period and the entry that registered it. */
+export interface Invoice extends InvoiceTerms {
+  id: string;
+  periodId: string;
+  entryId: string;
+}
+
 /** Every amount an invoice's terms imply, rounded half up to the cent at each step. */
 export interface InvoiceTotals {
   socialSecurity: Cents;

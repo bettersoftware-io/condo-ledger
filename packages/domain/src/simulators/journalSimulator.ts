@@ -94,6 +94,7 @@ export function createJournalSimulator(
             kind: draft.kind,
             description: draft.description,
             postings: draft.postings,
+            invoiceId: draft.invoiceId ?? null,
           },
         ]);
         resolve(accepted({ id }));

@@ -12,7 +12,7 @@ import type { Row, Tables } from "../loadRows.ts";
 import { ENTRY_KIND_OF_TYPE, projectLegacySeed } from "./legacySeed.ts";
 
 describe("projectLegacySeed on a small synthetic dump", () => {
-  it("projects the buildings, accounts, entries and parties of the balanced periods", () => {
+  it("projects the buildings, accounts, entries, parties, invoices and withholding taxes of the balanced periods", () => {
     expect(projectLegacySeed(buildDb(createSmallDump()))).toEqual({
       buildings: [
         {
@@ -97,17 +97,19 @@ describe("projectLegacySeed on a small synthetic dump", () => {
           periodId: "p10",
           number: 1,
           at: "2013-03-31T01:59:59",
-          kind: "generic",
+          kind: "invoice",
           description: "Bolletta",
           postings: [
             { accountId: "la105", debit: 12000, credit: 0, counterpart: null },
             {
               accountId: "la103",
               debit: 0,
-              credit: 12000,
+              credit: 11600,
               counterpart: { kind: "supplier", id: "md81" },
             },
+            { accountId: "la106", debit: 0, credit: 400, counterpart: null },
           ],
+          invoiceId: "li400",
         },
         {
           id: "tx201",
@@ -125,16 +127,59 @@ describe("projectLegacySeed on a small synthetic dump", () => {
               counterpart: { kind: "owner", id: "r70" },
             },
           ],
+          invoiceId: null,
         },
       ],
       parties: [
-        { kind: "supplier", id: "md81", name: "Acqua Srl" },
         {
-          kind: "owner",
-          id: "r70",
-          personId: "md80",
-          name: "Rossi Anna",
-          unitCode: "A01",
+          periodId: "p10",
+          parties: [
+            { kind: "supplier", id: "md81", name: "Acqua Srl" },
+            {
+              kind: "owner",
+              id: "r70",
+              personId: "md80",
+              name: "Rossi Anna",
+              unitCode: "A01",
+              startingBalance: 1250,
+            },
+            {
+              kind: "owner",
+              id: "r72",
+              personId: "md82",
+              name: "Verdi Luca",
+              unitCode: "A01",
+              startingBalance: -300,
+            },
+          ],
+        },
+      ],
+      invoices: [
+        {
+          id: "li400",
+          periodId: "p10",
+          entryId: "tx200",
+          supplierId: "md81",
+          number: "7",
+          reason: "Acqua",
+          date: "2013-03-30",
+          dueDate: "2013-04-30",
+          costAccountId: "la105",
+          taxable: 10000,
+          socialSecurityRate: 0,
+          vatRate: 2000,
+          nonTaxable: 0,
+          withholdingCode: "1019",
+          withholdingOnSocialSecurity: false,
+        },
+      ],
+      withholdingTaxes: [
+        {
+          periodId: "p10",
+          code: "1019",
+          name: "Società di persone",
+          rate: 400,
+          accountId: "la106",
         },
       ],
     });
@@ -166,6 +211,30 @@ describe("projectLegacySeed on a small synthetic dump", () => {
       accounts: [],
       entries: [],
       parties: [],
+      invoices: [],
+      withholdingTaxes: [],
+    });
+  });
+
+  it("carries an invoice's non-taxable amount, social security and withholding on it, and an invoice with no due date or withholding", () => {
+    const tables = edit(createSmallDump(), "ledgerInvoice", "400", {
+      expiryDate: null,
+      description: null,
+      totalTaxFreeAmount: "2.50",
+      welfareTaxPercentage: "4.00",
+      vatPercentage: null,
+      withholdingTaxId: null,
+      applyWithholdingTaxOnWelfareTax: "1",
+    });
+
+    expect(projectLegacySeed(buildDb(tables)).invoices[0]).toMatchObject({
+      reason: "",
+      dueDate: null,
+      nonTaxable: 250,
+      socialSecurityRate: 400,
+      vatRate: 0,
+      withholdingCode: null,
+      withholdingOnSocialSecurity: true,
     });
   });
 });
@@ -302,6 +371,48 @@ describe("projectLegacySeed refuses what it cannot project, naming the id", () =
     }).toThrow("missing: the account of the posting 302");
   });
 
+  it("refuses an invoice no registration names", () => {
+    const tables = edit(createSmallDump(), "ledgerTransaction", "200", {
+      ledgerInvoiceId: null,
+    });
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow("missing: the registration of the invoice 400");
+  });
+
+  it("refuses a registration whose cost is not on exactly one debit line", () => {
+    const tables = edit(createSmallDump(), "ledgerEntry", "302", {
+      ledgerTransactionId: "200",
+    });
+
+    edit(tables, "ledgerEntry", "303", { ledgerTransactionId: "200" });
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow("the registration 200 of the invoice 400 has 2 debit lines");
+  });
+
+  it("refuses an invoice whose withholding tax the dump does not have", () => {
+    const tables = edit(createSmallDump(), "ledgerInvoice", "400", {
+      withholdingTaxId: "9",
+    });
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow("missing: the withholding tax 9 of the invoice 400");
+  });
+
+  it("refuses a withholding tax without a code", () => {
+    const tables = edit(createSmallDump(), "withholdingTax", "3", {
+      code: null,
+    });
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow("missing: the code of the withholding tax 3");
+  });
+
   it("refuses an account nature the domain does not know", () => {
     const tables = edit(createSmallDump(), "ledgerAccount", "105", {
       kind: "costs",
@@ -331,8 +442,11 @@ describe("projectLegacySeed refuses what it cannot project, naming the id", () =
  * One building, one period of books (p10) and the rows they lean on: a root
  * grouping over cash, bank, the suppliers and owners control accounts and a
  * withholding-tax account under its own grouping; one budgeted cost account
- * at the root; one supplier, one owner in unit A01. Two balanced transactions,
- * one second either side of the switch to summer time (2013-03-31 01:00 UTC).
+ * at the root; one supplier of the building and one of another; in unit
+ * A01 an owner, a tenant and a resident who left before the period. Two
+ * balanced transactions, one second either side of the switch to summer time
+ * (2013-03-31 01:00 UTC): the registration of an invoice withholding 4%
+ * (code 1019 on the tax account), and an owner's collection.
  */
 function createSmallDump(): Tables {
   return {
@@ -355,9 +469,28 @@ function createSmallDump(): Tables {
     ],
     unit: [{ id: "50", accountingPeriodId: "10", code: "A01" }],
     unitPeriod: [{ id: "60", unitId: "50" }],
-    unitResident: [{ id: "70", unitPeriodId: "60", masterDataId: "80" }],
-    person: [{ masterDataId: "80", lastName: "Rossi", firstName: "Anna" }],
-    company: [{ masterDataId: "81", name: "Acqua Srl" }],
+    unitResident: [
+      resident("70", "80", "1", "12.50", {}),
+      resident("71", "83", "1", "0.00", {
+        periodRestrictionEndDate: "2012-12-31",
+      }),
+      resident("72", "82", "3", "-3.00", {
+        periodRestrictionStartDate: "2013-06-01",
+      }),
+    ],
+    person: [
+      { masterDataId: "80", lastName: "Rossi", firstName: "Anna" },
+      { masterDataId: "82", lastName: "Verdi", firstName: "Luca" },
+      { masterDataId: "83", lastName: "Neri", firstName: "Ugo" },
+    ],
+    company: [
+      { masterDataId: "81", name: "Acqua Srl" },
+      { masterDataId: "84", name: "Gas Spa" },
+    ],
+    condominiumSupplier: [
+      { condominiumId: "2", masterDataId: "84" },
+      { condominiumId: "1", masterDataId: "81" },
+    ],
     ledgerAccount: [
       account("100", null, "Totale", "grouping", "assetsOrLiabilities", "1"),
       account("101", "100", "Cassa", "regular", "assets", "1"),
@@ -369,7 +502,49 @@ function createSmallDump(): Tables {
       account("105", null, "Acqua", "regular", "expenses", "2"),
     ],
     expenseLedgerAccount: [{ ledgerAccountId: "105", estimate: "300.00" }],
-    withholdingTax2LA: [{ ledgerAccountId: "106" }],
+    withholdingTax: [
+      {
+        id: "3",
+        code: "1019",
+        name: "Società di persone",
+        percentage: "4.00",
+      },
+      {
+        id: "4",
+        code: "1020",
+        name: "Società di capitali",
+        percentage: "4.00",
+      },
+    ],
+    withholdingTax2LA: [
+      {
+        withholdingTaxId: "3",
+        ledgerAccountId: "106",
+        accountingPeriodId: "10",
+      },
+      {
+        withholdingTaxId: "4",
+        ledgerAccountId: "906",
+        accountingPeriodId: "11",
+      },
+    ],
+    ledgerInvoice: [
+      {
+        id: "400",
+        accountingPeriodId: "10",
+        masterDataId: "81",
+        number: "7",
+        description: "Acqua",
+        date: "2013-03-30",
+        expiryDate: "2013-04-30",
+        taxableBase: "100.00",
+        totalTaxFreeAmount: null,
+        welfareTaxPercentage: "0.00",
+        vatPercentage: "20.00",
+        withholdingTaxId: "3",
+        applyWithholdingTaxOnWelfareTax: "0",
+      },
+    ],
     ledgerTransaction: [
       {
         id: "201",
@@ -377,6 +552,7 @@ function createSmallDump(): Tables {
         code: "2",
         timestamp: "2013-03-31 01:00:00",
         type: "unitResidentTakings",
+        ledgerInvoiceId: null,
         description: "Rata",
       },
       {
@@ -384,13 +560,15 @@ function createSmallDump(): Tables {
         accountingPeriodId: "10",
         code: "1",
         timestamp: "2013-03-31 00:59:59",
-        type: null,
+        type: "ledgerInvoiceRegistration",
+        ledgerInvoiceId: "400",
         description: "Bolletta",
       },
     ],
     ledgerEntry: [
-      entry("301", "200", "103", "-120.00", "2", { masterDataId: "81" }),
+      entry("301", "200", "103", "-116.00", "2", { masterDataId: "81" }),
       entry("300", "200", "105", "120.00", "1", {}),
+      entry("304", "200", "106", "-4.00", "3", {}),
       entry("302", "201", "102", "50.00", "1", {}),
       entry("303", "201", "104", "-50.00", "2", { unitResidentId: "70" }),
     ],
@@ -451,6 +629,25 @@ function account(
     type,
     kind,
     order,
+  };
+}
+
+function resident(
+  id: string,
+  person: string,
+  priority: string,
+  startingBalance: string,
+  restriction: Row,
+): Row {
+  return {
+    id,
+    unitPeriodId: "60",
+    masterDataId: person,
+    unitResidentPriorityId: priority,
+    periodRestrictionStartDate: null,
+    periodRestrictionEndDate: null,
+    startingBalance,
+    ...restriction,
   };
 }
 

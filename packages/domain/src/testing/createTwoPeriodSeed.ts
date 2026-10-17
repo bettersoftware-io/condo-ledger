@@ -6,7 +6,7 @@ import { createSmallSeed } from "./createSmallBooks.ts";
 /**
  * The small seed with a second period, p2, holding books of its own (a cash
  * account and a suppliers account, one entry between them naming supplier
- * md1), and p1's entries in reverse number order: what a simulator must
+ * md1, its one party), and p1's entries in reverse number order: what a simulator must
  * filter by period and sort. p2's books are whole, so the chart of accounts
  * can be built from them too.
  */
@@ -73,6 +73,13 @@ export function createTwoPeriodSeed(): LegacySeed {
         ],
       },
       ...[...seed.entries].reverse(),
+    ],
+    parties: [
+      ...seed.parties,
+      {
+        periodId: "p2",
+        parties: [{ kind: "supplier", id: "md1", name: "Alfa s.n.c." }],
+      },
     ],
   };
 }

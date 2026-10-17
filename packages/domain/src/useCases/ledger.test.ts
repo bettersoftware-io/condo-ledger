@@ -97,6 +97,7 @@ describe("ledgerOf", () => {
         at: "2013-04-01T10:00:00",
         kind: "generic",
         description: "Senza controparte",
+        invoiceId: null,
         postings: [
           {
             accountId: "la4",
@@ -127,6 +128,7 @@ describe("ledgerOf", () => {
         at: "2013-04-02T10:00:00",
         kind: "generic",
         description: "Senza condomino",
+        invoiceId: null,
         postings: [
           {
             accountId: "la5",

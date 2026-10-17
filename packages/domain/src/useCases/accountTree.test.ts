@@ -255,7 +255,9 @@ describe("buildAccountTree", () => {
         seed.entries.filter((entry) => {
           return entry.periodId === periodId;
         }),
-        seed.parties,
+        seed.parties.find((list) => {
+          return list.periodId === periodId;
+        })?.parties ?? [],
       );
 
       expect(tree.key).toBe(ROOT_KEY);

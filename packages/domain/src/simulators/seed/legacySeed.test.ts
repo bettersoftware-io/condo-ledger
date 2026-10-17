@@ -27,6 +27,37 @@ describe("loadLegacySeed", () => {
     }).toThrow("not an integer amount of cents: 1.5");
   });
 
+  it("refuses a fractional starting balance, naming it", () => {
+    const data = asData(createSmallSeed());
+    must(data.parties[0], "a period's parties").parties.push({
+      kind: "owner",
+      id: "r9",
+      personId: "md19",
+      name: "Neri Ugo",
+      unitCode: "C01",
+      startingBalance: 0.5,
+    });
+
+    expect(() => {
+      return loadLegacySeed(data);
+    }).toThrow("not an integer amount of cents: 0.5");
+  });
+
+  it("refuses a fractional rate, naming it", () => {
+    const data = asData(createSmallSeed());
+    data.withholdingTaxes.push({
+      periodId: "p1",
+      code: "1019",
+      name: "Società di persone",
+      rate: 4.5,
+      accountId: "la7",
+    });
+
+    expect(() => {
+      return loadLegacySeed(data);
+    }).toThrow("not a rate: 4.5");
+  });
+
   it("loads the generated seed: two buildings with books, each with one period", () => {
     const seed = loadLegacySeed(legacySeedData);
 

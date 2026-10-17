@@ -419,6 +419,7 @@ function createExtraEntry(number: number): JournalEntry {
     at: "2013-04-01T10:00:00",
     kind: "generic",
     description: `Extra ${number}`,
+    invoiceId: null,
     postings: [
       {
         accountId: "la1",

@@ -60,7 +60,18 @@ describe("journal simulator", () => {
       id: "new1",
       number: 10,
       at: "2013-07-01T17:05:51",
+      invoiceId: null,
     });
+  });
+
+  it("keeps the invoice a draft names on the entry it writes", async () => {
+    const port = createJournalSimulator(createTwoPeriodSeed());
+
+    await port.addEntry("p1", { ...createDraft(), invoiceId: "li7" });
+
+    expect((await firstValueFrom(port.entries("p1"))).at(-1)?.invoiceId).toBe(
+      "li7",
+    );
   });
 
   it("numbers from 1 in a period whose entries carry no positive number", async () => {

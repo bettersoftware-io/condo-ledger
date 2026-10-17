@@ -8,8 +8,20 @@ import { createTwoPeriodSeed } from "../testing/createTwoPeriodSeed.ts";
 import { createAccountsSimulator } from "./accountsSimulator.ts";
 
 describe("accounts simulator", () => {
-  it("answers only the parties the period's postings name", async () => {
-    const port = createAccountsSimulator(createSmallSeed());
+  it("answers the period's parties, whether or not a posting names them", async () => {
+    const seed = createSmallSeed();
+    const port = createAccountsSimulator({
+      ...seed,
+      parties: seed.parties.map((list) => {
+        return {
+          ...list,
+          parties: [
+            ...list.parties,
+            { kind: "supplier", id: "md9", name: "Gamma s.r.l." },
+          ],
+        };
+      }),
+    });
     const parties = await firstValueFrom(port.parties("p1"));
 
     expect(
@@ -22,7 +34,14 @@ describe("accounts simulator", () => {
       "owner:r1",
       "owner:r2",
       "owner:r3",
+      "supplier:md9",
     ]);
+  });
+
+  it("answers no parties for a period the seed lists none for", async () => {
+    const port = createAccountsSimulator({ ...createSmallSeed(), parties: [] });
+
+    expect(await firstValueFrom(port.parties("p1"))).toEqual([]);
   });
 
   it("keeps a rejected budget out of the stream", async () => {

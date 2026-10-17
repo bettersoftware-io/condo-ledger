@@ -380,6 +380,7 @@ function createBooksWithUnnamedParties(): Books {
       at: "2013-04-01T10:00:00",
       kind: "generic",
       description: "Senza controparte",
+      invoiceId: null,
       postings: [
         {
           accountId: "la4",
