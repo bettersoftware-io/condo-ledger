@@ -148,7 +148,8 @@ function formOf(books: Books | null, entry: JournalEntry): GenericEntryForm {
   };
 }
 
-function sideText(amount: Cents): string {
+/** A side of a posting as a form holds it: blank for zero. */
+export function sideText(amount: Cents): string {
   return amount === ZERO_CENTS ? "" : amountText(amount);
 }
 

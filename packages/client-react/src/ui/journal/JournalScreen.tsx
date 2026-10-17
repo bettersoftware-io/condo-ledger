@@ -160,13 +160,17 @@ export interface JournalScreenProps {
   maximize: MachineView<MaximizeState, MaximizeIntents>;
 }
 
-/** The wizard the dialog machine names. Each mounts its own machine, so a wizard opened again starts clean. The invoice wizards have no screen yet, and nothing opens them: they show nothing. */
+/** The wizard the dialog machine names. Each mounts its own machine, so a wizard opened again starts clean. The invoice and opening balances wizards have no screen yet, and nothing opens them: they show nothing. */
 function JournalWizard({
   wizard,
   onSaved,
   onCancel,
 }: JournalWizardProps): ReactElement | null {
-  if (wizard === "invoice" || wizard === "invoicePayment") {
+  if (
+    wizard === "invoice" ||
+    wizard === "invoicePayment" ||
+    wizard === "openingBalances"
+  ) {
     return null;
   }
 

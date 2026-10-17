@@ -36,6 +36,7 @@ import {
   createJournalDialogMachine,
   type JournalDialogIntents,
   type JournalDialogState,
+  type WizardName,
 } from "./machines/journalDialogMachine.ts";
 import {
   createJournalGridMachine,
@@ -69,6 +70,7 @@ import {
   type DirectPaymentKind,
   type DirectPaymentSummary,
 } from "./machines/wizards/directPaymentWizard.ts";
+import { editorOf } from "./machines/wizards/editorOf.ts";
 import {
   createGenericEntryWizard,
   type GenericEntryForm,
@@ -89,6 +91,11 @@ import {
   type MultiCostPaymentForm,
   type MultiCostPaymentSummary,
 } from "./machines/wizards/multiCostPaymentWizard.ts";
+import {
+  createOpeningBalancesWizard,
+  type OpeningForm,
+  type OpeningSummary,
+} from "./machines/wizards/openingBalancesWizard.ts";
 import {
   replacing,
   type WizardMachine,
@@ -149,6 +156,7 @@ interface AppMachines {
   createMaximize: () => Machine<MaximizeState, MaximizeIntents>;
   createSidebar: () => Machine<SidebarState, SidebarIntents>;
   createJournalGrid: () => Machine<JournalGridState, JournalGridIntents>;
+  /** The dialog over the selected period's books as they stand when an intent asks: an edit opens only for an entry they hold. */
   createJournalDialog: () => Machine<JournalDialogState, JournalDialogIntents>;
   /**
    * The wizards are built over the selected period's books as they stand:
@@ -176,6 +184,10 @@ interface AppMachines {
   createInvoicePaymentWizard: (
     editing: string | null,
   ) => WizardMachine<InvoicePaymentForm, InvoicePaymentSummary>;
+  /** The Opening balances wizard; `editing` names the period's opening to rewrite. */
+  createOpeningBalancesWizard: (
+    editing: string | null,
+  ) => WizardMachine<OpeningForm, OpeningSummary>;
 }
 
 /** The application, built once at startup. Presenters, the navigation and
@@ -222,6 +234,30 @@ export function createApp(ports: AppPorts): App {
         );
   }
 
+  /** The wizard that edits an entry of the books as they stand; null for one they do not hold, or that cannot be edited. */
+  function editorOfHeld(entryId: string): WizardName | null {
+    const books = latestBooks;
+
+    if (books === null) {
+      return null;
+    }
+
+    const entry = books.entries.find((candidate) => {
+      return candidate.id === entryId;
+    });
+
+    return entry === undefined ? null : editorOf(entry, books);
+  }
+
+  /** The period's opening entry in the books as they stand; null when it has none. */
+  function openingEntry(): string | null {
+    return (
+      latestBooks?.entries.find((entry) => {
+        return entry.kind === "openingBalances";
+      })?.id ?? null
+    );
+  }
+
   /** How a wizard writes: a new entry is added, an edited one replaced. */
   function writeOf(entry: JournalEntry | null): WriteEntry {
     return entry === null
@@ -248,7 +284,15 @@ export function createApp(ports: AppPorts): App {
       createJournalGrid: (): Machine<JournalGridState, JournalGridIntents> => {
         return createJournalGridMachine(journal.entries$);
       },
-      createJournalDialog: createJournalDialogMachine,
+      createJournalDialog: (): Machine<
+        JournalDialogState,
+        JournalDialogIntents
+      > => {
+        return createJournalDialogMachine({
+          editorOf: editorOfHeld,
+          openingEntry,
+        });
+      },
       createDirectPaymentWizard: (
         kind: DirectPaymentKind,
         editing: string | null = null,
@@ -305,6 +349,13 @@ export function createApp(ports: AppPorts): App {
           writeOf(entry),
           entry,
         );
+      },
+      createOpeningBalancesWizard: (
+        editing: string | null,
+      ): WizardMachine<OpeningForm, OpeningSummary> => {
+        const entry = editedEntry(editing);
+
+        return createOpeningBalancesWizard(latestBooks, writeOf(entry), entry);
       },
     },
   };

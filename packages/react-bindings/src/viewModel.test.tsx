@@ -210,6 +210,7 @@ describe("the view model", () => {
     expect(page.read().journalDialog.state.open).toEqual({
       kind: "wizard",
       wizard: "genericEntry",
+      editing: null,
     });
   });
 
