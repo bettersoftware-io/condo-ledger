@@ -27,6 +27,8 @@ export interface JournalPortHarness {
   uneditableEntryId: string;
   /** A registration the period accepts: its terms, and the postings they imply. */
   invoiceDraft: EntryDraft;
+  /** An opening entry the period accepts: the period has none yet. */
+  openingDraft: EntryDraft;
   /** The period's withholding catalogue, for the invoices' totals. */
   catalogue: WithholdingTax[];
   /** The period's suppliers account and a liquidity leaf: what a payment debits and credits. */
@@ -260,6 +262,26 @@ export function describeJournalPortContract(
             return open.invoice.id === invoice.id;
           }),
         ).toBe(false);
+      } finally {
+        teardown();
+      }
+    });
+
+    it("refuses a second opening entry in the period with opening-exists, and leaves the journal as it was", async () => {
+      const { port, periodId, openingDraft, teardown } = createHarness();
+
+      try {
+        expect(await port.addEntry(periodId, openingDraft)).toMatchObject({
+          ok: true,
+        });
+
+        const before = await firstValueFrom(port.entries(periodId));
+
+        expect(await port.addEntry(periodId, openingDraft)).toEqual({
+          ok: false,
+          reason: "opening-exists",
+        });
+        expect(await firstValueFrom(port.entries(periodId))).toEqual(before);
       } finally {
         teardown();
       }

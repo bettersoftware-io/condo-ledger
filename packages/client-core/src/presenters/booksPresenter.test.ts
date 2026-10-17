@@ -3,11 +3,15 @@ import { describe, expect, it } from "vitest";
 
 import {
   type Building,
+  cents,
   createAccountsSimulator,
   createJournalSimulator,
+  type EntryDraft,
+  type Invoice,
   type JournalEntry,
   type LegacySeed,
   loadLegacySeed,
+  rate,
   type WithholdingTax,
 } from "@cl/domain";
 import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
@@ -115,6 +119,60 @@ describe("the books presenter", () => {
     expect(emitted()).toBe(before);
   });
 
+  it("never hands out an invoice beside entries that do not hold its registration, across a registration added and deleted", async () => {
+    const { ports, emissions, latest } = createPresented({
+      buildingId: "c1",
+      periodId: "p1",
+    });
+
+    const added = await ports.journal.addEntry("p1", createRegistration());
+    const id = added.ok ? added.value.id : "";
+
+    expect(latest()?.invoices.map(entryIdOf)).toEqual([id]);
+
+    expect(await ports.journal.deleteEntry(id)).toEqual({ ok: true });
+    expect(latest()?.invoices).toEqual([]);
+    expect(emissions().filter(isInconsistent)).toEqual([]);
+  });
+
+  it("waits for the invoice an entry names before handing the books out", () => {
+    const seed = createTwoPeriodSeed();
+    const named: LegacySeed = {
+      ...seed,
+      entries: seed.entries.map((entry) => {
+        return entry.id === "e2" || entry.id === "e3"
+          ? { ...entry, invoiceId: "li2" }
+          : entry;
+      }),
+    };
+    const invoices$ = new BehaviorSubject<Invoice[]>([]);
+    const journal = createJournalSimulator(named);
+    const presenter = createBooksPresenter(
+      {
+        accounts: createAccountsSimulator(named),
+        journal: {
+          ...journal,
+          invoices: () => {
+            return invoices$;
+          },
+        },
+      },
+      new BehaviorSubject<PeriodSelection | null>({
+        buildingId: "c1",
+        periodId: "p1",
+      }),
+      new BehaviorSubject<Building[]>(named.buildings),
+    );
+    const seen: (Books | null)[] = [];
+
+    presenter.books$.subscribe((next) => {
+      seen.push(next);
+    });
+    invoices$.next([createInvoice("li2", "e2")]);
+
+    expect(seen.map(invoiceIdsOf)).toEqual([null, ["li2"]]);
+  });
+
   it("emits again when the journal changes", async () => {
     const { ports, latest } = createPresented({
       buildingId: "c1",
@@ -135,6 +193,8 @@ interface Presented {
   latest: () => Books | null;
   /** How many times books$ has emitted. */
   emitted: () => number;
+  /** Every non-null books$ emitted, in order. */
+  emissions: () => Books[];
 }
 
 function createPresented(
@@ -151,10 +211,15 @@ function createPresented(
   const presenter = createBooksPresenter(ports, selected$, tree$);
   let latest: Books | null = null;
   let emitted = 0;
+  const emissions: Books[] = [];
 
   presenter.books$.subscribe((next) => {
     latest = next;
     emitted += 1;
+
+    if (next !== null) {
+      emissions.push(next);
+    }
   });
 
   return {
@@ -167,7 +232,93 @@ function createPresented(
     emitted: () => {
       return emitted;
     },
+    emissions: () => {
+      return emissions;
+    },
   };
+}
+
+/** Supplier md1's invoice on the two-period seed's p1: taxable 100.00, VAT 20%, 20% withheld on la7. */
+function createRegistration(): EntryDraft {
+  return {
+    kind: "invoice",
+    description: "Invoice 7",
+    postings: [
+      {
+        accountId: "la21",
+        debit: cents(12000),
+        credit: cents(0),
+        counterpart: null,
+      },
+      {
+        accountId: "la4",
+        debit: cents(0),
+        credit: cents(10000),
+        counterpart: { kind: "supplier", id: "md1" },
+      },
+      {
+        accountId: "la7",
+        debit: cents(0),
+        credit: cents(2000),
+        counterpart: null,
+      },
+    ],
+    invoice: {
+      supplierId: "md1",
+      number: "7",
+      reason: "Ascensore",
+      date: "2013-04-23",
+      dueDate: null,
+      costAccountId: "la21",
+      taxable: cents(10000),
+      socialSecurityRate: rate(0),
+      vatRate: rate(2000),
+      nonTaxable: cents(0),
+      withholdingCode: "1040",
+      withholdingOnSocialSecurity: false,
+    },
+  };
+}
+
+/** An invoice whose registration the entries do not hold, or an entry naming an invoice the invoices do not hold. */
+function isInconsistent(books: Books): boolean {
+  const entryIds = new Set(books.entries.map(idOf));
+  const invoiceIds = new Set(
+    books.invoices.map((invoice) => {
+      return invoice.id;
+    }),
+  );
+
+  return (
+    books.invoices.some((invoice) => {
+      return !entryIds.has(invoice.entryId);
+    }) ||
+    books.entries.some((entry) => {
+      return entry.invoiceId !== null && !invoiceIds.has(entry.invoiceId);
+    })
+  );
+}
+
+function createInvoice(id: string, entryId: string): Invoice {
+  const terms = createRegistration().invoice;
+
+  if (terms === undefined) {
+    throw new Error("missing: the registration's terms");
+  }
+
+  return { ...terms, id, periodId: "p1", entryId };
+}
+
+function invoiceIdsOf(books: Books | null): string[] | null {
+  return (
+    books?.invoices.map((invoice) => {
+      return invoice.id;
+    }) ?? null
+  );
+}
+
+function entryIdOf(invoice: Invoice): string {
+  return invoice.entryId;
 }
 
 function numberOf(entry: JournalEntry): number {

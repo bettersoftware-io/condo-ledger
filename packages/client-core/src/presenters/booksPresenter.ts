@@ -2,6 +2,7 @@ import { type DefaultedStateObservable, state } from "@rx-state/core";
 import {
   combineLatest,
   distinctUntilChanged,
+  filter,
   map,
   type Observable,
   of,
@@ -29,7 +30,7 @@ interface PeriodDates {
   end: string;
 }
 
-/** A period's raw books with the tree derived from them, read together so no screen sees a tree of one emission with the entries of another. */
+/** A period's raw books with the tree derived from them, read together so no screen sees a tree of one emission with the entries of another, nor an invoice whose registration the entries do not hold. */
 export interface Books {
   periodId: string;
   period: PeriodDates;
@@ -86,6 +87,10 @@ export function createBooksPresenter(
             ports.journal.entries(periodId),
             ports.journal.invoices(periodId),
           ]).pipe(
+            // The port writes a registration and its invoice one stream after the other: the half-written combination is skipped.
+            filter(([, , , entries, invoices]) => {
+              return agree(entries, invoices);
+            }),
             map(([accounts, parties, withholdingTaxes, entries, invoices]) => {
               return {
                 periodId,
@@ -104,6 +109,30 @@ export function createBooksPresenter(
       null,
     ),
   };
+}
+
+/** Every invoice's registration is among the entries, and every invoice an entry names is among the invoices. */
+function agree(entries: JournalEntry[], invoices: Invoice[]): boolean {
+  const entryIds = new Set(
+    entries.map((entry) => {
+      return entry.id;
+    }),
+  );
+
+  const invoiceIds = new Set(
+    invoices.map((invoice) => {
+      return invoice.id;
+    }),
+  );
+
+  return (
+    invoices.every((invoice) => {
+      return entryIds.has(invoice.entryId);
+    }) &&
+    entries.every((entry) => {
+      return entry.invoiceId === null || invoiceIds.has(entry.invoiceId);
+    })
+  );
 }
 
 function datedOf(tree: Building[], periodId: string): DatedPeriod | null {

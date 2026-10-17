@@ -87,6 +87,24 @@ describeJournalPortContract("journal simulator", () => {
         withholdingOnSocialSecurity: false,
       },
     },
+    openingDraft: {
+      kind: "openingBalances",
+      description: "Opening balances",
+      postings: [
+        {
+          accountId: "la2",
+          debit: cents(50000),
+          credit: cents(0),
+          counterpart: null,
+        },
+        {
+          accountId: "la3",
+          debit: cents(0),
+          credit: cents(50000),
+          counterpart: null,
+        },
+      ],
+    },
     catalogue: seed.withholdingTaxes,
     suppliersAccountId: "la4",
     liquidityAccountId: "la2",
