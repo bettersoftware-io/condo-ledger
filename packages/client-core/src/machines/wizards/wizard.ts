@@ -2,9 +2,10 @@ import { type DefaultedStateObservable, state } from "@rx-state/core";
 import { BehaviorSubject, map } from "rxjs";
 
 import {
-  type Account,
+  accepted,
   type Cents,
   type EntryAdded,
+  type EntryContext,
   type EntryDraft,
   type Ok,
   type Rejected,
@@ -13,6 +14,8 @@ import {
   rejected,
   validateEntry,
 } from "@cl/domain";
+
+import type { JournalPresenter } from "#/presenters/journalPresenter.ts";
 
 import type { Machine } from "../machine.ts";
 
@@ -38,24 +41,32 @@ export interface WizardChoice {
 export interface WizardState<TForm, TSummary> {
   /** 1-based. */
   step: number;
+  /** The step the wizard starts at: Back is disabled there. */
+  firstStep: number;
   stepCount: number;
   form: TForm;
   choices: WizardChoice[];
   /** The "Entry postings" grid. */
   preview: PreviewLine[];
-  /** validateEntry on the draft as it stands, after the wizard's own rules: decides Next and Save. */
+  /** validateEntry on the draft as it stands, after the wizard's own rules: decides Save. */
   verdict: Result;
+  /** The current step's own rules on the form as it stands: decides Next. */
+  stepVerdict: Result;
   summary: TSummary;
   /** True after the first edit: the UI shows the reason from then on. */
   touched: boolean;
   saving: boolean;
+  /** The id of the entry the wizard rewrites; null when it writes a new one. */
+  editing: string | null;
 }
 
 export interface WizardIntents<TForm> {
   edit: (patch: Partial<TForm>) => void;
+  /** To the next step, while the current step's verdict accepts. */
   next: () => void;
+  /** To the step before, down to the first step. */
   back: () => void;
-  /** The draft to addEntry, answered as it answered; the verdict's Rejected, or `saving` while a save runs, without calling it. */
+  /** The draft written, answered as the write answered; the verdict's Rejected, or `saving` while a save runs, without writing. */
   save: () => Promise<ResultOf<EntryAdded>>;
 }
 
@@ -64,7 +75,28 @@ export type WizardMachine<TForm, TSummary> = Machine<
   WizardIntents<TForm>
 >;
 
-export type AddEntry = (draft: EntryDraft) => Promise<ResultOf<EntryAdded>>;
+/** How a wizard's draft is written: added as a new entry, or replacing the entry it edits. Either way it answers the entry's id. */
+export type WriteEntry = (draft: EntryDraft) => Promise<ResultOf<EntryAdded>>;
+
+/** A write that rewrites this entry: an accepted replace answers its id, a refused one its reason, and one the port rejects (the entry is gone) `entry-gone`. */
+export function replacing(
+  entryId: string,
+  replaceEntry: JournalPresenter["replaceEntry"],
+): WriteEntry {
+  async function write(draft: EntryDraft): Promise<ResultOf<EntryAdded>> {
+    let result: Result;
+
+    try {
+      result = await replaceEntry(entryId, draft);
+    } catch {
+      return rejected("entry-gone");
+    }
+
+    return result.ok ? accepted({ id: entryId }) : result;
+  }
+
+  return write;
+}
 
 /** A form the wizard accepts: the draft it writes. */
 interface Accepting {
@@ -85,10 +117,16 @@ export type Derived = Accepting | Refusing;
 
 export interface WizardDefinition<TForm, TSummary> {
   initial: TForm;
+  /** The step the wizard starts at, 1 unless an edit starts past a choice it cannot change. */
+  firstStep?: number;
   stepCount: number;
   choices: WizardChoice[];
   derive: (form: TForm) => Derived;
   summarize: (form: TForm) => TSummary;
+  /** The rules of one step on the form: what Next waits for. */
+  stepVerdict: (form: TForm, step: number) => Result;
+  /** The id of the entry the wizard rewrites; null, or left out, for a new one. */
+  editing?: string | null;
 }
 
 interface Inner<TForm> {
@@ -101,11 +139,12 @@ interface Inner<TForm> {
 /** One contract for every wizard: the definition says what the form derives; the machine holds the form, the step and the save. */
 export function createWizardMachine<TForm, TSummary>(
   definition: WizardDefinition<TForm, TSummary>,
-  addEntry: AddEntry,
+  write: WriteEntry,
 ): WizardMachine<TForm, TSummary> {
+  const firstStep = definition.firstStep ?? 1;
   const inner$ = new BehaviorSubject<Inner<TForm>>({
     form: definition.initial,
-    step: 1,
+    step: firstStep,
     touched: false,
     saving: false,
   });
@@ -134,12 +173,14 @@ export function createWizardMachine<TForm, TSummary>(
         });
       },
       next: (): void => {
-        update({
-          step: Math.min(definition.stepCount, inner$.getValue().step + 1),
-        });
+        const { form, step } = inner$.getValue();
+
+        if (definition.stepVerdict(form, step).ok) {
+          update({ step: Math.min(definition.stepCount, step + 1) });
+        }
       },
       back: (): void => {
-        update({ step: Math.max(1, inner$.getValue().step - 1) });
+        update({ step: Math.max(firstStep, inner$.getValue().step - 1) });
       },
       save: async (): Promise<ResultOf<EntryAdded>> => {
         if (inner$.getValue().saving) {
@@ -155,7 +196,7 @@ export function createWizardMachine<TForm, TSummary>(
         update({ saving: true });
 
         try {
-          return await addEntry(derived.draft);
+          return await write(derived.draft);
         } finally {
           update({ saving: false });
         }
@@ -187,13 +228,13 @@ export function keepingOneLine<TLine, TForm extends Lined<TLine>, TSummary>(
   return { ...machine, intents: { ...machine.intents, edit } };
 }
 
-/** The draft as the domain judges it, beside its preview: the draft is kept only when the verdict accepts. */
+/** The draft as the domain judges it against the context, beside its preview: the draft is kept only when the verdict accepts. */
 export function judged(
   preview: PreviewLine[],
   draft: EntryDraft,
-  accounts: Account[],
+  context: EntryContext,
 ): Derived {
-  const verdict = validateEntry(draft, accounts);
+  const verdict = validateEntry(draft, context);
 
   return verdict.ok
     ? { preview, verdict, draft }
@@ -213,13 +254,16 @@ function stateOf<TForm, TSummary>(
 
   return {
     step: inner.step,
+    firstStep: definition.firstStep ?? 1,
     stepCount: definition.stepCount,
     form: inner.form,
     choices: definition.choices,
     preview,
     verdict,
+    stepVerdict: definition.stepVerdict(inner.form, inner.step),
     summary: definition.summarize(inner.form),
     touched: inner.touched,
     saving: inner.saving,
+    editing: definition.editing ?? null,
   };
 }

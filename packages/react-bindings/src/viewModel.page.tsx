@@ -14,6 +14,10 @@ import type {
   DirectPaymentSummary,
   GenericEntryForm,
   GenericEntrySummary,
+  InvoiceForm,
+  InvoicePaymentForm,
+  InvoicePaymentSummary,
+  InvoiceSummary,
   JournalContext,
   JournalDialogIntents,
   JournalDialogState,
@@ -25,6 +29,8 @@ import type {
   MultiCostPaymentSummary,
   NavigationIntents,
   NavigationState,
+  OpeningForm,
+  OpeningSummary,
   SidebarIntents,
   SidebarState,
   SplitIntents,
@@ -90,6 +96,18 @@ export interface Seen {
     WizardState<GenericEntryForm, GenericEntrySummary>,
     WizardIntents<GenericEntryForm>
   >;
+  invoice: MachineView<
+    WizardState<InvoiceForm, InvoiceSummary>,
+    WizardIntents<InvoiceForm>
+  >;
+  invoicePayment: MachineView<
+    WizardState<InvoicePaymentForm, InvoicePaymentSummary>,
+    WizardIntents<InvoicePaymentForm>
+  >;
+  openingBalances: MachineView<
+    WizardState<OpeningForm, OpeningSummary>,
+    WizardIntents<OpeningForm>
+  >;
 }
 
 export interface ViewModelPage {
@@ -112,14 +130,17 @@ const TABS: readonly string[] = ["Ledger", "Details"];
 export function mountUnderProvider(
   seed: LegacySeed,
   readers: 1 | 2 = 1,
+  editing: string | null = null,
 ): ViewModelPage {
   const viewModel = createViewModel(createAppHarness(seed).app);
   const seen: (Seen | undefined)[] = [];
 
   render(
     <ViewModelProvider viewModel={viewModel}>
-      <Reader seen={seen} index={0} />
-      {readers === 2 ? <Reader seen={seen} index={1} /> : null}
+      <Reader seen={seen} index={0} editing={editing} />
+      {readers === 2 ? (
+        <Reader seen={seen} index={1} editing={editing} />
+      ) : null}
     </ViewModelProvider>,
   );
 
@@ -145,15 +166,17 @@ export function mountUnderProvider(
 
 /** Mounts the same component with no provider above it. React reports what the component threw. */
 export function mountWithoutProvider(): void {
-  render(<Reader seen={[]} index={0} />);
+  render(<Reader seen={[]} index={0} editing={null} />);
 }
 
 interface ReaderProps {
   seen: (Seen | undefined)[];
   index: number;
+  /** The entry every wizard of this reader opens on: its generic one rewrites it. */
+  editing: string | null;
 }
 
-function Reader({ seen, index }: ReaderProps): ReactElement {
+function Reader({ seen, index, editing }: ReaderProps): ReactElement {
   const {
     useSession,
     useBuildingsTree,
@@ -179,6 +202,9 @@ function Reader({ seen, index }: ReaderProps): ReactElement {
     useDirectPaymentWizard,
     useMultiCostPaymentWizard,
     useGenericEntryWizard,
+    useInvoiceWizard,
+    useInvoicePaymentWizard,
+    useOpeningBalancesWizard,
   } = useViewModel();
 
   seen[index] = {
@@ -203,9 +229,12 @@ function Reader({ seen, index }: ReaderProps): ReactElement {
     deleteEntry: useDeleteEntry(),
     journalGrid: useJournalGrid(),
     journalDialog: useJournalDialog(),
-    directPayment: useDirectPaymentWizard("directPaymentCash"),
-    multiCostPayment: useMultiCostPaymentWizard(),
-    genericEntry: useGenericEntryWizard(),
+    directPayment: useDirectPaymentWizard("directPaymentCash", null),
+    multiCostPayment: useMultiCostPaymentWizard(null),
+    genericEntry: useGenericEntryWizard(editing),
+    invoice: useInvoiceWizard(null),
+    invoicePayment: useInvoicePaymentWizard(null),
+    openingBalances: useOpeningBalancesWizard(null),
   };
 
   return <output />;

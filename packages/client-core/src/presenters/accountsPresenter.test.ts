@@ -1,4 +1,4 @@
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -7,6 +7,7 @@ import {
   createAccountsSimulator,
   createJournalSimulator,
   findNode,
+  fixedClock,
   type Ledger,
   type LegacySeed,
 } from "@cl/domain";
@@ -178,8 +179,12 @@ function createPresented(
   const selected$ = new BehaviorSubject<PeriodSelection | null>(initial);
   const accounts = createAccountsSimulator(seed);
   const books = createBooksPresenter(
-    { accounts, journal: createJournalSimulator(seed) },
+    {
+      accounts,
+      journal: createJournalSimulator(seed, fixedClock("2026-10-14T08:00:00Z")),
+    },
     selected$,
+    of(seed.buildings),
   );
   const presenter = createAccountsPresenter(books.books$, accounts);
 

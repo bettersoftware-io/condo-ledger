@@ -38,14 +38,17 @@ Work that has started and is not finished.
 
 ## Next, with no plan yet
 
-- **M2b, the Journal's other five wizards.** New Invoice, Invoice Payment,
-  Record Owner Collection, Opening Balances and Budget Allocation, which pull
-  in suppliers and invoices, installments, the functional-account settings
-  and the allocation engine; the delete of their kinds (`canDeleteEntry`
-  loosens per kind as each flow models its side effects); and `✎` on an
-  entry, which edits it. The M2a spec's "Out of scope" lists them
-  ([2026-10-14-m2a-journal-design.md](superpowers/specs/2026-10-14-m2a-journal-design.md)).
-  After them, the rest of the Buildings module the parent design names for
+- **M2c, Record owner collection and Budget allocation.** Both stand on
+  installments and on the allocation engine in the app: a collection
+  settles installments, an allocation charges each owner the share the
+  engine computes. Left: the two wizards, installments and the allocation
+  engine in the app, the delete and the edit of their kinds, the 0/0 lines
+  of the legacy allocation, and whether a resident's `startingBalance`
+  follows the period's opening entry (in M2b it only prefills a new
+  opening). The two menu items keep M2a's notice until then. The M2b spec's
+  "Scope, and what moves to M2c" and "Not built" list them
+  ([2026-10-17-m2b-invoices-opening-edit-design.md](superpowers/specs/2026-10-17-m2b-invoices-opening-edit-design.md)).
+  After M2c, the rest of the Buildings module the parent design names for
   M2: Installments, Tables & Allocation, Building Data & Units, Contacts and
   Calendar, one spec per group.
 - **Per-grid persistence.** The design says a column resize persists per
@@ -115,6 +118,18 @@ Work that has started and is not finished.
   `git push origin --delete worktree-visual-flake-probe`.
 - **Negative budgets.** Allow them (the legacy application does, for
   deduction accounts) or keep the spec's rule. See "Planned, and held".
+- **Wording and input choices made during M2b (the user).** Keep or change
+  each:
+  - amounts are typed en-US (`1,234.56`), as M2a pinned, not Italian
+    (`1.234,56`); accepting Italian means changing `parseAmount`
+    (`packages/client-core/src/amounts.ts`) and two of M2a's tests;
+  - the generic editor's title on an edit reads "Edit Add Accounting Entry";
+  - strings written without a source in the spec or the design: "Choose a
+    supplier…", "No withholding", "Search account…", "No account matches."
+    (the last two as the Accounts screen has them), "Enter an amount of
+    zero or more for {row}", the step rules' messages and the entry-gone
+    text in `packages/client-react/src/ui/journal/wizards/reasons.ts`;
+  - the opening list's order: the leaves in tree order, then the residents.
 - **Two design ambiguities, visible in the goldens
   (`packages/client-react/tests/visual/goldens/`).** The README's Money rule
   bolds every amount of an aggregate row, its Accounts section says "bold on
@@ -238,4 +253,25 @@ Work that has started and is not finished.
   changed while this was open: cancel and open it again". This holds until
   the dialog traps focus. With asynchronous adapters (M3) a wizard opened
   between a period switch and the new period's books arriving does the same.
+- **A registration's replace shows both versions for one emission.** When
+  an invoice's registration is rewritten, the books emit once with the new
+  invoice terms beside the old postings: the presenter's consistency guard
+  covers an add and a delete, not a replace.
+- **A refused or failed `replaceEntry` shows as `entry-gone`.** When the port
+  rejects the call for any reason, a transport failure included, the wizard
+  words it as `entry-gone`. M3's adapter must tell "not found" from a
+  transport failure (`packages/client-core/src/machines/wizards/wizard.ts`,
+  `replacing`).
+- **The books presenter's consistency guard can hold `books$` back.** If the
+  data are ever truly inconsistent (an invoice without its registration, or
+  the reverse), `books$` stops emitting. The seed test rules that out today.
+- **The Invoice payment editor assumes a payment's two-line shape**
+  (suppliers debit, liquidity credit). Every seeded payment fits; before
+  M3's live data, a round-trip check (an entry's form, then its draft's
+  postings, equal the entry's) should guard the payment, direct-payment and
+  opening editors.
+- **A refused payment re-reads the books once.** After an `over-remaining`
+  refusal the payment wizard reads the books again a single time, which
+  relies on the books having updated before the refusal arrives. The
+  simulator does that; the live adapter of M3 need not.
 - **`pnpm dev:fs` throws until M3.**

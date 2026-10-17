@@ -283,6 +283,7 @@ function createEntryView(): JournalEntryView {
         balance: cents(0),
       },
     ],
+    editable: { ok: true },
   };
 }
 

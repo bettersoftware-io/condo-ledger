@@ -5,8 +5,10 @@ import {
   ZERO_CENTS,
 } from "../entities/cents.ts";
 import type { EntryKind, JournalEntry, Posting } from "../entities/journal.ts";
+import type { Result } from "../entities/result.ts";
 import { must } from "../support/must.ts";
 import { type AccountNode, ROOT_KEY, scopeOwns } from "./accountTree.ts";
+import { canEditEntry } from "./canEditEntry.ts";
 import { type Owner, ownersUnder, PATH_SEPARATOR } from "./ledger.ts";
 
 export interface PostingView {
@@ -29,6 +31,8 @@ export interface JournalEntryView {
   debit: Cents;
   credit: Cents;
   postings: PostingView[];
+  /** canEditEntry's verdict: whether ✎ opens a wizard on the entry, or why not. */
+  editable: Result;
 }
 
 const SIDE_KEYS = new Set(["assets", "liabilities"]);
@@ -76,6 +80,7 @@ export function journalOf(
         debit,
         credit,
         postings,
+        editable: canEditEntry(entry),
       };
     });
 }

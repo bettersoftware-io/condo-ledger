@@ -3,21 +3,23 @@ import {
   type Cents,
   type Counterpart,
   type EntryDraft,
+  type EntryKind,
   findNode,
+  type JournalEntry,
   NONE,
   type Posting,
   type PostingScope,
+  type Result,
   subtractCents,
   ZERO_CENTS,
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
-import { parseAmount } from "#/amounts.ts";
+import { amountText, parseAmount } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 
-import { rowChoices } from "./choices.ts";
+import { contextOf, rowChoices, rowKeyOf } from "./choices.ts";
 import {
-  type AddEntry,
   createWizardMachine,
   type Derived,
   judged,
@@ -25,6 +27,7 @@ import {
   refused,
   type WizardChoice,
   type WizardMachine,
+  type WriteEntry,
 } from "./wizard.ts";
 
 /** One line of the entry: the row of the tree it lands on, and its debit and credit as typed. */
@@ -63,28 +66,49 @@ interface Sides {
 
 const EMPTY_LINE: GenericLine = { scopeKey: null, debit: "", credit: "" };
 
+/** What a generic draft is written as, beside its lines: its kind, and the entry it rewrites. */
+interface Writing {
+  kind: EntryKind;
+  replacing: string | null;
+}
+
 /**
  * Any entry, line by line: each line lands on a row of the tree, so a line on
- * a control account names its party by construction.
+ * a control account names its party by construction. It writes `kind`: by
+ * default generic for a new entry, and an edited entry's own kind (the port
+ * refuses a replace that changes it). Editing an entry, the form is its
+ * description and its postings, each on the row that owns it.
  */
 export function createGenericEntryWizard(
   books: Books | null,
-  addEntry: AddEntry,
+  write: WriteEntry,
+  editing: JournalEntry | null,
+  kind: EntryKind = editing?.kind ?? "generic",
 ): WizardMachine<GenericEntryForm, GenericEntrySummary> {
   const choices = books === null ? [] : rowChoices(books);
+  const writing: Writing = { kind, replacing: editing?.id ?? null };
+
+  function derived(form: GenericEntryForm): Derived {
+    return derive(books, choices, form, writing);
+  }
 
   return keepingOneLine(
     createWizardMachine<GenericEntryForm, GenericEntrySummary>(
       {
-        initial: { description: "", lines: [EMPTY_LINE] },
+        initial:
+          editing === null
+            ? { description: "", lines: [EMPTY_LINE] }
+            : formOf(books, editing),
         stepCount: 1,
         choices,
-        derive: (form: GenericEntryForm): Derived => {
-          return derive(books, choices, form);
-        },
+        derive: derived,
         summarize,
+        stepVerdict: (form: GenericEntryForm): Result => {
+          return derived(form).verdict;
+        },
+        editing: writing.replacing,
       },
-      addEntry,
+      write,
     ),
     EMPTY_LINE,
   );
@@ -110,27 +134,50 @@ export function postingOf(
   };
 }
 
+/** The form an entry was written from: a line per posting, on the row offered that owns it (none when no row does), a side of zero left blank. */
+function formOf(books: Books | null, entry: JournalEntry): GenericEntryForm {
+  return {
+    description: entry.description,
+    lines: entry.postings.map((posting): GenericLine => {
+      return {
+        scopeKey: books === null ? null : rowKeyOf(books, posting),
+        debit: sideText(posting.debit),
+        credit: sideText(posting.credit),
+      };
+    }),
+  };
+}
+
+/** A side of a posting as a form holds it: blank for zero. */
+export function sideText(amount: Cents): string {
+  return amount === ZERO_CENTS ? "" : amountText(amount);
+}
+
 function derive(
   books: Books | null,
   choices: WizardChoice[],
   form: GenericEntryForm,
+  writing: Writing,
 ): Derived {
   const read: ReadLine[] = [];
+
+  // With no books no line has a row: what the first line would answer.
+  if (books === null) {
+    return refused(lineReason(form, "no-target"));
+  }
 
   for (const line of form.lines) {
     const lineRead = readLine(books, choices, line);
 
     if (typeof lineRead === "string") {
-      return refused(
-        form.description.trim() === "" ? "blank-description" : lineRead,
-      );
+      return refused(lineReason(form, lineRead));
     }
 
     read.push(lineRead);
   }
 
   const draft: EntryDraft = {
-    kind: "generic",
+    kind: writing.kind,
     description: form.description,
     postings: read.map((line) => {
       return line.posting;
@@ -144,12 +191,17 @@ function derive(
       credit: line.posting.credit,
     };
   });
-  return judged(preview, draft, books?.accounts ?? []);
+  return judged(preview, draft, contextOf(books, writing.replacing));
+}
+
+/** A line's reason, after the blank description the domain would answer first. */
+function lineReason(form: GenericEntryForm, reason: string): string {
+  return form.description.trim() === "" ? "blank-description" : reason;
 }
 
 /** The line's row and posting, or why it has none: no row chosen, or a text that does not read. */
 function readLine(
-  books: Books | null,
+  books: Books,
   choices: WizardChoice[],
   line: GenericLine,
 ): ReadLine | string {
@@ -157,7 +209,7 @@ function readLine(
     return candidate.key === line.scopeKey;
   });
 
-  if (books === null || choice === undefined) {
+  if (choice === undefined) {
     return "no-target";
   }
 

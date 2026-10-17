@@ -18,14 +18,15 @@ import { BANK_REASONS, CASH_REASONS, reasonText } from "./reasons.ts";
 import { useWizardSave } from "./useWizardSave.ts";
 import { WizardDialog, type WizardProps } from "./WizardDialog.tsx";
 
-/** Reads the direct-payment wizard of its kind and hands its body plain props. */
+/** Reads the direct-payment wizard of its kind, new or editing a payment, and hands its body plain props. */
 export function DirectPaymentWizard({
   kind,
+  editing,
   onSaved,
   onCancel,
 }: DirectPaymentWizardProps): ReactElement {
   const { useDirectPaymentWizard, useJournalContext } = useViewModel();
-  const wizard = useDirectPaymentWizard(kind);
+  const wizard = useDirectPaymentWizard(kind, editing);
   const context = useJournalContext();
   const saving = useWizardSave(wizard.save, onSaved);
 
@@ -51,6 +52,8 @@ export function DirectPaymentWizard({
 
 export interface DirectPaymentWizardProps extends WizardProps {
   kind: DirectPaymentKind;
+  /** The payment entry the wizard rewrites; null for a new payment. */
+  editing: string | null;
 }
 
 /** The three one-step payments of the design: a target chosen from a list, an amount, the account paid from. */

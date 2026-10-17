@@ -15,6 +15,10 @@ import type {
   DirectPaymentSummary,
   GenericEntryForm,
   GenericEntrySummary,
+  InvoiceForm,
+  InvoicePaymentForm,
+  InvoicePaymentSummary,
+  InvoiceSummary,
   JournalContext,
   JournalDialogIntents,
   JournalDialogState,
@@ -27,6 +31,8 @@ import type {
   NavigationIntents,
   NavigationState,
   Notice,
+  OpeningForm,
+  OpeningSummary,
   PeriodSelection,
   SidebarIntents,
   SidebarState,
@@ -39,6 +45,7 @@ import type {
   AccountNode,
   Building,
   Cents,
+  EntryKind,
   Firm,
   JournalEntryView,
   Language,
@@ -118,18 +125,31 @@ export interface ViewModel {
   useDeleteEntry: () => (id: string) => Promise<Result>;
   useJournalGrid: () => MachineView<JournalGridState, JournalGridIntents>;
   useJournalDialog: () => MachineView<JournalDialogState, JournalDialogIntents>;
-  /** `kind` is read on the first render only: the wizard is built once, for the kind it opened as. */
+  /**
+   * Every wizard hook reads its arguments on the first render only: the wizard is built once, for the
+   * kind it opened as and the entry (`editing`, an id the dialog resolved, or null for a new entry) it opened on.
+   */
   useDirectPaymentWizard: (
     kind: DirectPaymentKind,
+    editing: string | null,
   ) => WizardView<DirectPaymentForm, DirectPaymentSummary>;
-  useMultiCostPaymentWizard: () => WizardView<
-    MultiCostPaymentForm,
-    MultiCostPaymentSummary
-  >;
-  useGenericEntryWizard: () => WizardView<
-    GenericEntryForm,
-    GenericEntrySummary
-  >;
+  useMultiCostPaymentWizard: (
+    editing: string | null,
+  ) => WizardView<MultiCostPaymentForm, MultiCostPaymentSummary>;
+  /** `kind` is left out unless the caller chose one: an edit takes its entry's own kind. */
+  useGenericEntryWizard: (
+    editing: string | null,
+    kind?: EntryKind,
+  ) => WizardView<GenericEntryForm, GenericEntrySummary>;
+  useInvoiceWizard: (
+    editing: string | null,
+  ) => WizardView<InvoiceForm, InvoiceSummary>;
+  useInvoicePaymentWizard: (
+    editing: string | null,
+  ) => WizardView<InvoicePaymentForm, InvoicePaymentSummary>;
+  useOpeningBalancesWizard: (
+    editing: string | null,
+  ) => WizardView<OpeningForm, OpeningSummary>;
 }
 
 /** Built once at startup, in the composition root, from the application. */
@@ -237,22 +257,47 @@ export function createViewModel(app: App): ViewModel {
     },
     useDirectPaymentWizard: (
       kind: DirectPaymentKind,
+      editing: string | null,
     ): WizardView<DirectPaymentForm, DirectPaymentSummary> => {
       return useMachine(() => {
-        return app.machines.createDirectPaymentWizard(kind);
+        return app.machines.createDirectPaymentWizard(kind, editing);
       });
     },
-    useMultiCostPaymentWizard: (): WizardView<
-      MultiCostPaymentForm,
-      MultiCostPaymentSummary
-    > => {
-      return useMachine(app.machines.createMultiCostPaymentWizard);
+    useMultiCostPaymentWizard: (
+      editing: string | null,
+    ): WizardView<MultiCostPaymentForm, MultiCostPaymentSummary> => {
+      return useMachine(() => {
+        return app.machines.createMultiCostPaymentWizard(editing);
+      });
     },
-    useGenericEntryWizard: (): WizardView<
-      GenericEntryForm,
-      GenericEntrySummary
-    > => {
-      return useMachine(app.machines.createGenericEntryWizard);
+    useGenericEntryWizard: (
+      editing: string | null,
+      kind?: EntryKind,
+    ): WizardView<GenericEntryForm, GenericEntrySummary> => {
+      return useMachine(() => {
+        return app.machines.createGenericEntryWizard(editing, kind);
+      });
+    },
+    useInvoiceWizard: (
+      editing: string | null,
+    ): WizardView<InvoiceForm, InvoiceSummary> => {
+      return useMachine(() => {
+        return app.machines.createInvoiceWizard(editing);
+      });
+    },
+    useInvoicePaymentWizard: (
+      editing: string | null,
+    ): WizardView<InvoicePaymentForm, InvoicePaymentSummary> => {
+      return useMachine(() => {
+        return app.machines.createInvoicePaymentWizard(editing);
+      });
+    },
+    useOpeningBalancesWizard: (
+      editing: string | null,
+    ): WizardView<OpeningForm, OpeningSummary> => {
+      return useMachine(() => {
+        return app.machines.createOpeningBalancesWizard(editing);
+      });
     },
   };
 }

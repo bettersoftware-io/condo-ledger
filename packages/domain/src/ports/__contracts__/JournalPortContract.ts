@@ -1,7 +1,10 @@
 import { firstValueFrom } from "rxjs";
 import { describe, expect, it } from "vitest";
 
+import { type Cents, cents } from "#/entities/cents.ts";
+import type { Invoice, WithholdingTax } from "#/entities/invoice.ts";
 import type { EntryDraft, JournalEntry } from "#/entities/journal.ts";
+import { openInvoices } from "#/useCases/openInvoices.ts";
 
 import type { JournalPort } from "../journalPort.ts";
 
@@ -16,7 +19,21 @@ export interface JournalPortHarness {
   refusedReason: string;
   /** An entry canDeleteEntry accepts, not the last by number. */
   deletableEntryId: string;
+  /** An entry of a kind the domain keeps: canDeleteEntry refuses it with kind-not-deletable. */
   undeletableEntryId: string;
+  /** A generic entry of the period: canEditEntry accepts it, and acceptedDraft may replace it. */
+  editableEntryId: string;
+  /** A collection: canEditEntry refuses it. */
+  uneditableEntryId: string;
+  /** A registration the period accepts: its terms, and the postings they imply. */
+  invoiceDraft: EntryDraft;
+  /** An opening entry the period accepts: the period has none yet. */
+  openingDraft: EntryDraft;
+  /** The period's withholding catalogue, for the invoices' totals. */
+  catalogue: WithholdingTax[];
+  /** The period's suppliers account and a liquidity leaf: what a payment debits and credits. */
+  suppliersAccountId: string;
+  liquidityAccountId: string;
   teardown: () => void;
 }
 
@@ -185,5 +202,289 @@ export function describeJournalPortContract(
         teardown();
       }
     });
+
+    it("registers an invoice with its entry: the invoices read it back, and the entry names it", async () => {
+      const { port, periodId, invoiceDraft, teardown } = createHarness();
+
+      try {
+        const added = await port.addEntry(periodId, invoiceDraft);
+        const id = added.ok ? added.value.id : "";
+        const invoice = (await firstValueFrom(port.invoices(periodId))).find(
+          (candidate) => {
+            return candidate.entryId === id;
+          },
+        );
+
+        const entry = (await firstValueFrom(port.entries(periodId))).find(
+          (candidate) => {
+            return candidate.id === id;
+          },
+        );
+
+        expect(added.ok).toBe(true);
+        expect(invoice).toMatchObject({ ...invoiceDraft.invoice, periodId });
+        expect(entry?.invoiceId).toBe(invoice?.id);
+      } finally {
+        teardown();
+      }
+    });
+
+    it("fails, naming the id, to answer the invoices of a period it does not have", async () => {
+      const { port, unknownPeriodId, teardown } = createHarness();
+
+      try {
+        await expect(
+          firstValueFrom(port.invoices(unknownPeriodId)),
+        ).rejects.toThrow(unknownPeriodId);
+      } finally {
+        teardown();
+      }
+    });
+
+    it("a payment of the remainder takes the invoice out of the open invoices", async () => {
+      const harness = createHarness();
+      const { port, periodId, catalogue, teardown } = harness;
+
+      try {
+        const invoice = await register(harness);
+        const before = await openOf(harness, invoice);
+
+        expect(before).toBeGreaterThan(0);
+        expect(
+          await port.addEntry(
+            periodId,
+            createPaymentDraft(harness, invoice, before),
+          ),
+        ).toMatchObject({ ok: true });
+        expect(
+          openInvoices(
+            await firstValueFrom(port.invoices(periodId)),
+            await firstValueFrom(port.entries(periodId)),
+            catalogue,
+          ).some((open) => {
+            return open.invoice.id === invoice.id;
+          }),
+        ).toBe(false);
+      } finally {
+        teardown();
+      }
+    });
+
+    it("refuses a second opening entry in the period with opening-exists, and leaves the journal as it was", async () => {
+      const { port, periodId, openingDraft, teardown } = createHarness();
+
+      try {
+        expect(await port.addEntry(periodId, openingDraft)).toMatchObject({
+          ok: true,
+        });
+
+        const before = await firstValueFrom(port.entries(periodId));
+
+        expect(await port.addEntry(periodId, openingDraft)).toEqual({
+          ok: false,
+          reason: "opening-exists",
+        });
+        expect(await firstValueFrom(port.entries(periodId))).toEqual(before);
+      } finally {
+        teardown();
+      }
+    });
+
+    it("replaces an entry in place: the same id, number and stamp, the draft's lines, and every subscriber hears", async () => {
+      const { port, periodId, editableEntryId, acceptedDraft, teardown } =
+        createHarness();
+      const seen: JournalEntry[][] = [];
+      const subscription = port.entries(periodId).subscribe((entries) => {
+        seen.push(entries);
+      });
+
+      try {
+        const before = entryOf(seen.at(-1), editableEntryId);
+
+        expect(await port.replaceEntry(editableEntryId, acceptedDraft)).toEqual(
+          { ok: true },
+        );
+        expect(seen.at(-1)).toHaveLength(seen[0]?.length ?? 0);
+        expect(entryOf(seen.at(-1), editableEntryId)).toEqual({
+          ...before,
+          description: acceptedDraft.description,
+          postings: acceptedDraft.postings,
+        });
+      } finally {
+        subscription.unsubscribe();
+        teardown();
+      }
+    });
+
+    it("refuses a replacement of another kind with kind-changed, and leaves the journal as it was", async () => {
+      const { port, periodId, editableEntryId, acceptedDraft, teardown } =
+        createHarness();
+
+      try {
+        const before = await firstValueFrom(port.entries(periodId));
+
+        expect(
+          await port.replaceEntry(editableEntryId, {
+            ...acceptedDraft,
+            kind: "directPaymentCash",
+          }),
+        ).toEqual({ ok: false, reason: "kind-changed" });
+        expect(await firstValueFrom(port.entries(periodId))).toEqual(before);
+      } finally {
+        teardown();
+      }
+    });
+
+    it("refuses to replace a kind no wizard edits, with kind-not-editable", async () => {
+      const { port, periodId, uneditableEntryId, acceptedDraft, teardown } =
+        createHarness();
+
+      try {
+        const before = await firstValueFrom(port.entries(periodId));
+
+        expect(
+          await port.replaceEntry(uneditableEntryId, acceptedDraft),
+        ).toEqual({ ok: false, reason: "kind-not-editable" });
+        expect(await firstValueFrom(port.entries(periodId))).toEqual(before);
+      } finally {
+        teardown();
+      }
+    });
+
+    it("refuses a replacement with the domain's reason", async () => {
+      const { port, editableEntryId, refusedDraft, refusedReason, teardown } =
+        createHarness();
+
+      try {
+        expect(await port.replaceEntry(editableEntryId, refusedDraft)).toEqual({
+          ok: false,
+          reason: refusedReason,
+        });
+      } finally {
+        teardown();
+      }
+    });
+
+    it("rejects a replacement of an entry it does not have", async () => {
+      const { port, acceptedDraft, teardown } = createHarness();
+
+      try {
+        await expect(port.replaceEntry("nope", acceptedDraft)).rejects.toThrow(
+          "nope",
+        );
+      } finally {
+        teardown();
+      }
+    });
+
+    it("refuses to delete a paid invoice's registration; an unpaid one goes, and its invoice with it", async () => {
+      const harness = createHarness();
+      const { port, periodId, teardown } = harness;
+
+      try {
+        const paid = await register(harness);
+
+        await port.addEntry(
+          periodId,
+          createPaymentDraft(harness, paid, cents(1)),
+        );
+
+        expect(await port.deleteEntry(paid.entryId)).toEqual({
+          ok: false,
+          reason: "invoice-has-payments",
+        });
+
+        const unpaid = await register(harness);
+
+        expect(await port.deleteEntry(unpaid.entryId)).toEqual({ ok: true });
+        expect(
+          (await firstValueFrom(port.invoices(periodId))).map((invoice) => {
+            return invoice.id;
+          }),
+        ).toContain(paid.id);
+        expect(
+          (await firstValueFrom(port.invoices(periodId))).some((invoice) => {
+            return invoice.id === unpaid.id;
+          }),
+        ).toBe(false);
+      } finally {
+        teardown();
+      }
+    });
+  });
+}
+
+/** Registers the harness's invoice and answers the invoice the port made of it. */
+async function register(harness: JournalPortHarness): Promise<Invoice> {
+  const { port, periodId, invoiceDraft } = harness;
+  const added = await harness.port.addEntry(periodId, invoiceDraft);
+
+  if (!added.ok) {
+    throw new Error(`refused: the harness's invoice draft (${added.reason})`);
+  }
+
+  const invoice = (await firstValueFrom(port.invoices(periodId))).find(
+    (candidate) => {
+      return candidate.entryId === added.value.id;
+    },
+  );
+
+  if (invoice === undefined) {
+    throw new Error(`missing: the invoice of the entry ${added.value.id}`);
+  }
+
+  return invoice;
+}
+
+/** What the invoice still owes, as the domain works it out from the port's invoices and entries. */
+async function openOf(
+  harness: JournalPortHarness,
+  invoice: Invoice,
+): Promise<Cents> {
+  const { port, periodId, catalogue } = harness;
+  const open = openInvoices(
+    await firstValueFrom(port.invoices(periodId)),
+    await firstValueFrom(port.entries(periodId)),
+    catalogue,
+  ).find((candidate) => {
+    return candidate.invoice.id === invoice.id;
+  });
+
+  return open?.remaining ?? cents(0);
+}
+
+/** A payment of the invoice from the harness's liquidity account. */
+function createPaymentDraft(
+  harness: JournalPortHarness,
+  invoice: Invoice,
+  amount: Cents,
+): EntryDraft {
+  return {
+    kind: "invoicePayment",
+    description: `Payment of invoice ${invoice.number}`,
+    postings: [
+      {
+        accountId: harness.suppliersAccountId,
+        debit: amount,
+        credit: cents(0),
+        counterpart: { kind: "supplier", id: invoice.supplierId },
+      },
+      {
+        accountId: harness.liquidityAccountId,
+        debit: cents(0),
+        credit: amount,
+        counterpart: null,
+      },
+    ],
+    invoiceId: invoice.id,
+  };
+}
+
+function entryOf(
+  entries: JournalEntry[] | undefined,
+  id: string,
+): JournalEntry | undefined {
+  return entries?.find((entry) => {
+    return entry.id === id;
   });
 }

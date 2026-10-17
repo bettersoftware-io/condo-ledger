@@ -388,6 +388,7 @@ function createEntryView(
     debit: ZERO_CENTS,
     credit: ZERO_CENTS,
     postings: [],
+    editable: { ok: true },
   };
 }
 

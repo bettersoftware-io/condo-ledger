@@ -1,4 +1,5 @@
 import { cents } from "#/entities/cents.ts";
+import { rate } from "#/entities/invoice.ts";
 import type { LegacySeed } from "#/simulators/seed/legacySeed.ts";
 
 import { createSmallSeed } from "./createSmallBooks.ts";
@@ -6,9 +7,10 @@ import { createSmallSeed } from "./createSmallBooks.ts";
 /**
  * The small seed with a second period, p2, holding books of its own (a cash
  * account and a suppliers account, one entry between them naming supplier
- * md1), and p1's entries in reverse number order: what a simulator must
+ * md1, its one party), and p1's entries in reverse number order: what a simulator must
  * filter by period and sort. p2's books are whole, so the chart of accounts
- * can be built from them too.
+ * can be built from them too. p1 also holds a tax leaf, Ritenute (la7), and a
+ * withholding catalogue of one code, 1040 at 20% on it.
  */
 export function createTwoPeriodSeed(): LegacySeed {
   const seed = createSmallSeed();
@@ -48,6 +50,15 @@ export function createTwoPeriodSeed(): LegacySeed {
     ],
     accounts: [
       ...seed.accounts,
+      {
+        ...cash,
+        id: "la7",
+        parentId: null,
+        name: "Ritenute",
+        order: 7,
+        nature: "liabilities",
+        role: "tax",
+      },
       { ...cash, id: "x1", periodId: "p2", parentId: null },
       { ...suppliers, id: "x4", periodId: "p2" },
     ],
@@ -73,6 +84,22 @@ export function createTwoPeriodSeed(): LegacySeed {
         ],
       },
       ...[...seed.entries].reverse(),
+    ],
+    parties: [
+      ...seed.parties,
+      {
+        periodId: "p2",
+        parties: [{ kind: "supplier", id: "md1", name: "Alfa s.n.c." }],
+      },
+    ],
+    withholdingTaxes: [
+      {
+        periodId: "p1",
+        code: "1040",
+        name: "Lavoratori autonomi",
+        rate: rate(2000),
+        accountId: "la7",
+      },
     ],
   };
 }

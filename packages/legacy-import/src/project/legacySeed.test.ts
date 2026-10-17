@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 
 import { beforeAll, describe, expect, it } from "vitest";
 
+import type { PartyData } from "@cl/domain";
 import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
 
 import { buildDb, type Db } from "../db.ts";
@@ -134,14 +135,14 @@ describe.skipIf(!legacyDumpAvailable())(
       expect(counts.get("p1:withholdingPayment")).toBe(1);
     });
 
-    it("names every counterpart in parties, with pseudonymised names", () => {
-      const ids = new Set(
-        seed.parties.map((p) => {
-          return `${p.kind}:${p.id}`;
-        }),
-      );
-
+    it("names every counterpart among its period's parties, with pseudonymised names", () => {
       for (const entry of seed.entries) {
+        const ids = new Set(
+          partiesOf(entry.periodId).map((p) => {
+            return `${p.kind}:${p.id}`;
+          }),
+        );
+
         for (const posting of entry.postings) {
           if (posting.counterpart !== null) {
             expect(
@@ -152,10 +153,48 @@ describe.skipIf(!legacyDumpAvailable())(
       }
 
       expect(
-        seed.parties.find((p) => {
+        partiesOf("p36").find((p) => {
           return p.kind === "owner" && p.unitCode === "A01";
         })?.name,
       ).toBe("Morandini Dina");
+    });
+
+    it("gives each period its building's suppliers and its residents, and Pozzetto 2013 its catalogue and 47 invoices", () => {
+      expect(
+        seed.parties.map((list) => {
+          return [
+            list.periodId,
+            list.parties.filter((p) => {
+              return p.kind === "supplier";
+            }).length,
+            list.parties.filter((p) => {
+              return p.kind === "owner";
+            }).length,
+          ];
+        }),
+      ).toEqual([
+        ["p1", 6, 10],
+        ["p36", 12, 27],
+      ]);
+      expect(
+        seed.withholdingTaxes
+          .filter((t) => {
+            return t.periodId === "p36";
+          })
+          .map((t) => {
+            return `${t.code}:${t.rate}:${t.accountId}`;
+          }),
+      ).toEqual([
+        "1004:0:la166",
+        "1019:400:la167",
+        "1020:400:la168",
+        "1040:2000:la165",
+      ]);
+      expect(
+        seed.invoices.filter((i) => {
+          return i.periodId === "p36";
+        }),
+      ).toHaveLength(47);
     });
 
     it("is what the committed module holds", () => {
@@ -164,5 +203,13 @@ describe.skipIf(!legacyDumpAvailable())(
 
     let db: Db;
     let seed: ReturnType<typeof projectLegacySeed>;
+
+    function partiesOf(periodId: string): PartyData[] {
+      return (
+        seed.parties.find((list) => {
+          return list.periodId === periodId;
+        })?.parties ?? []
+      );
+    }
   },
 );

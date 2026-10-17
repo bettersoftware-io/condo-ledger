@@ -16,6 +16,8 @@ export interface DialogPage {
   width: () => string;
   isCardFocused: () => boolean;
   press: (key: string) => void;
+  /** Presses the key in the body's field with this name. */
+  pressIn: (fieldName: string, key: string) => void;
   clickScrim: () => Promise<void>;
   clickTitle: () => Promise<void>;
 }
@@ -58,6 +60,11 @@ export function mountDialog(props: Partial<DialogProps>): DialogPage {
     },
     press: (key: string): void => {
       fireEvent.keyDown(card(), { key });
+    },
+    pressIn: (fieldName: string, key: string): void => {
+      const field = rendered.getByLabelText(fieldName);
+
+      fireEvent.keyDown(field, { key });
     },
     clickScrim: async (): Promise<void> => {
       await user.click(rendered.getByTestId(TESTIDS.dialogClose));

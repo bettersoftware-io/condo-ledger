@@ -1,0 +1,11 @@
+/* The supplier's row and the note under it; the select in its box is drawn by Wizards.css. */
+.supplier-select {
+  display: grid;
+  gap: 4px;
+}
+
+.supplier-select-note {
+  margin: 0 0 0 210px;
+  font-size: 11.5px;
+  color: var(--txd);
+}

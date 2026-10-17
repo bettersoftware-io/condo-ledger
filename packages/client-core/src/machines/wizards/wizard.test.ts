@@ -5,7 +5,10 @@ import {
   type Cents,
   type EntryAdded,
   type EntryDraft,
+  ok,
+  type Result,
   type ResultOf,
+  rejected,
   ZERO_CENTS,
 } from "@cl/domain";
 
@@ -15,12 +18,13 @@ import {
   createWizardMachine,
   type Derived,
   refused,
+  replacing,
   type WizardDefinition,
   type WizardMachine,
 } from "./wizard.ts";
 
 afterEach(() => {
-  for (const machine of created.splice(0)) {
+  for (const machine of [...created.splice(0), ...notedCreated.splice(0)]) {
     machine.dispose();
   }
 });
@@ -31,7 +35,10 @@ describe("a wizard machine", () => {
 
     expect(machine.state$.getValue()).toMatchObject({
       step: 1,
+      firstStep: 1,
       stepCount: 1,
+      editing: null,
+      stepVerdict: { ok: false, reason: "not-an-amount" },
       touched: false,
       saving: false,
       form: { amount: "" },
@@ -62,6 +69,7 @@ describe("a wizard machine", () => {
   it("next and back move within the steps and no further", () => {
     const { machine } = createWizard(2);
 
+    machine.intents.edit({ amount: "12.50" });
     machine.intents.next();
     machine.intents.next();
     expect(machine.state$.getValue().step).toBe(2);
@@ -69,6 +77,73 @@ describe("a wizard machine", () => {
     machine.intents.back();
     machine.intents.back();
     expect(machine.state$.getValue().step).toBe(1);
+  });
+
+  it("next is gated by the current step's verdict: step 1 accepts while step 2's field is still blank", () => {
+    const machine = createNotedWizard(createNotedDefinition(1));
+
+    machine.intents.next();
+    expect(machine.state$.getValue()).toMatchObject({
+      step: 1,
+      stepVerdict: { ok: false, reason: "not-an-amount" },
+    });
+
+    machine.intents.edit({ amount: "12.50" });
+    expect(machine.state$.getValue()).toMatchObject({
+      step: 1,
+      stepVerdict: { ok: true },
+      verdict: { ok: false, reason: "blank-note" },
+    });
+
+    machine.intents.next();
+    expect(machine.state$.getValue()).toMatchObject({
+      step: 2,
+      stepVerdict: { ok: false, reason: "blank-note" },
+    });
+
+    machine.intents.next();
+    expect(machine.state$.getValue().step).toBe(2);
+
+    machine.intents.edit({ note: "Rata di marzo" });
+    machine.intents.next();
+    expect(machine.state$.getValue()).toMatchObject({
+      step: 3,
+      stepVerdict: { ok: true },
+      verdict: { ok: true },
+    });
+  });
+
+  it("starts at the definition's first step, and back stops there", () => {
+    const machine = createNotedWizard(createNotedDefinition(2));
+
+    expect(machine.state$.getValue()).toMatchObject({
+      step: 2,
+      firstStep: 2,
+    });
+
+    machine.intents.back();
+    expect(machine.state$.getValue().step).toBe(2);
+
+    machine.intents.edit({ amount: "12.50", note: "Rata di marzo" });
+    machine.intents.next();
+    expect(machine.state$.getValue().step).toBe(3);
+
+    machine.intents.back();
+    machine.intents.back();
+    expect(machine.state$.getValue().step).toBe(2);
+  });
+
+  it("names the entry it edits, as its definition does", () => {
+    const machine = createWizardMachine(
+      { ...createDefinition(1), editing: "tx8" },
+      () => {
+        return Promise.resolve(accepted({ id: "tx8" }));
+      },
+    );
+
+    created.push(machine);
+
+    expect(machine.state$.getValue().editing).toBe("tx8");
   });
 
   it("save refuses with the verdict's reason without calling the port while the verdict is rejected", async () => {
@@ -134,6 +209,62 @@ describe("a wizard machine", () => {
     machine.intents.edit({ amount: "1" });
 
     await expect(machine.intents.save()).rejects.toThrow("the port is down");
+    expect(machine.state$.getValue().saving).toBe(false);
+  });
+
+  it("a save through replacing rewrites that entry and answers its id", async () => {
+    const replaced: string[] = [];
+    const machine = createWizardMachine(
+      createDefinition(1),
+      replacing("tx8", (id: string): Promise<Result> => {
+        replaced.push(id);
+
+        return Promise.resolve(ok());
+      }),
+    );
+
+    created.push(machine);
+    machine.intents.edit({ amount: "12.50" });
+
+    expect(await machine.intents.save()).toEqual({
+      ok: true,
+      value: { id: "tx8" },
+    });
+    expect(replaced).toEqual(["tx8"]);
+  });
+
+  it("a replace the port refuses answers the port's reason", async () => {
+    const machine = createWizardMachine(
+      createDefinition(1),
+      replacing("tx8", (): Promise<Result> => {
+        return Promise.resolve(rejected("kind-changed"));
+      }),
+    );
+
+    created.push(machine);
+    machine.intents.edit({ amount: "12.50" });
+
+    expect(await machine.intents.save()).toEqual({
+      ok: false,
+      reason: "kind-changed",
+    });
+  });
+
+  it("a replace of an entry the port no longer has answers entry-gone, and saving ends", async () => {
+    const machine = createWizardMachine(
+      createDefinition(1),
+      replacing("tx8", (): Promise<Result> => {
+        return Promise.reject(new Error("no entry tx8"));
+      }),
+    );
+
+    created.push(machine);
+    machine.intents.edit({ amount: "12.50" });
+
+    expect(await machine.intents.save()).toEqual({
+      ok: false,
+      reason: "entry-gone",
+    });
     expect(machine.state$.getValue().saving).toBe(false);
   });
 
@@ -215,7 +346,56 @@ function createDefinition(
     summarize: (form: AmountForm): AmountSummary => {
       return { amount: parseAmount(form.amount) };
     },
+    stepVerdict: (form: AmountForm): Result => {
+      return deriveAmount(form).verdict;
+    },
   };
+}
+
+interface NotedForm {
+  amount: string;
+  note: string;
+}
+
+/** Three steps: the amount on the first, the note on the second, nothing more on the third. */
+function createNotedDefinition(
+  firstStep: number,
+): WizardDefinition<NotedForm, null> {
+  return {
+    initial: { amount: "", note: "" },
+    firstStep,
+    stepCount: 3,
+    choices: [],
+    derive: (form: NotedForm): Derived => {
+      return form.note.trim() === ""
+        ? refused("blank-note")
+        : deriveAmount(form);
+    },
+    summarize: (): null => {
+      return null;
+    },
+    stepVerdict: (form: NotedForm, step: number): Result => {
+      if (step === 1) {
+        return deriveAmount(form).verdict;
+      }
+
+      return step === 2 && form.note.trim() === ""
+        ? rejected("blank-note")
+        : ok();
+    },
+  };
+}
+
+function createNotedWizard(
+  definition: WizardDefinition<NotedForm, null>,
+): WizardMachine<NotedForm, null> {
+  const machine = createWizardMachine(definition, () => {
+    return Promise.resolve(accepted({ id: "new1" }));
+  });
+
+  notedCreated.push(machine);
+
+  return machine;
 }
 
 /** Accepted when the amount reads as more than zero: a generic entry, Ascensore debited and Cassa credited. */
@@ -254,3 +434,5 @@ function deriveAmount(form: AmountForm): Derived {
 }
 
 const created: WizardMachine<AmountForm, AmountSummary>[] = [];
+
+const notedCreated: WizardMachine<NotedForm, null>[] = [];

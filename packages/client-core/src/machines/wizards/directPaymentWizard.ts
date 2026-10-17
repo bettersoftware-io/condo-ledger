@@ -1,30 +1,37 @@
 import {
   type Account,
+  type AccountRole,
+  addCents,
   type Cents,
   type EntryDraft,
   type EntryKind,
+  type JournalEntry,
   type Posting,
+  type Result,
   ZERO_CENTS,
 } from "@cl/domain";
+import { must } from "@cl/domain/support/must.ts";
 
-import { parseAmount } from "#/amounts.ts";
+import { amountText, parseAmount } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 
 import {
+  contextOf,
   isExpenseLeaf,
   leafChoices,
   type Paying,
   payingOf,
+  roleAccount,
   shortPath,
 } from "./choices.ts";
 import {
-  type AddEntry,
   createWizardMachine,
   type Derived,
   judged,
   refused,
   type WizardChoice,
   type WizardMachine,
+  type WriteEntry,
 } from "./wizard.ts";
 
 export type DirectPaymentKind =
@@ -50,6 +57,26 @@ export const DIRECT_PAYMENT_DESCRIPTIONS: Record<DirectPaymentKind, string> = {
   withholdingPayment: "Withholding payment",
 };
 
+const DIRECT_PAYMENT_KINDS: readonly DirectPaymentKind[] = [
+  "directPaymentCash",
+  "directPaymentBank",
+  "withholdingPayment",
+];
+
+/** The role of the account each kind pays from. */
+const ROLES: Record<DirectPaymentKind, AccountRole> = {
+  directPaymentCash: "cash",
+  directPaymentBank: "bank",
+  withholdingPayment: "bank",
+};
+
+/** The leaves each kind pays for. */
+const TARGETS: Record<DirectPaymentKind, (account: Account) => boolean> = {
+  directPaymentCash: isExpenseLeaf,
+  directPaymentBank: isExpenseLeaf,
+  withholdingPayment: isTaxLeaf,
+};
+
 /** A leaf a payment debits: the one chosen, and its amount. */
 export interface Debit {
   choice: WizardChoice;
@@ -59,45 +86,46 @@ export interface Debit {
 /**
  * One target leaf debited, the cash or bank account credited: the three
  * one-step wizards of the design. A withholding's description names the tax
- * account chosen, until the person edits it.
+ * account chosen, until the person edits it. Editing an entry, the form is
+ * its description, its debit line and that line's amount, and the kind is the
+ * entry's own whatever `requested` says: the port refuses a replace that
+ * changes it.
  */
 export function createDirectPaymentWizard(
-  kind: DirectPaymentKind,
+  requested: DirectPaymentKind,
   books: Books | null,
-  addEntry: AddEntry,
+  write: WriteEntry,
+  editing: JournalEntry | null,
 ): WizardMachine<DirectPaymentForm, DirectPaymentSummary> {
-  const paying = payingOf(
-    books,
-    kind === "directPaymentCash" ? "cash" : "bank",
-  );
+  const kind = directKindOf(editing) ?? requested;
+  const paying = payingOf(books, ROLES[kind]);
 
-  const choices =
-    books === null
-      ? []
-      : leafChoices(
-          books,
-          kind === "withholdingPayment" ? isTaxLeaf : isExpenseLeaf,
-        );
+  const choices = books === null ? [] : leafChoices(books, TARGETS[kind]);
   const accounts = books?.accounts ?? [];
+  const replacing = editing?.id ?? null;
+
+  function derived(form: DirectPaymentForm): Derived {
+    return derive(kind, paying, choices, form, replacing);
+  }
+
   const machine = createWizardMachine<DirectPaymentForm, DirectPaymentSummary>(
     {
-      initial: {
-        description: DIRECT_PAYMENT_DESCRIPTIONS[kind],
-        targetId: null,
-        amount: "",
-      },
+      initial: editing === null ? emptyForm(kind) : formOf(editing),
       stepCount: 1,
       choices,
-      derive: (form: DirectPaymentForm): Derived => {
-        return derive(kind, paying, choices, form);
-      },
+      derive: derived,
       summarize: (): DirectPaymentSummary => {
         return { paidFrom: paying?.paidFrom.name ?? null };
       },
+      stepVerdict: (form: DirectPaymentForm): Result => {
+        return derived(form).verdict;
+      },
+      editing: replacing,
     },
-    addEntry,
+    write,
   );
-  let descriptionEdited = false;
+  // An edited entry's description is the person's already.
+  let descriptionEdited = editing !== null;
 
   function edit(patch: Partial<DirectPaymentForm>): void {
     if (patch.description !== undefined) {
@@ -124,11 +152,98 @@ export function createDirectPaymentWizard(
   return { ...machine, intents: { ...machine.intents, edit } };
 }
 
+/** Whether the direct-payment wizard can write this entry's postings: one debit on a leaf it offers, then its amount credited to the account its kind pays from. */
+export function fitsDirectPayment(entry: JournalEntry, books: Books): boolean {
+  const kind = directKindOf(entry);
+
+  return (
+    kind !== null &&
+    paymentDebits(entry, books, ROLES[kind], TARGETS[kind])?.length === 1
+  );
+}
+
+/**
+ * The debits of an entry written as a payment's wizard writes it: each on a
+ * leaf `keep` accepts, then one credit of their sum to the regular account
+ * with the role, and no party anywhere. Null when the entry is not so written.
+ */
+export function paymentDebits(
+  entry: JournalEntry,
+  books: Books,
+  role: AccountRole,
+  keep: (account: Account) => boolean,
+): Posting[] | null {
+  const paidFrom = roleAccount(books, role);
+  const offered = new Set(
+    leafChoices(books, keep).map((choice) => {
+      return choice.key;
+    }),
+  );
+  const debits = entry.postings.slice(0, -1);
+  const credit = entry.postings.at(-1);
+  const sum = debits.reduce((total, posting) => {
+    return addCents(total, posting.debit);
+  }, ZERO_CENTS);
+
+  const written =
+    paidFrom !== null &&
+    credit !== undefined &&
+    credit.accountId === paidFrom.id &&
+    credit.debit === ZERO_CENTS &&
+    credit.counterpart === null &&
+    credit.credit === sum &&
+    debits.length > 0 &&
+    debits.every((posting) => {
+      return (
+        offered.has(posting.accountId) &&
+        posting.debit > ZERO_CENTS &&
+        posting.credit === ZERO_CENTS &&
+        posting.counterpart === null
+      );
+    });
+
+  return written ? debits : null;
+}
+
+/** The entry's kind when it is a direct payment's; null for no entry or another kind. */
+function directKindOf(entry: JournalEntry | null): DirectPaymentKind | null {
+  return (
+    DIRECT_PAYMENT_KINDS.find((candidate) => {
+      return candidate === entry?.kind;
+    }) ?? null
+  );
+}
+
+function emptyForm(kind: DirectPaymentKind): DirectPaymentForm {
+  return {
+    description: DIRECT_PAYMENT_DESCRIPTIONS[kind],
+    targetId: null,
+    amount: "",
+  };
+}
+
+/** The form an entry was written from: its description, and its first debit line with that line's amount. */
+function formOf(entry: JournalEntry): DirectPaymentForm {
+  const debit = must(
+    entry.postings.find((posting) => {
+      return posting.debit > ZERO_CENTS;
+    }),
+    `a debit of the entry ${entry.id}`,
+  );
+
+  return {
+    description: entry.description,
+    targetId: debit.accountId,
+    amount: amountText(debit.debit),
+  };
+}
+
 function derive(
   kind: DirectPaymentKind,
   paying: Paying | null,
   choices: WizardChoice[],
   form: DirectPaymentForm,
+  replacing: string | null,
 ): Derived {
   if (paying === null) {
     return refused("no-paid-from-account");
@@ -154,12 +269,14 @@ function derive(
     paying,
     [{ choice: target, amount }],
     amount,
+    replacing,
   );
 }
 
 /**
  * A payment's draft: each debit on its leaf, then the account paid from
- * credited with the amount paid; previewed in that order, and judged.
+ * credited with the amount paid; previewed in that order, and judged with the
+ * entry it rewrites, if any, left out.
  */
 export function judgedPayment(
   kind: EntryKind,
@@ -167,6 +284,7 @@ export function judgedPayment(
   paying: Paying,
   debits: Debit[],
   paid: Cents,
+  replacing: string | null,
 ): Derived {
   const { books, paidFrom } = paying;
   const draft: EntryDraft = {
@@ -201,7 +319,7 @@ export function judgedPayment(
     { path: shortPath(books, paidFrom.id), debit: ZERO_CENTS, credit: paid },
   ];
 
-  return judged(preview, draft, books.accounts);
+  return judged(preview, draft, contextOf(books, replacing));
 }
 
 /** The description the wizard proposes: a withholding names the tax account chosen. */

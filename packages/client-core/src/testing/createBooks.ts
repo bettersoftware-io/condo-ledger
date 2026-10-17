@@ -3,7 +3,7 @@ import { createSmallBooks } from "@cl/domain/testing/createSmallBooks.ts";
 
 import type { Books } from "../presenters/booksPresenter.ts";
 
-/** The small books of p1 as the books presenter hands them out, over these accounts: the small books' own unless a test brings others. */
+/** The small books of p1 as the books presenter hands them out, over these accounts: the small books' own unless a test brings others. 2013 is the period; it has no invoices and no withholding catalogue. */
 export function createBooks(
   accounts: Account[] = createSmallBooks().accounts,
 ): Books {
@@ -11,10 +11,13 @@ export function createBooks(
 
   return {
     periodId: small.periodId,
+    period: { start: "2013-01-01", end: "2013-12-31" },
     tree: buildAccountTree(accounts, small.entries, small.parties),
     accounts,
     parties: small.parties,
     entries: small.entries,
+    invoices: [],
+    withholdingTaxes: [],
   };
 }
 

@@ -15,7 +15,8 @@ import "./JournalGrid.css";
  * The Journal: the grid machine's rows as tree-grid rows. An entry leads with
  * its date and number, its kind's icon and its description, bold; an open
  * entry's postings follow it, muted, each with the running balance. A click on
- * a posting selects its entry. Takes only props, so the compiler memoizes it.
+ * a posting selects its entry, and a double click on either opens the entry's
+ * edit. Takes only props, so the compiler memoizes it.
  */
 export function JournalGrid({
   rows,
@@ -23,10 +24,15 @@ export function JournalGrid({
   searching,
   onToggle,
   onSelect,
+  onEdit,
   onResize,
 }: JournalGridProps): ReactElement {
   function selectEntryOf(key: string): void {
     onSelect(entryIdOf(key));
+  }
+
+  function editEntryOf(key: string): void {
+    onEdit(entryIdOf(key));
   }
 
   return (
@@ -39,6 +45,7 @@ export function JournalGrid({
       }
       onToggle={onToggle}
       onSelect={selectEntryOf}
+      onActivate={editEntryOf}
       onResize={onResize}
     />
   );
@@ -53,6 +60,8 @@ export interface JournalGridProps {
   onToggle: (id: string) => void;
   /** Called with the entry's id, whichever of its rows was clicked. */
   onSelect: (id: string) => void;
+  /** A double click: the entry's id, whichever of its rows it was on. */
+  onEdit: (id: string) => void;
   onResize: (index: number, px: number) => void;
 }
 

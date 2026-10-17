@@ -111,6 +111,24 @@ describe("journalOf", () => {
     ]);
   });
 
+  it("says of each entry whether it may be edited, as canEditEntry judges it", () => {
+    expect(
+      journalOf(createRoot(), createEntries()).map((view) => {
+        return [view.kind, view.editable];
+      }),
+    ).toEqual([
+      ["invoice", { ok: true }],
+      ["invoice", { ok: true }],
+      ["invoicePayment", { ok: true }],
+      ["budgetAllocation", { ok: false, reason: "kind-not-editable" }],
+      ["collection", { ok: false, reason: "kind-not-editable" }],
+      ["generic", { ok: true }],
+      ["individualExpense", { ok: false, reason: "kind-not-editable" }],
+      ["generic", { ok: true }],
+      ["generic", { ok: true }],
+    ]);
+  });
+
   it("throws, naming the account, for a posting no node of the tree owns", () => {
     const stray: JournalEntry = {
       ...(createEntries()[0] as JournalEntry),

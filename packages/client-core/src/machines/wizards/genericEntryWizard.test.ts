@@ -6,13 +6,17 @@ import {
   cents,
   type EntryAdded,
   type EntryDraft,
+  type EntryKind,
   type JournalEntry,
   type ResultOf,
 } from "@cl/domain";
+import { must } from "@cl/domain/support/must.ts";
 import { createSmallBooks } from "@cl/domain/testing/createSmallBooks.ts";
 
 import type { Books } from "#/presenters/booksPresenter.ts";
+import { createAppHarness } from "#/testing/appHarness.ts";
 import { createBooks } from "#/testing/createBooks.ts";
+import { currentBooks, currentEntry } from "#/testing/harnessBooks.ts";
 
 import {
   createGenericEntryWizard,
@@ -342,12 +346,166 @@ describe("postingOf", () => {
   });
 });
 
+describe("the generic-entry wizard on another kind", () => {
+  it("writes the kind it is given", async () => {
+    const { machine, calls } = createWizard(
+      createBooks(),
+      null,
+      "withholdingPayment",
+    );
+
+    machine.intents.edit({
+      description: "Ritenute",
+      lines: [
+        { scopeKey: "la21", debit: "5", credit: "" },
+        { scopeKey: "la2", debit: "", credit: "5" },
+      ],
+    });
+    await machine.intents.save();
+
+    expect(calls()[0]?.kind).toBe("withholdingPayment");
+  });
+});
+
+describe("editing an entry line by line", () => {
+  it("a seeded generic entry opens on its description and its lines by row, a side of zero left blank", () => {
+    const harness = createAppHarness();
+    const machine = harness.app.machines.createGenericEntryWizard("tx2");
+
+    created.push(machine);
+
+    expect(machine.state$.getValue()).toMatchObject({
+      editing: "tx2",
+      form: {
+        description: currentEntry(harness, "tx2").description,
+        lines: [
+          { scopeKey: "la30", debit: "500.00", credit: "" },
+          { scopeKey: "la14", debit: "", credit: "500.00" },
+        ],
+      },
+      verdict: { ok: true },
+      stepVerdict: { ok: true },
+    });
+  });
+
+  it("saving it unchanged rewrites it in place: its id, its number and its stamp stay", async () => {
+    const harness = createAppHarness();
+    const before = currentBooks(harness).entries.length;
+    const machine = harness.app.machines.createGenericEntryWizard("tx2");
+
+    created.push(machine);
+
+    expect(await machine.intents.save()).toEqual({
+      ok: true,
+      value: { id: "tx2" },
+    });
+    expect(currentBooks(harness).entries).toHaveLength(before);
+    expect(currentEntry(harness, "tx2")).toMatchObject({
+      number: 2,
+      at: "2011-01-01T16:05:19",
+      kind: "generic",
+    });
+  });
+
+  it("an opening entry edited line by line keeps its kind, and is judged with itself left out", async () => {
+    const harness = createAppHarness();
+    const editing = harness.app.machines.createGenericEntryWizard(
+      "tx1",
+      "openingBalances",
+    );
+
+    const fresh = harness.app.machines.createGenericEntryWizard(
+      null,
+      "openingBalances",
+    );
+
+    created.push(editing, fresh);
+    fresh.intents.edit(editing.state$.getValue().form);
+
+    expect(editing.state$.getValue().verdict).toEqual({ ok: true });
+    expect(editing.state$.getValue().form.lines).toHaveLength(18);
+    expect(editing.state$.getValue().form.lines[0]).toEqual({
+      scopeKey: "la2",
+      debit: "135.52",
+      credit: "",
+    });
+    expect(fresh.state$.getValue().verdict).toEqual({
+      ok: false,
+      reason: "opening-exists",
+    });
+    expect(await editing.intents.save()).toEqual({
+      ok: true,
+      value: { id: "tx1" },
+    });
+    expect(currentEntry(harness, "tx1")).toMatchObject({
+      number: 1,
+      kind: "openingBalances",
+    });
+  });
+
+  it("an entry of another kind edited with no kind named keeps its own", async () => {
+    const harness = createAppHarness();
+    const machine = harness.app.machines.createGenericEntryWizard("tx1");
+
+    created.push(machine);
+
+    expect(machine.state$.getValue().verdict).toEqual({ ok: true });
+    expect(await machine.intents.save()).toEqual({
+      ok: true,
+      value: { id: "tx1" },
+    });
+    expect(currentEntry(harness, "tx1").kind).toBe("openingBalances");
+  });
+
+  it("a line on a row no new posting may join opens with no row chosen", () => {
+    const books = createBooksWithUnnamedParties();
+    const { machine } = createWizard(
+      books,
+      must(
+        books.entries.find((entry) => {
+          return entry.id === "e10";
+        }),
+        "the entry e10",
+      ),
+    );
+
+    expect(machine.state$.getValue()).toMatchObject({
+      editing: "e10",
+      form: {
+        lines: [
+          { scopeKey: null, debit: "3.00", credit: "" },
+          { scopeKey: null, debit: "2.00", credit: "" },
+          { scopeKey: "la1", debit: "", credit: "5.00" },
+        ],
+      },
+      verdict: { ok: false, reason: "no-target" },
+    });
+  });
+
+  it("with no books an entry opens with no row chosen on any line", () => {
+    const books = createBooks();
+    const { machine } = createWizard(
+      null,
+      must(books.entries.at(-1), "the last entry"),
+    );
+
+    expect(machine.state$.getValue().form.lines).toEqual([
+      { scopeKey: null, debit: "1.00", credit: "" },
+      { scopeKey: null, debit: "", credit: "1.00" },
+    ]);
+  });
+});
+
 interface CreatedWizard {
   machine: WizardMachine<GenericEntryForm, GenericEntrySummary>;
   calls: () => EntryDraft[];
 }
 
-function createWizard(books: Books | null = createBooks()): CreatedWizard {
+function createWizard(
+  books: Books | null = createBooks(),
+  editing: JournalEntry | null = null,
+  kind?: EntryKind,
+): CreatedWizard {
   const drafts: EntryDraft[] = [];
 
   function addEntry(draft: EntryDraft): Promise<ResultOf<EntryAdded>> {
@@ -356,7 +514,7 @@ function createWizard(books: Books | null = createBooks()): CreatedWizard {
     return Promise.resolve(accepted({ id: "new1" }));
   }
 
-  const machine = createGenericEntryWizard(books, addEntry);
+  const machine = createGenericEntryWizard(books, addEntry, editing, kind);
 
   created.push(machine);
 
@@ -380,6 +538,7 @@ function createBooksWithUnnamedParties(): Books {
       at: "2013-04-01T10:00:00",
       kind: "generic",
       description: "Senza controparte",
+      invoiceId: null,
       postings: [
         {
           accountId: "la4",

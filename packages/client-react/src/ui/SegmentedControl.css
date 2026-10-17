@@ -1,0 +1,42 @@
+.segmented-control {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.segment {
+  position: relative;
+  padding: 4px 10px;
+  border: 1px solid var(--bd);
+  border-radius: var(--r-field);
+  background: var(--ctrl);
+  font-size: 12px;
+  color: var(--tx);
+  cursor: pointer;
+}
+
+.segment:hover {
+  background: var(--hover);
+}
+
+.segment[data-selected="true"] {
+  border-color: var(--selbd);
+  background: var(--sel);
+  color: var(--acc);
+  font-weight: 600;
+}
+
+.segment:focus-within {
+  outline: 2px solid var(--acc);
+  outline-offset: 1px;
+}
+
+/* The radio stays in the page for the keyboard and assistive technology; the pill draws the choice. */
+.segment-radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}

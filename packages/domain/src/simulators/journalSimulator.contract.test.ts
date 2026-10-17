@@ -1,16 +1,16 @@
 import { cents } from "#/entities/cents.ts";
-import { fixedClock } from "#/support/clock.ts";
+import { rate } from "#/entities/invoice.ts";
 
 import { describeJournalPortContract } from "../ports/__contracts__/JournalPortContract.ts";
 import { createTwoPeriodSeed } from "../testing/createTwoPeriodSeed.ts";
+import { fixedClock } from "./fixedClock.ts";
 import { createJournalSimulator } from "./journalSimulator.ts";
 
 describeJournalPortContract("journal simulator", () => {
+  const seed = createTwoPeriodSeed();
+
   return {
-    port: createJournalSimulator(
-      createTwoPeriodSeed(),
-      fixedClock("2026-10-14T08:00:00Z"),
-    ),
+    port: createJournalSimulator(seed, fixedClock("2026-10-14T08:00:00Z")),
     periodId: "p1",
     unknownPeriodId: "p99",
     acceptedDraft: {
@@ -45,7 +45,69 @@ describeJournalPortContract("journal simulator", () => {
     },
     refusedReason: "unbalanced",
     deletableEntryId: "e6",
-    undeletableEntryId: "e1",
+    undeletableEntryId: "e5",
+    editableEntryId: "e6",
+    uneditableEntryId: "e5",
+    // Taxable 100.00, VAT 20%, 20% withheld on la7: the cost takes 120.00, the supplier is owed 100.00.
+    invoiceDraft: {
+      kind: "invoice",
+      description: "Invoice 7 — Alfa s.n.c.: Ascensore",
+      postings: [
+        {
+          accountId: "la21",
+          debit: cents(12000),
+          credit: cents(0),
+          counterpart: null,
+        },
+        {
+          accountId: "la4",
+          debit: cents(0),
+          credit: cents(10000),
+          counterpart: { kind: "supplier", id: "md1" },
+        },
+        {
+          accountId: "la7",
+          debit: cents(0),
+          credit: cents(2000),
+          counterpart: null,
+        },
+      ],
+      invoice: {
+        supplierId: "md1",
+        number: "7",
+        reason: "Ascensore",
+        date: "2013-04-23",
+        dueDate: null,
+        costAccountId: "la21",
+        taxable: cents(10000),
+        socialSecurityRate: rate(0),
+        vatRate: rate(2000),
+        nonTaxable: cents(0),
+        withholdingCode: "1040",
+        withholdingOnSocialSecurity: false,
+      },
+    },
+    openingDraft: {
+      kind: "openingBalances",
+      description: "Opening balances",
+      postings: [
+        {
+          accountId: "la2",
+          debit: cents(50000),
+          credit: cents(0),
+          counterpart: null,
+        },
+        {
+          accountId: "la3",
+          debit: cents(0),
+          credit: cents(50000),
+          counterpart: null,
+        },
+      ],
+    },
+    catalogue: seed.withholdingTaxes,
+    suppliersAccountId: "la4",
+    liquidityAccountId: "la2",
     teardown: (): void => {},
   };
 });

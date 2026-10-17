@@ -1,0 +1,80 @@
+/* README "Invoice Payment" step 1: Nr. | Reason | Date | Due | Supplier, and what remains. */
+.open-invoices {
+  --open-invoices-columns: 56px 1fr 84px 84px 150px 96px;
+
+  border: 1px solid var(--bd2);
+  border-radius: 7px;
+  overflow: hidden;
+  font-size: 12px;
+  color: var(--tx);
+}
+
+.open-invoices-head,
+.open-invoices-row {
+  display: grid;
+  grid-template-columns: var(--open-invoices-columns);
+  align-items: center;
+}
+
+.open-invoices-head {
+  background: var(--ph);
+  color: var(--phf);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.open-invoices-head > span,
+.open-invoices-cell {
+  min-width: 0;
+  padding: 6px 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.open-invoices-row {
+  position: relative;
+  border-top: 1px solid var(--bd2);
+  cursor: pointer;
+}
+
+.open-invoices-row:hover {
+  background: var(--hover);
+}
+
+.open-invoices-row[data-selected="true"] {
+  background: var(--sel);
+}
+
+.open-invoices-row:focus-within {
+  outline: 2px solid var(--acc);
+  outline-offset: -2px;
+}
+
+.open-invoices-cell:nth-of-type(1),
+.open-invoices-cell:nth-of-type(3),
+.open-invoices-cell:nth-of-type(4) {
+  color: var(--txd);
+  font-variant-numeric: tabular-nums;
+}
+
+.open-invoices-cell[data-overdue="true"] {
+  color: var(--neg);
+}
+
+/* The radio stays in the page for the keyboard and assistive technology; the row draws the choice. */
+.open-invoices-radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.open-invoices-empty {
+  padding: 12px 10px;
+  border-top: 1px solid var(--bd2);
+  font-size: 12px;
+  color: var(--txd);
+}

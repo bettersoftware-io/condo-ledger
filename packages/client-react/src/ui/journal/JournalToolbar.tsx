@@ -2,7 +2,7 @@ import { Printer, RotateCw } from "lucide-react";
 import { type ReactElement, useState } from "react";
 
 import type { PageSize, WizardName } from "@cl/client-core";
-import type { EntryKind } from "@cl/domain";
+import type { EntryKind, Result } from "@cl/domain";
 
 import { MenuItem } from "../MenuItem.tsx";
 import { PDF_GLYPH, XLS_GLYPH } from "../shell/icons.tsx";
@@ -13,15 +13,19 @@ import { ToolbarDivider } from "../ToolbarDivider.tsx";
 import { ToolbarSearch } from "../ToolbarSearch.tsx";
 import { EntryIcon } from "./EntryIcon.tsx";
 import { JournalPaging } from "./JournalPaging.tsx";
+import { reasonText } from "./wizards/reasons.ts";
 
 /**
  * The design's Journal toolbar: search, the Add transaction menu, edit and
  * delete, expand and collapse all, print and export, and the paging group.
  * Which menu is open is this view's own state, as the top bar's pickers are.
- * What is not built yet posts a notice through `onStub` with its name.
+ * What is not built yet posts a notice through `onStub` with its name. ✎ is
+ * enabled when the selected entry can be edited; when it cannot, its
+ * tooltip says why.
  */
 export function JournalToolbar({
   search,
+  editable,
   canDelete,
   page,
   pageCount,
@@ -29,6 +33,7 @@ export function JournalToolbar({
   onSearch,
   onAdd,
   onStub,
+  onEdit,
   onDelete,
   onExpandAll,
   onCollapseAll,
@@ -64,10 +69,6 @@ export function JournalToolbar({
   function chooseSize(size: PageSize): void {
     setMenu(null);
     onPageSize(size);
-  }
-
-  function stubEdit(): void {
-    onStub("Edit entry");
   }
 
   function stubPrint(): void {
@@ -125,7 +126,13 @@ export function JournalToolbar({
         icon="✎"
         tone="muted"
         iconOnly
-        onClick={stubEdit}
+        disabled={editable === null || !editable.ok}
+        title={
+          editable === null || editable.ok
+            ? undefined
+            : reasonText(editable.reason)
+        }
+        onClick={onEdit}
       />
       <ToolbarButton
         label="Delete entry"
@@ -194,6 +201,8 @@ export function JournalToolbar({
 
 export interface JournalToolbarProps {
   search: string;
+  /** The selected entry's verdict on an edit; null while none is selected. */
+  editable: Result | null;
   /** An entry is selected. */
   canDelete: boolean;
   page: number;
@@ -204,6 +213,8 @@ export interface JournalToolbarProps {
   onAdd: (wizard: WizardName) => void;
   /** A tool or a menu item that is not built yet, by name. */
   onStub: (label: string) => void;
+  /** Opens the selected entry's edit. */
+  onEdit: () => void;
   onDelete: () => void;
   onExpandAll: () => void;
   onCollapseAll: () => void;
@@ -223,9 +234,13 @@ interface AddItem {
 
 /** In the design's order. */
 const ADD_ITEMS: readonly AddItem[] = [
-  { label: "New invoice", kind: "invoice", wizard: null },
+  { label: "New invoice", kind: "invoice", wizard: "invoice" },
   { label: "Record collection", kind: "collection", wizard: null },
-  { label: "Invoice payment", kind: "invoicePayment", wizard: null },
+  {
+    label: "Invoice payment",
+    kind: "invoicePayment",
+    wizard: "invoicePayment",
+  },
   {
     label: "Direct purchase via bank",
     kind: "directPaymentBank",
@@ -241,7 +256,11 @@ const ADD_ITEMS: readonly AddItem[] = [
     kind: "withholdingPayment",
     wizard: "withholdingPayment",
   },
-  { label: "Opening balances", kind: "openingBalances", wizard: null },
+  {
+    label: "Opening balances",
+    kind: "openingBalances",
+    wizard: "openingBalances",
+  },
   { label: "Budget allocation", kind: "budgetAllocation", wizard: null },
   { label: "Generic entry", kind: "generic", wizard: "genericEntry" },
   {

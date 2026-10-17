@@ -102,9 +102,35 @@ describe("the journal presenter", () => {
 
     expect(await presenter.deleteEntry("e6")).toEqual({ ok: true });
     expect(latest().entries.map(numberOf)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
-    expect(await presenter.deleteEntry("e1")).toEqual({
+    expect(await presenter.deleteEntry("e5")).toEqual({
       ok: false,
       reason: "kind-not-deletable",
+    });
+  });
+
+  it("replaces an entry through the port, in place, and the entries follow", async () => {
+    const { presenter, latest } = createPresented(POZZETTO_2013);
+
+    expect(await presenter.replaceEntry("e6", createDraft())).toEqual({
+      ok: true,
+    });
+    expect(latest().entries.find(isEntry("e6"))).toMatchObject({
+      number: 6,
+      description: "Prova",
+      debit: 100,
+    });
+    expect(await presenter.replaceEntry("e5", createDraft())).toEqual({
+      ok: false,
+      reason: "kind-not-editable",
+    });
+  });
+
+  it("refuses to replace with no period selected", async () => {
+    const { presenter } = createPresented(null);
+
+    expect(await presenter.replaceEntry("e6", createDraft())).toEqual({
+      ok: false,
+      reason: "no-period",
     });
   });
 });
@@ -136,6 +162,7 @@ function createPresented(
   const books = createBooksPresenter(
     { accounts: createAccountsSimulator(seed), journal },
     selected$,
+    of(buildings),
   );
 
   const presenter = createJournalPresenter(
@@ -190,4 +217,10 @@ function numberOf(entry: JournalEntryView): number {
 
 function idOf(entry: JournalEntryView): string {
   return entry.id;
+}
+
+function isEntry(id: string): (entry: JournalEntryView) => boolean {
+  return (entry: JournalEntryView): boolean => {
+    return entry.id === id;
+  };
 }

@@ -1,4 +1,8 @@
-import { type AppPorts, createSimulatorPorts } from "@cl/client-core";
+import {
+  type AppPorts,
+  createSimulatorPorts,
+  systemClock,
+} from "@cl/client-core";
 import { loadLegacySeed } from "@cl/domain";
 import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
 
@@ -16,5 +20,5 @@ export function buildPorts(serverUrl: string | undefined): AppPorts {
 
   console.info("[data] composed sim: no VITE_SERVER_URL");
 
-  return createSimulatorPorts(loadLegacySeed(legacySeedData));
+  return createSimulatorPorts(loadLegacySeed(legacySeedData), systemClock);
 }

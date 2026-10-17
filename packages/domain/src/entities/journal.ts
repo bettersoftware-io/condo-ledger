@@ -1,4 +1,5 @@
 import type { Cents } from "./cents.ts";
+import type { InvoiceTerms } from "./invoice.ts";
 
 export type Counterpart =
   | { kind: "supplier"; id: string }
@@ -34,6 +35,8 @@ export interface JournalEntry {
   kind: EntryKind;
   description: string;
   postings: Posting[];
+  /** The invoice a registration created or a payment pays; null on every other kind. */
+  invoiceId: string | null;
 }
 
 /** What a wizard hands the port: the port adds the id, the number and the stamp. */
@@ -41,4 +44,8 @@ export interface EntryDraft {
   kind: EntryKind;
   description: string;
   postings: Posting[];
+  /** A registration's terms. */
+  invoice?: InvoiceTerms;
+  /** The invoice a payment pays. */
+  invoiceId?: string;
 }

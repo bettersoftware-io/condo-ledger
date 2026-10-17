@@ -19,13 +19,14 @@ import { BANK_REASONS, reasonText } from "./reasons.ts";
 import { useWizardSave } from "./useWizardSave.ts";
 import { WizardDialog, type WizardProps } from "./WizardDialog.tsx";
 
-/** Reads the multi-cost wizard and hands its body plain props. */
+/** Reads the multi-cost wizard, new or editing a payment, and hands its body plain props. */
 export function MultiCostPaymentWizard({
+  editing,
   onSaved,
   onCancel,
-}: WizardProps): ReactElement {
+}: MultiCostPaymentWizardProps): ReactElement {
   const { useMultiCostPaymentWizard, useJournalContext } = useViewModel();
-  const wizard = useMultiCostPaymentWizard();
+  const wizard = useMultiCostPaymentWizard(editing);
   const context = useJournalContext();
   const saving = useWizardSave(wizard.save, onSaved);
 
@@ -46,6 +47,11 @@ export function MultiCostPaymentWizard({
       onCancel={onCancel}
     />
   );
+}
+
+export interface MultiCostPaymentWizardProps extends WizardProps {
+  /** The payment entry the wizard rewrites; null for a new payment. */
+  editing: string | null;
 }
 
 /** A bank purchase over several costs: the amount paid, then one line per cost, which must add up to it. */

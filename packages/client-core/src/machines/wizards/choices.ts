@@ -2,11 +2,15 @@ import {
   type Account,
   type AccountNode,
   type AccountRole,
+  type EntryContext,
   NONE,
   PATH_SEPARATOR,
+  type Posting,
   type PostingScope,
   pathOf,
+  scopeOwns,
 } from "@cl/domain";
+import { must } from "@cl/domain/support/must.ts";
 
 import type { Books } from "#/presenters/booksPresenter.ts";
 
@@ -47,21 +51,78 @@ export function leafChoices(
  * that name no party is one no new posting may join (it needs a party).
  */
 export function rowChoices(books: Books): WizardChoice[] {
-  const groupings = new Set(
-    books.accounts
-      .filter((account) => {
-        return account.type === "grouping";
-      })
-      .map((account) => {
-        return account.id;
-      }),
+  return offeredRows(books).map(choiceOf);
+}
+
+/** The key of the row `rowChoices` offers that owns the posting: where the generic wizard shows a line it did not write. Null when no row offered owns it. */
+export function rowKeyOf(books: Books, posting: Posting): string | null {
+  const row = offeredRows(books).find((candidate) => {
+    return scopeOwns(candidate.scope, posting);
+  });
+
+  return row?.choice.key ?? null;
+}
+
+/** A posting as a preview shows it: the path of the row it lands on; for a supplier with no row yet, its account's path and its name. */
+export function previewPath(books: Books, posting: Posting): string {
+  const row = rowKeyOf(books, posting);
+
+  if (row !== null) {
+    return shortPath(books, row);
+  }
+
+  const supplier = must(
+    books.parties.find((party) => {
+      return party.id === posting.counterpart?.id;
+    }),
+    `the supplier of a posting on ${posting.accountId}`,
   );
 
-  return postingRows(books)
-    .filter((row) => {
-      return !groupings.has(row.scope.accountId) && namesItsParty(row.scope);
-    })
-    .map(choiceOf);
+  const account = must(
+    keyOfAccount(books.tree, posting.accountId),
+    `the node of ${posting.accountId}`,
+  );
+
+  return `${shortPath(books, account)}${PATH_SEPARATOR}${supplier.name}`;
+}
+
+/**
+ * The movable liquidity accounts a payment may come from: the regular
+ * `assets` leaves under the group that holds the cash-role account, or the
+ * bank-role account when the period has no cash role. None with neither.
+ */
+export function liquidityChoices(books: Books): WizardChoice[] {
+  const holder = roleAccount(books, "cash") ?? roleAccount(books, "bank");
+  const group = holder?.parentId ?? null;
+
+  if (group === null) {
+    return [];
+  }
+
+  const parents = new Map(
+    books.accounts.map((account) => {
+      return [account.id, account.parentId];
+    }),
+  );
+
+  return leafChoices(books, (account) => {
+    return account.nature === "assets" && isUnder(parents, account.id, group);
+  });
+}
+
+/** What the domain judges a wizard's draft against: the books as they stand, and the entry an edit rewrites. */
+export function contextOf(
+  books: Books,
+  replacing: string | null,
+): EntryContext {
+  return {
+    accounts: books.accounts,
+    parties: books.parties,
+    withholdingTaxes: books.withholdingTaxes,
+    invoices: books.invoices,
+    entries: books.entries,
+    replacing,
+  };
 }
 
 /** What a payment wizard works on: the books, and the account paid from. */
@@ -99,6 +160,23 @@ export function shortPath(books: Books, key: string): string {
   return pathOf(books.tree, key).slice(
     books.tree.label.length + PATH_SEPARATOR.length,
   );
+}
+
+/** The rows a new posting may land on: not a grouping, and with its party. */
+function offeredRows(books: Books): PostingRow[] {
+  const groupings = new Set(
+    books.accounts
+      .filter((account) => {
+        return account.type === "grouping";
+      })
+      .map((account) => {
+        return account.id;
+      }),
+  );
+
+  return postingRows(books).filter((row) => {
+    return !groupings.has(row.scope.accountId) && namesItsParty(row.scope);
+  });
 }
 
 function postingRows(books: Books): PostingRow[] {
@@ -152,4 +230,40 @@ function namesItsParty(scope: PostingScope): boolean {
 
 function choiceOf(row: PostingRow): WizardChoice {
   return row.choice;
+}
+
+/** The key of the first node of the account, in tree order: a control account's own node, on its first side. */
+function keyOfAccount(node: AccountNode, accountId: string): string | null {
+  if (node.accountId === accountId) {
+    return node.key;
+  }
+
+  for (const child of node.children) {
+    const key = keyOfAccount(child, accountId);
+
+    if (key !== null) {
+      return key;
+    }
+  }
+
+  return null;
+}
+
+/** Whether the account lies below the group, at any depth. */
+function isUnder(
+  parents: Map<string, string | null>,
+  accountId: string,
+  group: string,
+): boolean {
+  let parent = parents.get(accountId) ?? null;
+
+  while (parent !== null) {
+    if (parent === group) {
+      return true;
+    }
+
+    parent = parents.get(parent) ?? null;
+  }
+
+  return false;
 }

@@ -7,22 +7,36 @@ import type {
   DirectPaymentSummary,
   GenericEntryForm,
   GenericEntrySummary,
+  InvoiceForm,
+  InvoicePaymentForm,
+  InvoicePaymentSummary,
+  InvoiceSummary,
   JournalDialogIntents,
   JournalDialogState,
   JournalGridIntents,
   JournalGridState,
   Machine,
+  OpeningForm,
+  OpeningSummary,
   SidebarIntents,
   SidebarState,
   WizardIntents,
   WizardState,
 } from "@cl/client-core";
-import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
-import { type LegacySeed, loadLegacySeed, type Result } from "@cl/domain";
+import {
+  type AppHarness,
+  createAppHarness,
+} from "@cl/client-core/testing/appHarness.ts";
+import {
+  type EntryKind,
+  type LegacySeed,
+  loadLegacySeed,
+  type Result,
+} from "@cl/domain";
 import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
 
 import type { HostClock, Seeded } from "./host/seeded.ts";
-import type { Scenario } from "./scenarios.ts";
+import type { NewEntryDialog, Scenario } from "./scenarios.ts";
 
 // How a scenario's data becomes app state. This file is the project's: when a
 // feature adds a field to `Scenario`, the lines that deliver it go here. The
@@ -109,6 +123,8 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
 
         if (wanted === "delete") {
           dialog.intents.openDelete();
+        } else if (wanted !== undefined && "edit" in wanted) {
+          dialog.intents.openEdit(wanted.edit);
         } else if (wanted !== undefined) {
           dialog.intents.openWizard(wanted.wizard);
         }
@@ -117,14 +133,18 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
       },
       // The generic wizard holds the scenario's description and lines, typed
       // one field at a time, as the person types them.
-      createGenericEntryWizard: (): Machine<
+      // An edit's own entry and kind pass through.
+      createGenericEntryWizard: (
+        editing?: string | null,
+        kind?: EntryKind,
+      ): Machine<
         WizardState<GenericEntryForm, GenericEntrySummary>,
         WizardIntents<GenericEntryForm>
       > => {
-        const wizard = machines.createGenericEntryWizard();
-        const wanted = scenario.dialog;
+        const wizard = machines.createGenericEntryWizard(editing, kind);
+        const wanted = wizardDialog(scenario.dialog);
 
-        if (typeof wanted === "object" && wanted.wizard === "genericEntry") {
+        if (wanted?.wizard === "genericEntry") {
           wizard.intents.edit({ description: wanted.description });
           wizard.intents.edit({ lines: wanted.lines });
         }
@@ -135,16 +155,78 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
       // carries only its field, so the description stays the prefilled one.
       createDirectPaymentWizard: (
         kind: DirectPaymentKind,
+        editing?: string | null,
       ): Machine<
         WizardState<DirectPaymentForm, DirectPaymentSummary>,
         WizardIntents<DirectPaymentForm>
       > => {
-        const wizard = machines.createDirectPaymentWizard(kind);
-        const wanted = scenario.dialog;
+        const wizard = machines.createDirectPaymentWizard(kind, editing);
+        const wanted = wizardDialog(scenario.dialog);
 
-        if (typeof wanted === "object" && wanted.wizard === kind) {
+        if (wanted?.wizard === kind) {
           wizard.intents.edit({ targetId: wanted.targetId });
           wizard.intents.edit({ amount: wanted.amount });
+        }
+
+        return wizard;
+      },
+      // The New invoice wizard holds the scenario's fields, typed one at a
+      // time in the order the scenario writes them, then moves to its step.
+      createInvoiceWizard: (
+        editing: string | null,
+      ): Machine<
+        WizardState<InvoiceForm, InvoiceSummary>,
+        WizardIntents<InvoiceForm>
+      > => {
+        const wizard = machines.createInvoiceWizard(editing);
+        const wanted = wizardDialog(scenario.dialog);
+
+        if (wanted?.wizard === "invoice") {
+          for (const [field, value] of Object.entries(wanted.form)) {
+            wizard.intents.edit({ [field]: value });
+          }
+
+          while (wizard.state$.getValue().step < wanted.step) {
+            const before = wizard.state$.getValue();
+
+            wizard.intents.next();
+
+            if (wizard.state$.getValue().step === before.step) {
+              throw new Error(
+                `the scenario could not leave step ${before.step}: ${stepReason(before.stepVerdict)}`,
+              );
+            }
+          }
+        }
+
+        return wizard;
+      },
+      // The Invoice payment wizard opens on its first step as it is.
+      createInvoicePaymentWizard: (
+        editing: string | null,
+      ): Machine<
+        WizardState<InvoicePaymentForm, InvoicePaymentSummary>,
+        WizardIntents<InvoicePaymentForm>
+      > => {
+        return machines.createInvoicePaymentWizard(editing);
+      },
+      // The Opening balances wizard holds the scenario's rows over its
+      // prefill, typed one row at a time, as the list types them.
+      createOpeningBalancesWizard: (
+        editing: string | null,
+      ): Machine<
+        WizardState<OpeningForm, OpeningSummary>,
+        WizardIntents<OpeningForm>
+      > => {
+        const wizard = machines.createOpeningBalancesWizard(editing);
+        const wanted = wizardDialog(scenario.dialog);
+
+        if (wanted?.wizard === "openingBalances") {
+          for (const [key, amount] of Object.entries(wanted.amounts)) {
+            const { amounts } = wizard.state$.getValue().form;
+
+            wizard.intents.edit({ amounts: { ...amounts, [key]: amount } });
+          }
         }
 
         return wizard;
@@ -159,6 +241,12 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
       // The account's selection is read only while the screen listens, so
       // both arrive after the first render.
       buildings.selectPeriod(scenario.periodId);
+
+      // A new opening needs the period without its seeded one: deleted
+      // through the port, before the Journal's dialog asks the books for it.
+      if (wizardDialog(scenario.dialog)?.wizard === "openingBalances") {
+        deleteSeededOpening(harness, scenario.periodId);
+      }
 
       if (scenario.selectedKey !== undefined) {
         accounts.select(scenario.selectedKey);
@@ -211,9 +299,46 @@ function openOnly(
   }
 }
 
+/** The dialog when it is a wizard on a new entry; null for none, an edit or the delete confirmation. */
+function wizardDialog(dialog: Scenario["dialog"]): NewEntryDialog | null {
+  if (dialog === undefined || dialog === "delete" || "edit" in dialog) {
+    return null;
+  }
+
+  return dialog;
+}
+
+/**
+ * The period's seeded opening entry, deleted through the journal port. The
+ * simulator removes it before the promise settles, so the books no longer
+ * hold it when the menu mounts. Nothing may wait (the host's contract is
+ * synchronous); a refusal is rethrown on the page.
+ */
+function deleteSeededOpening(harness: AppHarness, periodId: string): void {
+  const opening = harness.seed.entries.find((entry) => {
+    return entry.periodId === periodId && entry.kind === "openingBalances";
+  });
+
+  if (opening === undefined) {
+    throw new Error(`the period ${periodId} has no seeded opening entry`);
+  }
+
+  void harness.ports.journal
+    .deleteEntry(opening.id)
+    .then(failOnRefusal)
+    .catch(reportOnThePage);
+}
+
+/** Why a step's verdict refuses; a step that stays put on an accepting verdict is told as such. */
+function stepReason(verdict: Result): string {
+  return verdict.ok
+    ? "its verdict accepts, yet the step did not move"
+    : verdict.reason;
+}
+
 function failOnRefusal(result: Result): void {
   if (!result.ok) {
-    throw new Error(`the scenario's mode was refused: ${result.reason}`);
+    throw new Error(`the scenario's write was refused: ${result.reason}`);
   }
 }
 

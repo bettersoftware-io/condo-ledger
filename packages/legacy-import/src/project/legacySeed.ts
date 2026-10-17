@@ -6,11 +6,13 @@ import {
   type Building,
   type Counterpart,
   type EntryKind,
+  type InvoiceData,
   type JournalEntryData,
   type LegacySeedData,
-  type Party,
+  type PartyData,
   type PostingData,
   romeTime,
+  type WithholdingTaxData,
 } from "@cl/domain";
 
 import { eur } from "../amounts.ts";
@@ -59,7 +61,7 @@ export const ENTRY_KIND_OF_TYPE: Record<string, EntryKind> = {
   withholdingTaxPayment: "withholdingPayment",
 };
 
-/** The periods with balanced books, as the M1 simulators read them. */
+/** The periods with balanced books, as the simulators read them. */
 export function projectLegacySeed(db: Db): LegacySeedData {
   const status = reconcilePeriods(db);
   const buildings: Building[] = projectTree(db)
@@ -117,7 +119,23 @@ export function projectLegacySeed(db: Db): LegacySeedData {
     );
   });
 
-  return { buildings, accounts, entries, parties: projectParties(db, entries) };
+  return {
+    buildings,
+    accounts,
+    entries,
+    parties: periodIds.map((periodId) => {
+      return {
+        periodId: `p${periodId}`,
+        parties: projectParties(db, periodId),
+      };
+    }),
+    invoices: periodIds.flatMap((periodId) => {
+      return projectInvoices(db, periodId, entries);
+    }),
+    withholdingTaxes: periodIds.flatMap((periodId) => {
+      return projectWithholdingTaxes(db, periodId);
+    }),
+  };
 }
 
 /** The TypeScript module the domain's simulators import. */
@@ -237,6 +255,8 @@ function projectEntries(
           };
         });
 
+      const kind = kindOf(row);
+
       return {
         id: `tx${String(row.id)}`,
         periodId: `p${periodId}`,
@@ -246,9 +266,10 @@ function projectEntries(
             `${must(text(row.timestamp), `the timestamp of the transaction ${String(row.id)}`).replace(" ", "T")}Z`,
           ),
         ),
-        kind: kindOf(row),
+        kind,
         description: String(row.description ?? ""),
         postings,
+        invoiceId: invoiceIdOf(row, kind),
       };
     });
 }
@@ -283,36 +304,214 @@ function counterpartOf(line: Row): Counterpart | null {
     : { kind: "supplier", id: `md${supplier}` };
 }
 
-function projectParties(db: Db, entries: JournalEntryData[]): Party[] {
-  const suppliers = new Map<string, Party>();
-  const owners = new Map<string, Party>();
+/**
+ * Every ledgerInvoice of the period, with the terms the domain computes its
+ * postings from. The legacy percentages are percent decimals (22.00), a Rate
+ * is hundredths of a percent (2200). The cost account is the one debit line of
+ * the registration, the entry that names the invoice.
+ */
+function projectInvoices(
+  db: Db,
+  periodId: string,
+  entries: JournalEntryData[],
+): InvoiceData[] {
+  const registrations = new Map<string, Row>();
 
-  for (const entry of entries) {
-    for (const posting of entry.postings) {
-      const counterpart = posting.counterpart;
+  for (const row of db.rows("ledgerTransaction")) {
+    const invoiceId = text(row.ledgerInvoiceId);
 
-      if (counterpart === null) {
-        continue;
-      }
-
-      if (counterpart.kind === "supplier" && !suppliers.has(counterpart.id)) {
-        suppliers.set(counterpart.id, {
-          kind: "supplier",
-          id: counterpart.id,
-          name: masterDataName(db, counterpart.id.slice(2)),
-        });
-      }
-
-      if (counterpart.kind === "owner" && !owners.has(counterpart.id)) {
-        owners.set(counterpart.id, ownerParty(db, counterpart.id.slice(1)));
-      }
+    if (
+      String(row.accountingPeriodId) === periodId &&
+      text(row.type) === "ledgerInvoiceRegistration" &&
+      invoiceId !== undefined
+    ) {
+      registrations.set(invoiceId, row);
     }
   }
 
-  return [...suppliers.values(), ...owners.values()];
+  return db
+    .rows("ledgerInvoice")
+    .filter((row) => {
+      return String(row.accountingPeriodId) === periodId;
+    })
+    .sort((a, b) => {
+      return Number(a.id) - Number(b.id);
+    })
+    .map((row) => {
+      const id = String(row.id);
+      const registration = must(
+        registrations.get(id),
+        `the registration of the invoice ${id}`,
+      );
+      const entryId = `tx${String(registration.id)}`;
+      const debits = must(
+        entries.find((entry) => {
+          return entry.id === entryId;
+        }),
+        `the entry ${entryId}`,
+      ).postings.filter((posting) => {
+        return posting.debit > 0;
+      });
+
+      if (debits.length !== 1) {
+        throw new Error(
+          `the registration ${String(registration.id)} of the invoice ${id} has ${debits.length} debit lines`,
+        );
+      }
+
+      const withholdingId = text(row.withholdingTaxId);
+
+      return {
+        id: `li${id}`,
+        periodId: `p${periodId}`,
+        entryId,
+        supplierId: `md${String(row.masterDataId)}`,
+        number: String(row.number),
+        reason: text(row.description) ?? "",
+        date: String(row.date),
+        dueDate: text(row.expiryDate) ?? null,
+        costAccountId: (debits[0] as PostingData).accountId,
+        taxable: eur(text(row.taxableBase)).cents,
+        socialSecurityRate: percent(row.welfareTaxPercentage),
+        vatRate: percent(row.vatPercentage),
+        nonTaxable: eur(text(row.totalTaxFreeAmount)).cents,
+        withholdingCode:
+          withholdingId === undefined
+            ? null
+            : withholdingCode(
+                must(
+                  db.by("withholdingTax", "id").get(withholdingId),
+                  `the withholding tax ${withholdingId} of the invoice ${id}`,
+                ),
+              ),
+        withholdingOnSocialSecurity:
+          text(row.applyWithholdingTaxOnWelfareTax) === "1",
+      };
+    });
 }
 
-function ownerParty(db: Db, residentId: string): Party {
+/** The period's withholding catalogue: each withholdingTax the period links to an account, by code. */
+function projectWithholdingTaxes(
+  db: Db,
+  periodId: string,
+): WithholdingTaxData[] {
+  const taxes = db.by("withholdingTax", "id");
+
+  return db
+    .rows("withholdingTax2LA")
+    .filter((link) => {
+      return String(link.accountingPeriodId) === periodId;
+    })
+    .map((link) => {
+      const taxId = String(link.withholdingTaxId);
+      const tax = must(taxes.get(taxId), `the withholding tax ${taxId}`);
+
+      return {
+        periodId: `p${periodId}`,
+        code: withholdingCode(tax),
+        name: String(tax.name),
+        rate: percent(tax.percentage),
+        accountId: `la${String(link.ledgerAccountId)}`,
+      };
+    })
+    .sort((a, b) => {
+      return a.code.localeCompare(b.code);
+    });
+}
+
+/** The building's suppliers, then the residencies (owners and tenants) that overlap the period, each in id order. */
+function projectParties(db: Db, periodId: string): PartyData[] {
+  const period = must(
+    db.by("accountingPeriod", "id").get(periodId),
+    `the period ${periodId}`,
+  );
+  const start = String(period.startDate).slice(0, 10);
+  const end = String(period.endDate).slice(0, 10);
+
+  const suppliers: PartyData[] = db
+    .rows("condominiumSupplier")
+    .filter((row) => {
+      return String(row.condominiumId) === String(period.condominiumId);
+    })
+    .map((row) => {
+      return String(row.masterDataId);
+    })
+    .sort(byNumber)
+    .map((id) => {
+      return { kind: "supplier", id: `md${id}`, name: masterDataName(db, id) };
+    });
+
+  const unitPeriods = db.group("unitPeriod", "unitId");
+  const residents = db.group("unitResident", "unitPeriodId");
+  const residentIds = db
+    .rows("unit")
+    .filter((unit) => {
+      return (
+        String(unit.accountingPeriodId) === periodId &&
+        overlaps(unit, start, end)
+      );
+    })
+    .flatMap((unit) => {
+      return unitPeriods.get(String(unit.id)) ?? [];
+    })
+    .filter((unitPeriod) => {
+      return overlaps(unitPeriod, start, end);
+    })
+    .flatMap((unitPeriod) => {
+      return residents.get(String(unitPeriod.id)) ?? [];
+    })
+    .filter((resident) => {
+      return overlaps(resident, start, end);
+    })
+    .map((resident) => {
+      return String(resident.id);
+    })
+    .sort(byNumber);
+
+  return [
+    ...suppliers,
+    ...residentIds.map((id) => {
+      return ownerParty(db, id);
+    }),
+  ];
+}
+
+/** Whether a row's periodRestriction dates, either of them open, meet the period's. */
+function overlaps(row: Row, start: string, end: string): boolean {
+  const from = text(row.periodRestrictionStartDate)?.slice(0, 10);
+  const to = text(row.periodRestrictionEndDate)?.slice(0, 10);
+
+  return (
+    (from === undefined || from <= end) && (to === undefined || to >= start)
+  );
+}
+
+function withholdingCode(tax: Row): string {
+  return must(
+    text(tax.code),
+    `the code of the withholding tax ${String(tax.id)}`,
+  );
+}
+
+/** A legacy percent decimal (22.00) as a Rate's hundredths of a percent (2200). */
+function percent(value: unknown): number {
+  return eur(text(value)).cents;
+}
+
+function byNumber(a: string, b: string): number {
+  return Number(a) - Number(b);
+}
+
+/** The invoice a registration created or a payment pays. The dump links others too (a withholding payment); the domain names none on them. */
+function invoiceIdOf(row: Row, kind: EntryKind): string | null {
+  const id = text(row.ledgerInvoiceId);
+
+  return id === undefined || (kind !== "invoice" && kind !== "invoicePayment")
+    ? null
+    : `li${id}`;
+}
+
+function ownerParty(db: Db, residentId: string): PartyData {
   const resident = must(
     db.by("unitResident", "id").get(residentId),
     `the resident ${residentId}`,
@@ -338,6 +537,7 @@ function ownerParty(db: Db, residentId: string): Party {
       text(unit.code),
       `the code of the unit ${String(unit.id)} of resident ${residentId}`,
     ),
+    startingBalance: eur(text(resident.startingBalance)).cents,
   };
 }
 

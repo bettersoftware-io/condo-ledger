@@ -31,7 +31,7 @@ export function renderPozzetto2013Fixture(): string {
   return renderOracleFixture(pozzetto2013Books().tree, DEVIATIONS);
 }
 
-/** The period's accounts, entries and the seed's parties, built into the tree the Accounts and Journal screens show. */
+/** The period's accounts, entries and parties, built into the tree the Accounts and Journal screens show. */
 export function pozzetto2013Books(): Pozzetto2013Books {
   const seed = loadLegacySeed(legacySeedData);
   const entries = seed.entries.filter((entry) => {
@@ -43,7 +43,9 @@ export function pozzetto2013Books(): Pozzetto2013Books {
       return account.periodId === PERIOD_ID;
     }),
     entries,
-    seed.parties,
+    seed.parties.find((list) => {
+      return list.periodId === PERIOD_ID;
+    })?.parties ?? [],
   );
 
   return { tree, entries };

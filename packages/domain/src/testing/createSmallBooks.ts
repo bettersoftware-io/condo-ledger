@@ -177,6 +177,7 @@ export function createSmallBooks(): SmallBooks {
         personId: "md10",
         name: "Rossi Mario",
         unitCode: "A01",
+        startingBalance: cents(0),
       },
       {
         kind: "owner",
@@ -184,6 +185,7 @@ export function createSmallBooks(): SmallBooks {
         personId: "md10",
         name: "Rossi Mario",
         unitCode: "A02",
+        startingBalance: cents(0),
       },
       {
         kind: "owner",
@@ -191,6 +193,7 @@ export function createSmallBooks(): SmallBooks {
         personId: "md11",
         name: "Bianchi Anna",
         unitCode: "B01",
+        startingBalance: cents(0),
       },
     ],
   };
@@ -219,7 +222,9 @@ export function createSmallSeed(): LegacySeed {
     ],
     accounts: books.accounts,
     entries: books.entries,
-    parties: books.parties,
+    parties: [{ periodId: books.periodId, parties: books.parties }],
+    invoices: [],
+    withholdingTaxes: [],
   };
 }
 
@@ -263,6 +268,7 @@ function createEntry(
     kind,
     description,
     postings,
+    invoiceId: null,
   };
 }
 

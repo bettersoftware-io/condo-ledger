@@ -12,6 +12,7 @@ export function TreeGridRow({
   columns,
   onToggle,
   onSelect,
+  onActivate,
 }: TreeGridRowProps): ReactElement {
   const leading = row.leading ?? [];
 
@@ -28,6 +29,18 @@ export function TreeGridRow({
       event.preventDefault();
       onSelect(row.key);
     }
+  }
+
+  /** A double click on the caret is two toggles, not an activation. */
+  function activate(event: MouseEvent<HTMLDivElement>): void {
+    if (
+      event.target instanceof Element &&
+      event.target.closest(".tree-grid-caret") !== null
+    ) {
+      return;
+    }
+
+    onActivate?.(row.key);
   }
 
   function toggle(event: MouseEvent<HTMLButtonElement>): void {
@@ -48,6 +61,7 @@ export function TreeGridRow({
       aria-expanded={row.hasChildren ? row.expanded : undefined}
       tabIndex={0}
       onClick={select}
+      onDoubleClick={activate}
       onKeyDown={selectFromKeyboard}
     >
       {leading.map((cell, index) => {
@@ -116,4 +130,5 @@ export interface TreeGridRowProps {
   columns: TreeGridColumn[];
   onToggle: (key: string) => void;
   onSelect: (key: string) => void;
+  onActivate?: (key: string) => void;
 }

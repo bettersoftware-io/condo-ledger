@@ -20,6 +20,7 @@ export function TreeGrid({
   emptyMessage,
   onToggle,
   onSelect,
+  onActivate,
   onResize,
 }: TreeGridProps): ReactElement {
   const grid = useRef<HTMLDivElement>(null);
@@ -63,6 +64,7 @@ export function TreeGrid({
             columns={columns}
             onToggle={onToggle}
             onSelect={onSelect}
+            onActivate={onActivate}
           />
         );
       })}
@@ -126,5 +128,7 @@ export interface TreeGridProps {
   emptyMessage: string;
   onToggle: (key: string) => void;
   onSelect: (key: string) => void;
+  /** A double click on a row; nothing happens when left out. */
+  onActivate?: (key: string) => void;
   onResize: (index: number, px: number) => void;
 }

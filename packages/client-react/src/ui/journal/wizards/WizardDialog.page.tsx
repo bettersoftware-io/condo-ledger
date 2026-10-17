@@ -8,6 +8,9 @@ type User = ReturnType<typeof userEvent.setup>;
 /** A lines grid's typed columns. */
 type LineColumn = "amount" | "debit" | "credit";
 
+/** A side of an opening row. */
+type OpeningSide = "debit" | "credit";
+
 /** What a test can do with, and ask of, the wizard open over the Journal screen. */
 export interface WizardDialogPage {
   title: () => string;
@@ -44,6 +47,55 @@ export interface WizardDialogPage {
   /** The generic lines grid's footer: Debit, Credit, Balance. */
   totals: () => string[];
   isSaveDisabled: () => boolean;
+  isNextDisabled: () => boolean;
+  next: () => Promise<void>;
+  /** Whether the footer offers ◀ Back. */
+  hasBack: () => boolean;
+  back: () => Promise<void>;
+  /** Chooses the option with this label in the select with this name. */
+  choose: (selectName: string, optionLabel: string) => Promise<void>;
+  /** Ticks or clears the checkbox with this name. */
+  check: (name: string) => Promise<void>;
+  isChecked: (name: string) => boolean;
+  /** Whether a wizard is drawn at all. */
+  isShown: () => boolean;
+  /** Whether the select with this name is shown but cannot be changed. */
+  isLocked: (selectName: string) => boolean;
+  /** The note under the supplier; null when there is none. */
+  supplierNote: () => string | null;
+  /** The warning under the invoice number; null when there is none. */
+  duplicateWarning: () => string | null;
+  /** The invoice's computed rows, each as its label and its amount. */
+  calcRows: () => string[][];
+  /** The open invoices grid's rows, each as its cells' texts. */
+  openInvoices: () => string[][];
+  /** The numbers of the open invoices whose due date is past. */
+  overdueInvoices: () => string[];
+  /** What the open invoices grid says when it has no row; null when it has rows. */
+  emptyText: () => string | null;
+  trancheNote: () => string | null;
+  /** The opening list's rows on screen, each as its label, its Debit and its Credit. */
+  openingRows: () => string[][];
+  /** Clears a side of the opening row with this label and types the text into it. */
+  fillOpening: (
+    label: string,
+    side: OpeningSide,
+    text: string,
+  ) => Promise<void>;
+  /** Puts the focus on a side of the opening row with this label. */
+  focusOpening: (label: string, side: OpeningSide) => Promise<void>;
+  /** Types into the opening list's search box. */
+  searchOpening: (text: string) => Promise<void>;
+  /** The "Transaction balance" amount above the opening list. */
+  openingBalance: () => string;
+  /** Whether the "Transaction balance" is drawn in the negative tone. */
+  isBalanceNegative: () => boolean;
+  /** The name of the field that has the keyboard's focus; null when the focus is outside the dialog's fields. */
+  focusedLabel: () => string | null;
+  /** Presses Enter where the focus is. */
+  pressEnter: () => Promise<void>;
+  /** Presses Tab where the focus is. */
+  pressTab: () => Promise<void>;
   save: () => Promise<void>;
   cancel: () => Promise<void>;
   pressEscape: () => Promise<void>;
@@ -78,14 +130,41 @@ export function wizardDialogPage(
     return found;
   }
 
+  /** The form field's input; a computed row's rate is found by its own label. */
   function input(label: string): HTMLInputElement {
-    const found = field(label).querySelector("input");
+    const row = within(dialog())
+      .getAllByTestId(TESTIDS.formField)
+      .some((candidate) => {
+        return fieldLabel(candidate) === label;
+      });
+
+    const found = row
+      ? field(label).querySelector("input")
+      : within(dialog()).getByRole<HTMLInputElement>("textbox", {
+          name: label,
+        });
 
     if (found === null) {
       throw new Error(`The field ${label} has no input`);
     }
 
     return found;
+  }
+
+  function combobox(name: string): HTMLSelectElement {
+    return within(dialog()).getByRole<HTMLSelectElement>("combobox", { name });
+  }
+
+  function textOf(testId: string): string | null {
+    return within(dialog()).queryByTestId(testId)?.textContent ?? null;
+  }
+
+  function invoiceRows(): HTMLElement[] {
+    return within(dialog()).queryAllByTestId(TESTIDS.openInvoiceRow);
+  }
+
+  function cellsOf(row: HTMLElement): HTMLElement[] {
+    return Array.from(row.querySelectorAll<HTMLElement>(".open-invoices-cell"));
   }
 
   function lineBox(name: string): HTMLElement {
@@ -108,6 +187,31 @@ export function wizardDialogPage(
 
   function button(testId: string): HTMLButtonElement {
     return within(dialog()).getByTestId<HTMLButtonElement>(testId);
+  }
+
+  async function chooseIn(
+    select: HTMLSelectElement,
+    optionLabel: string,
+  ): Promise<void> {
+    const option = Array.from(select.options).find((candidate) => {
+      return candidate.textContent === optionLabel;
+    });
+
+    if (option === undefined) {
+      throw new Error(`No option labelled ${optionLabel}`);
+    }
+
+    await user.selectOptions(select, option);
+  }
+
+  function openingBox(label: string, side: OpeningSide): HTMLInputElement {
+    return within(dialog()).getByRole<HTMLInputElement>("textbox", {
+      name: `${label} ${side}`,
+    });
+  }
+
+  function balance(): HTMLElement {
+    return within(dialog()).getByTestId(TESTIDS.openingBalance);
   }
 
   return {
@@ -140,19 +244,7 @@ export function wizardDialogPage(
       await user.click(within(dialog()).getByRole("radio", { name: label }));
     },
     select: async (lineIndex: number, optionLabel: string): Promise<void> => {
-      const cell = within(dialog()).getByRole<HTMLSelectElement>("combobox", {
-        name: `Line ${lineIndex + 1} account`,
-      });
-
-      const option = Array.from(cell.options).find((candidate) => {
-        return candidate.textContent === optionLabel;
-      });
-
-      if (option === undefined) {
-        throw new Error(`No option labelled ${optionLabel}`);
-      }
-
-      await user.selectOptions(cell, option);
+      await chooseIn(combobox(`Line ${lineIndex + 1} account`), optionLabel);
     },
     shownAccounts: (): string[] => {
       return textsOf(
@@ -209,6 +301,131 @@ export function wizardDialogPage(
     },
     isSaveDisabled: (): boolean => {
       return button(TESTIDS.wizardSave).disabled;
+    },
+    isNextDisabled: (): boolean => {
+      return button(TESTIDS.wizardNext).disabled;
+    },
+    next: async (): Promise<void> => {
+      await user.click(button(TESTIDS.wizardNext));
+    },
+    hasBack: (): boolean => {
+      return within(dialog()).queryByTestId(TESTIDS.wizardBack) !== null;
+    },
+    back: async (): Promise<void> => {
+      await user.click(button(TESTIDS.wizardBack));
+    },
+    choose: async (selectName: string, optionLabel: string): Promise<void> => {
+      await chooseIn(combobox(selectName), optionLabel);
+    },
+    check: async (name: string): Promise<void> => {
+      await user.click(within(dialog()).getByRole("checkbox", { name }));
+    },
+    isChecked: (name: string): boolean => {
+      return within(dialog()).getByRole<HTMLInputElement>("checkbox", { name })
+        .checked;
+    },
+    isShown: (): boolean => {
+      return rendered.queryByTestId(TESTIDS.dialog) !== null;
+    },
+    isLocked: (selectName: string): boolean => {
+      return combobox(selectName).disabled;
+    },
+    supplierNote: (): string | null => {
+      return textOf(TESTIDS.supplierSelectNote);
+    },
+    duplicateWarning: (): string | null => {
+      return textOf(TESTIDS.invoiceDuplicate);
+    },
+    calcRows: (): string[][] => {
+      return within(dialog())
+        .queryAllByTestId(TESTIDS.invoiceCalcRow)
+        .map((row) => {
+          return [
+            row.querySelector(".invoice-calc-label")?.textContent ?? "",
+            row.querySelector(".invoice-calc-amount")?.textContent ?? "",
+          ];
+        });
+    },
+    openInvoices: (): string[][] => {
+      return invoiceRows().map((row) => {
+        return textsOf(cellsOf(row));
+      });
+    },
+    overdueInvoices: (): string[] => {
+      return invoiceRows()
+        .filter((row) => {
+          return row.querySelector('[data-overdue="true"]') !== null;
+        })
+        .map((row) => {
+          return cellsOf(row)[0]?.textContent ?? "";
+        });
+    },
+    emptyText: (): string | null => {
+      return textOf(TESTIDS.openInvoicesEmpty);
+    },
+    trancheNote: (): string | null => {
+      return textOf(TESTIDS.wizardTrancheNote);
+    },
+    openingRows: (): string[][] => {
+      return within(dialog())
+        .queryAllByTestId(TESTIDS.openingRow)
+        .map((row) => {
+          const [debit, credit] = Array.from(row.querySelectorAll("input"));
+
+          return [
+            row.querySelector(".opening-label")?.textContent ?? "",
+            debit?.value ?? "",
+            credit?.value ?? "",
+          ];
+        });
+    },
+    fillOpening: async (
+      label: string,
+      side: OpeningSide,
+      text: string,
+    ): Promise<void> => {
+      await retype(openingBox(label, side), text);
+    },
+    focusOpening: async (label: string, side: OpeningSide): Promise<void> => {
+      await user.click(openingBox(label, side));
+    },
+    searchOpening: async (text: string): Promise<void> => {
+      await retype(
+        within(dialog()).getByRole("searchbox", { name: "Search accounts" }),
+        text,
+      );
+    },
+    openingBalance: (): string => {
+      return (
+        balance().querySelector(".opening-balance-amount")?.textContent ?? ""
+      );
+    },
+    isBalanceNegative: (): boolean => {
+      return balance().getAttribute("data-tone") === "neg";
+    },
+    focusedLabel: (): string | null => {
+      const active = document.activeElement;
+
+      if (!(active instanceof HTMLElement) || !dialog().contains(active)) {
+        return null;
+      }
+
+      const named = active.getAttribute("aria-label");
+      const row = active.closest<HTMLElement>(
+        `[data-testid="${TESTIDS.formField}"]`,
+      );
+
+      if (named !== null) {
+        return named;
+      }
+
+      return row === null ? null : fieldLabel(row);
+    },
+    pressEnter: async (): Promise<void> => {
+      await user.keyboard("{Enter}");
+    },
+    pressTab: async (): Promise<void> => {
+      await user.tab();
     },
     save: async (): Promise<void> => {
       await user.click(button(TESTIDS.wizardSave));

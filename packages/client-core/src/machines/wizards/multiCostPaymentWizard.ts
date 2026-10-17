@@ -1,6 +1,12 @@
-import { addCents, type Cents, ZERO_CENTS } from "@cl/domain";
+import {
+  addCents,
+  type Cents,
+  type JournalEntry,
+  type Result,
+  ZERO_CENTS,
+} from "@cl/domain";
 
-import { parseAmount } from "#/amounts.ts";
+import { amountText, parseAmount } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 
 import {
@@ -13,15 +19,16 @@ import {
   type Debit,
   DIRECT_PAYMENT_DESCRIPTIONS,
   judgedPayment,
+  paymentDebits,
 } from "./directPaymentWizard.ts";
 import {
-  type AddEntry,
   createWizardMachine,
   type Derived,
   keepingOneLine,
   refused,
   type WizardChoice,
   type WizardMachine,
+  type WriteEntry,
 } from "./wizard.ts";
 
 /** One cost of the purchase: the expense leaf debited and its amount, as typed. */
@@ -53,47 +60,87 @@ interface ReadLine {
 
 const EMPTY_LINE: CostLine = { accountId: null, amount: "" };
 
+const EMPTY_FORM: MultiCostPaymentForm = {
+  description: DIRECT_PAYMENT_DESCRIPTIONS.directPaymentBank,
+  amount: "",
+  lines: [EMPTY_LINE],
+};
+
 /**
  * A bank purchase split over several costs: each line's expense leaf debited,
  * the bank credited with the amount paid, which the lines must sum to.
+ * Editing an entry, the form is its description, its debit lines and what
+ * its credits paid.
  */
 export function createMultiCostPaymentWizard(
   books: Books | null,
-  addEntry: AddEntry,
+  write: WriteEntry,
+  editing: JournalEntry | null,
 ): WizardMachine<MultiCostPaymentForm, MultiCostPaymentSummary> {
   const paying = payingOf(books, "bank");
   const choices = books === null ? [] : leafChoices(books, isExpenseLeaf);
+  const replacing = editing?.id ?? null;
+
+  function derived(form: MultiCostPaymentForm): Derived {
+    return derive(paying, choices, form, replacing);
+  }
 
   return keepingOneLine(
     createWizardMachine<MultiCostPaymentForm, MultiCostPaymentSummary>(
       {
-        initial: {
-          description: DIRECT_PAYMENT_DESCRIPTIONS.directPaymentBank,
-          amount: "",
-          lines: [EMPTY_LINE],
-        },
+        initial: editing === null ? EMPTY_FORM : formOf(editing),
         stepCount: 1,
         choices,
-        derive: (form: MultiCostPaymentForm): Derived => {
-          return derive(paying, choices, form);
-        },
+        derive: derived,
         summarize: (form: MultiCostPaymentForm): MultiCostPaymentSummary => {
           return {
             paidFrom: paying?.paidFrom.name ?? null,
             linesTotal: linesTotal(form.lines),
           };
         },
+        stepVerdict: (form: MultiCostPaymentForm): Result => {
+          return derived(form).verdict;
+        },
+        editing: replacing,
       },
-      addEntry,
+      write,
     ),
     EMPTY_LINE,
   );
+}
+
+/** Whether the multi-cost wizard can write this entry's postings: a bank purchase of one expense leaf or several, credited to the bank. */
+export function fitsMultiCost(entry: JournalEntry, books: Books): boolean {
+  return (
+    entry.kind === "directPaymentBank" &&
+    paymentDebits(entry, books, "bank", isExpenseLeaf) !== null
+  );
+}
+
+/** The form an entry was written from: its description, its credits as the amount paid, a line per debit. */
+function formOf(entry: JournalEntry): MultiCostPaymentForm {
+  const lines: CostLine[] = [];
+  let paid = ZERO_CENTS;
+
+  for (const posting of entry.postings) {
+    paid = addCents(paid, posting.credit);
+
+    if (posting.debit > ZERO_CENTS) {
+      lines.push({
+        accountId: posting.accountId,
+        amount: amountText(posting.debit),
+      });
+    }
+  }
+
+  return { description: entry.description, amount: amountText(paid), lines };
 }
 
 function derive(
   paying: Paying | null,
   choices: WizardChoice[],
   form: MultiCostPaymentForm,
+  replacing: string | null,
 ): Derived {
   if (paying === null) {
     return refused("no-paid-from-account");
@@ -137,6 +184,7 @@ function derive(
     paying,
     costs,
     paid,
+    replacing,
   );
 }
 
