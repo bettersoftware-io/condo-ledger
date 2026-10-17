@@ -1,7 +1,8 @@
 /* The Opening balances wizard: one list in place of the design's tree, with
-   the tree's measure (240px tall at most). The list is what gives way in a
-   dialog at its 90vh ceiling, as the selectable list does: its rows shrink
-   and scroll, so the dialog's body need not scroll around it. */
+   the tree's measure (240px tall at most), kept whatever the dialog's height.
+   In a dialog at its 90vh ceiling the read-only "Entry postings" below is
+   what gives way: it shrinks and scrolls, so the dialog's body need not
+   scroll around the list the person types in. */
 
 .opening-tools {
   display: flex;
@@ -59,15 +60,26 @@
   --wizard-columns: 1fr 110px 110px;
 
   display: flex;
-  flex: 0 1 auto;
+  flex: none;
   flex-direction: column;
-  min-height: 96px;
 }
 
 .opening-rows {
-  flex: 0 1 auto;
-  min-height: 0;
+  flex: none;
   max-height: 240px;
+  overflow: auto;
+}
+
+/* The postings of this wizard's dialog shrink to the room the list leaves,
+   and scroll inside it. The other wizards keep theirs at full height. */
+.dialog-body:has(.opening-list) > .wizard-section {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.dialog-body:has(.opening-list) .wizard-preview {
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: auto;
 }
 
