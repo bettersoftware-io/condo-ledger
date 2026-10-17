@@ -2126,7 +2126,7 @@ export const legacySeedData: LegacySeedData = {
           "counterpart": null
         }
       ],
-      "invoiceId": "li1"
+      "invoiceId": null
     },
     {
       "id": "tx13",

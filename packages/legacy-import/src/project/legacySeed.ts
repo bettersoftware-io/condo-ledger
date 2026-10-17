@@ -255,6 +255,8 @@ function projectEntries(
           };
         });
 
+      const kind = kindOf(row);
+
       return {
         id: `tx${String(row.id)}`,
         periodId: `p${periodId}`,
@@ -264,10 +266,10 @@ function projectEntries(
             `${must(text(row.timestamp), `the timestamp of the transaction ${String(row.id)}`).replace(" ", "T")}Z`,
           ),
         ),
-        kind: kindOf(row),
+        kind,
         description: String(row.description ?? ""),
         postings,
-        invoiceId: idOr(row.ledgerInvoiceId, "li"),
+        invoiceId: invoiceIdOf(row, kind),
       };
     });
 }
@@ -500,10 +502,13 @@ function byNumber(a: string, b: string): number {
   return Number(a) - Number(b);
 }
 
-function idOr(value: unknown, prefix: string): string | null {
-  const id = text(value);
+/** The invoice a registration created or a payment pays. The dump links others too (a withholding payment); the domain names none on them. */
+function invoiceIdOf(row: Row, kind: EntryKind): string | null {
+  const id = text(row.ledgerInvoiceId);
 
-  return id === undefined ? null : `${prefix}${id}`;
+  return id === undefined || (kind !== "invoice" && kind !== "invoicePayment")
+    ? null
+    : `li${id}`;
 }
 
 function ownerParty(db: Db, residentId: string): PartyData {

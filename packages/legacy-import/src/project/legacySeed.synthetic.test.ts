@@ -201,6 +201,23 @@ describe("projectLegacySeed on a small synthetic dump", () => {
     ).toEqual(["2013-01-10T15:59:29", "2013-07-01T17:05:51"]);
   });
 
+  it("names an invoice only on a registration or a payment, whatever invoice the dump links to another kind", () => {
+    const tables = edit(createSmallDump(), "ledgerTransaction", "201", {
+      ledgerInvoiceId: "400",
+    });
+    const entries = projectLegacySeed(buildDb(tables)).entries;
+
+    edit(tables, "ledgerTransaction", "201", {
+      type: "ledgerInvoicePayment",
+    });
+
+    expect(
+      [entries, projectLegacySeed(buildDb(tables)).entries].map((list) => {
+        return list[1]?.invoiceId;
+      }),
+    ).toEqual([null, "li400"]);
+  });
+
   it("leaves out a building whose only period's books do not balance", () => {
     const tables = edit(createSmallDump(), "ledgerEntry", "303", {
       amount: "-49.98",

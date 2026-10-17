@@ -67,6 +67,22 @@ describe("the seed's invoices", () => {
     },
   );
 
+  it("names an invoice on no entry but a registration or a payment", () => {
+    expect(
+      seed.entries
+        .filter((entry) => {
+          return (
+            entry.kind !== "invoice" &&
+            entry.kind !== "invoicePayment" &&
+            entry.invoiceId !== null
+          );
+        })
+        .map((entry) => {
+          return `${entry.id}:${entry.kind}:${String(entry.invoiceId)}`;
+        }),
+    ).toEqual([]);
+  });
+
   it("leaves Pozzetto 2013 with the eight invoices the dump leaves unsettled", () => {
     expect(
       openInvoices(
@@ -154,32 +170,36 @@ describe("the seed's parties", () => {
       "the opening entry of p36",
     );
 
-    const balances = new Map(
-      owners(partiesOf("p36")).map((party) => {
-        return [party.id, party.startingBalance];
-      }),
+    const lines = Object.fromEntries(
+      opening.postings
+        .filter((posting) => {
+          return posting.counterpart?.kind === "owner";
+        })
+        .map((posting) => {
+          return [
+            must(posting.counterpart, "a counterpart").id,
+            posting.debit - posting.credit,
+          ];
+        }),
     );
 
-    const ownerLines = opening.postings.filter((posting) => {
-      return posting.counterpart?.kind === "owner";
-    });
+    // Every resident who starts the period owing or in credit, and no other, has a line of that amount.
+    const balances = Object.fromEntries(
+      owners(partiesOf("p36"))
+        .filter((party) => {
+          return party.startingBalance !== 0;
+        })
+        .map((party) => {
+          return [party.id, party.startingBalance];
+        }),
+    );
 
     const others = opening.postings.filter((posting) => {
       return posting.counterpart?.kind !== "owner";
     });
 
-    expect(ownerLines.length).toBeGreaterThan(0);
-
-    for (const posting of ownerLines) {
-      const id = must(posting.counterpart, "a counterpart").id;
-
-      expect(posting.debit - posting.credit).toBe(balances.get(id));
-      balances.delete(id);
-    }
-
-    // The residents the entry does not name start the period at zero.
-    expect(new Set(balances.values())).toEqual(new Set([0]));
-
+    expect(Object.keys(lines).length).toBeGreaterThan(0);
+    expect(lines).toEqual(balances);
     expect(others).toEqual([
       { accountId: "la156", debit: 625099, credit: 0, counterpart: null },
     ]);
