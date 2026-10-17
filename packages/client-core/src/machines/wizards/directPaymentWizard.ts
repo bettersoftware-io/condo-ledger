@@ -11,6 +11,7 @@ import { parseAmount } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 
 import {
+  contextOf,
   isExpenseLeaf,
   leafChoices,
   type Paying,
@@ -201,7 +202,7 @@ export function judgedPayment(
     { path: shortPath(books, paidFrom.id), debit: ZERO_CENTS, credit: paid },
   ];
 
-  return judged(preview, draft, books.accounts);
+  return judged(preview, draft, contextOf(books, null));
 }
 
 /** The description the wizard proposes: a withholding names the tax account chosen. */

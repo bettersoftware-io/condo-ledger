@@ -57,10 +57,12 @@ describe("accounts simulator", () => {
     expect(seen).toEqual([0]);
   });
 
-  it("leaves another period's accounts and parties out", async () => {
+  it("leaves another period's accounts, parties and withholding codes out", async () => {
     const port = createAccountsSimulator(createTwoPeriodSeed());
     const accounts = await firstValueFrom(port.accounts("p1"));
     const parties = await firstValueFrom(port.parties("p2"));
+
+    expect(await firstValueFrom(port.withholdingTaxes("p2"))).toEqual([]);
 
     expect(
       accounts.some((account) => {

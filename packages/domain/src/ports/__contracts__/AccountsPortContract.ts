@@ -51,6 +51,23 @@ export function describeAccountsPortContract(
       }
     });
 
+    it("answers a period's withholding catalogue, every code of that period", async () => {
+      const { port, periodId, teardown } = createHarness();
+
+      try {
+        const catalogue = await firstValueFrom(port.withholdingTaxes(periodId));
+
+        expect(catalogue.length).toBeGreaterThan(0);
+        expect(
+          catalogue.every((tax) => {
+            return tax.periodId === periodId;
+          }),
+        ).toBe(true);
+      } finally {
+        teardown();
+      }
+    });
+
     it("fails, naming the id, for a period it does not have", async () => {
       const { port, unknownPeriodId, teardown } = createHarness();
 
@@ -60,6 +77,9 @@ export function describeAccountsPortContract(
         ).rejects.toThrow(unknownPeriodId);
         await expect(
           firstValueFrom(port.parties(unknownPeriodId)),
+        ).rejects.toThrow(unknownPeriodId);
+        await expect(
+          firstValueFrom(port.withholdingTaxes(unknownPeriodId)),
         ).rejects.toThrow(unknownPeriodId);
       } finally {
         teardown();

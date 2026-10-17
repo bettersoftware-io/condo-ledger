@@ -27,6 +27,7 @@ export * from "./useCases/allocate.ts";
 export * from "./useCases/invoice.ts";
 export * from "./useCases/journal.ts";
 export * from "./useCases/ledger.ts";
+export * from "./useCases/openInvoices.ts";
 export * from "./useCases/riparto/computeBalances.ts";
 export * from "./useCases/riparto/computeInstallments.ts";
 export * from "./useCases/riparto/computeRiparto.ts";

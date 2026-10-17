@@ -315,7 +315,7 @@ describe("JournalScreen", () => {
   it("a refused delete keeps the alert open with the reason and the entry in the grid", async () => {
     const page = mountJournalScreen();
 
-    await page.clickRow("Fattura Alfa");
+    await page.clickRow("Incasso Bianchi");
     await page.clickTool("Delete entry");
     await page.confirmYes();
 
@@ -324,7 +324,7 @@ describe("JournalScreen", () => {
       "This kind of entry is removed through its own flow, which is not built yet.",
     );
     expect(page.entryLabels()).toHaveLength(9);
-    expect(page.isSelected("Fattura Alfa")).toBe(true);
+    expect(page.isSelected("Incasso Bianchi")).toBe(true);
 
     await page.confirmNo();
     expect(page.confirmOpen()).toBe(false);

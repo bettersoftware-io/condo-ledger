@@ -2,9 +2,9 @@ import { type DefaultedStateObservable, state } from "@rx-state/core";
 import { BehaviorSubject, map } from "rxjs";
 
 import {
-  type Account,
   type Cents,
   type EntryAdded,
+  type EntryContext,
   type EntryDraft,
   type Ok,
   type Rejected,
@@ -187,13 +187,13 @@ export function keepingOneLine<TLine, TForm extends Lined<TLine>, TSummary>(
   return { ...machine, intents: { ...machine.intents, edit } };
 }
 
-/** The draft as the domain judges it, beside its preview: the draft is kept only when the verdict accepts. */
+/** The draft as the domain judges it against the context, beside its preview: the draft is kept only when the verdict accepts. */
 export function judged(
   preview: PreviewLine[],
   draft: EntryDraft,
-  accounts: Account[],
+  context: EntryContext,
 ): Derived {
-  const verdict = validateEntry(draft, accounts);
+  const verdict = validateEntry(draft, context);
 
   return verdict.ok
     ? { preview, verdict, draft }

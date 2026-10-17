@@ -1,19 +1,58 @@
 import type { Account } from "../entities/account.ts";
-import { addCents, ZERO_CENTS } from "../entities/cents.ts";
-import type { EntryDraft, Posting } from "../entities/journal.ts";
+import { addCents, type Cents, cents, ZERO_CENTS } from "../entities/cents.ts";
+import type {
+  Invoice,
+  InvoiceTerms,
+  Rate,
+  WithholdingTax,
+} from "../entities/invoice.ts";
+import type { EntryDraft, JournalEntry, Posting } from "../entities/journal.ts";
+import type { Party } from "../entities/party.ts";
 import { ok, type Result, rejected } from "../entities/result.ts";
+import { invoicePostings, invoiceTotals } from "./invoice.ts";
+import { paidOn } from "./openInvoices.ts";
 
 /**
- * Whether a draft may be written to the period whose accounts are given. The
+ * What a draft is judged against: the period's books as they stand. `replacing`
+ * is the entry an edit rewrites, left out of `entries` for every rule.
+ */
+export interface EntryContext {
+  accounts: Account[];
+  parties: Party[];
+  withholdingTaxes: WithholdingTax[];
+  invoices: Invoice[];
+  entries: JournalEntry[];
+  replacing: string | null;
+}
+
+/**
+ * Whether a draft may be written to the period the context describes. The
  * reasons are checked in this order, and the first one found is answered.
  */
-export function validateEntry(draft: EntryDraft, accounts: Account[]): Result {
+export function validateEntry(
+  draft: EntryDraft,
+  context: EntryContext,
+): Result {
+  const reason =
+    linesReason(draft, context.accounts) ??
+    kindReason(draft, {
+      ...context,
+      entries: context.entries.filter((entry) => {
+        return entry.id !== context.replacing;
+      }),
+    });
+
+  return reason === null ? ok() : rejected(reason);
+}
+
+/** M2a's rules: a description, lines on leaves with their parties, balanced. */
+function linesReason(draft: EntryDraft, accounts: Account[]): string | null {
   if (draft.description.trim() === "") {
-    return rejected("blank-description");
+    return "blank-description";
   }
 
   if (draft.postings.length === 0) {
-    return rejected("no-postings");
+    return "no-postings";
   }
 
   const byId = new Map(
@@ -26,7 +65,7 @@ export function validateEntry(draft: EntryDraft, accounts: Account[]): Result {
     const reason = lineReason(posting, byId);
 
     if (reason !== null) {
-      return rejected(reason);
+      return reason;
     }
   }
 
@@ -38,7 +77,164 @@ export function validateEntry(draft: EntryDraft, accounts: Account[]): Result {
     return addCents(sum, posting.credit);
   }, ZERO_CENTS);
 
-  return debit === credit ? ok() : rejected("unbalanced");
+  return debit === credit ? null : "unbalanced";
+}
+
+/** The rules of a registration, a payment and an opening, over entries the edited one is already out of. */
+function kindReason(draft: EntryDraft, context: EntryContext): string | null {
+  const terms = draft.invoice;
+  const invoiceId = draft.invoiceId;
+
+  if (
+    (draft.kind === "invoice" && terms === undefined) ||
+    (draft.kind === "invoicePayment" && invoiceId === undefined)
+  ) {
+    return "invoice-required";
+  }
+
+  if (
+    (draft.kind !== "invoice" && terms !== undefined) ||
+    (draft.kind !== "invoicePayment" && invoiceId !== undefined)
+  ) {
+    return "invoice-not-allowed";
+  }
+
+  if (terms !== undefined) {
+    return registrationReason(draft.postings, terms, context);
+  }
+
+  if (invoiceId !== undefined) {
+    return paymentReason(draft.postings, invoiceId, context);
+  }
+
+  const opened = context.entries.some((entry) => {
+    return entry.kind === "openingBalances";
+  });
+
+  return draft.kind === "openingBalances" && opened ? "opening-exists" : null;
+}
+
+function registrationReason(
+  postings: Posting[],
+  terms: InvoiceTerms,
+  context: EntryContext,
+): string | null {
+  const supplier = context.parties.some((party) => {
+    return party.kind === "supplier" && party.id === terms.supplierId;
+  });
+
+  if (!supplier) {
+    return "unknown-supplier";
+  }
+
+  const catalogued = context.withholdingTaxes.some((candidate) => {
+    return candidate.code === terms.withholdingCode;
+  });
+
+  if (terms.withholdingCode !== null && !catalogued) {
+    return "unknown-withholding";
+  }
+
+  const expected = invoicePostings(
+    terms,
+    context.withholdingTaxes,
+    context.accounts,
+  );
+
+  if (!expected.ok || !samePostings(expected.value, postings)) {
+    return "postings-disagree";
+  }
+
+  const edited = context.invoices.find((invoice) => {
+    return invoice.entryId === context.replacing;
+  });
+
+  if (edited === undefined) {
+    return null;
+  }
+
+  const paid = paidOn(edited.id, context.entries);
+  const named = context.entries.some((entry) => {
+    return entry.kind === "invoicePayment" && entry.invoiceId === edited.id;
+  });
+
+  if (named && terms.supplierId !== edited.supplierId) {
+    return "supplier-has-payments";
+  }
+
+  const owed = invoiceTotals(terms, rateOf(terms, context));
+
+  return owed.dueToSupplier < paid ? "below-paid" : null;
+}
+
+function paymentReason(
+  postings: Posting[],
+  invoiceId: string,
+  context: EntryContext,
+): string | null {
+  const invoice = context.invoices.find((candidate) => {
+    return candidate.id === invoiceId;
+  });
+
+  if (invoice === undefined) {
+    return "unknown-invoice";
+  }
+
+  const paying = postings.filter((posting) => {
+    return posting.counterpart?.kind === "supplier" && posting.debit > 0;
+  });
+
+  const right = paying.every((posting) => {
+    return posting.counterpart?.id === invoice.supplierId;
+  });
+
+  if (paying.length === 0 || !right) {
+    return "wrong-supplier";
+  }
+
+  return amountOf(paying) > remainingOf(invoice, context)
+    ? "over-remaining"
+    : null;
+}
+
+/** What the invoice still owes its supplier, its payments in the context deducted. */
+function remainingOf(invoice: Invoice, context: EntryContext): Cents {
+  const owed = invoiceTotals(invoice, rateOf(invoice, context));
+
+  return cents(owed.dueToSupplier - paidOn(invoice.id, context.entries));
+}
+
+/** The rate of the terms' withholding code in the period's catalogue; none with no code. */
+function rateOf(terms: InvoiceTerms, context: EntryContext): Rate | null {
+  return (
+    context.withholdingTaxes.find((candidate) => {
+      return candidate.code === terms.withholdingCode;
+    })?.rate ?? null
+  );
+}
+
+function amountOf(postings: Posting[]): Cents {
+  return postings.reduce((sum, posting) => {
+    return addCents(sum, posting.debit);
+  }, ZERO_CENTS);
+}
+
+function samePostings(expected: Posting[], actual: Posting[]): boolean {
+  return (
+    expected.length === actual.length &&
+    expected.every((posting, index) => {
+      const other = actual[index];
+
+      return (
+        other !== undefined &&
+        posting.accountId === other.accountId &&
+        posting.debit === other.debit &&
+        posting.credit === other.credit &&
+        posting.counterpart?.kind === other.counterpart?.kind &&
+        posting.counterpart?.id === other.counterpart?.id
+      );
+    })
+  );
 }
 
 function lineReason(

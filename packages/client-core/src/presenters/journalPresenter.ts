@@ -27,10 +27,12 @@ export interface JournalPresenter {
   context$: DefaultedStateObservable<JournalContext | null>;
   /** On the selected period; refused with `no-period` when none is. */
   addEntry: (draft: EntryDraft) => Promise<ResultOf<EntryAdded>>;
+  /** Rewrites the entry in place; refused with `no-period` when no period is selected. */
+  replaceEntry: (id: string, draft: EntryDraft) => Promise<Result>;
   deleteEntry: (id: string) => Promise<Result>;
 }
 
-/** The Journal screen: the selected period's entries as the grid shows them, and the two commands on it. */
+/** The Journal screen: the selected period's entries as the grid shows them, and the commands on it. */
 export function createJournalPresenter(
   books$: Observable<Books | null>,
   buildings$: Observable<Building[]>,
@@ -65,6 +67,11 @@ export function createJournalPresenter(
       return current === null
         ? Promise.resolve(rejected("no-period"))
         : port.addEntry(current.periodId, draft);
+    },
+    replaceEntry: (id: string, draft: EntryDraft): Promise<Result> => {
+      return current === null
+        ? Promise.resolve(rejected("no-period"))
+        : port.replaceEntry(id, draft);
     },
     deleteEntry: (id: string): Promise<Result> => {
       return port.deleteEntry(id);

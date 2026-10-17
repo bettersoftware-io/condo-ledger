@@ -163,6 +163,7 @@ export function createApp(ports: AppPorts): App {
   const books = createBooksPresenter(
     { accounts: ports.accounts, journal: ports.journal },
     buildings.selected$,
+    buildings.tree$,
   );
   const accounts = createAccountsPresenter(books.books$, ports.accounts);
   const journal = createJournalPresenter(

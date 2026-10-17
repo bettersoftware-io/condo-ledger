@@ -15,7 +15,7 @@ import { must } from "@cl/domain/support/must.ts";
 import { parseAmount } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 
-import { rowChoices } from "./choices.ts";
+import { contextOf, rowChoices } from "./choices.ts";
 import {
   type AddEntry,
   createWizardMachine,
@@ -117,13 +117,16 @@ function derive(
 ): Derived {
   const read: ReadLine[] = [];
 
+  // With no books no line has a row: what the first line would answer.
+  if (books === null) {
+    return refused(lineReason(form, "no-target"));
+  }
+
   for (const line of form.lines) {
     const lineRead = readLine(books, choices, line);
 
     if (typeof lineRead === "string") {
-      return refused(
-        form.description.trim() === "" ? "blank-description" : lineRead,
-      );
+      return refused(lineReason(form, lineRead));
     }
 
     read.push(lineRead);
@@ -144,12 +147,17 @@ function derive(
       credit: line.posting.credit,
     };
   });
-  return judged(preview, draft, books?.accounts ?? []);
+  return judged(preview, draft, contextOf(books, null));
+}
+
+/** A line's reason, after the blank description the domain would answer first. */
+function lineReason(form: GenericEntryForm, reason: string): string {
+  return form.description.trim() === "" ? "blank-description" : reason;
 }
 
 /** The line's row and posting, or why it has none: no row chosen, or a text that does not read. */
 function readLine(
-  books: Books | null,
+  books: Books,
   choices: WizardChoice[],
   line: GenericLine,
 ): ReadLine | string {
@@ -157,7 +165,7 @@ function readLine(
     return candidate.key === line.scopeKey;
   });
 
-  if (books === null || choice === undefined) {
+  if (choice === undefined) {
     return "no-target";
   }
 

@@ -2,6 +2,7 @@ import { BehaviorSubject, type Observable, of, throwError } from "rxjs";
 
 import type { Account } from "#/entities/account.ts";
 import type { Cents } from "#/entities/cents.ts";
+import type { WithholdingTax } from "#/entities/invoice.ts";
 import type { Party } from "#/entities/party.ts";
 import type { Result } from "#/entities/result.ts";
 import type { AccountsPort } from "#/ports/accountsPort.ts";
@@ -10,10 +11,11 @@ import { validateBudget } from "#/useCases/validateBudget.ts";
 
 import type { LegacySeed } from "./seed/legacySeed.ts";
 
-/** A period's accounts, kept in memory, and its parties: the building's suppliers and the period's residents. */
+/** A period's accounts, kept in memory, its parties (the building's suppliers and the period's residents) and its withholding catalogue. */
 interface PeriodBooks {
   accounts$: BehaviorSubject<Account[]>;
   parties: Party[];
+  withholdingTaxes: WithholdingTax[];
 }
 
 /** The chart of accounts of every seeded period, with the budget edit kept in memory. Throws on an unknown id: it never answers empty for a wrong key. */
@@ -32,6 +34,9 @@ export function createAccountsSimulator(seed: LegacySeed): AccountsPort {
           seed.parties.find((list) => {
             return list.periodId === period.id;
           })?.parties ?? [],
+        withholdingTaxes: seed.withholdingTaxes.filter((tax) => {
+          return tax.periodId === period.id;
+        }),
       });
     }
   }
@@ -50,6 +55,13 @@ export function createAccountsSimulator(seed: LegacySeed): AccountsPort {
       return books === undefined
         ? missing(`the period ${periodId}`)
         : of(books.parties);
+    },
+    withholdingTaxes: (periodId: string): Observable<WithholdingTax[]> => {
+      const books = periods.get(periodId);
+
+      return books === undefined
+        ? missing(`the period ${periodId}`)
+        : of(books.withholdingTaxes);
     },
     setBudget: (accountId: string, budget: Cents): Promise<Result> => {
       // A throw inside the executor is a rejection, as the port promises; an async arrow with no await would trip require-await.

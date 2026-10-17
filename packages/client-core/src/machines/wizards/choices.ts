@@ -2,6 +2,7 @@ import {
   type Account,
   type AccountNode,
   type AccountRole,
+  type EntryContext,
   NONE,
   PATH_SEPARATOR,
   type PostingScope,
@@ -62,6 +63,21 @@ export function rowChoices(books: Books): WizardChoice[] {
       return !groupings.has(row.scope.accountId) && namesItsParty(row.scope);
     })
     .map(choiceOf);
+}
+
+/** What the domain judges a wizard's draft against: the books as they stand, and the entry an edit rewrites. */
+export function contextOf(
+  books: Books,
+  replacing: string | null,
+): EntryContext {
+  return {
+    accounts: books.accounts,
+    parties: books.parties,
+    withholdingTaxes: books.withholdingTaxes,
+    invoices: books.invoices,
+    entries: books.entries,
+    replacing,
+  };
 }
 
 /** What a payment wizard works on: the books, and the account paid from. */

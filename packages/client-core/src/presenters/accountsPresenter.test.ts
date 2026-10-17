@@ -1,4 +1,4 @@
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -180,6 +180,7 @@ function createPresented(
   const books = createBooksPresenter(
     { accounts, journal: createJournalSimulator(seed) },
     selected$,
+    of(seed.buildings),
   );
   const presenter = createAccountsPresenter(books.books$, accounts);
 
