@@ -962,7 +962,7 @@ describe("the Opening balances wizard", () => {
     expect(wizard.openingRows()).toHaveLength(6);
   });
 
-  it("Enter or Tab in a Debit field moves to the next row's Debit field", async () => {
+  it("Enter in a Debit or Credit field moves to the next row's Debit field; Tab keeps its native order", async () => {
     const page = mountJournalScreen();
     const wizard = await page.openWizard("Opening balances");
 
@@ -974,10 +974,14 @@ describe("the Opening balances wizard", () => {
 
     await wizard.pressTab();
 
+    expect(wizard.focusedLabel()).toBe(`${BANCA} credit`);
+
+    await wizard.pressTab();
+
     expect(wizard.focusedLabel()).toBe(`${FONDI} debit`);
 
     await wizard.focusOpening(FONDI, "credit");
-    await wizard.pressTab();
+    await wizard.pressEnter();
 
     expect(wizard.focusedLabel()).toBe(`${ROSSI_A01} debit`);
   });

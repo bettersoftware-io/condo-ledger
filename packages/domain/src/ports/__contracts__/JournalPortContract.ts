@@ -251,7 +251,10 @@ export function describeJournalPortContract(
 
         expect(before).toBeGreaterThan(0);
         expect(
-          await port.addEntry(periodId, paymentOf(harness, invoice, before)),
+          await port.addEntry(
+            periodId,
+            createPaymentDraft(harness, invoice, before),
+          ),
         ).toMatchObject({ ok: true });
         expect(
           openInvoices(
@@ -381,7 +384,10 @@ export function describeJournalPortContract(
       try {
         const paid = await register(harness);
 
-        await port.addEntry(periodId, paymentOf(harness, paid, cents(1)));
+        await port.addEntry(
+          periodId,
+          createPaymentDraft(harness, paid, cents(1)),
+        );
 
         expect(await port.deleteEntry(paid.entryId)).toEqual({
           ok: false,
@@ -448,7 +454,7 @@ async function openOf(
 }
 
 /** A payment of the invoice from the harness's liquidity account. */
-function paymentOf(
+function createPaymentDraft(
   harness: JournalPortHarness,
   invoice: Invoice,
   amount: Cents,

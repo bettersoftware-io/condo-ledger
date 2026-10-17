@@ -40,7 +40,7 @@ afterEach(() => {
 
 describe("openingRows", () => {
   it("lists the regular assets and liabilities leaves, then one row per resident under the owners account", async () => {
-    const books = currentBooks(await harnessWithoutOpening());
+    const books = currentBooks(await createHarnessWithoutOpening());
     const rows = openingRows(books);
     const owners = ownersOf(books);
 
@@ -80,7 +80,7 @@ describe("openingRows", () => {
   });
 
   it("labels a leaf by its path and keys it by its account", async () => {
-    const books = currentBooks(await harnessWithoutOpening());
+    const books = currentBooks(await createHarnessWithoutOpening());
     const bank = rowOf(openingRows(books), "la156");
 
     expect(bank.accountId).toBe("la156");
@@ -117,7 +117,7 @@ describe("openingRows", () => {
 
 describe("the Opening balances wizard", () => {
   it("starts on its one step, described Opening balances, each resident prefilled from the starting balance", async () => {
-    const harness = await harnessWithoutOpening();
+    const harness = await createHarnessWithoutOpening();
     const books = currentBooks(harness);
     const { machine } = createWizard(books);
     const state = machine.state$.getValue();
@@ -147,7 +147,7 @@ describe("the Opening balances wizard", () => {
 
   it("prefills a debtor on the debit side and a creditor on the credit side", async () => {
     const { machine } = createWizard(
-      currentBooks(await harnessWithoutOpening()),
+      currentBooks(await createHarnessWithoutOpening()),
     );
     const { summary } = machine.state$.getValue();
 
@@ -163,7 +163,7 @@ describe("the Opening balances wizard", () => {
 
   it("the balance is minus the bank's 6,250.99 until the bank gets it, then zero, and the entry balances", async () => {
     const { machine } = createWizard(
-      currentBooks(await harnessWithoutOpening()),
+      currentBooks(await createHarnessWithoutOpening()),
     );
 
     expect(machine.state$.getValue()).toMatchObject({
@@ -182,7 +182,7 @@ describe("the Opening balances wizard", () => {
   });
 
   it("a row of 0 or 0.00 writes nothing; a row with no amount writes nothing", async () => {
-    const harness = await harnessWithoutOpening();
+    const harness = await createHarnessWithoutOpening();
     const { machine, calls } = createWizard(currentBooks(harness));
 
     editAmount(machine, "la156", { debit: "6,250.99", credit: "" });
@@ -222,7 +222,7 @@ describe("the Opening balances wizard", () => {
   });
 
   it("previews each written line on its row's label", async () => {
-    const books = currentBooks(await harnessWithoutOpening());
+    const books = currentBooks(await createHarnessWithoutOpening());
     const { machine } = createWizard(books);
 
     editAmount(machine, "la156", { debit: "6,250.99", credit: "" });
@@ -242,7 +242,7 @@ describe("the Opening balances wizard", () => {
   ])(
     "a Debit of %j and a Credit of %j are not an amount, and the summary names the row",
     async (debit, credit) => {
-      const books = currentBooks(await harnessWithoutOpening());
+      const books = currentBooks(await createHarnessWithoutOpening());
       const { machine, calls } = createWizard(books);
 
       editAmount(machine, "la156", { debit: "6,250.99", credit: "" });
@@ -265,7 +265,7 @@ describe("the Opening balances wizard", () => {
   );
 
   it("names the first row that does not read", async () => {
-    const books = currentBooks(await harnessWithoutOpening());
+    const books = currentBooks(await createHarnessWithoutOpening());
     const { machine } = createWizard(books);
 
     editAmount(machine, "la162", { debit: "x", credit: "" });
@@ -278,7 +278,7 @@ describe("the Opening balances wizard", () => {
 
   it("a blank description is answered before an amount that does not read", async () => {
     const { machine } = createWizard(
-      currentBooks(await harnessWithoutOpening()),
+      currentBooks(await createHarnessWithoutOpening()),
     );
 
     editAmount(machine, "la154", { debit: "x", credit: "" });
@@ -291,7 +291,7 @@ describe("the Opening balances wizard", () => {
   });
 
   it("search narrows the rows to those whose label holds it, whatever the case", async () => {
-    const books = currentBooks(await harnessWithoutOpening());
+    const books = currentBooks(await createHarnessWithoutOpening());
     const { machine } = createWizard(books);
     const owner = must(ownersOf(books)[3], "a resident");
 
@@ -313,7 +313,7 @@ describe("the Opening balances wizard", () => {
   });
 
   it("Show only rows with an amount keeps the rows with a nonzero amount, or one that does not read", async () => {
-    const books = currentBooks(await harnessWithoutOpening());
+    const books = currentBooks(await createHarnessWithoutOpening());
     const { machine } = createWizard(books);
     const debtors = ownersOf(books)
       .filter((owner) => {
@@ -337,7 +337,7 @@ describe("the Opening balances wizard", () => {
   });
 
   it("a save writes kind openingBalances, and the menu item then opens it as an edit", async () => {
-    const harness = await harnessWithoutOpening();
+    const harness = await createHarnessWithoutOpening();
     const dialog = harness.app.machines.createJournalDialog();
     const machine = harness.app.machines.createOpeningBalancesWizard(null);
 
@@ -365,7 +365,7 @@ describe("the Opening balances wizard", () => {
   });
 
   it("with the opening deleted, the menu item opens a new one", async () => {
-    const harness = await harnessWithoutOpening();
+    const harness = await createHarnessWithoutOpening();
     const dialog = harness.app.machines.createJournalDialog();
 
     dialog.intents.openWizard("openingBalances");
@@ -377,7 +377,7 @@ describe("the Opening balances wizard", () => {
   });
 
   it("editing the seeded opening shows its own lines, not the prefill, and saves over it", async () => {
-    const harness = harnessOnP36();
+    const harness = createP36Harness();
     const books = currentBooks(harness);
     const entry = currentEntry(harness, "tx100");
     const machine = harness.app.machines.createOpeningBalancesWizard("tx100");
@@ -439,7 +439,7 @@ describe("the Opening balances wizard", () => {
 
 describe("fitsOpening", () => {
   it("fits an opening whose every line lands on its own row of the list", () => {
-    const harness = harnessOnP36();
+    const harness = createP36Harness();
 
     expect(
       fitsOpening(currentEntry(harness, "tx100"), currentBooks(harness)),
@@ -447,7 +447,7 @@ describe("fitsOpening", () => {
   });
 
   it("does not fit an opening with supplier lines, two lines on one row, a resident on a leaf, or another kind", () => {
-    const harness = harnessOnP36();
+    const harness = createP36Harness();
     const books = currentBooks(harness);
     const opening = currentEntry(harness, "tx100");
     const bank = must(opening.postings.at(-1), "the bank line");
@@ -513,7 +513,7 @@ function createWizard(books: Books | null): CreatedWizard {
   };
 }
 
-function harnessOnP36(): AppHarness {
+function createP36Harness(): AppHarness {
   const harness = createAppHarness();
 
   harness.app.presenters.buildings.selectPeriod("p36");
@@ -522,8 +522,8 @@ function harnessOnP36(): AppHarness {
 }
 
 /** Pozzetto 2013 with its seeded opening deleted through the port, as a new opening needs. */
-async function harnessWithoutOpening(): Promise<AppHarness> {
-  const harness = harnessOnP36();
+async function createHarnessWithoutOpening(): Promise<AppHarness> {
+  const harness = createP36Harness();
 
   expect(await harness.ports.journal.deleteEntry("tx100")).toEqual({
     ok: true,

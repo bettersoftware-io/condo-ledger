@@ -163,7 +163,7 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
         const wizard = machines.createDirectPaymentWizard(kind, editing);
         const wanted = wizardDialog(scenario.dialog);
 
-        if (wanted?.wizard === "directPaymentBank" && wanted.wizard === kind) {
+        if (wanted?.wizard === kind) {
           wizard.intents.edit({ targetId: wanted.targetId });
           wizard.intents.edit({ amount: wanted.amount });
         }
@@ -187,7 +187,15 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
           }
 
           while (wizard.state$.getValue().step < wanted.step) {
+            const before = wizard.state$.getValue();
+
             wizard.intents.next();
+
+            if (wizard.state$.getValue().step === before.step) {
+              throw new Error(
+                `the scenario could not leave step ${before.step}: ${stepReason(before.stepVerdict)}`,
+              );
+            }
           }
         }
 
@@ -319,6 +327,13 @@ function deleteSeededOpening(harness: AppHarness, periodId: string): void {
     .deleteEntry(opening.id)
     .then(failOnRefusal)
     .catch(reportOnThePage);
+}
+
+/** Why a step's verdict refuses; a step that stays put on an accepting verdict is told as such. */
+function stepReason(verdict: Result): string {
+  return verdict.ok
+    ? "its verdict accepts, yet the step did not move"
+    : verdict.reason;
 }
 
 function failOnRefusal(result: Result): void {

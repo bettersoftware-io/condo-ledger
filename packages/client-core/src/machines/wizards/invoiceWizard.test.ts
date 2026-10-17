@@ -406,7 +406,7 @@ describe("the New invoice wizard", () => {
   });
 
   it("a supplier with no posting in the period is previewed under its account, by name", () => {
-    const harness = harnessOnP36();
+    const harness = createP36Harness();
     const books = currentBooks(harness);
     const machine = createInvoiceWizard(
       {
@@ -510,7 +510,7 @@ describe("the New invoice wizard", () => {
   });
 
   it("among a supplier's invoices of one day, the prefill takes the highest number, read as a number", () => {
-    const harness = harnessOnP36();
+    const harness = createP36Harness();
     const books = currentBooks(harness);
     const li50 = must(
       books.invoices.find((invoice) => {
@@ -690,7 +690,7 @@ describe("the New invoice wizard", () => {
   });
 
   it("a new invoice is added through the write it is given, with its terms on the draft", async () => {
-    const harness = harnessOnP36();
+    const harness = createP36Harness();
     const drafts: EntryDraft[] = [];
 
     function write(draft: EntryDraft): Promise<ResultOf<EntryAdded>> {
@@ -745,7 +745,7 @@ describe("the New invoice wizard", () => {
 
 describe("editing an invoice", () => {
   it("a seeded paid invoice opens on its terms, its supplier locked, its payments' total shown", () => {
-    const { machine, harness, invoice } = editPaidInvoice();
+    const { machine, harness, invoice } = createPaidInvoiceEdit();
     const entry = currentEntry(harness, invoice.entryId);
 
     expect(machine.state$.getValue()).toMatchObject({
@@ -777,7 +777,7 @@ describe("editing an invoice", () => {
   });
 
   it("the locked supplier does not change", () => {
-    const { machine } = editPaidInvoice();
+    const { machine } = createPaidInvoiceEdit();
 
     machine.intents.edit({ supplierId: "md78" });
 
@@ -788,7 +788,7 @@ describe("editing an invoice", () => {
   });
 
   it("lowering Taxable until the amount due is below what was paid is below-paid", () => {
-    const { machine } = editPaidInvoice();
+    const { machine } = createPaidInvoiceEdit();
 
     machine.intents.edit({ taxable: "397.79" });
 
@@ -799,7 +799,7 @@ describe("editing an invoice", () => {
   });
 
   it("saving it rewrites the registration in place, with its invoice", async () => {
-    const { machine, harness, invoice } = editPaidInvoice();
+    const { machine, harness, invoice } = createPaidInvoiceEdit();
     const before = currentEntry(harness, invoice.entryId);
     const count = currentBooks(harness).entries.length;
 
@@ -822,7 +822,7 @@ describe("editing an invoice", () => {
   });
 
   it("an open invoice's supplier is not locked, and its edited fields are not prefilled over", () => {
-    const harness = harnessOnP36();
+    const harness = createP36Harness();
     const books = currentBooks(harness);
     const open = must(
       openInvoices(books.invoices, books.entries, books.withholdingTaxes).find(
@@ -855,13 +855,13 @@ describe("editing an invoice", () => {
   });
 
   it("an invoice's own number is no duplicate of itself", () => {
-    const { machine } = editPaidInvoice();
+    const { machine } = createPaidInvoiceEdit();
 
     expect(machine.state$.getValue().summary.duplicate).toBe(false);
   });
 
   it("an entry with no invoice is not edited here", () => {
-    const harness = harnessOnP36();
+    const harness = createP36Harness();
     const entry = must(
       currentBooks(harness).entries.find((candidate) => {
         return candidate.invoiceId === null;
@@ -889,7 +889,7 @@ interface CreatedWizard {
 
 /** The harness on p36, with a wizard for a new invoice built through the application. */
 function createWizard(clock?: ClockPort): CreatedWizard {
-  const harness = harnessOnP36(clock);
+  const harness = createP36Harness(clock);
   const machine = harness.app.machines.createInvoiceWizard(null);
 
   created.push(machine);
@@ -902,8 +902,8 @@ interface EditedInvoice extends CreatedWizard {
 }
 
 /** The wizard editing li3: md76's invoice 74, paid in full. */
-function editPaidInvoice(): EditedInvoice {
-  const harness = harnessOnP36();
+function createPaidInvoiceEdit(): EditedInvoice {
+  const harness = createP36Harness();
   const invoice = must(
     currentBooks(harness).invoices.find((candidate) => {
       return candidate.id === "li3";
@@ -917,7 +917,7 @@ function editPaidInvoice(): EditedInvoice {
   return { machine, harness, invoice };
 }
 
-function harnessOnP36(clock?: ClockPort): AppHarness {
+function createP36Harness(clock?: ClockPort): AppHarness {
   const harness = createAppHarness(undefined, clock);
 
   harness.app.presenters.buildings.selectPeriod("p36");

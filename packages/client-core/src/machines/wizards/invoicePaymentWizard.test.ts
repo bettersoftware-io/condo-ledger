@@ -91,14 +91,18 @@ describe("the Invoice payment wizard", () => {
   });
 
   it("with no cash account, the liquidity accounts are those under the bank account's parent; with neither, none", () => {
-    const books = currentBooks(harnessOnP36());
+    const books = currentBooks(createP36Harness());
 
     expect(
-      liquidityChoices(withoutRoles(books, ["cash"])).map((choice) => {
-        return choice.key;
-      }),
+      liquidityChoices(createBooksWithoutRoles(books, ["cash"])).map(
+        (choice) => {
+          return choice.key;
+        },
+      ),
     ).toEqual(["la156"]);
-    expect(liquidityChoices(withoutRoles(books, ["cash", "bank"]))).toEqual([]);
+    expect(
+      liquidityChoices(createBooksWithoutRoles(books, ["cash", "bank"])),
+    ).toEqual([]);
   });
 
   it("choosing an invoice prefills its remaining amount and the description Payment of invoice {number} — {supplier}", () => {
@@ -241,8 +245,8 @@ describe("the Invoice payment wizard", () => {
   });
 
   it("paid in two tranches: the first leaves the rest open, the second settles it", async () => {
-    const harness = harnessOnP36();
-    const first = wizardOn(harness);
+    const harness = createP36Harness();
+    const first = createPaymentWizard(harness);
 
     first.intents.edit({ invoiceId: "li49", amount: "100" });
 
@@ -266,7 +270,7 @@ describe("the Invoice payment wizard", () => {
       },
     );
 
-    const second = wizardOn(harness);
+    const second = createPaymentWizard(harness);
 
     expect(
       second.state$.getValue().summary.open.find((row) => {
@@ -278,7 +282,7 @@ describe("the Invoice payment wizard", () => {
     expect(second.state$.getValue().form.amount).toBe("273.13");
     expect((await second.intents.save()).ok).toBe(true);
 
-    const open = wizardOn(harness).state$.getValue().summary.open;
+    const open = createPaymentWizard(harness).state$.getValue().summary.open;
 
     expect(open).toHaveLength(7);
     expect(
@@ -289,8 +293,8 @@ describe("the Invoice payment wizard", () => {
   });
 
   it("a remaining amount another payment made stale is refused by the port as over-remaining (Review Focus 3)", async () => {
-    const harness = harnessOnP36();
-    const machine = wizardOn(harness);
+    const harness = createP36Harness();
+    const machine = createPaymentWizard(harness);
 
     machine.intents.edit({ invoiceId: "li49" });
 
@@ -324,8 +328,8 @@ describe("the Invoice payment wizard", () => {
   });
 
   it("after a refused save the remaining amount is what the invoice owes now, and the grid is the books as they stand", async () => {
-    const harness = harnessOnP36();
-    const machine = wizardOn(harness);
+    const harness = createP36Harness();
+    const machine = createPaymentWizard(harness);
 
     machine.intents.edit({ invoiceId: "li49" });
 
@@ -371,7 +375,7 @@ describe("the Invoice payment wizard", () => {
   });
 
   it("a new payment is written through the write it is given, with its invoice on the draft", async () => {
-    const harness = harnessOnP36();
+    const harness = createP36Harness();
     const drafts: EntryDraft[] = [];
 
     function write(draft: EntryDraft): Promise<ResultOf<EntryAdded>> {
@@ -399,7 +403,7 @@ describe("the Invoice payment wizard", () => {
   });
 
   it("an invoice due before today is overdue; one due today, later or never is not", () => {
-    const harness = harnessOnP36();
+    const harness = createP36Harness();
     const books = currentBooks(harness);
     const li19 = invoiceOf(harness, "li19");
     const machine = createInvoicePaymentWizard(
@@ -434,9 +438,9 @@ describe("the Invoice payment wizard", () => {
   });
 
   it("with no suppliers account, a chosen invoice is refused for it", () => {
-    const harness = harnessOnP36();
+    const harness = createP36Harness();
     const machine = createInvoicePaymentWizard(
-      withoutRoles(currentBooks(harness), ["suppliers"]),
+      createBooksWithoutRoles(currentBooks(harness), ["suppliers"]),
       harness.ports.clock,
       neverWrite,
       null,
@@ -452,7 +456,7 @@ describe("the Invoice payment wizard", () => {
   });
 
   it("with no books: no choices, no invoices, no account", () => {
-    const harness = harnessOnP36();
+    const harness = createP36Harness();
     const machine = createInvoicePaymentWizard(
       null,
       harness.ports.clock,
@@ -474,7 +478,7 @@ describe("the Invoice payment wizard", () => {
 
 describe("editing an invoice payment", () => {
   it("a seeded payment opens at step 2 on its invoice, its amount, its account and its description", () => {
-    const { machine, harness } = editPayment();
+    const { machine, harness } = createPaymentEdit();
     const entry = currentEntry(harness, "tx198");
 
     expect(machine.state$.getValue()).toMatchObject({
@@ -497,7 +501,7 @@ describe("editing an invoice payment", () => {
   });
 
   it("the amount may rise to the invoice's remaining amount plus its own, and no further", () => {
-    const { machine, harness } = editPayment();
+    const { machine, harness } = createPaymentEdit();
     const books = currentBooks(harness);
     const left =
       openInvoices(books.invoices, books.entries, books.withholdingTaxes).find(
@@ -517,7 +521,7 @@ describe("editing an invoice payment", () => {
   });
 
   it("its invoice does not change, nor do the amount and the description follow it", () => {
-    const { machine } = editPayment();
+    const { machine } = createPaymentEdit();
 
     machine.intents.edit({ invoiceId: "li49" });
 
@@ -528,7 +532,7 @@ describe("editing an invoice payment", () => {
   });
 
   it("saving rewrites the payment in place, and the invoice owes the difference", async () => {
-    const { machine, harness } = editPayment();
+    const { machine, harness } = createPaymentEdit();
     const before = currentEntry(harness, "tx198");
 
     machine.intents.edit({ amount: "300", accountId: "la154" });
@@ -557,7 +561,7 @@ describe("editing an invoice payment", () => {
   });
 
   it("an entry with no invoice is not edited here", () => {
-    const harness = harnessOnP36();
+    const harness = createP36Harness();
     const entry = must(
       currentBooks(harness).entries.find((candidate) => {
         return candidate.invoiceId === null;
@@ -583,14 +587,14 @@ interface CreatedWizard {
 
 /** The harness on p36, with a wizard for a new payment built through the application. */
 function createWizard(): CreatedWizard {
-  const harness = harnessOnP36();
+  const harness = createP36Harness();
 
-  return { machine: wizardOn(harness), harness };
+  return { machine: createPaymentWizard(harness), harness };
 }
 
 /** The wizard editing tx198: the bank's payment of md78's invoice li45. */
-function editPayment(): CreatedWizard {
-  const harness = harnessOnP36();
+function createPaymentEdit(): CreatedWizard {
+  const harness = createP36Harness();
   const machine = harness.app.machines.createInvoicePaymentWizard("tx198");
 
   created.push(machine);
@@ -599,7 +603,7 @@ function editPayment(): CreatedWizard {
 }
 
 /** A new payment's wizard over the books as they stand now. */
-function wizardOn(
+function createPaymentWizard(
   harness: AppHarness,
 ): WizardMachine<InvoicePaymentForm, InvoicePaymentSummary> {
   const machine = harness.app.machines.createInvoicePaymentWizard(null);
@@ -609,7 +613,7 @@ function wizardOn(
   return machine;
 }
 
-function harnessOnP36(): AppHarness {
+function createP36Harness(): AppHarness {
   const harness = createAppHarness();
 
   harness.app.presenters.buildings.selectPeriod("p36");
@@ -635,7 +639,7 @@ function createInvoice(source: Invoice, id: string, dueDate: string): Invoice {
 }
 
 /** The books with no account playing these roles. */
-function withoutRoles(books: Books, roles: string[]): Books {
+function createBooksWithoutRoles(books: Books, roles: string[]): Books {
   return {
     ...books,
     accounts: books.accounts.map((account) => {

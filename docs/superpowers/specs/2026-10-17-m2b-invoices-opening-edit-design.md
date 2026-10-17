@@ -404,7 +404,8 @@ no year it uses the period's.
 - **Keyboard (fast):** every wizard step puts the focus on its first field
   that is empty or required, and Enter in a text field does what the
   primary button does when the primary is enabled. In the opening list,
-  Enter and Tab move to the next row's Debit field.
+  Enter moves to the next row's Debit field; Tab keeps its native order
+  (Debit, Credit, next Debit).
 - New components, each with its stylesheet, page object and test:
   `InvoiceWizard` (both steps, the pills as a segmented control),
   `InvoicePaymentWizard`, `OpeningBalancesWizard`, `DateField` (a text

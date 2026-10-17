@@ -257,6 +257,19 @@ Work that has started and is not finished.
   an invoice's registration is rewritten, the books emit once with the new
   invoice terms beside the old postings: the presenter's consistency guard
   covers an add and a delete, not a replace.
+- **A refused or failed `replaceEntry` shows as `entry-gone`.** When the port
+  rejects the call for any reason, a transport failure included, the wizard
+  words it as `entry-gone`. M3's adapter must tell "not found" from a
+  transport failure (`packages/client-core/src/machines/wizards/wizard.ts`,
+  `replacing`).
+- **The books presenter's consistency guard can hold `books$` back.** If the
+  data are ever truly inconsistent (an invoice without its registration, or
+  the reverse), `books$` stops emitting. The seed test rules that out today.
+- **The Invoice payment editor assumes a payment's two-line shape**
+  (suppliers debit, liquidity credit). Every seeded payment fits; before
+  M3's live data, a round-trip check (an entry's form, then its draft's
+  postings, equal the entry's) should guard the payment, direct-payment and
+  opening editors.
 - **A refused payment re-reads the books once.** After an `over-remaining`
   refusal the payment wizard reads the books again a single time, which
   relies on the books having updated before the refusal arrives. The

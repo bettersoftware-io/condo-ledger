@@ -398,13 +398,22 @@ describe("fitsDirectPayment", () => {
     expect(fitsDirectPayment(currentEntry(harness, "tx4"), books)).toBe(false);
     expect(fitsDirectPayment(currentEntry(harness, "tx2"), books)).toBe(false);
     expect(
-      fitsDirectPayment(withPosting(cash, 1, { accountId: "la4" }), books),
+      fitsDirectPayment(
+        createEntryWithPosting(cash, 1, { accountId: "la4" }),
+        books,
+      ),
     ).toBe(false);
     expect(
-      fitsDirectPayment(withPosting(cash, 0, { accountId: "la25" }), books),
+      fitsDirectPayment(
+        createEntryWithPosting(cash, 0, { accountId: "la25" }),
+        books,
+      ),
     ).toBe(false);
     expect(
-      fitsDirectPayment(withPosting(cash, 1, { credit: cents(2000) }), books),
+      fitsDirectPayment(
+        createEntryWithPosting(cash, 1, { credit: cents(2000) }),
+        books,
+      ),
     ).toBe(false);
   });
 
@@ -507,7 +516,7 @@ function seededEntry(harness: AppHarness, id: string): JournalEntry {
 }
 
 /** The entry with one posting changed. */
-function withPosting(
+function createEntryWithPosting(
   entry: JournalEntry,
   index: number,
   change: Partial<Posting>,

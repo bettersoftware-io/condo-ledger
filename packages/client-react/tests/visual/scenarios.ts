@@ -1,4 +1,9 @@
-import type { GenericLine, InvoiceForm, OpeningAmount } from "@cl/client-core";
+import type {
+  DirectPaymentKind,
+  GenericLine,
+  InvoiceForm,
+  OpeningAmount,
+} from "@cl/client-core";
 
 /**
  * One picture: a name and the state the screen is in when it is taken. The
@@ -37,9 +42,9 @@ interface GenericEntryDialog {
   lines: GenericLine[];
 }
 
-/** The purchase paid from the bank, with its cost account chosen and its amount typed. */
-interface BankPurchaseDialog {
-  wizard: "directPaymentBank";
+/** A direct payment (the bank purchase today), with its cost account chosen and its amount typed. */
+interface DirectPaymentDialog {
+  wizard: DirectPaymentKind;
   targetId: string;
   amount: string;
 }
@@ -72,7 +77,7 @@ interface EditDialog {
 /** A wizard on a new entry, with its form as typed. */
 export type NewEntryDialog =
   | GenericEntryDialog
-  | BankPurchaseDialog
+  | DirectPaymentDialog
   | InvoiceDialog
   | InvoicePaymentDialog
   | OpeningBalancesDialog;

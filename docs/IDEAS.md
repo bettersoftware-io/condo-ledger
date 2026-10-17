@@ -46,3 +46,6 @@ be worth doing. Not how.
   prefill from the supplier's last invoice covers the need today.
 - **Carrying a period's closing balances into the next one's opening**, so
   the opening entry is written for the person instead of typed.
+- **Regenerate an edited invoice's description when its supplier changes**
+  (an unpaid invoice): the description, marked edited, still names the old
+  supplier; regenerate it when it still equals the generated text.

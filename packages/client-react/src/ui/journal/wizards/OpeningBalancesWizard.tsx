@@ -105,9 +105,9 @@ function OpeningBalancesBody({
     onEdit({ amounts: { ...form.amounts, [key]: { ...current, ...change } } });
   }
 
-  /** The next row's Debit takes the focus; past the last row, the key does what it always does. */
+  /** Enter in a Debit or Credit field puts the focus on the next row's Debit; Tab keeps its native order, and past the last row Enter does what it always does. */
   function moveOn(index: number, event: KeyboardEvent<HTMLInputElement>): void {
-    if ((event.key !== "Enter" && event.key !== "Tab") || event.shiftKey) {
+    if (event.key !== "Enter" || event.shiftKey) {
       return;
     }
 

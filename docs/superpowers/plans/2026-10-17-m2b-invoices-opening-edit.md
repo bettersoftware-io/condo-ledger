@@ -500,7 +500,7 @@
     - "Transaction balance" shows in `--neg` while not zero;
     - search narrows the rows;
     - "Show only rows with an amount" narrows them;
-    - Enter or Tab in a Debit field moves to the next row's Debit field.
+    - Enter in a Debit or Credit field moves to the next row's Debit field; Tab keeps its native order.
   - The screen test (`JournalScreen.test.tsx`) on Pozzetto 2013:
     - register an invoice through the page objects;
     - pay it in two tranches and see it leave the payment grid;
