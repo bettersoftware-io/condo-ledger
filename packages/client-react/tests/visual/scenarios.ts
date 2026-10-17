@@ -1,4 +1,4 @@
-import type { GenericLine } from "@cl/client-core";
+import type { GenericLine, InvoiceForm, OpeningAmount } from "@cl/client-core";
 
 /**
  * One picture: a name and the state the screen is in when it is taken. The
@@ -44,8 +44,41 @@ interface BankPurchaseDialog {
   amount: string;
 }
 
-/** A wizard with its form as typed, or the delete confirmation of the selected entry. */
-type ScenarioDialog = GenericEntryDialog | BankPurchaseDialog | "delete";
+/** The New invoice wizard on a step, with its fields typed one at a time in the order written: the supplier first, so its prefill comes before the rest. */
+interface InvoiceDialog {
+  wizard: "invoice";
+  step: 2;
+  form: Partial<InvoiceForm>;
+}
+
+/** The Invoice payment wizard on its first step, the open invoices listed. */
+interface InvoicePaymentDialog {
+  wizard: "invoicePayment";
+}
+
+/** The Opening balances wizard on a new opening: the period's seeded one deleted first, then the scenario's rows typed over the prefill. */
+interface OpeningBalancesDialog {
+  wizard: "openingBalances";
+  deleteSeeded: true;
+  /** By row key. */
+  amounts: Record<string, OpeningAmount>;
+}
+
+/** The entry's own editor open on it, as `✎` opens it. */
+interface EditDialog {
+  edit: string;
+}
+
+/** A wizard on a new entry, with its form as typed. */
+export type NewEntryDialog =
+  | GenericEntryDialog
+  | BankPurchaseDialog
+  | InvoiceDialog
+  | InvoicePaymentDialog
+  | OpeningBalancesDialog;
+
+/** A wizard on a new entry, an entry in its editor, or the delete confirmation of the selected entry. */
+type ScenarioDialog = NewEntryDialog | EditDialog | "delete";
 
 /** Total, the five levels, and the cash account's group: the cash account in view. */
 const OPEN_TO_CASH = [
@@ -66,7 +99,7 @@ const OPEN_TO_CASH = [
  * with its cash account (`la154`) selected, at the full layout (1280) and the
  * compact one (1100, the sidebar folded to its rail or open as a drawer).
  * The Journal of the same period: entry 2 (`tx150`, an invoice of three
- * postings) open and selected, and the three dialogs over it.
+ * postings) open and selected, and the dialogs over it.
  */
 export const scenarios: Record<string, Scenario> = {
   "accounts-1280-light": {
@@ -166,5 +199,51 @@ export const scenarios: Record<string, Scenario> = {
     menu: "journal",
     selectedEntry: "tx109",
     dialog: "delete",
+  },
+  // Step 2 of a new invoice from a seeded supplier (`md78`): its last
+  // invoice prefills the cost account, the rates and the withholding code,
+  // and the computed rows follow the typed taxable amount.
+  "journal-wizard-invoice": {
+    width: 1280,
+    mode: "light",
+    periodId: "p36",
+    menu: "journal",
+    dialog: {
+      wizard: "invoice",
+      step: 2,
+      form: { supplierId: "md78", number: "3200", taxable: "300.15" },
+    },
+  },
+  // Step 1 of an invoice payment: the period's open invoices to choose from.
+  "journal-wizard-payment": {
+    width: 1280,
+    mode: "light",
+    periodId: "p36",
+    menu: "journal",
+    dialog: { wizard: "invoicePayment" },
+  },
+  // A new opening over the period, its seeded one (`tx100`) deleted: the
+  // owners prefilled from their starting balances, and the bank (`la156`)
+  // typed.
+  "journal-wizard-opening": {
+    width: 1280,
+    mode: "light",
+    periodId: "p36",
+    menu: "journal",
+    dialog: {
+      wizard: "openingBalances",
+      deleteSeeded: true,
+      amounts: { la156: { debit: "6,250.99", credit: "" } },
+    },
+  },
+  // The first generic entry of the period by number (entry 41, `tx109`),
+  // selected and open in its editor.
+  "journal-wizard-edit": {
+    width: 1280,
+    mode: "light",
+    periodId: "p36",
+    menu: "journal",
+    selectedEntry: "tx109",
+    dialog: { edit: "tx109" },
   },
 };

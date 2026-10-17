@@ -32,3 +32,17 @@ be worth doing. Not how.
   `repo-hygiene` add-on already checks the links.
 - **Dragging a dialog by its title bar**, with the position kept per dialog
   id for the session, as the design describes; nothing depends on it.
+- **An invoice split over several cost accounts.** The legacy application
+  allowed it; no seeded invoice uses it, so M2b registers one cost account
+  per invoice.
+- **The mixed VAT amount** of the legacy invoice, beside the single VAT
+  rate M2b computes from.
+- **The `quadroAc` flag** of the legacy invoice, which M2b does not keep.
+- **Opening invoices.** A supplier's unpaid invoices carried into a new
+  period with the opening entry, so their payments can be registered there.
+  M2b leaves the suppliers account out of the opening list for that reason.
+- **A supplier's tax treatment as stored defaults**
+  (`masterDataTaxTreatment`). Pozzetto's suppliers have none, and the
+  prefill from the supplier's last invoice covers the need today.
+- **Carrying a period's closing balances into the next one's opening**, so
+  the opening entry is written for the person instead of typed.
