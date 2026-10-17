@@ -214,6 +214,28 @@ describe("the view model", () => {
     });
   });
 
+  it("the new wizards mount their machines, each over the selected period", () => {
+    const page = mountUnderProvider(createSmallSeed());
+
+    expect(page.read().invoice.state.editing).toBeNull();
+    expect(page.read().invoice.state.form.supplierId).toBeNull();
+    expect(page.read().invoicePayment.state.editing).toBeNull();
+    expect(page.read().invoicePayment.state.summary.open).toEqual([]);
+    expect(page.read().openingBalances.state.editing).toBeNull();
+    expect(
+      page.read().openingBalances.state.summary.rows.length,
+    ).toBeGreaterThan(0);
+  });
+
+  it("a wizard hook given an entry to edit shows that entry's form", () => {
+    const page = mountUnderProvider(createSmallSeed(), 1, "e6");
+
+    expect(page.read().genericEntry.state).toMatchObject({
+      editing: "e6",
+      form: { description: "Arrotondamento" },
+    });
+  });
+
   it("a wizard hook's edit changes its state, on the selected period's books", async () => {
     const page = mountUnderProvider(createSmallSeed());
 

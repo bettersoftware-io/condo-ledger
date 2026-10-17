@@ -25,7 +25,7 @@ export function DirectPaymentWizard({
   onCancel,
 }: DirectPaymentWizardProps): ReactElement {
   const { useDirectPaymentWizard, useJournalContext } = useViewModel();
-  const wizard = useDirectPaymentWizard(kind);
+  const wizard = useDirectPaymentWizard(kind, null);
   const context = useJournalContext();
   const saving = useWizardSave(wizard.save, onSaved);
 

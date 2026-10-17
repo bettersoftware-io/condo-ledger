@@ -25,7 +25,7 @@ export function MultiCostPaymentWizard({
   onCancel,
 }: WizardProps): ReactElement {
   const { useMultiCostPaymentWizard, useJournalContext } = useViewModel();
-  const wizard = useMultiCostPaymentWizard();
+  const wizard = useMultiCostPaymentWizard(null);
   const context = useJournalContext();
   const saving = useWizardSave(wizard.save, onSaved);
 

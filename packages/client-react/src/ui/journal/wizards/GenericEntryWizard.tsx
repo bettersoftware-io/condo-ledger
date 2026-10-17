@@ -25,7 +25,7 @@ export function GenericEntryWizard({
   onCancel,
 }: WizardProps): ReactElement {
   const { useGenericEntryWizard, useJournalContext } = useViewModel();
-  const wizard = useGenericEntryWizard();
+  const wizard = useGenericEntryWizard(null);
   const context = useJournalContext();
   const saving = useWizardSave(wizard.save, onSaved);
 

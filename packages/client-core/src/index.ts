@@ -62,9 +62,21 @@ export type {
   GenericLine,
 } from "./machines/wizards/genericEntryWizard.ts";
 export type {
+  InvoicePaymentForm,
+  InvoicePaymentSummary,
+} from "./machines/wizards/invoicePaymentWizard.ts";
+export type {
+  InvoiceForm,
+  InvoiceSummary,
+} from "./machines/wizards/invoiceWizard.ts";
+export type {
   MultiCostPaymentForm,
   MultiCostPaymentSummary,
 } from "./machines/wizards/multiCostPaymentWizard.ts";
+export type {
+  OpeningForm,
+  OpeningSummary,
+} from "./machines/wizards/openingBalancesWizard.ts";
 export type {
   WizardChoice,
   WizardIntents,
