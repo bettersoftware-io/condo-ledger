@@ -1,16 +1,7 @@
-/** Where the time comes from. A simulator stamps with it; the server has its own. */
-export interface Clock {
-  now: () => Date;
-}
-
-export const systemClock: Clock = {
-  now: (): Date => {
-    return new Date();
-  },
-};
+import type { ClockPort } from "#/ports/clockPort.ts";
 
 /** A clock stopped at one moment: tests and goldens stamp the same thing every run. */
-export function fixedClock(iso: string): Clock {
+export function fixedClock(iso: string): ClockPort {
   const moment = new Date(iso).getTime();
 
   if (Number.isNaN(moment)) {

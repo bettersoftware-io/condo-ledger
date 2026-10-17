@@ -1,5 +1,5 @@
 import {
-  type Clock,
+  type ClockPort,
   fixedClock,
   type LegacySeed,
   loadLegacySeed,
@@ -22,7 +22,7 @@ export interface AppHarness {
 }
 
 /** The harness's clock: a fixed moment, so a stamp is the same in every test and golden. romeTime writes it as 2026-10-14T10:00:00. */
-const HARNESS_CLOCK: Clock = fixedClock("2026-10-14T08:00:00Z");
+const HARNESS_CLOCK: ClockPort = fixedClock("2026-10-14T08:00:00Z");
 
 /**
  * The real application on the simulators, over the real seed unless a test
@@ -31,7 +31,7 @@ const HARNESS_CLOCK: Clock = fixedClock("2026-10-14T08:00:00Z");
  */
 export function createAppHarness(
   seed: LegacySeed = loadLegacySeed(legacySeedData),
-  clock: Clock = HARNESS_CLOCK,
+  clock: ClockPort = HARNESS_CLOCK,
 ): AppHarness {
   const ports = createSimulatorPorts(seed, clock);
 

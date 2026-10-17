@@ -10,8 +10,8 @@ import {
   type ResultOf,
   rejected,
 } from "#/entities/result.ts";
+import type { ClockPort } from "#/ports/clockPort.ts";
 import type { EntryAdded, JournalPort } from "#/ports/journalPort.ts";
-import { type Clock, systemClock } from "#/support/clock.ts";
 import { must } from "#/support/must.ts";
 import { romeTime } from "#/support/romeTime.ts";
 import { canDeleteEntry } from "#/useCases/canDeleteEntry.ts";
@@ -49,7 +49,7 @@ interface Held {
  */
 export function createJournalSimulator(
   seed: LegacySeed,
-  clock: Clock = systemClock,
+  clock: ClockPort,
 ): JournalPort {
   const periods = new Map<string, PeriodJournal>();
   let added = 0;

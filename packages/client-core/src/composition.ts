@@ -1,7 +1,7 @@
 import {
   type AccountsPort,
   type BuildingsPort,
-  type Clock,
+  type ClockPort,
   createAccountsSimulator,
   createBuildingsSimulator,
   createJournalSimulator,
@@ -11,7 +11,6 @@ import {
   type JournalPort,
   type LegacySeed,
   type SessionPort,
-  systemClock,
 } from "@cl/domain";
 
 import {
@@ -108,6 +107,7 @@ export interface AppPorts {
   buildings: BuildingsPort;
   accounts: AccountsPort;
   journal: JournalPort;
+  clock: ClockPort;
 }
 
 /** The shared state: one of each per application, however many readers. */
@@ -223,7 +223,7 @@ export function createApp(ports: AppPorts): App {
 /** The four simulators over one seed: what `pnpm dev` and the harness run on. */
 export function createSimulatorPorts(
   seed: LegacySeed,
-  clock: Clock = systemClock,
+  clock: ClockPort,
 ): AppPorts {
   return {
     session: createSessionSimulator({
@@ -233,5 +233,6 @@ export function createSimulatorPorts(
     buildings: createBuildingsSimulator(seed),
     accounts: createAccountsSimulator(seed),
     journal: createJournalSimulator(seed, clock),
+    clock,
   };
 }

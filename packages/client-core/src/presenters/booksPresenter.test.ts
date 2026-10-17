@@ -7,6 +7,7 @@ import {
   createAccountsSimulator,
   createJournalSimulator,
   type EntryDraft,
+  fixedClock,
   type Invoice,
   type JournalEntry,
   type LegacySeed,
@@ -146,7 +147,11 @@ describe("the books presenter", () => {
       }),
     };
     const invoices$ = new BehaviorSubject<Invoice[]>([]);
-    const journal = createJournalSimulator(named);
+    const journal = createJournalSimulator(
+      named,
+      fixedClock("2026-10-14T08:00:00Z"),
+    );
+
     const presenter = createBooksPresenter(
       {
         accounts: createAccountsSimulator(named),
@@ -206,7 +211,7 @@ function createPresented(
   const tree$ = new BehaviorSubject<Building[]>(tree);
   const ports: BooksPresenterPorts = {
     accounts: createAccountsSimulator(seed),
-    journal: createJournalSimulator(seed),
+    journal: createJournalSimulator(seed, fixedClock("2026-10-14T08:00:00Z")),
   };
   const presenter = createBooksPresenter(ports, selected$, tree$);
   let latest: Books | null = null;

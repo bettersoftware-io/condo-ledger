@@ -1,9 +1,9 @@
 import { cents } from "#/entities/cents.ts";
 import { rate } from "#/entities/invoice.ts";
-import { fixedClock } from "#/support/clock.ts";
 
 import { describeJournalPortContract } from "../ports/__contracts__/JournalPortContract.ts";
 import { createTwoPeriodSeed } from "../testing/createTwoPeriodSeed.ts";
+import { fixedClock } from "./fixedClock.ts";
 import { createJournalSimulator } from "./journalSimulator.ts";
 
 describeJournalPortContract("journal simulator", () => {
