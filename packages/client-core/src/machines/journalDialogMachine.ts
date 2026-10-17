@@ -2,11 +2,12 @@ import type { Machine } from "./machine.ts";
 import { createReducerMachine } from "./reducerMachine.ts";
 import type { DirectPaymentKind } from "./wizards/directPaymentWizard.ts";
 
-/** The five wizards the Journal screen opens. */
+/** The wizards the Journal screen opens. */
 export type WizardName =
   | DirectPaymentKind
   | "multiCostPayment"
-  | "genericEntry";
+  | "genericEntry"
+  | "invoice";
 
 interface WizardDialog {
   kind: "wizard";

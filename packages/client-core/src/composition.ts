@@ -75,6 +75,11 @@ import {
   type GenericEntrySummary,
 } from "./machines/wizards/genericEntryWizard.ts";
 import {
+  createInvoiceWizard,
+  type InvoiceForm,
+  type InvoiceSummary,
+} from "./machines/wizards/invoiceWizard.ts";
+import {
   createMultiCostPaymentWizard,
   type MultiCostPaymentForm,
   type MultiCostPaymentSummary,
@@ -158,6 +163,10 @@ interface AppMachines {
     editing?: string | null,
     kind?: EntryKind,
   ) => WizardMachine<GenericEntryForm, GenericEntrySummary>;
+  /** The New invoice wizard, its date from the application's clock; `editing` names an invoice's registration to rewrite. */
+  createInvoiceWizard: (
+    editing: string | null,
+  ) => WizardMachine<InvoiceForm, InvoiceSummary>;
 }
 
 /** The application, built once at startup. Presenters, the navigation and
@@ -262,6 +271,18 @@ export function createApp(ports: AppPorts): App {
           writeOf(entry),
           entry,
           kind,
+        );
+      },
+      createInvoiceWizard: (
+        editing: string | null,
+      ): WizardMachine<InvoiceForm, InvoiceSummary> => {
+        const entry = editedEntry(editing);
+
+        return createInvoiceWizard(
+          latestBooks,
+          ports.clock,
+          writeOf(entry),
+          entry,
         );
       },
     },
