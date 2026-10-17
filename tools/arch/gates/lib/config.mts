@@ -6,15 +6,30 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
-export type Role = "domain" | "shared" | "core" | "bindings" | "client" | "server" | "leaf" | "integration" | "e2e";
+export type Role =
+  | "domain"
+  | "shared"
+  | "core"
+  | "bindings"
+  | "client"
+  | "server"
+  | "leaf"
+  | "explicit"
+  | "integration"
+  | "e2e";
+
+/** The roles whose React lint rules a package of role `explicit` can take. */
+export type ReactRules = "client" | "bindings";
+
+export const REACT_RULES: readonly ReactRules[] = ["client", "bindings"];
 
 export interface PackageDeclaration {
   role: Role;
   /** Closed list of runtime npm dependencies. */
   npm?: string[];
-  /** Extra workspace package paths this one may import. */
+  /** Extra workspace package paths this one may import. For a package of role `explicit`, the whole list. */
   mayImport?: string[];
-  /** domain only: folder holding the port interfaces. */
+  /** The folder holding the port interfaces. A domain has `src/ports` by default; a package of any other role that holds ports declares it. */
   ports?: string;
   /** client only: the composition root folder. */
   app?: string;
@@ -26,7 +41,9 @@ export interface PackageDeclaration {
   entry?: string[];
   /** client only: the file in `ui` that holds every test id. */
   testIds?: string;
-  /** client only: the build runs the React Compiler, so the lint bans manual memoization. */
+  /** explicit only: the role whose React lint rules this package takes. Any other role has its own, and naming this there is a configuration error. */
+  reactRules?: ReactRules;
+  /** client, or explicit with `reactRules: "client"`: the build runs the React Compiler, so the lint bans manual memoization. */
   reactCompiler?: boolean;
   /** client only: what relies on the compiler to memoize. `check-compiler.mts` holds the compiler to each. */
   compilerTracked?: CompilerTracked[];
@@ -91,6 +108,9 @@ export interface DomainPackage extends DeclaredPackage {
   ports: string;
 }
 
+/** A package that holds port interfaces: every domain, and any other that declares a ports folder. */
+export type PortsPackage = DomainPackage;
+
 export interface ClientPackage extends DeclaredPackage {
   app: string;
   ui: string;
@@ -131,6 +151,7 @@ export const ROLES: readonly Role[] = [
   "client",
   "server",
   "leaf",
+  "explicit",
   "integration",
   "e2e",
 ];
@@ -149,6 +170,13 @@ export const ROLES: readonly Role[] = [
  * may read is a client's test-ids file, which the dependency gate adds by
  * name. An import that names only types is not an edge, so the types of the
  * wire protocol stay within reach.
+ *
+ * `explicit` is for a graph the ladder above cannot draw: its role grants it
+ * nothing and no role but `integration` lists it, so its edges are exactly
+ * the ones written down. It imports only what its own `mayImport` names, and
+ * another package imports it only by naming it in its own `mayImport`. A
+ * package whose rule is "imports `spec`, and only `runtime` imports it" is
+ * one of these.
  */
 export const ROLE_MAY_IMPORT: Record<Role, readonly Role[]> = {
   domain: [],
@@ -158,7 +186,8 @@ export const ROLE_MAY_IMPORT: Record<Role, readonly Role[]> = {
   bindings: ["core", "domain", "leaf"],
   client: ["bindings", "core", "domain", "leaf"],
   server: ["domain", "shared", "leaf"],
-  integration: ["domain", "shared", "core", "bindings", "client", "server", "leaf"],
+  integration: ["domain", "shared", "core", "bindings", "client", "server", "leaf", "explicit"],
+  explicit: [],
   e2e: [],
 };
 
@@ -225,6 +254,8 @@ export async function loadConfig(root: string, configFile?: string): Promise<Pro
       );
     }
 
+    checkReactRules(found, path, declaration);
+
     packages[stripSlashes(path)] =
       declaration.role === "client"
         ? { ...CLIENT_DEFAULTS, ...declaration }
@@ -247,6 +278,28 @@ export async function loadConfig(root: string, configFile?: string): Promise<Pro
     },
     workspace: discoverWorkspace(absoluteRoot),
   };
+}
+
+/** `reactRules` is for a package of role `explicit` and names a role that has React rules; anything else is refused, naming the package. */
+function checkReactRules(found: string, path: string, { role, reactRules }: PackageDeclaration): void {
+  if (reactRules === undefined) {
+    return;
+  }
+
+  if (role !== "explicit") {
+    throw new ConfigError(
+      `${found}: "${path}" has reactRules but the role "${role}", which has React rules of its own. Only a package of role "explicit" names the role whose React rules it takes; remove reactRules, or change the role.`,
+    );
+  }
+
+  if (!REACT_RULES.includes(reactRules)) {
+    throw new ConfigError(`${found}: "${path}" has reactRules "${String(reactRules)}" — expected "client" or "bindings"`);
+  }
+}
+
+/** The role whose React lint rules a package gets: its own, or for an `explicit` package the one its `reactRules` names (none without it). */
+export function reactRoleOf({ role, reactRules }: PackageDeclaration): Role | undefined {
+  return role === "explicit" ? reactRules : role;
 }
 
 /**
@@ -357,6 +410,22 @@ export function packagesWithRole(config: ResolvedConfig, role: "domain"): Domain
 export function packagesWithRole(config: ResolvedConfig, role: Role): DeclaredPackage[];
 export function packagesWithRole(config: ResolvedConfig, role: Role): DeclaredPackage[] {
   return declaredPackages(config).filter((declared) => declared.role === role);
+}
+
+/** Every package that holds port interfaces: the contract gate judges each. */
+export function packagesWithPorts(config: ResolvedConfig): PortsPackage[] {
+  return declaredPackages(config).filter((declared): declared is PortsPackage => declared.ports !== undefined);
+}
+
+/** The packages one package may import: its own, those its role grants, and its mayImport. */
+export function importablePaths(config: ResolvedConfig, pkg: DeclaredPackage): string[] {
+  return [
+    pkg.path,
+    ...declaredPackages(config)
+      .filter((other) => ROLE_MAY_IMPORT[pkg.role].includes(other.role))
+      .map(({ path }) => path),
+    ...(pkg.mayImport ?? []),
+  ];
 }
 
 function withPlainPaths<T>(byPath: Record<string, T>): Record<string, T> {

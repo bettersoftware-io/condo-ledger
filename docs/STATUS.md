@@ -12,7 +12,7 @@ One bullet for each entry: its name in bold, what is left, and a link to its
 plan when it has one. `AGENTS.md` says when an entry is added, moved and
 removed.
 
-**Last updated: 2026-10-16**
+**Last updated: 2026-10-17**
 
 ## In progress
 
@@ -121,16 +121,10 @@ Work that has started and is not finished.
   Balance"; built: all four bold. The README gives group rows the `--zebra`
   background, the spec gave it to Total only; built: Total only. Say which,
   each is one line.
-- **One update bot.** Dependabot cannot update a project on this kit: its
-  updater runs Node 24 and the root pins `devEngines.runtime >= 26`, so every
-  run fails (recorded in the plugin's own status page). Renovate's onboarding
-  pull request #2 is open. Decide for Renovate, merge #2, then run
-  `node <plugin root>/scripts/add-to-project.mts . ci-security:renovate`,
-  which removes Dependabot's file. The kit and the add-ons are at the
-  plugin's 0.15.0 since 2026-10-13; only this option is left.
 - **Eight open code-scanning alerts.** Seven are from the first CodeQL scan
   (switched on 2026-10-13, with Dependabot security updates and private vulnerability
-  reporting; all nine settings `pnpm repo:settings` reads are now on). One was
+  reporting; all nine settings `pnpm repo:settings` reads are now on; Dependabot
+  security updates went off again on 2026-10-17, since Renovate opens the fixes). One was
   CodeQL's: `js/incomplete-sanitization`, a warning, in
   `tools/arch/gates/lib/files.mts`, the kit's own file; the kit's 0.15.0
   (on `main` with this entry) replaces the `*` through a function, so the
@@ -139,8 +133,9 @@ Work that has started and is not finished.
   branch (pull request #8): `js/incomplete-multi-character-sanitization`,
   rated high, in `tools/repo-hygiene/lib/markdown.mts:100`, the add-on's
   heading reader stripping tags to make an anchor that is never rendered. The
-  plugin's own status page lists that same line as an open, unread alert, so
-  it is upstream's; dismiss it here as a false positive with that reason.
+  plugin read that same line on 2026-10-16 and dismissed it there as a false
+  positive (skills #36): the anchor it makes is never written into a page.
+  Dismiss it here with that reason.
   The CodeQL check is not in the ruleset, and #8 merged with it red. The other six
   are OpenSSF Scorecard's ratings of the repository's practices shown as
   errors with no file: CI best practices, code review, maintained, fuzzing,
@@ -228,7 +223,8 @@ Work that has started and is not finished.
   its own Node and pnpm (the Playwright jobs run in a container), so the
   project moves with it rather than pinning `ubuntu-24.04`. Watch the first
   runs of `main` after that date; a runner-image failure is not the change
-  that merged.
+  that merged. The plugin's own workflows passed on `ubuntu-26.04` on
+  2026-10-16 (skills #40, skills-demo #13).
 - **The Journal's small gaps.** A delete refused for a reason no sentence
   words shows the reason's code; the multi-cost wizard's footer shows the
   lines' total alone, not against the amount paid; `validateEntry` judges an
