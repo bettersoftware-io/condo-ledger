@@ -15,6 +15,8 @@ import type { ArchitectureConfig } from "./tools/arch/gates/lib/config.mts";
 // bindings   core, domain, leaf
 // client     bindings, core, domain, leaf
 // server     domain, shared, leaf
+// explicit   only what its own mayImport names; and only a package that
+//            names it in its mayImport imports it
 // integration  every role above; nothing may import it, and it holds only tests
 const config: ArchitectureConfig = {
   packages: {
@@ -45,6 +47,15 @@ const config: ArchitectureConfig = {
     // domain engine, emits the simulator seed and runs the parity specs.
     // Node-side, so `server`: it may import the domain and the db leaf.
     "packages/legacy-import": { role: "server" },
+
+    // A graph the roles above cannot draw ("the catalog imports the spec, and
+    // only the runtime imports the catalog") is written edge by edge: the
+    // role `explicit` grants nothing, and the edges are the mayImport lists.
+    // `reactRules: "client"` (or "bindings") gives a package of that role the
+    // React lint rules of a client (or the bindings); without it, a package
+    // that imports React is listed under `reactWithoutPolicies`.
+    // "packages/catalog": { role: "explicit", mayImport: ["packages/spec"], reactRules: "client" },
+    // "packages/runtime": { role: "bindings", mayImport: ["packages/catalog"] },
   },
 
   adapters: [
