@@ -1,6 +1,7 @@
 export * from "./entities/account.ts";
 export * from "./entities/building.ts";
 export * from "./entities/cents.ts";
+export * from "./entities/invoice.ts";
 export * from "./entities/journal.ts";
 export * from "./entities/money.ts";
 export * from "./entities/party.ts";
@@ -23,6 +24,7 @@ export * from "./support/clock.ts";
 export * from "./support/romeTime.ts";
 export * from "./useCases/accountTree.ts";
 export * from "./useCases/allocate.ts";
+export * from "./useCases/invoice.ts";
 export * from "./useCases/journal.ts";
 export * from "./useCases/ledger.ts";
 export * from "./useCases/riparto/computeBalances.ts";
