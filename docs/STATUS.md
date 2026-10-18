@@ -12,7 +12,7 @@ One bullet for each entry: its name in bold, what is left, and a link to its
 plan when it has one. `AGENTS.md` says when an entry is added, moved and
 removed.
 
-**Last updated: 2026-10-17**
+**Last updated: 2026-10-18**
 
 ## In progress
 
@@ -51,6 +51,14 @@ Work that has started and is not finished.
   After M2c, the rest of the Buildings module the parent design names for
   M2: Installments, Tables & Allocation, Building Data & Units, Contacts and
   Calendar, one spec per group.
+- **A flaky server test, `packages/server/src/startServer.port.test.ts`.**
+  During M2b's final fix wave (2026-10-17), one local `pnpm gate:full` run
+  failed on an unhandled error from a socket read in this file; the rerun
+  passed, and M2b never touched the server. Not investigated. A likely
+  suspect, unverified: `breakTheProtocol` opens a raw `net` socket with a
+  `close` listener and no `error` listener, so a reset when the server drops
+  the client (`ECONNRESET`) would surface as an unhandled error. Reproduce
+  it (run the file in a loop), and fix the cause rather than retrying.
 - **Per-grid persistence.** The design says a column resize persists per
   grid; today every per-component machine (grid expansion, columns, split,
   bottom tab) is rebuilt when its component mounts, so leaving the Accounts
