@@ -238,9 +238,13 @@ a generic draft cannot carry items.
 - **Client:** page objects for the new component; the screen test records a
   collection for a Pozzetto owner, sees the person's balance fall, edits its
   amount, deletes it.
-- **Goldens:** `journal-wizard-collection-owner` (step 1, Pozzetto 2013) and
-  `journal-wizard-collection-amount` (step 2 for one person, the settlement
-  showing a partial last item).
+- **Goldens**, by the visual add-on 0.19's pyramid (AGENTS.md "The
+  pyramid"): the wizard is a dialog, so it is a component scenario mounted
+  alone with `capture: "viewport"`, not a page over the app:
+  `collection-wizard-owner` (step 1, Pozzetto 2013) and
+  `collection-wizard-amount` (step 2 for one person, the settlement showing
+  a partial last item). The settlement table, if it is its own component, is
+  pictured as a root capture with a partial last row.
 - Coverage at the add-on's bar for every new file.
 
 ## Decided here (my calls)
