@@ -110,7 +110,7 @@ line, the item it pays. It is absent on every other line of every kind.
   | `item-required` | a `collection` credit on the owners account without an item |
   | `unknown-item` | an item the period does not have |
   | `wrong-resident` | a line whose counterpart is not the item's resident |
-  | `over-remaining-item` | a line above what the item still owes (on an edit: plus what the entry itself pays on it now) |
+  | `over-remaining-item` | the entry's lines on one item, added together, above what the item still owes (on an edit: plus what the entry itself pays on it now) |
 
   `EntryContext` gains `installments` and `installmentItems`.
 - **`canDeleteEntry`**: `collection` joins the deletable kinds. Deleting it
@@ -201,9 +201,14 @@ every credit naming an item of one person). The edit starts at step 2 with
 the person fixed. The form holds the entry's account and amount. While the
 amount is the entry's own, its lines are kept as written (so tx6 and tx167
 save unchanged); once the amount changes, the settlement is recomputed
-oldest first over the person's items, with this entry left out. A
-collection never falls back to the generic editor, since a generic draft
-cannot carry items.
+oldest first over the person's items, with this entry left out. The
+description starts as written; when the settlement is recomputed it is
+regenerated, unless the person has typed in it during this edit (my call,
+unlike M2b's edits, which keep every field as written: a collection's
+description lists the installments it pays, and a stale list would
+contradict the lines; the regenerated text is English even where the seeded
+one is Italian). A collection never falls back to the generic editor, since
+a generic draft cannot carry items.
 
 **Delete** uses M2a's confirm; nothing else changes.
 
