@@ -12,7 +12,7 @@ One bullet for each entry: its name in bold, what is left, and a link to its
 plan when it has one. `AGENTS.md` says when an entry is added, moved and
 removed.
 
-**Last updated: 2026-10-18**
+**Last updated: 2026-10-24**
 
 ## In progress
 
@@ -51,6 +51,17 @@ Work that has started and is not finished.
   After M2c, the rest of the Buildings module the parent design names for
   M2: Installments, Tables & Allocation, Building Data & Units, Contacts and
   Calendar, one spec per group.
+- **Visual goldens as a pyramid.** Since the `visual` add-on's 0.19.0 all
+  fourteen scenarios are pages (the whole app at 1280 or 1100 by 720), the
+  shape its README says to avoid. Left: `tests/visual/registry.tsx` from its
+  template in `tools/templates/`, with `Surround` carrying the `data-theme`
+  and `data-mode` that `ui/shell/AppRoot.tsx` sets;
+  `render` returned from `seeding.ts` as its template does; then component
+  scenarios before more pages. First: `Money` (positive, negative, zero),
+  `TreeGridRow` (aggregate, selected, collapsed, long label), `InlineEditor`
+  (editing, refused), `SegmentedControl`, `ConfirmAlert` and `WizardDialog`
+  mounted alone with `capture: "viewport"`. `pnpm visual:coverage` lists
+  what no scenario renders; `MultiCostPaymentWizard` has none (4.8%).
 - **A flaky server test, `packages/server/src/startServer.port.test.ts`.**
   During M2b's final fix wave (2026-10-17), one local `pnpm gate:full` run
   failed on an unhandled error from a socket read in this file; the rerun
@@ -182,29 +193,11 @@ Work that has started and is not finished.
   `.claude/commands/workflow/*.md` into a folder the project's `.gitignore`
   ignored and said nothing, so CI failed the `agent-docs` gate on files the
   branch did not carry (an installer could warn when a file it wrote is
-  ignored); the `visual` add-on's `visual.pw.ts` sets no viewport per
-  scenario, so M1 edited it for the 1100-pixel scenarios, and every later
-  update of the add-on refuses that file until it is forced (a `width` on
-  the scenario is what the host could take); the host pads its frame by
-  16 pixels and pictures the frame, so a `position: fixed` layer (the
-  Journal's dialogs) is drawn against the viewport, 16 pixels up and left of
-  the app: the dialog golden leaves a 16-pixel strip of the app at the
-  right and the bottom outside the scrim, and the card is centred on the
-  viewport, not on the app; the host pictures the whole frame, so a dialog's
-  golden always carries the app behind it: a scenario that names the element
-  to picture (the dialog card) would give dialog-only goldens, with the
-  full-app picture kept for a few; the host's zero tolerance turns any
-  frame-to-frame shading into a failure, and Chromium's partial raster
-  shades the same rounded corner two ways from frame to frame: the add-on's
-  `playwright.config.ts` should launch Chromium with
-  `--disable-partial-raster` (measured in this project on 2026-10-16: eight
-  linux-x64 runs, no golden outside the dialogs changed), and its docs
-  should warn that a native select's own text still varies between runs
-  (this project draws the chosen option as ordinary text over it). This
-  project sets the flag in its own copy until the add-on does, so an update
-  of the add-on reports that file as changed; the redesign asked of the
-  add-on (levels from component to page, per-scenario tolerance, visual
-  reach coverage) was handed to a session in that repository.
+  ignored); Renovate moves the action pins in the `visual` add-on's two
+  workflows (`visual.yml`, `update-visual-goldens.yml`) past the add-on's
+  own, so every update of the add-on refuses them as edited, and `--force`
+  would put the older pins back (the 0.19.0 update kept this project's
+  newer ones by hand).
 
 ## Known limits
 
