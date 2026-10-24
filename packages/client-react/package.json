@@ -9,7 +9,7 @@
     "dev": "vite",
     "build": "vite build",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "vitest run",
+    "test": "vitest run --no-fsModuleCache",
     "typecheck:visual": "tsc --noEmit -p tests/visual/tsconfig.json"
   },
   "dependencies": {
