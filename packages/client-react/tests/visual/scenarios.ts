@@ -5,14 +5,21 @@ import type {
   OpeningAmount,
 } from "@cl/client-core";
 
+import type { Picture } from "./host/picture.ts";
+
 /**
  * One picture: a name and the state the screen is in when it is taken. The
  * state is data, never a click. The visual host turns it into deliveries on
  * the app harness, so the real presenters decide what the screen looks like.
+ *
+ * The fields of `Picture` say what is pictured. Each scenario here is a page:
+ * the whole app in a viewport of its `width` and `height`.
  */
-export interface Scenario {
-  /** The page's width in pixels; the height is the same for every scenario. */
+export interface Scenario extends Picture {
+  /** The page's width in pixels: the full layout at 1280, the compact one under 1180. */
   width: number;
+  /** The page's height in pixels: 720 for every scenario, the size the pictures were drawn at before 0.19.0. */
+  height: number;
   /** The colour mode, set as the person would set it. */
   mode: "light" | "dark";
   /** The period the sidebar has selected. */
@@ -109,6 +116,7 @@ const OPEN_TO_CASH = [
 export const scenarios: Record<string, Scenario> = {
   "accounts-1280-light": {
     width: 1280,
+    height: 720,
     mode: "light",
     periodId: "p36",
     selectedKey: "la154",
@@ -116,6 +124,7 @@ export const scenarios: Record<string, Scenario> = {
   },
   "accounts-1280-dark": {
     width: 1280,
+    height: 720,
     mode: "dark",
     periodId: "p36",
     selectedKey: "la154",
@@ -123,6 +132,7 @@ export const scenarios: Record<string, Scenario> = {
   },
   "accounts-1100-light": {
     width: 1100,
+    height: 720,
     mode: "light",
     periodId: "p36",
     selectedKey: "la154",
@@ -130,6 +140,7 @@ export const scenarios: Record<string, Scenario> = {
   },
   "accounts-1100-drawer": {
     width: 1100,
+    height: 720,
     mode: "light",
     periodId: "p36",
     selectedKey: "la154",
@@ -140,6 +151,7 @@ export const scenarios: Record<string, Scenario> = {
   // the label is cut with an ellipsis and the amounts stay in their columns.
   "accounts-long-label": {
     width: 1280,
+    height: 720,
     mode: "light",
     periodId: "p36",
     selectedKey: "la154",
@@ -151,6 +163,7 @@ export const scenarios: Record<string, Scenario> = {
   },
   "journal-1280-light": {
     width: 1280,
+    height: 720,
     mode: "light",
     periodId: "p36",
     menu: "journal",
@@ -159,6 +172,7 @@ export const scenarios: Record<string, Scenario> = {
   },
   "journal-1280-dark": {
     width: 1280,
+    height: 720,
     mode: "dark",
     periodId: "p36",
     menu: "journal",
@@ -169,6 +183,7 @@ export const scenarios: Record<string, Scenario> = {
   // the postings, and Save is disabled.
   "journal-wizard-generic": {
     width: 1280,
+    height: 720,
     mode: "light",
     periodId: "p36",
     menu: "journal",
@@ -186,6 +201,7 @@ export const scenarios: Record<string, Scenario> = {
   // ceiling: the list gives way and scrolls, and the body does not.
   "journal-wizard-direct": {
     width: 1280,
+    height: 720,
     mode: "light",
     periodId: "p36",
     menu: "journal",
@@ -199,6 +215,7 @@ export const scenarios: Record<string, Scenario> = {
   // question whether to delete it.
   "journal-delete-confirm": {
     width: 1280,
+    height: 720,
     mode: "light",
     periodId: "p36",
     menu: "journal",
@@ -210,6 +227,7 @@ export const scenarios: Record<string, Scenario> = {
   // and the computed rows follow the typed taxable amount.
   "journal-wizard-invoice": {
     width: 1280,
+    height: 720,
     mode: "light",
     periodId: "p36",
     menu: "journal",
@@ -222,6 +240,7 @@ export const scenarios: Record<string, Scenario> = {
   // Step 1 of an invoice payment: the period's open invoices to choose from.
   "journal-wizard-payment": {
     width: 1280,
+    height: 720,
     mode: "light",
     periodId: "p36",
     menu: "journal",
@@ -232,6 +251,7 @@ export const scenarios: Record<string, Scenario> = {
   // typed.
   "journal-wizard-opening": {
     width: 1280,
+    height: 720,
     mode: "light",
     periodId: "p36",
     menu: "journal",
@@ -245,6 +265,7 @@ export const scenarios: Record<string, Scenario> = {
   // selected and open in its editor.
   "journal-wizard-edit": {
     width: 1280,
+    height: 720,
     mode: "light",
     periodId: "p36",
     menu: "journal",
