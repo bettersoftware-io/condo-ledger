@@ -193,11 +193,7 @@ Work that has started and is not finished.
   `.claude/commands/workflow/*.md` into a folder the project's `.gitignore`
   ignored and said nothing, so CI failed the `agent-docs` gate on files the
   branch did not carry (an installer could warn when a file it wrote is
-  ignored); Renovate moves the action pins in the `visual` add-on's two
-  workflows (`visual.yml`, `update-visual-goldens.yml`) past the add-on's
-  own, so every update of the add-on refuses them as edited, and `--force`
-  would put the older pins back (the 0.19.0 update kept this project's
-  newer ones by hand).
+  ignored).
 
 ## Known limits
 

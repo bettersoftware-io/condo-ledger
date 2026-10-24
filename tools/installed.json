@@ -162,8 +162,8 @@
   },
   "visual": {
     "files": {
-      ".github/workflows/update-visual-goldens.yml": "0225e94dadf3e1c60822ee2c3dad5e75b6d2a8eee0fe158a8e1e63247ab0a75d",
-      ".github/workflows/visual.yml": "2682244ec23f5817be2fd0ef1aba9de6148e2c248303eedc0835afafae30a3bd",
+      ".github/workflows/update-visual-goldens.yml": "5637937b80af7ab349777f13d7efffcf7d509022fe9a4a546d932dcdc647b878",
+      ".github/workflows/visual.yml": "a6bf8e83237ce305a579ed1bd313968df0d6a06ead4ccdfd1123b4d75e4e3988",
       "packages/client-react/tests/visual/.gitignore": "8f3de1e507d277f725b13858f0c46932e42bed12a7aeaf6adc57fb7089023581",
       "packages/client-react/tests/visual/goldens.ts": "846057710f268a451fd36ce1424ceef72c3c8b369e089e877016c4ec266d675e",
       "packages/client-react/tests/visual/host/ScenarioFrame.tsx": "4aa1e4b87956ae4014bcb22023d7a44ad30f70a6c58996657c01e36967274a4a",
