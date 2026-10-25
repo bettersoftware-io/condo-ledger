@@ -1,6 +1,6 @@
 import { reasonText } from "../journal/wizards/reasons.ts";
 
-/** The schedule's reasons, from the domain's write rules, the wizard, the dialog and the presenter, as the person reads them. */
+/** The schedule's reasons, from the domain's write rules, the port, the wizard and the dialog, as the person reads them. */
 const SCHEDULE_REASONS: Readonly<Record<string, string>> = {
   "installment-locked": "This installment is locked: unlock it first.",
   "installment-paid":
@@ -8,7 +8,6 @@ const SCHEDULE_REASONS: Readonly<Record<string, string>> = {
   "item-paid":
     "A collection has paid this amount: delete that collection first.",
   "negative-amount": "An amount cannot be negative.",
-  "no-books": "No period is selected.",
   "unknown-item": "This amount is no longer in the period.",
   "no-budget-allocation":
     "This period has no budget allocation entry to share out.",

@@ -139,8 +139,11 @@ describe("ScheduleGrid", () => {
   it("a cell the domain refuses offers no editor, and its tooltip gives the reason", () => {
     const page = mountScheduleGrid({
       installments: createInstallments(),
-      rows: [createRow(createResident("r1"))],
-      cellEditable: refusing("item-paid"),
+      rows: [
+        createRow(
+          createResident("r1", { editable: createRefusal("item-paid") }),
+        ),
+      ],
     });
     const cell = page.cell("Resident r1", "1 20/01/2013");
 
@@ -302,6 +305,8 @@ function createInstallments(): Installment[] {
 interface ResidentOptions {
   restriction?: Restriction | null;
   days?: string;
+  /** The domain's verdict on editing the item of installment 1; editable when left out. */
+  editable?: Result;
 }
 
 /** A resident owing 100.00 on installment 1, 40.00 of it paid, and nothing on 2. */
@@ -319,7 +324,10 @@ function createResident(
     budget: cents(120000),
     due: cents(119000),
     cells: [
-      createCell("in1", `ii-${id}-1`, 10000, 4000),
+      {
+        ...createCell("in1", `ii-${id}-1`, 10000, 4000),
+        editable: options.editable ?? { ok: true },
+      },
       createCell("in2", null, null, 0),
     ],
     totalInstallments: cents(10000),
@@ -379,6 +387,7 @@ function createCell(
     amount: owed === null ? null : cents(owed),
     paid: cents(paid),
     status: owed === null || owed === 0 ? null : "partial",
+    editable: itemId === null ? createRefusal("no-item") : { ok: true },
   };
 }
 
@@ -396,10 +405,8 @@ function createRow(
   };
 }
 
-function refusing(reason: string): () => Result {
-  return (): Result => {
-    return { ok: false, reason };
-  };
+function createRefusal(reason: string): Result {
+  return { ok: false, reason };
 }
 
 async function createAccepted(): Promise<Result> {

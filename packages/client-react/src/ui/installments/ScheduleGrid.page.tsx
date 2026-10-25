@@ -32,7 +32,7 @@ export interface ScheduleGridPage {
   emptyMessage: () => string | null;
 }
 
-/** Mounts the grid alone, every cell editable unless the props say otherwise. */
+/** Mounts the grid alone; each cell's `editable` says whether a click edits it. */
 export function mountScheduleGrid(
   props: Partial<ScheduleGridProps>,
 ): ScheduleGridPage {
@@ -42,7 +42,6 @@ export function mountScheduleGrid(
       rows={[]}
       installments={[]}
       template=""
-      cellEditable={editable}
       onToggle={vi.fn()}
       onResize={vi.fn()}
       onSetItemAmount={vi.fn()}
@@ -187,8 +186,4 @@ export function holdVerdicts(): HeldVerdicts {
       });
     },
   };
-}
-
-function editable(): Result {
-  return { ok: true };
 }

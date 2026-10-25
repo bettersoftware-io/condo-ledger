@@ -3,6 +3,7 @@ import { type Cents, cents, ZERO_CENTS } from "../entities/cents.ts";
 import type { Installment, InstallmentItem } from "../entities/installment.ts";
 import type { JournalEntry } from "../entities/journal.ts";
 import type { OwnerParty, Party, Restriction } from "../entities/party.ts";
+import { type Result, rejected } from "../entities/result.ts";
 import { must } from "../support/must.ts";
 import {
   type BudgetShares,
@@ -10,6 +11,7 @@ import {
   previousBalancesOf,
 } from "./budgetShares.ts";
 import { type ItemBalance, itemBalances } from "./installments.ts";
+import { itemAmountVerdict } from "./validateSchedule.ts";
 
 /** A cell's colour: paid in full, paid in part, or not paid at all. */
 export type CellStatus = "settled" | "partial" | "unsettled";
@@ -24,6 +26,12 @@ export interface ScheduleCell {
   paid: Cents;
   /** Null when the amount is 0 or null: no colour. */
   status: CellStatus | null;
+  /**
+   * Whether the item's amount may be edited, judged on its current amount by
+   * the rules a write answers to (`installment-locked`, `item-paid`).
+   * `no-item` on a cell with no item under it.
+   */
+  editable: Result;
 }
 
 type ScheduleNodeKind = "root" | "unit" | "resident" | "roundings";
@@ -78,6 +86,9 @@ export interface Schedule {
 }
 
 const DAY = 24 * 60 * 60 * 1000;
+
+/** A cell with no item under it: a unit's, the root's, Roundings', a blank one. */
+const NO_ITEM: Result = rejected("no-item");
 
 /** The Installment Schedule's tree: the root, the units in code order, then Roundings when the allocation posted any. */
 export function scheduleOf(input: ScheduleInput, today: string): Schedule {
@@ -250,6 +261,7 @@ function residentCell(
     amount: balance.item.amount,
     paid: balance.paid,
     status: statusOf(balance.item.amount, balance.paid),
+    editable: itemAmountVerdict(balance, balance.item.amount),
   };
 }
 
@@ -345,6 +357,7 @@ function sumCell(
     amount,
     paid,
     status: statusOf(amount, paid),
+    editable: NO_ITEM,
   };
 }
 
@@ -355,6 +368,7 @@ function blankCell(installment: Installment): ScheduleCell {
     amount: null,
     paid: ZERO_CENTS,
     status: null,
+    editable: NO_ITEM,
   };
 }
 

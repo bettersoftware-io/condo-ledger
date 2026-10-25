@@ -115,6 +115,31 @@ describe("scheduleOf on a small period", () => {
     ]);
   });
 
+  it("says which resident cells may be edited: not a paid item, not a locked installment's, an unpaid one of zero yes; never a blank, a unit's, the root's or Roundings'", () => {
+    const input = createInput();
+    input.installments = input.installments.map((installment) => {
+      return { ...installment, locked: installment.id === "in2" };
+    });
+
+    const { root } = scheduleOf(input, "2011-06-20");
+
+    expect(editableOf(resident(root, "rA"))).toEqual([
+      "item-paid",
+      "installment-locked",
+    ]);
+    expect(editableOf(resident(root, "rB"))).toEqual([
+      "item-paid",
+      "installment-locked",
+    ]);
+    expect(editableOf(resident(root, "rC"))).toEqual(["ok", "no-item"]);
+    expect(editableOf(nodeAt(root, "A1"))).toEqual(["no-item", "no-item"]);
+    expect(editableOf(root)).toEqual(["no-item", "no-item"]);
+    expect(editableOf(nodeAt(root, "Roundings"))).toEqual([
+      "no-item",
+      "no-item",
+    ]);
+  });
+
   it("colours a unit and the root by their residents' sums, and leaves the Roundings cells blank", () => {
     const { root } = scheduleOf(createInput(), "2011-06-20");
 
@@ -240,6 +265,26 @@ describe("scheduleOf on the seed", () => {
     expect(cellFor(root, "ii789").status).toBe("partial");
     expect(cellFor(root, zero.id).status).toBeNull();
     expect(cellFor(root, zero.id).amount).toBe(0);
+  });
+
+  it("keeps ii789 from being edited item-paid, and Saturno 2011's locked in1 installment-locked", () => {
+    const pozzetto = scheduleOf(seedInput("p36"), "2026-10-14").root;
+    const saturno = scheduleOf(seedInput("p1"), "2026-10-14").root;
+    const lockedItem = must(
+      seed.installmentItems.find((item) => {
+        return item.installmentId === "in1";
+      }),
+      "an item of in1",
+    );
+
+    expect(cellFor(pozzetto, "ii789").editable).toEqual({
+      ok: false,
+      reason: "item-paid",
+    });
+    expect(cellFor(saturno, lockedItem.id).editable).toEqual({
+      ok: false,
+      reason: "installment-locked",
+    });
   });
 
   it("finds nothing overdue on 1 December 2012, before Pozzetto 2013's first due date", () => {
@@ -388,6 +433,13 @@ function amounts(node: ScheduleNode): number[] {
 function cellsOf(node: ScheduleNode): (string | number | null)[][] {
   return node.cells.map((cell) => {
     return [cell.itemId, cell.amount, cell.paid, cell.status];
+  });
+}
+
+/** Each cell's verdict on an edit: "ok", or the reason it is refused. */
+function editableOf(node: ScheduleNode): string[] {
+  return node.cells.map((cell) => {
+    return cell.editable.ok ? "ok" : cell.editable.reason;
   });
 }
 

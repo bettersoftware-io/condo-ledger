@@ -26,7 +26,7 @@ import "./ScheduleGrid.css";
 /**
  * The installment schedule: the grid machine's rows as tree-grid rows, the
  * resident's attributes and amounts, and one cell per installment. A
- * resident's cell is edited in place when the domain allows it; which cell
+ * resident's cell is edited in place when its `editable` allows it; which cell
  * is being edited, what is wrong with its text, and which row is selected
  * are this view's own state. Takes only props, so the compiler memoizes it.
  */
@@ -34,7 +34,6 @@ export function ScheduleGrid({
   rows,
   installments,
   template,
-  cellEditable,
   onToggle,
   onResize,
   onSetItemAmount,
@@ -129,7 +128,7 @@ export function ScheduleGrid({
       );
     }
 
-    const verdict = cellEditable(itemId);
+    const verdict = cell.editable;
     const editing = edit.editing === itemId;
 
     return (
@@ -170,8 +169,6 @@ export interface ScheduleGridProps {
   installments: Installment[];
   /** grid-template-columns, from the columns machine. */
   template: string;
-  /** Whether the item's amount may be edited, and why not. */
-  cellEditable: (itemId: string) => Result;
   onToggle: (key: string) => void;
   onResize: (index: number, px: number) => void;
   /** Saves an item's amount; the domain's verdict comes back. */

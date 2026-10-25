@@ -10,6 +10,7 @@ import {
   type LegacySeed,
   loadLegacySeed,
   type Schedule,
+  type ScheduleCell,
 } from "@cl/domain";
 import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
 
@@ -57,14 +58,14 @@ describe("the installment schedule presenter", () => {
     stop();
   });
 
-  it("refuses to edit the paid item ii789", () => {
-    const { app, latest, stop } = createScheduled();
+  it("carries each item's verdict on an edit: the paid ii789 refused, an unpaid item open", () => {
+    const { latest, stop } = createScheduled();
 
-    expect(app.presenters.schedule.cellEditable("ii789")).toEqual({
+    expect(scheduleCellOf(latest(), "ii789").editable).toEqual({
       ok: false,
       reason: "item-paid",
     });
-    expect(app.presenters.schedule.cellEditable(unpaidItem(latest()))).toEqual({
+    expect(scheduleCellOf(latest(), unpaidItem(latest())).editable).toEqual({
       ok: true,
     });
 
@@ -146,22 +147,6 @@ describe("the installment schedule presenter", () => {
     stop();
   });
 
-  it("answers a refusal, not an error, for a cell it cannot judge", () => {
-    const empty = createAppHarness(createSeedWithoutBuildings());
-    const { app, stop } = createScheduled();
-
-    expect(empty.app.presenters.schedule.cellEditable("ii789")).toEqual({
-      ok: false,
-      reason: "no-books",
-    });
-    expect(app.presenters.schedule.cellEditable("ii-gone")).toEqual({
-      ok: false,
-      reason: "unknown-item",
-    });
-
-    stop();
-  });
-
   it("holds nothing before a period is chosen with books", () => {
     const { app } = createAppHarness(createSeedWithoutBuildings());
     const subscription = app.presenters.schedule.schedule$.subscribe();
@@ -205,9 +190,22 @@ interface Scheduled {
 }
 
 function cellOf(schedule: Schedule | null, itemId: string): number {
+  const { amount } = scheduleCellOf(schedule, itemId);
+
+  if (amount === null) {
+    throw new Error(`missing: the amount of ${itemId}`);
+  }
+
+  return amount;
+}
+
+function scheduleCellOf(
+  schedule: Schedule | null,
+  itemId: string,
+): ScheduleCell {
   const cell = findCell(schedule?.root, itemId);
 
-  if (cell === undefined || cell === null) {
+  if (cell === undefined) {
     throw new Error(`missing: the cell of ${itemId}`);
   }
 
@@ -217,14 +215,14 @@ function cellOf(schedule: Schedule | null, itemId: string): number {
 function findCell(
   node: Schedule["root"] | undefined,
   itemId: string,
-): number | null | undefined {
+): ScheduleCell | undefined {
   if (node === undefined) {
     return undefined;
   }
 
   for (const cell of node.cells) {
     if (cell.itemId === itemId) {
-      return cell.amount;
+      return cell;
     }
   }
 

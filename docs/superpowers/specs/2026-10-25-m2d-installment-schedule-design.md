@@ -94,7 +94,7 @@ is not zero. Root and unit rows are bold on `--zebra`.
 | Column | Value |
 |---|---|
 | Groups / Units / Owners | unit code; the resident's name |
-| Role | `PR` owner, `CO` co-owner, `TE` tenant… as the dump's role abbreviation |
+| Role | the dump's role abbreviation (`unitResidentRole.abbreviation`): `PR` owner, `CO` tenant (*conduttore*), `SC` subtenant, `NP` bare owner, `US` usufructuary, `LE` leasing company, `CF` finance lessee; the seed holds `PR` and `CO` |
 | Restr. period | "{from} - end of FY", "start of FY - {to}", "{from} - {to}" (dd/mm/yyyy); blank for the whole period. The resident's restriction, or its unit's |
 | Days | "{days}/{period days}" when restricted; blank otherwise (Pozzetto A04: 347/365 and 18/365) |
 | Prev. bal. | the resident's lines on the owners account in the period's **opening entry** (debit positive); the party's `startingBalance` when the period has none. Equal on the seed for every resident |

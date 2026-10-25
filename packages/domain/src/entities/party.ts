@@ -16,7 +16,7 @@ export interface OwnerParty {
   unitCode: string;
   /** What the resident owed at the start of the period; negative when in credit. */
   startingBalance: Cents;
-  /** The legacy role abbreviation: "PR" owner, "CO" tenant, … */
+  /** The legacy role abbreviation (the dump's `unitResidentRole`): "PR" owner, "CO" tenant (conduttore), … */
   role: string;
   /** The part of the period the residency covers: its own, else its unit's; null for the whole period. */
   restriction: Restriction | null;

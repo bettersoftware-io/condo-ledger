@@ -301,6 +301,26 @@ describe("validateItemAmount", () => {
     });
   });
 
+  it("refuses an amount that is not a whole number of cents not-an-amount, before every other reason", () => {
+    const context = createContext();
+    const lockedAndPaid = {
+      ...context,
+      installments: context.installments.map((installment) => {
+        return { ...installment, locked: true };
+      }),
+    };
+
+    expect(
+      validateItemAmount(createContext(), "ii3", uncheckedCents(12.5)),
+    ).toEqual({ ok: false, reason: "not-an-amount" });
+    expect(
+      validateItemAmount(createContext(), "ii3", uncheckedCents(Number.NaN)),
+    ).toEqual({ ok: false, reason: "not-an-amount" });
+    expect(
+      validateItemAmount(lockedAndPaid, "ii1", uncheckedCents(-0.5)),
+    ).toEqual({ ok: false, reason: "not-an-amount" });
+  });
+
   it("throws for an item the period does not hold", () => {
     expect(() => {
       return validateItemAmount(createContext(), "ii99", cents(1));
@@ -403,6 +423,11 @@ function createInstallment(
     dueDate: `2011-0${number * 3}-01`,
     locked,
   };
+}
+
+/** A number as Cents without `cents`' check: what a port's caller could hand over across a wire. */
+function uncheckedCents(value: number): Cents {
+  return value as Cents;
 }
 
 function createItem(

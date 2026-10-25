@@ -10,20 +10,17 @@ import {
   type InstallmentsDraft,
   type InstallmentsPort,
   type Result,
-  rejected,
   type Schedule,
   type ScheduleContext,
   scheduleOf,
-  validateItemAmount,
 } from "@cl/domain";
 
 import { todayOf } from "../today.ts";
 import type { Books } from "./booksPresenter.ts";
 
 export interface InstallmentSchedulePresenter {
+  /** Each resident cell says whether its item's amount may be edited (`ScheduleCell.editable`). */
   schedule$: DefaultedStateObservable<Schedule | null>;
-  /** Whether the item's amount may be edited: its current amount judged over the books as they stand. */
-  cellEditable: (itemId: string) => Result;
   createInstallments: (
     periodId: string,
     draft: InstallmentsDraft,
@@ -72,20 +69,6 @@ export function createInstallmentSchedulePresenter(
       ),
       null,
     ),
-    cellEditable: (itemId: string): Result => {
-      const books = books$.getValue();
-      const item = books?.installmentItems.find((candidate) => {
-        return candidate.id === itemId;
-      });
-
-      if (books === null) {
-        return rejected("no-books");
-      }
-
-      return item === undefined
-        ? rejected("unknown-item")
-        : validateItemAmount(scheduleContextOf(books), itemId, item.amount);
-    },
     createInstallments: (
       periodId: string,
       draft: InstallmentsDraft,

@@ -149,8 +149,9 @@ export function validateDelete(
 }
 
 /**
- * Whether an item may be set to an amount: not negative, its installment not
- * locked, no collection naming it. Throws for an id the context does not hold.
+ * Whether an item may be set to an amount: a whole number of cents, not
+ * negative, its installment not locked, no collection naming it. Throws for
+ * an id the context does not hold.
  */
 export function validateItemAmount(
   context: ScheduleContext,
@@ -165,6 +166,20 @@ export function validateItemAmount(
     throw new Error(`missing: the installment item ${itemId}`);
   }
 
+  // Cents are branded, not checked: a caller across a wire can hand over 12.5.
+  if (!Number.isInteger(amount)) {
+    return rejected("not-an-amount");
+  }
+
+  return itemAmountVerdict(balance, amount);
+}
+
+/**
+ * Whether the item under this balance may be set to a whole amount: not
+ * negative, its installment not locked, no collection naming it. With the
+ * item's own amount, whether its cell may be edited at all.
+ */
+export function itemAmountVerdict(balance: ItemBalance, amount: Cents): Result {
   if (amount < 0) {
     return rejected("negative-amount");
   }

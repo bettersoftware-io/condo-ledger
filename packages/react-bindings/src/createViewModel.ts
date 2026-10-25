@@ -56,7 +56,6 @@ import type {
   EntryAdded,
   EntryKind,
   Firm,
-  InstallmentPatch,
   JournalEntryView,
   Language,
   Ledger,
@@ -103,8 +102,6 @@ type WizardView<
 /** The period's installment schedule, and the writes the UI may ask of it. */
 export interface ScheduleView {
   schedule: Schedule | null;
-  cellEditable: (itemId: string) => Result;
-  updateInstallment: (id: string, patch: InstallmentPatch) => Promise<Result>;
   deleteInstallment: (id: string) => Promise<Result>;
   setItemAmount: (itemId: string, amount: Cents) => Promise<Result>;
 }
@@ -345,8 +342,6 @@ export function createViewModel(app: App): ViewModel {
     useSchedule: (): ScheduleView => {
       return {
         schedule: useStateObservable(schedule.schedule$),
-        cellEditable: schedule.cellEditable,
-        updateInstallment: schedule.updateInstallment,
         deleteInstallment: schedule.deleteInstallment,
         setItemAmount: schedule.setItemAmount,
       };

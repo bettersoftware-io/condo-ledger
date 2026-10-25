@@ -269,6 +269,19 @@ Work that has started and is not finished.
   changed while this was open: cancel and open it again". This holds until
   the dialog traps focus. With asynchronous adapters (M3) a wizard opened
   between a period switch and the new period's books arriving does the same.
+- **Create Budget Installments can save amounts its review did not show
+  once the live store (M3) has other writers.** The wizard reviews over the
+  books as they stood when it opened
+  (`packages/client-core/src/machines/wizards/budgetInstallmentsWizard.ts`),
+  while the port plans the items again from its own books at save time
+  (`packages/domain/src/simulators/installmentsSimulator.ts`, in
+  `createInstallments`). In the simulator nothing changes in between, so Save
+  writes what step 3 showed; with M3's live store, another writer's change in
+  between to what the plan reads (the budget allocation, the opening entry,
+  the residents, the existing items) would make an accepted Save write
+  amounts the person never saw. Fix in M3: the draft carries what it
+  expects (the planned items, or a version of the books) and the port
+  refuses on a mismatch.
 - **A registration's replace shows both versions for one emission.** When
   an invoice's registration is rewritten, the books emit once with the new
   invoice terms beside the old postings: the presenter's consistency guard

@@ -218,9 +218,9 @@ describe("planBudgetInstallments", () => {
     expect(differing).toEqual(["r166", "r167"]);
   });
 
-  // The spec expects 9 of 10. r5 also differs: its stored items 2 and 3 are a
-  // third of its share in whole euros (2,782.64 / 3 = 927.55 → 928), and
-  // 33.33% of it is 927.45 → 927. No two-decimal percentage is a third.
+  // r5 differs as well as r1: its stored items 2 and 3 are a third of its
+  // share in whole euros (2,782.64 / 3 = 927.55 → 928), and 33.33% of it is
+  // 927.45 → 927. No two-decimal percentage is a third.
   it("reproduces Saturno 2011's 3 whole-euro installments for 8 of 10 residents: r1 is off by its rounding line, r5 by a third against 33.33%", () => {
     const { matching, differing, planned, stored } = reproduce(
       "p1",

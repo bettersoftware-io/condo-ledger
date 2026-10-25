@@ -33,8 +33,7 @@ export function InstallmentScheduleScreen({
   maximize,
 }: InstallmentScheduleScreenProps): ReactElement {
   const { useSchedule, useScheduleGrid, useNotices } = useViewModel();
-  const { schedule, cellEditable, deleteInstallment, setItemAmount } =
-    useSchedule();
+  const { schedule, deleteInstallment, setItemAmount } = useSchedule();
   const grid = useScheduleGrid();
   const { stub } = useNotices();
   const [dialog, setDialog] = useState<ScheduleDialog | null>(null);
@@ -102,7 +101,6 @@ export function InstallmentScheduleScreen({
               key={installments.length}
               rows={grid.state.rows}
               installments={installments}
-              cellEditable={cellEditable}
               onToggle={grid.toggle}
               onSetItemAmount={setItemAmount}
             />
@@ -168,7 +166,6 @@ interface DeleteInstallmentDialog {
 interface ScheduleGridAreaProps {
   rows: ScheduleGridRow[];
   installments: Installment[];
-  cellEditable: (itemId: string) => Result;
   onToggle: (key: string) => void;
   onSetItemAmount: (itemId: string, amount: Cents) => Promise<Result>;
 }
@@ -177,7 +174,6 @@ interface ScheduleGridAreaProps {
 function ScheduleGridArea({
   rows,
   installments,
-  cellEditable,
   onToggle,
   onSetItemAmount,
 }: ScheduleGridAreaProps): ReactElement {
@@ -189,7 +185,6 @@ function ScheduleGridArea({
       rows={rows}
       installments={installments}
       template={columns.state.template}
-      cellEditable={cellEditable}
       onToggle={onToggle}
       onResize={columns.resize}
       onSetItemAmount={onSetItemAmount}
