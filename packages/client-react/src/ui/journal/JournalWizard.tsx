@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 
 import type { WizardName } from "@cl/client-core";
 
+import { CollectionWizard } from "./wizards/CollectionWizard.tsx";
 import { DirectPaymentWizard } from "./wizards/DirectPaymentWizard.tsx";
 import { GenericEntryWizard } from "./wizards/GenericEntryWizard.tsx";
 import { InvoicePaymentWizard } from "./wizards/InvoicePaymentWizard.tsx";
@@ -10,21 +11,25 @@ import { MultiCostPaymentWizard } from "./wizards/MultiCostPaymentWizard.tsx";
 import { OpeningBalancesWizard } from "./wizards/OpeningBalancesWizard.tsx";
 import type { WizardProps } from "./wizards/WizardDialog.tsx";
 
-/** The wizard the dialog machine names, on the entry it edits. Each mounts its own machine, so a wizard opened again starts clean. The collection wizard has no screen yet: it shows nothing. */
+/** The wizard the dialog machine names, on the entry it edits. Each mounts its own machine, so a wizard opened again starts clean. */
 export function JournalWizard({
   wizard,
   editing,
   onSaved,
   onCancel,
-}: JournalWizardProps): ReactElement | null {
-  if (wizard === "collection") {
-    return null;
-  }
-
+}: JournalWizardProps): ReactElement {
   switch (wizard) {
     case "invoice":
       return (
         <InvoiceWizard
+          editing={editing}
+          onSaved={onSaved}
+          onCancel={onCancel}
+        />
+      );
+    case "collection":
+      return (
+        <CollectionWizard
           editing={editing}
           onSaved={onSaved}
           onCancel={onCancel}

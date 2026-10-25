@@ -59,6 +59,24 @@ export const PAYMENT_REASONS: Readonly<Record<string, string>> = {
   "blank-description": DESCRIPTION_REQUIRED,
 };
 
+/**
+ * The Record owner collection wizard's own words. "over-owed" and a store's
+ * "over-remaining-item" name what the owner owes, and the wizard words them;
+ * the rest are lines no screen of the wizard can write, should a collection
+ * reach the store with one.
+ */
+export const COLLECTION_REASONS: Readonly<Record<string, string>> = {
+  "no-owner": "Choose an owner",
+  "no-liquidity-account": "Choose a liquidity account",
+  "no-owners-account": "This period has no owners account",
+  "blank-description": DESCRIPTION_REQUIRED,
+  "item-not-allowed": "Only an owner's credit can pay an installment",
+  "item-required": "Each owner's credit must pay an installment",
+  "unknown-item":
+    "An installment of this collection is no longer in the period: cancel and open it again",
+  "wrong-resident": "Each installment must be paid by its own resident",
+};
+
 /** A reason in the wizard's words: its own first, then the common ones; a reason no one words is shown as it is. */
 export function reasonText(
   reason: string,

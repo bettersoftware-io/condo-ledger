@@ -226,9 +226,9 @@ describe("JournalScreen", () => {
       "Direct payment to multiple cost accounts",
     ]);
 
-    await page.clickMenuItem("Record collection");
+    await page.clickMenuItem("Budget allocation");
 
-    expect(page.toasts()).toEqual(["Record collection: not yet available"]);
+    expect(page.toasts()).toEqual(["Budget allocation: not yet available"]);
     expect(page.dialogOpen()).toBe(false);
     expect(page.menuItems()).toEqual([]);
   });
@@ -476,6 +476,74 @@ describe("JournalScreen", () => {
     expect(page.dialogOpen()).toBe(false);
   });
 
+  it("a collection lowers what its owner owes; edited with ✎ it moves the balance, and deleted it gives the balance back (Review Focus 5)", async () => {
+    const page = mountJournalScreen({ legacyPeriod: "p36" });
+    const record = await page.openWizard("Record collection");
+    const name = record.owners()[0]?.[0] ?? "";
+
+    expect(record.owners()[0]).toEqual([
+      name,
+      "A01",
+      "826.61",
+      "286.69",
+      "539.92",
+    ]);
+
+    await record.pickOwner(0);
+    await record.next();
+    await record.fill("Amount collected", "200");
+    await record.next();
+    await record.save();
+
+    const recorded = `Collection of installments from ${name}: Rata 9 (20/09/2013), Rata 10 (20/10/2013)`;
+
+    expect(page.isSelected(recorded)).toBe(true);
+    expect(await ownerAfterReopening(page)).toEqual([
+      name,
+      "A01",
+      "826.61",
+      "486.69",
+      "339.92",
+    ]);
+
+    await page.clickRow(recorded);
+    await page.clickTool("Edit entry");
+
+    const edit = page.wizard();
+
+    expect(edit.title()).toBe(
+      "Edit Record Owner Collection — Step 2: Amount and liquidity account",
+    );
+    expect(edit.fieldValue("Amount collected")).toBe("200.00");
+
+    await edit.fill("Amount collected", "100");
+    await edit.next();
+    await edit.save();
+
+    const edited = `Collection of installments from ${name}: Rata 9 (20/09/2013)`;
+
+    expect(page.dialogOpen()).toBe(false);
+    expect(page.isSelected(edited)).toBe(true);
+    expect(await ownerAfterReopening(page)).toEqual([
+      name,
+      "A01",
+      "826.61",
+      "386.69",
+      "439.92",
+    ]);
+
+    await deleteEntry(page, edited);
+
+    expect(page.confirmOpen()).toBe(false);
+    expect(await ownerAfterReopening(page)).toEqual([
+      name,
+      "A01",
+      "826.61",
+      "286.69",
+      "539.92",
+    ]);
+  });
+
   it("maximize fills the screen with the journal, and restores it", async () => {
     const page = mountJournalScreen();
 
@@ -516,6 +584,16 @@ async function deleteEntry(
   await page.clickRow(label);
   await page.clickTool("Delete entry");
   await page.confirmYes();
+}
+
+/** Opens the collection wizard, reads the first owner's row, and closes it. */
+async function ownerAfterReopening(page: JournalScreenPage): Promise<string[]> {
+  const wizard = await page.openWizard("Record collection");
+  const row = wizard.owners()[0] ?? [];
+
+  await wizard.cancel();
+
+  return row;
 }
 
 /** The cells of the entry row with this description. */

@@ -1046,10 +1046,183 @@ describe("the Opening balances wizard", () => {
 });
 
 describe("the Record owner collection wizard", () => {
-  it("has no screen yet: nothing is drawn", () => {
+  it("choose an owner, Next: the amount due is prefilled with the settlement; less settles the last item in part; Save reveals the entry", async () => {
+    const page = mountJournalScreen({ legacyPeriod: "p36" });
+    const wizard = await page.openWizard("Record collection");
+
+    expect(wizard.title()).toBe(
+      "Record Owner Collection — Step 1: Choose an owner",
+    );
+    expect(wizard.contextLine()).toBe("Building / Period: Pozzetto / 2013");
+    expect(wizard.owners()).toHaveLength(19);
+
+    const [first] = wizard.owners();
+    const name = first?.[0] ?? "";
+
+    expect(first?.slice(1)).toEqual(["A01", "826.61", "286.69", "539.92"]);
+    expect(wizard.ownersEmptyText()).toBeNull();
+    expect(wizard.isNextDisabled()).toBe(true);
+
+    await wizard.pickOwner(0);
+    await wizard.next();
+
+    expect(wizard.title()).toBe(
+      "Record Owner Collection — Step 2: Amount and liquidity account",
+    );
+    expect(wizard.fieldValue("Amount collected")).toBe("539.92");
+    expect(wizard.collectionHint()).toBe(
+      "The amount is allocated against the owner's outstanding installments, oldest first.",
+    );
+    expect(wizard.settlement()).toEqual([
+      ["Rata 9", "A01", "20/09/2013", "134.98", "134.98"],
+      ["Rata 10", "A01", "20/10/2013", "134.98", "134.98"],
+      ["Rata 11", "A01", "20/11/2013", "134.98", "134.98"],
+      ["Rata 12", "A01", "20/12/2013", "134.98", "134.98"],
+    ]);
+    expect(wizard.partialRows()).toEqual([]);
+
+    await wizard.fill("Amount collected", "200");
+
+    expect(wizard.settlement()).toEqual([
+      ["Rata 9", "A01", "20/09/2013", "134.98", "134.98"],
+      ["Rata 10", "A01", "20/10/2013", "134.98", "65.02"],
+    ]);
+    expect(wizard.partialRows()).toEqual([1]);
+
+    await wizard.next();
+
+    const description = `Collection of installments from ${name}: Rata 9 (20/09/2013), Rata 10 (20/10/2013)`;
+
+    expect(wizard.title()).toBe(
+      "Record Owner Collection — Step 3: Description",
+    );
+    expect(wizard.fieldValue("Description")).toBe(description);
+    expect(wizard.previewRows()).toHaveLength(3);
+
+    await wizard.save();
+
+    expect(page.dialogOpen()).toBe(false);
+    expect(page.isSelected(description)).toBe(true);
+  });
+
+  it("the bank account comes chosen; the liquidity account and the description are the person's to change, and the entry is written as chosen", async () => {
+    const page = mountJournalScreen({ legacyPeriod: "p36" });
+    const wizard = await page.openWizard("Record collection");
+
+    await wizard.pickOwner(0);
+    await wizard.next();
+
+    const [cash, bank] = wizard.choices();
+
+    if (cash === undefined || bank === undefined) {
+      throw new Error("missing: p36's two liquidity accounts");
+    }
+
+    expect(wizard.previewRows()[0]?.slice(1)).toEqual([bank, "539.92", ""]);
+
+    await wizard.pick(cash);
+    await wizard.next();
+
+    expect(wizard.previewRows()[0]?.slice(1)).toEqual([cash, "539.92", ""]);
+
+    await wizard.fill("Description", "Incasso A01");
+    await wizard.save();
+
+    expect(page.dialogOpen()).toBe(false);
+    expect(page.isSelected("Incasso A01")).toBe(true);
+  });
+
+  it("an amount above what the owner owes says what they owe in all, and Next waits", async () => {
+    const page = mountJournalScreen({ legacyPeriod: "p36" });
+    const wizard = await page.openWizard("Record collection");
+    const name = wizard.owners()[0]?.[0] ?? "";
+
+    await wizard.pickOwner(0);
+    await wizard.next();
+    await wizard.fill("Amount collected", "539.93");
+
+    expect(wizard.message()).toBe(`${name} owes 539.92 in all.`);
+    expect(wizard.settlement()).toEqual([]);
+    expect(wizard.isNextDisabled()).toBe(true);
+
+    await wizard.fill("Amount collected", "");
+
+    expect(wizard.message()).toBe("Enter an amount");
+
+    await wizard.fill("Amount collected", "539.92");
+
+    expect(wizard.message()).toBeNull();
+    expect(wizard.isNextDisabled()).toBe(false);
+  });
+
+  it("a save the store refuses for an item paid meanwhile says what the owner owes, and keeps the dialog", async () => {
+    const page = mountJournalScreen({ legacyPeriod: "p36" });
+    const wizard = await page.openWizard("Record collection");
+    const name = wizard.owners()[0]?.[0] ?? "";
+
+    await wizard.pickOwner(0);
+    await wizard.next();
+    await wizard.next();
+    page.refuseNextAdd("over-remaining-item");
+    await wizard.save();
+
+    expect(page.dialogOpen()).toBe(true);
+    expect(wizard.message()).toBe(`${name} owes 539.92 in all.`);
+  });
+
+  it("each step puts the focus on its first field to fill; Enter in a text field goes on, and saves on the last step", async () => {
+    const page = mountJournalScreen({ legacyPeriod: "p36" });
+    const wizard = await page.openWizard("Record collection");
+    const [name, units] = wizard.owners()[0] ?? [];
+
+    expect(wizard.focusedLabel()).toBe(`${name} — ${units}`);
+
+    await wizard.pickOwner(0);
+    await wizard.next();
+
+    expect(wizard.focusedLabel()).toBe("Amount collected");
+
+    await wizard.pressEnter();
+
+    expect(wizard.title()).toBe(
+      "Record Owner Collection — Step 3: Description",
+    );
+    expect(wizard.focusedLabel()).toBe("Description");
+
+    await wizard.pressEnter();
+
+    expect(page.dialogOpen()).toBe(false);
+  });
+
+  it("with no installment left to pay, the grid says so", () => {
     const wizard = mountJournalWizard({ wizard: "collection", editing: null });
 
-    expect(wizard.isShown()).toBe(false);
+    expect(wizard.owners()).toEqual([]);
+    expect(wizard.ownersEmptyText()).toBe(
+      "No owner has an installment to pay.",
+    );
+  });
+
+  it("editing a seeded collection is titled Edit, opens at step 2 with no Back, and marks each item paid in part", async () => {
+    const wizard = mountJournalWizard(
+      { wizard: "collection", editing: "tx6" },
+      { legacyPeriod: "p1" },
+    );
+
+    expect(wizard.title()).toBe(
+      "Edit Record Owner Collection — Step 2: Amount and liquidity account",
+    );
+    expect(wizard.hasBack()).toBe(false);
+    expect(wizard.fieldValue("Amount collected")).toBe("1000.00");
+    expect(wizard.settlement()).toEqual([
+      ["Rata nr. 1", "A4", "15/03/2011", "961.14", "926.84"],
+      ["Rata nr. 1", "B4", "15/03/2011", "74.02", "73.16"],
+    ]);
+    expect(wizard.partialRows()).toEqual([0, 1]);
+
+    await wizard.next();
+
+    expect(wizard.hasBack()).toBe(true);
   });
 });
 

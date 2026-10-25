@@ -54,6 +54,8 @@ export {
 export type {
   CollectionForm,
   CollectionSummary,
+  PersonRow,
+  SettlementRow,
 } from "./machines/wizards/collectionWizard.ts";
 export type {
   DirectPaymentForm,
