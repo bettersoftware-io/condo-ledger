@@ -18,6 +18,8 @@ export function createBooks(
     entries: small.entries,
     invoices: [],
     withholdingTaxes: [],
+    installments: [],
+    installmentItems: [],
   };
 }
 

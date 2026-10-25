@@ -2,7 +2,10 @@ import { render, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import type { WizardName } from "@cl/client-core";
-import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
+import {
+  type AppHarness,
+  createAppHarness,
+} from "@cl/client-core/testing/appHarness.ts";
 import {
   type Account,
   type AccountRole,
@@ -93,6 +96,12 @@ export interface JournalScreenPage {
     supplierId: string,
     amount: number,
   ) => Promise<void>;
+  /** On p36, another collection lands in the store, into the bank, as if made from another window: it pays these items of the resident, `each` apiece. */
+  collectElsewhere: (
+    residentId: string,
+    itemIds: string[],
+    each: number,
+  ) => Promise<void>;
   /** The open wizard's choice of the control account's row for this party. */
   rowChoiceLabel: (accountId: string, partyId: string) => string;
   /** Switches to Accounts through the sidebar, opens the rows of the path and selects its last, and reads the Ledger tab's lines. */
@@ -115,6 +124,12 @@ export interface JournalScreenOptions {
    * Beta's 55 of 200.00, which the entry Pagamento Beta pays in full.
    */
   invoices?: boolean;
+  /**
+   * The real seed in place of the small books, on this period: p1 is Saturno
+   * 2011, p36 Pozzetto 2013, the periods with installments. The other options
+   * do not apply to it.
+   */
+  legacyPeriod?: string;
 }
 
 /** The dialog the Journal screen would open: which wizard, and the entry it edits. */
@@ -129,7 +144,7 @@ export function mountJournalWizard(
   options: JournalScreenOptions = {},
 ): WizardDialogPage {
   const user = userEvent.setup();
-  const { app } = createAppHarness(createJournalSeed(options));
+  const { app } = createJournalHarness(options);
 
   function ignore(): void {
     // Saving or cancelling closes the dialog on the Journal screen; alone, it stays.
@@ -154,7 +169,7 @@ export function mountJournalScreen(
   options: JournalScreenOptions = {},
 ): JournalScreenPage {
   const user = userEvent.setup();
-  const { app, ports } = createAppHarness(createJournalSeed(options));
+  const { app, ports } = createJournalHarness(options);
 
   app.navigation.intents.selectMenu("journal");
 
@@ -416,6 +431,39 @@ export function mountJournalScreen(
         throw new Error(`the payment elsewhere was refused: ${result.reason}`);
       }
     },
+    collectElsewhere: async (
+      residentId: string,
+      itemIds: string[],
+      each: number,
+    ): Promise<void> => {
+      const result = await ports.journal.addEntry("p36", {
+        kind: "collection",
+        description: "Collected elsewhere",
+        postings: [
+          {
+            accountId: "la156",
+            debit: cents(each * itemIds.length),
+            credit: cents(0),
+            counterpart: null,
+          },
+          ...itemIds.map((itemId) => {
+            return {
+              accountId: "la158",
+              debit: cents(0),
+              credit: cents(each),
+              counterpart: { kind: "owner" as const, id: residentId },
+              installmentItemId: itemId,
+            };
+          }),
+        ],
+      });
+
+      if (!result.ok) {
+        throw new Error(
+          `the collection elsewhere was refused: ${result.reason}`,
+        );
+      }
+    },
     rowChoiceLabel: (accountId: string, partyId: string): string => {
       const option = Array.from(
         rendered.getByTestId(TESTIDS.dialog).querySelectorAll("option"),
@@ -477,6 +525,19 @@ function refuseNextDelete(journal: JournalPort, reason: string): void {
 
     return Promise.resolve(rejected(reason));
   };
+}
+
+/** The application over the books the options ask for. */
+function createJournalHarness(options: JournalScreenOptions): AppHarness {
+  if (options.legacyPeriod === undefined) {
+    return createAppHarness(createJournalSeed(options));
+  }
+
+  const harness = createAppHarness();
+
+  harness.app.presenters.buildings.selectPeriod(options.legacyPeriod);
+
+  return harness;
 }
 
 /** The small books, with the accounts and the entries the options ask for. */

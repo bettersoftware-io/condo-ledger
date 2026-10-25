@@ -75,4 +75,10 @@ export const TESTIDS = {
   supplierSelectNote: "supplier-select-note",
   openingBalance: "opening-balance",
   openingRow: "opening-row",
+  ownerRow: "owner-row",
+  ownersEmpty: "owners-empty",
+  collectionHint: "collection-hint",
+  settlementTable: "settlement-table",
+  settlementRow: "settlement-row",
+  settlementPartial: "settlement-partial",
 } as const;

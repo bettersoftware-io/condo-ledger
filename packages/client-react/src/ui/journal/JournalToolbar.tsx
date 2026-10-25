@@ -235,7 +235,7 @@ interface AddItem {
 /** In the design's order. */
 const ADD_ITEMS: readonly AddItem[] = [
   { label: "New invoice", kind: "invoice", wizard: "invoice" },
-  { label: "Record collection", kind: "collection", wizard: null },
+  { label: "Record collection", kind: "collection", wizard: "collection" },
   {
     label: "Invoice payment",
     kind: "invoicePayment",

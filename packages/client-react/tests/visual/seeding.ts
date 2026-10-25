@@ -1,7 +1,11 @@
+import { createElement, type ReactElement } from "react";
+
 import type {
   AccountsGridIntents,
   AccountsGridState,
   App,
+  CollectionForm,
+  CollectionSummary,
   DirectPaymentForm,
   DirectPaymentKind,
   DirectPaymentSummary,
@@ -36,6 +40,7 @@ import {
 import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
 
 import type { HostClock, Seeded } from "./host/seeded.ts";
+import { Mount } from "./registry.tsx";
 import type { NewEntryDialog, Scenario } from "./scenarios.ts";
 
 // How a scenario's data becomes app state. This file is the project's: when a
@@ -52,6 +57,10 @@ import type { NewEntryDialog, Scenario } from "./scenarios.ts";
 //   through its own intent.
 // - `deliver`: what arrives after the UI is on screen, in order. A wait is
 //   `clock.tick(...)`, never a real one.
+//
+// What is shown is `render`: the registry entry a scenario names in its
+// `mount`, in the app's surround (`Mount`, in `registry.tsx`). With no `mount`
+// it is undefined, and the host shows the whole app.
 
 /** The application and the deliveries of one scenario. Called once, before the first render. */
 export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
@@ -70,6 +79,14 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
     .setPreference({ mode: scenario.mode })
     .then(failOnRefusal)
     .catch(reportOnThePage);
+
+  // A part mounted alone builds its machine at its first render, so the
+  // period is chosen before it, as the Journal's dialog opens over the period
+  // the sidebar already holds. The simulators answer from memory: the books
+  // are there when the part mounts.
+  if (scenario.mount !== undefined && scenario.periodId !== undefined) {
+    buildings.selectPeriod(scenario.periodId);
+  }
 
   const app: App = {
     ...harness.app,
@@ -186,17 +203,7 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
             wizard.intents.edit({ [field]: value });
           }
 
-          while (wizard.state$.getValue().step < wanted.step) {
-            const before = wizard.state$.getValue();
-
-            wizard.intents.next();
-
-            if (wizard.state$.getValue().step === before.step) {
-              throw new Error(
-                `the scenario could not leave step ${before.step}: ${stepReason(before.stepVerdict)}`,
-              );
-            }
-          }
+          moveToStep(wizard, wanted.step);
         }
 
         return wizard;
@@ -231,21 +238,53 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
 
         return wizard;
       },
+      // The collection wizard holds the scenario's owner, moves to step 2,
+      // and holds the amount typed there over the one prefilled.
+      createCollectionWizard: (
+        editing: string | null,
+      ): Machine<
+        WizardState<CollectionForm, CollectionSummary>,
+        WizardIntents<CollectionForm>
+      > => {
+        const wizard = machines.createCollectionWizard(editing);
+        const wanted = scenario.collection;
+
+        if (wanted?.step === 2) {
+          wizard.intents.edit({ personId: wanted.personId });
+          moveToStep(wizard, 2);
+          wizard.intents.edit({ amount: wanted.amount });
+        }
+
+        return wizard;
+      },
     },
   };
 
   return {
     app,
+    render:
+      scenario.mount === undefined
+        ? undefined
+        : (): ReactElement => {
+            return createElement(Mount, { scenario });
+          },
     deliver: (): void => {
+      // A part mounted alone has its state before the first render.
+      if (scenario.mount !== undefined) {
+        return;
+      }
+
       // The period first: choosing one starts the selection again at Total.
       // The account's selection is read only while the screen listens, so
       // both arrive after the first render.
-      buildings.selectPeriod(scenario.periodId);
+      const periodId = pagePeriod(scenario);
+
+      buildings.selectPeriod(periodId);
 
       // A new opening needs the period without its seeded one: deleted
       // through the port, before the Journal's dialog asks the books for it.
       if (wizardDialog(scenario.dialog)?.wizard === "openingBalances") {
-        deleteSeededOpening(harness, scenario.periodId);
+        deleteSeededOpening(harness, periodId);
       }
 
       if (scenario.selectedKey !== undefined) {
@@ -259,6 +298,17 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
       clock.tick(0);
     },
   };
+}
+
+/** The period a page shows: the sidebar always holds one. */
+function pagePeriod(scenario: Scenario): string {
+  if (scenario.periodId === undefined) {
+    throw new Error(
+      "a page shows the period the sidebar holds, and this scenario names none",
+    );
+  }
+
+  return scenario.periodId;
 }
 
 /** The real seed, with the scenario's accounts renamed. */
@@ -327,6 +377,24 @@ function deleteSeededOpening(harness: AppHarness, periodId: string): void {
     .deleteEntry(opening.id)
     .then(failOnRefusal)
     .catch(reportOnThePage);
+}
+
+/** Moves a wizard on through its own Next until it stands on the step; a step whose verdict holds it back fails the scenario with the reason. */
+function moveToStep<TForm, TSummary>(
+  wizard: Machine<WizardState<TForm, TSummary>, WizardIntents<TForm>>,
+  step: number,
+): void {
+  while (wizard.state$.getValue().step < step) {
+    const before = wizard.state$.getValue();
+
+    wizard.intents.next();
+
+    if (wizard.state$.getValue().step === before.step) {
+      throw new Error(
+        `the scenario could not leave step ${before.step}: ${stepReason(before.stepVerdict)}`,
+      );
+    }
+  }
 }
 
 /** Why a step's verdict refuses; a step that stays put on an accepting verdict is told as such. */

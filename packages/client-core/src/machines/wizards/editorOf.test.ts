@@ -46,7 +46,7 @@ describe("editorOf", () => {
         "multiCostPayment",
       ],
       budgetAllocation: [null],
-      collection: [null, null, null, null],
+      collection: ["collection", "collection", "collection", "collection"],
       directPaymentCash: ["directPaymentCash"],
       invoice: ["invoice", "invoice"],
       invoicePayment: ["invoicePayment"],
@@ -55,7 +55,7 @@ describe("editorOf", () => {
     });
   });
 
-  it("gives Pozzetto 2013's opening its own editor, and every invoice and payment its own", () => {
+  it("gives Pozzetto 2013's opening its own editor, and every invoice, payment and collection its own", () => {
     const harness = createAppHarness();
 
     harness.app.presenters.buildings.selectPeriod("p36");
@@ -73,7 +73,8 @@ describe("editorOf", () => {
       new Set(["invoicePayment"]),
     );
     expect(new Set(editors.generic)).toEqual(new Set(["genericEntry"]));
-    expect(new Set(editors.collection)).toEqual(new Set([null]));
+    expect(editors.collection).toHaveLength(36);
+    expect(new Set(editors.collection)).toEqual(new Set(["collection"]));
   });
 
   it("a direct payment credited to another account than its role's opens in the generic editor", () => {
@@ -108,14 +109,24 @@ describe("editorOf", () => {
     ).toBe("directPaymentCash");
   });
 
+  it("a collection its wizard cannot write has no editor: a generic draft cannot carry items", () => {
+    const harness = createAppHarness();
+    const tx6 = currentEntry(harness, "tx6");
+
+    expect(
+      editorOf(
+        { ...tx6, postings: tx6.postings.slice(1) },
+        currentBooks(harness),
+      ),
+    ).toBeNull();
+  });
+
   it.each(entryKinds())(
     "answers no editor for %s exactly when canEditEntry refuses it",
     (kind) => {
-      const entry = createPayment(kind, []);
+      const { entry, books } = createEntryOfKind(kind);
 
-      expect(editorOf(entry, createBooks()) === null).toBe(
-        !canEditEntry(entry).ok,
-      );
+      expect(editorOf(entry, books) === null).toBe(!canEditEntry(entry).ok);
     },
   );
 });
@@ -149,6 +160,25 @@ function editorsByKind(books: Books): Record<string, (WizardName | null)[]> {
   }
 
   return editors;
+}
+
+interface EntryInBooks {
+  entry: JournalEntry;
+  books: Books;
+}
+
+/** An entry of the kind with no lines on the small books; for a collection, p1's tx6, since a collection with no lines is one its wizard cannot write. */
+function createEntryOfKind(kind: EntryKind): EntryInBooks {
+  if (kind === "collection") {
+    const harness = createAppHarness();
+
+    return {
+      entry: currentEntry(harness, "tx6"),
+      books: currentBooks(harness),
+    };
+  }
+
+  return { entry: createPayment(kind, []), books: createBooks() };
 }
 
 function createPayment(kind: EntryKind, postings: Posting[]): JournalEntry {

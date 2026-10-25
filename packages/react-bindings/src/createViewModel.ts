@@ -7,6 +7,8 @@ import type {
   App,
   BottomTabIntents,
   BottomTabState,
+  CollectionForm,
+  CollectionSummary,
   ColumnSpec,
   ColumnsIntents,
   ColumnsState,
@@ -150,6 +152,9 @@ export interface ViewModel {
   useOpeningBalancesWizard: (
     editing: string | null,
   ) => WizardView<OpeningForm, OpeningSummary>;
+  useCollectionWizard: (
+    editing: string | null,
+  ) => WizardView<CollectionForm, CollectionSummary>;
 }
 
 /** Built once at startup, in the composition root, from the application. */
@@ -297,6 +302,13 @@ export function createViewModel(app: App): ViewModel {
     ): WizardView<OpeningForm, OpeningSummary> => {
       return useMachine(() => {
         return app.machines.createOpeningBalancesWizard(editing);
+      });
+    },
+    useCollectionWizard: (
+      editing: string | null,
+    ): WizardView<CollectionForm, CollectionSummary> => {
+      return useMachine(() => {
+        return app.machines.createCollectionWizard(editing);
       });
     },
   };

@@ -49,3 +49,7 @@ be worth doing. Not how.
 - **Regenerate an edited invoice's description when its supplier changes**
   (an unpaid invoice): the description, marked edited, still names the old
   supplier; regenerate it when it still equals the generated text.
+- **A collection above what the owner owes, kept as a credit or an advance**
+  towards later installments. The legacy app refused it, and so does M2c
+  (`over-owed`); an owner who pays ahead, or rounds up, must be recorded
+  another way today.

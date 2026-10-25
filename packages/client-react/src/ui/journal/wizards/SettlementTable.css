@@ -1,0 +1,55 @@
+/* The settlement under the amount collected: Installment | Unit | Due | Owed | Paid now, and the "partial" mark.
+   It never shrinks: it has no scrolling rows of its own, as the lists above
+   it have, so in a short dialog the body scrolls and no row is cut off. */
+.settlement {
+  --settlement-columns: 1fr 70px 90px 100px 100px 64px;
+
+  flex: none;
+  border: 1px solid var(--bd2);
+  border-radius: 7px;
+  overflow: hidden;
+  font-size: 11.5px;
+  color: var(--tx);
+}
+
+.settlement-head,
+.settlement-row {
+  display: grid;
+  grid-template-columns: var(--settlement-columns);
+  align-items: center;
+}
+
+.settlement-head {
+  background: var(--ph);
+  color: var(--phf);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.settlement-head > span,
+.settlement-cell,
+.settlement-mark {
+  min-width: 0;
+  padding: 5px 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settlement-row {
+  border-top: 1px solid var(--bd2);
+}
+
+.settlement-cell:nth-of-type(2),
+.settlement-cell:nth-of-type(3) {
+  color: var(--txd);
+  font-variant-numeric: tabular-nums;
+}
+
+.settlement-partial {
+  padding: 1px 6px;
+  border: 1px solid var(--warn);
+  border-radius: 8px;
+  font-size: 10px;
+  color: var(--warn);
+}

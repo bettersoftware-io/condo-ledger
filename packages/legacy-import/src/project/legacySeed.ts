@@ -6,6 +6,8 @@ import {
   type Building,
   type Counterpart,
   type EntryKind,
+  type Installment,
+  type InstallmentItemData,
   type InvoiceData,
   type JournalEntryData,
   type LegacySeedData,
@@ -135,6 +137,12 @@ export function projectLegacySeed(db: Db): LegacySeedData {
     withholdingTaxes: periodIds.flatMap((periodId) => {
       return projectWithholdingTaxes(db, periodId);
     }),
+    installments: periodIds.flatMap((periodId) => {
+      return projectInstallments(db, periodId);
+    }),
+    installmentItems: periodIds.flatMap((periodId) => {
+      return projectInstallmentItems(db, periodId);
+    }),
   };
 }
 
@@ -232,6 +240,7 @@ function projectEntries(
       return Number(a.code) - Number(b.code);
     })
     .map((row) => {
+      const kind = kindOf(row);
       const postings: PostingData[] = (byTransaction.get(String(row.id)) ?? [])
         .slice()
         .sort((a, b) => {
@@ -247,15 +256,18 @@ function projectEntries(
             );
           }
 
-          return {
+          const posting: PostingData = {
             accountId,
             debit: amount > 0 ? amount : 0,
             credit: amount < 0 ? -amount : 0,
             counterpart: counterpartOf(line),
           };
-        });
+          const item = text(line.installmentItemId);
 
-      const kind = kindOf(row);
+          return kind === "collection" && amount < 0 && item !== undefined
+            ? { ...posting, installmentItemId: `ii${item}` }
+            : posting;
+        });
 
       return {
         id: `tx${String(row.id)}`,
@@ -417,6 +429,66 @@ function projectWithholdingTaxes(
     .sort((a, b) => {
       return a.code.localeCompare(b.code);
     });
+}
+
+/** The period's installments, numbered by due date. */
+function projectInstallments(db: Db, periodId: string): Installment[] {
+  return installmentRowsOf(db, periodId).map((row, index) => {
+    return {
+      id: `in${String(row.id)}`,
+      periodId: `p${periodId}`,
+      number: index + 1,
+      name: String(row.name),
+      dueDate: dueDateOf(row),
+    };
+  });
+}
+
+/** What each resident owes on each of the period's installments, zero items too: installment by installment, each in id order. */
+function projectInstallmentItems(
+  db: Db,
+  periodId: string,
+): InstallmentItemData[] {
+  const items = db.group("installmentItem", "installmentId");
+
+  return installmentRowsOf(db, periodId).flatMap((installment) => {
+    return (items.get(String(installment.id)) ?? [])
+      .slice()
+      .sort((a, b) => {
+        return Number(a.id) - Number(b.id);
+      })
+      .map((row) => {
+        const id = String(row.id);
+
+        return {
+          id: `ii${id}`,
+          installmentId: `in${String(installment.id)}`,
+          residentId: `r${must(text(row.unitResidentId), `the resident of the installment item ${id}`)}`,
+          amount: eur(text(row.amount)).cents,
+        };
+      });
+  });
+}
+
+/** The period's installment rows by due date, then id. */
+function installmentRowsOf(db: Db, periodId: string): Row[] {
+  return db
+    .rows("installment")
+    .filter((row) => {
+      return String(row.accountingPeriodId) === periodId;
+    })
+    .sort((a, b) => {
+      return (
+        dueDateOf(a).localeCompare(dueDateOf(b)) || Number(a.id) - Number(b.id)
+      );
+    });
+}
+
+function dueDateOf(row: Row): string {
+  return must(
+    text(row.expiryDate),
+    `the due date of the installment ${String(row.id)}`,
+  ).slice(0, 10);
 }
 
 /** The building's suppliers, then the residencies (owners and tenants) that overlap the period, each in id order. */

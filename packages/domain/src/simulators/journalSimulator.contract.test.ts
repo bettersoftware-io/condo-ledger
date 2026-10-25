@@ -1,5 +1,6 @@
-import { cents } from "#/entities/cents.ts";
+import { type Cents, cents } from "#/entities/cents.ts";
 import { rate } from "#/entities/invoice.ts";
+import type { EntryDraft } from "#/entities/journal.ts";
 
 import { describeJournalPortContract } from "../ports/__contracts__/JournalPortContract.ts";
 import { createTwoPeriodSeed } from "../testing/createTwoPeriodSeed.ts";
@@ -45,9 +46,9 @@ describeJournalPortContract("journal simulator", () => {
     },
     refusedReason: "unbalanced",
     deletableEntryId: "e6",
-    undeletableEntryId: "e5",
+    undeletableEntryId: "e4",
     editableEntryId: "e6",
-    uneditableEntryId: "e5",
+    uneditableEntryId: "e4",
     // Taxable 100.00, VAT 20%, 20% withheld on la7: the cost takes 120.00, the supplier is owed 100.00.
     invoiceDraft: {
       kind: "invoice",
@@ -105,9 +106,37 @@ describeJournalPortContract("journal simulator", () => {
         },
       ],
     },
+    collectionDraft: createCollectionDraft(cents(20000), "Incasso Rossi"),
+    overpayingDraft: createCollectionDraft(cents(50001), "Incasso eccessivo"),
+    collectionItemId: "ii1",
+    installments: seed.installments,
+    installmentItems: seed.installmentItems,
     catalogue: seed.withholdingTaxes,
     suppliersAccountId: "la4",
     liquidityAccountId: "la2",
     teardown: (): void => {},
   };
 });
+
+/** A collection from r1 into the cash account la1, all on r1's item ii1 of the seed's schedule. */
+function createCollectionDraft(amount: Cents, description: string): EntryDraft {
+  return {
+    kind: "collection",
+    description,
+    postings: [
+      {
+        accountId: "la1",
+        debit: amount,
+        credit: cents(0),
+        counterpart: null,
+      },
+      {
+        accountId: "la5",
+        debit: cents(0),
+        credit: amount,
+        counterpart: { kind: "owner", id: "r1" },
+        installmentItemId: "ii1",
+      },
+    ],
+  };
+}

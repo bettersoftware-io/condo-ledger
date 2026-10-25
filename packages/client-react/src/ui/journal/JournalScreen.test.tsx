@@ -226,9 +226,9 @@ describe("JournalScreen", () => {
       "Direct payment to multiple cost accounts",
     ]);
 
-    await page.clickMenuItem("Record collection");
+    await page.clickMenuItem("Budget allocation");
 
-    expect(page.toasts()).toEqual(["Record collection: not yet available"]);
+    expect(page.toasts()).toEqual(["Budget allocation: not yet available"]);
     expect(page.dialogOpen()).toBe(false);
     expect(page.menuItems()).toEqual([]);
   });
@@ -316,7 +316,7 @@ describe("JournalScreen", () => {
   it("a refused delete keeps the alert open with the reason and the entry in the grid", async () => {
     const page = mountJournalScreen();
 
-    await page.clickRow("Incasso Bianchi");
+    await page.clickRow("Riparto");
     await page.clickTool("Delete entry");
     await page.confirmYes();
 
@@ -325,7 +325,7 @@ describe("JournalScreen", () => {
       "This kind of entry is removed through its own flow, which is not built yet.",
     );
     expect(page.entryLabels()).toHaveLength(9);
-    expect(page.isSelected("Incasso Bianchi")).toBe(true);
+    expect(page.isSelected("Riparto")).toBe(true);
 
     await page.confirmNo();
     expect(page.confirmOpen()).toBe(false);
@@ -459,21 +459,93 @@ describe("JournalScreen", () => {
     ]);
   });
 
-  it("with a collection selected, ✎ is disabled and says why", async () => {
+  it("with a collection its wizard cannot write selected, ✎ is disabled and says why", async () => {
+    const page = mountJournalScreen();
+
+    await page.clickRow("Incasso Bianchi");
+
+    expect(page.isToolDisabled("Edit entry")).toBe(true);
+    expect(page.toolTitle("Edit entry")).toBe(
+      "This entry's lines cannot be edited here.",
+    );
+
+    await page.doubleClickRow("Incasso Bianchi");
+
+    expect(page.dialogOpen()).toBe(false);
+  });
+
+  it("with a budget allocation selected, ✎ is disabled and says why", async () => {
     const page = mountJournalScreen();
 
     expect(page.isToolDisabled("Edit entry")).toBe(true);
 
-    await page.clickRow("Incasso Bianchi");
+    await page.clickRow("Riparto");
 
     expect(page.isToolDisabled("Edit entry")).toBe(true);
     expect(page.toolTitle("Edit entry")).toBe(
       "This kind of entry is edited through its own flow, which is not built yet.",
     );
 
-    await page.doubleClickRow("Incasso Bianchi");
+    await page.doubleClickRow("Riparto");
 
     expect(page.dialogOpen()).toBe(false);
+  });
+
+  it("a collection in full takes its owner out of the list; edited with ✎ to less it brings them back with the rest, and deleted it gives back all they owed (Review Focus 5)", async () => {
+    const page = mountJournalScreen({ legacyPeriod: "p36" });
+    const record = await page.openWizard("Record collection");
+    const name = record.owners()[0]?.[0] ?? "";
+
+    expect(record.owners()[0]).toEqual([
+      name,
+      "A01",
+      "826.61",
+      "286.69",
+      "539.92",
+    ]);
+
+    await record.pickOwner(0);
+    await record.next();
+
+    expect(record.fieldValue("Amount collected")).toBe("539.92");
+
+    await record.next();
+    await record.save();
+
+    const inFull = `Collection of installments from ${name}: Rata 9 (20/09/2013), Rata 10 (20/10/2013), Rata 11 (20/11/2013), Rata 12 (20/12/2013)`;
+
+    expect(page.isSelected(inFull)).toBe(true);
+    expect(await ownerAfterReopening(page, name)).toBeNull();
+
+    await editAmount(page, inFull, "539.92", "100");
+
+    const edited = `Collection of installments from ${name}: Rata 9 (20/09/2013)`;
+
+    expect(page.dialogOpen()).toBe(false);
+    expect(page.isSelected(edited)).toBe(true);
+    expect(await ownerAfterReopening(page, name)).toEqual([
+      name,
+      "A01",
+      "826.61",
+      "386.69",
+      "439.92",
+    ]);
+
+    await editAmount(page, edited, "100.00", "539.92");
+
+    expect(page.isSelected(inFull)).toBe(true);
+    expect(await ownerAfterReopening(page, name)).toBeNull();
+
+    await deleteEntry(page, inFull);
+
+    expect(page.confirmOpen()).toBe(false);
+    expect(await ownerAfterReopening(page, name)).toEqual([
+      name,
+      "A01",
+      "826.61",
+      "286.69",
+      "539.92",
+    ]);
   });
 
   it("maximize fills the screen with the journal, and restores it", async () => {
@@ -516,6 +588,44 @@ async function deleteEntry(
   await page.clickRow(label);
   await page.clickTool("Delete entry");
   await page.confirmYes();
+}
+
+/** Selects the collection, opens it with ✎, checks the amount it opens with, and saves it with another. */
+async function editAmount(
+  page: JournalScreenPage,
+  label: string,
+  from: string,
+  to: string,
+): Promise<void> {
+  await page.clickRow(label);
+  await page.clickTool("Edit entry");
+
+  const edit = page.wizard();
+
+  expect(edit.title()).toBe(
+    "Edit Record Owner Collection — Step 2: Amount and liquidity account",
+  );
+  expect(edit.fieldValue("Amount collected")).toBe(from);
+
+  await edit.fill("Amount collected", to);
+  await edit.next();
+  await edit.save();
+}
+
+/** Opens the collection wizard, reads the row of the owner with this name, and closes it; null when step 1 does not list them. */
+async function ownerAfterReopening(
+  page: JournalScreenPage,
+  name: string,
+): Promise<string[] | null> {
+  const wizard = await page.openWizard("Record collection");
+  const row =
+    wizard.owners().find((cells) => {
+      return cells[0] === name;
+    }) ?? null;
+
+  await wizard.cancel();
+
+  return row;
 }
 
 /** The cells of the entry row with this description. */

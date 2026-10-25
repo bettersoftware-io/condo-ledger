@@ -9,7 +9,8 @@ export type WizardName =
   | "genericEntry"
   | "invoice"
   | "invoicePayment"
-  | "openingBalances";
+  | "openingBalances"
+  | "collection";
 
 interface WizardDialog {
   kind: "wizard";

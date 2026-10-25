@@ -1,6 +1,7 @@
 import { BehaviorSubject, type Observable, throwError } from "rxjs";
 
 import type { Account } from "#/entities/account.ts";
+import type { Installment, InstallmentItem } from "#/entities/installment.ts";
 import type { Invoice, WithholdingTax } from "#/entities/invoice.ts";
 import type { EntryDraft, JournalEntry } from "#/entities/journal.ts";
 import type { Party } from "#/entities/party.ts";
@@ -22,8 +23,8 @@ import type { LegacySeed } from "./seed/legacySeed.ts";
 
 /**
  * A period's journal and invoices, kept in memory (entries in number order),
- * and what a draft is checked against: the accounts, the parties and the
- * withholding catalogue.
+ * and what a draft is checked against: the accounts, the parties, the
+ * withholding catalogue and the installment schedule (which never changes).
  */
 interface PeriodJournal {
   entries$: BehaviorSubject<JournalEntry[]>;
@@ -31,6 +32,8 @@ interface PeriodJournal {
   accounts: Account[];
   parties: Party[];
   withholdingTaxes: WithholdingTax[];
+  installments: Installment[];
+  installmentItems: InstallmentItem[];
 }
 
 /** An entry with the period journal that holds it. */
@@ -57,6 +60,16 @@ export function createJournalSimulator(
 
   for (const building of seed.buildings) {
     for (const period of building.periods) {
+      const installments = seed.installments.filter((installment) => {
+        return installment.periodId === period.id;
+      });
+
+      const installmentIds = new Set(
+        installments.map((installment) => {
+          return installment.id;
+        }),
+      );
+
       periods.set(period.id, {
         entries$: new BehaviorSubject(
           seed.entries
@@ -81,6 +94,10 @@ export function createJournalSimulator(
           })?.parties ?? [],
         withholdingTaxes: seed.withholdingTaxes.filter((tax) => {
           return tax.periodId === period.id;
+        }),
+        installments,
+        installmentItems: seed.installmentItems.filter((item) => {
+          return installmentIds.has(item.installmentId);
         }),
       });
     }
@@ -279,6 +296,8 @@ function contextOf(
     withholdingTaxes: journal.withholdingTaxes,
     invoices: journal.invoices$.getValue(),
     entries: journal.entries$.getValue(),
+    installments: journal.installments,
+    installmentItems: journal.installmentItems,
     replacing,
   };
 }

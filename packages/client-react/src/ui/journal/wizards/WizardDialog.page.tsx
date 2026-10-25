@@ -3,6 +3,8 @@ import type userEvent from "@testing-library/user-event";
 
 import { TESTIDS } from "#/ui/testids.ts";
 
+import { settlementTableIn } from "./SettlementTable.page.tsx";
+
 type User = ReturnType<typeof userEvent.setup>;
 
 /** A lines grid's typed columns. */
@@ -74,6 +76,18 @@ export interface WizardDialogPage {
   /** What the open invoices grid says when it has no row; null when it has rows. */
   emptyText: () => string | null;
   trancheNote: () => string | null;
+  /** The owners grid's rows, each as its cells' texts: Name, Units, Total inst., Paid, Inst. balance. */
+  owners: () => string[][];
+  /** Chooses the owners grid's row, counted from 0. */
+  pickOwner: (index: number) => Promise<void>;
+  /** What the owners grid says when it has no row; null when it has rows. */
+  ownersEmptyText: () => string | null;
+  /** The hint under the amount collected; null when there is none. */
+  collectionHint: () => string | null;
+  /** The settlement table's rows, each as its cells' texts. */
+  settlement: () => string[][];
+  /** The settlement rows marked "partial", counted from 0. */
+  partialRows: () => number[];
   /** The opening list's rows on screen, each as its label, its Debit and its Credit. */
   openingRows: () => string[][];
   /** Clears a side of the opening row with this label and types the text into it. */
@@ -202,6 +216,10 @@ export function wizardDialogPage(
     }
 
     await user.selectOptions(select, option);
+  }
+
+  function ownerRows(): HTMLElement[] {
+    return within(dialog()).queryAllByTestId(TESTIDS.ownerRow);
   }
 
   function openingBox(label: string, side: OpeningSide): HTMLInputElement {
@@ -365,6 +383,34 @@ export function wizardDialogPage(
     },
     trancheNote: (): string | null => {
       return textOf(TESTIDS.wizardTrancheNote);
+    },
+    owners: (): string[][] => {
+      return ownerRows().map((row) => {
+        return textsOf(
+          Array.from(row.querySelectorAll<HTMLElement>(".owners-cell")),
+        );
+      });
+    },
+    pickOwner: async (index: number): Promise<void> => {
+      const row = ownerRows()[index];
+
+      if (row === undefined) {
+        throw new Error(`No owner row ${index}`);
+      }
+
+      await user.click(within(row).getByRole("radio"));
+    },
+    ownersEmptyText: (): string | null => {
+      return textOf(TESTIDS.ownersEmpty);
+    },
+    collectionHint: (): string | null => {
+      return textOf(TESTIDS.collectionHint);
+    },
+    settlement: (): string[][] => {
+      return settlementTableIn(dialog()).rows();
+    },
+    partialRows: (): number[] => {
+      return settlementTableIn(dialog()).partialRows();
     },
     openingRows: (): string[][] => {
       return within(dialog())

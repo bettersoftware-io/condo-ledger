@@ -2,8 +2,10 @@ import { firstValueFrom } from "rxjs";
 import { describe, expect, it } from "vitest";
 
 import { type Cents, cents } from "#/entities/cents.ts";
+import type { Installment, InstallmentItem } from "#/entities/installment.ts";
 import type { Invoice, WithholdingTax } from "#/entities/invoice.ts";
 import type { EntryDraft, JournalEntry } from "#/entities/journal.ts";
+import { type ItemBalance, itemBalances } from "#/useCases/installments.ts";
 import { openInvoices } from "#/useCases/openInvoices.ts";
 
 import type { JournalPort } from "../journalPort.ts";
@@ -23,12 +25,20 @@ export interface JournalPortHarness {
   undeletableEntryId: string;
   /** A generic entry of the period: canEditEntry accepts it, and acceptedDraft may replace it. */
   editableEntryId: string;
-  /** A collection: canEditEntry refuses it. */
+  /** An entry of a kind canEditEntry refuses (a budget allocation or a closing). */
   uneditableEntryId: string;
   /** A registration the period accepts: its terms, and the postings they imply. */
   invoiceDraft: EntryDraft;
   /** An opening entry the period accepts: the period has none yet. */
   openingDraft: EntryDraft;
+  /** A collection the period accepts: it pays part of the item collectionItemId and leaves the rest owed. */
+  collectionDraft: EntryDraft;
+  /** A collection whose line is above what the item collectionItemId still owes. */
+  overpayingDraft: EntryDraft;
+  collectionItemId: string;
+  /** The period's schedule, for the items' balances. */
+  installments: Installment[];
+  installmentItems: InstallmentItem[];
   /** The period's withholding catalogue, for the invoices' totals. */
   catalogue: WithholdingTax[];
   /** The period's suppliers account and a liquidity leaf: what a payment debits and credits. */
@@ -377,6 +387,109 @@ export function describeJournalPortContract(
       }
     });
 
+    it("lands a collection: its item shows paid by the amount, the rest still owed", async () => {
+      const harness = createHarness();
+      const { port, periodId, collectionDraft, teardown } = harness;
+
+      try {
+        const before = await balanceOf(harness);
+
+        expect(await port.addEntry(periodId, collectionDraft)).toMatchObject({
+          ok: true,
+        });
+
+        const after = await balanceOf(harness);
+        const paid = collectionDraft.postings.reduce((sum, posting) => {
+          return sum + posting.credit;
+        }, 0);
+
+        expect(paid).toBeGreaterThan(0);
+        expect(after.paid).toBe(before.paid + paid);
+        expect(after.remaining).toBe(before.remaining - paid);
+        expect(after.remaining).toBeGreaterThan(0);
+      } finally {
+        teardown();
+      }
+    });
+
+    it("refuses a collection line above what its item owes with over-remaining-item, and leaves the journal as it was", async () => {
+      const harness = createHarness();
+      const { port, periodId, overpayingDraft, teardown } = harness;
+
+      try {
+        const before = await firstValueFrom(port.entries(periodId));
+
+        expect(await port.addEntry(periodId, overpayingDraft)).toEqual({
+          ok: false,
+          reason: "over-remaining-item",
+        });
+        expect(await firstValueFrom(port.entries(periodId))).toEqual(before);
+      } finally {
+        teardown();
+      }
+    });
+
+    it("replaces a collection in place, judged without itself: the same id, number and stamp, the draft's lines", async () => {
+      const harness = createHarness();
+      const { port, periodId, collectionDraft, overpayingDraft, teardown } =
+        harness;
+
+      try {
+        const added = await port.addEntry(periodId, collectionDraft);
+        const id = added.ok ? added.value.id : "";
+        const before = entryOf(
+          await firstValueFrom(port.entries(periodId)),
+          id,
+        );
+
+        const bigger: EntryDraft = {
+          ...collectionDraft,
+          description: "Incasso rettificato",
+          postings: collectionDraft.postings.map((posting) => {
+            return {
+              ...posting,
+              debit: posting.debit > 0 ? cents(30000) : posting.debit,
+              credit: posting.credit > 0 ? cents(30000) : posting.credit,
+            };
+          }),
+        };
+
+        expect(await port.replaceEntry(id, bigger)).toEqual({ ok: true });
+        expect(
+          entryOf(await firstValueFrom(port.entries(periodId)), id),
+        ).toEqual({
+          ...before,
+          description: bigger.description,
+          postings: bigger.postings,
+        });
+        expect(await port.replaceEntry(id, overpayingDraft)).toEqual({
+          ok: false,
+          reason: "over-remaining-item",
+        });
+      } finally {
+        teardown();
+      }
+    });
+
+    it("deletes a collection and reopens its items: what it paid is owed again", async () => {
+      const harness = createHarness();
+      const { port, periodId, collectionDraft, teardown } = harness;
+
+      try {
+        const before = await balanceOf(harness);
+        const added = await port.addEntry(periodId, collectionDraft);
+        const id = added.ok ? added.value.id : "";
+
+        expect((await balanceOf(harness)).remaining).toBeLessThan(
+          before.remaining,
+        );
+        expect(await port.deleteEntry(id)).toEqual({ ok: true });
+        expect(await balanceOf(harness)).toEqual(before);
+      } finally {
+        teardown();
+      }
+    });
+
     it("refuses to delete a paid invoice's registration; an unpaid one goes, and its invoice with it", async () => {
       const harness = createHarness();
       const { port, periodId, teardown } = harness;
@@ -412,6 +525,28 @@ export function describeJournalPortContract(
       }
     });
   });
+}
+
+/** The balance of the harness's collection item, as the domain works it out from the port's entries. */
+async function balanceOf(harness: JournalPortHarness): Promise<ItemBalance> {
+  const { port, periodId, installments, installmentItems, collectionItemId } =
+    harness;
+
+  const found = itemBalances(
+    installmentItems,
+    installments,
+    await firstValueFrom(port.entries(periodId)),
+  ).find((balance) => {
+    return balance.item.id === collectionItemId;
+  });
+
+  if (found === undefined) {
+    throw new Error(
+      `missing: the item ${collectionItemId} in the harness's schedule`,
+    );
+  }
+
+  return found;
 }
 
 /** Registers the harness's invoice and answers the invoice the port made of it. */

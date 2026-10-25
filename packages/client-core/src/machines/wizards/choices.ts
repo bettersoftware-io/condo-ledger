@@ -121,6 +121,8 @@ export function contextOf(
     withholdingTaxes: books.withholdingTaxes,
     invoices: books.invoices,
     entries: books.entries,
+    installments: books.installments,
+    installmentItems: books.installmentItems,
     replacing,
   };
 }

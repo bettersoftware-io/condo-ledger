@@ -5,8 +5,10 @@ import {
   DESIGN_FIRM,
   DESIGN_PRINCIPAL,
   type LegacySeed,
+  loadLegacySeed,
   type Result,
 } from "@cl/domain";
+import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 
 import {
@@ -225,6 +227,26 @@ describe("the view model", () => {
     expect(
       page.read().openingBalances.state.summary.rows.length,
     ).toBeGreaterThan(0);
+  });
+
+  it("the collection wizard mounts over the selected period and shows the collection it edits", () => {
+    const fresh = mountUnderProvider(createSmallSeed());
+
+    expect(fresh.read().collection.state.editing).toBeNull();
+    expect(fresh.read().collection.state.form.personId).toBeNull();
+
+    const editing = mountUnderProvider(
+      loadLegacySeed(legacySeedData),
+      1,
+      null,
+      "tx6",
+    );
+
+    expect(editing.read().collection.state).toMatchObject({
+      editing: "tx6",
+      step: 2,
+      form: { personId: "md6", accountId: "la4", amount: "1000.00" },
+    });
   });
 
   it("a wizard hook given an entry to edit shows that entry's form", () => {

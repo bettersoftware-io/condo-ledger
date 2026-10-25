@@ -1,6 +1,7 @@
 import type { Account } from "#/entities/account.ts";
 import type { Building } from "#/entities/building.ts";
 import { cents } from "#/entities/cents.ts";
+import type { Installment, InstallmentItem } from "#/entities/installment.ts";
 import { type Invoice, rate, type WithholdingTax } from "#/entities/invoice.ts";
 import type { Counterpart, JournalEntry } from "#/entities/journal.ts";
 import type { OwnerParty, Party, SupplierParty } from "#/entities/party.ts";
@@ -13,6 +14,10 @@ export interface LegacySeed {
   parties: PeriodParties[];
   invoices: Invoice[];
   withholdingTaxes: WithholdingTax[];
+  /** Every seeded period's installment schedule. */
+  installments: Installment[];
+  /** What each resident owes on each installment; an item's period is its installment's. */
+  installmentItems: InstallmentItem[];
 }
 
 /** A period's parties: the building's suppliers and the residencies that overlap the period. */
@@ -31,6 +36,7 @@ export interface PostingData {
   debit: number;
   credit: number;
   counterpart: Counterpart | null;
+  installmentItemId?: string;
 }
 
 export interface JournalEntryData extends Omit<JournalEntry, "postings"> {
@@ -52,6 +58,10 @@ export interface WithholdingTaxData extends Omit<WithholdingTax, "rate"> {
   rate: number;
 }
 
+export interface InstallmentItemData extends Omit<InstallmentItem, "amount"> {
+  amount: number;
+}
+
 interface OwnerPartyData extends Omit<OwnerParty, "startingBalance"> {
   startingBalance: number;
 }
@@ -70,6 +80,8 @@ export interface LegacySeedData {
   parties: PeriodPartiesData[];
   invoices: InvoiceData[];
   withholdingTaxes: WithholdingTaxData[];
+  installments: Installment[];
+  installmentItems: InstallmentItemData[];
 }
 
 /** Brands every amount. A fraction in the generated file fails here, once, instead of somewhere in a sum. */
@@ -108,6 +120,10 @@ export function loadLegacySeed(data: LegacySeedData): LegacySeed {
     }),
     withholdingTaxes: data.withholdingTaxes.map((tax) => {
       return { ...tax, rate: rate(tax.rate) };
+    }),
+    installments: data.installments,
+    installmentItems: data.installmentItems.map((item) => {
+      return { ...item, amount: cents(item.amount) };
     }),
   };
 }

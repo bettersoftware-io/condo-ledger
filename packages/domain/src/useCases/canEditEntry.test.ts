@@ -12,12 +12,12 @@ describe("canEditEntry", () => {
     "invoice",
     "invoicePayment",
     "openingBalances",
+    "collection",
   ] as const)("accepts %s", (kind) => {
     expect(canEditEntry(createEntry(kind))).toEqual({ ok: true });
   });
 
   it.each([
-    "collection",
     "budgetAllocation",
     "closingBalances",
     "individualExpense",

@@ -12,7 +12,7 @@ import type { Row, Tables } from "../loadRows.ts";
 import { ENTRY_KIND_OF_TYPE, projectLegacySeed } from "./legacySeed.ts";
 
 describe("projectLegacySeed on a small synthetic dump", () => {
-  it("projects the buildings, accounts, entries, parties, invoices and withholding taxes of the balanced periods", () => {
+  it("projects the buildings, accounts, entries, parties, invoices, withholding taxes and installments of the balanced periods", () => {
     expect(projectLegacySeed(buildDb(createSmallDump()))).toEqual({
       buildings: [
         {
@@ -125,6 +125,7 @@ describe("projectLegacySeed on a small synthetic dump", () => {
               debit: 0,
               credit: 5000,
               counterpart: { kind: "owner", id: "r70" },
+              installmentItemId: "ii600",
             },
           ],
           invoiceId: null,
@@ -182,7 +183,87 @@ describe("projectLegacySeed on a small synthetic dump", () => {
           accountId: "la106",
         },
       ],
+      installments: [
+        {
+          id: "in500",
+          periodId: "p10",
+          number: 1,
+          name: "Rata 1",
+          dueDate: "2013-03-20",
+        },
+      ],
+      installmentItems: [
+        {
+          id: "ii600",
+          installmentId: "in500",
+          residentId: "r70",
+          amount: 5000,
+        },
+      ],
     });
+  });
+
+  it("numbers a period's installments by due date, whatever their ids, and keeps a zero item", () => {
+    const tables = createSmallDump();
+
+    tables.installment?.push({
+      id: "499",
+      accountingPeriodId: "10",
+      name: "Rata 2",
+      expiryDate: "2013-06-20",
+    });
+    tables.installmentItem?.push({
+      id: "601",
+      installmentId: "499",
+      unitResidentId: "72",
+      amount: "0.00",
+    });
+
+    const seed = projectLegacySeed(buildDb(tables));
+
+    expect([seed.installments, seed.installmentItems]).toEqual([
+      [
+        {
+          id: "in500",
+          periodId: "p10",
+          number: 1,
+          name: "Rata 1",
+          dueDate: "2013-03-20",
+        },
+        {
+          id: "in499",
+          periodId: "p10",
+          number: 2,
+          name: "Rata 2",
+          dueDate: "2013-06-20",
+        },
+      ],
+      [
+        {
+          id: "ii600",
+          installmentId: "in500",
+          residentId: "r70",
+          amount: 5000,
+        },
+        { id: "ii601", installmentId: "in499", residentId: "r72", amount: 0 },
+      ],
+    ]);
+  });
+
+  it("names an item only on a collection's owner credit, whatever item the dump links to another line", () => {
+    const tables = edit(createSmallDump(), "ledgerEntry", "302", {
+      installmentItemId: "600",
+    });
+
+    edit(tables, "ledgerEntry", "301", { installmentItemId: "600" });
+
+    expect(
+      projectLegacySeed(buildDb(tables)).entries.flatMap((entry) => {
+        return entry.postings.map((posting) => {
+          return posting.installmentItemId ?? null;
+        });
+      }),
+    ).toEqual([null, null, null, null, "ii600"]);
   });
 
   it("gives Rome time either side of the switch to summer time: +1h before, +2h after", () => {
@@ -230,6 +311,8 @@ describe("projectLegacySeed on a small synthetic dump", () => {
       parties: [],
       invoices: [],
       withholdingTaxes: [],
+      installments: [],
+      installmentItems: [],
     });
   });
 
@@ -302,6 +385,26 @@ describe("projectLegacySeed refuses what it cannot project, naming the id", () =
 
     expect(kinds).toHaveLength(10);
     expect(kinds.every(Boolean)).toBe(true);
+  });
+
+  it("refuses an installment without a due date", () => {
+    const tables = edit(createSmallDump(), "installment", "500", {
+      expiryDate: null,
+    });
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow("missing: the due date of the installment 500");
+  });
+
+  it("refuses an installment item without a resident", () => {
+    const tables = edit(createSmallDump(), "installmentItem", "600", {
+      unitResidentId: null,
+    });
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow("missing: the resident of the installment item 600");
   });
 
   it("refuses an owner whose unit has no code", () => {
@@ -463,7 +566,9 @@ describe("projectLegacySeed refuses what it cannot project, naming the id", () =
  * A01 an owner, a tenant and a resident who left before the period. Two
  * balanced transactions, one second either side of the switch to summer time
  * (2013-03-31 01:00 UTC): the registration of an invoice withholding 4%
- * (code 1019 on the tax account), and an owner's collection.
+ * (code 1019 on the tax account), and an owner's collection that pays the
+ * owner's item of the period's one installment, and an installment of
+ * another period.
  */
 function createSmallDump(): Tables {
   return {
@@ -562,6 +667,29 @@ function createSmallDump(): Tables {
         applyWithholdingTaxOnWelfareTax: "0",
       },
     ],
+    installment: [
+      {
+        id: "500",
+        accountingPeriodId: "10",
+        name: "Rata 1",
+        expiryDate: "2013-03-20",
+      },
+      {
+        id: "510",
+        accountingPeriodId: "11",
+        name: "Rata 1",
+        expiryDate: "2014-03-20",
+      },
+    ],
+    installmentItem: [
+      {
+        id: "600",
+        installmentId: "500",
+        unitResidentId: "70",
+        amount: "50.00",
+      },
+      { id: "610", installmentId: "510", unitResidentId: "70", amount: "9.00" },
+    ],
     ledgerTransaction: [
       {
         id: "201",
@@ -587,7 +715,10 @@ function createSmallDump(): Tables {
       entry("300", "200", "105", "120.00", "1", {}),
       entry("304", "200", "106", "-4.00", "3", {}),
       entry("302", "201", "102", "50.00", "1", {}),
-      entry("303", "201", "104", "-50.00", "2", { unitResidentId: "70" }),
+      entry("303", "201", "104", "-50.00", "2", {
+        unitResidentId: "70",
+        installmentItemId: "600",
+      }),
     ],
   };
 }
@@ -684,6 +815,7 @@ function entry(
     order,
     unitResidentId: null,
     masterDataId: null,
+    installmentItemId: null,
     ...counterpart,
   };
 }

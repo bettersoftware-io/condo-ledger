@@ -7,6 +7,8 @@ import type {
   AccountsGridState,
   BottomTabIntents,
   BottomTabState,
+  CollectionForm,
+  CollectionSummary,
   ColumnSpec,
   ColumnsIntents,
   ColumnsState,
@@ -108,6 +110,10 @@ export interface Seen {
     WizardState<OpeningForm, OpeningSummary>,
     WizardIntents<OpeningForm>
   >;
+  collection: MachineView<
+    WizardState<CollectionForm, CollectionSummary>,
+    WizardIntents<CollectionForm>
+  >;
 }
 
 export interface ViewModelPage {
@@ -131,15 +137,26 @@ export function mountUnderProvider(
   seed: LegacySeed,
   readers: 1 | 2 = 1,
   editing: string | null = null,
+  collectionEditing: string | null = null,
 ): ViewModelPage {
   const viewModel = createViewModel(createAppHarness(seed).app);
   const seen: (Seen | undefined)[] = [];
 
   render(
     <ViewModelProvider viewModel={viewModel}>
-      <Reader seen={seen} index={0} editing={editing} />
+      <Reader
+        seen={seen}
+        index={0}
+        editing={editing}
+        collectionEditing={collectionEditing}
+      />
       {readers === 2 ? (
-        <Reader seen={seen} index={1} editing={editing} />
+        <Reader
+          seen={seen}
+          index={1}
+          editing={editing}
+          collectionEditing={collectionEditing}
+        />
       ) : null}
     </ViewModelProvider>,
   );
@@ -166,7 +183,9 @@ export function mountUnderProvider(
 
 /** Mounts the same component with no provider above it. React reports what the component threw. */
 export function mountWithoutProvider(): void {
-  render(<Reader seen={[]} index={0} editing={null} />);
+  render(
+    <Reader seen={[]} index={0} editing={null} collectionEditing={null} />,
+  );
 }
 
 interface ReaderProps {
@@ -174,9 +193,16 @@ interface ReaderProps {
   index: number;
   /** The entry every wizard of this reader opens on: its generic one rewrites it. */
   editing: string | null;
+  /** The collection the reader's collection wizard rewrites. */
+  collectionEditing: string | null;
 }
 
-function Reader({ seen, index, editing }: ReaderProps): ReactElement {
+function Reader({
+  seen,
+  index,
+  editing,
+  collectionEditing,
+}: ReaderProps): ReactElement {
   const {
     useSession,
     useBuildingsTree,
@@ -205,6 +231,7 @@ function Reader({ seen, index, editing }: ReaderProps): ReactElement {
     useInvoiceWizard,
     useInvoicePaymentWizard,
     useOpeningBalancesWizard,
+    useCollectionWizard,
   } = useViewModel();
 
   seen[index] = {
@@ -235,6 +262,7 @@ function Reader({ seen, index, editing }: ReaderProps): ReactElement {
     invoice: useInvoiceWizard(null),
     invoicePayment: useInvoicePaymentWizard(null),
     openingBalances: useOpeningBalancesWizard(null),
+    collection: useCollectionWizard(collectionEditing),
   };
 
   return <output />;

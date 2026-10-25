@@ -20,6 +20,7 @@ const COMMON_REASONS: Readonly<Record<string, string>> = {
     "This entry was deleted while it was open: cancel to close this window",
   "kind-not-editable":
     "This kind of entry is edited through its own flow, which is not built yet.",
+  "lines-not-editable": "This entry's lines cannot be edited here.",
 };
 
 /** The payment wizards' word for a blank description: nothing in them can be unbalanced. */
@@ -57,6 +58,27 @@ export const PAYMENT_REASONS: Readonly<Record<string, string>> = {
   "no-invoice": "Choose an invoice",
   "no-liquidity-account": "Choose a liquidity account",
   "blank-description": DESCRIPTION_REQUIRED,
+};
+
+/**
+ * The Record owner collection wizard's own words. "over-owed", and a store's
+ * "over-remaining-item" while the amount is above what the owner owes now,
+ * name what the owner owes, and the wizard words them; the store's refusal
+ * for an amount that still fits is worded here. The rest are lines no screen
+ * of the wizard can write, should a collection reach the store with one.
+ */
+export const COLLECTION_REASONS: Readonly<Record<string, string>> = {
+  "over-remaining-item":
+    "An installment was paid meanwhile: the amount is settled again against what is still owed.",
+  "no-owner": "Choose an owner",
+  "no-liquidity-account": "Choose a liquidity account",
+  "no-owners-account": "This period has no owners account",
+  "blank-description": DESCRIPTION_REQUIRED,
+  "item-not-allowed": "Only an owner's credit can pay an installment",
+  "item-required": "Each owner's credit must pay an installment",
+  "unknown-item":
+    "An installment of this collection is no longer in the period: cancel and open it again",
+  "wrong-resident": "Each installment must be paid by its own resident",
 };
 
 /** A reason in the wizard's words: its own first, then the common ones; a reason no one words is shown as it is. */

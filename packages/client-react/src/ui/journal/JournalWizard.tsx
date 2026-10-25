@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 
 import type { WizardName } from "@cl/client-core";
 
+import { CollectionWizard } from "./wizards/CollectionWizard.tsx";
 import { DirectPaymentWizard } from "./wizards/DirectPaymentWizard.tsx";
 import { GenericEntryWizard } from "./wizards/GenericEntryWizard.tsx";
 import { InvoicePaymentWizard } from "./wizards/InvoicePaymentWizard.tsx";
@@ -21,6 +22,14 @@ export function JournalWizard({
     case "invoice":
       return (
         <InvoiceWizard
+          editing={editing}
+          onSaved={onSaved}
+          onCancel={onCancel}
+        />
+      );
+    case "collection":
+      return (
+        <CollectionWizard
           editing={editing}
           onSaved={onSaved}
           onCancel={onCancel}

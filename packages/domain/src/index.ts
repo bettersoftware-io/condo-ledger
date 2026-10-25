@@ -1,6 +1,7 @@
 export * from "./entities/account.ts";
 export * from "./entities/building.ts";
 export * from "./entities/cents.ts";
+export * from "./entities/installment.ts";
 export * from "./entities/invoice.ts";
 export * from "./entities/journal.ts";
 export * from "./entities/money.ts";
@@ -10,11 +11,13 @@ export * from "./entities/session.ts";
 export type { AccountsPort } from "./ports/accountsPort.ts";
 export type { BuildingsPort } from "./ports/buildingsPort.ts";
 export type { ClockPort } from "./ports/clockPort.ts";
+export type { InstallmentsPort } from "./ports/installmentsPort.ts";
 export type { EntryAdded, JournalPort } from "./ports/journalPort.ts";
 export type { SessionPort } from "./ports/sessionPort.ts";
 export { createAccountsSimulator } from "./simulators/accountsSimulator.ts";
 export { createBuildingsSimulator } from "./simulators/buildingsSimulator.ts";
 export { fixedClock } from "./simulators/fixedClock.ts";
+export { createInstallmentsSimulator } from "./simulators/installmentsSimulator.ts";
 export { createJournalSimulator } from "./simulators/journalSimulator.ts";
 export * from "./simulators/seed/legacySeed.ts";
 export {
@@ -25,6 +28,8 @@ export {
 export * from "./support/romeTime.ts";
 export * from "./useCases/accountTree.ts";
 export * from "./useCases/allocate.ts";
+export * from "./useCases/collection.ts";
+export * from "./useCases/installments.ts";
 export * from "./useCases/invoice.ts";
 export * from "./useCases/journal.ts";
 export * from "./useCases/ledger.ts";

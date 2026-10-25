@@ -5,6 +5,7 @@ import {
   type Building,
   cents,
   createAccountsSimulator,
+  createInstallmentsSimulator,
   createJournalSimulator,
   type EntryDraft,
   fixedClock,
@@ -34,6 +35,26 @@ describe("the journal presenter", () => {
       credit: 36018,
       balance: 0,
     });
+  });
+
+  it("refuses ✎ on an entry of an editable kind whose lines no wizard can write, and keeps the domain's verdict on the rest", () => {
+    const { latest } = createPresented(POZZETTO_2013);
+
+    expect(
+      latest().entries.map((entry) => {
+        return [entry.id, entry.kind, entry.editable];
+      }),
+    ).toEqual([
+      ["e1", "invoice", { ok: true }],
+      ["e2", "invoice", { ok: true }],
+      ["e3", "invoicePayment", { ok: true }],
+      ["e4", "budgetAllocation", { ok: false, reason: "kind-not-editable" }],
+      ["e5", "collection", { ok: false, reason: "lines-not-editable" }],
+      ["e6", "generic", { ok: true }],
+      ["e7", "individualExpense", { ok: false, reason: "kind-not-editable" }],
+      ["e8", "generic", { ok: true }],
+      ["e9", "generic", { ok: true }],
+    ]);
   });
 
   it("names the building and the period for the wizards", () => {
@@ -102,7 +123,7 @@ describe("the journal presenter", () => {
 
     expect(await presenter.deleteEntry("e6")).toEqual({ ok: true });
     expect(latest().entries.map(numberOf)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
-    expect(await presenter.deleteEntry("e5")).toEqual({
+    expect(await presenter.deleteEntry("e4")).toEqual({
       ok: false,
       reason: "kind-not-deletable",
     });
@@ -119,7 +140,7 @@ describe("the journal presenter", () => {
       description: "Prova",
       debit: 100,
     });
-    expect(await presenter.replaceEntry("e5", createDraft())).toEqual({
+    expect(await presenter.replaceEntry("e4", createDraft())).toEqual({
       ok: false,
       reason: "kind-not-editable",
     });
@@ -160,7 +181,11 @@ function createPresented(
   );
 
   const books = createBooksPresenter(
-    { accounts: createAccountsSimulator(seed), journal },
+    {
+      accounts: createAccountsSimulator(seed),
+      journal,
+      installments: createInstallmentsSimulator(seed),
+    },
     selected$,
     of(buildings),
   );
