@@ -262,7 +262,11 @@
 <a name='L197'></a><a href='#L197'>197</a>
 <a name='L198'></a><a href='#L198'>198</a>
 <a name='L199'></a><a href='#L199'>199</a>
-<a name='L200'></a><a href='#L200'>200</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L200'></a><a href='#L200'>200</a>
+<a name='L201'></a><a href='#L201'>201</a>
+<a name='L202'></a><a href='#L202'>202</a>
+<a name='L203'></a><a href='#L203'>203</a>
+<a name='L204'></a><a href='#L204'>204</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -325,6 +329,8 @@
 <span class="cline-any cline-yes">17x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -375,6 +381,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -398,6 +405,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -469,7 +477,7 @@
   ZERO_CENTS,
 } from "@cl/domain";
 &nbsp;
-import { amountText, parseAmount } from "#/amounts.ts";
+import type { AmountTexts } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 &nbsp;
 import {
@@ -533,9 +541,11 @@ const EMPTY_FORM: MultiCostPaymentForm = {
  * A bank purchase split over several costs: each line's expense leaf debited,
  * the bank credited with the amount paid, which the lines must sum to.
  * Editing an entry, the form is its description, its debit lines and what
- * its credits paid.
+ * its credits paid. Amounts are read and written through `texts`, in the
+ * session's locale.
  */
 export function createMultiCostPaymentWizard(
+  texts: AmountTexts,
   books: Books | null,
   write: WriteEntry,
   editing: JournalEntry | null,
@@ -545,20 +555,20 @@ export function createMultiCostPaymentWizard(
   const replacing = editing?.id ?? null;
 &nbsp;
   function derived(form: MultiCostPaymentForm): Derived {
-    return derive(paying, choices, form, replacing);
+    return derive(texts, paying, choices, form, replacing);
   }
 &nbsp;
   return keepingOneLine(
     createWizardMachine&lt;MultiCostPaymentForm, MultiCostPaymentSummary&gt;(
       {
-        initial: editing === null ? EMPTY_FORM : formOf(editing),
+        initial: editing === null ? EMPTY_FORM : formOf(texts, editing),
         stepCount: 1,
         choices,
         derive: derived,
         summarize: (form: MultiCostPaymentForm): MultiCostPaymentSummary =&gt; {
           return {
             paidFrom: paying?.paidFrom.name ?? null,
-            linesTotal: linesTotal(form.lines),
+            linesTotal: linesTotal(texts, form.lines),
           };
         },
         stepVerdict: (form: MultiCostPaymentForm): Result =&gt; {
@@ -567,6 +577,7 @@ export function createMultiCostPaymentWizard(
         editing: replacing,
       },
       write,
+      texts.changed$,
     ),
     EMPTY_LINE,
   );
@@ -581,7 +592,7 @@ export function fitsMultiCost(entry: JournalEntry, books: Books): boolean {
 }
 &nbsp;
 /** The form an entry was written from: its description, its credits as the amount paid, a line per debit. */
-function formOf(entry: JournalEntry): MultiCostPaymentForm {
+function formOf(texts: AmountTexts, entry: JournalEntry): MultiCostPaymentForm {
   const lines: CostLine[] = [];
   let paid = ZERO_CENTS;
 &nbsp;
@@ -591,15 +602,16 @@ function formOf(entry: JournalEntry): MultiCostPaymentForm {
     if (posting.debit &gt; ZERO_CENTS) {
       lines.push({
         accountId: posting.accountId,
-        amount: amountText(posting.debit),
+        amount: texts.text(posting.debit),
       });
     }
   }
 &nbsp;
-  return { description: entry.description, amount: amountText(paid), lines };
+  return { description: entry.description, amount: texts.text(paid), lines };
 }
 &nbsp;
 function derive(
+  texts: AmountTexts,
   paying: Paying | null,
   choices: WizardChoice[],
   form: MultiCostPaymentForm,
@@ -614,7 +626,7 @@ function derive(
       choice: choices.find((choice) =&gt; {
         return choice.key === line.accountId;
       }),
-      amount: parseAmount(line.amount),
+      amount: texts.parse(line.amount),
     };
   });
 &nbsp;
@@ -627,7 +639,7 @@ function derive(
   }
 &nbsp;
   const costs = read.filter(isCost);
-  const paid = parseAmount(form.amount);
+  const paid = texts.parse(form.amount);
 &nbsp;
   if (paid === null || costs.length &lt; read.length) {
     return refused("not-an-amount");
@@ -655,9 +667,9 @@ function isCost(line: ReadLine): line is Debit {
   return line.choice !== undefined &amp;&amp; line.amount !== null;
 }
 &nbsp;
-function linesTotal(lines: CostLine[]): Cents {
+function linesTotal(texts: AmountTexts, lines: CostLine[]): Cents {
   return lines.reduce((total, line) =&gt; {
-    return addCents(total, parseAmount(line.amount) ?? ZERO_CENTS);
+    return addCents(total, texts.parse(line.amount) ?? ZERO_CENTS);
   }, ZERO_CENTS);
 }
 &nbsp;</pre></td></tr></table></pre>
@@ -667,7 +679,7 @@ function linesTotal(lines: CostLine[]): Cents {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-25T19:45:05.677Z
+                at 2026-10-25T20:06:17.957Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

@@ -124,7 +124,10 @@
 <a name='L59'></a><a href='#L59'>59</a>
 <a name='L60'></a><a href='#L60'>60</a>
 <a name='L61'></a><a href='#L61'>61</a>
-<a name='L62'></a><a href='#L62'>62</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -145,14 +148,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">287x</span>
-<span class="cline-any cline-yes">287x</span>
-<span class="cline-any cline-yes">287x</span>
-<span class="cline-any cline-yes">287x</span>
-<span class="cline-any cline-yes">287x</span>
-<span class="cline-any cline-yes">287x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">287x</span>
+<span class="cline-any cline-yes">291x</span>
+<span class="cline-any cline-yes">291x</span>
+<span class="cline-any cline-yes">291x</span>
+<span class="cline-any cline-yes">291x</span>
+<span class="cline-any cline-yes">291x</span>
+<span class="cline-any cline-yes">291x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">291x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -189,6 +195,7 @@
 &nbsp;
 import { useViewModel } from "@cl/react-bindings";
 &nbsp;
+import { AmountLocaleProvider } from "../AmountLocaleProvider.tsx";
 import { TESTIDS } from "../testids.ts";
 import { Breadcrumb } from "./Breadcrumb.tsx";
 import { Screen } from "./Screen.tsx";
@@ -200,7 +207,7 @@ import "./AppRoot.css";
 &nbsp;
 /**
  * The shell. Carries the person's theme and mode on its root element, where
- * the tokens read them. Holds the one sidebar and the one maximize machine
+ * the tokens read them, and hands their amount locale to everything inside. Holds the one sidebar and the one maximize machine
  * the shell shares: the sidebar keeps its width while another module is
  * shown, and the rail stands in for it while a panel of the main area is
  * maximized.
@@ -214,36 +221,38 @@ export function AppRoot(): ReactElement {
   const maximized = maximize.state.maximized !== null;
 &nbsp;
   return (
-    &lt;div
-      className="app-root"
-      data-theme={preferences.theme}
-      data-mode={preferences.mode}
-      data-testid={TESTIDS.appRoot}
-    &gt;
-      &lt;TopBar /&gt;
-      &lt;Breadcrumb /&gt;
-      &lt;div className="app-body" data-maximized={maximized}&gt;
-        {navigation.state.module === "buildings" ? (
-          &lt;Sidebar
-            width={sidebar.state.width}
-            open={sidebar.state.open}
-            maximized={maximized}
-            onResize={sidebar.resize}
-            onOpen={sidebar.open}
-            onClose={sidebar.close}
-            onRestore={maximize.restore}
-          /&gt;
-        ) : null}
-        &lt;main className="app-main" data-testid={TESTIDS.appMain}&gt;
-          &lt;Screen
-            module={navigation.state.module}
-            menu={navigation.state.menu}
-            maximize={maximize}
-          /&gt;
-        &lt;/main&gt;
+    &lt;AmountLocaleProvider&gt;
+      &lt;div
+        className="app-root"
+        data-theme={preferences.theme}
+        data-mode={preferences.mode}
+        data-testid={TESTIDS.appRoot}
+      &gt;
+        &lt;TopBar /&gt;
+        &lt;Breadcrumb /&gt;
+        &lt;div className="app-body" data-maximized={maximized}&gt;
+          {navigation.state.module === "buildings" ? (
+            &lt;Sidebar
+              width={sidebar.state.width}
+              open={sidebar.state.open}
+              maximized={maximized}
+              onResize={sidebar.resize}
+              onOpen={sidebar.open}
+              onClose={sidebar.close}
+              onRestore={maximize.restore}
+            /&gt;
+          ) : null}
+          &lt;main className="app-main" data-testid={TESTIDS.appMain}&gt;
+            &lt;Screen
+              module={navigation.state.module}
+              menu={navigation.state.menu}
+              maximize={maximize}
+            /&gt;
+          &lt;/main&gt;
+        &lt;/div&gt;
+        &lt;ToastHost /&gt;
       &lt;/div&gt;
-      &lt;ToastHost /&gt;
-    &lt;/div&gt;
+    &lt;/AmountLocaleProvider&gt;
   );
 }
 &nbsp;</pre></td></tr></table></pre>
@@ -253,7 +262,7 @@ export function AppRoot(): ReactElement {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-25T19:45:58.018Z
+                at 2026-10-25T20:06:50.571Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

@@ -1,8 +1,8 @@
 {
-  "commit": "02c5b8c2a283af032cd760e0dfda25893faf563b",
+  "commit": "9ae99ef7fb96f2a7a15033eb664798e263af8265",
   "uncommittedChanges": false,
   "ref": "main",
-  "builtAt": "2026-10-25T19:46:17.616Z",
+  "builtAt": "2026-10-25T20:07:03.706Z",
   "thresholds": {
     "lines": 95,
     "statements": 95,
@@ -36,8 +36,8 @@
     {
       "directory": "packages/client-react",
       "verdict": "PASS",
-      "reason": "86 files at or above the bar",
-      "measuredFiles": 86,
+      "reason": "88 files at or above the bar",
+      "measuredFiles": 88,
       "emptyFiles": 0,
       "underTheBar": [],
       "unexplainedIgnores": [],
