@@ -1155,7 +1155,7 @@ describe("the Record owner collection wizard", () => {
     expect(wizard.isNextDisabled()).toBe(false);
   });
 
-  it("a save the store refuses for an item paid meanwhile says what the owner owes, and keeps the dialog", async () => {
+  it("a save the store refuses because the owner paid meanwhile says what they owe now, and keeps the dialog", async () => {
     const page = mountJournalScreen({ legacyPeriod: "p36" });
     const wizard = await page.openWizard("Record collection");
     const name = wizard.owners()[0]?.[0] ?? "";
@@ -1163,11 +1163,37 @@ describe("the Record owner collection wizard", () => {
     await wizard.pickOwner(0);
     await wizard.next();
     await wizard.next();
-    page.refuseNextAdd("over-remaining-item");
+    await page.collectElsewhere("r162", A01_OPEN_ITEMS, 13498);
     await wizard.save();
 
     expect(page.dialogOpen()).toBe(true);
-    expect(wizard.message()).toBe(`${name} owes 539.92 in all.`);
+    expect(wizard.message()).toBe(`${name} owes 0.00 in all.`);
+  });
+
+  it("a save the store refuses for an installment paid meanwhile, the amount still fitting, says the settlement was worked out again, and the next save writes it", async () => {
+    const page = mountJournalScreen({ legacyPeriod: "p36" });
+    const wizard = await page.openWizard("Record collection");
+    const name = wizard.owners()[0]?.[0] ?? "";
+
+    await wizard.pickOwner(0);
+    await wizard.next();
+    await wizard.fill("Amount collected", "200");
+    await wizard.next();
+    await page.collectElsewhere("r162", ["ii763"], 13498);
+    await wizard.save();
+
+    const description = `Collection of installments from ${name}: Rata 10 (20/10/2013), Rata 11 (20/11/2013)`;
+
+    expect(page.dialogOpen()).toBe(true);
+    expect(wizard.message()).toBe(
+      "An installment was paid meanwhile: the amount is settled again against what is still owed.",
+    );
+    expect(wizard.fieldValue("Description")).toBe(description);
+
+    await wizard.save();
+
+    expect(page.dialogOpen()).toBe(false);
+    expect(page.isSelected(description)).toBe(true);
   });
 
   it("each step puts the focus on its first field to fill; Enter in a text field goes on, and saves on the last step", async () => {
@@ -1225,6 +1251,9 @@ describe("the Record owner collection wizard", () => {
     expect(wizard.hasBack()).toBe(true);
   });
 });
+
+/** p36's A01 (r162): the four installment items it still owes, Rata 9 to 12, 134.98 each. */
+const A01_OPEN_ITEMS = ["ii763", "ii790", "ii817", "ii844"];
 
 const UNBALANCED =
   "The entry must balance — the transaction balance must be 0 and a description is required.";

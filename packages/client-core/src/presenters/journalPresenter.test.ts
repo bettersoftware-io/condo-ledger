@@ -37,6 +37,26 @@ describe("the journal presenter", () => {
     });
   });
 
+  it("refuses ✎ on an entry of an editable kind whose lines no wizard can write, and keeps the domain's verdict on the rest", () => {
+    const { latest } = createPresented(POZZETTO_2013);
+
+    expect(
+      latest().entries.map((entry) => {
+        return [entry.id, entry.kind, entry.editable];
+      }),
+    ).toEqual([
+      ["e1", "invoice", { ok: true }],
+      ["e2", "invoice", { ok: true }],
+      ["e3", "invoicePayment", { ok: true }],
+      ["e4", "budgetAllocation", { ok: false, reason: "kind-not-editable" }],
+      ["e5", "collection", { ok: false, reason: "lines-not-editable" }],
+      ["e6", "generic", { ok: true }],
+      ["e7", "individualExpense", { ok: false, reason: "kind-not-editable" }],
+      ["e8", "generic", { ok: true }],
+      ["e9", "generic", { ok: true }],
+    ]);
+  });
+
   it("names the building and the period for the wizards", () => {
     const { latest } = createPresented(POZZETTO_2013);
 

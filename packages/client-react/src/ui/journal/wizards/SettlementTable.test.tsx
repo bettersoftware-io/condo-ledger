@@ -1,9 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { SettlementRow } from "@cl/client-core";
 import { cents } from "@cl/domain";
 
 import { mountSettlementTable } from "./SettlementTable.page.tsx";
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe("SettlementTable", () => {
   it("draws the design's columns and one row per item paid, amounts en-US", () => {
@@ -56,6 +60,22 @@ describe("SettlementTable", () => {
     });
 
     expect(page.partialRows()).toEqual([0, 1]);
+  });
+
+  it("draws two lines on one item as two rows, with no complaint from React about their keys", () => {
+    const complaints = vi.spyOn(console, "error").mockImplementation(() => {});
+    const page = mountSettlementTable({
+      rows: [
+        createRow("ii5", "Rata nr. 1", "A4", "2011-03-15", 96114, 50000),
+        createRow("ii5", "Rata nr. 1", "A4", "2011-03-15", 96114, 46114),
+      ],
+    });
+
+    expect(page.rows()).toEqual([
+      ["Rata nr. 1", "A4", "15/03/2011", "961.14", "500.00"],
+      ["Rata nr. 1", "A4", "15/03/2011", "961.14", "461.14"],
+    ]);
+    expect(complaints).not.toHaveBeenCalled();
   });
 
   it("with nothing paid, has its columns and no row", () => {

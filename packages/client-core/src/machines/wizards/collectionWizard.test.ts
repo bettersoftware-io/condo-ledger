@@ -349,6 +349,74 @@ describe("the Record owner collection wizard", () => {
     expect(state.verdict).toEqual({ ok: false, reason: "over-owed" });
   });
 
+  it("an amount that still fits after a refusal is settled again over the books as they stand, and the save that follows writes the description of what it now pays", async () => {
+    const harness = createP36Harness();
+    const machine = createNewWizard(harness);
+
+    machine.intents.edit({ personId: "md89", amount: "200" });
+
+    expect(machine.state$.getValue().form.description).toBe(
+      `Collection of installments from ${personName(harness, "md89")}: Rata 9 (20/09/2013), Rata 10 (20/10/2013)`,
+    );
+
+    const elsewhere = await harness.ports.journal.addEntry(
+      "p36",
+      createCollectionOfMd89(["ii763"]),
+    );
+
+    expect(elsewhere.ok).toBe(true);
+    expect(await machine.intents.save()).toEqual({
+      ok: false,
+      reason: "over-remaining-item",
+    });
+
+    const description = `Collection of installments from ${personName(harness, "md89")}: Rata 10 (20/10/2013), Rata 11 (20/11/2013)`;
+
+    expect(machine.state$.getValue()).toMatchObject({
+      form: { amount: "200", description },
+      summary: {
+        owed: 53992 - 13498,
+        settlement: [
+          createRow("ii790", "Rata 10", "2013-10-20", 13498, 13498),
+          createRow("ii817", "Rata 11", "2013-11-20", 13498, 6502),
+        ],
+      },
+      verdict: { ok: true },
+    });
+
+    const saved = await machine.intents.save();
+
+    expect(saved.ok).toBe(true);
+    expect(currentEntry(harness, saved.ok ? saved.value.id : "")).toMatchObject(
+      {
+        description,
+        postings: [
+          { debit: 20000 },
+          { credit: 13498, installmentItemId: "ii790" },
+          { credit: 6502, installmentItemId: "ii817" },
+        ],
+      },
+    );
+  });
+
+  it("a description typed before a refusal is kept when the amount is settled again", async () => {
+    const harness = createP36Harness();
+    const machine = createNewWizard(harness);
+
+    machine.intents.edit({ personId: "md89", amount: "200" });
+    machine.intents.edit({ description: "Typed by hand" });
+    await harness.ports.journal.addEntry(
+      "p36",
+      createCollectionOfMd89(["ii763"]),
+    );
+
+    expect((await machine.intents.save()).ok).toBe(false);
+    expect(machine.state$.getValue().form).toMatchObject({
+      amount: "200",
+      description: "Typed by hand",
+    });
+  });
+
   it("a new collection is written through the write it is given", async () => {
     const harness = createP36Harness();
     const drafts: EntryDraft[] = [];
@@ -737,19 +805,21 @@ function createP36Harness(now?: string): AppHarness {
   return harness;
 }
 
-/** md89 (r162, A01) paying everything still open: Rata 9 to 12, 134.98 each. */
-function createCollectionOfMd89(): EntryDraft {
+/** md89 (r162, A01) paying the items named, 134.98 each: by default everything still open, Rata 9 to 12. */
+function createCollectionOfMd89(
+  itemIds: readonly string[] = ["ii763", "ii790", "ii817", "ii844"],
+): EntryDraft {
   return {
     kind: "collection",
     description: "Collected elsewhere",
     postings: [
       {
         accountId: "la156",
-        debit: cents(53992),
+        debit: cents(13498 * itemIds.length),
         credit: cents(0),
         counterpart: null,
       },
-      ...["ii763", "ii790", "ii817", "ii844"].map((itemId) => {
+      ...itemIds.map((itemId) => {
         return {
           accountId: "la158",
           debit: cents(0),

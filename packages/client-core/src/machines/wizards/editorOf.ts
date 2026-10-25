@@ -14,7 +14,8 @@ import { fitsOpening } from "./openingBalancesWizard.ts";
  * account than its role's, an opening with supplier lines) opens in the
  * generic editor, which keeps its kind. Invoices and their payments always
  * open in their own: a generic draft cannot carry an invoice. Nor can it
- * carry an installment item: a collection its wizard cannot write has none.
+ * carry an installment item: a collection its wizard cannot write has none,
+ * and the journal presenter refuses ✎ on it with `lines-not-editable`.
  */
 export function editorOf(entry: JournalEntry, books: Books): WizardName | null {
   switch (entry.kind) {

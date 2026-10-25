@@ -26,10 +26,11 @@ export function SettlementTable({ rows }: SettlementTableProps): ReactElement {
         <span className="wizard-amount-cell">Paid now</span>
         <span />
       </div>
-      {rows.map((row) => {
+      {rows.map((row, index) => {
         return (
           <div
-            key={row.itemId}
+            // An entry may pay one item on two lines: the index tells them apart.
+            key={`${String(index)}:${row.itemId}`}
             className="settlement-row"
             data-testid={TESTIDS.settlementRow}
           >

@@ -195,9 +195,10 @@ export function createCollectionWizard(
 
     if (!result.ok) {
       read = readOf(latest(), editing, today);
-      // The definition reads `read`: an edit that changes nothing has the
-      // machine derive its state again, over the books as they stand now.
-      machine.intents.edit({});
+      // The definition reads `read`: the edit has the machine derive its
+      // state again over the books as they stand now, the amount kept and an
+      // untyped description following what the amount settles now.
+      machine.intents.edit(described(read, machine.state$.getValue().form));
     }
 
     return result;
@@ -381,18 +382,24 @@ function applied(
     ],
   };
 
-  const amounted: CollectionForm = {
+  return described(read, {
     ...next,
     amount: next.edited.includes("amount")
       ? next.amount
       : prefilledAmount(read, next.personId),
-  };
+  });
+}
 
+/** The form with its description following what it settles, unless the person typed it. */
+function described(
+  read: CollectionBooks,
+  form: CollectionForm,
+): CollectionForm {
   return {
-    ...amounted,
-    description: amounted.edited.includes("description")
-      ? amounted.description
-      : describe(read, amounted),
+    ...form,
+    description: form.edited.includes("description")
+      ? form.description
+      : describe(read, form),
   };
 }
 

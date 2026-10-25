@@ -96,6 +96,12 @@ export interface JournalScreenPage {
     supplierId: string,
     amount: number,
   ) => Promise<void>;
+  /** On p36, another collection lands in the store, into the bank, as if made from another window: it pays these items of the resident, `each` apiece. */
+  collectElsewhere: (
+    residentId: string,
+    itemIds: string[],
+    each: number,
+  ) => Promise<void>;
   /** The open wizard's choice of the control account's row for this party. */
   rowChoiceLabel: (accountId: string, partyId: string) => string;
   /** Switches to Accounts through the sidebar, opens the rows of the path and selects its last, and reads the Ledger tab's lines. */
@@ -423,6 +429,39 @@ export function mountJournalScreen(
 
       if (!result.ok) {
         throw new Error(`the payment elsewhere was refused: ${result.reason}`);
+      }
+    },
+    collectElsewhere: async (
+      residentId: string,
+      itemIds: string[],
+      each: number,
+    ): Promise<void> => {
+      const result = await ports.journal.addEntry("p36", {
+        kind: "collection",
+        description: "Collected elsewhere",
+        postings: [
+          {
+            accountId: "la156",
+            debit: cents(each * itemIds.length),
+            credit: cents(0),
+            counterpart: null,
+          },
+          ...itemIds.map((itemId) => {
+            return {
+              accountId: "la158",
+              debit: cents(0),
+              credit: cents(each),
+              counterpart: { kind: "owner" as const, id: residentId },
+              installmentItemId: itemId,
+            };
+          }),
+        ],
+      });
+
+      if (!result.ok) {
+        throw new Error(
+          `the collection elsewhere was refused: ${result.reason}`,
+        );
       }
     },
     rowChoiceLabel: (accountId: string, partyId: string): string => {

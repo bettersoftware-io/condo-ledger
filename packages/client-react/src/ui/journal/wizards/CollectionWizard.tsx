@@ -76,9 +76,16 @@ function CollectionBody({
     };
   });
 
-  /** Above what the owner owes, or a store's refusal for an item paid meanwhile: what the owner owes now, in all. */
+  /**
+   * Above what the owner owes: what they owe now, in all. A store's refusal
+   * for an item paid meanwhile says the same while the amount is still above
+   * it; once the amount fits, the settlement has been worked out again.
+   */
   function wordReason(reason: string): string {
-    return reason === "over-owed" || reason === "over-remaining-item"
+    const aboveOwed = !state.verdict.ok && state.verdict.reason === "over-owed";
+
+    return reason === "over-owed" ||
+      (reason === "over-remaining-item" && aboveOwed)
       ? `${summary.person ?? "The owner"} owes ${formatCents(summary.owed ?? ZERO_CENTS)} in all.`
       : reasonText(reason, COLLECTION_REASONS);
   }

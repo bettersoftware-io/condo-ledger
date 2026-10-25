@@ -459,6 +459,21 @@ describe("JournalScreen", () => {
     ]);
   });
 
+  it("with a collection its wizard cannot write selected, ✎ is disabled and says why", async () => {
+    const page = mountJournalScreen();
+
+    await page.clickRow("Incasso Bianchi");
+
+    expect(page.isToolDisabled("Edit entry")).toBe(true);
+    expect(page.toolTitle("Edit entry")).toBe(
+      "This entry's lines cannot be edited here.",
+    );
+
+    await page.doubleClickRow("Incasso Bianchi");
+
+    expect(page.dialogOpen()).toBe(false);
+  });
+
   it("with a budget allocation selected, ✎ is disabled and says why", async () => {
     const page = mountJournalScreen();
 
@@ -476,7 +491,7 @@ describe("JournalScreen", () => {
     expect(page.dialogOpen()).toBe(false);
   });
 
-  it("a collection lowers what its owner owes; edited with ✎ it moves the balance, and deleted it gives the balance back (Review Focus 5)", async () => {
+  it("a collection in full takes its owner out of the list; edited with ✎ to less it brings them back with the rest, and deleted it gives back all they owed (Review Focus 5)", async () => {
     const page = mountJournalScreen({ legacyPeriod: "p36" });
     const record = await page.openWizard("Record collection");
     const name = record.owners()[0]?.[0] ?? "";
@@ -491,40 +506,24 @@ describe("JournalScreen", () => {
 
     await record.pickOwner(0);
     await record.next();
-    await record.fill("Amount collected", "200");
+
+    expect(record.fieldValue("Amount collected")).toBe("539.92");
+
     await record.next();
     await record.save();
 
-    const recorded = `Collection of installments from ${name}: Rata 9 (20/09/2013), Rata 10 (20/10/2013)`;
+    const inFull = `Collection of installments from ${name}: Rata 9 (20/09/2013), Rata 10 (20/10/2013), Rata 11 (20/11/2013), Rata 12 (20/12/2013)`;
 
-    expect(page.isSelected(recorded)).toBe(true);
-    expect(await ownerAfterReopening(page)).toEqual([
-      name,
-      "A01",
-      "826.61",
-      "486.69",
-      "339.92",
-    ]);
+    expect(page.isSelected(inFull)).toBe(true);
+    expect(await ownerAfterReopening(page, name)).toBeNull();
 
-    await page.clickRow(recorded);
-    await page.clickTool("Edit entry");
-
-    const edit = page.wizard();
-
-    expect(edit.title()).toBe(
-      "Edit Record Owner Collection — Step 2: Amount and liquidity account",
-    );
-    expect(edit.fieldValue("Amount collected")).toBe("200.00");
-
-    await edit.fill("Amount collected", "100");
-    await edit.next();
-    await edit.save();
+    await editAmount(page, inFull, "539.92", "100");
 
     const edited = `Collection of installments from ${name}: Rata 9 (20/09/2013)`;
 
     expect(page.dialogOpen()).toBe(false);
     expect(page.isSelected(edited)).toBe(true);
-    expect(await ownerAfterReopening(page)).toEqual([
+    expect(await ownerAfterReopening(page, name)).toEqual([
       name,
       "A01",
       "826.61",
@@ -532,10 +531,15 @@ describe("JournalScreen", () => {
       "439.92",
     ]);
 
-    await deleteEntry(page, edited);
+    await editAmount(page, edited, "100.00", "539.92");
+
+    expect(page.isSelected(inFull)).toBe(true);
+    expect(await ownerAfterReopening(page, name)).toBeNull();
+
+    await deleteEntry(page, inFull);
 
     expect(page.confirmOpen()).toBe(false);
-    expect(await ownerAfterReopening(page)).toEqual([
+    expect(await ownerAfterReopening(page, name)).toEqual([
       name,
       "A01",
       "826.61",
@@ -586,10 +590,38 @@ async function deleteEntry(
   await page.confirmYes();
 }
 
-/** Opens the collection wizard, reads the first owner's row, and closes it. */
-async function ownerAfterReopening(page: JournalScreenPage): Promise<string[]> {
+/** Selects the collection, opens it with ✎, checks the amount it opens with, and saves it with another. */
+async function editAmount(
+  page: JournalScreenPage,
+  label: string,
+  from: string,
+  to: string,
+): Promise<void> {
+  await page.clickRow(label);
+  await page.clickTool("Edit entry");
+
+  const edit = page.wizard();
+
+  expect(edit.title()).toBe(
+    "Edit Record Owner Collection — Step 2: Amount and liquidity account",
+  );
+  expect(edit.fieldValue("Amount collected")).toBe(from);
+
+  await edit.fill("Amount collected", to);
+  await edit.next();
+  await edit.save();
+}
+
+/** Opens the collection wizard, reads the row of the owner with this name, and closes it; null when step 1 does not list them. */
+async function ownerAfterReopening(
+  page: JournalScreenPage,
+  name: string,
+): Promise<string[] | null> {
   const wizard = await page.openWizard("Record collection");
-  const row = wizard.owners()[0] ?? [];
+  const row =
+    wizard.owners().find((cells) => {
+      return cells[0] === name;
+    }) ?? null;
 
   await wizard.cancel();
 

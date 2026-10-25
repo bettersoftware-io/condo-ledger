@@ -12,6 +12,9 @@ import {
   type ResultOf,
   rejected,
 } from "@cl/domain";
+import { must } from "@cl/domain/support/must.ts";
+
+import { editorOf } from "#/machines/wizards/editorOf.ts";
 
 import type { Books } from "./booksPresenter.ts";
 import type { PeriodSelection } from "./buildingsPresenter.ts";
@@ -50,7 +53,7 @@ export function createJournalPresenter(
     entries$: state(
       books$.pipe(
         map((books) => {
-          return books === null ? [] : journalOf(books.tree, books.entries);
+          return books === null ? [] : entriesOf(books);
         }),
       ),
       [],
@@ -77,6 +80,28 @@ export function createJournalPresenter(
       return port.deleteEntry(id);
     },
   };
+}
+
+/**
+ * The period's entries as the grid shows them. The domain says which kinds
+ * ✎ edits; an entry of such a kind whose lines no wizard can write (a
+ * collection paying no installment) is refused here too, so ✎ is never
+ * enabled with no wizard behind it.
+ */
+function entriesOf(books: Books): JournalEntryView[] {
+  const held = new Map(
+    books.entries.map((entry) => {
+      return [entry.id, entry];
+    }),
+  );
+
+  return journalOf(books.tree, books.entries).map((view) => {
+    const entry = must(held.get(view.id), `the entry ${view.id}`);
+
+    return view.editable.ok && editorOf(entry, books) === null
+      ? { ...view, editable: rejected("lines-not-editable") }
+      : view;
+  });
 }
 
 function contextOf(
