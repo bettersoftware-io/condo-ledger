@@ -59,6 +59,11 @@ import {
   type NavigationState,
 } from "./machines/navigationMachine.ts";
 import {
+  createScheduleGridMachine,
+  type ScheduleGridIntents,
+  type ScheduleGridState,
+} from "./machines/scheduleGridMachine.ts";
+import {
   createSidebarMachine,
   type SidebarIntents,
   type SidebarState,
@@ -125,6 +130,10 @@ import {
   createBuildingsPresenter,
 } from "./presenters/buildingsPresenter.ts";
 import {
+  createInstallmentSchedulePresenter,
+  type InstallmentSchedulePresenter,
+} from "./presenters/installmentSchedulePresenter.ts";
+import {
   createJournalPresenter,
   type JournalPresenter,
 } from "./presenters/journalPresenter.ts";
@@ -151,6 +160,7 @@ interface AppPresenters {
   books: BooksPresenter;
   accounts: AccountsPresenter;
   journal: JournalPresenter;
+  schedule: InstallmentSchedulePresenter;
 }
 
 /** Per-component state: each call builds a machine of its own. */
@@ -166,6 +176,7 @@ interface AppMachines {
   createMaximize: () => Machine<MaximizeState, MaximizeIntents>;
   createSidebar: () => Machine<SidebarState, SidebarIntents>;
   createJournalGrid: () => Machine<JournalGridState, JournalGridIntents>;
+  createScheduleGrid: () => Machine<ScheduleGridState, ScheduleGridIntents>;
   /** The dialog over the selected period's books as they stand when an intent asks: an edit opens only for an entry they hold. */
   createJournalDialog: () => Machine<JournalDialogState, JournalDialogIntents>;
   /**
@@ -233,6 +244,13 @@ export function createApp(ports: AppPorts): App {
     buildings.selected$,
     ports.journal,
   );
+
+  const schedule = createInstallmentSchedulePresenter(
+    books.books$,
+    buildings.tree$,
+    ports.installments,
+    ports.clock,
+  );
   let latestBooks: Books | null = null;
 
   // The books presenter lives as long as the application: nothing unsubscribes.
@@ -284,7 +302,7 @@ export function createApp(ports: AppPorts): App {
   }
 
   return {
-    presenters: { session, buildings, books, accounts, journal },
+    presenters: { session, buildings, books, accounts, journal, schedule },
     navigation: createNavigationMachine(),
     notices: createNotices(),
     machines: {
@@ -301,6 +319,12 @@ export function createApp(ports: AppPorts): App {
       createSidebar: createSidebarMachine,
       createJournalGrid: (): Machine<JournalGridState, JournalGridIntents> => {
         return createJournalGridMachine(journal.entries$);
+      },
+      createScheduleGrid: (): Machine<
+        ScheduleGridState,
+        ScheduleGridIntents
+      > => {
+        return createScheduleGridMachine(schedule.schedule$);
       },
       createJournalDialog: (): Machine<
         JournalDialogState,

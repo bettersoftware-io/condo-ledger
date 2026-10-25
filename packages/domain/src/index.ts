@@ -34,6 +34,7 @@ export {
 export * from "./support/romeTime.ts";
 export * from "./useCases/accountTree.ts";
 export * from "./useCases/allocate.ts";
+export * from "./useCases/budgetShares.ts";
 export * from "./useCases/collection.ts";
 export * from "./useCases/installments.ts";
 export * from "./useCases/invoice.ts";
@@ -46,5 +47,7 @@ export * from "./useCases/riparto/computeRiparto.ts";
 export * from "./useCases/riparto/periodTypes.ts";
 export * from "./useCases/riparto/recomputePeriod.ts";
 export * from "./useCases/riparto/types.ts";
+export * from "./useCases/schedule.ts";
 export * from "./useCases/validateBudget.ts";
 export * from "./useCases/validateEntry.ts";
+export * from "./useCases/validateSchedule.ts";
