@@ -215,8 +215,10 @@ a generic draft cannot carry items.
 ## Client
 
 - `JournalToolbar`: "Record collection" opens the wizard.
-- `CollectionWizard` (three steps) on M2b's `WizardDialog`, `SelectableList`
-  for the persons grid, the liquidity list as in `InvoicePaymentWizard`, and
+- `CollectionWizard` (three steps) on M2b's `WizardDialog`, `OwnersGrid` for
+  the persons grid (a props-only grid in the `OpenInvoicesGrid` pattern:
+  `SelectableList` draws one label per row and cannot show the five
+  columns), the liquidity list as in `InvoicePaymentWizard`, and
   a read-only settlement table. Every M2b keyboard rule holds: focus on the
   first empty or required field, Enter presses the primary button.
 - `DeleteEntryConfirm` and the `kind-not-editable` text no longer apply to

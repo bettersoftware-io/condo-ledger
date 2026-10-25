@@ -1,7 +1,10 @@
-/* The settlement under the amount collected: Installment | Unit | Due | Owed | Paid now, and the "partial" mark. */
+/* The settlement under the amount collected: Installment | Unit | Due | Owed | Paid now, and the "partial" mark.
+   It never shrinks: it has no scrolling rows of its own, as the lists above
+   it have, so in a short dialog the body scrolls and no row is cut off. */
 .settlement {
   --settlement-columns: 1fr 70px 90px 100px 100px 64px;
 
+  flex: none;
   border: 1px solid var(--bd2);
   border-radius: 7px;
   overflow: hidden;

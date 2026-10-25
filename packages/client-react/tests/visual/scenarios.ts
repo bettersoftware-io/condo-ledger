@@ -3,7 +3,9 @@ import type {
   GenericLine,
   InvoiceForm,
   OpeningAmount,
+  SettlementRow,
 } from "@cl/client-core";
+import { cents } from "@cl/domain";
 
 import type { Picture } from "./host/picture.ts";
 
@@ -12,18 +14,21 @@ import type { Picture } from "./host/picture.ts";
  * state is data, never a click. The visual host turns it into deliveries on
  * the app harness, so the real presenters decide what the screen looks like.
  *
- * The fields of `Picture` say what is pictured. Each scenario here is a page:
- * the whole app in a viewport of its `width` and `height`.
+ * The fields of `Picture` say what is pictured. A scenario with no `mount` is
+ * a page: the whole app in a viewport of its `width` and `height`. One with a
+ * `mount` is a part of the UI shown alone, the entry of that name in
+ * `registry.tsx`: a dialog in a viewport of its own size, anything else as a
+ * root capture of its content's height.
  */
 export interface Scenario extends Picture {
-  /** The page's width in pixels: the full layout at 1280, the compact one under 1180. */
+  /** The picture's width in pixels: a page's full layout at 1280, its compact one under 1180; a part's width as the app gives it. */
   width: number;
-  /** The page's height in pixels: 720 for every scenario, the size the pictures were drawn at before 0.19.0. */
-  height: number;
+  /** The viewport's height in pixels, for a page or a dialog: 720 for every one, the size the pictures were drawn at before 0.19.0. None for a root capture, which has its content's height. */
+  height?: number;
   /** The colour mode, set as the person would set it. */
   mode: "light" | "dark";
-  /** The period the sidebar has selected. */
-  periodId: string;
+  /** The period the sidebar has selected; none for a part drawn from its props alone. */
+  periodId?: string;
   /** The account the grid has selected; Total when absent. */
   selectedKey?: string;
   /** The grid's open rows; the grid's own starting set when absent. */
@@ -40,7 +45,25 @@ export interface Scenario extends Picture {
   selectedEntry?: string;
   /** A dialog open over the Journal, with what is typed in it. */
   dialog?: ScenarioDialog;
+  /** The Record owner collection wizard mounted alone (`mount: "collection-wizard"`), on the step it shows. */
+  collection?: CollectionStep;
+  /** The settlement table's rows (`mount: "settlement-table"`), as its props. */
+  settlement?: SettlementRow[];
 }
+
+/** The collection wizard as it opens: step 1, no owner chosen. */
+interface CollectionOwnerStep {
+  step: 1;
+}
+
+/** The collection wizard on step 2: an owner chosen, then the amount typed over the prefilled one. */
+interface CollectionAmountStep {
+  step: 2;
+  personId: string;
+  amount: string;
+}
+
+type CollectionStep = CollectionOwnerStep | CollectionAmountStep;
 
 /** The generic wizard, with its description and lines typed. */
 interface GenericEntryDialog {
@@ -111,7 +134,10 @@ const OPEN_TO_CASH = [
  * with its cash account (`la154`) selected, at the full layout (1280) and the
  * compact one (1100, the sidebar folded to its rail or open as a drawer).
  * The Journal of the same period: entry 2 (`tx150`, an invoice of three
- * postings) open and selected, and the dialogs over it.
+ * postings) open and selected, and the dialogs over it. Then the parts shown
+ * alone: the Record owner collection wizard, a dialog in a viewport of the
+ * app's page height, and its settlement table at the width it has in the
+ * wizard's body.
  */
 export const scenarios: Record<string, Scenario> = {
   "accounts-1280-light": {
@@ -272,4 +298,59 @@ export const scenarios: Record<string, Scenario> = {
     selectedEntry: "tx109",
     dialog: { edit: "tx109" },
   },
+  // Step 1 of a collection over Pozzetto 2013: the owners who still owe an
+  // installment, one row each across their units, none chosen yet.
+  "collection-wizard-owner": {
+    level: "component",
+    mount: "collection-wizard",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p36",
+    collection: { step: 1 },
+  },
+  // Step 2 for the owner of A01 (`md89`, who owes Rata 9 to Rata 12, 134.98
+  // each), 300.00 typed: Rata 9 and Rata 10 are settled, Rata 11 in part.
+  "collection-wizard-amount": {
+    level: "component",
+    mount: "collection-wizard",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p36",
+    collection: { step: 2, personId: "md89", amount: "300.00" },
+  },
+  // The settlement table alone, at the width of the wizard's body (680 less
+  // its borders and padding): three rows, the last paid in part.
+  "collection-settlement-partial": {
+    level: "component",
+    mount: "settlement-table",
+    width: 642,
+    mode: "light",
+    settlement: [
+      createSettlementRow("Rata 9", "2013-09-20", 13498, 13498),
+      createSettlementRow("Rata 10", "2013-10-20", 13498, 13498),
+      createSettlementRow("Rata 11", "2013-11-20", 13498, 3004),
+    ],
+  },
 };
+
+/** A row of unit A01 as the settlement table shows it, partial when it pays less than the item owes. Its item id is only the row's key. */
+function createSettlementRow(
+  installment: string,
+  dueDate: string,
+  owed: number,
+  paidNow: number,
+): SettlementRow {
+  return {
+    itemId: `A01 ${installment}`,
+    installment,
+    unitCode: "A01",
+    dueDate,
+    owed: cents(owed),
+    paidNow: cents(paidNow),
+    partial: paidNow < owed,
+  };
+}

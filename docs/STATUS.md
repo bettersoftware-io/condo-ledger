@@ -12,7 +12,7 @@ One bullet for each entry: its name in bold, what is left, and a link to its
 plan when it has one. `AGENTS.md` says when an entry is added, moved and
 removed.
 
-**Last updated: 2026-10-24**
+**Last updated: 2026-10-25**
 
 ## In progress
 
@@ -38,26 +38,37 @@ Work that has started and is not finished.
 
 ## Next, with no plan yet
 
-- **M2c, Record owner collection and Budget allocation.** Both stand on
-  installments and on the allocation engine in the app: a collection
-  settles installments, an allocation charges each owner the share the
-  engine computes. Left: the two wizards, installments and the allocation
-  engine in the app, the delete and the edit of their kinds, the 0/0 lines
-  of the legacy allocation, and whether a resident's `startingBalance`
-  follows the period's opening entry (in M2b it only prefills a new
-  opening). The two menu items keep M2a's notice until then. The M2b spec's
-  "Scope, and what moves to M2c" and "Not built" list them
-  ([2026-10-17-m2b-invoices-opening-edit-design.md](superpowers/specs/2026-10-17-m2b-invoices-opening-edit-design.md)).
-  After M2c, the rest of the Buildings module the parent design names for
-  M2: Installments, Tables & Allocation, Building Data & Units, Contacts and
-  Calendar, one spec per group.
-- **Visual goldens as a pyramid.** Since the `visual` add-on's 0.19.0 all
-  fourteen scenarios are pages (the whole app at 1280 or 1100 by 720), the
-  shape its README says to avoid. Left: `tests/visual/registry.tsx` from its
-  template in `tools/templates/`, with `Surround` carrying the `data-theme`
-  and `data-mode` that `ui/shell/AppRoot.tsx` sets;
-  `render` returned from `seeding.ts` as its template does; then component
-  scenarios before more pages. First: `Money` (positive, negative, zero),
+- **Budget allocation, in the Tables & Allocation group.** Moved out of
+  M2c ([2026-10-24-m2c-owner-collection-design.md](superpowers/specs/2026-10-24-m2c-owner-collection-design.md),
+  "Scope"). An allocation charges each owner the share the engine computes,
+  so it needs units, thousandth tables, residency dates and the allocation
+  engine running in the app, none of which the app has. Left too: the 0/0
+  lines of the legacy allocation, and the engine's divergence on Pozzetto
+  2013 (it reproduces Saturno 2011, but is off by cents per owner on
+  Pozzetto, about 426 euros between the two residents of unit A04). The
+  menu item keeps M2a's notice until then.
+- **Installment schedules, in the Installments group.** Moved out of M2c
+  ([2026-10-24-m2c-owner-collection-design.md](superpowers/specs/2026-10-24-m2c-owner-collection-design.md),
+  "Scope"), which reads the stored schedules only. Left: creating and
+  editing a period's schedule ("Crea Rate Preventivo" in the legacy app),
+  the Installment Schedule screen, and whether a resident's
+  `startingBalance` follows the period's opening entry (installment 1
+  embeds it; in M2b it only prefills a new opening).
+- **The rest of the Buildings module for M2.** The groups the parent design
+  names, one spec each: Installments, Tables & Allocation, Building Data &
+  Units, Contacts and Calendar
+  ([2026-10-11-app-v2-design.md](superpowers/specs/2026-10-11-app-v2-design.md)).
+  The two entries above open the first two.
+- **Visual goldens as a pyramid.** Since the `visual` add-on's 0.19.0 the
+  fourteen Accounts and Journal scenarios are pages (the whole app at 1280
+  or 1100 by 720), the shape its README says to avoid. M2c started the
+  pyramid: `tests/visual/registry.tsx`, its `Surround` carrying the
+  `data-theme` and `data-mode` that `ui/shell/AppRoot.tsx` sets, `render`
+  from `seeding.ts`, and three component scenarios (the collection wizard
+  on steps 1 and 2, its settlement table). `Surround` sets the attributes
+  only, so the page around a part keeps the body's light colours: a dark
+  component scenario needs that page dark too. Left: component scenarios
+  before more pages. First: `Money` (positive, negative, zero),
   `TreeGridRow` (aggregate, selected, collapsed, long label), `InlineEditor`
   (editing, refused), `SegmentedControl`, `ConfirmAlert` and `WizardDialog`
   mounted alone with `capture: "viewport"`. `pnpm visual:coverage` lists
