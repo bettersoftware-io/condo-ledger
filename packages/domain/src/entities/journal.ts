@@ -11,6 +11,8 @@ export interface Posting {
   debit: Cents;
   credit: Cents;
   counterpart: Counterpart | null;
+  /** On a collection's owner credit line, the installment item it pays; absent on every other line. */
+  installmentItemId?: string;
 }
 
 export type EntryKind =
