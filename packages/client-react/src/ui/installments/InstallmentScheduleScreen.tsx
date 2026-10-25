@@ -11,10 +11,13 @@ import { type MachineView, useViewModel } from "@cl/react-bindings";
 import { ConfirmAlert } from "../ConfirmAlert.tsx";
 import { Panel } from "../Panel.tsx";
 import { TESTIDS } from "../testids.ts";
+import { BudgetInstallmentsWizard } from "./BudgetInstallmentsWizard.tsx";
 import { scheduleColumnSpecs } from "./columns.ts";
+import { InstallmentDialog } from "./InstallmentDialog.tsx";
 import { scheduleReasonText } from "./reasons.ts";
 import { ScheduleGrid } from "./ScheduleGrid.tsx";
 import { ScheduleToolbar } from "./ScheduleToolbar.tsx";
+import { useScheduleWrite } from "./useScheduleWrite.ts";
 
 import "./InstallmentScheduleScreen.css";
 
@@ -23,7 +26,8 @@ import "./InstallmentScheduleScreen.css";
  * resident, in one panel. Reads the view model and hands plain props down.
  * The maximize machine is the shell's, so a maximized panel also folds the
  * sidebar. Which dialog is open is this screen's own state: Delete asks
- * here; Create budget installments and Edit open their own dialogs.
+ * here, and shows a refusal in its question; Create budget installments and
+ * Edit open their own dialogs, which close when their write is accepted.
  */
 export function InstallmentScheduleScreen({
   maximize,
@@ -34,7 +38,10 @@ export function InstallmentScheduleScreen({
   const grid = useScheduleGrid();
   const { stub } = useNotices();
   const [dialog, setDialog] = useState<ScheduleDialog | null>(null);
-  const [deleteRefusal, setDeleteRefusal] = useState<string | null>(null);
+  const deleting = useScheduleWrite(
+    closeDialog,
+    "the installment was not deleted",
+  );
   const installments = schedule?.installments ?? [];
   const maximized = maximize.state.maximized;
 
@@ -51,7 +58,7 @@ export function InstallmentScheduleScreen({
   }
 
   function openDelete(installment: Installment): void {
-    setDeleteRefusal(null);
+    deleting.forget();
     setDialog({ kind: "delete", installment });
   }
 
@@ -61,22 +68,10 @@ export function InstallmentScheduleScreen({
 
   function confirmDeleteOf(installment: Installment): () => void {
     return (): void => {
-      // A click waits for nothing: the column leaves the grid on the
-      // schedule's stream, and the verdict is shown when it arrives.
-      void deleteInstallment(installment.id)
-        .then(settleDelete)
-        .catch(reportFailed);
+      deleting.run(() => {
+        return deleteInstallment(installment.id);
+      });
     };
-  }
-
-  function settleDelete(result: Result): void {
-    if (result.ok) {
-      closeDialog();
-
-      return;
-    }
-
-    setDeleteRefusal(result.reason);
   }
 
   return (
@@ -118,10 +113,27 @@ export function InstallmentScheduleScreen({
         <ConfirmAlert
           text={`Delete the installment “${dialog.installment.name}”? This cannot be undone.`}
           error={
-            deleteRefusal === null ? null : scheduleReasonText(deleteRefusal)
+            deleting.refusal === null
+              ? null
+              : scheduleReasonText(deleting.refusal)
           }
           onYes={confirmDeleteOf(dialog.installment)}
           onNo={closeDialog}
+        />
+      ) : null}
+      {dialog?.kind === "budget" ? (
+        <BudgetInstallmentsWizard
+          onSaved={closeDialog}
+          onCancel={closeDialog}
+        />
+      ) : null}
+      {dialog?.kind === "edit" ? (
+        <InstallmentDialog
+          // The dialog's machine is built for the installment it opens on.
+          key={dialog.installmentId}
+          installmentId={dialog.installmentId}
+          onSaved={closeDialog}
+          onCancel={closeDialog}
         />
       ) : null}
     </div>
@@ -183,9 +195,4 @@ function ScheduleGridArea({
       onSetItemAmount={onSetItemAmount}
     />
   );
-}
-
-/* v8 ignore next 3 -- only a real installments store can fail to answer; the simulator always does */
-function reportFailed(error: unknown): void {
-  console.error("the installment was not deleted", error);
 }

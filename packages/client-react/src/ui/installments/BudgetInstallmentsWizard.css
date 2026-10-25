@@ -1,0 +1,129 @@
+/* Create Budget Installments: step 1's numbers, step 2's rows, step 3's review. */
+
+/* A number in a form row: a short box, the digits to the right. */
+.form-field-box:has(> .budget-number) {
+  justify-self: start;
+  width: 90px;
+}
+
+.form-field-box > .budget-number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Step 2: Name | Due date | % of budget. */
+.budget-rows {
+  --budget-rows-columns: 1fr 110px 110px;
+
+  border: 1px solid var(--bd2);
+  border-radius: 7px;
+  overflow: hidden;
+  font-size: 11.5px;
+  color: var(--tx);
+}
+
+.budget-rows-head,
+.budget-rows-row {
+  display: grid;
+  grid-template-columns: var(--budget-rows-columns);
+  align-items: center;
+}
+
+.budget-rows-head {
+  background: var(--ph);
+  color: var(--phf);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.budget-rows-head > span {
+  padding: 6px 8px;
+}
+
+.budget-rows-row {
+  border-top: 1px solid var(--bd2);
+}
+
+.budget-rows-row > * {
+  min-width: 0;
+  margin: 3px 6px;
+}
+
+.budget-rows-input {
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  background: var(--ctrl);
+  color: var(--tx);
+  font: inherit;
+  font-size: 11.5px;
+}
+
+.budget-rows-input:focus {
+  border-color: var(--acc);
+  outline: none;
+}
+
+.budget-rows-date {
+  color: var(--txd);
+  font-variant-numeric: tabular-nums;
+}
+
+.budget-rows-number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Step 3: one row per resident; the box scrolls, both ways, inside the dialog. */
+.budget-review-box {
+  max-height: 320px;
+  overflow: auto;
+  border: 1px solid var(--bd2);
+  border-radius: 7px;
+}
+
+.budget-review {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+  color: var(--tx);
+}
+
+.budget-review th {
+  position: sticky;
+  top: 0;
+  padding: 6px 8px;
+  background: var(--ph);
+  color: var(--phf);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.budget-review th:first-child {
+  text-align: left;
+}
+
+.budget-review td {
+  padding: 5px 8px;
+  border-top: 1px solid var(--bd2);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.budget-review .budget-review-label {
+  max-width: 200px;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+}
+
+.budget-review tfoot td {
+  background: var(--zebra);
+}
+
+.budget-review .budget-review-total-label {
+  color: var(--txd);
+}

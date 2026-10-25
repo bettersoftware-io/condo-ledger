@@ -5,7 +5,6 @@ import {
   defaultPercentages,
   dueDates,
   type InstallmentsDraft,
-  isCalendarDate,
   type OwnerParty,
   ok,
   type PlannedInstallment,
@@ -18,6 +17,7 @@ import {
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
+import { parseDate } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 import { scheduleContextOf } from "#/presenters/installmentSchedulePresenter.ts";
 
@@ -39,7 +39,7 @@ export interface InstallmentRowForm {
 export interface BudgetInstallmentsForm {
   /** "Number of installments", 1–12. */
   count: string;
-  /** "Due date of the first", "YYYY-MM-DD". */
+  /** "Due date of the first", as typed: `31/03/2015`, `31/3/2015`, or `31/3` in the period's year. */
   firstDue: string;
   /** "Months between installments", 1–5. */
   months: string;
@@ -67,6 +67,8 @@ export interface ReviewRow {
 
 /** What the wizard shows beyond the contract. */
 export interface BudgetInstallmentsSummary {
+  /** The first due date as it reads, "YYYY-MM-DD"; null while it reads as none. */
+  firstDue: string | null;
   /** One per row; none while step 1's date or months are refused. */
   dueDates: string[];
   /** Every owner of the period, as Save will write them; none while the form is refused. */
@@ -205,7 +207,7 @@ function numberAndDatesVerdict(
     return rejected("months-out-of-range");
   }
 
-  return isCalendarDate(form.firstDue) ? ok() : rejected("invalid-due-date");
+  return firstDueOf(books, form) === null ? rejected("invalid-due-date") : ok();
 }
 
 /** Step 1's rules, then one row per installment and every percentage read, then the domain's rules on the batch. */
@@ -223,7 +225,7 @@ function derive(
     return refused("rows-not-count");
   }
 
-  const installments = plannedOf(form);
+  const installments = plannedOf(books, form);
 
   if (installments === null) {
     return refused("not-a-percentage");
@@ -251,7 +253,8 @@ function summaryOf(
   const review = books === null || draft === null ? [] : reviewOf(books, draft);
 
   return {
-    dueDates: dueDatesOf(form),
+    firstDue: firstDueOf(books, form),
+    dueDates: dueDatesOf(books, form),
     review,
     total: review.reduce((sum, row) => {
       return addCents(sum, row.total);
@@ -289,8 +292,11 @@ function reviewOf(books: Books, draft: InstallmentsDraft): ReviewRow[] {
 }
 
 /** The rows as the batch's installments; null while a percentage is not one. */
-function plannedOf(form: BudgetInstallmentsForm): PlannedInstallment[] | null {
-  const dates = dueDatesOf(form);
+function plannedOf(
+  books: Books | null,
+  form: BudgetInstallmentsForm,
+): PlannedInstallment[] | null {
+  const dates = dueDatesOf(books, form);
   const planned: PlannedInstallment[] = [];
 
   for (const [index, row] of form.rows.entries()) {
@@ -311,12 +317,26 @@ function plannedOf(form: BudgetInstallmentsForm): PlannedInstallment[] | null {
 }
 
 /** One date per row, months apart from the first; none while the date or the months are refused. */
-function dueDatesOf(form: BudgetInstallmentsForm): string[] {
+function dueDatesOf(
+  books: Books | null,
+  form: BudgetInstallmentsForm,
+): string[] {
   const months = wholeNumberUpTo(form.months, MAX_MONTHS);
+  const first = firstDueOf(books, form);
 
-  return months === null || !isCalendarDate(form.firstDue)
+  return months === null || first === null
     ? []
-    : dueDates(form.firstDue, form.rows.length, months);
+    : dueDates(first, form.rows.length, months);
+}
+
+/** The first due date as it reads, a date typed without a year in the period's; null while it reads as none. */
+function firstDueOf(
+  books: Books | null,
+  form: BudgetInstallmentsForm,
+): string | null {
+  const year = books === null ? 0 : Number(books.period.start.slice(0, 4));
+
+  return parseDate(form.firstDue, year);
 }
 
 /** "{unit} {name}" of an owner of the books. */

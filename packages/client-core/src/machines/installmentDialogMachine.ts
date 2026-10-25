@@ -9,19 +9,24 @@ import {
   type ScheduleContext,
   validateUpdate,
 } from "@cl/domain";
+import { must } from "@cl/domain/support/must.ts";
+
+import { parseDate } from "#/amounts.ts";
 
 import type { Machine } from "./machine.ts";
 
 /** What the Edit Installment dialog's fields hold. */
-interface InstallmentDialogForm {
+export interface InstallmentDialogForm {
   name: string;
-  /** "YYYY-MM-DD". */
+  /** As typed: `15/07/2011`, `15/7/2011`, or `15/7` in the year of the installment's due date. */
   dueDate: string;
   locked: boolean;
 }
 
 export interface InstallmentDialogState {
   form: InstallmentDialogForm;
+  /** The due date as it reads, "YYYY-MM-DD"; null while it reads as none. */
+  dueDate: string | null;
   /** validateUpdate on what the form changes: decides Save. */
   verdict: Result;
   /** True after the first edit: the UI shows the reason from then on. */
@@ -45,18 +50,20 @@ interface Inner {
  * The Edit Installment dialog over one installment: its name, due date and
  * lock. The form is judged as the port will judge its write, against the
  * period's schedule in `context`: a locked installment takes no new name or
- * due date while Locked stays on; unlocking and editing is one save. Save
- * writes only the fields that changed.
+ * due date while Locked stays on; unlocking and editing is one save. The due
+ * date is typed as day/month/year, and a text that reads as no date is
+ * `invalid-due-date`. Save writes only the fields that changed.
  */
 export function createInstallmentDialog(
   installment: Installment,
   write: (patch: InstallmentPatch) => Promise<Result>,
   context: ScheduleContext,
 ): Machine<InstallmentDialogState, InstallmentDialogIntents> {
+  const year = Number(installment.dueDate.slice(0, 4));
   const inner$ = new BehaviorSubject<Inner>({
     form: {
       name: installment.name,
-      dueDate: installment.dueDate,
+      dueDate: dateText(installment.dueDate),
       locked: installment.locked,
     },
     touched: false,
@@ -64,13 +71,19 @@ export function createInstallmentDialog(
   });
 
   function stateOf(inner: Inner): InstallmentDialogState {
+    const dueDate = parseDate(inner.form.dueDate, year);
+
     return {
       ...inner,
-      verdict: validateUpdate(
-        context,
-        installment.id,
-        patchOf(installment, inner.form),
-      ),
+      dueDate,
+      verdict:
+        dueDate === null
+          ? rejected("invalid-due-date")
+          : validateUpdate(
+              context,
+              installment.id,
+              patchOf(installment, inner.form, dueDate),
+            ),
     };
   }
 
@@ -98,7 +111,7 @@ export function createInstallmentDialog(
           return rejected("saving");
         }
 
-        const { verdict } = state$.getValue();
+        const { verdict, form, dueDate } = state$.getValue();
 
         if (!verdict.ok) {
           return verdict;
@@ -107,7 +120,13 @@ export function createInstallmentDialog(
         update({ saving: true });
 
         try {
-          return await write(patchOf(installment, inner$.getValue().form));
+          return await write(
+            patchOf(
+              installment,
+              form,
+              must(dueDate, "the due date of an accepted form"),
+            ),
+          );
         } finally {
           update({ saving: false });
         }
@@ -120,10 +139,11 @@ export function createInstallmentDialog(
   };
 }
 
-/** The fields the form changes from the installment as it stands. */
+/** The fields the form changes from the installment as it stands, the due date as it reads. */
 function patchOf(
   installment: Installment,
   form: InstallmentDialogForm,
+  dueDate: string,
 ): InstallmentPatch {
   const patch: InstallmentPatch = {};
 
@@ -131,8 +151,8 @@ function patchOf(
     patch.name = form.name;
   }
 
-  if (form.dueDate !== installment.dueDate) {
-    patch.dueDate = form.dueDate;
+  if (dueDate !== installment.dueDate) {
+    patch.dueDate = dueDate;
   }
 
   if (form.locked !== installment.locked) {
@@ -140,4 +160,9 @@ function patchOf(
   }
 
   return patch;
+}
+
+/** `2011-07-15` as `15/07/2011`, a text parseDate reads back. */
+function dateText(iso: string): string {
+  return `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`;
 }

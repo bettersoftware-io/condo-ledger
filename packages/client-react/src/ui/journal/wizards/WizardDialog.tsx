@@ -13,7 +13,9 @@ import "./Wizards.css";
 /**
  * Any wizard's dialog: the building and period first, the step's body, then
  * the "Entry postings" the draft would write and, once the person has edited
- * something, why the step cannot go on yet. An edit is titled "Edit {name}".
+ * something, why the step cannot go on yet. A wizard that writes no journal
+ * entry shows no postings, and its last button says "✓ Save". An edit is
+ * titled "Edit {name}".
  * Next waits for the step's own verdict, Save for the whole one; Back shows
  * past the step the wizard starts at. Each step puts the focus on its first
  * field to fill, and Enter in a text field does what the primary button does
@@ -28,6 +30,7 @@ export function WizardDialog({
   refusal,
   reasonText,
   shownInBody,
+  writesEntry = true,
   onNext,
   onBack,
   onSave,
@@ -92,7 +95,7 @@ export function WizardDialog({
               disabled={!canSave}
               onClick={onSave}
             >
-              ✓ Save entry
+              {writesEntry ? "✓ Save entry" : "✓ Save"}
             </button>
           ) : (
             <button
@@ -124,34 +127,7 @@ export function WizardDialog({
         {children}
       </div>
       <div className="wizard-section">
-        <div className="wizard-section-label">Entry postings</div>
-        <div className="wizard-preview">
-          <div className="wizard-preview-head">
-            <span>#</span>
-            <span>Account (Partita)</span>
-            <span className="wizard-amount-cell">Debit</span>
-            <span className="wizard-amount-cell">Credit</span>
-          </div>
-          {state.preview.map((line, index) => {
-            return (
-              <div
-                // biome-ignore lint/suspicious/noArrayIndexKey: a preview line is its position: the draft's postings in order, with no identity of their own
-                key={index}
-                className="wizard-preview-row"
-                data-testid={TESTIDS.wizardPreviewRow}
-              >
-                <span>{index + 1}</span>
-                <span className="wizard-path">{line.path}</span>
-                <span className="wizard-amount-cell">
-                  <Money cents={sideOf(line.debit)} variant="plain" />
-                </span>
-                <span className="wizard-amount-cell">
-                  <Money cents={sideOf(line.credit)} variant="plain" />
-                </span>
-              </div>
-            );
-          })}
-        </div>
+        {writesEntry ? <EntryPostings preview={state.preview} /> : null}
         {reason === null ? null : (
           <div className="wizard-message" data-testid={TESTIDS.wizardMessage}>
             {reasonText(reason)}
@@ -162,6 +138,46 @@ export function WizardDialog({
   );
 }
 
+/** The "Entry postings" grid: the lines the draft would write. */
+function EntryPostings({ preview }: EntryPostingsProps): ReactElement {
+  return (
+    <>
+      <div className="wizard-section-label">Entry postings</div>
+      <div className="wizard-preview">
+        <div className="wizard-preview-head">
+          <span>#</span>
+          <span>Account (Partita)</span>
+          <span className="wizard-amount-cell">Debit</span>
+          <span className="wizard-amount-cell">Credit</span>
+        </div>
+        {preview.map((line, index) => {
+          return (
+            <div
+              // biome-ignore lint/suspicious/noArrayIndexKey: a preview line is its position: the draft's postings in order, with no identity of their own
+              key={index}
+              className="wizard-preview-row"
+              data-testid={TESTIDS.wizardPreviewRow}
+            >
+              <span>{index + 1}</span>
+              <span className="wizard-path">{line.path}</span>
+              <span className="wizard-amount-cell">
+                <Money cents={sideOf(line.debit)} variant="plain" />
+              </span>
+              <span className="wizard-amount-cell">
+                <Money cents={sideOf(line.credit)} variant="plain" />
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+interface EntryPostingsProps {
+  preview: WizardState<unknown, unknown>["preview"];
+}
+
 export interface WizardDialogProps {
   /** The wizard's title, as the design names it. */
   name: string;
@@ -169,12 +185,14 @@ export interface WizardDialogProps {
   stepTitle?: string;
   context: JournalContext | null;
   state: WizardState<unknown, unknown>;
-  /** Why the journal store refused the last save; null when it did not. Shown in place of the verdict's reason. */
+  /** Why the store refused the last save; null when it did not. Shown in place of the verdict's reason. */
   refusal: string | null;
   /** The wizard's own words for a reason. */
   reasonText: (reason: string) => string;
   /** A verdict's reason the body already shows in its own place: the message leaves it out. A store's refusal always shows. */
   shownInBody?: string;
+  /** Whether the wizard writes a journal entry: then it shows the entry's postings and saves as "✓ Save entry". */
+  writesEntry?: boolean;
   onNext: () => void;
   onBack: () => void;
   onSave: () => void;

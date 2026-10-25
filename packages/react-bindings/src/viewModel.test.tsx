@@ -261,7 +261,7 @@ describe("the view model", () => {
     expect(page.read().schedule.schedule?.root.budget).toBe(740000);
     expect(page.read().installmentDialog?.state.form).toMatchObject({
       name: "Rata nr. 2",
-      dueDate: "2011-07-15",
+      dueDate: "15/07/2011",
       locked: false,
     });
 

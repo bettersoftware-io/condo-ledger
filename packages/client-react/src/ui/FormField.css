@@ -33,6 +33,18 @@
   border-color: var(--acc);
 }
 
+/* A checkbox in a form row (class `form-check`): no box drawn around it. */
+.form-field-box:has(> .form-check) {
+  padding-left: 0;
+  background: transparent;
+  border-color: transparent;
+}
+
+.form-field-box > .form-check {
+  flex: none;
+  margin: 0;
+}
+
 .form-field[data-read-only="true"] .form-field-box {
   background: var(--zebra);
   border-color: var(--bd2);

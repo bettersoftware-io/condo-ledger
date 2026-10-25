@@ -22,6 +22,7 @@ export {
   columnSpecsFrom,
 } from "./machines/columnsMachine.ts";
 export type {
+  InstallmentDialogForm,
   InstallmentDialogIntents,
   InstallmentDialogState,
 } from "./machines/installmentDialogMachine.ts";
@@ -63,6 +64,7 @@ export {
 export type {
   BudgetInstallmentsForm,
   BudgetInstallmentsSummary,
+  ReviewRow,
 } from "./machines/wizards/budgetInstallmentsWizard.ts";
 export type {
   CollectionForm,

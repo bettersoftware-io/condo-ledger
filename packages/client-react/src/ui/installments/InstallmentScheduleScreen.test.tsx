@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { mountJournalScreen } from "../journal/JournalScreen.page.tsx";
 import { mountInstallmentSchedule } from "./InstallmentScheduleScreen.page.tsx";
 
 describe("InstallmentScheduleScreen", () => {
@@ -172,6 +173,12 @@ describe("InstallmentScheduleScreen", () => {
 
     await page.toolbar.clickTool("Add installments");
     await page.toolbar.clickMenuItem("Create budget installments");
+
+    expect(page.budgetWizard.title()).toBe(
+      "Create Budget Installments — Step 1: Number and dates",
+    );
+
+    await page.budgetWizard.cancel();
     await page.toolbar.clickTool("Edit installments");
 
     expect(page.toolbar.menuItems()).toHaveLength(12);
@@ -179,7 +186,63 @@ describe("InstallmentScheduleScreen", () => {
     await page.toolbar.clickMenuItem('Edit "Rata 1"');
 
     expect(page.toolbar.menuItems()).toEqual([]);
+    expect(page.installmentDialog.title()).toBe("Edit Installment");
+    expect(page.installmentDialog.fieldValue("Name")).toBe("Rata 1");
     expect(page.toasts()).toEqual([]);
+  });
+
+  it("offers no edit on a cell of p1's locked installment, and its tooltip says why", () => {
+    const page = mountInstallmentSchedule("p1");
+    const cell = page.grid.cell(page.labelOfResident("r1"), "1 🔒 15/03/2011");
+
+    expect(cell.isEditable()).toBe(false);
+    expect(cell.title()).toBe("This installment is locked: unlock it first.");
+  });
+
+  it("an installment a collection pays is not deleted until the collection is (Review Focus 2)", async () => {
+    const journal = mountJournalScreen({ legacyPeriod: "p36" });
+    const record = await journal.openWizard("Record collection");
+    const name = record.owners()[0]?.[0] ?? "";
+
+    await record.pickOwner(0);
+    await record.next();
+
+    expect(record.fieldValue("Amount collected")).toBe("539.92");
+
+    await record.next();
+    await record.save();
+
+    const collection = `Collection of installments from ${name}: Rata 9 (20/09/2013), Rata 10 (20/10/2013), Rata 11 (20/11/2013), Rata 12 (20/12/2013)`;
+    const schedule = await journal.openSchedule();
+
+    await schedule.toolbar.clickTool("Delete installments");
+    await schedule.toolbar.clickMenuItem('Delete "Rata 12"');
+    await schedule.confirmYes();
+
+    expect(schedule.confirmError()).toBe(
+      "A collection has paid part of this installment: delete that collection first.",
+    );
+
+    await schedule.confirmNo();
+
+    expect(schedule.grid.headers()).toContain("12 20/12/2013");
+
+    await schedule.openJournal();
+    await journal.search(name);
+    await journal.clickRow(collection);
+    await journal.clickTool("Delete entry");
+    await journal.confirmYes();
+
+    expect(journal.entryLabels()).not.toContain(collection);
+
+    await journal.openSchedule();
+    await schedule.toolbar.clickTool("Delete installments");
+    await schedule.toolbar.clickMenuItem('Delete "Rata 12"');
+    await schedule.confirmYes();
+
+    expect(schedule.confirmOpen()).toBe(false);
+    expect(schedule.grid.headers()).not.toContain("12 20/12/2013");
+    expect(schedule.grid.headers()).toContain("11 20/11/2013");
   });
 
   it("collapses a unit through its caret, and every node through the toolbar", async () => {

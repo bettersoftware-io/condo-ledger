@@ -38,4 +38,12 @@ describe("DateField", () => {
 
     expect(page.isRequired()).toBe(true);
   });
+
+  it("is disabled when it says so", () => {
+    expect(mountDateField({ disabled: true }).isDisabled()).toBe(true);
+  });
+
+  it("is enabled by default", () => {
+    expect(mountDateField({}).isDisabled()).toBe(false);
+  });
 });

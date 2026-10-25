@@ -54,7 +54,7 @@ describe("the Create budget installments wizard", () => {
       },
       stepVerdict: { ok: false, reason: "invalid-due-date" },
       verdict: { ok: false, reason: "invalid-due-date" },
-      summary: { dueDates: [], review: [], total: 0 },
+      summary: { firstDue: null, dueDates: [], review: [], total: 0 },
       touched: false,
       saving: false,
     });
@@ -66,13 +66,13 @@ describe("the Create budget installments wizard", () => {
       harness.app.machines.createBudgetInstallmentsWizard(),
     );
 
-    expect(stepReasonAfter(machine, { firstDue: "2014-03-31" })).toBe(
+    expect(stepReasonAfter(machine, { firstDue: "31/03/2014" })).toBe(
       "no-budget-allocation",
     );
 
     const without = track(createBudgetInstallmentsWizard(null, neverWrite));
 
-    expect(stepReasonAfter(without, { firstDue: "2014-03-31" })).toBe(
+    expect(stepReasonAfter(without, { firstDue: "31/03/2014" })).toBe(
       "no-budget-allocation",
     );
   });
@@ -90,7 +90,7 @@ describe("the Create budget installments wizard", () => {
     (count, reason) => {
       const { machine } = createWizard();
 
-      machine.intents.edit({ firstDue: "2015-03-31" });
+      machine.intents.edit({ firstDue: "31/03/2015" });
 
       expect(stepReasonAfter(machine, { count })).toBe(reason);
     },
@@ -108,7 +108,7 @@ describe("the Create budget installments wizard", () => {
     (months, reason) => {
       const { machine } = createWizard();
 
-      machine.intents.edit({ firstDue: "2015-03-31" });
+      machine.intents.edit({ firstDue: "31/03/2015" });
 
       expect(stepReasonAfter(machine, { months })).toBe(reason);
     },
@@ -116,9 +116,10 @@ describe("the Create budget installments wizard", () => {
 
   it.each([
     ["", "invalid-due-date"],
-    ["2015-02-30", "invalid-due-date"],
-    ["31/03/2015", "invalid-due-date"],
-    ["2016-02-29", null],
+    ["30/02/2015", "invalid-due-date"],
+    ["2015-03-31", "invalid-due-date"],
+    ["31/03/2015", null],
+    ["29/02/2016", null],
   ])("step 1 answers the first due date %j with %s", (firstDue, reason) => {
     const { machine } = createWizard();
 
@@ -143,7 +144,7 @@ describe("the Create budget installments wizard", () => {
     machine.intents.next();
     expect(machine.state$.getValue().step).toBe(1);
 
-    machine.intents.edit({ firstDue: "2015-03-31" });
+    machine.intents.edit({ firstDue: "31/03/2015" });
     machine.intents.next();
     expect(machine.state$.getValue().step).toBe(2);
 
@@ -203,7 +204,7 @@ describe("the Create budget installments wizard", () => {
     machine.intents.edit({ count: "" });
     expect(machine.state$.getValue().form.rows).toEqual(typed);
 
-    machine.intents.edit({ count: "3", firstDue: "2015-03-31" });
+    machine.intents.edit({ count: "3", firstDue: "31/03/2015" });
     expect(machine.state$.getValue().form.rows).toEqual(typed);
   });
 
@@ -218,7 +219,7 @@ describe("the Create budget installments wizard", () => {
       }),
     );
 
-    machine.intents.edit({ firstDue: "2015-03-31" });
+    machine.intents.edit({ firstDue: "31/03/2015" });
     machine.intents.edit({
       rows: [
         createRow("Installment 1", "50"),
@@ -257,7 +258,7 @@ describe("the Create budget installments wizard", () => {
   it("derives the due dates from the first, months apart, the day clamped to the month's last", () => {
     const { machine } = createWizard();
 
-    machine.intents.edit({ firstDue: "2015-01-31", months: "1" });
+    machine.intents.edit({ firstDue: "31/01/2015", months: "1" });
 
     expect(machine.state$.getValue().summary.dueDates).toEqual([
       "2015-01-31",
@@ -269,10 +270,28 @@ describe("the Create budget installments wizard", () => {
     expect(machine.state$.getValue().summary.dueDates).toEqual([]);
   });
 
+  it("reads a first due date typed without a year in the period's year, and says the date it read", () => {
+    const { machine } = createWizard();
+
+    machine.intents.edit({ firstDue: "31/1" });
+
+    expect(machine.state$.getValue().summary).toMatchObject({
+      firstDue: "2015-01-31",
+      dueDates: ["2015-01-31", "2015-05-31", "2015-09-30"],
+    });
+
+    machine.intents.edit({ firstDue: "31/1/20" });
+
+    expect(machine.state$.getValue().summary).toMatchObject({
+      firstDue: null,
+      dueDates: [],
+    });
+  });
+
   it("step 2 is percentages-not-100 until the percentages add up to 100", () => {
     const { machine } = createWizard();
 
-    machine.intents.edit({ firstDue: "2015-03-31" });
+    machine.intents.edit({ firstDue: "31/03/2015" });
     machine.intents.next();
 
     expect(
@@ -305,7 +324,7 @@ describe("the Create budget installments wizard", () => {
   it("step 2 is name-taken for a name the period holds or the batch repeats, and blank-name for a blank one", () => {
     const { machine } = createWizard();
 
-    machine.intents.edit({ firstDue: "2015-03-31" });
+    machine.intents.edit({ firstDue: "31/03/2015" });
     machine.intents.next();
 
     expect(
@@ -332,7 +351,7 @@ describe("the Create budget installments wizard", () => {
       harness.app.machines.createBudgetInstallmentsWizard(),
     );
 
-    saturno.intents.edit({ firstDue: "2011-12-15" });
+    saturno.intents.edit({ firstDue: "15/12/2011" });
     saturno.intents.next();
     expect(
       stepReasonAfter(saturno, {
@@ -354,7 +373,7 @@ describe("the Create budget installments wizard", () => {
   ])("step 2 answers a percentage %j with %s", (percentage, reason) => {
     const { machine } = createWizard();
 
-    machine.intents.edit({ firstDue: "2015-03-31" });
+    machine.intents.edit({ firstDue: "31/03/2015" });
     machine.intents.next();
 
     expect(
@@ -381,7 +400,7 @@ describe("the Create budget installments wizard", () => {
 
     machine.intents.edit({
       count: "4",
-      firstDue: "2015-03-31",
+      firstDue: "31/03/2015",
       months: "1",
       wholeEuros: true,
     });
@@ -418,7 +437,7 @@ describe("the Create budget installments wizard", () => {
       harness.app.machines.createBudgetInstallmentsWizard(),
     );
 
-    machine.intents.edit({ count: "2", firstDue: "2015-03-31", months: "1" });
+    machine.intents.edit({ count: "2", firstDue: "31/03/2015", months: "1" });
     machine.intents.next();
     machine.intents.next();
 
@@ -426,6 +445,7 @@ describe("the Create budget installments wizard", () => {
 
     expect(state.step).toBe(3);
     expect(state.summary).toEqual({
+      firstDue: "2015-03-31",
       dueDates: ["2015-03-31", "2015-04-30"],
       review: [
         createReview("r31", "A01 Verdi Luca", 60000, 5000, [35000, 30000]),
@@ -458,7 +478,7 @@ describe("the Create budget installments wizard", () => {
 
       machine.intents.edit({
         count,
-        firstDue: "2014-01-31",
+        firstDue: "31/01/2014",
         months: "1",
         wholeEuros,
       });
@@ -489,7 +509,7 @@ describe("the Create budget installments wizard", () => {
       harness.app.machines.createBudgetInstallmentsWizard(),
     );
 
-    machine.intents.edit({ count: "2", firstDue: "2014-01-31", months: "1" });
+    machine.intents.edit({ count: "2", firstDue: "31/01/2014", months: "1" });
 
     const review = machine.state$.getValue().summary.review;
     const r170 = must(
@@ -530,7 +550,7 @@ describe("the Create budget installments wizard", () => {
     });
     expect(writes).toBe(0);
 
-    machine.intents.edit({ firstDue: "2015-03-31" });
+    machine.intents.edit({ firstDue: "31/03/2015" });
 
     const first = machine.intents.save();
 
@@ -552,7 +572,7 @@ describe("the Create budget installments wizard", () => {
       harness.app.machines.createBudgetInstallmentsWizard(),
     );
 
-    machine.intents.edit({ count: "2", firstDue: "2015-03-31", months: "1" });
+    machine.intents.edit({ count: "2", firstDue: "31/03/2015", months: "1" });
     expect(machine.state$.getValue().verdict).toEqual({ ok: true });
 
     await harness.ports.installments.createInstallments("p3", {
@@ -568,7 +588,7 @@ describe("the Create budget installments wizard", () => {
     });
     expect(machine.state$.getValue()).toMatchObject({
       verdict: { ok: false, reason: "name-taken" },
-      form: { count: "2", firstDue: "2015-03-31" },
+      form: { count: "2", firstDue: "31/03/2015" },
     });
   });
 
@@ -582,7 +602,7 @@ describe("the Create budget installments wizard", () => {
       }),
     );
 
-    machine.intents.edit({ firstDue: "2015-03-31" });
+    machine.intents.edit({ firstDue: "31/03/2015" });
 
     await expect(machine.intents.save()).resolves.toEqual({
       ok: false,
@@ -590,6 +610,7 @@ describe("the Create budget installments wizard", () => {
     });
     expect(writes).toBe(0);
     expect(machine.state$.getValue().summary).toEqual({
+      firstDue: "2015-03-31",
       dueDates: ["2015-03-31", "2015-07-31", "2015-11-30"],
       review: [],
       total: 0,

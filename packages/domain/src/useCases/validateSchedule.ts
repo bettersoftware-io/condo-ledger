@@ -177,7 +177,7 @@ export function validateItemAmount(
 }
 
 /** "YYYY-MM-DD" naming a day that exists: not 2011-02-30, not 2011-13-01. */
-export function isCalendarDate(text: string): boolean {
+function isCalendarDate(text: string): boolean {
   const time = Date.parse(`${text}T00:00:00Z`);
 
   return (

@@ -25,6 +25,10 @@ import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 import { createViewModel, ViewModelProvider } from "@cl/react-bindings";
 
 import { accountsScreenIn } from "../accounts/AccountsScreen.page.tsx";
+import {
+  type InstallmentScheduleScreenPage,
+  installmentScheduleIn,
+} from "../installments/InstallmentScheduleScreen.page.tsx";
 import { AppRoot } from "../shell/AppRoot.tsx";
 import { TESTIDS } from "../testids.ts";
 import { JournalWizard } from "./JournalWizard.tsx";
@@ -106,6 +110,8 @@ export interface JournalScreenPage {
   rowChoiceLabel: (accountId: string, partyId: string) => string;
   /** Switches to Accounts through the sidebar, opens the rows of the path and selects its last, and reads the Ledger tab's lines. */
   ledgerOf: (path: string[]) => Promise<string[][]>;
+  /** Switches to the Installment Schedule through the sidebar. */
+  openSchedule: () => Promise<InstallmentScheduleScreenPage>;
 }
 
 /** What the books hold besides the small books' nine entries. */
@@ -498,6 +504,15 @@ export function mountJournalScreen(
       }
 
       return accounts.ledgerRows();
+    },
+    openSchedule: async (): Promise<InstallmentScheduleScreenPage> => {
+      await user.click(
+        within(rendered.getByTestId(TESTIDS.sidebar)).getByRole("button", {
+          name: "Installment Schedule",
+        }),
+      );
+
+      return installmentScheduleIn({ rendered, user, app });
     },
   };
 }

@@ -273,7 +273,7 @@ function restrictionText(restriction: Restriction | null): string {
   return `${formatDate(from)} - ${to === null ? "end of FY" : formatDate(to)}`;
 }
 
-/* v8 ignore next 3 -- only a real installments store can fail to answer; the simulator always does */
+/* v8 ignore next 3 -- the simulator rejects only an item it does not hold, and the grid edits only the items it shows: only a real store fails otherwise */
 function reportUnsaved(error: unknown): void {
   console.error("the amount was not saved", error);
 }
