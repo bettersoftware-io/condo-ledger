@@ -1,7 +1,12 @@
+import { state } from "@rx-state/core";
+import { BehaviorSubject } from "rxjs";
 import { describe, expect, it } from "vitest";
 
 import {
+  type Building,
+  type ClockPort,
   cents,
+  fixedClock,
   type LegacySeed,
   loadLegacySeed,
   type Schedule,
@@ -9,6 +14,8 @@ import {
 import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
 
 import { createAppHarness } from "../testing/appHarness.ts";
+import type { Books } from "./booksPresenter.ts";
+import { createInstallmentSchedulePresenter } from "./installmentSchedulePresenter.ts";
 
 describe("the installment schedule presenter", () => {
   it("carries p36's root totals, labelled with the building and period", () => {
@@ -20,7 +27,7 @@ describe("the installment schedule presenter", () => {
     expect(root?.totalInstallments).toBe(3359188);
     expect(root?.paid).toBe(2182598);
     expect(root?.balance).toBe(1176590);
-    expect(root?.label).toMatch(/\S+ \S+/);
+    expect(root?.label).toBe(labelOfPeriod(seedOf(), "p36"));
 
     stop();
   });
@@ -79,23 +86,94 @@ describe("the installment schedule presenter", () => {
     stop();
   });
 
-  it("cannot judge a cell before a period's books are there", () => {
-    const { app } = createAppHarness(createSeedWithoutBuildings());
+  it("renames an installment, seen in the next schedule", async () => {
+    const { app, latest, stop } = createScheduled();
+    const id = installmentOf(latest(), unpaidItem(latest()));
 
-    expect(() => {
-      return app.presenters.schedule.cellEditable("ii789");
-    }).toThrow("missing: the selected period's books");
+    expect(
+      await app.presenters.schedule.updateInstallment(id, { name: "Renamed" }),
+    ).toEqual({ ok: true });
+    expect(
+      latest()?.installments.find((installment) => {
+        return installment.id === id;
+      })?.name,
+    ).toBe("Renamed");
+
+    stop();
+  });
+
+  it("shows Overdue by the application's clock: nothing before the due dates, the balance after", () => {
+    const early = createScheduled(fixedClock("2012-12-01T10:00:00Z"));
+    const late = createScheduled();
+
+    expect(early.latest()?.root.overdue).toBe(0);
+    expect(late.latest()?.root.overdue).toBe(1176590);
+
+    early.stop();
+    late.stop();
+  });
+
+  it("survives a tree without the selected period, and recovers when it is back", () => {
+    const { app, ports, stop } = createScheduled();
+    const books = app.presenters.books.books$.getValue();
+    const tree = app.presenters.buildings.tree$.getValue();
+    const books$ = new BehaviorSubject<Books | null>(books);
+    const tree$ = new BehaviorSubject<Building[]>(tree);
+    const presenter = createInstallmentSchedulePresenter(
+      state(books$, null),
+      tree$,
+      ports.installments,
+      fixedClock("2026-10-14T08:00:00Z"),
+    );
+    const errors: unknown[] = [];
+    const subscription = presenter.schedule$.subscribe({
+      error: (error: unknown) => {
+        errors.push(error);
+      },
+    });
+
+    tree$.next([]);
+
+    expect(errors).toEqual([]);
+    expect(presenter.schedule$.getValue()).toBeNull();
+
+    tree$.next(tree);
+
+    expect(errors).toEqual([]);
+    expect(presenter.schedule$.getValue()?.root.budget).toBe(3800000);
+
+    subscription.unsubscribe();
+    stop();
+  });
+
+  it("answers a refusal, not an error, for a cell it cannot judge", () => {
+    const empty = createAppHarness(createSeedWithoutBuildings());
+    const { app, stop } = createScheduled();
+
+    expect(empty.app.presenters.schedule.cellEditable("ii789")).toEqual({
+      ok: false,
+      reason: "no-books",
+    });
+    expect(app.presenters.schedule.cellEditable("ii-gone")).toEqual({
+      ok: false,
+      reason: "unknown-item",
+    });
+
+    stop();
   });
 
   it("holds nothing before a period is chosen with books", () => {
     const { app } = createAppHarness(createSeedWithoutBuildings());
+    const subscription = app.presenters.schedule.schedule$.subscribe();
 
     expect(app.presenters.schedule.schedule$.getValue()).toBeNull();
+
+    subscription.unsubscribe();
   });
 });
 
-function createScheduled(): Scheduled {
-  const { app } = createAppHarness();
+function createScheduled(clock?: ClockPort): Scheduled {
+  const { app, ports } = createAppHarness(seedOf(), clock);
   let current: Schedule | null = null;
   const subscriptions = [
     app.presenters.schedule.schedule$.subscribe((next) => {
@@ -107,6 +185,7 @@ function createScheduled(): Scheduled {
 
   return {
     app,
+    ports,
     latest: (): Schedule | null => {
       return current;
     },
@@ -119,6 +198,7 @@ function createScheduled(): Scheduled {
 }
 
 interface Scheduled {
+  ports: ReturnType<typeof createAppHarness>["ports"];
   app: ReturnType<typeof createAppHarness>["app"];
   latest: () => Schedule | null;
   stop: () => void;
@@ -198,4 +278,20 @@ function unpaidItem(schedule: Schedule | null): string {
 
 function createSeedWithoutBuildings(): LegacySeed {
   return { ...loadLegacySeed(legacySeedData), buildings: [] };
+}
+
+function seedOf(): LegacySeed {
+  return loadLegacySeed(legacySeedData);
+}
+
+function labelOfPeriod(seed: LegacySeed, periodId: string): string {
+  for (const building of seed.buildings) {
+    for (const period of building.periods) {
+      if (period.id === periodId) {
+        return `${building.name} ${period.name}`;
+      }
+    }
+  }
+
+  throw new Error(`missing: the period ${periodId}`);
 }

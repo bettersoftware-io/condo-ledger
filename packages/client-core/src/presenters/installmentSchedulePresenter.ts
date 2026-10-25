@@ -9,12 +9,12 @@ import {
   type InstallmentPatch,
   type InstallmentsPort,
   type Result,
+  rejected,
   type Schedule,
   type ScheduleContext,
   scheduleOf,
   validateItemAmount,
 } from "@cl/domain";
-import { must } from "@cl/domain/support/must.ts";
 
 import { todayOf } from "../today.ts";
 import type { Books } from "./booksPresenter.ts";
@@ -44,11 +44,16 @@ export function createInstallmentSchedulePresenter(
     schedule$: state(
       combineLatest([books$, tree$]).pipe(
         map(([books, tree]) => {
-          return books === null
+          // books$ derives from tree$, so for a moment the tree can lack the
+          // books' period: no schedule then, as books$ is about to say.
+          const periodLabel =
+            books === null ? null : labelOf(tree, books.periodId);
+
+          return books === null || periodLabel === null
             ? null
             : scheduleOf(
                 {
-                  periodLabel: labelOf(tree, books.periodId),
+                  periodLabel,
                   period: books.period,
                   accounts: books.accounts,
                   parties: books.parties,
@@ -63,15 +68,18 @@ export function createInstallmentSchedulePresenter(
       null,
     ),
     cellEditable: (itemId: string): Result => {
-      const books = must(books$.getValue(), "the selected period's books");
-      const item = must(
-        books.installmentItems.find((candidate) => {
-          return candidate.id === itemId;
-        }),
-        `the installment item ${itemId}`,
-      );
+      const books = books$.getValue();
+      const item = books?.installmentItems.find((candidate) => {
+        return candidate.id === itemId;
+      });
 
-      return validateItemAmount(contextOf(books), itemId, item.amount);
+      if (books === null) {
+        return rejected("no-books");
+      }
+
+      return item === undefined
+        ? rejected("unknown-item")
+        : validateItemAmount(contextOf(books), itemId, item.amount);
     },
     updateInstallment: (
       id: string,
@@ -97,23 +105,15 @@ function contextOf(books: Books): ScheduleContext {
   };
 }
 
-/** "{building} {period}" of the period; errors for one the tree does not hold, as the books come from the tree. */
-function labelOf(tree: Building[], periodId: string): string {
-  const building = must(
-    tree.find((candidate) => {
-      return candidate.periods.some((period) => {
-        return period.id === periodId;
-      });
-    }),
-    `the building of the period ${periodId}`,
-  );
+/** "{building} {period}" of the period; null when the tree does not hold it. */
+function labelOf(tree: Building[], periodId: string): string | null {
+  for (const building of tree) {
+    for (const period of building.periods) {
+      if (period.id === periodId) {
+        return `${building.name} ${period.name}`;
+      }
+    }
+  }
 
-  const period = must(
-    building.periods.find((candidate) => {
-      return candidate.id === periodId;
-    }),
-    `the period ${periodId}`,
-  );
-
-  return `${building.name} ${period.name}`;
+  return null;
 }
