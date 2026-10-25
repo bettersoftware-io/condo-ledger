@@ -172,7 +172,7 @@
       "packages/client-react/tests/visual/host/address.ts": "162aada43743f41da1937c9cea415188366b9e9d59847742622013b7eb4e452b",
       "packages/client-react/tests/visual/host/fonts.ts": "a23ca10478425f4a5d67e7260296eb8172fea84bfdacba97d8c4c7111b0729c8",
       "packages/client-react/tests/visual/host/index.html": "05d2386ef0a3b73da06339dceeb191726c8e03c1db87d0c4dab0680c35e1ba23",
-      "packages/client-react/tests/visual/host/main.tsx": "3536a79b93e73a30fa31e6fb8589daf3f54ca59bee48bddb18a4f43186c56983",
+      "packages/client-react/tests/visual/host/main.tsx": "391aae39d37f8053db27ebe23cdc540fbcb0a54ca01ebd94d9d2d84e08b871f4",
       "packages/client-react/tests/visual/host/picture.ts": "8eeca6eabfc8c40d86593d4f14bbbb8a7fa0149c79c80cf232793d73f2084cf2",
       "packages/client-react/tests/visual/host/render.tsx": "9a88f919da3654ba8315eab01bd16ce22c5d292e0884b833c413792928cc22b9",
       "packages/client-react/tests/visual/host/seeded.ts": "df364adec9724beb413fd17bdac97be6548647377e7c7a254745e82a695165b3",
@@ -184,13 +184,13 @@
       "packages/client-react/tests/visual/visual.pw.ts": "ea5695b89ded18b2784d0be46e7f920d5a6ffaa14fc6554f2ff76a99479d3c30",
       "tools/templates/visual.packages__client-react__tests__visual__framing.ts.txt": "1f502feec84cb6930ea9aa6fc3d223bcc707f1f8fed1472d8813772721f34633",
       "tools/templates/visual.packages__client-react__tests__visual__registry.tsx.txt": "3b821390393f3dfb0e743d2ca8094b7bdbd23f11778e0ad080df40c3c22bd15d",
-      "tools/templates/visual.packages__client-react__tests__visual__scenarios.ts.txt": "23961fa7400576dfa4e9180d460732127e0314273c999dfe3ae91be819cd2a80",
+      "tools/templates/visual.packages__client-react__tests__visual__scenarios.ts.txt": "447fb0344d88824cae17b3fb0c2296272c7e81311754a34049f5bd2368f8d235",
       "tools/templates/visual.packages__client-react__tests__visual__seeding.ts.txt": "4beb434faaab047ecb292fe1215a4c790ca4299e161216871ef8d03e3e07bcd4",
-      "tools/templates/visual.packages__client-react__tests__visual__tolerance.ts.txt": "d55451c163a99226d10298c2f68367548e9c6fc5258898a09c01885840c10165",
+      "tools/templates/visual.packages__client-react__tests__visual__tolerance.ts.txt": "223205dbffd058b103c022cb3c4c6de61afe1713ce83c991bcb9fbcbd0003000",
       "tools/visual/check-server.mts": "2a25c00126f585a889d409128404cc201a158d68b192676117ff1dbb0f580325",
       "tools/visual/check-styles.mts": "109a6361a68b81c2f3357bc819aa0f66b88ab10018c8512458c9a3cb2b522b98",
-      "tools/visual/coverage.mts": "65d8dd62d0b8a721c8be6ed376b4f791853b41c44464ec6c1f1df28e4dc652f7",
-      "tools/visual/jitter.mts": "452f97b752668c6c14e880ddd60184e281a7ca304be56f8e61f76458e5edf635",
+      "tools/visual/coverage.mts": "9c9a84a4eb6b0857fceb004a77838cc1b9b77b0fbf4d82bbed48539ecdccd2e4",
+      "tools/visual/jitter.mts": "2aa62c8f3755b17b75950a61a4455c0999e6b82d4ba2b25bc28c36ddee8880f1",
       "tools/visual/lib/arguments.mts": "1a3e3948e4d6b083b655947a3012a1cfccdf185c93b2b68900fe5f32f9d4b469",
       "tools/visual/lib/measure.mts": "595396ca9015b638bec3df5aedea2a3c675e582958d940aa7e2d49cdee2b7586",
       "tools/visual/lib/pixelDiff.mts": "c89304955093781f6c9ccdc0647465d791487ad4b37893efc02300834591ea2b",
@@ -205,6 +205,7 @@
       "packages/client-react/tests/visual/goldens/darwin-arm64/price-list-empty.png",
       "packages/client-react/tests/visual/goldens/darwin-arm64/price-list-moving.png",
       "packages/client-react/tests/visual/goldens/darwin-arm64/price-list-selected.png",
+      "packages/client-react/tests/visual/goldens/darwin-arm64/price-list-stale.png",
       "packages/client-react/tests/visual/goldens/darwin-arm64/price-row-down.png",
       "packages/client-react/tests/visual/goldens/darwin-arm64/price-row-flat.png",
       "packages/client-react/tests/visual/goldens/darwin-arm64/price-row-selected.png",
@@ -214,6 +215,7 @@
       "packages/client-react/tests/visual/goldens/linux-x64/price-list-empty.png",
       "packages/client-react/tests/visual/goldens/linux-x64/price-list-moving.png",
       "packages/client-react/tests/visual/goldens/linux-x64/price-list-selected.png",
+      "packages/client-react/tests/visual/goldens/linux-x64/price-list-stale.png",
       "packages/client-react/tests/visual/goldens/linux-x64/price-row-down.png",
       "packages/client-react/tests/visual/goldens/linux-x64/price-row-flat.png",
       "packages/client-react/tests/visual/goldens/linux-x64/price-row-selected.png",
@@ -225,7 +227,8 @@
       "packages/client-react/tests/visual/tolerance.ts"
     ],
     "releasesSeen": [
-      "0.19.0"
+      "0.19.0",
+      "0.20.0"
     ]
   },
   "agent-workflow": {
