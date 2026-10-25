@@ -10,13 +10,17 @@ import { MultiCostPaymentWizard } from "./wizards/MultiCostPaymentWizard.tsx";
 import { OpeningBalancesWizard } from "./wizards/OpeningBalancesWizard.tsx";
 import type { WizardProps } from "./wizards/WizardDialog.tsx";
 
-/** The wizard the dialog machine names, on the entry it edits. Each mounts its own machine, so a wizard opened again starts clean. */
+/** The wizard the dialog machine names, on the entry it edits. Each mounts its own machine, so a wizard opened again starts clean. The collection wizard has no screen yet: it shows nothing. */
 export function JournalWizard({
   wizard,
   editing,
   onSaved,
   onCancel,
-}: JournalWizardProps): ReactElement {
+}: JournalWizardProps): ReactElement | null {
+  if (wizard === "collection") {
+    return null;
+  }
+
   switch (wizard) {
     case "invoice":
       return (

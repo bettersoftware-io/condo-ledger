@@ -67,6 +67,11 @@ import {
   type SplitState,
 } from "./machines/splitMachine.ts";
 import {
+  type CollectionForm,
+  type CollectionSummary,
+  createCollectionWizard,
+} from "./machines/wizards/collectionWizard.ts";
+import {
   createDirectPaymentWizard,
   type DirectPaymentForm,
   type DirectPaymentKind,
@@ -191,6 +196,10 @@ interface AppMachines {
   createOpeningBalancesWizard: (
     editing: string | null,
   ) => WizardMachine<OpeningForm, OpeningSummary>;
+  /** The Record owner collection wizard, its prefilled amount due by the application's clock; `editing` names a collection to rewrite, from step 2. */
+  createCollectionWizard: (
+    editing: string | null,
+  ) => WizardMachine<CollectionForm, CollectionSummary>;
 }
 
 /** The application, built once at startup. Presenters, the navigation and
@@ -366,6 +375,21 @@ export function createApp(ports: AppPorts): App {
         const entry = editedEntry(editing);
 
         return createOpeningBalancesWizard(latestBooks, writeOf(entry), entry);
+      },
+      createCollectionWizard: (
+        editing: string | null,
+      ): WizardMachine<CollectionForm, CollectionSummary> => {
+        const entry = editedEntry(editing);
+
+        return createCollectionWizard(
+          latestBooks,
+          ports.clock,
+          writeOf(entry),
+          entry,
+          (): Books | null => {
+            return latestBooks;
+          },
+        );
       },
     },
   };

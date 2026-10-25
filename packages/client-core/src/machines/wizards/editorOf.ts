@@ -3,6 +3,7 @@ import type { JournalEntry } from "@cl/domain";
 import type { Books } from "#/presenters/booksPresenter.ts";
 
 import type { WizardName } from "../journalDialogMachine.ts";
+import { fitsCollection } from "./collectionWizard.ts";
 import { fitsDirectPayment } from "./directPaymentWizard.ts";
 import { fitsMultiCost } from "./multiCostPaymentWizard.ts";
 import { fitsOpening } from "./openingBalancesWizard.ts";
@@ -12,7 +13,8 @@ import { fitsOpening } from "./openingBalancesWizard.ts";
  * entry whose lines its own wizard cannot write (a payment credited to another
  * account than its role's, an opening with supplier lines) opens in the
  * generic editor, which keeps its kind. Invoices and their payments always
- * open in their own: a generic draft cannot carry an invoice.
+ * open in their own: a generic draft cannot carry an invoice. Nor can it
+ * carry an installment item: a collection its wizard cannot write has none.
  */
 export function editorOf(entry: JournalEntry, books: Books): WizardName | null {
   switch (entry.kind) {
@@ -30,6 +32,7 @@ export function editorOf(entry: JournalEntry, books: Books): WizardName | null {
     case "openingBalances":
       return fitsOpening(entry, books) ? "openingBalances" : "genericEntry";
     case "collection":
+      return fitsCollection(entry, books) ? "collection" : null;
     case "budgetAllocation":
     case "closingBalances":
     case "individualExpense":

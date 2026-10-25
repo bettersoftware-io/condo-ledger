@@ -139,18 +139,28 @@ describe("the application's journal dialog", () => {
     });
   });
 
+  it("openEdit opens a collection in the collection wizard", () => {
+    const dialog = createAppDialog(createAppHarness());
+
+    dialog.intents.openEdit("tx6");
+
+    expect(dialog.state$.getValue()).toEqual({
+      open: { kind: "wizard", wizard: "collection", editing: "tx6" },
+    });
+  });
+
   it("openEdit leaves the dialog closed for an entry that cannot be edited, or one the period does not hold", () => {
     const harness = createAppHarness();
     const dialog = createAppDialog(harness);
-    const collection = harness.app.presenters.books.books$
+    const allocation = harness.app.presenters.books.books$
       .getValue()
       ?.entries.find((entry) => {
-        return entry.kind === "collection";
+        return entry.kind === "budgetAllocation";
       });
 
-    expect(collection).toBeDefined();
+    expect(allocation).toBeDefined();
 
-    dialog.intents.openEdit(collection?.id ?? "a collection");
+    dialog.intents.openEdit(allocation?.id ?? "an allocation");
     dialog.intents.openEdit("tx100");
     dialog.intents.openEdit("nowhere");
 

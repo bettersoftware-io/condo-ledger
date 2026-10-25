@@ -28,6 +28,8 @@ export {
 export * from "./support/romeTime.ts";
 export * from "./useCases/accountTree.ts";
 export * from "./useCases/allocate.ts";
+export * from "./useCases/collection.ts";
+export * from "./useCases/installments.ts";
 export * from "./useCases/invoice.ts";
 export * from "./useCases/journal.ts";
 export * from "./useCases/ledger.ts";

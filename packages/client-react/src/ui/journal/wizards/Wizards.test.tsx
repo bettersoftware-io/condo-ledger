@@ -1045,14 +1045,27 @@ describe("the Opening balances wizard", () => {
   });
 });
 
+describe("the Record owner collection wizard", () => {
+  it("has no screen yet: nothing is drawn", () => {
+    const wizard = mountJournalWizard({ wizard: "collection", editing: null });
+
+    expect(wizard.isShown()).toBe(false);
+  });
+});
+
 const UNBALANCED =
   "The entry must balance — the transaction balance must be 0 and a description is required.";
 
 const CASSA = "Patrimonial › (Assets) › Liquidità › Cassa";
+
 const BANCA = "Patrimonial › (Assets) › Liquidità › Banca";
+
 const FONDI = "Patrimonial › (Liabilities) › Fondi";
+
 const ROSSI_A01 = "Condòmini › Rossi Mario › A01";
+
 const ROSSI_A02 = "Condòmini › Rossi Mario › A02";
+
 const BIANCHI_B01 = "Condòmini › Bianchi Anna › B01";
 
 function labelOf(row: string[]): string {
