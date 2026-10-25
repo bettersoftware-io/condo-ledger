@@ -441,7 +441,7 @@ describe("JournalScreen", () => {
 
     const wizard = page.wizard();
 
-    expect(wizard.title()).toBe("Edit Add Accounting Entry");
+    expect(wizard.title()).toBe("Edit Accounting Entry");
     expect(wizard.fieldValue("Description")).toBe("Fuori ordine");
 
     await wizard.fill("Description", "Fuori ordine, corretto");

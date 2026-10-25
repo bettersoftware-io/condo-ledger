@@ -39,7 +39,11 @@ export function WizardDialog({
 }: WizardDialogProps): ReactElement {
   const body = useRef<HTMLDivElement>(null);
   const step = state.step;
-  const named = state.editing === null ? name : `Edit ${name}`;
+  // An edit names the entry, not the act of adding one: "Add Accounting
+  // Entry" is edited as "Edit Accounting Entry".
+  const named =
+    state.editing === null ? name : `Edit ${name.replace(/^Add /, "")}`;
+
   const title =
     stepTitle === undefined ? named : `${named} — Step ${step}: ${stepTitle}`;
 
