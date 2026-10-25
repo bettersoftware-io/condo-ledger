@@ -12,7 +12,7 @@ import {
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
-import { amountText, parseAmount } from "#/amounts.ts";
+import type { AmountTexts } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 
 import {
@@ -89,9 +89,11 @@ export interface Debit {
  * account chosen, until the person edits it. Editing an entry, the form is
  * its description, its debit line and that line's amount, and the kind is the
  * entry's own whatever `requested` says: the port refuses a replace that
- * changes it.
+ * changes it. Amounts are read and written through `texts`, in the session's
+ * locale.
  */
 export function createDirectPaymentWizard(
+  texts: AmountTexts,
   requested: DirectPaymentKind,
   books: Books | null,
   write: WriteEntry,
@@ -105,12 +107,12 @@ export function createDirectPaymentWizard(
   const replacing = editing?.id ?? null;
 
   function derived(form: DirectPaymentForm): Derived {
-    return derive(kind, paying, choices, form, replacing);
+    return derive(texts, kind, paying, choices, form, replacing);
   }
 
   const machine = createWizardMachine<DirectPaymentForm, DirectPaymentSummary>(
     {
-      initial: editing === null ? emptyForm(kind) : formOf(editing),
+      initial: editing === null ? emptyForm(kind) : formOf(texts, editing),
       stepCount: 1,
       choices,
       derive: derived,
@@ -123,6 +125,7 @@ export function createDirectPaymentWizard(
       editing: replacing,
     },
     write,
+    texts.changed$,
   );
   // An edited entry's description is the person's already.
   let descriptionEdited = editing !== null;
@@ -223,7 +226,7 @@ function emptyForm(kind: DirectPaymentKind): DirectPaymentForm {
 }
 
 /** The form an entry was written from: its description, and its first debit line with that line's amount. */
-function formOf(entry: JournalEntry): DirectPaymentForm {
+function formOf(texts: AmountTexts, entry: JournalEntry): DirectPaymentForm {
   const debit = must(
     entry.postings.find((posting) => {
       return posting.debit > ZERO_CENTS;
@@ -234,11 +237,12 @@ function formOf(entry: JournalEntry): DirectPaymentForm {
   return {
     description: entry.description,
     targetId: debit.accountId,
-    amount: amountText(debit.debit),
+    amount: texts.text(debit.debit),
   };
 }
 
 function derive(
+  texts: AmountTexts,
   kind: DirectPaymentKind,
   paying: Paying | null,
   choices: WizardChoice[],
@@ -257,7 +261,7 @@ function derive(
     return refused("no-target");
   }
 
-  const amount = parseAmount(form.amount);
+  const amount = texts.parse(form.amount);
 
   if (amount === null) {
     return refused("not-an-amount");

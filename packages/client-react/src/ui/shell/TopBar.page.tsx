@@ -32,6 +32,8 @@ export interface TopBarPage {
   rootTheme: () => string | null;
   hasSidebar: () => boolean;
   placeholderTitle: () => string | null;
+  /** The texts of the chart of accounts' money cells, row by row. */
+  accountAmounts: () => string[];
 }
 
 /**
@@ -138,6 +140,20 @@ export function mountTopBar(): TopBarPage {
     },
     hasSidebar: (): boolean => {
       return rendered.queryByTestId(TESTIDS.sidebar) !== null;
+    },
+    accountAmounts: (): string[] => {
+      const grid =
+        rendered.container.querySelector<HTMLElement>(".accounts-top");
+
+      if (grid === null) {
+        throw new Error("missing: the chart of accounts");
+      }
+
+      return within(grid)
+        .getAllByTestId(TESTIDS.money)
+        .map((cell) => {
+          return cell.textContent ?? "";
+        });
     },
     placeholderTitle: (): string | null => {
       return (

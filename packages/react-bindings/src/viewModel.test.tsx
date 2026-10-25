@@ -87,6 +87,18 @@ describe("the view model", () => {
     });
   });
 
+  it("reads the amounts' locale, which follows the language", async () => {
+    const page = mountUnderProvider(createSmallSeed());
+
+    expect(page.read().amountLocale).toBe("en-US");
+
+    await page.send((seen) => {
+      return seen.session.setLanguage("fr");
+    });
+
+    expect(page.read().amountLocale).toBe("fr-FR");
+  });
+
   it("starts on Total, and a selected account brings its ledger and details", async () => {
     const page = mountUnderProvider(createSmallSeed());
 

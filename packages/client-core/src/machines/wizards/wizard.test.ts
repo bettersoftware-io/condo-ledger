@@ -344,7 +344,7 @@ function createDefinition(
     choices: [{ key: "la21", label: "Ascensore", group: "Spese generali" }],
     derive: deriveAmount,
     summarize: (form: AmountForm): AmountSummary => {
-      return { amount: parseAmount(form.amount) };
+      return { amount: parseAmount(form.amount, "en-US") };
     },
     stepVerdict: (form: AmountForm): Result => {
       return deriveAmount(form).verdict;
@@ -400,7 +400,7 @@ function createNotedWizard(
 
 /** Accepted when the amount reads as more than zero: a generic entry, Ascensore debited and Cassa credited. */
 function deriveAmount(form: AmountForm): Derived {
-  const amount = parseAmount(form.amount);
+  const amount = parseAmount(form.amount, "en-US");
 
   if (amount === null || amount <= 0) {
     return refused("not-an-amount");

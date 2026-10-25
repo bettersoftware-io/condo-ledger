@@ -13,6 +13,7 @@ import {
 import { must } from "@cl/domain/support/must.ts";
 
 import { type AppHarness, createAppHarness } from "#/testing/appHarness.ts";
+import { createAmountTexts } from "#/testing/createAmountTexts.ts";
 import { currentBooks, currentEntry } from "#/testing/harnessBooks.ts";
 
 import {
@@ -409,6 +410,7 @@ describe("the New invoice wizard", () => {
     const harness = createP36Harness();
     const books = currentBooks(harness);
     const machine = createInvoiceWizard(
+      createAmountTexts(),
       {
         ...books,
         parties: [
@@ -520,6 +522,7 @@ describe("the New invoice wizard", () => {
     );
 
     const machine = createInvoiceWizard(
+      createAmountTexts(),
       {
         ...books,
         invoices: [
@@ -700,6 +703,7 @@ describe("the New invoice wizard", () => {
     }
 
     const machine = createInvoiceWizard(
+      createAmountTexts(),
       currentBooks(harness),
       harness.ports.clock,
       write,
@@ -723,6 +727,7 @@ describe("the New invoice wizard", () => {
 
   it("with no books: no choices, no date, and no supplier", () => {
     const machine = createInvoiceWizard(
+      createAmountTexts(),
       null,
       fixedClock("2013-05-10T08:00:00Z"),
       () => {
@@ -871,6 +876,7 @@ describe("editing an invoice", () => {
 
     expect(() => {
       return createInvoiceWizard(
+        createAmountTexts(),
         currentBooks(harness),
         harness.ports.clock,
         () => {

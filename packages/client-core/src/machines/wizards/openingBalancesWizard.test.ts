@@ -17,6 +17,7 @@ import { createSmallBooks } from "@cl/domain/testing/createSmallBooks.ts";
 import { amountText } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 import { type AppHarness, createAppHarness } from "#/testing/appHarness.ts";
+import { createAmountTexts } from "#/testing/createAmountTexts.ts";
 import { createBooks } from "#/testing/createBooks.ts";
 import { currentBooks, currentEntry } from "#/testing/harnessBooks.ts";
 
@@ -501,7 +502,12 @@ function createWizard(books: Books | null): CreatedWizard {
     return Promise.resolve(accepted(SAVED));
   }
 
-  const machine = createOpeningBalancesWizard(books, write, null);
+  const machine = createOpeningBalancesWizard(
+    createAmountTexts(),
+    books,
+    write,
+    null,
+  );
 
   created.push(machine);
 
@@ -568,8 +574,8 @@ function prefilledView(books: Books, owner: OwnerParty): OpeningRowView {
   return {
     key: `la158/${owner.id}`,
     label: [ownersName(books), owner.name, owner.unitCode].join(PATH_SEPARATOR),
-    debit: balance > 0 ? amountText(balance) : "",
-    credit: balance < 0 ? amountText(cents(-balance)) : "",
+    debit: balance > 0 ? amountText(balance, "en-US") : "",
+    credit: balance < 0 ? amountText(cents(-balance), "en-US") : "",
   };
 }
 
@@ -585,8 +591,9 @@ function amountsOf(entry: JournalEntry): Record<string, OpeningAmount> {
       return [
         key,
         {
-          debit: posting.debit === 0 ? "" : amountText(posting.debit),
-          credit: posting.credit === 0 ? "" : amountText(posting.credit),
+          debit: posting.debit === 0 ? "" : amountText(posting.debit, "en-US"),
+          credit:
+            posting.credit === 0 ? "" : amountText(posting.credit, "en-US"),
         },
       ];
     }),

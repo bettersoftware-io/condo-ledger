@@ -6,7 +6,7 @@ import {
   ZERO_CENTS,
 } from "@cl/domain";
 
-import { amountText, parseAmount } from "#/amounts.ts";
+import type { AmountTexts } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 
 import {
@@ -70,9 +70,11 @@ const EMPTY_FORM: MultiCostPaymentForm = {
  * A bank purchase split over several costs: each line's expense leaf debited,
  * the bank credited with the amount paid, which the lines must sum to.
  * Editing an entry, the form is its description, its debit lines and what
- * its credits paid.
+ * its credits paid. Amounts are read and written through `texts`, in the
+ * session's locale.
  */
 export function createMultiCostPaymentWizard(
+  texts: AmountTexts,
   books: Books | null,
   write: WriteEntry,
   editing: JournalEntry | null,
@@ -82,20 +84,20 @@ export function createMultiCostPaymentWizard(
   const replacing = editing?.id ?? null;
 
   function derived(form: MultiCostPaymentForm): Derived {
-    return derive(paying, choices, form, replacing);
+    return derive(texts, paying, choices, form, replacing);
   }
 
   return keepingOneLine(
     createWizardMachine<MultiCostPaymentForm, MultiCostPaymentSummary>(
       {
-        initial: editing === null ? EMPTY_FORM : formOf(editing),
+        initial: editing === null ? EMPTY_FORM : formOf(texts, editing),
         stepCount: 1,
         choices,
         derive: derived,
         summarize: (form: MultiCostPaymentForm): MultiCostPaymentSummary => {
           return {
             paidFrom: paying?.paidFrom.name ?? null,
-            linesTotal: linesTotal(form.lines),
+            linesTotal: linesTotal(texts, form.lines),
           };
         },
         stepVerdict: (form: MultiCostPaymentForm): Result => {
@@ -104,6 +106,7 @@ export function createMultiCostPaymentWizard(
         editing: replacing,
       },
       write,
+      texts.changed$,
     ),
     EMPTY_LINE,
   );
@@ -118,7 +121,7 @@ export function fitsMultiCost(entry: JournalEntry, books: Books): boolean {
 }
 
 /** The form an entry was written from: its description, its credits as the amount paid, a line per debit. */
-function formOf(entry: JournalEntry): MultiCostPaymentForm {
+function formOf(texts: AmountTexts, entry: JournalEntry): MultiCostPaymentForm {
   const lines: CostLine[] = [];
   let paid = ZERO_CENTS;
 
@@ -128,15 +131,16 @@ function formOf(entry: JournalEntry): MultiCostPaymentForm {
     if (posting.debit > ZERO_CENTS) {
       lines.push({
         accountId: posting.accountId,
-        amount: amountText(posting.debit),
+        amount: texts.text(posting.debit),
       });
     }
   }
 
-  return { description: entry.description, amount: amountText(paid), lines };
+  return { description: entry.description, amount: texts.text(paid), lines };
 }
 
 function derive(
+  texts: AmountTexts,
   paying: Paying | null,
   choices: WizardChoice[],
   form: MultiCostPaymentForm,
@@ -151,7 +155,7 @@ function derive(
       choice: choices.find((choice) => {
         return choice.key === line.accountId;
       }),
-      amount: parseAmount(line.amount),
+      amount: texts.parse(line.amount),
     };
   });
 
@@ -164,7 +168,7 @@ function derive(
   }
 
   const costs = read.filter(isCost);
-  const paid = parseAmount(form.amount);
+  const paid = texts.parse(form.amount);
 
   if (paid === null || costs.length < read.length) {
     return refused("not-an-amount");
@@ -192,8 +196,8 @@ function isCost(line: ReadLine): line is Debit {
   return line.choice !== undefined && line.amount !== null;
 }
 
-function linesTotal(lines: CostLine[]): Cents {
+function linesTotal(texts: AmountTexts, lines: CostLine[]): Cents {
   return lines.reduce((total, line) => {
-    return addCents(total, parseAmount(line.amount) ?? ZERO_CENTS);
+    return addCents(total, texts.parse(line.amount) ?? ZERO_CENTS);
   }, ZERO_CENTS);
 }

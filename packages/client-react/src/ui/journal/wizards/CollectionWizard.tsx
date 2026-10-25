@@ -10,6 +10,7 @@ import type {
 import { ZERO_CENTS } from "@cl/domain";
 import { useViewModel } from "@cl/react-bindings";
 
+import { useLocale } from "#/ui/amountLocale.ts";
 import { FormField } from "#/ui/FormField.tsx";
 import { formatCents } from "#/ui/format.ts";
 import { SelectableList } from "#/ui/SelectableList.tsx";
@@ -68,6 +69,7 @@ function CollectionBody({
   onCancel,
 }: CollectionBodyProps): ReactElement {
   const { form, summary } = state;
+  const locale = useLocale();
   const accounts = state.choices.map((choice) => {
     return {
       key: choice.key,
@@ -86,7 +88,7 @@ function CollectionBody({
 
     return reason === "over-owed" ||
       (reason === "over-remaining-item" && aboveOwed)
-      ? `${summary.person ?? "The owner"} owes ${formatCents(summary.owed ?? ZERO_CENTS)} in all.`
+      ? `${summary.person ?? "The owner"} owes ${formatCents(summary.owed ?? ZERO_CENTS, locale)} in all.`
       : reasonText(reason, COLLECTION_REASONS);
   }
 

@@ -1,39 +1,158 @@
+import { BehaviorSubject } from "rxjs";
 import { describe, expect, it } from "vitest";
 
 import { cents } from "@cl/domain";
 
-import { amountText, parseAmount, parseDate } from "./amounts.ts";
+import {
+  AMOUNT_LOCALES,
+  type AmountLocale,
+  amountLocaleOf,
+  amountText,
+  amountTextsIn,
+  parseAmount,
+  parseDate,
+} from "./amounts.ts";
 
 describe("parseAmount", () => {
-  it("reads what formatCents writes, and plain numbers", () => {
-    expect(parseAmount("1,234.56")).toBe(123456);
-    expect(parseAmount("1234.56")).toBe(123456);
-    expect(parseAmount("1234")).toBe(123400);
-    expect(parseAmount(" 12 ")).toBe(1200);
-    expect(parseAmount("-5")).toBe(-500);
+  it("reads en-US amounts, grouped or not, and plain numbers", () => {
+    expect(parseAmount("1,234.56", "en-US")).toBe(123456);
+    expect(parseAmount("1234.56", "en-US")).toBe(123456);
+    expect(parseAmount("1234", "en-US")).toBe(123400);
+    expect(parseAmount(" 12 ", "en-US")).toBe(1200);
+    expect(parseAmount("-5", "en-US")).toBe(-500);
+    expect(parseAmount("0", "en-US")).toBe(0);
+    expect(parseAmount("12,345,678.90", "en-US")).toBe(1234567890);
   });
 
   it("rounds to the nearest cent where the binary fraction falls just short", () => {
-    expect(parseAmount("0.29")).toBe(29);
-    expect(parseAmount("-0.29")).toBe(-29);
+    expect(parseAmount("0.29", "en-US")).toBe(29);
+    expect(parseAmount("-0.29", "en-US")).toBe(-29);
+    expect(parseAmount("0,29", "it-IT")).toBe(29);
   });
 
-  it("answers null for anything else", () => {
-    expect(parseAmount("abc")).toBeNull();
-    expect(parseAmount("1.2.3")).toBeNull();
-    expect(parseAmount("")).toBeNull();
-    expect(parseAmount("1,23")).toBeNull();
+  it("answers null for anything else in en-US", () => {
+    expect(parseAmount("abc", "en-US")).toBeNull();
+    expect(parseAmount("1.2.3", "en-US")).toBeNull();
+    expect(parseAmount("", "en-US")).toBeNull();
+    expect(parseAmount("1,23", "en-US")).toBeNull();
+    expect(parseAmount("1.234,56", "en-US")).toBeNull();
+    expect(parseAmount("1234,56", "en-US")).toBeNull();
   });
+
+  it.each(["it-IT", "de-DE", "es-ES"] as const)(
+    "reads %s with a decimal comma and optional dot groups",
+    (locale) => {
+      expect(parseAmount("1.234,56", locale)).toBe(123456);
+      expect(parseAmount("1234,56", locale)).toBe(123456);
+      expect(parseAmount("12", locale)).toBe(1200);
+      expect(parseAmount("1.234", locale)).toBe(123400);
+      expect(parseAmount("-1.200,5", locale)).toBe(-120050);
+      expect(parseAmount("0,00", locale)).toBe(0);
+      expect(parseAmount("12.345.678,90", locale)).toBe(1234567890);
+    },
+  );
+
+  it.each(["it-IT", "de-DE", "es-ES"] as const)(
+    "refuses in %s a decimal point and misplaced groups",
+    (locale) => {
+      expect(parseAmount("1,234.56", locale)).toBeNull();
+      expect(parseAmount("1234.56", locale)).toBeNull();
+      expect(parseAmount("1.23", locale)).toBeNull();
+      expect(parseAmount("12.34,5", locale)).toBeNull();
+      expect(parseAmount("1,234", locale)).toBeNull();
+      expect(parseAmount("1 234,56", locale)).toBeNull();
+    },
+  );
+
+  it("reads fr-FR with a decimal comma and any of the three spaces as the group", () => {
+    expect(parseAmount("1 234,56", "fr-FR")).toBe(123456);
+    expect(parseAmount("1\u00a0234,56", "fr-FR")).toBe(123456);
+    expect(parseAmount("1\u202f234,56", "fr-FR")).toBe(123456);
+    expect(parseAmount("12\u202f345\u202f678,90", "fr-FR")).toBe(1234567890);
+    expect(parseAmount("1234,56", "fr-FR")).toBe(123456);
+    expect(parseAmount("-7", "fr-FR")).toBe(-700);
+  });
+
+  it("refuses in fr-FR a decimal point, a dot group, and misplaced spaces", () => {
+    expect(parseAmount("1234.56", "fr-FR")).toBeNull();
+    expect(parseAmount("1.234,56", "fr-FR")).toBeNull();
+    expect(parseAmount("12 34,56", "fr-FR")).toBeNull();
+    expect(parseAmount("1  234,56", "fr-FR")).toBeNull();
+  });
+
+  it.each(AMOUNT_LOCALES)(
+    "reads back what Intl shows in %s, with every group",
+    (locale) => {
+      const shown = new Intl.NumberFormat(locale, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        useGrouping: "always",
+      });
+
+      for (const amount of [123456, -120000, 0, 1234567890, -29]) {
+        expect(parseAmount(shown.format(amount / 100), locale)).toBe(amount);
+      }
+    },
+  );
 });
 
 describe("amountText", () => {
-  it("writes cents as a text parseAmount reads back", () => {
-    expect(amountText(cents(2350))).toBe("23.50");
-    expect(amountText(cents(123456))).toBe("1234.56");
-    expect(amountText(cents(5))).toBe("0.05");
-    expect(amountText(cents(0))).toBe("0.00");
-    expect(amountText(cents(-759))).toBe("-7.59");
-    expect(parseAmount(amountText(cents(-123456)))).toBe(-123456);
+  it("writes cents in en-US as a text parseAmount reads back: no groups", () => {
+    expect(amountText(cents(2350), "en-US")).toBe("23.50");
+    expect(amountText(cents(123456), "en-US")).toBe("1234.56");
+    expect(amountText(cents(5), "en-US")).toBe("0.05");
+    expect(amountText(cents(0), "en-US")).toBe("0.00");
+    expect(amountText(cents(-759), "en-US")).toBe("-7.59");
+  });
+
+  it("writes the locale's decimal separator and no groups", () => {
+    expect(amountText(cents(123456), "it-IT")).toBe("1234,56");
+    expect(amountText(cents(-123456789), "de-DE")).toBe("-1234567,89");
+    expect(amountText(cents(5), "fr-FR")).toBe("0,05");
+    expect(amountText(cents(0), "es-ES")).toBe("0,00");
+  });
+
+  it.each(AMOUNT_LOCALES)("is read back by parseAmount in %s", (locale) => {
+    for (const amount of [-123456, 0, 5, 1234567890]) {
+      expect(parseAmount(amountText(cents(amount), locale), locale)).toBe(
+        amount,
+      );
+    }
+  });
+});
+
+describe("amountLocaleOf", () => {
+  it("gives each language its locale", () => {
+    expect(amountLocaleOf("en")).toBe("en-US");
+    expect(amountLocaleOf("it")).toBe("it-IT");
+    expect(amountLocaleOf("fr")).toBe("fr-FR");
+    expect(amountLocaleOf("de")).toBe("de-DE");
+    expect(amountLocaleOf("es")).toBe("es-ES");
+  });
+});
+
+describe("amountTextsIn", () => {
+  it("parses and writes in the locale as it stands, and says when it changes", () => {
+    const locale$ = new BehaviorSubject<AmountLocale>("en-US");
+    const texts = amountTextsIn(locale$);
+    const changes: AmountLocale[] = [];
+    const subscription = texts.changed$.subscribe((locale) => {
+      changes.push(locale);
+    });
+
+    expect(texts.parse("1,234.56")).toBe(123456);
+    expect(texts.text(cents(123456))).toBe("1234.56");
+
+    locale$.next("it-IT");
+
+    expect(texts.parse("1,234.56")).toBeNull();
+    expect(texts.parse("1.234,56")).toBe(123456);
+    expect(texts.text(cents(123456))).toBe("1234,56");
+
+    locale$.next("it-IT");
+
+    expect(changes).toEqual(["it-IT"]);
+    subscription.unsubscribe();
   });
 });
 

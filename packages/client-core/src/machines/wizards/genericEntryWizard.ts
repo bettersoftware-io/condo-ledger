@@ -15,7 +15,7 @@ import {
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
-import { amountText, parseAmount } from "#/amounts.ts";
+import type { AmountTexts } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 
 import { contextOf, rowChoices, rowKeyOf } from "./choices.ts";
@@ -77,9 +77,11 @@ interface Writing {
  * a control account names its party by construction. It writes `kind`: by
  * default generic for a new entry, and an edited entry's own kind (the port
  * refuses a replace that changes it). Editing an entry, the form is its
- * description and its postings, each on the row that owns it.
+ * description and its postings, each on the row that owns it. Amounts are
+ * read and written through `texts`, in the session's locale.
  */
 export function createGenericEntryWizard(
+  texts: AmountTexts,
   books: Books | null,
   write: WriteEntry,
   editing: JournalEntry | null,
@@ -89,7 +91,7 @@ export function createGenericEntryWizard(
   const writing: Writing = { kind, replacing: editing?.id ?? null };
 
   function derived(form: GenericEntryForm): Derived {
-    return derive(books, choices, form, writing);
+    return derive(texts, books, choices, form, writing);
   }
 
   return keepingOneLine(
@@ -98,17 +100,20 @@ export function createGenericEntryWizard(
         initial:
           editing === null
             ? { description: "", lines: [EMPTY_LINE] }
-            : formOf(books, editing),
+            : formOf(texts, books, editing),
         stepCount: 1,
         choices,
         derive: derived,
-        summarize,
+        summarize: (form: GenericEntryForm): GenericEntrySummary => {
+          return summarize(texts, form);
+        },
         stepVerdict: (form: GenericEntryForm): Result => {
           return derived(form).verdict;
         },
         editing: writing.replacing,
       },
       write,
+      texts.changed$,
     ),
     EMPTY_LINE,
   );
@@ -135,25 +140,30 @@ export function postingOf(
 }
 
 /** The form an entry was written from: a line per posting, on the row offered that owns it (none when no row does), a side of zero left blank. */
-function formOf(books: Books | null, entry: JournalEntry): GenericEntryForm {
+function formOf(
+  texts: AmountTexts,
+  books: Books | null,
+  entry: JournalEntry,
+): GenericEntryForm {
   return {
     description: entry.description,
     lines: entry.postings.map((posting): GenericLine => {
       return {
         scopeKey: books === null ? null : rowKeyOf(books, posting),
-        debit: sideText(posting.debit),
-        credit: sideText(posting.credit),
+        debit: sideText(texts, posting.debit),
+        credit: sideText(texts, posting.credit),
       };
     }),
   };
 }
 
 /** A side of a posting as a form holds it: blank for zero. */
-export function sideText(amount: Cents): string {
-  return amount === ZERO_CENTS ? "" : amountText(amount);
+export function sideText(texts: AmountTexts, amount: Cents): string {
+  return amount === ZERO_CENTS ? "" : texts.text(amount);
 }
 
 function derive(
+  texts: AmountTexts,
   books: Books | null,
   choices: WizardChoice[],
   form: GenericEntryForm,
@@ -167,7 +177,7 @@ function derive(
   }
 
   for (const line of form.lines) {
-    const lineRead = readLine(books, choices, line);
+    const lineRead = readLine(texts, books, choices, line);
 
     if (typeof lineRead === "string") {
       return refused(lineReason(form, lineRead));
@@ -201,6 +211,7 @@ function lineReason(form: GenericEntryForm, reason: string): string {
 
 /** The line's row and posting, or why it has none: no row chosen, or a text that does not read. */
 function readLine(
+  texts: AmountTexts,
   books: Books,
   choices: WizardChoice[],
   line: GenericLine,
@@ -213,8 +224,8 @@ function readLine(
     return "no-target";
   }
 
-  const debit = amountOf(line.debit);
-  const credit = amountOf(line.credit);
+  const debit = amountOf(texts, line.debit);
+  const credit = amountOf(texts, line.credit);
 
   if (debit === null || credit === null) {
     return "not-an-amount";
@@ -226,13 +237,16 @@ function readLine(
   };
 }
 
-function summarize(form: GenericEntryForm): GenericEntrySummary {
+function summarize(
+  texts: AmountTexts,
+  form: GenericEntryForm,
+): GenericEntrySummary {
   const balances: Cents[] = [];
   let debit = ZERO_CENTS;
   let credit = ZERO_CENTS;
 
   for (const line of form.lines) {
-    const sides = sidesOf(line);
+    const sides = sidesOf(texts, line);
 
     debit = addCents(debit, sides.debit);
     credit = addCents(credit, sides.credit);
@@ -242,16 +256,16 @@ function summarize(form: GenericEntryForm): GenericEntrySummary {
   return { balances, debit, credit, balance: subtractCents(debit, credit) };
 }
 
-function sidesOf(line: GenericLine): Sides {
+function sidesOf(texts: AmountTexts, line: GenericLine): Sides {
   return {
-    debit: amountOf(line.debit) ?? ZERO_CENTS,
-    credit: amountOf(line.credit) ?? ZERO_CENTS,
+    debit: amountOf(texts, line.debit) ?? ZERO_CENTS,
+    credit: amountOf(texts, line.credit) ?? ZERO_CENTS,
   };
 }
 
 /** A side's text as cents: an empty text is zero, one that does not read is null. */
-function amountOf(text: string): Cents | null {
-  return text.trim() === "" ? ZERO_CENTS : parseAmount(text);
+function amountOf(texts: AmountTexts, text: string): Cents | null {
+  return text.trim() === "" ? ZERO_CENTS : texts.parse(text);
 }
 
 function counterpartOf(scope: PostingScope): Counterpart | null {

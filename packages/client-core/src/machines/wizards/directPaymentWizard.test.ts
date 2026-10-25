@@ -14,6 +14,7 @@ import { createSmallBooks } from "@cl/domain/testing/createSmallBooks.ts";
 
 import type { Books } from "#/presenters/booksPresenter.ts";
 import { type AppHarness, createAppHarness } from "#/testing/appHarness.ts";
+import { createAmountTexts } from "#/testing/createAmountTexts.ts";
 import { createAccountsWithTax, createBooks } from "#/testing/createBooks.ts";
 import { currentBooks, currentEntry } from "#/testing/harnessBooks.ts";
 
@@ -494,7 +495,13 @@ function createWizard(
     return Promise.resolve(accepted({ id: "new1" }));
   }
 
-  const machine = createDirectPaymentWizard(kind, books, addEntry, null);
+  const machine = createDirectPaymentWizard(
+    createAmountTexts(),
+    kind,
+    books,
+    addEntry,
+    null,
+  );
 
   created.push(machine);
 

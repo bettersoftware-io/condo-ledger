@@ -1,5 +1,8 @@
 import { render } from "@testing-library/react";
 
+import { type AmountLocale, DEFAULT_AMOUNT_LOCALE } from "@cl/client-core";
+
+import { AmountLocaleContext } from "./amountLocale.ts";
 import { Money, type MoneyProps } from "./Money.tsx";
 import { TESTIDS } from "./testids.ts";
 
@@ -11,8 +14,16 @@ export interface MoneyPage {
   emphasis: () => string;
 }
 
-export function mountMoney(props: MoneyProps): MoneyPage {
-  const rendered = render(<Money {...props} />);
+/** Mounts a money cell under the amount locale the session would hand down. */
+export function mountMoney(
+  props: MoneyProps,
+  locale: AmountLocale = DEFAULT_AMOUNT_LOCALE,
+): MoneyPage {
+  const rendered = render(
+    <AmountLocaleContext value={locale}>
+      <Money {...props} />
+    </AmountLocaleContext>,
+  );
 
   function cell(): HTMLElement {
     return rendered.getByTestId(TESTIDS.money);

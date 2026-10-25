@@ -50,6 +50,24 @@ describe("the session presenter", () => {
       language: "it",
     });
   });
+
+  it("answers the amounts' locale of the language, en-US by default, once per change", async () => {
+    const { presenter } = createPresented();
+    const locales: string[] = [];
+    const subscription = presenter.amountLocale$.subscribe((locale) => {
+      locales.push(locale);
+    });
+
+    expect(presenter.amountLocale$.getValue()).toBe("en-US");
+
+    await presenter.setLanguage("fr");
+    await presenter.setMode("dark");
+    await presenter.setLanguage("de");
+
+    expect(presenter.amountLocale$.getValue()).toBe("de-DE");
+    expect(locales).toEqual(["en-US", "fr-FR", "de-DE"]);
+    subscription.unsubscribe();
+  });
 });
 
 interface Latest {

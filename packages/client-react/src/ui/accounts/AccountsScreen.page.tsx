@@ -12,6 +12,7 @@ import {
   ViewModelProvider,
 } from "@cl/react-bindings";
 
+import { AmountLocaleProvider } from "../AmountLocaleProvider.tsx";
 import { dragSplitterElement } from "../shell/Splitter.page.tsx";
 import { ToastHost } from "../shell/ToastHost.tsx";
 import { TESTIDS } from "../testids.ts";
@@ -233,9 +234,11 @@ export function mountScreen(): MountedScreen {
 
   const rendered = render(
     <ViewModelProvider viewModel={createViewModel(app)}>
-      <ScreenHost />
-      <ToastHost />
-      <SelectionReader onRead={record} />
+      <AmountLocaleProvider>
+        <ScreenHost />
+        <ToastHost />
+        <SelectionReader onRead={record} />
+      </AmountLocaleProvider>
     </ViewModelProvider>,
   );
 

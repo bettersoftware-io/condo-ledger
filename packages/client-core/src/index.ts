@@ -1,6 +1,10 @@
 export { systemClock } from "./adapters/systemClock.ts";
 export { createWsConnection } from "./adapters/wsConnection.ts";
-export { parseAmount } from "./amounts.ts";
+export {
+  type AmountLocale,
+  DEFAULT_AMOUNT_LOCALE,
+  parseAmount,
+} from "./amounts.ts";
 export {
   type App,
   type AppPorts,

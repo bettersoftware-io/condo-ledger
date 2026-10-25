@@ -3,6 +3,7 @@ import { type ReactElement, type ReactNode, useState } from "react";
 import { type AccountsGridState, parseAmount } from "@cl/client-core";
 import { type Cents, type Result, ROOT_KEY, ZERO_CENTS } from "@cl/domain";
 
+import { useLocale } from "../amountLocale.ts";
 import { formatCents } from "../format.ts";
 import { InlineEditor } from "../InlineEditor.tsx";
 import { Money } from "../Money.tsx";
@@ -16,7 +17,8 @@ import { ACCOUNTS_COLUMNS } from "./columns.ts";
  * amounts, and the eight attribute columns the legacy report has (empty until
  * the accounts carry them). An expense leaf's budget is edited in place; which
  * row is being edited, and what is wrong with the text, is this view's own
- * state. Takes only props, so the compiler memoizes it.
+ * state. Amounts are shown and read in the session's locale. Takes only
+ * props and the locale, so the compiler memoizes it.
  */
 export function AccountsGrid({
   rows,
@@ -28,6 +30,7 @@ export function AccountsGrid({
   onSetBudget,
 }: AccountsGridProps): ReactElement {
   const [budgetEdit, setBudgetEdit] = useState<BudgetEdit>(NOT_EDITING);
+  const locale = useLocale();
 
   function editingBudgetOf(key: string): () => void {
     return (): void => {
@@ -50,7 +53,7 @@ export function AccountsGrid({
         return;
       }
 
-      const amount = parseAmount(text);
+      const amount = parseAmount(text, locale);
 
       if (amount === null) {
         settleBudgetOf(key, { editing: key, error: "not an amount" });
@@ -102,7 +105,7 @@ export function AccountsGrid({
     }
 
     if (budgetEdit.editing === row.key) {
-      const before = formatCents(node.budget ?? ZERO_CENTS);
+      const before = formatCents(node.budget ?? ZERO_CENTS, locale);
 
       return (
         <InlineEditor

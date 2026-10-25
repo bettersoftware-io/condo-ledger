@@ -1,29 +1,125 @@
-import { type Cents, cents } from "@cl/domain";
+import { distinctUntilChanged, type Observable, skip } from "rxjs";
 
-const AMOUNT = /^-?\d{1,3}(,\d{3})*(\.\d{1,2})?$|^-?\d+(\.\d{1,2})?$/;
+import {
+  type Cents,
+  cents,
+  DEFAULT_PREFERENCES,
+  type Language,
+} from "@cl/domain";
 
-/** A day and a month, with a four-digit year or none: `23/4/2013`, `23/04/2013`, `23/4`. */
-const DATE = /^(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?$/;
+/** The locales amounts are shown, typed and written in: one per language of the session. */
+export const AMOUNT_LOCALES = [
+  "en-US",
+  "it-IT",
+  "fr-FR",
+  "de-DE",
+  "es-ES",
+] as const;
 
-/** Reads `1,234.56`, `1234.56` or `1234` as cents; anything else is null. Whether the sign is allowed is the domain's call. */
-export function parseAmount(text: string): Cents | null {
+export type AmountLocale = (typeof AMOUNT_LOCALES)[number];
+
+/** A locale as it stands and as it changes: the session's, or a test's subject. */
+export interface AmountLocaleSource extends Observable<AmountLocale> {
+  getValue: () => AmountLocale;
+}
+
+/** How a machine reads and writes the amounts of its form: in the session's locale at the moment it asks. */
+export interface AmountTexts {
+  /** parseAmount in the locale of the moment. */
+  parse: (text: string) => Cents | null;
+  /** amountText in the locale of the moment. */
+  text: (amount: Cents) => string;
+  /** Each new locale, once it is the one parse and text use: whatever was judged from a text is judged again. */
+  changed$: Observable<AmountLocale>;
+}
+
+/** A locale's separators: the decimal one, and those a group may be marked with. */
+interface Separators {
+  decimal: string;
+  groups: readonly string[];
+}
+
+/** France groups with a space: the narrow no-break space Intl writes, the no-break space, or the one a keyboard types. */
+const SEPARATORS: Record<AmountLocale, Separators> = {
+  "en-US": { decimal: ".", groups: [","] },
+  "it-IT": { decimal: ",", groups: ["."] },
+  "fr-FR": { decimal: ",", groups: ["\u202f", "\u00a0", " "] },
+  "de-DE": { decimal: ",", groups: ["."] },
+  "es-ES": { decimal: ",", groups: ["."] },
+};
+
+const LOCALES: Record<Language, AmountLocale> = {
+  en: "en-US",
+  it: "it-IT",
+  fr: "fr-FR",
+  de: "de-DE",
+  es: "es-ES",
+};
+
+/** The default language's: what amounts are shown in before the session says otherwise, and wherever nothing hands down the session's. */
+export const DEFAULT_AMOUNT_LOCALE: AmountLocale =
+  LOCALES[DEFAULT_PREFERENCES.language];
+
+const PATTERNS: Record<AmountLocale, RegExp> = {
+  "en-US": patternOf(SEPARATORS["en-US"]),
+  "it-IT": patternOf(SEPARATORS["it-IT"]),
+  "fr-FR": patternOf(SEPARATORS["fr-FR"]),
+  "de-DE": patternOf(SEPARATORS["de-DE"]),
+  "es-ES": patternOf(SEPARATORS["es-ES"]),
+};
+
+/** The locale a language shows, types and writes amounts in. */
+export function amountLocaleOf(language: Language): AmountLocale {
+  return LOCALES[language];
+}
+
+/**
+ * Reads an amount typed in the locale as cents: its decimal separator, up to
+ * two decimals, and groups of three marked or not (`1.234,56`, `1234,56` or
+ * `12` in it-IT); anything else, a group out of place or another locale's
+ * decimal separator, is null. Whether the sign is allowed is the domain's call.
+ */
+export function parseAmount(text: string, locale: AmountLocale): Cents | null {
   const trimmed = text.trim();
 
-  if (!AMOUNT.test(trimmed)) {
+  if (!PATTERNS[locale].test(trimmed)) {
     return null;
   }
 
-  return cents(Math.round(Number(trimmed.replaceAll(",", "")) * 100));
+  const { decimal, groups } = SEPARATORS[locale];
+  let plain = trimmed;
+
+  for (const group of groups) {
+    plain = plain.replaceAll(group, "");
+  }
+
+  return cents(Math.round(Number(plain.replace(decimal, ".")) * 100));
 }
 
-/** Cents as a text parseAmount reads back: `1234.56`, no grouping. What a form holds for an amount it did not have typed. */
-export function amountText(amount: Cents): string {
+/** Cents as a text parseAmount reads back in the locale: its decimal separator, no groups (`1234,56` in it-IT). What a form holds for an amount it did not have typed. */
+export function amountText(amount: Cents, locale: AmountLocale): string {
   const sign = amount < 0 ? "-" : "";
   const whole = Math.floor(Math.abs(amount) / 100);
   const fraction = String(Math.abs(amount) % 100).padStart(2, "0");
 
-  return `${sign}${whole}.${fraction}`;
+  return `${sign}${whole}${SEPARATORS[locale].decimal}${fraction}`;
 }
+
+/** Parse and text in the locale `locale$` holds when they are called; `changed$` emits each new one. */
+export function amountTextsIn(locale$: AmountLocaleSource): AmountTexts {
+  return {
+    parse: (text: string): Cents | null => {
+      return parseAmount(text, locale$.getValue());
+    },
+    text: (amount: Cents): string => {
+      return amountText(amount, locale$.getValue());
+    },
+    changed$: locale$.pipe(distinctUntilChanged(), skip(1)),
+  };
+}
+
+/** A day and a month, with a four-digit year or none: `23/4/2013`, `23/04/2013`, `23/4`. */
+const DATE = /^(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?$/;
 
 /** Reads `23/4/2013`, `23/04/2013`, or `23/4` in the period's year, as YYYY-MM-DD; a day the month does not have, or anything else, is null. */
 export function parseDate(text: string, periodYear: number): string | null {
@@ -52,4 +148,16 @@ function daysIn(year: number, month: number): number {
 
 function twoDigits(value: number): string {
   return String(value).padStart(2, "0");
+}
+
+/** An amount in the locale: a sign, groups of three marked with one of its group separators or no group at all, then up to two decimals. */
+function patternOf({ decimal, groups }: Separators): RegExp {
+  const group = `[${groups.map(escaped).join("")}]`;
+  const whole = `(?:\\d{1,3}(?:${group}\\d{3})+|\\d+)`;
+
+  return new RegExp(`^-?${whole}(?:${escaped(decimal)}\\d{1,2})?$`, "u");
+}
+
+function escaped(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }

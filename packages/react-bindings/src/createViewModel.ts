@@ -4,6 +4,7 @@ import type {
   AccountDetails,
   AccountsGridIntents,
   AccountsGridState,
+  AmountLocale,
   App,
   BottomTabIntents,
   BottomTabState,
@@ -120,6 +121,8 @@ export interface NoticesView {
  */
 export interface ViewModel {
   useSession: () => SessionView;
+  /** The locale amounts are shown and typed in: the session language's. */
+  useAmountLocale: () => AmountLocale;
   useBuildingsTree: () => Building[];
   useSelectedPeriod: () => SelectedPeriodView;
   useAccountsTree: () => AccountNode | null;
@@ -199,6 +202,9 @@ export function createViewModel(app: App): ViewModel {
         setTheme: session.setTheme,
         setLanguage: session.setLanguage,
       };
+    },
+    useAmountLocale: (): AmountLocale => {
+      return useStateObservable(session.amountLocale$);
     },
     useBuildingsTree: (): Building[] => {
       return useStateObservable(buildings.tree$);

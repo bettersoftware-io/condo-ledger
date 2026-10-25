@@ -19,6 +19,20 @@ describe("Money", () => {
     expect(page.text()).toBe("-607.46");
   });
 
+  it("shows the locale's groups and decimal comma, the sign and tone unchanged", () => {
+    const negative = mountMoney({ cents: cents(-120000) }, "it-IT");
+
+    expect(negative.tone()).toBe("neg");
+    expect(negative.text()).toBe("-1.200,00");
+  });
+
+  it("shows zero in the locale, toned as zero", () => {
+    const page = mountMoney({ cents: cents(0) }, "it-IT");
+
+    expect(page.tone()).toBe("zero");
+    expect(page.text()).toBe("0,00");
+  });
+
   it("is zero for nothing", () => {
     const page = mountMoney({ cents: cents(0) });
 

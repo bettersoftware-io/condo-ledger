@@ -5,6 +5,7 @@ import type {
   AccountDetails,
   AccountsGridIntents,
   AccountsGridState,
+  AmountLocale,
   BottomTabIntents,
   BottomTabState,
   BudgetInstallmentsForm,
@@ -72,6 +73,7 @@ import { ViewModelProvider } from "./ViewModelProvider.tsx";
 /** What one reader got from every hook of the view model on its latest render. */
 export interface Seen {
   session: SessionView;
+  amountLocale: AmountLocale;
   buildings: Building[];
   period: SelectedPeriodView;
   tree: AccountNode | null;
@@ -235,6 +237,7 @@ function Reader({
 }: ReaderProps): ReactElement {
   const {
     useSession,
+    useAmountLocale,
     useBuildingsTree,
     useSelectedPeriod,
     useAccountsTree,
@@ -269,6 +272,7 @@ function Reader({
 
   seen[index] = {
     session: useSession(),
+    amountLocale: useAmountLocale(),
     buildings: useBuildingsTree(),
     period: useSelectedPeriod(),
     tree: useAccountsTree(),

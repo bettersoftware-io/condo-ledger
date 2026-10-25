@@ -10,6 +10,7 @@ import {
   ZERO_CENTS,
 } from "@cl/domain";
 
+import { useLocale } from "../amountLocale.ts";
 import { formatCents, formatDate } from "../format.ts";
 import { Money } from "../Money.tsx";
 import {
@@ -40,6 +41,7 @@ export function ScheduleGrid({
 }: ScheduleGridProps): ReactElement {
   const [selected, setSelected] = useState<string | null>(null);
   const [edit, setEdit] = useState<CellEdit>(NOT_EDITING);
+  const locale = useLocale();
   const columns: TreeGridColumn[] = [
     ...LEADING_COLUMNS,
     ...installments.map(installmentColumnOf),
@@ -65,7 +67,7 @@ export function ScheduleGrid({
         return;
       }
 
-      const amount = parseAmount(text);
+      const amount = parseAmount(text, locale);
 
       if (amount === null) {
         settleOf(itemId, {
@@ -142,7 +144,10 @@ export function ScheduleGrid({
         editing={editing}
         error={editing ? edit.error : null}
         onEdit={editingOf(itemId)}
-        onCommit={committingOf(itemId, formatCents(cell.amount ?? ZERO_CENTS))}
+        onCommit={committingOf(
+          itemId,
+          formatCents(cell.amount ?? ZERO_CENTS, locale),
+        )}
         onCancel={cancelEdit}
       />
     );

@@ -1,5 +1,5 @@
 import { type DefaultedStateObservable, state } from "@rx-state/core";
-import { BehaviorSubject, map } from "rxjs";
+import { BehaviorSubject, EMPTY, map, merge, type Observable } from "rxjs";
 
 import {
   accepted,
@@ -151,6 +151,8 @@ interface Inner<TForm> {
  * One contract for every wizard: the definition says what the form derives;
  * the machine holds the form, the step and the save. A wizard writes a
  * journal entry unless it names another draft and what its write answers.
+ * Each emission of `rejudge$` derives the form as it stands again: what the
+ * definition reads beyond the form (the amounts' locale) has changed.
  */
 export function createWizardMachine<
   TForm,
@@ -160,6 +162,7 @@ export function createWizardMachine<
 >(
   definition: WizardDefinition<TForm, TSummary, TDraft>,
   write: (draft: TDraft) => Promise<TSaved>,
+  rejudge$: Observable<unknown> = EMPTY,
 ): WizardMachine<TForm, TSummary, TSaved> {
   const firstStep = definition.firstStep ?? 1;
   const inner$ = new BehaviorSubject<Inner<TForm>>({
@@ -170,9 +173,9 @@ export function createWizardMachine<
   });
 
   const state$: DefaultedStateObservable<WizardState<TForm, TSummary>> = state(
-    inner$.pipe(
-      map((inner) => {
-        return stateOf(definition, inner);
+    merge(inner$, rejudge$).pipe(
+      map(() => {
+        return stateOf(definition, inner$.getValue());
       }),
     ),
     stateOf(definition, inner$.getValue()),
