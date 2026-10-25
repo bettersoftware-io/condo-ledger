@@ -120,25 +120,6 @@ Work that waits on a release, a decision or other work.
 
 ## Waiting on a person
 
-- **The probe branch `worktree-visual-flake-probe` on GitHub (the user).**
-  It measured which Chromium flags hold the visual tier still: candidate
-  flag sets as Playwright projects, each writing its own images, compared
-  across parallel runs. Draft pull request #28 shows it; look through it,
-  close it, then delete the branch:
-  `git push origin --delete worktree-visual-flake-probe`.
-- **Wording and input choices made during M2b (the user).** Keep or change
-  each:
-  - the generic editor's title on an edit reads "Edit Add Accounting Entry";
-  - strings written without a source in the spec or the design: "Choose a
-    supplier…", "No withholding", "Search account…", "No account matches."
-    (the last two as the Accounts screen has them), "Enter an amount of
-    zero or more for {row}", the step rules' messages and the entry-gone
-    text in `packages/client-react/src/ui/journal/wizards/reasons.ts`;
-  - the opening list's order: the leaves in tree order, then the residents.
-- **GitHub Pages (the user).** It is off only because the repository was
-  private when it was decided; the coverage workflow already pushes the
-  report to `gh-pages` on every push to `main`. To serve it:
-  `gh api -X POST repos/bettersoftware-io/condo-ledger/pages -f 'source[branch]=gh-pages' -f 'source[path]=/'`.
 - **The legacy application's credentials (the user).** The pre-rewrite
   history, and `old/` on this machine, hold the legacy PHP application's
   MySQL password (a localhost database) and its application secret; no mail
