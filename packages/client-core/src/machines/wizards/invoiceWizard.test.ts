@@ -889,7 +889,6 @@ describe("editing an invoice", () => {
   });
 });
 
-/** The harness on p36, with a wizard for a new invoice built through the application. */
 describe("rates in the session's language", () => {
   it("in Italian, the VAT rate reads 21,5 and refuses 21.5", async () => {
     const { machine } = await createItalianStepTwo();
@@ -976,6 +975,7 @@ async function createItalianStepTwo(): Promise<CreatedWizard> {
   return { machine, harness };
 }
 
+/** The harness on p36, with a wizard for a new invoice built through the application. */
 function createWizard(clock?: ClockPort): CreatedWizard {
   const harness = createP36Harness(clock);
   const machine = harness.app.machines.createInvoiceWizard(null);

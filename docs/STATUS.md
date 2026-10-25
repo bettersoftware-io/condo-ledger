@@ -276,4 +276,8 @@ Work that waits on a release, a decision or other work.
   older browsers leave four-digit amounts ungrouped in it-IT and es-ES. The
   schedule cell editor, the account details panel and the wizards' summary
   sentences take the locale the same way but have no Italian test of their
-  own ([2026-10-25-amount-locale-design.md](superpowers/specs/2026-10-25-amount-locale-design.md)).
+  own. At startup `amountLocale$` is en-US until the session's preferences
+  arrive: on the simulators they answer at once, but over the M3 adapters a
+  wizard opened before they do prefills its amounts in en-US, and keeps them
+  after the language arrives
+  ([2026-10-25-amount-locale-design.md](superpowers/specs/2026-10-25-amount-locale-design.md)).

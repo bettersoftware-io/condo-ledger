@@ -97,7 +97,8 @@ export function parseAmount(text: string, locale: AmountLocale): Cents | null {
     plain = plain.replaceAll(group, "");
   }
 
-  return cents(Math.round(Number(plain.replace(decimal, ".")) * 100));
+  // `-0,00` reads as -0, which is zero; `|| 0` keeps the sign off it.
+  return cents(Math.round(Number(plain.replace(decimal, ".")) * 100) || 0);
 }
 
 /** Cents as a text parseAmount reads back in the locale: its decimal separator, no groups (`1234,56` in it-IT). What a form holds for an amount it did not have typed. */

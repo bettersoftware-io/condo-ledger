@@ -67,6 +67,21 @@ describe("parseAmount", () => {
     },
   );
 
+  it("reads 1.500 in it-IT as one thousand five hundred, the locale's convention, and refuses 1.5 and 1.50", () => {
+    expect(parseAmount("1.500", "it-IT")).toBe(150000);
+    expect(parseAmount("1.5", "it-IT")).toBeNull();
+    expect(parseAmount("1.50", "it-IT")).toBeNull();
+  });
+
+  it("reads a negative zero as zero, never -0", () => {
+    for (const locale of AMOUNT_LOCALES) {
+      expect(parseAmount(`-${amountText(cents(0), locale)}`, locale)).toBe(0);
+    }
+
+    expect(parseAmount("-0", "en-US")).toBe(0);
+    expect(parseHundredths("-0,0", "it-IT")).toBe(0);
+  });
+
   it("reads fr-FR with a decimal comma and any of the three spaces as the group", () => {
     expect(parseAmount("1 234,56", "fr-FR")).toBe(123456);
     expect(parseAmount("1\u00a0234,56", "fr-FR")).toBe(123456);

@@ -74,11 +74,21 @@ from the top bar's language picker. Each language has one locale:
   no subscription of its own and stays compiled. `formatCents(amount,
   locale)` keeps one `Intl.NumberFormat` per locale. The budget editor and
   the schedule's cell editor pass the same locale to `parseAmount`. A
-  component drawn without the provider (a unit test, a component golden)
-  shows `DEFAULT_AMOUNT_LOCALE`, the default language's locale (en-US).
+  component drawn without the provider, in a unit test that renders it
+  alone, shows `DEFAULT_AMOUNT_LOCALE`, the default language's locale
+  (en-US).
+- **Visual tier.** A scenario may name a `language`. The seeding sets it
+  through the session presenter's `setLanguage`, and the registry's
+  `Surround` puts `AmountLocaleProvider` around a part drawn alone, as the
+  shell does. `money-column-it-it`, `money-column-fr-fr` and
+  `accounts-1280-light-it` picture amounts in those locales.
+- **Reading conventions pinned by tests.** `1.500` in it-IT is one thousand
+  five hundred, because a group of three is the locale's reading, while
+  `1.5` and `1.50` are refused. `-0,00` reads as zero, not as negative zero.
 
 ## What it does not change
 
 - Dates (`dd/mm/yyyy`) and whole numbers (the number of installments, the
   months between them) are read as before, whatever the language.
-- The default language is en, so no golden changes.
+- The default language is en, so no existing golden changed; the three
+  pictures above were added.

@@ -633,7 +633,6 @@ describe("the Create budget installments wizard", () => {
   });
 });
 
-/** The wizard over the empty-schedule period p3. */
 describe("percentages in the session's language", () => {
   it("in Italian, % of budget reads 33,34 and refuses 33.34", async () => {
     const harness = createScheduleHarness("p3");
@@ -668,6 +667,7 @@ describe("percentages in the session's language", () => {
   });
 });
 
+/** The wizard over the empty-schedule period p3. */
 function createWizard(): CreatedWizard {
   const harness = createScheduleHarness("p3");
 
