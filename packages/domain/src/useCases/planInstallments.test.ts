@@ -30,7 +30,7 @@ describe("planBudgetInstallments", () => {
     expect(amountsOf(plan, "rB")).toEqual([250, 250, 501]);
   });
 
-  it("rounds a negative half away from zero, as a positive one", () => {
+  it("rounds a negative half toward +∞, as the legacy app did", () => {
     const plan = planBudgetInstallments(
       createInput({
         percentages: [2500, 2500, 5000],
@@ -39,7 +39,30 @@ describe("planBudgetInstallments", () => {
       }),
     );
 
-    expect(amountsOf(plan, "rA")).toEqual([8949, 0, 0]);
+    expect(amountsOf(plan, "rA")).toEqual([8951, 0, 0]);
+  });
+
+  // Items 2…n of a negative budget part are ≤ 0 and item 1 takes the rest, so
+  // the carry always leaves max(0, budget part + Prev. bal.) on item 1: how a
+  // negative half euro rounds cannot show. The cents case above pins it.
+  it("with whole euros, ends a negative budget part's items on item 1, the carry having taken items 2…n", () => {
+    const plan = planBudgetInstallments(
+      createInput({
+        percentages: [5000, 5000],
+        wholeEuros: true,
+        shares: [
+          ["rA", -500],
+          ["rB", -500],
+        ],
+        previousBalances: [
+          ["rA", 1000],
+          ["rB", 250],
+        ],
+      }),
+    );
+
+    expect(amountsOf(plan, "rA")).toEqual([500, 0]);
+    expect(amountsOf(plan, "rB")).toEqual([0, 0]);
   });
 
   it("with whole euros, rounds items 2…n half-up to euros and gives item 1 the rest", () => {

@@ -170,14 +170,14 @@ function carryAlong(amounts: number[], order: number[], carry: number): number {
   return difference;
 }
 
-/** `numerator / denominator` to the nearest integer, a half away from zero; integers only. */
+/**
+ * `numerator / denominator` (denominator > 0) to the nearest integer, a half
+ * toward +∞ (2.5 → 3, −2.5 → −2), as the legacy app's `Math.round`; integers
+ * only. Never −0: the floor's argument is −0 only for a numerator of −d/2,
+ * and 2·(−d/2) + d is +0.
+ */
 function divideRounded(numerator: number, denominator: number): number {
-  const magnitude = Math.floor(
-    (2 * Math.abs(numerator) + denominator) / (2 * denominator),
-  );
-
-  // 0 − magnitude, not −magnitude: a −0 is never an amount.
-  return numerator < 0 ? 0 - magnitude : magnitude;
+  return Math.floor((2 * numerator + denominator) / (2 * denominator));
 }
 
 function daysIn(year: number, month: number): number {
