@@ -7,6 +7,8 @@ import type {
   AccountsGridState,
   BottomTabIntents,
   BottomTabState,
+  BudgetInstallmentsForm,
+  BudgetInstallmentsSummary,
   CollectionForm,
   CollectionSummary,
   ColumnSpec,
@@ -16,6 +18,8 @@ import type {
   DirectPaymentSummary,
   GenericEntryForm,
   GenericEntrySummary,
+  InstallmentDialogIntents,
+  InstallmentDialogState,
   InvoiceForm,
   InvoicePaymentForm,
   InvoicePaymentSummary,
@@ -33,6 +37,8 @@ import type {
   NavigationState,
   OpeningForm,
   OpeningSummary,
+  ScheduleGridIntents,
+  ScheduleGridState,
   SidebarIntents,
   SidebarState,
   SplitIntents,
@@ -54,6 +60,7 @@ import type {
 import {
   createViewModel,
   type NoticesView,
+  type ScheduleView,
   type SelectedAccountView,
   type SelectedPeriodView,
   type SessionView,
@@ -114,6 +121,17 @@ export interface Seen {
     WizardState<CollectionForm, CollectionSummary>,
     WizardIntents<CollectionForm>
   >;
+  schedule: ScheduleView;
+  scheduleGrid: MachineView<ScheduleGridState, ScheduleGridIntents>;
+  budgetInstallments: MachineView<
+    WizardState<BudgetInstallmentsForm, BudgetInstallmentsSummary>,
+    WizardIntents<BudgetInstallmentsForm, Result>
+  >;
+  /** Null unless the page was mounted with an installment to edit. */
+  installmentDialog: MachineView<
+    InstallmentDialogState,
+    InstallmentDialogIntents
+  > | null;
 }
 
 export interface ViewModelPage {
@@ -138,6 +156,7 @@ export function mountUnderProvider(
   readers: 1 | 2 = 1,
   editing: string | null = null,
   collectionEditing: string | null = null,
+  installmentId: string | null = null,
 ): ViewModelPage {
   const viewModel = createViewModel(createAppHarness(seed).app);
   const seen: (Seen | undefined)[] = [];
@@ -149,6 +168,7 @@ export function mountUnderProvider(
         index={0}
         editing={editing}
         collectionEditing={collectionEditing}
+        installmentId={installmentId}
       />
       {readers === 2 ? (
         <Reader
@@ -156,6 +176,7 @@ export function mountUnderProvider(
           index={1}
           editing={editing}
           collectionEditing={collectionEditing}
+          installmentId={installmentId}
         />
       ) : null}
     </ViewModelProvider>,
@@ -184,7 +205,13 @@ export function mountUnderProvider(
 /** Mounts the same component with no provider above it. React reports what the component threw. */
 export function mountWithoutProvider(): void {
   render(
-    <Reader seen={[]} index={0} editing={null} collectionEditing={null} />,
+    <Reader
+      seen={[]}
+      index={0}
+      editing={null}
+      collectionEditing={null}
+      installmentId={null}
+    />,
   );
 }
 
@@ -195,6 +222,8 @@ interface ReaderProps {
   editing: string | null;
   /** The collection the reader's collection wizard rewrites. */
   collectionEditing: string | null;
+  /** The installment the reader's Edit Installment dialog opens on; none, no dialog. */
+  installmentId: string | null;
 }
 
 function Reader({
@@ -202,6 +231,7 @@ function Reader({
   index,
   editing,
   collectionEditing,
+  installmentId,
 }: ReaderProps): ReactElement {
   const {
     useSession,
@@ -232,6 +262,9 @@ function Reader({
     useInvoicePaymentWizard,
     useOpeningBalancesWizard,
     useCollectionWizard,
+    useSchedule,
+    useScheduleGrid,
+    useBudgetInstallmentsWizard,
   } = useViewModel();
 
   seen[index] = {
@@ -263,7 +296,40 @@ function Reader({
     invoicePayment: useInvoicePaymentWizard(null),
     openingBalances: useOpeningBalancesWizard(null),
     collection: useCollectionWizard(collectionEditing),
+    schedule: useSchedule(),
+    scheduleGrid: useScheduleGrid(),
+    budgetInstallments: useBudgetInstallmentsWizard(),
+    installmentDialog: null,
   };
 
-  return <output />;
+  return (
+    <output>
+      {installmentId === null ? null : (
+        <DialogReader seen={seen} index={index} installmentId={installmentId} />
+      )}
+    </output>
+  );
+}
+
+interface DialogReaderProps {
+  seen: (Seen | undefined)[];
+  index: number;
+  installmentId: string;
+}
+
+/** Mounted apart, because the dialog hook needs an installment that exists. */
+function DialogReader({
+  seen,
+  index,
+  installmentId,
+}: DialogReaderProps): ReactElement {
+  const { useInstallmentDialog } = useViewModel();
+  const dialog = useInstallmentDialog(installmentId);
+  const entry = seen[index];
+
+  if (entry !== undefined) {
+    entry.installmentDialog = dialog;
+  }
+
+  return <></>;
 }
