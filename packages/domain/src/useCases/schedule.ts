@@ -12,7 +12,7 @@ import {
 import { type ItemBalance, itemBalances } from "./installments.ts";
 
 /** A cell's colour: paid in full, paid in part, or not paid at all. */
-type CellStatus = "settled" | "partial" | "unsettled";
+export type CellStatus = "settled" | "partial" | "unsettled";
 
 /** What a row owes on one installment and what has been paid on it. */
 export interface ScheduleCell {

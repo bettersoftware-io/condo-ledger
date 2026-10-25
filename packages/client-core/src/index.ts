@@ -48,6 +48,7 @@ export type {
 } from "./machines/navigationMachine.ts";
 export type {
   ScheduleGridIntents,
+  ScheduleGridRow,
   ScheduleGridState,
 } from "./machines/scheduleGridMachine.ts";
 export type {

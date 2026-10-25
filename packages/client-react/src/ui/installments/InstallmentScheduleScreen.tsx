@@ -1,0 +1,191 @@
+import { type ReactElement, useState } from "react";
+
+import type {
+  MaximizeIntents,
+  MaximizeState,
+  ScheduleGridRow,
+} from "@cl/client-core";
+import type { Cents, Installment, Result } from "@cl/domain";
+import { type MachineView, useViewModel } from "@cl/react-bindings";
+
+import { ConfirmAlert } from "../ConfirmAlert.tsx";
+import { Panel } from "../Panel.tsx";
+import { TESTIDS } from "../testids.ts";
+import { scheduleColumnSpecs } from "./columns.ts";
+import { scheduleReasonText } from "./reasons.ts";
+import { ScheduleGrid } from "./ScheduleGrid.tsx";
+import { ScheduleToolbar } from "./ScheduleToolbar.tsx";
+
+import "./InstallmentScheduleScreen.css";
+
+/**
+ * Installment Schedule: the period's installments, one row per unit and
+ * resident, in one panel. Reads the view model and hands plain props down.
+ * The maximize machine is the shell's, so a maximized panel also folds the
+ * sidebar. Which dialog is open is this screen's own state: Delete asks
+ * here; Create budget installments and Edit open their own dialogs.
+ */
+export function InstallmentScheduleScreen({
+  maximize,
+}: InstallmentScheduleScreenProps): ReactElement {
+  const { useSchedule, useScheduleGrid, useNotices } = useViewModel();
+  const { schedule, cellEditable, deleteInstallment, setItemAmount } =
+    useSchedule();
+  const grid = useScheduleGrid();
+  const { stub } = useNotices();
+  const [dialog, setDialog] = useState<ScheduleDialog | null>(null);
+  const [deleteRefusal, setDeleteRefusal] = useState<string | null>(null);
+  const installments = schedule?.installments ?? [];
+  const maximized = maximize.state.maximized;
+
+  function toggleMaximized(): void {
+    maximize.toggle("top");
+  }
+
+  function openBudgetWizard(): void {
+    setDialog({ kind: "budget" });
+  }
+
+  function openEdit(installmentId: string): void {
+    setDialog({ kind: "edit", installmentId });
+  }
+
+  function openDelete(installment: Installment): void {
+    setDeleteRefusal(null);
+    setDialog({ kind: "delete", installment });
+  }
+
+  function closeDialog(): void {
+    setDialog(null);
+  }
+
+  function confirmDeleteOf(installment: Installment): () => void {
+    return (): void => {
+      // A click waits for nothing: the column leaves the grid on the
+      // schedule's stream, and the verdict is shown when it arrives.
+      void deleteInstallment(installment.id)
+        .then(settleDelete)
+        .catch(reportFailed);
+    };
+  }
+
+  function settleDelete(result: Result): void {
+    if (result.ok) {
+      closeDialog();
+
+      return;
+    }
+
+    setDeleteRefusal(result.reason);
+  }
+
+  return (
+    <div
+      className="schedule-screen"
+      data-testid={TESTIDS.installmentScheduleScreen}
+      data-maximized={maximized ?? "none"}
+    >
+      <Panel
+        title="Installment Schedule"
+        maximized={maximized === "top"}
+        onToggleMaximize={toggleMaximized}
+      >
+        <div className="schedule-body">
+          <ScheduleToolbar
+            installments={installments}
+            onCreateBudget={openBudgetWizard}
+            onEdit={openEdit}
+            onDelete={openDelete}
+            onExpandAll={grid.expandAll}
+            onCollapseAll={grid.collapseAll}
+            onStub={stub}
+          />
+          <div className="schedule-grid">
+            <ScheduleGridArea
+              // The columns machine reads its spec once: a schedule with
+              // another count of installments gets a machine of its own.
+              key={installments.length}
+              rows={grid.state.rows}
+              installments={installments}
+              cellEditable={cellEditable}
+              onToggle={grid.toggle}
+              onSetItemAmount={setItemAmount}
+            />
+          </div>
+        </div>
+      </Panel>
+      {dialog?.kind === "delete" ? (
+        <ConfirmAlert
+          text={`Delete the installment “${dialog.installment.name}”? This cannot be undone.`}
+          error={
+            deleteRefusal === null ? null : scheduleReasonText(deleteRefusal)
+          }
+          onYes={confirmDeleteOf(dialog.installment)}
+          onNo={closeDialog}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+export interface InstallmentScheduleScreenProps {
+  /** The shell's: whether the schedule fills the screen, shared with the sidebar's rail. */
+  maximize: MachineView<MaximizeState, MaximizeIntents>;
+}
+
+/** The dialog over the schedule: the budget wizard, an installment's edit, or the question before one goes. */
+type ScheduleDialog =
+  | BudgetWizardDialog
+  | EditInstallmentDialog
+  | DeleteInstallmentDialog;
+
+interface BudgetWizardDialog {
+  kind: "budget";
+}
+
+interface EditInstallmentDialog {
+  kind: "edit";
+  installmentId: string;
+}
+
+interface DeleteInstallmentDialog {
+  kind: "delete";
+  installment: Installment;
+}
+
+interface ScheduleGridAreaProps {
+  rows: ScheduleGridRow[];
+  installments: Installment[];
+  cellEditable: (itemId: string) => Result;
+  onToggle: (key: string) => void;
+  onSetItemAmount: (itemId: string, amount: Cents) => Promise<Result>;
+}
+
+/** The grid with its column widths, for one count of installments. */
+function ScheduleGridArea({
+  rows,
+  installments,
+  cellEditable,
+  onToggle,
+  onSetItemAmount,
+}: ScheduleGridAreaProps): ReactElement {
+  const { useColumns } = useViewModel();
+  const columns = useColumns(scheduleColumnSpecs(installments.length));
+
+  return (
+    <ScheduleGrid
+      rows={rows}
+      installments={installments}
+      template={columns.state.template}
+      cellEditable={cellEditable}
+      onToggle={onToggle}
+      onResize={columns.resize}
+      onSetItemAmount={onSetItemAmount}
+    />
+  );
+}
+
+/* v8 ignore next 3 -- only a real installments store can fail to answer; the simulator always does */
+function reportFailed(error: unknown): void {
+  console.error("the installment was not deleted", error);
+}

@@ -175,6 +175,8 @@
   --resize-hover: rgb(120 140 170 / 22%); /* a column's resize handle */
   --alert-glyph-bg: #fdf0d5; /* the circle behind the confirm alert's warning glyph */
   --alert-glyph: #e08a2b;
+  --partial: #e0892b; /* an installment paid in part (settled is --ok) */
+  --unsettled: #2a6fdb; /* an installment nothing has paid yet */
 
   /* typography */
   --font-sans: "IBM Plex Sans", system-ui, sans-serif;

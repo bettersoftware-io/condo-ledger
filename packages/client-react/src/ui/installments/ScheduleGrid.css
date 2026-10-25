@@ -1,0 +1,11 @@
+/* README §7: an installment's header is two lines, its number (🔒 when locked) over its due date, at 10px. */
+.schedule-head-line {
+  display: block;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.schedule-head-line + .schedule-head-line {
+  font-weight: 500;
+  color: var(--txd);
+}
