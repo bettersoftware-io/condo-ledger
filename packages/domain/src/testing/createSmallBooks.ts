@@ -225,6 +225,8 @@ export function createSmallSeed(): LegacySeed {
     parties: [{ periodId: books.periodId, parties: books.parties }],
     invoices: [],
     withholdingTaxes: [],
+    installments: [],
+    installmentItems: [],
   };
 }
 

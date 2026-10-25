@@ -1,6 +1,7 @@
 export * from "./entities/account.ts";
 export * from "./entities/building.ts";
 export * from "./entities/cents.ts";
+export * from "./entities/installment.ts";
 export * from "./entities/invoice.ts";
 export * from "./entities/journal.ts";
 export * from "./entities/money.ts";
