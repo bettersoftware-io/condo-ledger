@@ -110,6 +110,7 @@ export function createTwoPeriodSeed(): LegacySeed {
         number: 1,
         name: "Rata 1",
         dueDate: "2013-03-31",
+        locked: false,
       },
     ],
     installmentItems: [

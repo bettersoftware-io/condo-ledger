@@ -8422,7 +8422,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md3",
           "name": "Cargnelutti Lidia",
           "unitCode": "A1",
-          "startingBalance": 3000
+          "startingBalance": 3000,
+          "role": "PR",
+          "restriction": {
+            "from": "2011-05-01",
+            "to": "2011-05-31"
+          }
         },
         {
           "kind": "owner",
@@ -8430,7 +8435,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md3",
           "name": "Cargnelutti Lidia",
           "unitCode": "A2",
-          "startingBalance": 1322
+          "startingBalance": 1322,
+          "role": "PR",
+          "restriction": {
+            "from": "2011-05-27",
+            "to": null
+          }
         },
         {
           "kind": "owner",
@@ -8438,7 +8448,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md4",
           "name": "Forgiarini Lino",
           "unitCode": "A2",
-          "startingBalance": -760
+          "startingBalance": -760,
+          "role": "CO",
+          "restriction": {
+            "from": "2011-05-27",
+            "to": null
+          }
         },
         {
           "kind": "owner",
@@ -8446,7 +8461,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md7",
           "name": "Minisini Ilaria",
           "unitCode": "A3",
-          "startingBalance": 1930
+          "startingBalance": 1930,
+          "role": "PR",
+          "restriction": {
+            "from": null,
+            "to": "2011-05-27"
+          }
         },
         {
           "kind": "owner",
@@ -8454,7 +8474,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md6",
           "name": "Sarcinelli Albino",
           "unitCode": "A4",
-          "startingBalance": 3450
+          "startingBalance": 3450,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8462,7 +8484,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md3",
           "name": "Cargnelutti Lidia",
           "unitCode": "B1",
-          "startingBalance": 1122
+          "startingBalance": 1122,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8470,7 +8494,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md4",
           "name": "Forgiarini Lino",
           "unitCode": "B1",
-          "startingBalance": -1267
+          "startingBalance": -1267,
+          "role": "CO",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8478,7 +8504,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md3",
           "name": "Cargnelutti Lidia",
           "unitCode": "B2",
-          "startingBalance": 2140
+          "startingBalance": 2140,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8486,7 +8514,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md5",
           "name": "Tavano Ornella",
           "unitCode": "B3",
-          "startingBalance": 13455
+          "startingBalance": 13455,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8494,7 +8524,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md6",
           "name": "Sarcinelli Albino",
           "unitCode": "B4",
-          "startingBalance": 4500
+          "startingBalance": 4500,
+          "role": "PR",
+          "restriction": null
         }
       ]
     },
@@ -8567,7 +8599,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md89",
           "name": "Morandini Dina",
           "unitCode": "A01",
-          "startingBalance": -86065
+          "startingBalance": -86065,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8575,7 +8609,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md90",
           "name": "Variola Dina",
           "unitCode": "A02",
-          "startingBalance": -43739
+          "startingBalance": -43739,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8583,7 +8619,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md91",
           "name": "Rosso Sergio",
           "unitCode": "A02",
-          "startingBalance": 0
+          "startingBalance": 0,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8591,7 +8629,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md92",
           "name": "Buttazzoni Laura",
           "unitCode": "A03",
-          "startingBalance": 352842
+          "startingBalance": 352842,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8599,7 +8639,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md93",
           "name": "Iacuzzi Tullio",
           "unitCode": "A04",
-          "startingBalance": 0
+          "startingBalance": 0,
+          "role": "PR",
+          "restriction": {
+            "from": "2013-01-19",
+            "to": null
+          }
         },
         {
           "kind": "owner",
@@ -8607,7 +8652,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md94",
           "name": "Fattori Gilda",
           "unitCode": "A04",
-          "startingBalance": 269711
+          "startingBalance": 269711,
+          "role": "PR",
+          "restriction": {
+            "from": null,
+            "to": "2013-01-18"
+          }
         },
         {
           "kind": "owner",
@@ -8615,7 +8665,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md95",
           "name": "Fornasier Marco",
           "unitCode": "A05",
-          "startingBalance": 25484
+          "startingBalance": 25484,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8623,7 +8675,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md96",
           "name": "Quaglia Selene",
           "unitCode": "A06",
-          "startingBalance": -183567
+          "startingBalance": -183567,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8631,7 +8685,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md97",
           "name": "Tondolo Rino",
           "unitCode": "A07",
-          "startingBalance": -304241
+          "startingBalance": -304241,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8639,7 +8695,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md98",
           "name": "Colautti Iolanda",
           "unitCode": "A07",
-          "startingBalance": 0
+          "startingBalance": 0,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8647,7 +8705,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md99",
           "name": "Zanier Lidia",
           "unitCode": "A08",
-          "startingBalance": -48571
+          "startingBalance": -48571,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8655,7 +8715,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md100",
           "name": "Treppo",
           "unitCode": "A08",
-          "startingBalance": 0
+          "startingBalance": 0,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8663,7 +8725,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md101",
           "name": "Zuliani Selene",
           "unitCode": "A09",
-          "startingBalance": -59131
+          "startingBalance": -59131,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8671,7 +8735,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md102",
           "name": "Feruglio Silvano",
           "unitCode": "A09",
-          "startingBalance": 0
+          "startingBalance": 0,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8679,7 +8745,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md103",
           "name": "Flebus Beatrice",
           "unitCode": "A09",
-          "startingBalance": -11929
+          "startingBalance": -11929,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8687,7 +8755,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md104",
           "name": "Adami Pietro",
           "unitCode": "A10",
-          "startingBalance": -129616
+          "startingBalance": -129616,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8695,7 +8765,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md105",
           "name": "Masotti Sabrina",
           "unitCode": "A11",
-          "startingBalance": -13294
+          "startingBalance": -13294,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8703,7 +8775,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md106",
           "name": "Carlutti Zaira",
           "unitCode": "A12",
-          "startingBalance": -179882
+          "startingBalance": -179882,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8711,7 +8785,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md107",
           "name": "Bertossi Lidia",
           "unitCode": "A13",
-          "startingBalance": -51414
+          "startingBalance": -51414,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8719,7 +8795,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md108",
           "name": "Morandini Olga",
           "unitCode": "A14",
-          "startingBalance": -93802
+          "startingBalance": -93802,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8727,7 +8805,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md109",
           "name": "Cozzi Ivo",
           "unitCode": "A14",
-          "startingBalance": 0
+          "startingBalance": 0,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8735,7 +8815,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md109",
           "name": "Cozzi Ivo",
           "unitCode": "A15",
-          "startingBalance": -113949
+          "startingBalance": -113949,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8743,7 +8825,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md110",
           "name": "Blasutig Livia",
           "unitCode": "A16",
-          "startingBalance": -110587
+          "startingBalance": -110587,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8751,7 +8835,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md111",
           "name": "Petris Bruno",
           "unitCode": "A16",
-          "startingBalance": 0
+          "startingBalance": 0,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8759,7 +8845,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md112",
           "name": "Scarbolo Flavio",
           "unitCode": "A17",
-          "startingBalance": 151778
+          "startingBalance": 151778,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8767,7 +8855,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md113",
           "name": "Candotti Diego",
           "unitCode": "A18",
-          "startingBalance": 4873
+          "startingBalance": 4873,
+          "role": "PR",
+          "restriction": null
         },
         {
           "kind": "owner",
@@ -8775,7 +8865,9 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md114",
           "name": "Bearzi Servizi s.a.s.",
           "unitCode": "A18",
-          "startingBalance": 0
+          "startingBalance": 0,
+          "role": "CO",
+          "restriction": null
         }
       ]
     }
@@ -9679,105 +9771,120 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p1",
       "number": 1,
       "name": "Rata nr. 1",
-      "dueDate": "2011-03-15"
+      "dueDate": "2011-03-15",
+      "locked": true
     },
     {
       "id": "in5",
       "periodId": "p1",
       "number": 2,
       "name": "Rata nr. 2",
-      "dueDate": "2011-07-15"
+      "dueDate": "2011-07-15",
+      "locked": false
     },
     {
       "id": "in6",
       "periodId": "p1",
       "number": 3,
       "name": "Rata nr. 3",
-      "dueDate": "2011-12-15"
+      "dueDate": "2011-12-15",
+      "locked": false
     },
     {
       "id": "in25",
       "periodId": "p36",
       "number": 1,
       "name": "Rata 1",
-      "dueDate": "2013-01-20"
+      "dueDate": "2013-01-20",
+      "locked": false
     },
     {
       "id": "in26",
       "periodId": "p36",
       "number": 2,
       "name": "Rata 2",
-      "dueDate": "2013-02-20"
+      "dueDate": "2013-02-20",
+      "locked": false
     },
     {
       "id": "in27",
       "periodId": "p36",
       "number": 3,
       "name": "Rata 3",
-      "dueDate": "2013-03-20"
+      "dueDate": "2013-03-20",
+      "locked": false
     },
     {
       "id": "in28",
       "periodId": "p36",
       "number": 4,
       "name": "Rata 4",
-      "dueDate": "2013-04-20"
+      "dueDate": "2013-04-20",
+      "locked": false
     },
     {
       "id": "in29",
       "periodId": "p36",
       "number": 5,
       "name": "Rata 5",
-      "dueDate": "2013-05-20"
+      "dueDate": "2013-05-20",
+      "locked": false
     },
     {
       "id": "in30",
       "periodId": "p36",
       "number": 6,
       "name": "Rata 6",
-      "dueDate": "2013-06-20"
+      "dueDate": "2013-06-20",
+      "locked": false
     },
     {
       "id": "in31",
       "periodId": "p36",
       "number": 7,
       "name": "Rata 7",
-      "dueDate": "2013-07-20"
+      "dueDate": "2013-07-20",
+      "locked": false
     },
     {
       "id": "in32",
       "periodId": "p36",
       "number": 8,
       "name": "Rata 8",
-      "dueDate": "2013-08-20"
+      "dueDate": "2013-08-20",
+      "locked": false
     },
     {
       "id": "in33",
       "periodId": "p36",
       "number": 9,
       "name": "Rata 9",
-      "dueDate": "2013-09-20"
+      "dueDate": "2013-09-20",
+      "locked": false
     },
     {
       "id": "in34",
       "periodId": "p36",
       "number": 10,
       "name": "Rata 10",
-      "dueDate": "2013-10-20"
+      "dueDate": "2013-10-20",
+      "locked": false
     },
     {
       "id": "in35",
       "periodId": "p36",
       "number": 11,
       "name": "Rata 11",
-      "dueDate": "2013-11-20"
+      "dueDate": "2013-11-20",
+      "locked": false
     },
     {
       "id": "in36",
       "periodId": "p36",
       "number": 12,
       "name": "Rata 12",
-      "dueDate": "2013-12-20"
+      "dueDate": "2013-12-20",
+      "locked": false
     }
   ],
   "installmentItems": [

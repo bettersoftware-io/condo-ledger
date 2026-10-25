@@ -13,6 +13,7 @@ import {
   type LegacySeedData,
   type PartyData,
   type PostingData,
+  type Restriction,
   romeTime,
   type WithholdingTaxData,
 } from "@cl/domain";
@@ -440,6 +441,7 @@ function projectInstallments(db: Db, periodId: string): Installment[] {
       number: index + 1,
       name: String(row.name),
       dueDate: dueDateOf(row),
+      locked: row.locked === true,
     };
   });
 }
@@ -550,11 +552,12 @@ function projectParties(db: Db, periodId: string): PartyData[] {
 
 /** Whether a row's periodRestriction dates, either of them open, meet the period's. */
 function overlaps(row: Row, start: string, end: string): boolean {
-  const from = text(row.periodRestrictionStartDate)?.slice(0, 10);
-  const to = text(row.periodRestrictionEndDate)?.slice(0, 10);
+  const restriction = restrictionOf(row);
 
   return (
-    (from === undefined || from <= end) && (to === undefined || to >= start)
+    restriction === null ||
+    ((restriction.from === null || restriction.from <= end) &&
+      (restriction.to === null || restriction.to >= start))
   );
 }
 
@@ -610,7 +613,34 @@ function ownerParty(db: Db, residentId: string): PartyData {
       `the code of the unit ${String(unit.id)} of resident ${residentId}`,
     ),
     startingBalance: eur(text(resident.startingBalance)).cents,
+    role: roleOf(db, resident, unitPeriod),
+    restriction: restrictionOf(resident) ?? restrictionOf(unit),
   };
+}
+
+/** The role abbreviation the legacy app showed: the role of the resident's priority in its unit period's ownership scenario. */
+function roleOf(db: Db, resident: Row, unitPeriod: Row): string {
+  const role = db.rows("unitResidentRole").find((row) => {
+    return (
+      String(row.unitOwnershipScenarioId) ===
+        String(unitPeriod.unitOwnershipScenarioId) &&
+      String(row.unitResidentPriorityId) ===
+        String(resident.unitResidentPriorityId)
+    );
+  });
+
+  return must(
+    text(role?.abbreviation),
+    `the role of resident ${String(resident.id)}`,
+  );
+}
+
+/** A row's periodRestriction dates, or null when both are open. */
+function restrictionOf(row: Row): Restriction | null {
+  const from = text(row.periodRestrictionStartDate)?.slice(0, 10) ?? null;
+  const to = text(row.periodRestrictionEndDate)?.slice(0, 10) ?? null;
+
+  return from === null && to === null ? null : { from, to };
 }
 
 function assignRole(

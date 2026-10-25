@@ -16,6 +16,16 @@ export interface OwnerParty {
   unitCode: string;
   /** What the resident owed at the start of the period; negative when in credit. */
   startingBalance: Cents;
+  /** The legacy role abbreviation: "PR" owner, "CO" tenant, … */
+  role: string;
+  /** The part of the period the residency covers: its own, else its unit's; null for the whole period. */
+  restriction: Restriction | null;
+}
+
+/** Part of a period, as "YYYY-MM-DD" dates; an open end runs to the period's start or end. */
+export interface Restriction {
+  from: string | null;
+  to: string | null;
 }
 
 export type Party = SupplierParty | OwnerParty;

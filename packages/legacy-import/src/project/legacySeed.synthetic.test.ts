@@ -143,6 +143,8 @@ describe("projectLegacySeed on a small synthetic dump", () => {
               name: "Rossi Anna",
               unitCode: "A01",
               startingBalance: 1250,
+              role: "PR",
+              restriction: null,
             },
             {
               kind: "owner",
@@ -151,6 +153,8 @@ describe("projectLegacySeed on a small synthetic dump", () => {
               name: "Verdi Luca",
               unitCode: "A01",
               startingBalance: -300,
+              role: "CO",
+              restriction: { from: "2013-06-01", to: null },
             },
           ],
         },
@@ -190,6 +194,7 @@ describe("projectLegacySeed on a small synthetic dump", () => {
           number: 1,
           name: "Rata 1",
           dueDate: "2013-03-20",
+          locked: false,
         },
       ],
       installmentItems: [
@@ -229,6 +234,7 @@ describe("projectLegacySeed on a small synthetic dump", () => {
           number: 1,
           name: "Rata 1",
           dueDate: "2013-03-20",
+          locked: false,
         },
         {
           id: "in499",
@@ -236,6 +242,7 @@ describe("projectLegacySeed on a small synthetic dump", () => {
           number: 2,
           name: "Rata 2",
           dueDate: "2013-06-20",
+          locked: false,
         },
       ],
       [
@@ -248,6 +255,50 @@ describe("projectLegacySeed on a small synthetic dump", () => {
         { id: "ii601", installmentId: "in499", residentId: "r72", amount: 0 },
       ],
     ]);
+  });
+
+  it("projects each resident's role from its priority and its unit period's scenario, its restriction (its own, else its unit's) and an installment's lock", () => {
+    const tables = edit(createSmallDump(), "unit", "50", {
+      periodRestrictionStartDate: "2013-02-01 00:00:00",
+      periodRestrictionEndDate: "2013-11-30 00:00:00",
+    });
+
+    edit(tables, "installment", "500", { locked: true });
+
+    const seed = projectLegacySeed(buildDb(tables));
+
+    expect([
+      seed.parties[0]?.parties.flatMap((party) => {
+        return party.kind === "owner"
+          ? [[party.id, party.role, party.restriction]]
+          : [];
+      }),
+      seed.installments.map((installment) => {
+        return [installment.id, installment.locked];
+      }),
+    ]).toEqual([
+      [
+        ["r70", "PR", { from: "2013-02-01", to: "2013-11-30" }],
+        ["r72", "CO", { from: "2013-06-01", to: null }],
+      ],
+      [["in500", true]],
+    ]);
+  });
+
+  it("reads the role in the unit period's own scenario", () => {
+    const tables = edit(createSmallDump(), "unitPeriod", "60", {
+      unitOwnershipScenarioId: "2",
+    });
+
+    edit(tables, "unitResident", "72", { unitResidentPriorityId: "1" });
+
+    expect(
+      projectLegacySeed(buildDb(tables)).parties[0]?.parties.flatMap(
+        (party) => {
+          return party.kind === "owner" ? [party.role] : [];
+        },
+      ),
+    ).toEqual(["NP", "NP"]);
   });
 
   it("names an item only on a collection's owner credit, whatever item the dump links to another line", () => {
@@ -405,6 +456,16 @@ describe("projectLegacySeed refuses what it cannot project, naming the id", () =
     expect(() => {
       return projectLegacySeed(buildDb(tables));
     }).toThrow("missing: the resident of the installment item 600");
+  });
+
+  it("refuses a resident whose priority has no role in its unit period's scenario", () => {
+    const tables = edit(createSmallDump(), "unitResident", "72", {
+      unitResidentPriorityId: "4",
+    });
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow("missing: the role of resident 72");
   });
 
   it("refuses an owner whose unit has no code", () => {
@@ -590,7 +651,24 @@ function createSmallDump(): Tables {
       },
     ],
     unit: [{ id: "50", accountingPeriodId: "10", code: "A01" }],
-    unitPeriod: [{ id: "60", unitId: "50" }],
+    unitPeriod: [{ id: "60", unitId: "50", unitOwnershipScenarioId: "1" }],
+    unitResidentRole: [
+      {
+        unitOwnershipScenarioId: "1",
+        unitResidentPriorityId: "1",
+        abbreviation: "PR",
+      },
+      {
+        unitOwnershipScenarioId: "1",
+        unitResidentPriorityId: "3",
+        abbreviation: "CO",
+      },
+      {
+        unitOwnershipScenarioId: "2",
+        unitResidentPriorityId: "1",
+        abbreviation: "NP",
+      },
+    ],
     unitResident: [
       resident("70", "80", "1", "12.50", {}),
       resident("71", "83", "1", "0.00", {

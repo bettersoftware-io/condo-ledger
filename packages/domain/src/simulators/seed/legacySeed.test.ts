@@ -36,6 +36,8 @@ describe("loadLegacySeed", () => {
       name: "Neri Ugo",
       unitCode: "C01",
       startingBalance: 0.5,
+      role: "PR",
+      restriction: null,
     });
 
     expect(() => {
