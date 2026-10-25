@@ -193,7 +193,7 @@ export function describeInstallmentsPortContract(
       }
     });
 
-    it("locks an installment, then refuses to rename it with installment-locked, and unlocks it", async () => {
+    it("locks an installment, then refuses to rename it with installment-locked, and unlocks and renames it in one update", async () => {
       const { port, periodId, unpaidInstallmentId, teardown } = createHarness();
 
       try {
@@ -211,14 +211,17 @@ export function describeInstallmentsPortContract(
           locked,
         );
         expect(
-          await port.updateInstallment(unpaidInstallmentId, { locked: false }),
+          await port.updateInstallment(unpaidInstallmentId, {
+            name: "Other",
+            locked: false,
+          }),
         ).toEqual({ ok: true });
         expect(
           installmentOf(
             await firstValueFrom(port.installments(periodId)),
             unpaidInstallmentId,
-          ).locked,
-        ).toBe(false);
+          ),
+        ).toMatchObject({ name: "Other", locked: false });
       } finally {
         teardown();
       }

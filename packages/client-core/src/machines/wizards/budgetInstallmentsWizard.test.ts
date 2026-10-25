@@ -207,6 +207,37 @@ describe("the Create budget installments wizard", () => {
     expect(machine.state$.getValue().form.rows).toEqual(typed);
   });
 
+  it("refuses rows that are not as many as the number, rows-not-count, and Save writes nothing", async () => {
+    const harness = createScheduleHarness("p3");
+    let writes = 0;
+    const machine = track(
+      createBudgetInstallmentsWizard(currentBooks(harness), () => {
+        writes += 1;
+
+        return Promise.resolve(ok());
+      }),
+    );
+
+    machine.intents.edit({ firstDue: "2015-03-31" });
+    machine.intents.edit({
+      rows: [
+        createRow("Installment 1", "50"),
+        createRow("Installment 2", "50"),
+      ],
+    });
+
+    expect(machine.state$.getValue()).toMatchObject({
+      form: { count: "3" },
+      verdict: { ok: false, reason: "rows-not-count" },
+      summary: { review: [], total: 0 },
+    });
+    await expect(machine.intents.save()).resolves.toEqual({
+      ok: false,
+      reason: "rows-not-count",
+    });
+    expect(writes).toBe(0);
+  });
+
   it("names a new installment after those the period already has", () => {
     const harness = createAppHarness();
 

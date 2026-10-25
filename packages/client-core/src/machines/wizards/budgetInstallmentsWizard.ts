@@ -208,7 +208,7 @@ function numberAndDatesVerdict(
   return isCalendarDate(form.firstDue) ? ok() : rejected("invalid-due-date");
 }
 
-/** Step 1's rules, then every percentage read, then the domain's rules on the batch. */
+/** Step 1's rules, then one row per installment and every percentage read, then the domain's rules on the batch. */
 function derive(
   books: Books | null,
   form: BudgetInstallmentsForm,
@@ -217,6 +217,10 @@ function derive(
 
   if (!first.ok) {
     return refused(first.reason);
+  }
+
+  if (form.rows.length !== wholeNumberUpTo(form.count, MAX_COUNT)) {
+    return refused("rows-not-count");
   }
 
   const installments = plannedOf(form);

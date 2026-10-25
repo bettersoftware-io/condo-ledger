@@ -136,6 +136,22 @@ describe("validateUpdate", () => {
     ).toEqual(locked);
   });
 
+  it("accepts a rename and a new due date of a locked installment in the patch that unlocks it", () => {
+    expect(
+      validateUpdate(createContext(), "in2", {
+        name: "Renamed",
+        dueDate: "2011-09-01",
+        locked: false,
+      }),
+    ).toEqual({ ok: true });
+  });
+
+  it("refuses a rename of a locked installment that the patch keeps locked", () => {
+    expect(
+      validateUpdate(createContext(), "in2", { name: "Other", locked: true }),
+    ).toEqual({ ok: false, reason: "installment-locked" });
+  });
+
   it("accepts unlocking a locked installment, and a patch that changes nothing of it", () => {
     expect(validateUpdate(createContext(), "in2", { locked: false })).toEqual({
       ok: true,

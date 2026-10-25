@@ -90,8 +90,8 @@ export function validateCreate(
 /**
  * Whether an installment may be edited: a name not blank and not another's, a
  * due date that is a day of the calendar written YYYY-MM-DD. A locked one
- * takes no new name or due date, but may be unlocked. Throws for an id the
- * context does not hold.
+ * takes no new name or due date while it stays locked; the patch that unlocks
+ * it may change both. Throws for an id the context does not hold.
  */
 export function validateUpdate(
   context: ScheduleContext,
@@ -124,7 +124,9 @@ export function validateUpdate(
     (patch.name !== undefined && patch.name !== installment.name) ||
     (patch.dueDate !== undefined && patch.dueDate !== installment.dueDate);
 
-  return installment.locked && changes ? rejected("installment-locked") : ok();
+  const staysLocked = installment.locked && patch.locked !== false;
+
+  return staysLocked && changes ? rejected("installment-locked") : ok();
 }
 
 /**

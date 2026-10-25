@@ -45,7 +45,8 @@ interface Inner {
  * The Edit Installment dialog over one installment: its name, due date and
  * lock. The form is judged as the port will judge its write, against the
  * period's schedule in `context`: a locked installment takes no new name or
- * due date, but may be unlocked. Save writes only the fields that changed.
+ * due date while Locked stays on; unlocking and editing is one save. Save
+ * writes only the fields that changed.
  */
 export function createInstallmentDialog(
   installment: Installment,

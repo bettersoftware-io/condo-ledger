@@ -100,6 +100,24 @@ describe("the Edit Installment dialog", () => {
     expect(installmentOf(harness, "in1").locked).toBe(false);
   });
 
+  it("on a locked installment, saves an unlock with a new name and due date in one save", async () => {
+    const { machine, harness } = createDialog("in1");
+
+    machine.intents.edit({
+      locked: false,
+      name: "Renamed",
+      dueDate: "2011-04-15",
+    });
+    expect(machine.state$.getValue().verdict).toEqual({ ok: true });
+
+    await expect(machine.intents.save()).resolves.toEqual({ ok: true });
+    expect(installmentOf(harness, "in1")).toMatchObject({
+      name: "Renamed",
+      dueDate: "2011-04-15",
+      locked: false,
+    });
+  });
+
   it("writes only what changed, and nothing twice while a save runs", async () => {
     const harness = createAppHarness();
     const patches: InstallmentPatch[] = [];
