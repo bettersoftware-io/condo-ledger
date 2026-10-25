@@ -10,6 +10,7 @@ import type {
 import { ZERO_CENTS } from "@cl/domain";
 import { useViewModel } from "@cl/react-bindings";
 
+import { useLocale } from "#/ui/amountLocale.ts";
 import { FormField } from "#/ui/FormField.tsx";
 import { formatCents } from "#/ui/format.ts";
 import { SelectableList } from "#/ui/SelectableList.tsx";
@@ -67,6 +68,7 @@ function InvoicePaymentBody({
   onCancel,
 }: InvoicePaymentBodyProps): ReactElement {
   const { form, summary } = state;
+  const locale = useLocale();
   const accounts = state.choices.map((choice) => {
     return {
       key: choice.key,
@@ -77,7 +79,7 @@ function InvoicePaymentBody({
 
   function wordReason(reason: string): string {
     return reason === "over-remaining"
-      ? `The invoice still owes ${formatCents(summary.remaining ?? ZERO_CENTS)}.`
+      ? `The invoice still owes ${formatCents(summary.remaining ?? ZERO_CENTS, locale)}.`
       : reasonText(reason, PAYMENT_REASONS);
   }
 

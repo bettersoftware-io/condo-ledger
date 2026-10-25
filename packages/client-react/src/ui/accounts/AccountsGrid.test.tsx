@@ -224,6 +224,36 @@ describe("AccountsGrid", () => {
     expect(page.cellsOf("Total")[3]).toBe("1,700.00");
   });
 
+  it("in Italian, a budget opens, is typed and is shown with a decimal comma", async () => {
+    const page = mountAccountsGrid();
+    await page.pickLanguage("it");
+    await page.clickCaret("Spese generali");
+
+    await page.clickBudget("Ascensore");
+
+    expect(page.budgetText()).toBe("1.000,00");
+
+    await page.typeBudget("1.234,56");
+    await page.pressEnter();
+
+    expect(page.budgetError()).toBeNull();
+    expect(page.cellsOf("Ascensore")[3]).toBe("1.234,56");
+    expect(page.cellsOf("Total")[3]).toBe("1.734,56");
+  });
+
+  it("in Italian, an amount typed the English way is not an amount and writes nothing", async () => {
+    const page = mountAccountsGrid();
+    await page.pickLanguage("it");
+    await page.clickCaret("Spese generali");
+
+    await page.clickBudget("Ascensore");
+    await page.typeBudget("1,234.56");
+    await page.pressEnter();
+
+    expect(page.budgetError()).toBe("not an amount");
+    expect(page.budgetWrites()).toBe(0);
+  });
+
   it("a click on a budget opens its editor and selects its row too", async () => {
     const page = mountAccountsGrid();
     await page.clickCaret("Spese generali");

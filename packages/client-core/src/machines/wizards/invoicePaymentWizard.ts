@@ -16,7 +16,7 @@ import {
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
-import { amountText, parseAmount } from "#/amounts.ts";
+import type { AmountTexts } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 import { todayOf } from "#/today.ts";
 
@@ -86,6 +86,7 @@ const DESCRIPTION_ASIDE = "the description, step 3's";
 
 /** What the wizard reads the form against. */
 interface PaymentBooks {
+  texts: AmountTexts;
   books: Books | null;
   /** The open invoices, the edited payment left out of what they have been paid. */
   open: OpenInvoice[];
@@ -107,9 +108,11 @@ interface PaymentBooks {
  * The wizard reads the books as they stand when it opens. Another payment can
  * land while it is open, and the store then refuses the save: after a refused
  * save the wizard reads the books again through `latest`, so what it says the
- * invoice still owes is what it owes now.
+ * invoice still owes is what it owes now. Amounts are read and written
+ * through `texts`, in the session's locale.
  */
 export function createInvoicePaymentWizard(
+  texts: AmountTexts,
   books: Books | null,
   clock: ClockPort,
   write: WriteEntry,
@@ -120,14 +123,14 @@ export function createInvoicePaymentWizard(
 ): WizardMachine<InvoicePaymentForm, InvoicePaymentSummary> {
   const replacing = editing?.id ?? null;
   const today = todayOf(clock);
-  let read = readOf(books, replacing, today);
+  let read = readOf(texts, books, replacing, today);
 
   const machine = createWizardMachine<
     InvoicePaymentForm,
     InvoicePaymentSummary
   >(
     {
-      initial: editing === null ? emptyForm(books) : formOf(editing),
+      initial: editing === null ? emptyForm(books) : formOf(texts, editing),
       firstStep: editing === null ? 1 : 2,
       stepCount: 3,
       choices: read.liquidity,
@@ -146,6 +149,7 @@ export function createInvoicePaymentWizard(
       editing: replacing,
     },
     write,
+    texts.changed$,
   );
 
   function edit(patch: Partial<InvoicePaymentForm>): void {
@@ -161,7 +165,7 @@ export function createInvoicePaymentWizard(
     const result = await machine.intents.save();
 
     if (!result.ok) {
-      read = readOf(latest(), replacing, today);
+      read = readOf(texts, latest(), replacing, today);
       // The definition reads `read`: an edit that changes nothing has the
       // machine derive its state again, over the books as they stand now.
       machine.intents.edit({});
@@ -175,11 +179,13 @@ export function createInvoicePaymentWizard(
 
 /** The books as the wizard reads them: the open invoices, the edited payment left out of what they have been paid, their rows, and the liquidity accounts. */
 function readOf(
+  texts: AmountTexts,
   books: Books | null,
   replacing: string | null,
   today: string,
 ): PaymentBooks {
   const read: PaymentBooks = {
+    texts,
     books,
     open:
       books === null
@@ -261,7 +267,9 @@ function applied(
 
   return {
     ...next,
-    amount: next.edited.includes("amount") ? next.amount : owedText(open),
+    amount: next.edited.includes("amount")
+      ? next.amount
+      : owedText(read.texts, open),
     description: next.edited.includes("description")
       ? next.description
       : describe(read, open),
@@ -269,8 +277,8 @@ function applied(
 }
 
 /** What an open invoice still owes, as the form holds an amount; blank for none. */
-function owedText(open: OpenInvoice | null): string {
-  return open === null ? "" : amountText(open.remaining);
+function owedText(texts: AmountTexts, open: OpenInvoice | null): string {
+  return open === null ? "" : texts.text(open.remaining);
 }
 
 function derive(read: PaymentBooks, form: InvoicePaymentForm): Derived {
@@ -288,7 +296,7 @@ function derive(read: PaymentBooks, form: InvoicePaymentForm): Derived {
     return refused("no-liquidity-account");
   }
 
-  const amount = parseAmount(form.amount);
+  const amount = read.texts.parse(form.amount);
 
   if (amount === null || amount <= 0) {
     return refused("not-an-amount");
@@ -387,7 +395,7 @@ function emptyForm(books: Books | null): InvoicePaymentForm {
 }
 
 /** The form a payment was written from: its invoice, the account it credits, what it pays the supplier, and its description. */
-function formOf(entry: JournalEntry): InvoicePaymentForm {
+function formOf(texts: AmountTexts, entry: JournalEntry): InvoicePaymentForm {
   const invoiceId = must(
     entry.invoiceId,
     `the invoice of the entry ${entry.id}`,
@@ -400,7 +408,7 @@ function formOf(entry: JournalEntry): InvoicePaymentForm {
   return {
     invoiceId,
     accountId: credited?.accountId ?? null,
-    amount: amountText(paidOn(invoiceId, [entry])),
+    amount: texts.text(paidOn(invoiceId, [entry])),
     description: entry.description,
     edited: [...FIELDS],
   };

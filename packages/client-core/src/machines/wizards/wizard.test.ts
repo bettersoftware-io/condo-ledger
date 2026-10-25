@@ -1,3 +1,4 @@
+import { Subject } from "rxjs";
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
@@ -30,6 +31,46 @@ afterEach(() => {
 });
 
 describe("a wizard machine", () => {
+  it("judges the form again, as it stands, each time rejudge$ emits, and only then", () => {
+    const rejudge$ = new Subject<void>();
+    let open = true;
+
+    function derive(form: AmountForm): Derived {
+      return open ? deriveAmount(form) : refused("closed");
+    }
+
+    const machine = createWizardMachine<AmountForm, AmountSummary>(
+      {
+        ...createDefinition(1),
+        derive,
+        stepVerdict: (form: AmountForm): Result => {
+          return derive(form).verdict;
+        },
+      },
+      () => {
+        return Promise.resolve(accepted({ id: "new1" }));
+      },
+      rejudge$,
+    );
+
+    created.push(machine);
+    machine.intents.edit({ amount: "12.50" });
+    open = false;
+
+    expect(machine.state$.getValue().verdict).toEqual({ ok: true });
+
+    rejudge$.next();
+
+    expect(machine.state$.getValue()).toMatchObject({
+      form: { amount: "12.50" },
+      touched: true,
+      step: 1,
+      verdict: { ok: false, reason: "closed" },
+      stepVerdict: { ok: false, reason: "closed" },
+      preview: [],
+    });
+  });
+
   it("starts untouched on step 1 with the definition's choices and a rejected verdict", () => {
     const { machine } = createWizard();
 
@@ -344,7 +385,7 @@ function createDefinition(
     choices: [{ key: "la21", label: "Ascensore", group: "Spese generali" }],
     derive: deriveAmount,
     summarize: (form: AmountForm): AmountSummary => {
-      return { amount: parseAmount(form.amount) };
+      return { amount: parseAmount(form.amount, "en-US") };
     },
     stepVerdict: (form: AmountForm): Result => {
       return deriveAmount(form).verdict;
@@ -400,7 +441,7 @@ function createNotedWizard(
 
 /** Accepted when the amount reads as more than zero: a generic entry, Ascensore debited and Cassa credited. */
 function deriveAmount(form: AmountForm): Derived {
-  const amount = parseAmount(form.amount);
+  const amount = parseAmount(form.amount, "en-US");
 
   if (amount === null || amount <= 0) {
     return refused("not-an-amount");

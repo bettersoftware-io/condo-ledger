@@ -85,6 +85,15 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
     .then(failOnRefusal)
     .catch(reportOnThePage);
 
+  // The language is the session's too, picked through its own intent before
+  // the first render, so every amount is drawn in its locale from the start.
+  if (scenario.language !== undefined) {
+    void harness.app.presenters.session
+      .setLanguage(scenario.language)
+      .then(failOnRefusal)
+      .catch(reportOnThePage);
+  }
+
   // A part mounted alone builds its machine at its first render, so the
   // period is chosen before it, as the Journal's dialog opens over the period
   // the sidebar already holds. The simulators answer from memory: the books

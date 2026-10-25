@@ -1,4 +1,6 @@
-import { fireEvent, within } from "@testing-library/react";
+import { act, fireEvent, within } from "@testing-library/react";
+
+import type { Language } from "@cl/domain";
 
 import { polyfillPointerCapture } from "../shell/Splitter.page.tsx";
 import { TESTIDS } from "../testids.ts";
@@ -54,13 +56,15 @@ export interface AccountsGridPage {
   holdBudgetVerdicts: () => void;
   /** Hands every held verdict back to the screen. */
   releaseBudgetVerdicts: () => Promise<void>;
+  /** The person picks another language, as the top bar's picker does. */
+  pickLanguage: (language: Language) => Promise<void>;
   /** From now on, the accounts store refuses every budget with this reason, saving nothing. */
   refuseBudgets: (reason: string) => void;
 }
 
 /** Mounts the Accounts screen over the small books, as the person sees its top panel. */
 export function mountAccountsGrid(): AccountsGridPage {
-  const { rendered, user, selectedKey, budgetWrites } = mountScreen();
+  const { rendered, user, app, selectedKey, budgetWrites } = mountScreen();
 
   function top(): HTMLElement {
     const element =
@@ -221,6 +225,11 @@ export function mountAccountsGrid(): AccountsGridPage {
     budgetWrites: budgetWrites.count,
     holdBudgetVerdicts: budgetWrites.hold,
     releaseBudgetVerdicts: budgetWrites.release,
+    pickLanguage: async (language: Language): Promise<void> => {
+      await act(async () => {
+        await app.presenters.session.setLanguage(language);
+      });
+    },
     refuseBudgets: budgetWrites.refuse,
   };
 }

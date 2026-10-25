@@ -11,6 +11,7 @@ import {
   type CellStatus,
   cents,
   type EntryKind,
+  type Language,
   type NodeIcon,
 } from "@cl/domain";
 
@@ -34,6 +35,8 @@ export interface Scenario extends Picture {
   height?: number;
   /** The colour mode, set as the person would set it. */
   mode: "light" | "dark";
+  /** The language, set as the person would pick it, so amounts are in its locale; English when absent. */
+  language?: Language;
   /** The period the sidebar has selected; none for a part drawn from its props alone. */
   periodId?: string;
   /** The account the grid has selected; Total when absent. */
@@ -66,6 +69,8 @@ export interface Scenario extends Picture {
   cells?: CellPicture[];
   /** A money cell (`mount: "money"`), as its props. */
   money?: MoneyPicture;
+  /** Money cells one under another (`mount: "money-column"`), as their props: one picture of a locale's amounts. */
+  moneys?: MoneyPicture[];
   /** Rows of the chart of accounts as the grid draws them: one alone (`mount: "tree-grid-row"`), or the grid's (`mount: "tree-grid"`), none for its empty state. */
   accountRows?: AccountRowPicture[];
   /** The inline editor (`mount: "inline-editor"`), as its props. */
@@ -279,11 +284,29 @@ const CASH_ROW: AccountRowPicture = {
  * their props or over the same period; and two sections of the Accounts
  * screen's bottom panel, each tab alone.
  */
+/** What a locale's money column shows: 1.234.567,89 / -1.250,50 / 0,00 in it-IT. */
+const LOCALE_MONEYS: MoneyPicture[] = [
+  { cents: 123456789, variant: "colored", emphasis: false },
+  { cents: -125050, variant: "colored", emphasis: false },
+  { cents: 0, variant: "colored", emphasis: false },
+];
+
 export const scenarios: Record<string, Scenario> = {
   "accounts-1280-light": {
     width: 1280,
     height: 720,
     mode: "light",
+    periodId: "p36",
+    selectedKey: "la154",
+    expanded: OPEN_TO_CASH,
+  },
+  // The same screen in Italian: every amount of the grid and the bottom
+  // panel in it-IT, `1.234,56`.
+  "accounts-1280-light-it": {
+    width: 1280,
+    height: 720,
+    mode: "light",
+    language: "it",
     periodId: "p36",
     selectedKey: "la154",
     expanded: OPEN_TO_CASH,
@@ -555,6 +578,25 @@ export const scenarios: Record<string, Scenario> = {
     width: 100,
     mode: "light",
     money: { cents: 0, variant: "colored", emphasis: false },
+  },
+  // A locale's amounts, one cell under another: positive, negative and zero,
+  // each grouped and with the locale's decimal separator. Italian groups with
+  // dots; French with narrow no-break spaces.
+  "money-column-it-it": {
+    level: "component",
+    mount: "money-column",
+    width: 100,
+    mode: "light",
+    language: "it",
+    moneys: LOCALE_MONEYS,
+  },
+  "money-column-fr-fr": {
+    level: "component",
+    mount: "money-column",
+    width: 100,
+    mode: "light",
+    language: "fr",
+    moneys: LOCALE_MONEYS,
   },
   "money-plain": {
     level: "component",

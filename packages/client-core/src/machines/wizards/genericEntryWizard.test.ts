@@ -8,6 +8,7 @@ import {
   type EntryDraft,
   type EntryKind,
   type JournalEntry,
+  type Language,
   type ResultOf,
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
@@ -15,6 +16,7 @@ import { createSmallBooks } from "@cl/domain/testing/createSmallBooks.ts";
 
 import type { Books } from "#/presenters/booksPresenter.ts";
 import { createAppHarness } from "#/testing/appHarness.ts";
+import { createAmountTexts } from "#/testing/createAmountTexts.ts";
 import { createBooks } from "#/testing/createBooks.ts";
 import { currentBooks, currentEntry } from "#/testing/harnessBooks.ts";
 
@@ -496,6 +498,79 @@ describe("editing an entry line by line", () => {
   });
 });
 
+describe("amounts in the session's language", () => {
+  it("an Italian session reads 1.234,56 as 123456 cents, and an English one refuses it", async () => {
+    const italian = await createEditIn("it", "tx2");
+    const english = await createEditIn("en", "tx2");
+
+    for (const machine of [italian, english]) {
+      machine.intents.edit({ lines: linesOf("1.234,56") });
+    }
+
+    expect(italian.state$.getValue()).toMatchObject({
+      verdict: { ok: true },
+      summary: { debit: 123456, credit: 123456 },
+    });
+    expect(english.state$.getValue().verdict).toEqual({
+      ok: false,
+      reason: "not-an-amount",
+    });
+  });
+
+  it("an entry opened in Italian has its amounts written with a decimal comma and no groups", async () => {
+    const machine = await createEditIn("it", "tx2");
+
+    expect(machine.state$.getValue().form.lines).toEqual(linesOf("500,00"));
+    expect(machine.state$.getValue().verdict).toEqual({ ok: true });
+  });
+
+  it("a change of language keeps the typed text and judges it again at once", async () => {
+    const harness = createAppHarness();
+    const machine = harness.app.machines.createGenericEntryWizard("tx2");
+
+    created.push(machine);
+    machine.intents.edit({ lines: linesOf("1,234.56") });
+
+    expect(machine.state$.getValue().summary.debit).toBe(123456);
+
+    await harness.app.presenters.session.setLanguage("it");
+
+    expect(machine.state$.getValue()).toMatchObject({
+      form: { lines: linesOf("1,234.56") },
+      verdict: { ok: false, reason: "not-an-amount" },
+      summary: { debit: 0 },
+    });
+
+    await harness.app.presenters.session.setLanguage("en");
+
+    expect(machine.state$.getValue().verdict).toEqual({ ok: true });
+  });
+});
+
+/** The wizard editing one of p1's entries, in a session in the language. */
+async function createEditIn(
+  language: Language,
+  id: string,
+): Promise<WizardMachine<GenericEntryForm, GenericEntrySummary>> {
+  const harness = createAppHarness();
+
+  await harness.app.presenters.session.setLanguage(language);
+
+  const machine = harness.app.machines.createGenericEntryWizard(id);
+
+  created.push(machine);
+
+  return machine;
+}
+
+/** tx2's two lines, the same amount on each side. */
+function linesOf(amount: string): GenericEntryForm["lines"] {
+  return [
+    { scopeKey: "la30", debit: amount, credit: "" },
+    { scopeKey: "la14", debit: "", credit: amount },
+  ];
+}
+
 interface CreatedWizard {
   machine: WizardMachine<GenericEntryForm, GenericEntrySummary>;
   calls: () => EntryDraft[];
@@ -514,7 +589,13 @@ function createWizard(
     return Promise.resolve(accepted({ id: "new1" }));
   }
 
-  const machine = createGenericEntryWizard(books, addEntry, editing, kind);
+  const machine = createGenericEntryWizard(
+    createAmountTexts(),
+    books,
+    addEntry,
+    editing,
+    kind,
+  );
 
   created.push(machine);
 

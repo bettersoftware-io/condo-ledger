@@ -10,6 +10,7 @@ import { createSmallBooks } from "@cl/domain/testing/createSmallBooks.ts";
 
 import type { Books } from "#/presenters/booksPresenter.ts";
 import { createAppHarness } from "#/testing/appHarness.ts";
+import { createAmountTexts } from "#/testing/createAmountTexts.ts";
 import { createBooks } from "#/testing/createBooks.ts";
 import { currentBooks, currentEntry } from "#/testing/harnessBooks.ts";
 
@@ -336,7 +337,12 @@ function createWizard(books: Books | null = createBooks()): CreatedWizard {
     return Promise.resolve(accepted({ id: "new1" }));
   }
 
-  const machine = createMultiCostPaymentWizard(books, addEntry, null);
+  const machine = createMultiCostPaymentWizard(
+    createAmountTexts(),
+    books,
+    addEntry,
+    null,
+  );
 
   created.push(machine);
 

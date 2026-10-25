@@ -21,6 +21,7 @@ import {
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
+import { amountTextsIn } from "./amounts.ts";
 import {
   type AccountsGridIntents,
   type AccountsGridState,
@@ -195,7 +196,8 @@ interface AppMachines {
    * The wizards are built over the selected period's books as they stand:
    * with no period, no choices and a refused verdict. `editing` names an entry
    * of those books to rewrite, keeping its kind; one they do not hold throws.
-   * Left out, the wizard writes a new entry.
+   * Left out, the wizard writes a new entry. Each reads and writes amounts
+   * in the session's locale as it stands when it judges.
    */
   createDirectPaymentWizard: (
     kind: DirectPaymentKind,
@@ -225,7 +227,7 @@ interface AppMachines {
   createCollectionWizard: (
     editing: string | null,
   ) => WizardMachine<CollectionForm, CollectionSummary>;
-  /** The Create Budget Installments wizard over the selected period's books as they stand: with no period, refused. */
+  /** The Create Budget Installments wizard over the selected period's books as they stand: with no period, refused. Its percentages are read and written in the session's locale. */
   createBudgetInstallmentsWizard: () => WizardMachine<
     BudgetInstallmentsForm,
     BudgetInstallmentsSummary,
@@ -279,6 +281,11 @@ export function createApp(ports: AppPorts): App {
   books.books$.subscribe((next) => {
     latestBooks = next;
   });
+  // The wizards read the amounts' locale as it stands whenever they judge:
+  // held for the application's life, so it always has the session's.
+  session.amountLocale$.subscribe();
+
+  const texts = amountTextsIn(session.amountLocale$);
 
   /** The entry of the books as they stand that a wizard rewrites; null for a new entry. */
   function editedEntry(editing: string | null): JournalEntry | null {
@@ -364,6 +371,7 @@ export function createApp(ports: AppPorts): App {
         const entry = editedEntry(editing);
 
         return createDirectPaymentWizard(
+          texts,
           kind,
           latestBooks,
           writeOf(entry),
@@ -375,7 +383,12 @@ export function createApp(ports: AppPorts): App {
       ): WizardMachine<MultiCostPaymentForm, MultiCostPaymentSummary> => {
         const entry = editedEntry(editing);
 
-        return createMultiCostPaymentWizard(latestBooks, writeOf(entry), entry);
+        return createMultiCostPaymentWizard(
+          texts,
+          latestBooks,
+          writeOf(entry),
+          entry,
+        );
       },
       createGenericEntryWizard: (
         editing: string | null = null,
@@ -384,6 +397,7 @@ export function createApp(ports: AppPorts): App {
         const entry = editedEntry(editing);
 
         return createGenericEntryWizard(
+          texts,
           latestBooks,
           writeOf(entry),
           entry,
@@ -396,6 +410,7 @@ export function createApp(ports: AppPorts): App {
         const entry = editedEntry(editing);
 
         return createInvoiceWizard(
+          texts,
           latestBooks,
           ports.clock,
           writeOf(entry),
@@ -408,6 +423,7 @@ export function createApp(ports: AppPorts): App {
         const entry = editedEntry(editing);
 
         return createInvoicePaymentWizard(
+          texts,
           latestBooks,
           ports.clock,
           writeOf(entry),
@@ -422,7 +438,12 @@ export function createApp(ports: AppPorts): App {
       ): WizardMachine<OpeningForm, OpeningSummary> => {
         const entry = editedEntry(editing);
 
-        return createOpeningBalancesWizard(latestBooks, writeOf(entry), entry);
+        return createOpeningBalancesWizard(
+          texts,
+          latestBooks,
+          writeOf(entry),
+          entry,
+        );
       },
       createCollectionWizard: (
         editing: string | null,
@@ -430,6 +451,7 @@ export function createApp(ports: AppPorts): App {
         const entry = editedEntry(editing);
 
         return createCollectionWizard(
+          texts,
           latestBooks,
           ports.clock,
           writeOf(entry),
@@ -447,6 +469,7 @@ export function createApp(ports: AppPorts): App {
         const books = latestBooks;
 
         return createBudgetInstallmentsWizard(
+          texts,
           books,
           (draft) => {
             // Only a wizard over books writes: with none, its verdict refuses.

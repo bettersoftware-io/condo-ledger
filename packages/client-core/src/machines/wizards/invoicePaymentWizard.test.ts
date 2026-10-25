@@ -14,6 +14,7 @@ import { must } from "@cl/domain/support/must.ts";
 import { amountText } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 import { type AppHarness, createAppHarness } from "#/testing/appHarness.ts";
+import { createAmountTexts } from "#/testing/createAmountTexts.ts";
 import { currentBooks, currentEntry } from "#/testing/harnessBooks.ts";
 
 import { liquidityChoices } from "./choices.ts";
@@ -385,6 +386,7 @@ describe("the Invoice payment wizard", () => {
     }
 
     const machine = createInvoicePaymentWizard(
+      createAmountTexts(),
       currentBooks(harness),
       harness.ports.clock,
       write,
@@ -407,6 +409,7 @@ describe("the Invoice payment wizard", () => {
     const books = currentBooks(harness);
     const li19 = invoiceOf(harness, "li19");
     const machine = createInvoicePaymentWizard(
+      createAmountTexts(),
       {
         ...books,
         invoices: [
@@ -440,6 +443,7 @@ describe("the Invoice payment wizard", () => {
   it("with no suppliers account, a chosen invoice is refused for it", () => {
     const harness = createP36Harness();
     const machine = createInvoicePaymentWizard(
+      createAmountTexts(),
       createBooksWithoutRoles(currentBooks(harness), ["suppliers"]),
       harness.ports.clock,
       neverWrite,
@@ -458,6 +462,7 @@ describe("the Invoice payment wizard", () => {
   it("with no books: no choices, no invoices, no account", () => {
     const harness = createP36Harness();
     const machine = createInvoicePaymentWizard(
+      createAmountTexts(),
       null,
       harness.ports.clock,
       neverWrite,
@@ -512,11 +517,13 @@ describe("editing an invoice payment", () => {
     const most = left + 34817;
 
     expect(machine.state$.getValue().summary.remaining).toBe(most);
-    expect(stepReasonAfter(machine, { amount: amountText(cents(most)) })).toBe(
-      null,
-    );
     expect(
-      stepReasonAfter(machine, { amount: amountText(cents(most + 1)) }),
+      stepReasonAfter(machine, { amount: amountText(cents(most), "en-US") }),
+    ).toBe(null);
+    expect(
+      stepReasonAfter(machine, {
+        amount: amountText(cents(most + 1), "en-US"),
+      }),
     ).toBe("over-remaining");
   });
 
@@ -571,6 +578,7 @@ describe("editing an invoice payment", () => {
 
     expect(() => {
       return createInvoicePaymentWizard(
+        createAmountTexts(),
         currentBooks(harness),
         harness.ports.clock,
         neverWrite,

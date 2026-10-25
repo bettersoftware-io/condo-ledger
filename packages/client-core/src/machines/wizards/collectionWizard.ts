@@ -23,7 +23,7 @@ import {
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
-import { amountText, parseAmount } from "#/amounts.ts";
+import type { AmountTexts } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 import { todayOf } from "#/today.ts";
 
@@ -117,6 +117,7 @@ const DESCRIPTION_ASIDE = "the description, step 3's";
 
 /** What the wizard reads the form against. */
 interface CollectionBooks {
+  texts: AmountTexts;
   books: Books | null;
   /** Every item with what it still owes, the edited collection left out of what it has been paid. */
   balances: ItemBalance[];
@@ -142,9 +143,11 @@ interface CollectionBooks {
  * edit, follows the new settlement.
  *
  * After a refused save the wizard reads the books again through `latest`, so
- * what it says the person owes is what they owe now.
+ * what it says the person owes is what they owe now. Amounts are read and
+ * written through `texts`, in the session's locale.
  */
 export function createCollectionWizard(
+  texts: AmountTexts,
   books: Books | null,
   clock: ClockPort,
   write: WriteEntry,
@@ -154,7 +157,7 @@ export function createCollectionWizard(
   },
 ): WizardMachine<CollectionForm, CollectionSummary> {
   const today = todayOf(clock);
-  let read = readOf(books, editing, today);
+  let read = readOf(texts, books, editing, today);
 
   const machine = createWizardMachine<CollectionForm, CollectionSummary>(
     {
@@ -179,6 +182,7 @@ export function createCollectionWizard(
       editing: editing?.id ?? null,
     },
     write,
+    texts.changed$,
   );
 
   function edit(patch: Partial<CollectionForm>): void {
@@ -194,7 +198,7 @@ export function createCollectionWizard(
     const result = await machine.intents.save();
 
     if (!result.ok) {
-      read = readOf(latest(), editing, today);
+      read = readOf(texts, latest(), editing, today);
       // The definition reads `read`: the edit has the machine derive its
       // state again over the books as they stand now, the amount kept and an
       // untyped description following what the amount settles now.
@@ -242,6 +246,7 @@ export function fitsCollection(entry: JournalEntry, books: Books): boolean {
 
 /** The books as the wizard reads them: every item's balance with the edited collection left out, the people who owe, and the liquidity accounts. */
 function readOf(
+  texts: AmountTexts,
   books: Books | null,
   editing: JournalEntry | null,
   today: string,
@@ -258,6 +263,7 @@ function readOf(
         );
 
   return {
+    texts,
     books,
     balances,
     people: books === null ? [] : peopleOf(books, balances),
@@ -421,7 +427,7 @@ function prefilledAmount(
     }),
   );
 
-  return amountText(due > 0 ? due : next.remaining);
+  return read.texts.text(due > 0 ? due : next.remaining);
 }
 
 /** The generated description of what the form settles: the edited collection's own while its lines are kept; blank while it settles nothing. */
@@ -508,7 +514,7 @@ function settledBy(
   read: CollectionBooks,
   form: CollectionForm,
 ): ResultOf<Settlement[]> | null {
-  const amount = parseAmount(form.amount);
+  const amount = read.texts.parse(form.amount);
 
   if (amount === null || amount <= 0) {
     return null;
@@ -524,7 +530,8 @@ function settledBy(
 /** Whether the form keeps the edited collection's lines as written: its amount is the collection's own. */
 function keepsLines(read: CollectionBooks, form: CollectionForm): boolean {
   return (
-    read.editing !== null && parseAmount(form.amount) === debitOf(read.editing)
+    read.editing !== null &&
+    read.texts.parse(form.amount) === debitOf(read.editing)
   );
 }
 
@@ -670,7 +677,7 @@ function formOf(read: CollectionBooks, entry: JournalEntry): CollectionForm {
   return {
     personId: residencyOf(read, residentId).personId,
     accountId: must(debit, `the debit of ${entry.id}`).accountId,
-    amount: amountText(debitOf(entry)),
+    amount: read.texts.text(debitOf(entry)),
     description: entry.description,
     edited: [...WRITTEN],
   };

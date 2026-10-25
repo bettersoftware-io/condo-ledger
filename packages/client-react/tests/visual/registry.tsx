@@ -9,6 +9,7 @@ import type { SettlementRow, WizardState } from "@cl/client-core";
 import { cents, ok, type Result, rejected } from "@cl/domain";
 import { useViewModel } from "@cl/react-bindings";
 
+import { AmountLocaleProvider } from "#/ui/AmountLocaleProvider.tsx";
 import { AccountDetails } from "#/ui/accounts/AccountDetails.tsx";
 import { AccountIcon } from "#/ui/accounts/AccountIcon.tsx";
 // The bottom panel's body is styled with the screen; alone, it needs the
@@ -118,6 +119,30 @@ const registry: Record<string, Entry> = {
         variant={money.variant}
         emphasis={money.emphasis}
       />
+    );
+  },
+  // The cells take only props: one under another, each as wide as the
+  // picture.
+  "money-column": (scenario: Scenario): ReactElement => {
+    const moneys = required(scenario, "moneys", scenario.moneys);
+
+    return (
+      <div>
+        {moneys.map((money, index) => {
+          return (
+            <div
+              // biome-ignore lint/suspicious/noArrayIndexKey: a picture's cells never move; two may be alike
+              key={index}
+            >
+              <Money
+                cents={money.cents === null ? null : cents(money.cents)}
+                variant={money.variant}
+                emphasis={money.emphasis}
+              />
+            </div>
+          );
+        })}
+      </div>
     );
   },
   // A row alone under the grid's template, which the grid writes as a CSS
@@ -305,8 +330,9 @@ interface SurroundProps {
 /**
  * What the app puts around everything it draws, without its layout: the
  * theme and the mode `ui/shell/AppRoot.tsx` sets on its root, where the
- * tokens read them. The mode is the session's preference, which the seeding
- * sets from the scenario.
+ * tokens read them, and the amount locale it hands down. The mode and the
+ * language are the session's preferences, which the seeding sets from the
+ * scenario.
  *
  * The app's root also draws the page under the parts: its background, the
  * text's colour and font, and the mode's `color-scheme`, which the native
@@ -330,7 +356,7 @@ function Surround({ children }: SurroundProps): ReactElement {
 
   return (
     <div data-theme={theme} data-mode={mode}>
-      {children}
+      <AmountLocaleProvider>{children}</AmountLocaleProvider>
     </div>
   );
 }

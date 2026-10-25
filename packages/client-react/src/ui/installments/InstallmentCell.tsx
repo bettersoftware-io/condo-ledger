@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 
 import { type CellStatus, type Cents, ZERO_CENTS } from "@cl/domain";
 
+import { useLocale } from "../amountLocale.ts";
 import { formatCents } from "../format.ts";
 import { InlineEditor } from "../InlineEditor.tsx";
 import { Money } from "../Money.tsx";
@@ -27,11 +28,13 @@ export function InstallmentCell({
   onCommit,
   onCancel,
 }: InstallmentCellProps): ReactElement {
+  const locale = useLocale();
+
   if (editing) {
     return (
       <span className="installment-cell" data-testid={TESTIDS.installmentCell}>
         <InlineEditor
-          value={formatCents(amount ?? ZERO_CENTS)}
+          value={formatCents(amount ?? ZERO_CENTS, locale)}
           error={error}
           onCommit={onCommit}
           onCancel={onCancel}

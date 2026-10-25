@@ -16,6 +16,7 @@ import type {
 import { ZERO_CENTS } from "@cl/domain";
 import { useViewModel } from "@cl/react-bindings";
 
+import { useLocale } from "#/ui/amountLocale.ts";
 import { FormField } from "#/ui/FormField.tsx";
 import { formatCents } from "#/ui/format.ts";
 import { TESTIDS } from "#/ui/testids.ts";
@@ -78,6 +79,7 @@ function OpeningBalancesBody({
   onCancel,
 }: OpeningBalancesBodyProps): ReactElement {
   const { form, summary } = state;
+  const locale = useLocale();
   const list = useRef<HTMLDivElement>(null);
   const balanced = summary.balance === ZERO_CENTS;
 
@@ -149,7 +151,7 @@ function OpeningBalancesBody({
         >
           Transaction balance
           <span className="opening-balance-amount">
-            {formatCents(summary.balance)}
+            {formatCents(summary.balance, locale)}
           </span>
         </span>
         <input

@@ -13,6 +13,7 @@ import { must } from "@cl/domain/support/must.ts";
 
 import type { Books } from "#/presenters/booksPresenter.ts";
 import { type AppHarness, createAppHarness } from "#/testing/appHarness.ts";
+import { createAmountTexts } from "#/testing/createAmountTexts.ts";
 import { currentBooks, currentEntry } from "#/testing/harnessBooks.ts";
 
 import {
@@ -428,6 +429,7 @@ describe("the Record owner collection wizard", () => {
     }
 
     const machine = createCollectionWizard(
+      createAmountTexts(),
       currentBooks(harness),
       harness.ports.clock,
       write,
@@ -448,6 +450,7 @@ describe("the Record owner collection wizard", () => {
     const harness = createP36Harness();
     const books = currentBooks(harness);
     const machine = createCollectionWizard(
+      createAmountTexts(),
       {
         ...books,
         accounts: books.accounts.map((account) => {
@@ -473,6 +476,7 @@ describe("the Record owner collection wizard", () => {
   it("with no books: no choices, no people, no account", () => {
     const harness = createP36Harness();
     const machine = createCollectionWizard(
+      createAmountTexts(),
       null,
       harness.ports.clock,
       neverWrite,
@@ -635,6 +639,7 @@ describe("editing a collection", () => {
 
     expect(() => {
       return createCollectionWizard(
+        createAmountTexts(),
         currentBooks(harness),
         harness.ports.clock,
         neverWrite,
@@ -755,6 +760,28 @@ describe("fitsCollection", () => {
     const harness = createAppHarness();
 
     expect(fitsCollection(unfit(harness), currentBooks(harness))).toBe(false);
+  });
+});
+
+describe("amounts in the session's language", () => {
+  it("in Italian, choosing a person prefills what they owe with a decimal comma, and 1.234,56 is read as an amount", async () => {
+    const harness = createP36Harness();
+
+    await harness.app.presenters.session.setLanguage("it");
+
+    const machine = createNewWizard(harness);
+
+    machine.intents.edit({ personId: "md89" });
+    machine.intents.next();
+
+    expect(machine.state$.getValue().form.amount).toBe("539,92");
+    expect(stepReasonAfter(machine, {})).toBeNull();
+    expect(machine.state$.getValue().summary.settlement).toHaveLength(4);
+    expect(stepReasonAfter(machine, { amount: "1.234,56" })).toBe("over-owed");
+    expect(stepReasonAfter(machine, { amount: "539.92" })).toBe(
+      "not-an-amount",
+    );
+    expect(stepReasonAfter(machine, { amount: "200,5" })).toBeNull();
   });
 });
 

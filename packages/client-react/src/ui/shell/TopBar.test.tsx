@@ -65,6 +65,23 @@ describe("TopBar", () => {
     expect(page.isPopoverOpen()).toBe(false);
   });
 
+  it("a language picked shows the chart of accounts' amounts in its locale at once", async () => {
+    const page = mountTopBar();
+
+    expect(page.accountAmounts()).toContain("2,126.19");
+
+    await page.openLanguages();
+    await page.pickLanguage("Italiano");
+
+    expect(page.accountAmounts()).toContain("2.126,19");
+    expect(page.accountAmounts()).not.toContain("2,126.19");
+
+    await page.openLanguages();
+    await page.pickLanguage("Français");
+
+    expect(page.accountAmounts()).toContain("2\u202f126,19");
+  });
+
   it("closes a popover on Escape", async () => {
     const page = mountTopBar();
 

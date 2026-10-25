@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 
 import { useViewModel } from "@cl/react-bindings";
 
+import { useLocale } from "../amountLocale.ts";
 import { Fieldset } from "../Fieldset.tsx";
 import { formatCents } from "../format.ts";
 import { Row } from "../Row.tsx";
@@ -19,6 +20,7 @@ import "./AccountDetails.css";
 export function AccountDetails(): ReactElement {
   const { useAccountDetails } = useViewModel();
   const details = useAccountDetails();
+  const locale = useLocale();
 
   if (details === null) {
     return <Scheda wide>{null}</Scheda>;
@@ -68,13 +70,13 @@ export function AccountDetails(): ReactElement {
       ) : null}
       <Fieldset legend="ACCOUNT BALANCES">
         <Row label="Debit" tone="mono">
-          {formatCents(details.debit)}
+          {formatCents(details.debit, locale)}
         </Row>
         <Row label="Credit" tone="mono">
-          {formatCents(details.credit)}
+          {formatCents(details.credit, locale)}
         </Row>
         <Row label="Balance" tone="num">
-          {formatCents(details.balance)}
+          {formatCents(details.balance, locale)}
         </Row>
         {details.budget === null ? (
           <Row label="Budget" tone="muted">
@@ -82,7 +84,7 @@ export function AccountDetails(): ReactElement {
           </Row>
         ) : (
           <Row label="Budget" tone="mono">
-            {formatCents(details.budget)}
+            {formatCents(details.budget, locale)}
           </Row>
         )}
       </Fieldset>

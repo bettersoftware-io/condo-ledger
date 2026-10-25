@@ -2,17 +2,20 @@ import type { ReactElement } from "react";
 
 import type { Cents } from "@cl/domain";
 
+import { useLocale } from "./amountLocale.ts";
 import { formatCents } from "./format.ts";
 import { TESTIDS } from "./testids.ts";
 
 import "./Money.css";
 
-/** A money cell: right-aligned, tabular digits, coloured by sign. Formatting only; the number is the core's. */
+/** A money cell: right-aligned, tabular digits, coloured by sign, in the session's amount locale. Formatting only; the number is the core's. */
 export function Money({
   cents,
   variant = "colored",
   emphasis = false,
 }: MoneyProps): ReactElement {
+  const locale = useLocale();
+
   return (
     <span
       className="money"
@@ -21,7 +24,7 @@ export function Money({
       data-variant={variant}
       data-emphasis={emphasis}
     >
-      {cents === null ? "" : formatCents(cents)}
+      {cents === null ? "" : formatCents(cents, locale)}
     </span>
   );
 }

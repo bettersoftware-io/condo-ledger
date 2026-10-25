@@ -17,7 +17,7 @@ import {
   ZERO_CENTS,
 } from "@cl/domain";
 
-import { amountText, parseAmount } from "#/amounts.ts";
+import type { AmountTexts } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 
 import { contextOf, leafChoices } from "./choices.ts";
@@ -91,6 +91,7 @@ const LEFT_OUT_ROLES: readonly (AccountRole | null)[] = [
 
 /** What the wizard reads the form against. */
 interface OpeningBooks {
+  texts: AmountTexts;
   books: Books | null;
   rows: OpeningRow[];
   /** The id of the opening the wizard rewrites; null for a new one. */
@@ -108,14 +109,17 @@ interface ReadAmount {
  * liabilities leaf and every resident of the period, each with Debit and
  * Credit. A new opening has each resident prefilled from the starting
  * balance (a debt in Debit, a credit in Credit); an edit shows the entry's
- * own lines. Rows with neither amount write nothing.
+ * own lines. Rows with neither amount write nothing. Amounts are read and
+ * written through `texts`, in the session's locale.
  */
 export function createOpeningBalancesWizard(
+  texts: AmountTexts,
   books: Books | null,
   write: WriteEntry,
   editing: JournalEntry | null,
 ): WizardMachine<OpeningForm, OpeningSummary> {
   const read: OpeningBooks = {
+    texts,
     books,
     rows: books === null ? [] : openingRows(books),
     replacing: editing?.id ?? null,
@@ -131,8 +135,8 @@ export function createOpeningBalancesWizard(
         description: editing?.description ?? OPENING_DESCRIPTION,
         amounts:
           editing === null
-            ? prefilled(books?.parties ?? [], read.rows)
-            : amountsOf(editing),
+            ? prefilled(texts, books?.parties ?? [], read.rows)
+            : amountsOf(texts, editing),
         search: "",
         onlyWithAmount: false,
       },
@@ -140,7 +144,7 @@ export function createOpeningBalancesWizard(
       choices: [],
       derive: derived,
       summarize: (form: OpeningForm): OpeningSummary => {
-        return summarize(read.rows, form);
+        return summarize(read, form);
       },
       stepVerdict: (form: OpeningForm): Result => {
         return derived(form).verdict;
@@ -148,6 +152,7 @@ export function createOpeningBalancesWizard(
       editing: read.replacing,
     },
     write,
+    texts.changed$,
   );
 }
 
@@ -212,7 +217,7 @@ function derive(read: OpeningBooks, form: OpeningForm): Derived {
   const preview: Derived["preview"] = [];
 
   for (const row of read.rows) {
-    const { debit, credit } = readAmount(form, row);
+    const { debit, credit } = readAmount(read.texts, form, row);
 
     if (debit === null || credit === null) {
       return refused(
@@ -240,13 +245,14 @@ function derive(read: OpeningBooks, form: OpeningForm): Derived {
   return judged(preview, draft, contextOf(books, read.replacing));
 }
 
-function summarize(rows: OpeningRow[], form: OpeningForm): OpeningSummary {
+function summarize(read: OpeningBooks, form: OpeningForm): OpeningSummary {
+  const { rows, texts } = read;
   const search = form.search.trim().toLowerCase();
   let balance = ZERO_CENTS;
   let unreadableRow: string | null = null;
 
   for (const row of rows) {
-    const { debit, credit } = readAmount(form, row);
+    const { debit, credit } = readAmount(texts, form, row);
 
     balance = subtractCents(
       addCents(balance, debit ?? ZERO_CENTS),
@@ -262,7 +268,7 @@ function summarize(rows: OpeningRow[], form: OpeningForm): OpeningSummary {
     .filter((row) => {
       return (
         row.label.toLowerCase().includes(search) &&
-        (!form.onlyWithAmount || hasAmount(form, row))
+        (!form.onlyWithAmount || hasAmount(texts, form, row))
       );
     })
     .map((row): OpeningRowView => {
@@ -280,18 +286,29 @@ function summarize(rows: OpeningRow[], form: OpeningForm): OpeningSummary {
 }
 
 /** Whether the row holds an amount: a side typed that is not zero, or that does not read. */
-function hasAmount(form: OpeningForm, row: OpeningRow): boolean {
+function hasAmount(
+  texts: AmountTexts,
+  form: OpeningForm,
+  row: OpeningRow,
+): boolean {
   const amount = amountOf(form, row);
 
   return [amount.debit, amount.credit].some((text) => {
-    return text.trim() !== "" && parseAmount(text) !== ZERO_CENTS;
+    return text.trim() !== "" && texts.parse(text) !== ZERO_CENTS;
   });
 }
 
-function readAmount(form: OpeningForm, row: OpeningRow): ReadAmount {
+function readAmount(
+  texts: AmountTexts,
+  form: OpeningForm,
+  row: OpeningRow,
+): ReadAmount {
   const amount = amountOf(form, row);
 
-  return { debit: sideOf(amount.debit), credit: sideOf(amount.credit) };
+  return {
+    debit: sideOf(texts, amount.debit),
+    credit: sideOf(texts, amount.credit),
+  };
 }
 
 function amountOf(form: OpeningForm, row: OpeningRow): OpeningAmount {
@@ -299,18 +316,19 @@ function amountOf(form: OpeningForm, row: OpeningRow): OpeningAmount {
 }
 
 /** A side's text as cents: blank is zero; one that does not read, or reads below zero, is null. */
-function sideOf(text: string): Cents | null {
+function sideOf(texts: AmountTexts, text: string): Cents | null {
   if (text.trim() === "") {
     return ZERO_CENTS;
   }
 
-  const amount = parseAmount(text);
+  const amount = texts.parse(text);
 
   return amount === null || amount < ZERO_CENTS ? null : amount;
 }
 
 /** A new opening's amounts: each resident's starting balance, a debt in Debit and a credit in Credit; nothing for zero. */
 function prefilled(
+  texts: AmountTexts,
   parties: Party[],
   rows: OpeningRow[],
 ): Record<string, OpeningAmount> {
@@ -325,8 +343,8 @@ function prefilled(
     if (row !== undefined && balance !== ZERO_CENTS) {
       amounts[row.key] =
         balance > ZERO_CENTS
-          ? { debit: amountText(balance), credit: "" }
-          : { debit: "", credit: amountText(cents(-balance)) };
+          ? { debit: texts.text(balance), credit: "" }
+          : { debit: "", credit: texts.text(cents(-balance)) };
     }
   }
 
@@ -334,7 +352,10 @@ function prefilled(
 }
 
 /** The amounts an opening was written from: each posting on its row, a side of zero blank. */
-function amountsOf(entry: JournalEntry): Record<string, OpeningAmount> {
+function amountsOf(
+  texts: AmountTexts,
+  entry: JournalEntry,
+): Record<string, OpeningAmount> {
   const amounts: Record<string, OpeningAmount> = {};
 
   for (const posting of entry.postings) {
@@ -342,8 +363,8 @@ function amountsOf(entry: JournalEntry): Record<string, OpeningAmount> {
 
     if (key !== null) {
       amounts[key] = {
-        debit: sideText(posting.debit),
-        credit: sideText(posting.credit),
+        debit: sideText(texts, posting.debit),
+        credit: sideText(texts, posting.credit),
       };
     }
   }

@@ -18,7 +18,7 @@ import {
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
-import { amountText, parseAmount, parseDate } from "#/amounts.ts";
+import { type AmountTexts, parseDate } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 import { todayOf } from "#/today.ts";
 
@@ -159,6 +159,7 @@ const FIELDS: readonly (keyof InvoiceForm)[] = [
 
 /** What the wizard reads the form against. */
 interface InvoiceBooks {
+  texts: AmountTexts;
   books: Books | null;
   /** The period's year: a date typed without one is in it. */
   year: number;
@@ -181,9 +182,11 @@ interface InvoiceAmounts {
  * withholding". Choosing a supplier copies its most recent invoice of the
  * period into the fields the person has not changed. Editing, the form is the
  * invoice's terms and the entry's description, every field the person's, and
- * the supplier stays put while a payment names the invoice.
+ * the supplier stays put while a payment names the invoice. Amounts are read
+ * and written through `texts`, in the session's locale, and so are rates.
  */
 export function createInvoiceWizard(
+  texts: AmountTexts,
   books: Books | null,
   clock: ClockPort,
   write: WriteEntry,
@@ -192,10 +195,11 @@ export function createInvoiceWizard(
   const opened =
     editing === null
       ? null
-      : openedOf(must(books, "the books of the edited entry"), editing);
+      : openedOf(texts, must(books, "the books of the edited entry"), editing);
 
   const replacing = editing?.id ?? null;
   const read: InvoiceBooks = {
+    texts,
     books,
     year: books === null ? 0 : Number(books.period.start.slice(0, 4)),
     suppliers: books === null ? [] : supplierChoices(books),
@@ -221,7 +225,7 @@ export function createInvoiceWizard(
       derive: derived,
       summarize: (form: InvoiceForm): InvoiceSummary => {
         return {
-          totals: totalsOf(books, form),
+          totals: totalsOf(texts, books, form),
           supplierLocked,
           paid: opened?.paid ?? ZERO_CENTS,
           duplicate: isDuplicate(read, form),
@@ -242,6 +246,7 @@ export function createInvoiceWizard(
       editing: replacing,
     },
     write,
+    texts.changed$,
   );
 
   function edit(patch: Partial<InvoiceForm>): void {
@@ -264,7 +269,11 @@ interface OpenedInvoice {
   locked: boolean;
 }
 
-function openedOf(books: Books, entry: JournalEntry): OpenedInvoice {
+function openedOf(
+  texts: AmountTexts,
+  books: Books,
+  entry: JournalEntry,
+): OpenedInvoice {
   const invoice = must(
     books.invoices.find((candidate) => {
       return candidate.entryId === entry.id;
@@ -274,7 +283,7 @@ function openedOf(books: Books, entry: JournalEntry): OpenedInvoice {
 
   return {
     invoice,
-    form: formOf(invoice, entry),
+    form: formOf(texts, invoice, entry),
     paid: paidOn(invoice.id, books.entries),
     locked: books.entries.some((candidate) => {
       return (
@@ -306,7 +315,7 @@ function applied(
   };
 
   if (patch.supplierId !== undefined && patch.supplierId !== form.supplierId) {
-    next = prefilled(read.books, next);
+    next = prefilled(read, next);
   }
 
   if (!next.edited.includes("description")) {
@@ -317,9 +326,9 @@ function applied(
 }
 
 /** The fields the person has not changed, from the supplier's most recent invoice of the period or the defaults; and the pill that matches them, unless the person picked one. */
-function prefilled(books: Books | null, form: InvoiceForm): InvoiceForm {
-  const last = lastInvoice(books?.invoices ?? [], form.supplierId);
-  const source = last === null ? DEFAULTS : prefillOf(last);
+function prefilled(read: InvoiceBooks, form: InvoiceForm): InvoiceForm {
+  const last = lastInvoice(read.books?.invoices ?? [], form.supplierId);
+  const source = last === null ? DEFAULTS : prefillOf(read.texts, last);
   const next: InvoiceForm = { ...form };
 
   for (const [field, value] of Object.entries(source)) {
@@ -330,7 +339,7 @@ function prefilled(books: Books | null, form: InvoiceForm): InvoiceForm {
 
   return form.edited.includes("preset")
     ? next
-    : { ...next, preset: presetOf(next) };
+    : { ...next, preset: presetOf(read.texts, next) };
 }
 
 /** The supplier's invoice of the period latest by date, then by number. */
@@ -353,11 +362,11 @@ function lastInvoice(
   );
 }
 
-function prefillOf(invoice: Invoice): Prefilled {
+function prefillOf(texts: AmountTexts, invoice: Invoice): Prefilled {
   return {
     costAccountId: invoice.costAccountId,
-    socialSecurityRate: rateText(invoice.socialSecurityRate),
-    vatRate: rateText(invoice.vatRate),
+    socialSecurityRate: texts.hundredthsText(invoice.socialSecurityRate),
+    vatRate: texts.hundredthsText(invoice.vatRate),
     withholdingCode: invoice.withholdingCode,
     withholdingOnSocialSecurity: invoice.withholdingOnSocialSecurity,
     reason: invoice.reason,
@@ -365,9 +374,9 @@ function prefillOf(invoice: Invoice): Prefilled {
 }
 
 /** The pill the fields match: a non-taxable amount is With non-subject amounts; no social security is Company (the flag has nothing to apply to); 4% on social security is Professional w/ register; anything else keeps the fields as they are. */
-function presetOf(form: InvoiceForm): InvoicePreset {
-  const nonTaxable = optionalAmount(form.nonTaxable);
-  const socialSecurity = parseRate(form.socialSecurityRate);
+function presetOf(texts: AmountTexts, form: InvoiceForm): InvoicePreset {
+  const nonTaxable = optionalAmount(texts, form.nonTaxable);
+  const socialSecurity = parseRate(texts, form.socialSecurityRate);
 
   if (nonTaxable !== null && nonTaxable !== ZERO_CENTS) {
     return "nonSubject";
@@ -423,7 +432,11 @@ function startingDate(books: Books, clock: ClockPort): string {
 }
 
 /** The form an invoice was written from: its terms as text, and its entry's description. */
-function formOf(invoice: Invoice, entry: JournalEntry): InvoiceForm {
+function formOf(
+  texts: AmountTexts,
+  invoice: Invoice,
+  entry: JournalEntry,
+): InvoiceForm {
   const form: InvoiceForm = {
     supplierId: invoice.supplierId,
     number: invoice.number,
@@ -431,10 +444,10 @@ function formOf(invoice: Invoice, entry: JournalEntry): InvoiceForm {
     date: dateText(invoice.date),
     dueDate: invoice.dueDate === null ? "" : dateText(invoice.dueDate),
     costAccountId: invoice.costAccountId,
-    taxable: amountText(invoice.taxable),
-    socialSecurityRate: rateText(invoice.socialSecurityRate),
-    vatRate: rateText(invoice.vatRate),
-    nonTaxable: amountText(invoice.nonTaxable),
+    taxable: texts.text(invoice.taxable),
+    socialSecurityRate: texts.hundredthsText(invoice.socialSecurityRate),
+    vatRate: texts.hundredthsText(invoice.vatRate),
+    nonTaxable: texts.text(invoice.nonTaxable),
     withholdingCode: invoice.withholdingCode,
     withholdingOnSocialSecurity: invoice.withholdingOnSocialSecurity,
     description: entry.description,
@@ -442,7 +455,7 @@ function formOf(invoice: Invoice, entry: JournalEntry): InvoiceForm {
     edited: [...FIELDS],
   };
 
-  return { ...form, preset: presetOf(form) };
+  return { ...form, preset: presetOf(texts, form) };
 }
 
 function derive(
@@ -459,7 +472,7 @@ function derive(
   // A supplier was offered: there are books.
   const books = must(read.books, "the books");
 
-  const amounts = amountsOf(form);
+  const amounts = amountsOf(read.texts, form);
 
   if (typeof amounts === "string") {
     return refused(amounts);
@@ -523,16 +536,19 @@ function stepOneReason(read: InvoiceBooks, form: InvoiceForm): string | null {
 }
 
 /** Step 2's amounts, then its rates; the first that cannot be read names its reason. */
-function amountsOf(form: InvoiceForm): InvoiceAmounts | string {
-  const taxable = parseAmount(form.taxable);
-  const nonTaxable = optionalAmount(form.nonTaxable);
+function amountsOf(
+  texts: AmountTexts,
+  form: InvoiceForm,
+): InvoiceAmounts | string {
+  const taxable = texts.parse(form.taxable);
+  const nonTaxable = optionalAmount(texts, form.nonTaxable);
 
   if (taxable === null || taxable < 0 || nonTaxable === null) {
     return "not-an-amount";
   }
 
-  const socialSecurityRate = parseRate(form.socialSecurityRate);
-  const vatRate = parseRate(form.vatRate);
+  const socialSecurityRate = parseRate(texts, form.socialSecurityRate);
+  const vatRate = parseRate(texts, form.vatRate);
 
   if (socialSecurityRate === null || vatRate === null) {
     return "not-a-rate";
@@ -562,10 +578,11 @@ function termsOf(
 
 /** Step 2's computed rows, once the amounts, the rates and the code can be read. */
 function totalsOf(
+  texts: AmountTexts,
   books: Books | null,
   form: InvoiceForm,
 ): InvoiceTotals | null {
-  const amounts = amountsOf(form);
+  const amounts = amountsOf(texts, form);
   const code = form.withholdingCode;
   const tax =
     code === null
@@ -642,25 +659,20 @@ function offers(choices: WizardChoice[], key: string | null): boolean {
   });
 }
 
-/** A rate typed as a percentage, `4` or `21.5`, in hundredths of a percent; a negative one, or anything else, is null. */
-function parseRate(text: string): Rate | null {
-  const value = parseAmount(text);
+/** A rate typed as a percentage in the session's locale, `4` or `21,5` in it-IT, in hundredths of a percent; a negative one, or anything else, is null. */
+function parseRate(texts: AmountTexts, text: string): Rate | null {
+  const value = texts.parseHundredths(text);
 
   return value === null || value < 0 ? null : rate(value);
 }
 
-/** A rate as the form holds it: `2000` is `20`, `2150` is `21.5`. */
-function rateText(value: Rate): string {
-  return String(value / 100);
-}
-
 /** A non-negative amount, blank being nothing; null when it cannot be read. */
-function optionalAmount(text: string): Cents | null {
+function optionalAmount(texts: AmountTexts, text: string): Cents | null {
   if (text.trim() === "") {
     return ZERO_CENTS;
   }
 
-  const value = parseAmount(text);
+  const value = texts.parse(text);
 
   return value === null || value < 0 ? null : value;
 }

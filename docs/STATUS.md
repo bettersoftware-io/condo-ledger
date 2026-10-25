@@ -128,9 +128,6 @@ Work that waits on a release, a decision or other work.
   `git push origin --delete worktree-visual-flake-probe`.
 - **Wording and input choices made during M2b (the user).** Keep or change
   each:
-  - amounts are typed en-US (`1,234.56`), as M2a pinned, not Italian
-    (`1.234,56`); accepting Italian means changing `parseAmount`
-    (`packages/client-core/src/amounts.ts`) and two of M2a's tests;
   - the generic editor's title on an edit reads "Edit Add Accounting Entry";
   - strings written without a source in the spec or the design: "Choose a
     supplier…", "No withholding", "Search account…", "No account matches."
@@ -270,3 +267,17 @@ Work that waits on a release, a decision or other work.
 - **The schedule's "Restr. period" is the resident's own restriction, else
   its unit's, as one unit.** A resident with only one bound of its own does
   not inherit the unit's other bound.
+- **Amounts and rates follow the language, read at the moment a form
+  judges.** A form keeps what it holds when the language changes, so an
+  amount the app prefilled (`539.92`) reads as not an amount after a
+  switch to Italian until it is typed again. The inline editors open on the
+  shown, grouped value (`1.000,00`), which parses. Grouping every amount
+  (`useGrouping: "always"`) needs Chrome 106, Safari 15.4 or Firefox 116;
+  older browsers leave four-digit amounts ungrouped in it-IT and es-ES. The
+  schedule cell editor, the account details panel and the wizards' summary
+  sentences take the locale the same way but have no Italian test of their
+  own. At startup `amountLocale$` is en-US until the session's preferences
+  arrive: on the simulators they answer at once, but over the M3 adapters a
+  wizard opened before they do prefills its amounts in en-US, and keeps them
+  after the language arrives
+  ([2026-10-25-amount-locale-design.md](superpowers/specs/2026-10-25-amount-locale-design.md)).

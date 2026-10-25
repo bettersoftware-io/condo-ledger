@@ -17,7 +17,7 @@ import {
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
-import { parseDate } from "#/amounts.ts";
+import { type AmountTexts, parseDate } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 import { scheduleContextOf } from "#/presenters/installmentSchedulePresenter.ts";
 
@@ -31,7 +31,7 @@ import {
 /** One new installment as step 2 shows it: its due date is derived from step 1. */
 export interface InstallmentRowForm {
   name: string;
-  /** Of the budget, en-US with up to two decimals: "33.33". */
+  /** Of the budget, with up to two decimals in the session's locale: "33.33" in en-US, "33,33" in it-IT. */
   percentage: string;
 }
 
@@ -81,7 +81,6 @@ const DEFAULT_COUNT = 3;
 const DEFAULT_MONTHS = 4;
 const MAX_COUNT = 12;
 const MAX_MONTHS = 5;
-const HUNDREDTHS = 100;
 
 /**
  * The Create Budget Installments wizard: step 1 "Number and dates", step 2
@@ -92,9 +91,11 @@ const HUNDREDTHS = 100;
  *
  * The review plans the batch from the books exactly as the port will, so Save
  * writes what step 3 shows. After a refused save the wizard reads the books
- * again through `latest`, and judges the form against them.
+ * again through `latest`, and judges the form against them. Percentages are
+ * read and written through `texts`, in the session's locale.
  */
 export function createBudgetInstallmentsWizard(
+  texts: AmountTexts,
   books: Books | null,
   write: (draft: InstallmentsDraft) => Promise<Result>,
   latest: () => Books | null = (): Books | null => {
@@ -115,28 +116,29 @@ export function createBudgetInstallmentsWizard(
         firstDue: "",
         months: String(DEFAULT_MONTHS),
         wholeEuros: false,
-        rows: rowsFor(books, DEFAULT_COUNT, []),
+        rows: rowsFor(texts, books, DEFAULT_COUNT, []),
       },
       stepCount: 3,
       choices: [],
       derive: (form: BudgetInstallmentsForm): Derived<InstallmentsDraft> => {
-        return derive(read, form);
+        return derive(texts, read, form);
       },
       summarize: (form: BudgetInstallmentsForm): BudgetInstallmentsSummary => {
-        return summaryOf(read, form);
+        return summaryOf(texts, read, form);
       },
       stepVerdict: (form: BudgetInstallmentsForm, step: number): Result => {
         return step === 1
           ? numberAndDatesVerdict(read, form)
-          : derive(read, form).verdict;
+          : derive(texts, read, form).verdict;
       },
     },
     write,
+    texts.changed$,
   );
 
   function edit(patch: Partial<BudgetInstallmentsForm>): void {
     machine.intents.edit(
-      followingCount(read, machine.state$.getValue().form, patch),
+      followingCount(texts, read, machine.state$.getValue().form, patch),
     );
   }
 
@@ -158,6 +160,7 @@ export function createBudgetInstallmentsWizard(
 
 /** The patch, with new rows when it sets the number to one in range that the rows do not have. */
 function followingCount(
+  texts: AmountTexts,
   books: Books | null,
   form: BudgetInstallmentsForm,
   patch: Partial<BudgetInstallmentsForm>,
@@ -171,11 +174,12 @@ function followingCount(
 
   return count === null || count === rows.length
     ? patch
-    : { ...patch, rows: rowsFor(books, count, rows) };
+    : { ...patch, rows: rowsFor(texts, books, count, rows) };
 }
 
 /** `count` rows on the default percentages, keeping the names of `previous`. */
 function rowsFor(
+  texts: AmountTexts,
   books: Books | null,
   count: number,
   previous: InstallmentRowForm[],
@@ -185,7 +189,7 @@ function rowsFor(
   return defaultPercentages(count).map((percentage, index) => {
     return {
       name: previous[index]?.name ?? `Installment ${existing + index + 1}`,
-      percentage: percentText(percentage),
+      percentage: texts.hundredthsText(percentage),
     };
   });
 }
@@ -212,6 +216,7 @@ function numberAndDatesVerdict(
 
 /** Step 1's rules, then one row per installment and every percentage read, then the domain's rules on the batch. */
 function derive(
+  texts: AmountTexts,
   books: Books | null,
   form: BudgetInstallmentsForm,
 ): Derived<InstallmentsDraft> {
@@ -225,7 +230,7 @@ function derive(
     return refused("rows-not-count");
   }
 
-  const installments = plannedOf(books, form);
+  const installments = plannedOf(texts, books, form);
 
   if (installments === null) {
     return refused("not-a-percentage");
@@ -246,10 +251,11 @@ function derive(
 }
 
 function summaryOf(
+  texts: AmountTexts,
   books: Books | null,
   form: BudgetInstallmentsForm,
 ): BudgetInstallmentsSummary {
-  const { draft } = derive(books, form);
+  const { draft } = derive(texts, books, form);
   const review = books === null || draft === null ? [] : reviewOf(books, draft);
 
   return {
@@ -293,6 +299,7 @@ function reviewOf(books: Books, draft: InstallmentsDraft): ReviewRow[] {
 
 /** The rows as the batch's installments; null while a percentage is not one. */
 function plannedOf(
+  texts: AmountTexts,
   books: Books | null,
   form: BudgetInstallmentsForm,
 ): PlannedInstallment[] | null {
@@ -300,7 +307,7 @@ function plannedOf(
   const planned: PlannedInstallment[] = [];
 
   for (const [index, row] of form.rows.entries()) {
-    const percentage = parsePercentage(row.percentage);
+    const percentage = texts.parseHundredths(row.percentage);
 
     if (percentage === null) {
       return null;
@@ -360,29 +367,4 @@ function wholeNumberUpTo(text: string, max: number): number | null {
   const value = Number(text.trim());
 
   return value >= 1 && value <= max ? value : null;
-}
-
-/**
- * "33.33" as 3333 hundredths of a percent, read digit by digit so no
- * floating-point rounding comes in; a leading "-" negates it. Null for any
- * other text, more than two decimals included.
- */
-function parsePercentage(text: string): number | null {
-  const match = /^(-?)(\d+)(?:\.(\d{1,2}))?$/.exec(text.trim());
-
-  if (match === null) {
-    return null;
-  }
-
-  const [, sign, whole, fraction = ""] = match;
-  const value =
-    Number(must(whole, "the whole part")) * HUNDREDTHS +
-    Number(fraction.padEnd(2, "0"));
-
-  return sign === "-" ? 0 - value : value;
-}
-
-/** A default percentage, a whole percent in hundredths, as its text: 3400 as "34". */
-function percentText(hundredths: number): string {
-  return String(hundredths / HUNDREDTHS);
 }

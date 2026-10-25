@@ -12,6 +12,7 @@ import {
 } from "@cl/client-core";
 import { useViewModel } from "@cl/react-bindings";
 
+import { useLocale } from "#/ui/amountLocale.ts";
 import { DateField } from "#/ui/DateField.tsx";
 import { FormField } from "#/ui/FormField.tsx";
 import { formatCents } from "#/ui/format.ts";
@@ -77,10 +78,11 @@ function InvoiceBody({
   onCancel,
 }: InvoiceBodyProps): ReactElement {
   const { summary } = state;
+  const locale = useLocale();
 
   function wordReason(reason: string): string {
     return reason === "below-paid"
-      ? `Payments already made total ${formatCents(summary.paid)}.`
+      ? `Payments already made total ${formatCents(summary.paid, locale)}.`
       : reasonText(reason, INVOICE_REASONS);
   }
 

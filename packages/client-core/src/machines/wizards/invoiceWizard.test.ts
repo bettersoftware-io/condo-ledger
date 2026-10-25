@@ -9,10 +9,12 @@ import {
   type Invoice,
   openInvoices,
   type ResultOf,
+  rate,
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
 import { type AppHarness, createAppHarness } from "#/testing/appHarness.ts";
+import { createAmountTexts } from "#/testing/createAmountTexts.ts";
 import { currentBooks, currentEntry } from "#/testing/harnessBooks.ts";
 
 import {
@@ -409,6 +411,7 @@ describe("the New invoice wizard", () => {
     const harness = createP36Harness();
     const books = currentBooks(harness);
     const machine = createInvoiceWizard(
+      createAmountTexts(),
       {
         ...books,
         parties: [
@@ -520,6 +523,7 @@ describe("the New invoice wizard", () => {
     );
 
     const machine = createInvoiceWizard(
+      createAmountTexts(),
       {
         ...books,
         invoices: [
@@ -700,6 +704,7 @@ describe("the New invoice wizard", () => {
     }
 
     const machine = createInvoiceWizard(
+      createAmountTexts(),
       currentBooks(harness),
       harness.ports.clock,
       write,
@@ -723,6 +728,7 @@ describe("the New invoice wizard", () => {
 
   it("with no books: no choices, no date, and no supplier", () => {
     const machine = createInvoiceWizard(
+      createAmountTexts(),
       null,
       fixedClock("2013-05-10T08:00:00Z"),
       () => {
@@ -871,6 +877,7 @@ describe("editing an invoice", () => {
 
     expect(() => {
       return createInvoiceWizard(
+        createAmountTexts(),
         currentBooks(harness),
         harness.ports.clock,
         () => {
@@ -882,9 +889,90 @@ describe("editing an invoice", () => {
   });
 });
 
-interface CreatedWizard {
-  machine: WizardMachine<InvoiceForm, InvoiceSummary>;
-  harness: AppHarness;
+describe("rates in the session's language", () => {
+  it("in Italian, the VAT rate reads 21,5 and refuses 21.5", async () => {
+    const { machine } = await createItalianStepTwo();
+
+    machine.intents.edit({ vatRate: "21,5" });
+
+    expect(machine.state$.getValue().verdict).toEqual({ ok: true });
+    expect(machine.state$.getValue().summary.totals?.vat).toBe(21500);
+
+    machine.intents.edit({ vatRate: "21.5" });
+
+    expect(machine.state$.getValue()).toMatchObject({
+      verdict: { ok: false, reason: "not-a-rate" },
+      summary: { totals: null },
+    });
+  });
+
+  it("in Italian, the social security rate reads 4,5 and refuses 4.5", async () => {
+    const { machine } = await createItalianStepTwo();
+
+    machine.intents.edit({ socialSecurityRate: "4,5" });
+
+    expect(machine.state$.getValue().verdict).toEqual({ ok: true });
+    expect(machine.state$.getValue().summary.totals?.socialSecurity).toBe(4500);
+
+    machine.intents.edit({ socialSecurityRate: "4.5" });
+
+    expect(machine.state$.getValue().verdict).toEqual({
+      ok: false,
+      reason: "not-a-rate",
+    });
+  });
+
+  it("in Italian, a supplier's last rates are prefilled with a decimal comma", () => {
+    const harness = createP36Harness();
+    const books = currentBooks(harness);
+    const machine = createInvoiceWizard(
+      createAmountTexts("it-IT"),
+      {
+        ...books,
+        invoices: books.invoices.map((invoice) => {
+          return invoice.supplierId === "md78"
+            ? {
+                ...invoice,
+                vatRate: rate(2150),
+                socialSecurityRate: rate(450),
+              }
+            : invoice;
+        }),
+      },
+      harness.ports.clock,
+      () => {
+        return Promise.resolve(accepted({ id: "never" }));
+      },
+      null,
+    );
+
+    created.push(machine);
+    machine.intents.edit({ supplierId: "md78" });
+
+    expect(machine.state$.getValue().form).toMatchObject({
+      vatRate: "21,5",
+      socialSecurityRate: "4,5",
+    });
+  });
+});
+
+/** The wizard on p36 in Italian, step 1 filled for md81, a taxable of 1.000,00 and no withholding. */
+async function createItalianStepTwo(): Promise<CreatedWizard> {
+  const harness = createP36Harness();
+
+  await harness.app.presenters.session.setLanguage("it");
+
+  const machine = harness.app.machines.createInvoiceWizard(null);
+
+  created.push(machine);
+  machine.intents.edit({ supplierId: "md81", number: "5" });
+  machine.intents.edit({
+    taxable: "1.000,00",
+    withholdingCode: null,
+    withholdingOnSocialSecurity: false,
+  });
+
+  return { machine, harness };
 }
 
 /** The harness on p36, with a wizard for a new invoice built through the application. */
@@ -950,3 +1038,8 @@ function escaped(text: string): string {
 }
 
 const created: WizardMachine<InvoiceForm, InvoiceSummary>[] = [];
+
+interface CreatedWizard {
+  machine: WizardMachine<InvoiceForm, InvoiceSummary>;
+  harness: AppHarness;
+}
