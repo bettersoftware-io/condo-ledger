@@ -13,6 +13,7 @@ import { must } from "@cl/domain/support/must.ts";
 import { createScheduleSeed } from "@cl/domain/testing/createScheduleSeed.ts";
 
 import { type AppHarness, createAppHarness } from "#/testing/appHarness.ts";
+import { createAmountTexts } from "#/testing/createAmountTexts.ts";
 import { currentBooks } from "#/testing/harnessBooks.ts";
 
 import {
@@ -70,7 +71,9 @@ describe("the Create budget installments wizard", () => {
       "no-budget-allocation",
     );
 
-    const without = track(createBudgetInstallmentsWizard(null, neverWrite));
+    const without = track(
+      createBudgetInstallmentsWizard(createAmountTexts(), null, neverWrite),
+    );
 
     expect(stepReasonAfter(without, { firstDue: "31/03/2014" })).toBe(
       "no-budget-allocation",
@@ -212,11 +215,15 @@ describe("the Create budget installments wizard", () => {
     const harness = createScheduleHarness("p3");
     let writes = 0;
     const machine = track(
-      createBudgetInstallmentsWizard(currentBooks(harness), () => {
-        writes += 1;
+      createBudgetInstallmentsWizard(
+        createAmountTexts(),
+        currentBooks(harness),
+        () => {
+          writes += 1;
 
-        return Promise.resolve(ok());
-      }),
+          return Promise.resolve(ok());
+        },
+      ),
     );
 
     machine.intents.edit({ firstDue: "31/03/2015" });
@@ -391,11 +398,15 @@ describe("the Create budget installments wizard", () => {
     const harness = createScheduleHarness("p3");
     const drafts: InstallmentsDraft[] = [];
     const machine = track(
-      createBudgetInstallmentsWizard(currentBooks(harness), (draft) => {
-        drafts.push(draft);
+      createBudgetInstallmentsWizard(
+        createAmountTexts(),
+        currentBooks(harness),
+        (draft) => {
+          drafts.push(draft);
 
-        return Promise.resolve(ok());
-      }),
+          return Promise.resolve(ok());
+        },
+      ),
     );
 
     machine.intents.edit({
@@ -535,13 +546,17 @@ describe("the Create budget installments wizard", () => {
     const resolvers: ((result: Result) => void)[] = [];
 
     const machine = track(
-      createBudgetInstallmentsWizard(currentBooks(harness), () => {
-        writes += 1;
+      createBudgetInstallmentsWizard(
+        createAmountTexts(),
+        currentBooks(harness),
+        () => {
+          writes += 1;
 
-        return new Promise<Result>((resolve) => {
-          resolvers.push(resolve);
-        });
-      }),
+          return new Promise<Result>((resolve) => {
+            resolvers.push(resolve);
+          });
+        },
+      ),
     );
 
     await expect(machine.intents.save()).resolves.toEqual({
@@ -595,7 +610,7 @@ describe("the Create budget installments wizard", () => {
   it("with no period, Save is refused without a write", async () => {
     let writes = 0;
     const machine = track(
-      createBudgetInstallmentsWizard(null, () => {
+      createBudgetInstallmentsWizard(createAmountTexts(), null, () => {
         writes += 1;
 
         return Promise.resolve(rejected("never"));
@@ -618,18 +633,41 @@ describe("the Create budget installments wizard", () => {
   });
 });
 
-type Wizard = WizardMachine<
-  BudgetInstallmentsForm,
-  BudgetInstallmentsSummary,
-  Result
->;
-
-interface CreatedWizard {
-  machine: Wizard;
-  harness: AppHarness;
-}
-
 /** The wizard over the empty-schedule period p3. */
+describe("percentages in the session's language", () => {
+  it("in Italian, % of budget reads 33,34 and refuses 33.34", async () => {
+    const harness = createScheduleHarness("p3");
+
+    await harness.app.presenters.session.setLanguage("it");
+
+    const machine = track(
+      harness.app.machines.createBudgetInstallmentsWizard(),
+    );
+
+    machine.intents.edit({ firstDue: "31/03/2015" });
+    machine.intents.next();
+
+    expect(
+      stepReasonAfter(machine, {
+        rows: [
+          createRow("Installment 1", "33,34"),
+          createRow("Installment 2", "33,33"),
+          createRow("Installment 3", "33,33"),
+        ],
+      }),
+    ).toBeNull();
+    expect(
+      stepReasonAfter(machine, {
+        rows: [
+          createRow("Installment 1", "33.34"),
+          createRow("Installment 2", "33,33"),
+          createRow("Installment 3", "33,33"),
+        ],
+      }),
+    ).toBe("not-a-percentage");
+  });
+});
+
 function createWizard(): CreatedWizard {
   const harness = createScheduleHarness("p3");
 
@@ -748,3 +786,14 @@ function neverWrite(): Promise<Result> {
 }
 
 const created: Wizard[] = [];
+
+type Wizard = WizardMachine<
+  BudgetInstallmentsForm,
+  BudgetInstallmentsSummary,
+  Result
+>;
+
+interface CreatedWizard {
+  machine: Wizard;
+  harness: AppHarness;
+}

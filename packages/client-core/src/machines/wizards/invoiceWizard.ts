@@ -18,7 +18,7 @@ import {
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
-import { type AmountTexts, parseAmount, parseDate } from "#/amounts.ts";
+import { type AmountTexts, parseDate } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 import { todayOf } from "#/today.ts";
 
@@ -183,7 +183,7 @@ interface InvoiceAmounts {
  * period into the fields the person has not changed. Editing, the form is the
  * invoice's terms and the entry's description, every field the person's, and
  * the supplier stays put while a payment names the invoice. Amounts are read
- * and written through `texts`, in the session's locale; rates stay as typed.
+ * and written through `texts`, in the session's locale, and so are rates.
  */
 export function createInvoiceWizard(
   texts: AmountTexts,
@@ -328,7 +328,7 @@ function applied(
 /** The fields the person has not changed, from the supplier's most recent invoice of the period or the defaults; and the pill that matches them, unless the person picked one. */
 function prefilled(read: InvoiceBooks, form: InvoiceForm): InvoiceForm {
   const last = lastInvoice(read.books?.invoices ?? [], form.supplierId);
-  const source = last === null ? DEFAULTS : prefillOf(last);
+  const source = last === null ? DEFAULTS : prefillOf(read.texts, last);
   const next: InvoiceForm = { ...form };
 
   for (const [field, value] of Object.entries(source)) {
@@ -362,11 +362,11 @@ function lastInvoice(
   );
 }
 
-function prefillOf(invoice: Invoice): Prefilled {
+function prefillOf(texts: AmountTexts, invoice: Invoice): Prefilled {
   return {
     costAccountId: invoice.costAccountId,
-    socialSecurityRate: rateText(invoice.socialSecurityRate),
-    vatRate: rateText(invoice.vatRate),
+    socialSecurityRate: texts.hundredthsText(invoice.socialSecurityRate),
+    vatRate: texts.hundredthsText(invoice.vatRate),
     withholdingCode: invoice.withholdingCode,
     withholdingOnSocialSecurity: invoice.withholdingOnSocialSecurity,
     reason: invoice.reason,
@@ -376,7 +376,7 @@ function prefillOf(invoice: Invoice): Prefilled {
 /** The pill the fields match: a non-taxable amount is With non-subject amounts; no social security is Company (the flag has nothing to apply to); 4% on social security is Professional w/ register; anything else keeps the fields as they are. */
 function presetOf(texts: AmountTexts, form: InvoiceForm): InvoicePreset {
   const nonTaxable = optionalAmount(texts, form.nonTaxable);
-  const socialSecurity = parseRate(form.socialSecurityRate);
+  const socialSecurity = parseRate(texts, form.socialSecurityRate);
 
   if (nonTaxable !== null && nonTaxable !== ZERO_CENTS) {
     return "nonSubject";
@@ -445,8 +445,8 @@ function formOf(
     dueDate: invoice.dueDate === null ? "" : dateText(invoice.dueDate),
     costAccountId: invoice.costAccountId,
     taxable: texts.text(invoice.taxable),
-    socialSecurityRate: rateText(invoice.socialSecurityRate),
-    vatRate: rateText(invoice.vatRate),
+    socialSecurityRate: texts.hundredthsText(invoice.socialSecurityRate),
+    vatRate: texts.hundredthsText(invoice.vatRate),
     nonTaxable: texts.text(invoice.nonTaxable),
     withholdingCode: invoice.withholdingCode,
     withholdingOnSocialSecurity: invoice.withholdingOnSocialSecurity,
@@ -547,8 +547,8 @@ function amountsOf(
     return "not-an-amount";
   }
 
-  const socialSecurityRate = parseRate(form.socialSecurityRate);
-  const vatRate = parseRate(form.vatRate);
+  const socialSecurityRate = parseRate(texts, form.socialSecurityRate);
+  const vatRate = parseRate(texts, form.vatRate);
 
   if (socialSecurityRate === null || vatRate === null) {
     return "not-a-rate";
@@ -659,16 +659,11 @@ function offers(choices: WizardChoice[], key: string | null): boolean {
   });
 }
 
-/** A rate typed as a percentage, `4` or `21.5`, in hundredths of a percent; a negative one, or anything else, is null. A percentage is not an amount: it is read as it always was, whatever the session's language. */
-function parseRate(text: string): Rate | null {
-  const value = parseAmount(text, "en-US");
+/** A rate typed as a percentage in the session's locale, `4` or `21,5` in it-IT, in hundredths of a percent; a negative one, or anything else, is null. */
+function parseRate(texts: AmountTexts, text: string): Rate | null {
+  const value = texts.parseHundredths(text);
 
   return value === null || value < 0 ? null : rate(value);
-}
-
-/** A rate as the form holds it: `2000` is `20`, `2150` is `21.5`. */
-function rateText(value: Rate): string {
-  return String(value / 100);
 }
 
 /** A non-negative amount, blank being nothing; null when it cannot be read. */

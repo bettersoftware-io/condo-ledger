@@ -23,12 +23,16 @@ export interface AmountLocaleSource extends Observable<AmountLocale> {
   getValue: () => AmountLocale;
 }
 
-/** How a machine reads and writes the amounts of its form: in the session's locale at the moment it asks. */
+/** How a machine reads and writes the amounts, rates and percentages of its form: in the session's locale at the moment it asks. */
 export interface AmountTexts {
   /** parseAmount in the locale of the moment. */
   parse: (text: string) => Cents | null;
   /** amountText in the locale of the moment. */
   text: (amount: Cents) => string;
+  /** parseHundredths in the locale of the moment: a rate or a percentage. */
+  parseHundredths: (text: string) => number | null;
+  /** hundredthsText in the locale of the moment. */
+  hundredthsText: (value: number) => string;
   /** Each new locale, once it is the one parse and text use: whatever was judged from a text is judged again. */
   changed$: Observable<AmountLocale>;
 }
@@ -105,6 +109,38 @@ export function amountText(amount: Cents, locale: AmountLocale): string {
   return `${sign}${whole}${SEPARATORS[locale].decimal}${fraction}`;
 }
 
+/**
+ * Reads a decimal number typed in the locale, a rate or a percentage, as
+ * hundredths: the locale's decimal separator, up to two decimals, no groups
+ * (`21,5` is 2150 in it-IT, `21.5` in en-US). Read digit by digit, so no
+ * floating-point rounding comes in; a leading minus negates it, and whether
+ * one is allowed is the caller's call. Anything else is null.
+ */
+export function parseHundredths(
+  text: string,
+  locale: AmountLocale,
+): number | null {
+  const { decimal } = SEPARATORS[locale];
+  const match = new RegExp(
+    `^(-?)(\\d+)(?:${escaped(decimal)}(\\d{1,2}))?$`,
+    "u",
+  ).exec(text.trim());
+
+  if (match === null) {
+    return null;
+  }
+
+  const [, sign, whole = "", fraction = ""] = match;
+  const value = Number(whole) * 100 + Number(fraction.padEnd(2, "0"));
+
+  return sign === "-" ? 0 - value : value;
+}
+
+/** Hundredths as the text parseHundredths reads back in the locale, with no trailing zero: 2150 is `21,5` in it-IT, 2000 is `20`. What a form holds for a rate or a percentage it did not have typed. */
+export function hundredthsText(value: number, locale: AmountLocale): string {
+  return String(value / 100).replace(".", SEPARATORS[locale].decimal);
+}
+
 /** Parse and text in the locale `locale$` holds when they are called; `changed$` emits each new one. */
 export function amountTextsIn(locale$: AmountLocaleSource): AmountTexts {
   return {
@@ -113,6 +149,12 @@ export function amountTextsIn(locale$: AmountLocaleSource): AmountTexts {
     },
     text: (amount: Cents): string => {
       return amountText(amount, locale$.getValue());
+    },
+    parseHundredths: (text: string): number | null => {
+      return parseHundredths(text, locale$.getValue());
+    },
+    hundredthsText: (value: number): string => {
+      return hundredthsText(value, locale$.getValue());
     },
     changed$: locale$.pipe(distinctUntilChanged(), skip(1)),
   };

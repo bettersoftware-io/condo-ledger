@@ -227,7 +227,7 @@ interface AppMachines {
   createCollectionWizard: (
     editing: string | null,
   ) => WizardMachine<CollectionForm, CollectionSummary>;
-  /** The Create Budget Installments wizard over the selected period's books as they stand: with no period, refused. */
+  /** The Create Budget Installments wizard over the selected period's books as they stand: with no period, refused. Its percentages are read and written in the session's locale. */
   createBudgetInstallmentsWizard: () => WizardMachine<
     BudgetInstallmentsForm,
     BudgetInstallmentsSummary,
@@ -469,6 +469,7 @@ export function createApp(ports: AppPorts): App {
         const books = latestBooks;
 
         return createBudgetInstallmentsWizard(
+          texts,
           books,
           (draft) => {
             // Only a wizard over books writes: with none, its verdict refuses.

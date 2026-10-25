@@ -2,11 +2,10 @@
 
 Date: 2026-10-25. Status: built.
 
-It overrides, for amounts only, the design README's "Format: en-US style
-`1,234.56`" (`docs/design/web/v1/README.md`, "Money cell") and the en-US
-reading of `parseAmount` that M2a pinned
-(`2026-10-14-m2a-journal-design.md`). Dates, percentages and every other
-number stay as they were.
+It overrides the design README's "Format: en-US style `1,234.56`"
+(`docs/design/web/v1/README.md`, "Money cell") and the en-US reading of
+`parseAmount` that M2a pinned (`2026-10-14-m2a-journal-design.md`), for
+amounts, rates and percentages. Dates and whole numbers stay as they were.
 
 ## The decision
 
@@ -37,6 +36,14 @@ from the top bar's language picker. Each language has one locale:
 - **Written** amounts (a wizard's prefill, an edited entry's amounts) use
   the locale's decimal separator and no groups, so the person can edit them
   without deleting separators.
+- **Rates and percentages** (the invoice wizard's VAT and social security
+  rates, the budget installments wizard's "% of budget", and anything else
+  typed as a decimal number) follow the language through its decimal
+  separator only, never with groups. In it-IT they read `21,5` and `33,33`
+  and refuse `21.5`; in en-US they read `21.5` as before. They are shown
+  and prefilled the same way (`21,5`, or `20` for a whole number), through
+  `parseHundredths` and `hundredthsText`. That decision was added on the
+  same day, after the amounts.
 - The setting is read **live**. A change of language redraws every shown
   amount at once. An open form keeps the text the person typed and reads it
   in the language of the moment it is judged: a wizard judges its form again
@@ -50,11 +57,14 @@ from the top bar's language picker. Each language has one locale:
   locale)` and `amountText(amount, locale)` stay pure and are driven by a
   fixed table of separators per locale. `AmountTexts` is what a wizard is
   given: `parse` and `text` in the locale at the moment they are called, and
-  `changed$`, which emits each new locale.
+  `changed$`, which emits each new locale. `parseHundredths(text, locale)`
+  and `hundredthsText(value, locale)` do the same for rates and
+  percentages, held as hundredths, and `AmountTexts` carries both.
 - **Session presenter.** `amountLocale$`, derived from `preferences$`.
 - **Composition.** `createApp` keeps one subscription to `amountLocale$` for
   the application's life and builds `amountTextsIn(session.amountLocale$)`
-  once. Every wizard that reads amounts takes it as its first argument.
+  once. Every wizard that reads amounts or percentages takes it as its first
+  argument, the budget installments wizard included.
   `createWizardMachine` takes an optional `rejudge$` (the wizards pass
   `texts.changed$`). Each emission derives the form as it stands again.
 - **View model.** `useAmountLocale()`, one hook over `amountLocale$`.
@@ -69,8 +79,6 @@ from the top bar's language picker. Each language has one locale:
 
 ## What it does not change
 
-- Dates (`dd/mm/yyyy`), the invoice wizard's rates and the budget installments
-  wizard's percentages (`33.33`) are read and written as before, whatever the
-  language. A rate typed `21,5` in Italian is still not a rate. Whether
-  percentages should follow the amounts is open.
+- Dates (`dd/mm/yyyy`) and whole numbers (the number of installments, the
+  months between them) are read as before, whatever the language.
 - The default language is en, so no golden changes.

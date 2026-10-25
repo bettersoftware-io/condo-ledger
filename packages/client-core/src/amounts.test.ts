@@ -9,8 +9,10 @@ import {
   amountLocaleOf,
   amountText,
   amountTextsIn,
+  hundredthsText,
   parseAmount,
   parseDate,
+  parseHundredths,
 } from "./amounts.ts";
 
 describe("parseAmount", () => {
@@ -121,6 +123,54 @@ describe("amountText", () => {
   });
 });
 
+describe("parseHundredths", () => {
+  it("reads an en-US rate or percentage with a decimal point, as hundredths", () => {
+    expect(parseHundredths("21.5", "en-US")).toBe(2150);
+    expect(parseHundredths(" 33.33 ", "en-US")).toBe(3333);
+    expect(parseHundredths("4", "en-US")).toBe(400);
+    expect(parseHundredths("0", "en-US")).toBe(0);
+    expect(parseHundredths("-4", "en-US")).toBe(-400);
+  });
+
+  it("refuses in en-US a decimal comma, any group, and a third decimal", () => {
+    expect(parseHundredths("21,5", "en-US")).toBeNull();
+    expect(parseHundredths("1,000", "en-US")).toBeNull();
+    expect(parseHundredths("21.555", "en-US")).toBeNull();
+    expect(parseHundredths("", "en-US")).toBeNull();
+    expect(parseHundredths("abc", "en-US")).toBeNull();
+  });
+
+  it.each(["it-IT", "fr-FR", "de-DE", "es-ES"] as const)(
+    "reads %s with a decimal comma and no group",
+    (locale) => {
+      expect(parseHundredths("21,5", locale)).toBe(2150);
+      expect(parseHundredths("33,33", locale)).toBe(3333);
+      expect(parseHundredths("20", locale)).toBe(2000);
+      expect(parseHundredths("21.5", locale)).toBeNull();
+      expect(parseHundredths("1.000", locale)).toBeNull();
+      expect(parseHundredths("1 000", locale)).toBeNull();
+    },
+  );
+});
+
+describe("hundredthsText", () => {
+  it("writes hundredths with the locale's decimal separator, no trailing zero", () => {
+    expect(hundredthsText(2150, "en-US")).toBe("21.5");
+    expect(hundredthsText(2150, "it-IT")).toBe("21,5");
+    expect(hundredthsText(3334, "fr-FR")).toBe("33,34");
+    expect(hundredthsText(2000, "de-DE")).toBe("20");
+    expect(hundredthsText(-450, "es-ES")).toBe("-4,5");
+  });
+
+  it.each(AMOUNT_LOCALES)("is read back by parseHundredths in %s", (locale) => {
+    for (const value of [2150, 3333, 0, 400, 100000]) {
+      expect(parseHundredths(hundredthsText(value, locale), locale)).toBe(
+        value,
+      );
+    }
+  });
+});
+
 describe("amountLocaleOf", () => {
   it("gives each language its locale", () => {
     expect(amountLocaleOf("en")).toBe("en-US");
@@ -148,6 +198,8 @@ describe("amountTextsIn", () => {
     expect(texts.parse("1,234.56")).toBeNull();
     expect(texts.parse("1.234,56")).toBe(123456);
     expect(texts.text(cents(123456))).toBe("1234,56");
+    expect(texts.parseHundredths("21,5")).toBe(2150);
+    expect(texts.hundredthsText(2150)).toBe("21,5");
 
     locale$.next("it-IT");
 
