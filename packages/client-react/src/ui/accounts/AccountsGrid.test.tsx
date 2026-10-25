@@ -52,13 +52,31 @@ describe("AccountsGrid", () => {
     ]);
   });
 
-  it("draws a group's row bold and Total on the root's background", () => {
+  it("draws an aggregate's label bold and its amounts at the regular weight, as the legacy grid does", () => {
     const page = mountAccountsGrid();
 
-    expect(page.isBold("Spese generali")).toBe(true);
-    expect(page.isBold("Fondi")).toBe(false);
-    expect(page.isZebra("Total")).toBe(true);
-    expect(page.isZebra("Patrimonial")).toBe(false);
+    expect(page.labelIsBold("Total")).toBe(true);
+    expect(page.labelIsBold("Spese generali")).toBe(true);
+    expect(page.anyAmountIsBold("Total")).toBe(false);
+    expect(page.anyAmountIsBold("Spese generali")).toBe(false);
+    expect(page.labelIsBold("Fondi")).toBe(false);
+    expect(page.anyAmountIsBold("Fondi")).toBe(false);
+  });
+
+  it("stripes every other visible row by its place, Total like any other", async () => {
+    const page = mountAccountsGrid();
+
+    expect(page.isStriped("Total")).toBe(true);
+    expect(page.isStriped("Patrimonial")).toBe(false);
+    expect(page.isStriped("(Assets)")).toBe(true);
+    expect(page.isStriped("(Liabilities)")).toBe(false);
+    expect(page.isStriped("Fondi")).toBe(true);
+    expect(page.isStriped("Costs")).toBe(false);
+
+    await page.toggleHideEmpty();
+
+    expect(page.isStriped("(Liabilities)")).toBe(false);
+    expect(page.isStriped("Costs")).toBe(true);
   });
 
   it("selecting a row selects the account app-wide", async () => {

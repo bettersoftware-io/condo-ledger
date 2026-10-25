@@ -94,9 +94,7 @@ export function AccountsGrid({
         : null;
 
     if (accountId === null) {
-      return (
-        <Money key="budget" cents={node.budget} emphasis={row.hasChildren} />
-      );
+      return <Money key="budget" cents={node.budget} />;
     }
 
     if (budgetEdit.editing === row.key) {
@@ -130,8 +128,8 @@ export function AccountsGrid({
     <TreeGrid
       columns={ACCOUNTS_COLUMNS}
       template={template}
-      rows={rows.map((row) => {
-        return rowDataOf(row, selectedKey, budgetCellOf(row));
+      rows={rows.map((row, position) => {
+        return rowDataOf(row, position, selectedKey, budgetCellOf(row));
       })}
       emptyMessage="No account matches."
       onToggle={onToggle}
@@ -171,14 +169,18 @@ function reportUnsaved(error: unknown): void {
   console.error("the budget was not saved", error);
 }
 
-/** A group row's amounts are bold, as the prototype draws them. */
+/**
+ * A row as the legacy grid draws it: an aggregate's label bold and its
+ * amounts at the regular weight; every other visible row, from the first, on
+ * a stripe by its place, Total like any other.
+ */
 function rowDataOf(
   row: GridRow,
+  position: number,
   selectedKey: string,
   budget: ReactNode,
 ): TreeGridRowData {
   const { node } = row;
-  const aggregate = row.hasChildren;
 
   return {
     key: row.key,
@@ -186,8 +188,8 @@ function rowDataOf(
     hasChildren: row.hasChildren,
     expanded: row.expanded,
     selected: row.key === selectedKey,
-    emphasis: aggregate,
-    zebra: row.key === ROOT_KEY,
+    emphasis: row.hasChildren,
+    zebra: position % 2 === 0,
     icon: (
       <AccountIcon
         icon={node.icon}
@@ -198,19 +200,9 @@ function rowDataOf(
     ),
     label: node.label,
     cells: [
-      <Money
-        key="debit"
-        cents={node.debit}
-        variant="plain"
-        emphasis={aggregate}
-      />,
-      <Money
-        key="credit"
-        cents={node.credit}
-        variant="plain"
-        emphasis={aggregate}
-      />,
-      <Money key="balance" cents={node.balance} emphasis={aggregate} />,
+      <Money key="debit" cents={node.debit} variant="plain" />,
+      <Money key="credit" cents={node.credit} variant="plain" />,
+      <Money key="balance" cents={node.balance} />,
       budget,
       ...Array.from({ length: ATTRIBUTE_CELLS }, () => {
         return null;

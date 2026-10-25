@@ -24,10 +24,12 @@ export interface AccountsGridPage {
   natureOf: (label: string) => string | null;
   /** Whether a folder row draws its folder open. */
   drawsOpenFolder: (label: string) => boolean;
-  /** Whether a row's label and amounts are drawn bold, as an aggregate's are. */
-  isBold: (label: string) => boolean;
-  /** Whether a row has the root's background. */
-  isZebra: (label: string) => boolean;
+  /** Whether a row's label is drawn bold, as an aggregate's is. */
+  labelIsBold: (label: string) => boolean;
+  /** Whether any amount of a row is drawn bold. */
+  anyAmountIsBold: (label: string) => boolean;
+  /** Whether a row is drawn on a stripe. */
+  isStriped: (label: string) => boolean;
   /** The sign each amount of a row is coloured by (`neg`, `zero`, `pos`, `blank`), in column order. */
   amountTonesOf: (label: string) => string[];
   /** Drags the boundary before column `index + 1` to the given width. */
@@ -147,18 +149,17 @@ export function mountAccountsGrid(): AccountsGridPage {
     drawsOpenFolder: (label: string): boolean => {
       return iconElement(label).querySelector(".lucide-folder-open") !== null;
     },
-    isBold: (label: string): boolean => {
-      const row = rowOf(label);
-      const amounts = within(row).getAllByTestId(TESTIDS.money);
-
-      return (
-        row.getAttribute("data-emphasis") === "true" &&
-        amounts.every((amount) => {
-          return amount.getAttribute("data-emphasis") === "true";
-        })
-      );
+    labelIsBold: (label: string): boolean => {
+      return rowOf(label).getAttribute("data-emphasis") === "true";
     },
-    isZebra: (label: string): boolean => {
+    anyAmountIsBold: (label: string): boolean => {
+      return within(rowOf(label))
+        .getAllByTestId(TESTIDS.money)
+        .some((amount) => {
+          return amount.getAttribute("data-emphasis") === "true";
+        });
+    },
+    isStriped: (label: string): boolean => {
       return rowOf(label).getAttribute("data-zebra") === "true";
     },
     amountTonesOf: (label: string): string[] => {

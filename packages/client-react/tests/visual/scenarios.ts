@@ -101,15 +101,17 @@ interface MoneyPicture {
   emphasis: boolean;
 }
 
-/** A row of the chart of accounts, as the Accounts grid makes it: the node's glyph, label and amounts in cents; a row with children is bold. */
+/** A row of the chart of accounts, as the Accounts grid makes it: the node's glyph, label and amounts in cents; a row with children has a bold label. */
 export interface AccountRowPicture {
   key: string;
   label: string;
   depth: number;
   icon: NodeIcon;
   nature: AccountNature | null;
-  /** Total, the top of the tree: Σ on the zebra. */
+  /** Total, the top of the tree: drawn with Σ. */
   root: boolean;
+  /** The row's place among the grid's visible rows, from 0: an even place is on a stripe. */
+  position: number;
   hasChildren: boolean;
   expanded: boolean;
   selected: boolean;
@@ -250,6 +252,7 @@ const CASH_ROW: AccountRowPicture = {
   icon: "cash",
   nature: "assets",
   root: false,
+  position: 5,
   hasChildren: false,
   expanded: false,
   selected: true,
@@ -568,9 +571,10 @@ export const scenarios: Record<string, Scenario> = {
     money: { cents: -125050, variant: "colored", emphasis: true },
   },
   // One row of the chart of accounts, under the grid's first four columns at
-  // their default widths: Total on the zebra with Σ; an open group, bold; a
-  // closed one; the cash account selected; a label far wider than its
-  // column, cut with an ellipsis; and the selected row in the dark mode.
+  // their default widths: Total with Σ, first and so on a stripe; an open
+  // group, its label bold, on a stripe; a closed one off the stripes; the
+  // cash account selected; a label far wider than its column, cut with an
+  // ellipsis; and the selected row in the dark mode.
   "tree-grid-row-total": {
     level: "component",
     mount: "tree-grid-row",
@@ -584,6 +588,7 @@ export const scenarios: Record<string, Scenario> = {
         icon: "folder",
         nature: null,
         root: true,
+        position: 0,
         hasChildren: true,
         expanded: true,
         selected: false,
@@ -606,6 +611,7 @@ export const scenarios: Record<string, Scenario> = {
         icon: "folder",
         nature: "assets",
         root: false,
+        position: 2,
         hasChildren: true,
         expanded: true,
         selected: false,
@@ -628,6 +634,7 @@ export const scenarios: Record<string, Scenario> = {
         icon: "folder",
         nature: "expenses",
         root: false,
+        position: 11,
         hasChildren: true,
         expanded: false,
         selected: false,
