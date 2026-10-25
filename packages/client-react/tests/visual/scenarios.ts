@@ -84,6 +84,8 @@ export interface Scenario extends Picture {
   popover?: PopoverPicture;
   /** The controls whose stub notice is on screen (`mount: "toast-host"`), in the order pressed. */
   stubbed?: string[];
+  /** The tab the Accounts screen's bottom panel shows (`mount: "accounts-bottom-panel"`), over the account `selectedKey` names. */
+  bottomTab?: "Account Details" | "Ledger";
 }
 
 /** The budget wizard on a step: the first due date typed on step 1, the other fields as they open, then moved on through its own Next. */
@@ -271,7 +273,8 @@ const CASH_ROW: AccountRowPicture = {
  * alone: the cells in each state, the Create Budget Installments wizard over
  * a period with no schedule, and the Edit Installment dialog. Then the
  * pyramid's base, the small components in each state that matters, from
- * their props or over the same period.
+ * their props or over the same period; and two sections of the Accounts
+ * screen's bottom panel, each tab alone.
  */
 export const scenarios: Record<string, Scenario> = {
   "accounts-1280-light": {
@@ -899,6 +902,34 @@ export const scenarios: Record<string, Scenario> = {
     height: 160,
     mode: "light",
     stubbed: ["Print", "Export to PDF"],
+  },
+
+  // Sections: where the way parts sit together is what is pictured. The
+  // Accounts screen's bottom panel, its tabs over the tab's body, each tab
+  // over the account selected in Pozzetto 2013, at the width the panel has
+  // at the full layout.
+
+  // The cash account's ledger: its twelve postings, oldest first, with the
+  // running balance, and the totals row under them.
+  "accounts-bottom-panel-ledger": {
+    level: "section",
+    mount: "accounts-bottom-panel",
+    width: 1000,
+    mode: "light",
+    periodId: "p36",
+    selectedKey: "la154",
+    bottomTab: "Ledger",
+  },
+  // A cost account's sheet (the building's insurance, `la173`): the cost
+  // attributes it inherits, its balances and its budget.
+  "accounts-bottom-panel-cost-details": {
+    level: "section",
+    mount: "accounts-bottom-panel",
+    width: 1000,
+    mode: "light",
+    periodId: "p36",
+    selectedKey: "la173",
+    bottomTab: "Account Details",
   },
 };
 

@@ -9,8 +9,13 @@ import type { SettlementRow, WizardState } from "@cl/client-core";
 import { cents, ok, type Result, rejected } from "@cl/domain";
 import { useViewModel } from "@cl/react-bindings";
 
+import { AccountDetails } from "#/ui/accounts/AccountDetails.tsx";
 import { AccountIcon } from "#/ui/accounts/AccountIcon.tsx";
+// The bottom panel's body is styled with the screen; alone, it needs the
+// screen's stylesheet.
+import "#/ui/accounts/AccountsScreen.css";
 import { ACCOUNTS_COLUMNS } from "#/ui/accounts/columns.ts";
+import { LedgerTab } from "#/ui/accounts/LedgerTab.tsx";
 import { ConfirmAlert } from "#/ui/ConfirmAlert.tsx";
 import { FormField } from "#/ui/FormField.tsx";
 import { InlineEditor } from "#/ui/InlineEditor.tsx";
@@ -29,6 +34,7 @@ import { Money } from "#/ui/Money.tsx";
 import { SegmentedControl } from "#/ui/SegmentedControl.tsx";
 import { Popover } from "#/ui/shell/Popover.tsx";
 import { ToastHost } from "#/ui/shell/ToastHost.tsx";
+import { TabbedPanel } from "#/ui/TabbedPanel.tsx";
 import { TreeGrid, type TreeGridRowData } from "#/ui/TreeGrid.tsx";
 import { TreeGridRow } from "#/ui/TreeGridRow.tsx";
 
@@ -259,7 +265,25 @@ const registry: Record<string, Entry> = {
   "toast-host": (): ReactElement => {
     return <ToastHost />;
   },
+  // The Accounts screen's bottom panel as `AccountsScreen` draws it: its
+  // tabs over the body of the scenario's tab, which reads the account the
+  // seeding selects in the period the sidebar holds. The active tab is the
+  // screen's machine there; here it is the scenario's.
+  "accounts-bottom-panel": (scenario: Scenario): ReactElement => {
+    const active = required(scenario, "bottomTab", scenario.bottomTab);
+
+    return (
+      <TabbedPanel tabs={BOTTOM_TABS} active={active} onActivate={ignoreClose}>
+        <div className="accounts-tab-body">
+          {active === "Ledger" ? <LedgerTab /> : <AccountDetails />}
+        </div>
+      </TabbedPanel>
+    );
+  },
 };
+
+/** The bottom panel's tabs, in `AccountsScreen`'s order. */
+const BOTTOM_TABS = ["Account Details", "Ledger"] as const;
 
 /** The chart of accounts' first four columns: the tree, Debit, Credit and Balance. */
 const ROW_COLUMNS = ACCOUNTS_COLUMNS.slice(0, 4);
