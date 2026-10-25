@@ -187,13 +187,13 @@ function createWired(seed: LegacySeed): Wired {
   return { installments, journal };
 }
 
-/** Equal parts, due a month apart from 2015-03-31. */
+/** Equal parts, due a month apart from 2015-03-28. */
 function createDraft(names: string[]): InstallmentsDraft {
   return {
     installments: names.map((name, index) => {
       return {
         name,
-        dueDate: `2015-0${index + 3}-31`,
+        dueDate: `2015-0${index + 3}-28`,
         percentage: 10000 / names.length,
       };
     }),

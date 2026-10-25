@@ -16,6 +16,7 @@ import {
   type JournalPort,
   type JournalSimulator,
   type LegacySeed,
+  type Result,
   type SessionPort,
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
@@ -36,6 +37,11 @@ import {
   type ColumnsState,
   createColumnsMachine,
 } from "./machines/columnsMachine.ts";
+import {
+  createInstallmentDialog,
+  type InstallmentDialogIntents,
+  type InstallmentDialogState,
+} from "./machines/installmentDialogMachine.ts";
 import {
   createJournalDialogMachine,
   type JournalDialogIntents,
@@ -73,6 +79,11 @@ import {
   type SplitIntents,
   type SplitState,
 } from "./machines/splitMachine.ts";
+import {
+  type BudgetInstallmentsForm,
+  type BudgetInstallmentsSummary,
+  createBudgetInstallmentsWizard,
+} from "./machines/wizards/budgetInstallmentsWizard.ts";
 import {
   type CollectionForm,
   type CollectionSummary,
@@ -132,6 +143,7 @@ import {
 import {
   createInstallmentSchedulePresenter,
   type InstallmentSchedulePresenter,
+  scheduleContextOf,
 } from "./presenters/installmentSchedulePresenter.ts";
 import {
   createJournalPresenter,
@@ -213,6 +225,16 @@ interface AppMachines {
   createCollectionWizard: (
     editing: string | null,
   ) => WizardMachine<CollectionForm, CollectionSummary>;
+  /** The Create Budget Installments wizard over the selected period's books as they stand: with no period, refused. */
+  createBudgetInstallmentsWizard: () => WizardMachine<
+    BudgetInstallmentsForm,
+    BudgetInstallmentsSummary,
+    Result
+  >;
+  /** The Edit Installment dialog over an installment of the selected period's books as they stand; one they do not hold throws. */
+  createInstallmentDialog: (
+    installmentId: string,
+  ) => Machine<InstallmentDialogState, InstallmentDialogIntents>;
 }
 
 /** The application, built once at startup. Presenters, the navigation and
@@ -415,6 +437,46 @@ export function createApp(ports: AppPorts): App {
           (): Books | null => {
             return latestBooks;
           },
+        );
+      },
+      createBudgetInstallmentsWizard: (): WizardMachine<
+        BudgetInstallmentsForm,
+        BudgetInstallmentsSummary,
+        Result
+      > => {
+        const books = latestBooks;
+
+        return createBudgetInstallmentsWizard(
+          books,
+          (draft) => {
+            // Only a wizard over books writes: with none, its verdict refuses.
+            return schedule.createInstallments(
+              must(books, "the books of the batch").periodId,
+              draft,
+            );
+          },
+          (): Books | null => {
+            return latestBooks;
+          },
+        );
+      },
+      createInstallmentDialog: (
+        installmentId: string,
+      ): Machine<InstallmentDialogState, InstallmentDialogIntents> => {
+        const books = must(latestBooks, `the installment ${installmentId}`);
+        const installment = must(
+          books.installments.find((candidate) => {
+            return candidate.id === installmentId;
+          }),
+          `the installment ${installmentId}`,
+        );
+
+        return createInstallmentDialog(
+          installment,
+          (patch) => {
+            return schedule.updateInstallment(installmentId, patch);
+          },
+          scheduleContextOf(books),
         );
       },
     },

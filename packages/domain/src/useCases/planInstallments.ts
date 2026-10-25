@@ -1,6 +1,10 @@
+import type { Account } from "../entities/account.ts";
 import { type Cents, cents } from "../entities/cents.ts";
 import type { InstallmentItem } from "../entities/installment.ts";
+import type { JournalEntry } from "../entities/journal.ts";
+import type { Party } from "../entities/party.ts";
 import { must } from "../support/must.ts";
+import { budgetSharesOf, previousBalancesOf } from "./budgetShares.ts";
 
 /** One installment of a batch about to be created. */
 export interface PlannedInstallment {
@@ -11,11 +15,24 @@ export interface PlannedInstallment {
   percentage: number;
 }
 
-/** What the legacy "Crea Rate Preventivo" generator read. */
-export interface PlanInput {
+/** A batch as the person asks for it: the installments, and how to round. */
+interface PlanBatch {
   installments: PlannedInstallment[];
   /** Items 2…n rounded to whole euros, item 1 taking the rest. */
   wholeEuros: boolean;
+}
+
+/** One period's books, as much of them as a plan reads. */
+export interface PlanBooks {
+  accounts: Account[];
+  parties: Party[];
+  entries: JournalEntry[];
+  /** The period's items already scheduled. */
+  installmentItems: InstallmentItem[];
+}
+
+/** What the legacy "Crea Rate Preventivo" generator read. */
+export interface PlanInput extends PlanBatch {
   /** Every owner of the period, in the order the plan lists them. */
   residents: string[];
   /** By resident: Total budget, the budget allocation entry's share. */
@@ -68,6 +85,34 @@ export function planBudgetInstallments(input: PlanInput): PlannedItem[] {
       return { installmentIndex, residentId, amount: cents(amount) };
     });
   });
+}
+
+/**
+ * What a batch is planned from in a period's books: every owner as a
+ * resident, in the parties' order; the budget allocation entry's shares; the
+ * previous balances; and the items already scheduled. The port that saves a
+ * batch and the screen that reviews it both plan from this, so the review
+ * shows what is saved.
+ */
+export function planInputOf(batch: PlanBatch, books: PlanBooks): PlanInput {
+  return {
+    installments: batch.installments,
+    wholeEuros: batch.wholeEuros,
+    residents: books.parties
+      .filter((party) => {
+        return party.kind === "owner";
+      })
+      .map((party) => {
+        return party.id;
+      }),
+    shares: budgetSharesOf(books.entries, books.accounts).shares,
+    previousBalances: previousBalancesOf(
+      books.entries,
+      books.accounts,
+      books.parties,
+    ),
+    existingItems: books.installmentItems,
+  };
 }
 
 /** `floor(100 / count)` percent each, the first taking the rest, in hundredths of a percent. */

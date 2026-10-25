@@ -60,20 +60,25 @@ export interface WizardState<TForm, TSummary> {
   editing: string | null;
 }
 
-export interface WizardIntents<TForm> {
+/** `TSaved` is what a write answers when it is done: an entry's id, for the journal's wizards. */
+export interface WizardIntents<
+  TForm,
+  TSaved extends Result = ResultOf<EntryAdded>,
+> {
   edit: (patch: Partial<TForm>) => void;
   /** To the next step, while the current step's verdict accepts. */
   next: () => void;
   /** To the step before, down to the first step. */
   back: () => void;
   /** The draft written, answered as the write answered; the verdict's Rejected, or `saving` while a save runs, without writing. */
-  save: () => Promise<ResultOf<EntryAdded>>;
+  save: () => Promise<TSaved | Rejected>;
 }
 
-export type WizardMachine<TForm, TSummary> = Machine<
-  WizardState<TForm, TSummary>,
-  WizardIntents<TForm>
->;
+export type WizardMachine<
+  TForm,
+  TSummary,
+  TSaved extends Result = ResultOf<EntryAdded>,
+> = Machine<WizardState<TForm, TSummary>, WizardIntents<TForm, TSaved>>;
 
 /** How a wizard's draft is written: added as a new entry, or replacing the entry it edits. Either way it answers the entry's id. */
 export type WriteEntry = (draft: EntryDraft) => Promise<ResultOf<EntryAdded>>;
@@ -99,10 +104,10 @@ export function replacing(
 }
 
 /** A form the wizard accepts: the draft it writes. */
-interface Accepting {
+interface Accepting<TDraft extends object> {
   preview: PreviewLine[];
   verdict: Ok;
-  draft: EntryDraft;
+  draft: TDraft;
 }
 
 /** A form the wizard refuses: no draft. */
@@ -112,16 +117,22 @@ interface Refusing {
   draft: null;
 }
 
-/** What a form derives: the preview, the verdict, and the draft when the verdict accepts. */
-export type Derived = Accepting | Refusing;
+/** What a form derives: the preview, the verdict, and the draft when the verdict accepts. A journal entry's, unless the wizard writes something else. */
+export type Derived<TDraft extends object = EntryDraft> =
+  | Accepting<TDraft>
+  | Refusing;
 
-export interface WizardDefinition<TForm, TSummary> {
+export interface WizardDefinition<
+  TForm,
+  TSummary,
+  TDraft extends object = EntryDraft,
+> {
   initial: TForm;
   /** The step the wizard starts at, 1 unless an edit starts past a choice it cannot change. */
   firstStep?: number;
   stepCount: number;
   choices: WizardChoice[];
-  derive: (form: TForm) => Derived;
+  derive: (form: TForm) => Derived<TDraft>;
   summarize: (form: TForm) => TSummary;
   /** The rules of one step on the form: what Next waits for. */
   stepVerdict: (form: TForm, step: number) => Result;
@@ -136,11 +147,20 @@ interface Inner<TForm> {
   saving: boolean;
 }
 
-/** One contract for every wizard: the definition says what the form derives; the machine holds the form, the step and the save. */
-export function createWizardMachine<TForm, TSummary>(
-  definition: WizardDefinition<TForm, TSummary>,
-  write: WriteEntry,
-): WizardMachine<TForm, TSummary> {
+/**
+ * One contract for every wizard: the definition says what the form derives;
+ * the machine holds the form, the step and the save. A wizard writes a
+ * journal entry unless it names another draft and what its write answers.
+ */
+export function createWizardMachine<
+  TForm,
+  TSummary,
+  TDraft extends object = EntryDraft,
+  TSaved extends Result = ResultOf<EntryAdded>,
+>(
+  definition: WizardDefinition<TForm, TSummary, TDraft>,
+  write: (draft: TDraft) => Promise<TSaved>,
+): WizardMachine<TForm, TSummary, TSaved> {
   const firstStep = definition.firstStep ?? 1;
   const inner$ = new BehaviorSubject<Inner<TForm>>({
     form: definition.initial,
@@ -182,14 +202,14 @@ export function createWizardMachine<TForm, TSummary>(
       back: (): void => {
         update({ step: Math.max(firstStep, inner$.getValue().step - 1) });
       },
-      save: async (): Promise<ResultOf<EntryAdded>> => {
+      save: async (): Promise<TSaved | Rejected> => {
         if (inner$.getValue().saving) {
           return rejected("saving");
         }
 
         const derived = definition.derive(inner$.getValue().form);
 
-        if (derived.draft === null) {
+        if (!isAccepting(derived)) {
           return derived.verdict;
         }
 
@@ -242,12 +262,21 @@ export function judged(
 }
 
 /** A form refused for a reason of the wizard's own, before there is anything to preview. */
-export function refused(reason: string): Derived {
+export function refused<TDraft extends object = EntryDraft>(
+  reason: string,
+): Derived<TDraft> {
   return { preview: [], verdict: rejected(reason), draft: null };
 }
 
-function stateOf<TForm, TSummary>(
-  definition: WizardDefinition<TForm, TSummary>,
+/** Whether the form gives a draft: a guard, as a generic draft is no discriminant. */
+function isAccepting<TDraft extends object>(
+  derived: Derived<TDraft>,
+): derived is Accepting<TDraft> {
+  return derived.draft !== null;
+}
+
+function stateOf<TForm, TSummary, TDraft extends object>(
+  definition: WizardDefinition<TForm, TSummary, TDraft>,
   inner: Inner<TForm>,
 ): WizardState<TForm, TSummary> {
   const { preview, verdict } = definition.derive(inner.form);

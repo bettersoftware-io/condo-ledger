@@ -11,8 +11,11 @@ import type {
   InstallmentsPort,
 } from "#/ports/installmentsPort.ts";
 import { must } from "#/support/must.ts";
-import { budgetSharesOf, previousBalancesOf } from "#/useCases/budgetShares.ts";
-import { planBudgetInstallments } from "#/useCases/planInstallments.ts";
+import { budgetSharesOf } from "#/useCases/budgetShares.ts";
+import {
+  planBudgetInstallments,
+  planInputOf,
+} from "#/useCases/planInstallments.ts";
 import {
   type InstallmentPatch,
   type ScheduleContext,
@@ -149,24 +152,14 @@ export function createInstallmentsSimulator(
       };
     });
 
-    const planned = planBudgetInstallments({
-      installments: draft.installments,
-      wholeEuros: draft.wholeEuros,
-      residents: state.parties
-        .filter((party) => {
-          return party.kind === "owner";
-        })
-        .map((party) => {
-          return party.id;
-        }),
-      shares: budgetSharesOf(context.entries, state.accounts).shares,
-      previousBalances: previousBalancesOf(
-        context.entries,
-        state.accounts,
-        state.parties,
-      ),
-      existingItems: context.items,
-    });
+    const planned = planBudgetInstallments(
+      planInputOf(draft, {
+        accounts: state.accounts,
+        parties: state.parties,
+        entries: context.entries,
+        installmentItems: context.items,
+      }),
+    );
 
     const items = planned.map((item): InstallmentItem => {
       itemsAdded += 1;

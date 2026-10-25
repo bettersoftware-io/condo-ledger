@@ -7,6 +7,7 @@ import {
   type Cents,
   type ClockPort,
   type InstallmentPatch,
+  type InstallmentsDraft,
   type InstallmentsPort,
   type Result,
   rejected,
@@ -23,6 +24,10 @@ export interface InstallmentSchedulePresenter {
   schedule$: DefaultedStateObservable<Schedule | null>;
   /** Whether the item's amount may be edited: its current amount judged over the books as they stand. */
   cellEditable: (itemId: string) => Result;
+  createInstallments: (
+    periodId: string,
+    draft: InstallmentsDraft,
+  ) => Promise<Result>;
   updateInstallment: (id: string, patch: InstallmentPatch) => Promise<Result>;
   deleteInstallment: (id: string) => Promise<Result>;
   setItemAmount: (itemId: string, amount: Cents) => Promise<Result>;
@@ -79,7 +84,13 @@ export function createInstallmentSchedulePresenter(
 
       return item === undefined
         ? rejected("unknown-item")
-        : validateItemAmount(contextOf(books), itemId, item.amount);
+        : validateItemAmount(scheduleContextOf(books), itemId, item.amount);
+    },
+    createInstallments: (
+      periodId: string,
+      draft: InstallmentsDraft,
+    ): Promise<Result> => {
+      return port.createInstallments(periodId, draft);
     },
     updateInstallment: (
       id: string,
@@ -96,7 +107,8 @@ export function createInstallmentSchedulePresenter(
   };
 }
 
-function contextOf(books: Books): ScheduleContext {
+/** What a schedule write in the books' period is judged against. */
+export function scheduleContextOf(books: Books): ScheduleContext {
   return {
     installments: books.installments,
     items: books.installmentItems,

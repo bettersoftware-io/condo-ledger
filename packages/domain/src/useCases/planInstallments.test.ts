@@ -3,15 +3,21 @@ import { describe, expect, it } from "vitest";
 import { type Cents, cents } from "../entities/cents.ts";
 import type { InstallmentItem } from "../entities/installment.ts";
 import { legacySeedData } from "../simulators/seed/legacySeed.generated.ts";
-import { loadLegacySeed } from "../simulators/seed/legacySeed.ts";
+import {
+  type LegacySeed,
+  loadLegacySeed,
+} from "../simulators/seed/legacySeed.ts";
+import { createScheduleSeed } from "../testing/createScheduleSeed.ts";
 import { budgetSharesOf, previousBalancesOf } from "./budgetShares.ts";
 import {
   defaultPercentages,
   dueDates,
+  type PlanBooks,
   type PlanInput,
   type PlannedInstallment,
   type PlannedItem,
   planBudgetInstallments,
+  planInputOf,
 } from "./planInstallments.ts";
 
 describe("planBudgetInstallments", () => {
@@ -262,6 +268,52 @@ describe("planBudgetInstallments", () => {
   });
 });
 
+describe("planInputOf", () => {
+  it("plans a batch over the period's books: every owner, their shares and previous balances, and no item yet", () => {
+    const installments = createInstallments([5000, 5000]);
+    const input = planInputOf(
+      { installments, wholeEuros: true },
+      createPlanBooks(createScheduleSeed(), "p3"),
+    );
+
+    expect(input).toEqual({
+      installments,
+      wholeEuros: true,
+      residents: ["r31", "r32", "r33"],
+      shares: toCentsMap([
+        ["r31", 60000],
+        ["r32", 30000],
+        ["r33", 9999],
+      ]),
+      previousBalances: toCentsMap([
+        ["r31", 5000],
+        ["r32", 0],
+        ["r33", -2000],
+      ]),
+      existingItems: [],
+    });
+  });
+
+  it("leaves out the parties that are not owners, and keeps the items already scheduled", () => {
+    const books = createPlanBooks(seed, "p36");
+    const period = periodOf("p36");
+    const input = planInputOf(
+      { installments: createInstallments([10000]), wholeEuros: false },
+      books,
+    );
+
+    expect(books.parties.length).toBeGreaterThan(period.residents.length);
+    expect(input).toMatchObject({
+      wholeEuros: false,
+      residents: period.residents,
+      shares: period.shares,
+      previousBalances: period.previousBalances,
+      existingItems: books.installmentItems,
+    });
+    expect(input.existingItems).toHaveLength(period.items.length);
+  });
+});
+
 describe("defaultPercentages", () => {
   it("gives each floor(100 / n) percent and the first the rest, in hundredths of a percent", () => {
     expect(defaultPercentages(3)).toEqual([3400, 3300, 3300]);
@@ -386,6 +438,35 @@ function periodOf(periodId: string): SeedPeriod {
     shares: budgetSharesOf(entries, accounts).shares,
     previousBalances: previousBalancesOf(entries, accounts, parties),
     items,
+  };
+}
+
+/** One period's books, as much of them as a plan reads. */
+function createPlanBooks(from: LegacySeed, periodId: string): PlanBooks {
+  const installmentIds = new Set(
+    from.installments
+      .filter((installment) => {
+        return installment.periodId === periodId;
+      })
+      .map((installment) => {
+        return installment.id;
+      }),
+  );
+
+  return {
+    accounts: from.accounts.filter((account) => {
+      return account.periodId === periodId;
+    }),
+    parties:
+      from.parties.find((list) => {
+        return list.periodId === periodId;
+      })?.parties ?? [],
+    entries: from.entries.filter((entry) => {
+      return entry.periodId === periodId;
+    }),
+    installmentItems: from.installmentItems.filter((item) => {
+      return installmentIds.has(item.installmentId);
+    }),
   };
 }
 

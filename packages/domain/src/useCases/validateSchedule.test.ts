@@ -68,11 +68,31 @@ describe("validateCreate", () => {
       ok: false,
       reason: "name-taken",
     });
+    expect(
+      validateCreate(context, [
+        { ...createPlanned("Rata 1", -1), dueDate: "" },
+      ]),
+    ).toEqual({ ok: false, reason: "name-taken" });
+    expect(
+      validateCreate(context, [{ ...createPlanned("X", -1), dueDate: "" }]),
+    ).toEqual({ ok: false, reason: "invalid-due-date" });
     expect(validateCreate(context, [createPlanned("X", -1)])).toEqual({
       ok: false,
       reason: "negative-percentage",
     });
   });
+
+  it.each(["", " ", "2015-04-31", "2015-13-01", "31/03/2015", "2015-3-01"])(
+    "refuses a planned due date %j with invalid-due-date",
+    (dueDate) => {
+      expect(
+        validateCreate(createContext(), [
+          createPlanned("A", 5000),
+          { ...createPlanned("B", 5000), dueDate },
+        ]),
+      ).toEqual({ ok: false, reason: "invalid-due-date" });
+    },
+  );
 });
 
 describe("validateUpdate", () => {
