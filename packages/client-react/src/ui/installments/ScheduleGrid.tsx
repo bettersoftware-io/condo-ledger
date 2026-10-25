@@ -224,9 +224,15 @@ function rowDataOf(
     icon: null,
     label: node.label,
     cells: [
-      node.role,
-      restrictionText(node.restriction),
-      node.days,
+      <span key="role" className="schedule-text">
+        {node.role}
+      </span>,
+      <span key="restriction" className="schedule-text">
+        {restrictionText(node.restriction)}
+      </span>,
+      <span key="days" className="schedule-text">
+        {node.days}
+      </span>,
       <Money
         key="previous"
         cents={amounts ? node.previousBalance : null}

@@ -62,3 +62,10 @@
   color: inherit;
   font: inherit;
 }
+
+/* A field that cannot change while another holds it (an installment's name and due date while it is locked): its box dimmed, as a read-only row's. Last, to win over the box above. */
+.form-field-box:has(> input:disabled:not(.form-check)) {
+  background: var(--zebra);
+  border-color: var(--bd2);
+  color: var(--txd);
+}

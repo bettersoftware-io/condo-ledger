@@ -9,3 +9,13 @@
   font-weight: 500;
   color: var(--txd);
 }
+
+/* Role, Restr. period and Days: on the amounts' line, as a Money cell sets it (11.5px, 3px above and below), and cut with an ellipsis when narrowed. */
+.schedule-text {
+  display: block;
+  padding: 3px 0;
+  font-size: 11.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
