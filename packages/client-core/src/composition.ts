@@ -4,11 +4,13 @@ import {
   type ClockPort,
   createAccountsSimulator,
   createBuildingsSimulator,
+  createInstallmentsSimulator,
   createJournalSimulator,
   createSessionSimulator,
   DESIGN_FIRM,
   DESIGN_PRINCIPAL,
   type EntryKind,
+  type InstallmentsPort,
   type JournalEntry,
   type JournalPort,
   type LegacySeed,
@@ -131,6 +133,7 @@ export interface AppPorts {
   buildings: BuildingsPort;
   accounts: AccountsPort;
   journal: JournalPort;
+  installments: InstallmentsPort;
   clock: ClockPort;
 }
 
@@ -204,7 +207,11 @@ export function createApp(ports: AppPorts): App {
   const session = createSessionPresenter(ports.session);
   const buildings = createBuildingsPresenter(ports.buildings);
   const books = createBooksPresenter(
-    { accounts: ports.accounts, journal: ports.journal },
+    {
+      accounts: ports.accounts,
+      journal: ports.journal,
+      installments: ports.installments,
+    },
     buildings.selected$,
     buildings.tree$,
   );
@@ -364,7 +371,7 @@ export function createApp(ports: AppPorts): App {
   };
 }
 
-/** The four simulators over one seed: what `pnpm dev` and the harness run on. */
+/** The five simulators over one seed: what `pnpm dev` and the harness run on. */
 export function createSimulatorPorts(
   seed: LegacySeed,
   clock: ClockPort,
@@ -377,6 +384,7 @@ export function createSimulatorPorts(
     buildings: createBuildingsSimulator(seed),
     accounts: createAccountsSimulator(seed),
     journal: createJournalSimulator(seed, clock),
+    installments: createInstallmentsSimulator(seed),
     clock,
   };
 }

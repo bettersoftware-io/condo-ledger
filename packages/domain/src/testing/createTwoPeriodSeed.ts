@@ -10,7 +10,9 @@ import { createSmallSeed } from "./createSmallBooks.ts";
  * md1, its one party), and p1's entries in reverse number order: what a simulator must
  * filter by period and sort. p2's books are whole, so the chart of accounts
  * can be built from them too. p1 also holds a tax leaf, Ritenute (la7), and a
- * withholding catalogue of one code, 1040 at 20% on it.
+ * withholding catalogue of one code, 1040 at 20% on it, and a schedule of one
+ * installment, Rata 1 due 2013-03-31, with an item of 500.00 for r1 and one of
+ * 400.00 for r3.
  */
 export function createTwoPeriodSeed(): LegacySeed {
   const seed = createSmallSeed();
@@ -99,6 +101,29 @@ export function createTwoPeriodSeed(): LegacySeed {
         name: "Lavoratori autonomi",
         rate: rate(2000),
         accountId: "la7",
+      },
+    ],
+    installments: [
+      {
+        id: "in1",
+        periodId: "p1",
+        number: 1,
+        name: "Rata 1",
+        dueDate: "2013-03-31",
+      },
+    ],
+    installmentItems: [
+      {
+        id: "ii1",
+        installmentId: "in1",
+        residentId: "r1",
+        amount: cents(50000),
+      },
+      {
+        id: "ii2",
+        installmentId: "in1",
+        residentId: "r3",
+        amount: cents(40000),
       },
     ],
   };

@@ -15,6 +15,9 @@ import {
   type AccountsPort,
   type Building,
   buildAccountTree,
+  type Installment,
+  type InstallmentItem,
+  type InstallmentsPort,
   type Invoice,
   type JournalEntry,
   type JournalPort,
@@ -40,11 +43,14 @@ export interface Books {
   entries: JournalEntry[];
   invoices: Invoice[];
   withholdingTaxes: WithholdingTax[];
+  installments: Installment[];
+  installmentItems: InstallmentItem[];
 }
 
 export interface BooksPresenterPorts {
   accounts: AccountsPort;
   journal: JournalPort;
+  installments: InstallmentsPort;
 }
 
 export interface BooksPresenter {
@@ -86,23 +92,37 @@ export function createBooksPresenter(
             ports.accounts.withholdingTaxes(periodId),
             ports.journal.entries(periodId),
             ports.journal.invoices(periodId),
+            ports.installments.installments(periodId),
+            ports.installments.items(periodId),
           ]).pipe(
             // The port writes a registration and its invoice one stream after the other: the half-written combination is skipped.
             filter(([, , , entries, invoices]) => {
               return agree(entries, invoices);
             }),
-            map(([accounts, parties, withholdingTaxes, entries, invoices]) => {
-              return {
-                periodId,
-                period,
-                tree: buildAccountTree(accounts, entries, parties),
+            map(
+              ([
                 accounts,
                 parties,
+                withholdingTaxes,
                 entries,
                 invoices,
-                withholdingTaxes,
-              };
-            }),
+                installments,
+                installmentItems,
+              ]) => {
+                return {
+                  periodId,
+                  period,
+                  tree: buildAccountTree(accounts, entries, parties),
+                  accounts,
+                  parties,
+                  entries,
+                  invoices,
+                  withholdingTaxes,
+                  installments,
+                  installmentItems,
+                };
+              },
+            ),
           );
         }),
       ),

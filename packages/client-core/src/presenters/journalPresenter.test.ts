@@ -5,6 +5,7 @@ import {
   type Building,
   cents,
   createAccountsSimulator,
+  createInstallmentsSimulator,
   createJournalSimulator,
   type EntryDraft,
   fixedClock,
@@ -160,7 +161,11 @@ function createPresented(
   );
 
   const books = createBooksPresenter(
-    { accounts: createAccountsSimulator(seed), journal },
+    {
+      accounts: createAccountsSimulator(seed),
+      journal,
+      installments: createInstallmentsSimulator(seed),
+    },
     selected$,
     of(buildings),
   );

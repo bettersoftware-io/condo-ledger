@@ -5,6 +5,7 @@ import {
   type Building,
   cents,
   createAccountsSimulator,
+  createInstallmentsSimulator,
   createJournalSimulator,
   type EntryDraft,
   fixedClock,
@@ -88,6 +89,30 @@ describe("the books presenter", () => {
     });
   });
 
+  it("carries the period's installments and their items, and switches with the period", () => {
+    const { selected$, latest } = createPresented(
+      { buildingId: "c19", periodId: "p36" },
+      loadLegacySeed(legacySeedData),
+    );
+
+    expect(latest()?.installments).toHaveLength(12);
+    expect(latest()?.installmentItems).toHaveLength(324);
+    expect(
+      latest()?.installments.every((installment) => {
+        return installment.periodId === "p36";
+      }),
+    ).toBe(true);
+
+    selected$.next({ buildingId: "c1", periodId: "p1" });
+
+    expect(
+      latest()?.installments.every((installment) => {
+        return installment.periodId === "p1";
+      }),
+    ).toBe(true);
+    expect(latest()?.installments).not.toHaveLength(12);
+  });
+
   it("answers null for a period the building tree does not hold yet, and the books once it does", () => {
     const seed = createTwoPeriodSeed();
     const { tree$, latest } = createPresented(
@@ -161,6 +186,7 @@ describe("the books presenter", () => {
             return invoices$;
           },
         },
+        installments: createInstallmentsSimulator(named),
       },
       new BehaviorSubject<PeriodSelection | null>({
         buildingId: "c1",
@@ -212,6 +238,7 @@ function createPresented(
   const ports: BooksPresenterPorts = {
     accounts: createAccountsSimulator(seed),
     journal: createJournalSimulator(seed, fixedClock("2026-10-14T08:00:00Z")),
+    installments: createInstallmentsSimulator(seed),
   };
   const presenter = createBooksPresenter(ports, selected$, tree$);
   let latest: Books | null = null;

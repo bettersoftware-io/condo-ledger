@@ -5,6 +5,7 @@ import {
   type AccountNode,
   cents,
   createAccountsSimulator,
+  createInstallmentsSimulator,
   createJournalSimulator,
   findNode,
   fixedClock,
@@ -182,6 +183,7 @@ function createPresented(
     {
       accounts,
       journal: createJournalSimulator(seed, fixedClock("2026-10-14T08:00:00Z")),
+      installments: createInstallmentsSimulator(seed),
     },
     selected$,
     of(seed.buildings),
