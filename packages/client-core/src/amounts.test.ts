@@ -24,6 +24,7 @@ describe("parseAmount", () => {
     expect(parseAmount("-5", "en-US")).toBe(-500);
     expect(parseAmount("0", "en-US")).toBe(0);
     expect(parseAmount("12,345,678.90", "en-US")).toBe(1234567890);
+    expect(parseAmount("-1,200.00", "en-US")).toBe(-120000);
   });
 
   it("rounds to the nearest cent where the binary fraction falls just short", () => {

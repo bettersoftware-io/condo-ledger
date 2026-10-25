@@ -28,13 +28,7 @@ Work that has started and is not finished.
 
 ## Planned, and held by something
 
-- **Negative budgets.** Pozzetto 2013 holds two on editable expense leaves
-  (`la215` −1,200.00 and `la216` −380.00, deduction accounts). The spec's rule
-  "a budget is never negative" stays; an unchanged text on blur cancels, so
-  they are not an error trap. Held by the decision below; if negatives are
-  allowed, drop the `negative` reason in
-  `packages/domain/src/useCases/validateBudget.ts` and its message in
-  `packages/client-react/src/ui/accounts/AccountsGrid.tsx`.
+Work that waits on a release, a decision or other work.
 
 ## Next, with no plan yet
 
@@ -129,10 +123,9 @@ Work that has started and is not finished.
 - **The probe branch `worktree-visual-flake-probe` on GitHub (the user).**
   It measured which Chromium flags hold the visual tier still: candidate
   flag sets as Playwright projects, each writing its own images, compared
-  across parallel runs. Look through it, then delete it:
+  across parallel runs. Draft pull request #28 shows it; look through it,
+  close it, then delete the branch:
   `git push origin --delete worktree-visual-flake-probe`.
-- **Negative budgets.** Allow them (the legacy application does, for
-  deduction accounts) or keep the spec's rule. See "Planned, and held".
 - **Wording and input choices made during M2b (the user).** Keep or change
   each:
   - the generic editor's title on an edit reads "Edit Add Accounting Entry";
@@ -142,53 +135,24 @@ Work that has started and is not finished.
     zero or more for {row}", the step rules' messages and the entry-gone
     text in `packages/client-react/src/ui/journal/wizards/reasons.ts`;
   - the opening list's order: the leaves in tree order, then the residents.
-- **Two design ambiguities, visible in the goldens
-  (`packages/client-react/tests/visual/goldens/`).** The README's Money rule
-  bolds every amount of an aggregate row, its Accounts section says "bold on
-  Balance"; built: all four bold. The README gives group rows the `--zebra`
-  background, the spec gave it to Total only; built: Total only. Say which,
-  each is one line.
-- **Eight open code-scanning alerts.** Seven are from the first CodeQL scan
-  (switched on 2026-10-13, with Dependabot security updates and private vulnerability
-  reporting; all nine settings `pnpm repo:settings` reads are now on; Dependabot
-  security updates went off again on 2026-10-17, since Renovate opens the fixes). One was
-  CodeQL's: `js/incomplete-sanitization`, a warning, in
-  `tools/arch/gates/lib/files.mts`, the kit's own file; the kit's 0.15.0
-  (on `main` with this entry) replaces the `*` through a function, so the
-  alert should close at the next scan of `main`. Check it did, and dismiss
-  it by hand if it did not. The eighth came with the housekeeping
-  branch (pull request #8): `js/incomplete-multi-character-sanitization`,
-  rated high, in `tools/repo-hygiene/lib/markdown.mts:100`, the add-on's
-  heading reader stripping tags to make an anchor that is never rendered. The
-  plugin read that same line on 2026-10-16 and dismissed it there as a false
-  positive (skills #36): the anchor it makes is never written into a page.
-  Dismiss it here with that reason.
-  The CodeQL check is not in the ruleset, and #8 merged with it red. The other six
-  are OpenSSF Scorecard's ratings of the repository's practices shown as
-  errors with no file: CI best practices, code review, maintained, fuzzing,
-  SAST and branch protection. They are not code defects; decide which to act
-  on (code review and branch protection may be Scorecard reading the ruleset
-  and the single-maintainer history its own way) and dismiss the rest with a
-  reason, under Security → Code scanning.
-- **Housekeeping carried from M0.** Delete the pre-rewrite backups beside the
-  repository (`condo-ledger-backup-2026-10-12.git`,
-  `condo-ledger-legacy-data-2026-10-12/`) once sure; rotate the credentials
-  the old history held; GitHub Pages stays off.
-- **To file in bettersoftware-io/skills** (observations from M0 and M1, not
-  this project's to fix): a `starter` unit for `add-to-project.mts`; folder
-  entries for `javascriptAllowed`; the Biome template repeats the base's
-  `**`; `check-dockerfiles` parser findings; knip's "an export arrives with
-  its caller" made every M1 task restore the names it imported (a note for
-  the planning skill); the stop hook judges a subagent's in-flight tree and
-  blocks the controller mid-task; the plan assumed the goldens workflow
-  pushes a commit, while it uploads an artifact (the add-on's README is right,
-  the plan was wrong); the `agent-workflow` installer wrote
-  `.claude/commands/workflow/*.md` into a folder the project's `.gitignore`
-  ignored and said nothing, so CI failed the `agent-docs` gate on files the
-  branch did not carry (an installer could warn when a file it wrote is
-  ignored).
+- **GitHub Pages (the user).** It is off only because the repository was
+  private when it was decided; the coverage workflow already pushes the
+  report to `gh-pages` on every push to `main`. To serve it:
+  `gh api -X POST repos/bettersoftware-io/condo-ledger/pages -f 'source[branch]=gh-pages' -f 'source[path]=/'`.
+- **The legacy application's credentials (the user).** The pre-rewrite
+  history, and `old/` on this machine, hold the legacy PHP application's
+  MySQL password (a localhost database) and its application secret; no mail
+  or API credentials. The rewritten history never carried them into the
+  public repository. Change that password only where it was reused.
 
 ## Known limits
+
+- **The Accounts grid's stripes are faint in the light themes.** It now
+  follows the legacy screen: bold labels, regular-weight amounts, and rows
+  striped by position. The stripe colour is the `--zebra` token, which is
+  close to white in the light themes, so the stripes show far less than the
+  legacy grey. A darker token would also darken the Schedule, the Journal
+  and the grid footers that share it.
 
 - **A visual state held in a view's own state has no picture in place.**
   The budget editor in an Accounts row, the editor in an Installment

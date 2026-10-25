@@ -52,13 +52,31 @@ describe("AccountsGrid", () => {
     ]);
   });
 
-  it("draws a group's row bold and Total on the root's background", () => {
+  it("draws an aggregate's label bold and its amounts at the regular weight, as the legacy grid does", () => {
     const page = mountAccountsGrid();
 
-    expect(page.isBold("Spese generali")).toBe(true);
-    expect(page.isBold("Fondi")).toBe(false);
-    expect(page.isZebra("Total")).toBe(true);
-    expect(page.isZebra("Patrimonial")).toBe(false);
+    expect(page.labelIsBold("Total")).toBe(true);
+    expect(page.labelIsBold("Spese generali")).toBe(true);
+    expect(page.anyAmountIsBold("Total")).toBe(false);
+    expect(page.anyAmountIsBold("Spese generali")).toBe(false);
+    expect(page.labelIsBold("Fondi")).toBe(false);
+    expect(page.anyAmountIsBold("Fondi")).toBe(false);
+  });
+
+  it("stripes every other visible row by its place, Total like any other", async () => {
+    const page = mountAccountsGrid();
+
+    expect(page.isStriped("Total")).toBe(true);
+    expect(page.isStriped("Patrimonial")).toBe(false);
+    expect(page.isStriped("(Assets)")).toBe(true);
+    expect(page.isStriped("(Liabilities)")).toBe(false);
+    expect(page.isStriped("Fondi")).toBe(true);
+    expect(page.isStriped("Costs")).toBe(false);
+
+    await page.toggleHideEmpty();
+
+    expect(page.isStriped("(Liabilities)")).toBe(false);
+    expect(page.isStriped("Costs")).toBe(true);
   });
 
   it("selecting a row selects the account app-wide", async () => {
@@ -263,7 +281,7 @@ describe("AccountsGrid", () => {
     expect(page.cellsOf("Ascensore")[3]).toBe("1,000.00");
   });
 
-  it("shows the domain's reason for a negative budget", async () => {
+  it("commits a negative budget, as the legacy books hold them, drawn red", async () => {
     const page = mountAccountsGrid();
     await page.clickCaret("Spese generali");
 
@@ -271,8 +289,37 @@ describe("AccountsGrid", () => {
     await page.typeBudget("-5");
     await page.pressEnter();
 
-    expect(page.budgetError()).toBe("a budget cannot be negative");
+    expect(page.budgetError()).toBeNull();
+    expect(page.cellsOf("Ascensore")[3]).toBe("-5.00");
+    expect(page.amountTonesOf("Ascensore")[3]).toBe("neg");
+    expect(page.cellsOf("Spese generali")[3]).toBe("495.00");
+    expect(page.cellsOf("Total")[3]).toBe("495.00");
+
+    await page.clickBudget("Pulizie");
+    await page.typeBudget("-1,200.00");
+    await page.pressEnter();
+
+    expect(page.budgetError()).toBeNull();
+    expect(page.cellsOf("Pulizie")[3]).toBe("-1,200.00");
+    expect(page.cellsOf("Spese generali")[3]).toBe("-1,205.00");
+    expect(page.amountTonesOf("Spese generali")[3]).toBe("neg");
+  });
+
+  it("shows the store's reason when it refuses a budget, and the budget stays", async () => {
+    const page = mountAccountsGrid();
+    await page.clickCaret("Spese generali");
+    page.refuseBudgets("not-a-leaf");
+
+    await page.clickBudget("Ascensore");
+    await page.typeBudget("1,200.00");
+    await page.pressEnter();
+
+    expect(page.budgetError()).toBe("not-a-leaf");
     expect(page.cellsOf("Spese generali")[3]).toBe("1,500.00");
+
+    await page.pressEscape();
+
+    expect(page.cellsOf("Ascensore")[3]).toBe("1,000.00");
   });
 
   it("leaving a budget cell unchanged writes nothing and shows no error", async () => {

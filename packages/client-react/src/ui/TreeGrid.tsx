@@ -107,7 +107,7 @@ export interface TreeGridRowData {
   selected: boolean;
   /** Bold label (a node with children). */
   emphasis: boolean;
-  /** The root row's background. */
+  /** Drawn on the `--zebra` background: a stripe of the Accounts grid, an aggregate of the Schedule, an entry of the Journal. */
   zebra: boolean;
   /** Drawn in the label cell before the text. */
   icon: ReactNode;

@@ -39,3 +39,21 @@ allowBuilds:
 #   # Reach: <direct dependency> > <package>, in the server at run time.
 #   # Drop when: <direct dependency> asks for >= 2.1.7 itself.
 #   "<package>@<2.1.7": ^2.1.7
+
+overrides:
+  # GHSA-w74x-v6f9-j3xg, GHSA-wjr9-j795-jxcr (MODERATE), GHSA-xhq7-xmqj-769h,
+  # GHSA-333x-w4r6-6crp (LOW): fast-uri < 3.1.9.
+  # Reach: stylelint > table > ajv > fast-uri, CSS lint tooling only, never
+  # the server and never a browser bundle.
+  # Drop when: ajv asks for fast-uri >= 3.1.9 itself.
+  "fast-uri@<3.1.9": ^3.1.9
+  # GHSA-mrhx-c7xc-m3w5 (HIGH, zod < 4.6.6).
+  # Reach: knip > zod, dead-code lint tooling only.
+  # Drop when: knip asks for zod >= 4.6.6 itself.
+  "zod@<4.6.6": ^4.6.6
+  # GHSA-67mh-4wv8-2f99 (MODERATE, esbuild <= 0.24.2: its dev server answers
+  # any website's requests).
+  # Reach: drizzle-kit > @esbuild-kit/esm-loader > @esbuild-kit/core-utils >
+  # esbuild, the db package's migration tooling only; no dev server is run.
+  # Drop when: drizzle-kit no longer depends on @esbuild-kit.
+  "esbuild@<=0.24.2": ^0.25.12
