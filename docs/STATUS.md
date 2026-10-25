@@ -47,25 +47,27 @@ Work that has started and is not finished.
   2013 (it reproduces Saturno 2011, but is off by cents per owner on
   Pozzetto, about 426 euros between the two residents of unit A04). The
   menu item keeps M2a's notice until then.
-- **Installment schedules, in the Installments group.** Moved out of M2c
-  ([2026-10-24-m2c-owner-collection-design.md](superpowers/specs/2026-10-24-m2c-owner-collection-design.md),
-  "Scope"), which reads the stored schedules only. Left: creating and
-  editing a period's schedule ("Crea Rate Preventivo" in the legacy app),
-  the Installment Schedule screen, and whether a resident's
-  `startingBalance` follows the period's opening entry (installment 1
-  embeds it; in M2b it only prefills a new opening).
+- **Unit groups and the Units entity, in the Building Data & Units group.**
+  The Installment Schedule does not draw Saturno's unit groups (A and B):
+  its rows are units, then residents, until the Unit and UnitGroup entities
+  arrive with their group
+  ([2026-10-25-m2d-installment-schedule-design.md](superpowers/specs/2026-10-25-m2d-installment-schedule-design.md),
+  "Scope").
 - **The rest of the Buildings module for M2.** The groups the parent design
-  names, one spec each: Installments, Tables & Allocation, Building Data &
-  Units, Contacts and Calendar
-  ([2026-10-11-app-v2-design.md](superpowers/specs/2026-10-11-app-v2-design.md)).
-  The two entries above open the first two.
+  names, one spec each: Tables & Allocation, Building Data & Units, Contacts
+  and Calendar
+  ([2026-10-11-app-v2-design.md](superpowers/specs/2026-10-11-app-v2-design.md));
+  Installments is built (M2d). The two entries above open the first two.
 - **Visual goldens as a pyramid.** Since the `visual` add-on's 0.19.0 the
   fourteen Accounts and Journal scenarios are pages (the whole app at 1280
   or 1100 by 720), the shape its README says to avoid. M2c started the
   pyramid: `tests/visual/registry.tsx`, its `Surround` carrying the
   `data-theme` and `data-mode` that `ui/shell/AppRoot.tsx` sets, `render`
   from `seeding.ts`, and three component scenarios (the collection wizard
-  on steps 1 and 2, its settlement table). `Surround` sets the attributes
+  on steps 1 and 2, its settlement table). M2d added three more: the
+  installment cells in each settlement state, the Create Budget
+  Installments wizard on step 2, and the Edit Installment dialog, beside
+  one page (the Installment Schedule at 1280). `Surround` sets the attributes
   only, so the page around a part keeps the body's light colours: a dark
   component scenario needs that page dark too. Left: component scenarios
   before more pages. First: `Money` (positive, negative, zero),
@@ -289,3 +291,12 @@ Work that has started and is not finished.
   relies on the books having updated before the refusal arrives. The
   simulator does that; the live adapter of M3 need not.
 - **`pnpm dev:fs` throws until M3.**
+- **The schedule's Overdue does not move at midnight.** It is computed when
+  the books emit, against the clock's today; a tab left open past midnight
+  shows the day before's Overdue until the books next change.
+- **The schedule's resized column widths reset** when an installment is
+  created or deleted: the columns machine is rebuilt for the new count of
+  installments (`InstallmentScheduleScreen.tsx`).
+- **The schedule's "Restr. period" is the resident's own restriction, else
+  its unit's, as one unit.** A resident with only one bound of its own does
+  not inherit the unit's other bound.

@@ -4,6 +4,8 @@ import type {
   AccountsGridIntents,
   AccountsGridState,
   App,
+  BudgetInstallmentsForm,
+  BudgetInstallmentsSummary,
   CollectionForm,
   CollectionSummary,
   DirectPaymentForm,
@@ -38,6 +40,7 @@ import {
   type Result,
 } from "@cl/domain";
 import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
+import { createScheduleSeed } from "@cl/domain/testing/createScheduleSeed.ts";
 
 import type { HostClock, Seeded } from "./host/seeded.ts";
 import { Mount } from "./registry.tsx";
@@ -257,6 +260,22 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
 
         return wizard;
       },
+      // The budget wizard holds the scenario's first due date and moves to
+      // its step through its own Next.
+      createBudgetInstallmentsWizard: (): Machine<
+        WizardState<BudgetInstallmentsForm, BudgetInstallmentsSummary>,
+        WizardIntents<BudgetInstallmentsForm, Result>
+      > => {
+        const wizard = machines.createBudgetInstallmentsWizard();
+        const wanted = scenario.budgetInstallments;
+
+        if (wanted !== undefined) {
+          wizard.intents.edit({ firstDue: wanted.firstDue });
+          moveToStep(wizard, wanted.step);
+        }
+
+        return wizard;
+      },
     },
   };
 
@@ -311,9 +330,12 @@ function pagePeriod(scenario: Scenario): string {
   return scenario.periodId;
 }
 
-/** The real seed, with the scenario's accounts renamed. */
+/** The scenario's seed, with its accounts renamed. */
 function seedOf(scenario: Scenario): LegacySeed {
-  const seed = loadLegacySeed(legacySeedData);
+  const seed =
+    scenario.seed === "schedule"
+      ? createScheduleSeed()
+      : loadLegacySeed(legacySeedData);
   const { renamed } = scenario;
 
   if (renamed === undefined) {
@@ -380,8 +402,8 @@ function deleteSeededOpening(harness: AppHarness, periodId: string): void {
 }
 
 /** Moves a wizard on through its own Next until it stands on the step; a step whose verdict holds it back fails the scenario with the reason. */
-function moveToStep<TForm, TSummary>(
-  wizard: Machine<WizardState<TForm, TSummary>, WizardIntents<TForm>>,
+function moveToStep<TForm, TSummary, TSaved extends Result>(
+  wizard: Machine<WizardState<TForm, TSummary>, WizardIntents<TForm, TSaved>>,
   step: number,
 ): void {
   while (wizard.state$.getValue().step < step) {

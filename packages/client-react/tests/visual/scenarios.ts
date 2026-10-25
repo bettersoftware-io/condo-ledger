@@ -5,7 +5,7 @@ import type {
   OpeningAmount,
   SettlementRow,
 } from "@cl/client-core";
-import { cents } from "@cl/domain";
+import { type CellStatus, cents } from "@cl/domain";
 
 import type { Picture } from "./host/picture.ts";
 
@@ -38,7 +38,9 @@ export interface Scenario extends Picture {
   /** Accounts given another name, by id: a label the seed does not have. */
   renamed?: Record<string, string>;
   /** The Buildings menu item on screen; Accounts when absent. */
-  menu?: "accounts" | "journal";
+  menu?: "accounts" | "journal" | "installments";
+  /** The seed the app runs on: the generated one when absent; `schedule`, the test seed whose 2015 (`p3`) has books and no installments. */
+  seed?: "schedule";
   /** The journal entries open, by id. */
   expandedEntries?: string[];
   /** The journal entry selected, by id, on the page that holds it. */
@@ -49,6 +51,25 @@ export interface Scenario extends Picture {
   collection?: CollectionStep;
   /** The settlement table's rows (`mount: "settlement-table"`), as its props. */
   settlement?: SettlementRow[];
+  /** The Create Budget Installments wizard mounted alone (`mount: "budget-installments-wizard"`), on the step it shows. */
+  budgetInstallments?: BudgetInstallmentsStep;
+  /** The installment the Edit Installment dialog opens on (`mount: "installment-dialog"`). */
+  installmentId?: string;
+  /** The installment cells (`mount: "installment-cells"`), one under another, as their props. */
+  cells?: CellPicture[];
+}
+
+/** The budget wizard on step 2: the first due date typed on step 1, the other fields as they open. */
+interface BudgetInstallmentsStep {
+  step: 2;
+  firstDue: string;
+}
+
+/** One installment cell as its props: what it owes in cents (null for no item), its settlement, and whether a click edits it. */
+export interface CellPicture {
+  amount: number | null;
+  status: CellStatus | null;
+  editable: boolean;
 }
 
 /** The collection wizard as it opens: step 1, no owner chosen. */
@@ -137,7 +158,9 @@ const OPEN_TO_CASH = [
  * postings) open and selected, and the dialogs over it. Then the parts shown
  * alone: the Record owner collection wizard, a dialog in a viewport of the
  * app's page height, and its settlement table at the width it has in the
- * wizard's body.
+ * wizard's body. The Installment Schedule of the same period, and its parts
+ * alone: the cells in each state, the Create Budget Installments wizard over
+ * a period with no schedule, and the Edit Installment dialog.
  */
 export const scenarios: Record<string, Scenario> = {
   "accounts-1280-light": {
@@ -334,6 +357,59 @@ export const scenarios: Record<string, Scenario> = {
       createSettlementRow("Rata 10", "2013-10-20", 13498, 13498),
       createSettlementRow("Rata 11", "2013-11-20", 13498, 3004),
     ],
+  },
+  // Pozzetto 2013's schedule: the units open, their residents' items
+  // coloured by what is paid of them; at this width the first two
+  // installments are in view.
+  "installments-1280-light": {
+    width: 1280,
+    height: 720,
+    mode: "light",
+    periodId: "p36",
+    menu: "installments",
+  },
+  // One cell per settlement, from the top: settled, partial, unsettled,
+  // nothing owed, no item (blank); then an unsettled one a click edits,
+  // drawn as the others until it is hovered.
+  "installment-cell-states": {
+    level: "component",
+    mount: "installment-cells",
+    width: 120,
+    mode: "light",
+    cells: [
+      { amount: 13498, status: "settled", editable: false },
+      { amount: 13498, status: "partial", editable: false },
+      { amount: 13498, status: "unsettled", editable: false },
+      { amount: 0, status: null, editable: false },
+      { amount: null, status: null, editable: false },
+      { amount: 13498, status: "unsettled", editable: true },
+    ],
+  },
+  // Step 2 over 2015 of the test seed, which has books and no installments:
+  // the first due date typed on step 1, three installments four months
+  // apart on the default shares, 34, 33 and 33.
+  "budget-installments-wizard-step2": {
+    level: "component",
+    mount: "budget-installments-wizard",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    seed: "schedule",
+    periodId: "p3",
+    budgetInstallments: { step: 2, firstDue: "31/03/2015" },
+  },
+  // Saturno 2011's first installment (`in1`, Rata nr. 1), locked: its name
+  // and due date cannot change until Locked is unticked.
+  "installment-dialog": {
+    level: "component",
+    mount: "installment-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p1",
+    installmentId: "in1",
   },
 };
 

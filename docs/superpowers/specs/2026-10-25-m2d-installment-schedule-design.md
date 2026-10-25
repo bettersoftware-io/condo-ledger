@@ -33,7 +33,8 @@ the survey found that shapes the design:
   adjustment ("conguaglio") installments exist only as menu labels.
 - The legacy algorithm (below) reproduces all 27 stored Pozzetto schedules
   exactly, given each resident's budget share. Saturno's stored items fit the
-  same algorithm with whole-euro rounding and percentages 33.34/33.33/33.33.
+  same algorithm with whole-euro rounding and percentages 33.34/33.33/33.33,
+  for 8 of its 10 residents (see "Reproduction").
   This corrects the M2c spec, which says the stored items cannot be
   recomputed by any formula.
 - The legacy app never computed "Overdue" (`installmentsExpired()` returns 0;
@@ -175,8 +176,10 @@ the per-item rounding, as in the legacy data.
 aside and their percentages, Pozzetto's 12 (12, 8×11; cents) reproduce 25 of
 27 residents. r166 and r167 differ because the stored allocation entry
 (898.80 / 46.49) is not the one the schedule was made from (898.64 / 46.63).
-Saturno's 3 (33.34/33.33/33.33, whole euros) reproduce 9 of 10. r1 differs by
-0.01, its rounding line.
+Saturno's 3 (33.34/33.33/33.33, whole euros) reproduce 8 of 10. r1 differs by
+0.01, its rounding line. r5's stored items 2 and 3 are exact thirds of its
+share in whole euros (2,782.64 / 3 = 927.55, so 928.00), which no
+two-decimal percentage gives: 33.33% of it is 927.45, so 927.00.
 
 New installments: type estimate, unlocked; `number` is the rank by due date
 among the period's installments, then by id, which the port keeps.
