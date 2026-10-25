@@ -18,7 +18,7 @@
     "seed": "node etl/index.ts",
     "reset": "node scripts/reset.mts",
     "rebuild": "pnpm reset && pnpm migrate && pnpm seed",
-    "test": "vitest run",
+    "test": "vitest run --no-fsModuleCache",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
