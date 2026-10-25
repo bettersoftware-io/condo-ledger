@@ -4,7 +4,12 @@ import { type ReactElement, useEffect } from "react";
 
 import type { App } from "@cl/client-core";
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
-import type { AccountsPort, Cents, Result } from "@cl/domain";
+import {
+  type AccountsPort,
+  type Cents,
+  type Result,
+  rejected,
+} from "@cl/domain";
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 import {
   createViewModel,
@@ -211,13 +216,15 @@ export interface MountedScreen {
   budgetWrites: BudgetWrites;
 }
 
-/** Counts the budget writes that reach the accounts store, and can hold their answers back. */
+/** Counts the budget writes that reach the accounts store, can hold their answers back, and can have the store refuse them. */
 interface BudgetWrites {
   count: () => number;
   /** From now on, a write is saved at once but its verdict waits for release. */
   hold: () => void;
   /** Hands every held verdict back, and stops holding. */
   release: () => Promise<void>;
+  /** From now on, the store refuses every write with this reason and saves nothing. */
+  refuse: (reason: string) => void;
 }
 
 /** Mounts the screen, the toasts and a reader of the app-wide selection over the small books. */
@@ -254,19 +261,21 @@ export function mountScreen(): MountedScreen {
   };
 }
 
-/** Wraps the simulator's budget write: counted, and its verdict held back while asked to. */
+/** Wraps the simulator's budget write: counted, its verdict held back while asked to, refused when told to. */
 function recordBudgetWrites(accounts: AccountsPort): BudgetWrites {
   const save = accounts.setBudget.bind(accounts);
   const waiting: (() => void)[] = [];
   let count = 0;
   let holding = false;
+  let refusal: string | null = null;
 
   accounts.setBudget = async (
     accountId: string,
     budget: Cents,
   ): Promise<Result> => {
     count += 1;
-    const result = await save(accountId, budget);
+    const result =
+      refusal === null ? await save(accountId, budget) : rejected(refusal);
 
     if (holding) {
       await new Promise<void>((resolve) => {
@@ -283,6 +292,9 @@ function recordBudgetWrites(accounts: AccountsPort): BudgetWrites {
     },
     hold: (): void => {
       holding = true;
+    },
+    refuse: (reason: string): void => {
+      refusal = reason;
     },
     release: async (): Promise<void> => {
       holding = false;

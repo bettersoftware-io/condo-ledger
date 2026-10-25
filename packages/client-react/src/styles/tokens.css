@@ -22,7 +22,7 @@
   --sel: #dceaff; /* selected row bg */
   --selbd: #9cc2ff;
   --hover: #f2f6fc;
-  --zebra: #fafbfd; /* group/root rows, footers */
+  --zebra: #fafbfd; /* striped rows, aggregate rows, footers */
   --num: #1f4fb0; /* positive money */
   --neg: #cc3a3a; /* negative money, delete */
   --ok: #2e9e5b; /* add, active, settled */

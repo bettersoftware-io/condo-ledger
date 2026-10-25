@@ -353,18 +353,16 @@ export function Mount({ scenario }: MountProps): ReactElement {
   return <Surround>{entry(scenario)}</Surround>;
 }
 
-/** A row as `AccountsGrid` makes it from a node: a row with children is bold, Total sits on the zebra. */
+/** A row as `AccountsGrid` makes it from a node: a row with children has a bold label, and a row at an even place is on a stripe. */
 function accountRowOf(row: AccountRowPicture): TreeGridRowData {
-  const aggregate = row.hasChildren;
-
   return {
     key: row.key,
     depth: row.depth,
     hasChildren: row.hasChildren,
     expanded: row.expanded,
     selected: row.selected,
-    emphasis: aggregate,
-    zebra: row.root,
+    emphasis: row.hasChildren,
+    zebra: row.position % 2 === 0,
     icon: (
       <AccountIcon
         icon={row.icon}
@@ -375,19 +373,9 @@ function accountRowOf(row: AccountRowPicture): TreeGridRowData {
     ),
     label: row.label,
     cells: [
-      <Money
-        key="debit"
-        cents={cents(row.debit)}
-        variant="plain"
-        emphasis={aggregate}
-      />,
-      <Money
-        key="credit"
-        cents={cents(row.credit)}
-        variant="plain"
-        emphasis={aggregate}
-      />,
-      <Money key="balance" cents={cents(row.balance)} emphasis={aggregate} />,
+      <Money key="debit" cents={cents(row.debit)} variant="plain" />,
+      <Money key="credit" cents={cents(row.credit)} variant="plain" />,
+      <Money key="balance" cents={cents(row.balance)} />,
     ],
   };
 }
