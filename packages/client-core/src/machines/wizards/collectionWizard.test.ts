@@ -50,7 +50,7 @@ describe("the Record owner collection wizard", () => {
       },
       stepVerdict: { ok: false, reason: "no-owner" },
       verdict: { ok: false, reason: "no-owner" },
-      summary: { owed: null, settlement: [] },
+      summary: { person: null, owed: null, settlement: [] },
       preview: [],
     });
     expect(
@@ -119,7 +119,7 @@ describe("the Record owner collection wizard", () => {
     machine.intents.edit({ personId: "md-none" });
     expect(machine.state$.getValue()).toMatchObject({
       verdict: { ok: false, reason: "no-owner" },
-      summary: { owed: null },
+      summary: { person: null, owed: null },
     });
 
     machine.intents.edit({ personId: "md89" });
@@ -140,7 +140,7 @@ describe("the Record owner collection wizard", () => {
         description: `Collection of installments from ${personName(harness, "md89")}: Rata 9 (20/09/2013), Rata 10 (20/10/2013), Rata 11 (20/11/2013), Rata 12 (20/12/2013)`,
         edited: ["personId"],
       },
-      summary: { owed: 53992 },
+      summary: { person: personName(harness, "md89"), owed: 53992 },
       stepVerdict: { ok: true },
       verdict: { ok: true },
     });
@@ -345,6 +345,7 @@ describe("the Record owner collection wizard", () => {
     expect(state.saving).toBe(false);
     expect(state.summary.owed).toBe(0);
     expect(personRowOrNull(machine, "md89")).toBeNull();
+    expect(state.summary.person).toBe(personName(harness, "md89"));
     expect(state.verdict).toEqual({ ok: false, reason: "over-owed" });
   });
 
@@ -417,7 +418,7 @@ describe("the Record owner collection wizard", () => {
       choices: [],
       form: { accountId: null, amount: "", description: "" },
       verdict: { ok: false, reason: "no-owner" },
-      summary: { people: [], owed: null, settlement: [] },
+      summary: { people: [], person: null, owed: null, settlement: [] },
     });
   });
 });

@@ -85,6 +85,8 @@ export interface SettlementRow {
 export interface CollectionSummary {
   /** The persons who still owe something, in unit order. */
   people: PersonRow[];
+  /** The chosen person's name, also once they owe nothing and step 1 no longer lists them; null with none chosen. */
+  person: string | null;
   /** What the chosen person owes in all, the edited collection's own payment added back: the most this collection may be. 0 for a person who owes nothing; null with none chosen. */
   owed: Cents | null;
   /** The items the amount pays, as it stands; none while it settles nothing. */
@@ -166,6 +168,7 @@ export function createCollectionWizard(
       summarize: (form: CollectionForm): CollectionSummary => {
         return {
           people: read.people,
+          person: nameOf(read, form.personId),
           owed: owedOf(read, form.personId),
           settlement: settlementRows(read, form),
         };
@@ -584,13 +587,18 @@ function residencyOf(read: CollectionBooks, residentId: string): OwnerParty {
   );
 }
 
-/** The person's name: their first unit's residency's. */
+/** The person's name, for a person of the period. */
 function personName(read: CollectionBooks, personId: string | null): string {
+  return must(nameOf(read, personId), `the person ${String(personId)}`);
+}
+
+/** The person's name: their first unit's residency's; null for no person of the period. */
+function nameOf(read: CollectionBooks, personId: string | null): string | null {
   const [first] = residenciesOf(read, personId).sort((a, b) => {
     return compareText(a.unitCode, b.unitCode);
   });
 
-  return must(first, `the person ${String(personId)}`).name;
+  return first?.name ?? null;
 }
 
 function balanceOf(read: CollectionBooks, itemId: string): ItemBalance {
