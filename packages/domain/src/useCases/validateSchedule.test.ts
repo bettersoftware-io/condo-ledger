@@ -136,6 +136,37 @@ describe("validateUpdate", () => {
     });
   });
 
+  it.each([
+    "",
+    " ",
+    "2011-3-01",
+    "01/03/2011",
+    "2011-03-01x",
+    "2011-02-30",
+    "2011-13-01",
+  ])("refuses the due date %j with invalid-due-date", (dueDate) => {
+    expect(validateUpdate(createContext(), "in1", { dueDate })).toEqual({
+      ok: false,
+      reason: "invalid-due-date",
+    });
+  });
+
+  it("accepts the last day of February in a leap year", () => {
+    expect(
+      validateUpdate(createContext(), "in1", { dueDate: "2012-02-29" }),
+    ).toEqual({ ok: true });
+  });
+
+  it("refuses a blank name before an invalid due date, and an invalid due date before a locked installment", () => {
+    expect(
+      validateUpdate(createContext(), "in2", { name: "", dueDate: "" }),
+    ).toEqual({ ok: false, reason: "blank-name" });
+    expect(validateUpdate(createContext(), "in2", { dueDate: "" })).toEqual({
+      ok: false,
+      reason: "invalid-due-date",
+    });
+  });
+
   it("throws for an installment the period does not hold", () => {
     expect(() => {
       return validateUpdate(createContext(), "in99", { locked: true });
@@ -260,7 +291,7 @@ describe("the rules on the seed", () => {
     });
   });
 
-  it("refuses to delete Pozzetto 2013's installment that holds ii789", () => {
+  it("refuses to delete Pozzetto 2013's installment that holds ii789 with installment-paid: every p36 installment is unlocked", () => {
     const context = createSeedContext("p36");
     const holder = must(
       context.items.find((item) => {
@@ -268,9 +299,10 @@ describe("the rules on the seed", () => {
       }),
       "ii789",
     );
-    const reason = validateDelete(context, holder.installmentId);
-
-    expect(reason.ok).toBe(false);
+    expect(validateDelete(context, holder.installmentId)).toEqual({
+      ok: false,
+      reason: "installment-paid",
+    });
   });
 });
 

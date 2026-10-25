@@ -80,8 +80,10 @@ export function validateCreate(
 }
 
 /**
- * Whether an installment may be edited. A locked one takes no new name or due
- * date, but may be unlocked. Throws for an id the context does not hold.
+ * Whether an installment may be edited: a name not blank and not another's, a
+ * due date that is a day of the calendar written YYYY-MM-DD. A locked one
+ * takes no new name or due date, but may be unlocked. Throws for an id the
+ * context does not hold.
  */
 export function validateUpdate(
   context: ScheduleContext,
@@ -104,6 +106,10 @@ export function validateUpdate(
     if (taken) {
       return rejected("name-taken");
     }
+  }
+
+  if (patch.dueDate !== undefined && !isCalendarDate(patch.dueDate)) {
+    return rejected("invalid-due-date");
   }
 
   const changes =
@@ -158,6 +164,17 @@ export function validateItemAmount(
   }
 
   return balance.paid > 0 ? rejected("item-paid") : ok();
+}
+
+/** "YYYY-MM-DD" naming a day that exists: not 2011-02-30, not 2011-13-01. */
+function isCalendarDate(text: string): boolean {
+  const time = Date.parse(`${text}T00:00:00Z`);
+
+  return (
+    /^\d{4}-\d{2}-\d{2}$/.test(text) &&
+    !Number.isNaN(time) &&
+    new Date(time).toISOString().slice(0, 10) === text
+  );
 }
 
 function installmentOf(
