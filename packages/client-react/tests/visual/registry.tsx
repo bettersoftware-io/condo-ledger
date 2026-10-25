@@ -1,12 +1,16 @@
 import type { ReactElement, ReactNode } from "react";
 
 import type { SettlementRow } from "@cl/client-core";
+import { cents } from "@cl/domain";
 import { useViewModel } from "@cl/react-bindings";
 
+import { BudgetInstallmentsWizard } from "#/ui/installments/BudgetInstallmentsWizard.tsx";
+import { InstallmentCell } from "#/ui/installments/InstallmentCell.tsx";
+import { InstallmentDialog } from "#/ui/installments/InstallmentDialog.tsx";
 import { CollectionWizard } from "#/ui/journal/wizards/CollectionWizard.tsx";
 import { SettlementTable } from "#/ui/journal/wizards/SettlementTable.tsx";
 
-import type { Scenario } from "./scenarios.ts";
+import type { CellPicture, Scenario } from "./scenarios.ts";
 
 // What a scenario's `mount` names: the parts of the UI that are pictured on
 // their own. This file is the project's. A new component gets an entry here,
@@ -33,6 +37,49 @@ const registry: Record<string, Entry> = {
   },
   "settlement-table": (scenario: Scenario): ReactElement => {
     return <SettlementTable rows={settlementOf(scenario)} />;
+  },
+  // The cells take only props: one under another, each a block as wide as
+  // its column in the grid.
+  "installment-cells": (scenario: Scenario): ReactElement => {
+    return (
+      <div>
+        {cellsOf(scenario).map((cell, index) => {
+          return (
+            <InstallmentCell
+              // biome-ignore lint/suspicious/noArrayIndexKey: a picture's cells never move; two may be alike
+              key={index}
+              amount={cell.amount === null ? null : cents(cell.amount)}
+              status={cell.status}
+              emphasis={false}
+              editable={cell.editable}
+              refusal={null}
+              editing={false}
+              error={null}
+              onEdit={ignoreClose}
+              onCommit={ignoreClose}
+              onCancel={ignoreClose}
+            />
+          );
+        })}
+      </div>
+    );
+  },
+  // The wizard reads its machine, which the seeding holds on the scenario's
+  // step, over the period the sidebar holds.
+  "budget-installments-wizard": (): ReactElement => {
+    return (
+      <BudgetInstallmentsWizard onSaved={ignoreClose} onCancel={ignoreClose} />
+    );
+  },
+  // The dialog reads its machine, built over the scenario's installment.
+  "installment-dialog": (scenario: Scenario): ReactElement => {
+    return (
+      <InstallmentDialog
+        installmentId={installmentOf(scenario)}
+        onSaved={ignoreClose}
+        onCancel={ignoreClose}
+      />
+    );
   },
 };
 
@@ -84,6 +131,26 @@ function settlementOf(scenario: Scenario): SettlementRow[] {
   }
 
   return scenario.settlement;
+}
+
+function cellsOf(scenario: Scenario): CellPicture[] {
+  if (scenario.cells === undefined) {
+    throw new Error(
+      'An "installment-cells" mount shows the scenario\'s `cells`, and this one has none.',
+    );
+  }
+
+  return scenario.cells;
+}
+
+function installmentOf(scenario: Scenario): string {
+  if (scenario.installmentId === undefined) {
+    throw new Error(
+      'An "installment-dialog" mount opens on the scenario\'s `installmentId`, and this one has none.',
+    );
+  }
+
+  return scenario.installmentId;
 }
 
 /** A picture is never clicked. */

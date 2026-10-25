@@ -11,9 +11,12 @@ import {
   DESIGN_PRINCIPAL,
   type EntryKind,
   type InstallmentsPort,
+  type InstallmentsSimulator,
   type JournalEntry,
   type JournalPort,
+  type JournalSimulator,
   type LegacySeed,
+  type Result,
   type SessionPort,
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
@@ -34,6 +37,11 @@ import {
   type ColumnsState,
   createColumnsMachine,
 } from "./machines/columnsMachine.ts";
+import {
+  createInstallmentDialog,
+  type InstallmentDialogIntents,
+  type InstallmentDialogState,
+} from "./machines/installmentDialogMachine.ts";
 import {
   createJournalDialogMachine,
   type JournalDialogIntents,
@@ -57,6 +65,11 @@ import {
   type NavigationState,
 } from "./machines/navigationMachine.ts";
 import {
+  createScheduleGridMachine,
+  type ScheduleGridIntents,
+  type ScheduleGridState,
+} from "./machines/scheduleGridMachine.ts";
+import {
   createSidebarMachine,
   type SidebarIntents,
   type SidebarState,
@@ -66,6 +79,11 @@ import {
   type SplitIntents,
   type SplitState,
 } from "./machines/splitMachine.ts";
+import {
+  type BudgetInstallmentsForm,
+  type BudgetInstallmentsSummary,
+  createBudgetInstallmentsWizard,
+} from "./machines/wizards/budgetInstallmentsWizard.ts";
 import {
   type CollectionForm,
   type CollectionSummary,
@@ -123,6 +141,11 @@ import {
   createBuildingsPresenter,
 } from "./presenters/buildingsPresenter.ts";
 import {
+  createInstallmentSchedulePresenter,
+  type InstallmentSchedulePresenter,
+  scheduleContextOf,
+} from "./presenters/installmentSchedulePresenter.ts";
+import {
   createJournalPresenter,
   type JournalPresenter,
 } from "./presenters/journalPresenter.ts";
@@ -149,6 +172,7 @@ interface AppPresenters {
   books: BooksPresenter;
   accounts: AccountsPresenter;
   journal: JournalPresenter;
+  schedule: InstallmentSchedulePresenter;
 }
 
 /** Per-component state: each call builds a machine of its own. */
@@ -164,6 +188,7 @@ interface AppMachines {
   createMaximize: () => Machine<MaximizeState, MaximizeIntents>;
   createSidebar: () => Machine<SidebarState, SidebarIntents>;
   createJournalGrid: () => Machine<JournalGridState, JournalGridIntents>;
+  createScheduleGrid: () => Machine<ScheduleGridState, ScheduleGridIntents>;
   /** The dialog over the selected period's books as they stand when an intent asks: an edit opens only for an entry they hold. */
   createJournalDialog: () => Machine<JournalDialogState, JournalDialogIntents>;
   /**
@@ -200,6 +225,16 @@ interface AppMachines {
   createCollectionWizard: (
     editing: string | null,
   ) => WizardMachine<CollectionForm, CollectionSummary>;
+  /** The Create Budget Installments wizard over the selected period's books as they stand: with no period, refused. */
+  createBudgetInstallmentsWizard: () => WizardMachine<
+    BudgetInstallmentsForm,
+    BudgetInstallmentsSummary,
+    Result
+  >;
+  /** The Edit Installment dialog over an installment of the selected period's books as they stand; one they do not hold throws. */
+  createInstallmentDialog: (
+    installmentId: string,
+  ) => Machine<InstallmentDialogState, InstallmentDialogIntents>;
 }
 
 /** The application, built once at startup. Presenters, the navigation and
@@ -230,6 +265,13 @@ export function createApp(ports: AppPorts): App {
     buildings.tree$,
     buildings.selected$,
     ports.journal,
+  );
+
+  const schedule = createInstallmentSchedulePresenter(
+    books.books$,
+    buildings.tree$,
+    ports.installments,
+    ports.clock,
   );
   let latestBooks: Books | null = null;
 
@@ -282,7 +324,7 @@ export function createApp(ports: AppPorts): App {
   }
 
   return {
-    presenters: { session, buildings, books, accounts, journal },
+    presenters: { session, buildings, books, accounts, journal, schedule },
     navigation: createNavigationMachine(),
     notices: createNotices(),
     machines: {
@@ -299,6 +341,12 @@ export function createApp(ports: AppPorts): App {
       createSidebar: createSidebarMachine,
       createJournalGrid: (): Machine<JournalGridState, JournalGridIntents> => {
         return createJournalGridMachine(journal.entries$);
+      },
+      createScheduleGrid: (): Machine<
+        ScheduleGridState,
+        ScheduleGridIntents
+      > => {
+        return createScheduleGridMachine(schedule.schedule$);
       },
       createJournalDialog: (): Machine<
         JournalDialogState,
@@ -391,15 +439,76 @@ export function createApp(ports: AppPorts): App {
           },
         );
       },
+      createBudgetInstallmentsWizard: (): WizardMachine<
+        BudgetInstallmentsForm,
+        BudgetInstallmentsSummary,
+        Result
+      > => {
+        const books = latestBooks;
+
+        return createBudgetInstallmentsWizard(
+          books,
+          (draft) => {
+            // Only a wizard over books writes: with none, its verdict refuses.
+            return schedule.createInstallments(
+              must(books, "the books of the batch").periodId,
+              draft,
+            );
+          },
+          (): Books | null => {
+            return latestBooks;
+          },
+        );
+      },
+      createInstallmentDialog: (
+        installmentId: string,
+      ): Machine<InstallmentDialogState, InstallmentDialogIntents> => {
+        const books = must(latestBooks, `the installment ${installmentId}`);
+        const installment = must(
+          books.installments.find((candidate) => {
+            return candidate.id === installmentId;
+          }),
+          `the installment ${installmentId}`,
+        );
+
+        return createInstallmentDialog(
+          installment,
+          (patch) => {
+            return schedule.updateInstallment(installmentId, patch);
+          },
+          scheduleContextOf(books),
+        );
+      },
     },
   };
 }
 
-/** The five simulators over one seed: what `pnpm dev` and the harness run on. */
+/**
+ * The five simulators over one seed: what `pnpm dev` and the harness run on.
+ * The journal and the installments read each other's current state, so a
+ * collection is judged against the schedule as it stands and an installment
+ * a collection pays is not deleted. Each reads the other only when a write
+ * asks, after both are built.
+ */
 export function createSimulatorPorts(
   seed: LegacySeed,
   clock: ClockPort,
 ): AppPorts {
+  const journal: JournalSimulator = createJournalSimulator(
+    seed,
+    clock,
+    (periodId) => {
+      return installments.current(periodId);
+    },
+  );
+
+  const installments: InstallmentsSimulator = createInstallmentsSimulator(
+    seed,
+    (periodId) => {
+      return journal.current(periodId);
+    },
+  );
+
   return {
     session: createSessionSimulator({
       principal: DESIGN_PRINCIPAL,
@@ -407,8 +516,8 @@ export function createSimulatorPorts(
     }),
     buildings: createBuildingsSimulator(seed),
     accounts: createAccountsSimulator(seed),
-    journal: createJournalSimulator(seed, clock),
-    installments: createInstallmentsSimulator(seed),
+    journal,
+    installments,
     clock,
   };
 }

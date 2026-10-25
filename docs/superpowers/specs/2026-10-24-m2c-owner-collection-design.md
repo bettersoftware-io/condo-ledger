@@ -56,7 +56,7 @@ legacy code in `old/flex`, the dump, the design). What shaped this design:
 | An item's paid amount is stored nowhere: it is the item minus the collection lines that name it. The `status` column is never written by code | Derived, never stored, as M2b's invoice `paidOn` |
 | Every one of the 111 collection credit lines names exactly one item, of its own resident and person (`ledgerEntry.installmentItemId`). The generator drops the link | The posting carries the link; the generator keeps it |
 | The app has no installments: no entity, port or seed section | Installments enter the domain, the seed and a port, read-only |
-| Pozzetto 2013: 12 installments (ids 25–36, due the 20th of each month), 324 items (27 residents × 12), 150 of them zero. Saturno 2011: 3 installments (ids 1, 5, 6), 30 items, one zero. The stored items cannot be recomputed by any formula the app has (Saturno's were edited by hand) | The seed carries the stored items as they are |
+| Pozzetto 2013: 12 installments (ids 25–36, due the 20th of each month), 324 items (27 residents × 12), 150 of them zero. Saturno 2011: 3 installments (ids 1, 5, 6), 30 items, one zero. The stored items are reproduced by M2d's planning: Pozzetto 25 of 27 residents, Saturno 8 of 10 (see [the M2d spec](2026-10-25-m2d-installment-schedule-design.md), "Reproduction") | The seed carries the stored items as they are |
 | 21 of the 111 lines pay an item before its due date | An item not yet due can be paid |
 
 ## Domain

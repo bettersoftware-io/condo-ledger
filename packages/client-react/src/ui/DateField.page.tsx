@@ -14,6 +14,7 @@ export interface DateFieldPage {
   /** The accessible description of the box, or null when it has none. */
   description: () => string | null;
   isRequired: () => boolean;
+  isDisabled: () => boolean;
   type: (text: string) => Promise<void>;
 }
 
@@ -53,6 +54,9 @@ export function mountDateField(props: Partial<DateFieldProps>): DateFieldPage {
       return (
         rendered.getByTestId(TESTIDS.formField).dataset.required === "true"
       );
+    },
+    isDisabled: (): boolean => {
+      return box().disabled;
     },
     type: async (text: string): Promise<void> => {
       await user.type(box(), text);

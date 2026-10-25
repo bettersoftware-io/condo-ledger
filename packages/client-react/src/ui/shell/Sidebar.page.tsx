@@ -45,6 +45,8 @@ export interface SidebarPage {
   isDrawerOpen: () => boolean;
   /** The title of the main area's first panel: the screen the person is on. */
   screenTitle: () => string;
+  /** Whether the main area shows a screen that is not built yet. */
+  showsPlaceholder: () => boolean;
   /** Clicks the maximize button of the main area's first panel. */
   maximizePanel: () => Promise<void>;
   /** Which panel of the Accounts screen fills it: top, bottom or none. */
@@ -223,6 +225,9 @@ export function mountSidebar(options: SidebarOptions = {}): SidebarPage {
       return (
         within(main()).getAllByTestId(TESTIDS.panelTitle)[0]?.textContent ?? ""
       );
+    },
+    showsPlaceholder: (): boolean => {
+      return within(main()).queryByTestId(TESTIDS.placeholder) !== null;
     },
     maximizePanel: async (): Promise<void> => {
       const [button] = within(main()).getAllByTestId(TESTIDS.panelMaximize);

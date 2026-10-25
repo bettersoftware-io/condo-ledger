@@ -98,6 +98,7 @@ describe("owedBy", () => {
         number: 3,
         name: "Rata 3",
         dueDate: "2013-01-20",
+        locked: false,
       },
       {
         id: "in0",
@@ -105,6 +106,7 @@ describe("owedBy", () => {
         number: 0,
         name: "Rata 0",
         dueDate: "2013-01-20",
+        locked: false,
       },
     ];
 
@@ -174,6 +176,8 @@ function createOwner(
     name: id,
     unitCode,
     startingBalance: cents(0),
+    role: "PR",
+    restriction: null,
   };
 }
 
@@ -212,6 +216,7 @@ function createSchedule(): Schedule {
         number: 1,
         name: "Rata 1",
         dueDate: "2013-01-20",
+        locked: false,
       },
       {
         id: "in2",
@@ -219,6 +224,7 @@ function createSchedule(): Schedule {
         number: 2,
         name: "Rata 2",
         dueDate: "2013-02-20",
+        locked: false,
       },
     ],
     items: [

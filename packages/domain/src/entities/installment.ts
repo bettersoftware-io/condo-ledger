@@ -9,6 +9,8 @@ export interface Installment {
   name: string;
   /** "YYYY-MM-DD". */
   dueDate: string;
+  /** Frozen: the legacy app refused to delete it, or to edit it or its items. */
+  locked: boolean;
 }
 
 /** What one resident owes on one installment. */

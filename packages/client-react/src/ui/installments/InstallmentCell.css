@@ -1,0 +1,34 @@
+/* README "Money cell": an installment cell is coloured by its settlement — settled --ok, partial --partial, unsettled --unsettled. */
+.installment-cell {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  font: inherit;
+  text-align: right;
+}
+
+.installment-cell[data-status="settled"] .money {
+  color: var(--ok);
+}
+
+.installment-cell[data-status="partial"] .money {
+  color: var(--partial);
+}
+
+.installment-cell[data-status="unsettled"] .money {
+  color: var(--unsettled);
+}
+
+/* README "Inline editors": an editable cell is edited in place on a click. */
+button.installment-cell {
+  cursor: text;
+}
+
+button.installment-cell:hover,
+button.installment-cell:focus-visible {
+  outline: 1px dashed var(--bd);
+  outline-offset: 1px;
+}

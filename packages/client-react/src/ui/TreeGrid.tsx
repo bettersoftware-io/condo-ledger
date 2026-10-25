@@ -45,7 +45,7 @@ export function TreeGrid({
               role="columnheader"
               data-align={column.align ?? "left"}
             >
-              {column.header}
+              {column.content ?? column.header}
               {index > 0 ? (
                 <ResizeHandle index={index - 1} onResize={onResize} />
               ) : null}
@@ -92,7 +92,10 @@ export function TreeGrid({
 }
 
 export interface TreeGridColumn {
+  /** The column's name: its text in the header, and its key. */
   header: string;
+  /** Drawn in the header in place of `header` (two lines, say); `header` stays its key. */
+  content?: ReactNode;
   align?: "left" | "right" | "center";
 }
 

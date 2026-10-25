@@ -7,6 +7,8 @@ import type {
   App,
   BottomTabIntents,
   BottomTabState,
+  BudgetInstallmentsForm,
+  BudgetInstallmentsSummary,
   CollectionForm,
   CollectionSummary,
   ColumnSpec,
@@ -17,6 +19,8 @@ import type {
   DirectPaymentSummary,
   GenericEntryForm,
   GenericEntrySummary,
+  InstallmentDialogIntents,
+  InstallmentDialogState,
   InvoiceForm,
   InvoicePaymentForm,
   InvoicePaymentSummary,
@@ -36,6 +40,8 @@ import type {
   OpeningForm,
   OpeningSummary,
   PeriodSelection,
+  ScheduleGridIntents,
+  ScheduleGridState,
   SidebarIntents,
   SidebarState,
   SplitIntents,
@@ -47,6 +53,7 @@ import type {
   AccountNode,
   Building,
   Cents,
+  EntryAdded,
   EntryKind,
   Firm,
   JournalEntryView,
@@ -56,6 +63,8 @@ import type {
   Preferences,
   Principal,
   Result,
+  ResultOf,
+  Schedule,
   Theme,
 } from "@cl/domain";
 
@@ -84,10 +93,18 @@ export interface SelectedAccountView {
 }
 
 /** A wizard as the UI reads it: its state and its intents. */
-type WizardView<TForm, TSummary> = MachineView<
-  WizardState<TForm, TSummary>,
-  WizardIntents<TForm>
->;
+type WizardView<
+  TForm,
+  TSummary,
+  TSaved extends Result = ResultOf<EntryAdded>,
+> = MachineView<WizardState<TForm, TSummary>, WizardIntents<TForm, TSaved>>;
+
+/** The period's installment schedule, and the writes the UI may ask of it. */
+export interface ScheduleView {
+  schedule: Schedule | null;
+  deleteInstallment: (id: string) => Promise<Result>;
+  setItemAmount: (itemId: string, amount: Cents) => Promise<Result>;
+}
 
 export interface NoticesView {
   notices: Notice[];
@@ -155,11 +172,22 @@ export interface ViewModel {
   useCollectionWizard: (
     editing: string | null,
   ) => WizardView<CollectionForm, CollectionSummary>;
+  useSchedule: () => ScheduleView;
+  useScheduleGrid: () => MachineView<ScheduleGridState, ScheduleGridIntents>;
+  useBudgetInstallmentsWizard: () => WizardView<
+    BudgetInstallmentsForm,
+    BudgetInstallmentsSummary,
+    Result
+  >;
+  /** Reads its argument on the first render only: the dialog is built once, for the installment it opened on. */
+  useInstallmentDialog: (
+    installmentId: string,
+  ) => MachineView<InstallmentDialogState, InstallmentDialogIntents>;
 }
 
 /** Built once at startup, in the composition root, from the application. */
 export function createViewModel(app: App): ViewModel {
-  const { session, buildings, accounts, journal } = app.presenters;
+  const { session, buildings, accounts, journal, schedule } = app.presenters;
 
   return {
     useSession: (): SessionView => {
@@ -309,6 +337,33 @@ export function createViewModel(app: App): ViewModel {
     ): WizardView<CollectionForm, CollectionSummary> => {
       return useMachine(() => {
         return app.machines.createCollectionWizard(editing);
+      });
+    },
+    useSchedule: (): ScheduleView => {
+      return {
+        schedule: useStateObservable(schedule.schedule$),
+        deleteInstallment: schedule.deleteInstallment,
+        setItemAmount: schedule.setItemAmount,
+      };
+    },
+    useScheduleGrid: (): MachineView<
+      ScheduleGridState,
+      ScheduleGridIntents
+    > => {
+      return useMachine(app.machines.createScheduleGrid);
+    },
+    useBudgetInstallmentsWizard: (): WizardView<
+      BudgetInstallmentsForm,
+      BudgetInstallmentsSummary,
+      Result
+    > => {
+      return useMachine(app.machines.createBudgetInstallmentsWizard);
+    },
+    useInstallmentDialog: (
+      installmentId: string,
+    ): MachineView<InstallmentDialogState, InstallmentDialogIntents> => {
+      return useMachine(() => {
+        return app.machines.createInstallmentDialog(installmentId);
       });
     },
   };

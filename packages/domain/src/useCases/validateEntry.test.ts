@@ -574,8 +574,22 @@ function createContext(parts: ContextParts = {}): EntryContext {
 /** The installment in1 of p1, and in9 of another period. */
 function createInstallments(): Installment[] {
   return [
-    { id: "in1", periodId: "p1", number: 1, name: "I", dueDate: "2013-03-31" },
-    { id: "in9", periodId: "p2", number: 1, name: "X", dueDate: "2013-03-31" },
+    {
+      id: "in1",
+      periodId: "p1",
+      number: 1,
+      name: "I",
+      dueDate: "2013-03-31",
+      locked: false,
+    },
+    {
+      id: "in9",
+      periodId: "p2",
+      number: 1,
+      name: "X",
+      dueDate: "2013-03-31",
+      locked: false,
+    },
   ];
 }
 

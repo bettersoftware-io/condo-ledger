@@ -36,6 +36,7 @@ const config: ArchitectureConfig = {
       compilerTracked: [
         { file: "src/ui/TreeGridRow.tsx", fn: "TreeGridRow" },
         { file: "src/ui/journal/JournalGrid.tsx", fn: "JournalGrid" },
+        { file: "src/ui/installments/ScheduleGrid.tsx", fn: "ScheduleGrid" },
       ],
     },
     "packages/server": { role: "server" },

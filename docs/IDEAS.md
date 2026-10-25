@@ -53,3 +53,16 @@ be worth doing. Not how.
   towards later installments. The legacy app refused it, and so does M2c
   (`over-owed`); an owner who pays ahead, or rounds up, must be recorded
   another way today.
+- **Advance and adjustment installments** ("Create advance installment",
+  "Create adjustment installment"). The legacy app had them as menu labels
+  only and never implemented them; M2d shows them with the "not built yet"
+  notice. An advance ("acconto") is asked before a budget is approved, an
+  adjustment ("conguaglio") settles the final accounts: a schedule that
+  holds them covers the whole year.
+- **"Recalculate from budget", "Shift due dates" and "Delete all
+  installments"**, the design's other schedule actions. M2d leaves them out
+  of the menus; each would save a run of single edits or deletes.
+- **The legacy app's Overdue colour.** It drew an item past its due date in
+  red; the design colours an item by its settlement only (settled, partial,
+  unsettled), and M2d follows the design. Overdue could add a fourth state,
+  or a mark on the three.

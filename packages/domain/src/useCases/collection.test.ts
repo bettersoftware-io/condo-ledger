@@ -177,6 +177,7 @@ function createBalance(
     number,
     name: `Rata ${number}`,
     dueDate: due,
+    locked: false,
   };
 
   const item: InstallmentItem = {

@@ -178,6 +178,8 @@ export function createSmallBooks(): SmallBooks {
         name: "Rossi Mario",
         unitCode: "A01",
         startingBalance: cents(0),
+        role: "PR",
+        restriction: null,
       },
       {
         kind: "owner",
@@ -186,6 +188,8 @@ export function createSmallBooks(): SmallBooks {
         name: "Rossi Mario",
         unitCode: "A02",
         startingBalance: cents(0),
+        role: "PR",
+        restriction: null,
       },
       {
         kind: "owner",
@@ -194,6 +198,8 @@ export function createSmallBooks(): SmallBooks {
         name: "Bianchi Anna",
         unitCode: "B01",
         startingBalance: cents(0),
+        role: "PR",
+        restriction: null,
       },
     ],
   };

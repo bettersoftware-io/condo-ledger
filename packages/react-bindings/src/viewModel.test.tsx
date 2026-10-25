@@ -249,6 +249,59 @@ describe("the view model", () => {
     });
   });
 
+  it("the schedule hooks mount over the selected period and show p36's root budget", async () => {
+    const page = mountUnderProvider(
+      loadLegacySeed(legacySeedData),
+      1,
+      null,
+      null,
+      "in5",
+    );
+
+    expect(page.read().schedule.schedule?.root.budget).toBe(740000);
+    expect(page.read().installmentDialog?.state.form).toMatchObject({
+      name: "Rata nr. 2",
+      dueDate: "15/07/2011",
+      locked: false,
+    });
+
+    await page.send((seen) => {
+      seen.period.selectPeriod("p36");
+    });
+
+    expect(page.read().schedule.schedule?.root.budget).toBe(3800000);
+    expect(page.read().scheduleGrid.state.rows[0]?.node.kind).toBe("root");
+    expect(page.read().budgetInstallments.state.editing).toBeNull();
+  });
+
+  it("the installment dialog hook edits and saves its installment, through the schedule", async () => {
+    const page = mountUnderProvider(
+      loadLegacySeed(legacySeedData),
+      1,
+      null,
+      null,
+      "in5",
+    );
+    let answer: Result | null = null;
+
+    await page.send((seen) => {
+      seen.installmentDialog?.edit({ name: "Seconda" });
+    });
+
+    expect(page.read().installmentDialog?.state.form.name).toBe("Seconda");
+
+    await page.send(async (seen) => {
+      answer = (await seen.installmentDialog?.save()) ?? null;
+    });
+
+    expect(answer).toEqual({ ok: true });
+    expect(
+      page.read().schedule.schedule?.installments.map((installment) => {
+        return installment.name;
+      }),
+    ).toContain("Seconda");
+  });
+
   it("a wizard hook given an entry to edit shows that entry's form", () => {
     const page = mountUnderProvider(createSmallSeed(), 1, "e6");
 
