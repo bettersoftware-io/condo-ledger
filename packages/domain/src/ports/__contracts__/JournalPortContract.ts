@@ -23,7 +23,7 @@ export interface JournalPortHarness {
   undeletableEntryId: string;
   /** A generic entry of the period: canEditEntry accepts it, and acceptedDraft may replace it. */
   editableEntryId: string;
-  /** A collection: canEditEntry refuses it. */
+  /** An entry of a kind canEditEntry refuses (a budget allocation or a closing). */
   uneditableEntryId: string;
   /** A registration the period accepts: its terms, and the postings they imply. */
   invoiceDraft: EntryDraft;

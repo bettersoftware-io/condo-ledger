@@ -121,7 +121,7 @@ describe("journalOf", () => {
       ["invoice", { ok: true }],
       ["invoicePayment", { ok: true }],
       ["budgetAllocation", { ok: false, reason: "kind-not-editable" }],
-      ["collection", { ok: false, reason: "kind-not-editable" }],
+      ["collection", { ok: true }],
       ["generic", { ok: true }],
       ["individualExpense", { ok: false, reason: "kind-not-editable" }],
       ["generic", { ok: true }],

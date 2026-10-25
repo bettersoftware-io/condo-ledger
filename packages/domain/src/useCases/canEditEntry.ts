@@ -1,7 +1,7 @@
 import type { EntryKind, JournalEntry } from "../entities/journal.ts";
 import { ok, type Result, rejected } from "../entities/result.ts";
 
-/** The kinds a wizard of M2a or M2b writes, and so can rewrite. */
+/** The kinds a wizard of M2a, M2b or M2c writes, and so can rewrite. */
 const EDITABLE_KINDS: readonly EntryKind[] = [
   "generic",
   "directPaymentCash",
@@ -10,6 +10,7 @@ const EDITABLE_KINDS: readonly EntryKind[] = [
   "invoice",
   "invoicePayment",
   "openingBalances",
+  "collection",
 ];
 
 export function canEditEntry(entry: JournalEntry): Result {

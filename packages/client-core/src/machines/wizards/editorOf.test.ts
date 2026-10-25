@@ -108,16 +108,19 @@ describe("editorOf", () => {
     ).toBe("directPaymentCash");
   });
 
-  it.each(entryKinds())(
-    "answers no editor for %s exactly when canEditEntry refuses it",
-    (kind) => {
-      const entry = createPayment(kind, []);
+  // A collection is editable by the domain's rule, and has no wizard until
+  // the collection wizard lands: it is the one kind left out here.
+  it.each(
+    entryKinds().filter((kind) => {
+      return kind !== "collection";
+    }),
+  )("answers no editor for %s exactly when canEditEntry refuses it", (kind) => {
+    const entry = createPayment(kind, []);
 
-      expect(editorOf(entry, createBooks()) === null).toBe(
-        !canEditEntry(entry).ok,
-      );
-    },
-  );
+    expect(editorOf(entry, createBooks()) === null).toBe(
+      !canEditEntry(entry).ok,
+    );
+  });
 });
 
 /** Every entry kind, the compiler holding the list to the type. */

@@ -316,7 +316,7 @@ describe("JournalScreen", () => {
   it("a refused delete keeps the alert open with the reason and the entry in the grid", async () => {
     const page = mountJournalScreen();
 
-    await page.clickRow("Incasso Bianchi");
+    await page.clickRow("Riparto");
     await page.clickTool("Delete entry");
     await page.confirmYes();
 
@@ -325,7 +325,7 @@ describe("JournalScreen", () => {
       "This kind of entry is removed through its own flow, which is not built yet.",
     );
     expect(page.entryLabels()).toHaveLength(9);
-    expect(page.isSelected("Incasso Bianchi")).toBe(true);
+    expect(page.isSelected("Riparto")).toBe(true);
 
     await page.confirmNo();
     expect(page.confirmOpen()).toBe(false);
@@ -459,19 +459,19 @@ describe("JournalScreen", () => {
     ]);
   });
 
-  it("with a collection selected, ✎ is disabled and says why", async () => {
+  it("with a budget allocation selected, ✎ is disabled and says why", async () => {
     const page = mountJournalScreen();
 
     expect(page.isToolDisabled("Edit entry")).toBe(true);
 
-    await page.clickRow("Incasso Bianchi");
+    await page.clickRow("Riparto");
 
     expect(page.isToolDisabled("Edit entry")).toBe(true);
     expect(page.toolTitle("Edit entry")).toBe(
       "This kind of entry is edited through its own flow, which is not built yet.",
     );
 
-    await page.doubleClickRow("Incasso Bianchi");
+    await page.doubleClickRow("Riparto");
 
     expect(page.dialogOpen()).toBe(false);
   });

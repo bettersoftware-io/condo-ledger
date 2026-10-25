@@ -5,7 +5,7 @@ import type { EntryKind, JournalEntry } from "../entities/journal.ts";
 import { canDeleteEntry, DELETABLE_KINDS } from "./canDeleteEntry.ts";
 
 describe("canDeleteEntry", () => {
-  it("accepts the kinds M2a and M2b write", () => {
+  it("accepts the kinds M2a, M2b and M2c write", () => {
     expect(DELETABLE_KINDS).toEqual([
       "generic",
       "directPaymentCash",
@@ -14,6 +14,7 @@ describe("canDeleteEntry", () => {
       "invoice",
       "invoicePayment",
       "openingBalances",
+      "collection",
     ]);
 
     for (const kind of DELETABLE_KINDS) {
@@ -62,7 +63,6 @@ describe("canDeleteEntry", () => {
 
   it("refuses the kinds whose side effects are not modelled yet, naming the reason", () => {
     for (const kind of [
-      "collection",
       "budgetAllocation",
       "closingBalances",
       "individualExpense",

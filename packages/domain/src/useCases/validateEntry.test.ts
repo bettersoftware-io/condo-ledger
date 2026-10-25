@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { Account } from "../entities/account.ts";
 import { cents } from "../entities/cents.ts";
+import type { Installment, InstallmentItem } from "../entities/installment.ts";
 import {
   type Invoice,
   type InvoiceTerms,
@@ -338,6 +339,162 @@ describe("validateEntry", () => {
       ).toEqual({ ok: false, reason: "blank-description" });
     });
   });
+
+  describe("a collection's installment items", () => {
+    it("accepts a collection paying part of an item, and the lines of one item together up to what it owes", () => {
+      expect(
+        validateEntry(
+          createCollection([createItemLine("ii1", 2000)]),
+          createContext(),
+        ),
+      ).toEqual({ ok: true });
+      expect(
+        validateEntry(
+          createCollection([
+            createItemLine("ii1", 3000),
+            createItemLine("ii1", 4000),
+          ]),
+          createContext(),
+        ),
+      ).toEqual({ ok: true });
+    });
+
+    it("refuses an item on a line that is not an owners credit of a collection, with item-not-allowed", () => {
+      const item = createItemLine("ii1", 1000);
+      const draft = createCollection([item]);
+
+      expect(
+        validateEntry({ ...draft, kind: "generic" }, createContext()),
+      ).toEqual({ ok: false, reason: "item-not-allowed" });
+      expect(
+        validateEntry(
+          {
+            ...draft,
+            postings: [
+              { ...createLine("la1", 1000, 0), installmentItemId: "ii1" },
+              item,
+            ],
+          },
+          createContext(),
+        ),
+      ).toEqual({ ok: false, reason: "item-not-allowed" });
+      expect(
+        validateEntry(
+          {
+            ...draft,
+            postings: [
+              createLine("la1", 0, 1000),
+              {
+                ...createOwnerLine("la5", 1000, 0, "r1"),
+                installmentItemId: "ii1",
+              },
+            ],
+          },
+          createContext(),
+        ),
+      ).toEqual({ ok: false, reason: "item-not-allowed" });
+    });
+
+    it("refuses an owners credit of a collection with no item, with item-required", () => {
+      const draft = createCollection([createItemLine("ii1", 1000)]);
+      const [debit] = draft.postings;
+
+      expect(
+        validateEntry(
+          {
+            ...draft,
+            postings: [
+              ...draft.postings,
+              createOwnerLine("la5", 0, 500, "r1"),
+              createLine("la1", 500, 0),
+            ],
+          },
+          createContext(),
+        ),
+      ).toEqual({ ok: false, reason: "item-required" });
+      expect(debit).toBeDefined();
+    });
+
+    it("answers unknown-item for an item the period does not have, or whose installment it does not have", () => {
+      expect(
+        validateEntry(
+          createCollection([createItemLine("ii99", 1000)]),
+          createContext(),
+        ),
+      ).toEqual({ ok: false, reason: "unknown-item" });
+      expect(
+        validateEntry(
+          createCollection([createItemLine("ii3", 1000, "r1")]),
+          createContext(),
+        ),
+      ).toEqual({ ok: false, reason: "unknown-item" });
+    });
+
+    it("answers wrong-resident for a counterpart that is not the item's resident", () => {
+      expect(
+        validateEntry(
+          createCollection([createItemLine("ii1", 1000, "r2")]),
+          createContext(),
+        ),
+      ).toEqual({ ok: false, reason: "wrong-resident" });
+    });
+
+    it("answers over-remaining-item for lines on one item that together exceed it, and for one that exceeds it alone", () => {
+      expect(
+        validateEntry(
+          createCollection([createItemLine("ii1", 7001)]),
+          createContext(),
+        ),
+      ).toEqual({ ok: false, reason: "over-remaining-item" });
+      expect(
+        validateEntry(
+          createCollection([
+            createItemLine("ii1", 4000),
+            createItemLine("ii1", 3001),
+          ]),
+          createContext(),
+        ),
+      ).toEqual({ ok: false, reason: "over-remaining-item" });
+      expect(
+        validateEntry(
+          createCollection([
+            createItemLine("ii1", 4000),
+            createItemLine("ii2", 5000),
+          ]),
+          createContext(),
+        ),
+      ).toEqual({ ok: true });
+    });
+
+    it("on an edit, adds back what the entry itself pays on the item", () => {
+      const draft = createCollection([createItemLine("ii1", 10000)]);
+
+      expect(validateEntry(draft, createContext())).toEqual({
+        ok: false,
+        reason: "over-remaining-item",
+      });
+      expect(
+        validateEntry(draft, createContext({ replacing: "col1" })),
+      ).toEqual({ ok: true });
+      expect(
+        validateEntry(
+          createCollection([createItemLine("ii1", 10001)]),
+          createContext({ replacing: "col1" }),
+        ),
+      ).toEqual({ ok: false, reason: "over-remaining-item" });
+    });
+
+    it("checks the item rules after opening-exists and M2a's reasons", () => {
+      const draft = createCollection([createItemLine("ii99", 1000)]);
+
+      expect(
+        validateEntry({ ...draft, description: " " }, createContext()),
+      ).toEqual({ ok: false, reason: "blank-description" });
+      expect(
+        validateEntry({ ...draft, kind: "openingBalances" }, createContext()),
+      ).toEqual({ ok: false, reason: "opening-exists" });
+    });
+  });
 });
 
 /** What a test changes in the context: the entry an edit rewrites, and what the period leaves out. */
@@ -378,6 +535,11 @@ function createContext(parts: ContextParts = {}): EntryContext {
     createLine("la2", 0, 4000),
   ]);
 
+  const collected = createEntry("col1", "collection", null, [
+    createLine("la1", 3000, 0),
+    { ...createItemLine("ii1", 3000) },
+  ]);
+
   const opening = createEntry("op1", "openingBalances", null, [
     createLine("la2", 1000, 0),
     createOwnerLine("la5", 0, 1000, "r1"),
@@ -399,10 +561,55 @@ function createContext(parts: ContextParts = {}): EntryContext {
     entries: [
       ...small.entries,
       registration,
+      collected,
       ...(parts.withoutPayment === true ? [] : [payment]),
       ...(parts.withoutOpening === true ? [] : [opening]),
     ],
+    installments: createInstallments(),
+    installmentItems: createInstallmentItems(),
     replacing: parts.replacing ?? null,
+  };
+}
+
+/** The installment in1 of p1, and in9 of another period. */
+function createInstallments(): Installment[] {
+  return [
+    { id: "in1", periodId: "p1", number: 1, name: "I", dueDate: "2013-03-31" },
+    { id: "in9", periodId: "p2", number: 1, name: "X", dueDate: "2013-03-31" },
+  ];
+}
+
+/** ii1 owes r1 100.00 (collection col1 has paid 30.00 of it), ii2 owes r2 50.00; ii3 belongs to an installment the period lacks. */
+function createInstallmentItems(): InstallmentItem[] {
+  return [
+    { id: "ii1", installmentId: "in1", residentId: "r1", amount: cents(10000) },
+    { id: "ii2", installmentId: "in1", residentId: "r2", amount: cents(5000) },
+    { id: "ii3", installmentId: "in7", residentId: "r1", amount: cents(1000) },
+  ];
+}
+
+/** A collection into the cash account la1, the credit lines given. */
+function createCollection(credits: Posting[]): EntryDraft {
+  const total = credits.reduce((sum, line) => {
+    return sum + line.credit;
+  }, 0);
+
+  return {
+    kind: "collection",
+    description: "Collection",
+    postings: [createLine("la1", total, 0), ...credits],
+  };
+}
+
+/** A credit on the owners account naming the item, from its resident unless another is given. */
+function createItemLine(
+  itemId: string,
+  amount: number,
+  residentId = itemId === "ii2" ? "r2" : "r1",
+): Posting {
+  return {
+    ...createOwnerLine("la5", 0, amount, residentId),
+    installmentItemId: itemId,
   };
 }
 

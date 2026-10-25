@@ -2,10 +2,10 @@ import type { EntryKind, JournalEntry } from "../entities/journal.ts";
 import { ok, type Result, rejected } from "../entities/result.ts";
 
 /**
- * The kinds the Journal may delete: the ones M2a and M2b write. The legacy
- * delete of a collection had side effects this app does not model yet (the
- * installments behind it), and the closing, allocation and individual-expense
- * entries belong to flows not built yet.
+ * The kinds the Journal may delete: the ones M2a, M2b and M2c write. A
+ * collection's items reopen with it, since what an item has paid is derived;
+ * the closing, allocation and individual-expense entries belong to flows not
+ * built yet.
  */
 export const DELETABLE_KINDS: readonly EntryKind[] = [
   "generic",
@@ -15,6 +15,7 @@ export const DELETABLE_KINDS: readonly EntryKind[] = [
   "invoice",
   "invoicePayment",
   "openingBalances",
+  "collection",
 ];
 
 /** Whether the entry may go from these, its period's entries: a registration only while no payment names its invoice. */

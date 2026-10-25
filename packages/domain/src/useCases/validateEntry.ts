@@ -1,5 +1,6 @@
 import type { Account } from "../entities/account.ts";
 import { addCents, type Cents, cents, ZERO_CENTS } from "../entities/cents.ts";
+import type { Installment, InstallmentItem } from "../entities/installment.ts";
 import type {
   Invoice,
   InvoiceTerms,
@@ -9,6 +10,7 @@ import type {
 import type { EntryDraft, JournalEntry, Posting } from "../entities/journal.ts";
 import type { Party } from "../entities/party.ts";
 import { ok, type Result, rejected } from "../entities/result.ts";
+import { type ItemBalance, itemBalances } from "./installments.ts";
 import { invoicePostings, invoiceTotals } from "./invoice.ts";
 import { paidOn } from "./openInvoices.ts";
 
@@ -22,6 +24,8 @@ export interface EntryContext {
   withholdingTaxes: WithholdingTax[];
   invoices: Invoice[];
   entries: JournalEntry[];
+  installments: Installment[];
+  installmentItems: InstallmentItem[];
   replacing: string | null;
 }
 
@@ -111,7 +115,112 @@ function kindReason(draft: EntryDraft, context: EntryContext): string | null {
     return entry.kind === "openingBalances";
   });
 
-  return draft.kind === "openingBalances" && opened ? "opening-exists" : null;
+  if (draft.kind === "openingBalances" && opened) {
+    return "opening-exists";
+  }
+
+  return itemReason(draft, context);
+}
+
+/** The rules of the installment items a collection's lines name, checked one rule across all the lines before the next. */
+function itemReason(draft: EntryDraft, context: EntryContext): string | null {
+  const owners = new Set(
+    context.accounts
+      .filter((account) => {
+        return account.role === "owners";
+      })
+      .map((account) => {
+        return account.id;
+      }),
+  );
+
+  function credits(posting: Posting): boolean {
+    return (
+      draft.kind === "collection" &&
+      owners.has(posting.accountId) &&
+      posting.credit > 0
+    );
+  }
+
+  if (
+    draft.postings.some((posting) => {
+      return posting.installmentItemId !== undefined && !credits(posting);
+    })
+  ) {
+    return "item-not-allowed";
+  }
+
+  if (
+    draft.postings.some((posting) => {
+      return posting.installmentItemId === undefined && credits(posting);
+    })
+  ) {
+    return "item-required";
+  }
+
+  const named = draft.postings.filter((posting) => {
+    return posting.installmentItemId !== undefined;
+  });
+
+  if (named.length === 0) {
+    return null;
+  }
+
+  const balances = itemBalances(
+    context.installmentItems,
+    context.installments,
+    context.entries,
+  );
+
+  return namedItemReason(named, balances);
+}
+
+function namedItemReason(
+  named: Posting[],
+  balances: ItemBalance[],
+): string | null {
+  function balanceOf(posting: Posting): ItemBalance | undefined {
+    return balances.find((balance) => {
+      return balance.item.id === posting.installmentItemId;
+    });
+  }
+
+  if (
+    named.some((posting) => {
+      return balanceOf(posting) === undefined;
+    })
+  ) {
+    return "unknown-item";
+  }
+
+  if (
+    named.some((posting) => {
+      const counterpart = posting.counterpart;
+
+      return (
+        counterpart?.kind !== "owner" ||
+        counterpart.id !== balanceOf(posting)?.item.residentId
+      );
+    })
+  ) {
+    return "wrong-resident";
+  }
+
+  const paying = new Map<string, number>();
+
+  for (const posting of named) {
+    const id = posting.installmentItemId ?? "";
+
+    paying.set(id, (paying.get(id) ?? 0) + posting.credit);
+  }
+
+  for (const balance of balances) {
+    if ((paying.get(balance.item.id) ?? 0) > balance.remaining) {
+      return "over-remaining-item";
+    }
+  }
+
+  return null;
 }
 
 function registrationReason(

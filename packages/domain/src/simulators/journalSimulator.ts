@@ -279,6 +279,8 @@ function contextOf(
     withholdingTaxes: journal.withholdingTaxes,
     invoices: journal.invoices$.getValue(),
     entries: journal.entries$.getValue(),
+    installments: [],
+    installmentItems: [],
     replacing,
   };
 }
