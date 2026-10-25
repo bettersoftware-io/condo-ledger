@@ -1,16 +1,44 @@
-import type { ReactElement, ReactNode } from "react";
+import {
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+  useLayoutEffect,
+} from "react";
 
-import type { SettlementRow } from "@cl/client-core";
-import { cents } from "@cl/domain";
+import type { SettlementRow, WizardState } from "@cl/client-core";
+import { cents, ok, type Result, rejected } from "@cl/domain";
 import { useViewModel } from "@cl/react-bindings";
 
+import { AccountDetails } from "#/ui/accounts/AccountDetails.tsx";
+import { AccountIcon } from "#/ui/accounts/AccountIcon.tsx";
+// The bottom panel's body is styled with the screen; alone, it needs the
+// screen's stylesheet.
+import "#/ui/accounts/AccountsScreen.css";
+import { ACCOUNTS_COLUMNS } from "#/ui/accounts/columns.ts";
+import { LedgerTab } from "#/ui/accounts/LedgerTab.tsx";
+import { ConfirmAlert } from "#/ui/ConfirmAlert.tsx";
+import { FormField } from "#/ui/FormField.tsx";
+import { InlineEditor } from "#/ui/InlineEditor.tsx";
 import { BudgetInstallmentsWizard } from "#/ui/installments/BudgetInstallmentsWizard.tsx";
 import { InstallmentCell } from "#/ui/installments/InstallmentCell.tsx";
 import { InstallmentDialog } from "#/ui/installments/InstallmentDialog.tsx";
+import { EntryIcon } from "#/ui/journal/EntryIcon.tsx";
 import { CollectionWizard } from "#/ui/journal/wizards/CollectionWizard.tsx";
+import { InvoiceWizard } from "#/ui/journal/wizards/InvoiceWizard.tsx";
+import { MultiCostPaymentWizard } from "#/ui/journal/wizards/MultiCostPaymentWizard.tsx";
+import { reasonText } from "#/ui/journal/wizards/reasons.ts";
 import { SettlementTable } from "#/ui/journal/wizards/SettlementTable.tsx";
+import { WizardDialog } from "#/ui/journal/wizards/WizardDialog.tsx";
+import { MenuItem } from "#/ui/MenuItem.tsx";
+import { Money } from "#/ui/Money.tsx";
+import { SegmentedControl } from "#/ui/SegmentedControl.tsx";
+import { Popover } from "#/ui/shell/Popover.tsx";
+import { ToastHost } from "#/ui/shell/ToastHost.tsx";
+import { TabbedPanel } from "#/ui/TabbedPanel.tsx";
+import { TreeGrid, type TreeGridRowData } from "#/ui/TreeGrid.tsx";
+import { TreeGridRow } from "#/ui/TreeGridRow.tsx";
 
-import type { CellPicture, Scenario } from "./scenarios.ts";
+import type { AccountRowPicture, CellPicture, Scenario } from "./scenarios.ts";
 
 // What a scenario's `mount` names: the parts of the UI that are pictured on
 // their own. This file is the project's. A new component gets an entry here,
@@ -81,7 +109,194 @@ const registry: Record<string, Entry> = {
       />
     );
   },
+  money: (scenario: Scenario): ReactElement => {
+    const money = required(scenario, "money", scenario.money);
+
+    return (
+      <Money
+        cents={money.cents === null ? null : cents(money.cents)}
+        variant={money.variant}
+        emphasis={money.emphasis}
+      />
+    );
+  },
+  // A row alone under the grid's template, which the grid writes as a CSS
+  // variable on its own element: here the wrapper carries it.
+  "tree-grid-row": (scenario: Scenario): ReactElement => {
+    const [row] = required(scenario, "accountRows", scenario.accountRows);
+
+    if (row === undefined) {
+      throw new Error(
+        'A "tree-grid-row" mount shows the first of the scenario\'s `accountRows`, and this one has none.',
+      );
+    }
+
+    return (
+      <div className="tree-grid" style={ROW_TEMPLATE}>
+        <TreeGridRow
+          row={accountRowOf(row)}
+          columns={ROW_COLUMNS}
+          onToggle={ignoreClose}
+          onSelect={ignoreClose}
+        />
+      </div>
+    );
+  },
+  "tree-grid": (scenario: Scenario): ReactElement => {
+    return (
+      <TreeGrid
+        columns={ROW_COLUMNS}
+        template={TEMPLATE}
+        rows={required(scenario, "accountRows", scenario.accountRows).map(
+          accountRowOf,
+        )}
+        emptyMessage="No account matches."
+        onToggle={ignoreClose}
+        onSelect={ignoreClose}
+        onResize={ignoreClose}
+      />
+    );
+  },
+  "inline-editor": (scenario: Scenario): ReactElement => {
+    const editor = required(scenario, "editor", scenario.editor);
+
+    return (
+      <InlineEditor
+        value={editor.value}
+        error={editor.error}
+        onCommit={ignoreClose}
+        onCancel={ignoreClose}
+      />
+    );
+  },
+  "segmented-control": (scenario: Scenario): ReactElement => {
+    const segments = required(scenario, "segments", scenario.segments);
+
+    return (
+      <SegmentedControl
+        label={segments.label}
+        options={segments.options}
+        value={segments.value}
+        onChange={ignoreClose}
+      />
+    );
+  },
+  "confirm-alert": (scenario: Scenario): ReactElement => {
+    const confirm = required(scenario, "confirm", scenario.confirm);
+
+    return (
+      <ConfirmAlert
+        text={confirm.text}
+        error={confirm.error}
+        onYes={ignoreClose}
+        onNo={ignoreClose}
+      />
+    );
+  },
+  // Any wizard's dialog from its props, over a body of one field. The
+  // picture is of a draft already edited when it shows a reason.
+  "wizard-dialog": (scenario: Scenario): ReactElement => {
+    const picture = required(scenario, "wizardDialog", scenario.wizardDialog);
+
+    return (
+      <WizardDialog
+        name={picture.name}
+        stepTitle={picture.stepTitle}
+        context={PICTURED_CONTEXT}
+        state={wizardStateOf(picture)}
+        refusal={null}
+        reasonText={wordForEveryWizard}
+        writesEntry={picture.writesEntry}
+        onNext={ignoreClose}
+        onBack={ignoreClose}
+        onSave={ignoreClose}
+        onCancel={ignoreClose}
+      >
+        <FormField label="Description">
+          <input className="wizard-input" defaultValue={picture.description} />
+        </FormField>
+      </WizardDialog>
+    );
+  },
+  // The wizards read their machines, which the seeding fills from the
+  // scenario, over the period the sidebar holds.
+  "multi-cost-payment-wizard": (): ReactElement => {
+    return (
+      <MultiCostPaymentWizard
+        editing={null}
+        onSaved={ignoreClose}
+        onCancel={ignoreClose}
+      />
+    );
+  },
+  "invoice-wizard": (): ReactElement => {
+    return (
+      <InvoiceWizard
+        editing={null}
+        onSaved={ignoreClose}
+        onCancel={ignoreClose}
+      />
+    );
+  },
+  // The menu hangs from the box its button sits in, 34 pixels under the
+  // box's top and flush with its right edge; the box is the picture's width
+  // less a margin for the menu's shadow.
+  popover: (scenario: Scenario): ReactElement => {
+    const popover = required(scenario, "popover", scenario.popover);
+
+    return (
+      <div style={POPOVER_BOX}>
+        <Popover open label={popover.label} width="wide" onClose={ignoreClose}>
+          {popover.items.map((item) => {
+            return (
+              <MenuItem
+                key={item.label}
+                label={item.label}
+                icon={<EntryIcon kind={item.kind} />}
+                onClick={ignoreClose}
+              />
+            );
+          })}
+        </Popover>
+      </div>
+    );
+  },
+  // The notices are the app's, which the seeding stubs from the scenario.
+  "toast-host": (): ReactElement => {
+    return <ToastHost />;
+  },
+  // The Accounts screen's bottom panel as `AccountsScreen` draws it: its
+  // tabs over the body of the scenario's tab, which reads the account the
+  // seeding selects in the period the sidebar holds. The active tab is the
+  // screen's machine there; here it is the scenario's.
+  "accounts-bottom-panel": (scenario: Scenario): ReactElement => {
+    const active = required(scenario, "bottomTab", scenario.bottomTab);
+
+    return (
+      <TabbedPanel tabs={BOTTOM_TABS} active={active} onActivate={ignoreClose}>
+        <div className="accounts-tab-body">
+          {active === "Ledger" ? <LedgerTab /> : <AccountDetails />}
+        </div>
+      </TabbedPanel>
+    );
+  },
 };
+
+/** The bottom panel's tabs, in `AccountsScreen`'s order. */
+const BOTTOM_TABS = ["Account Details", "Ledger"] as const;
+
+/** The chart of accounts' first four columns: the tree, Debit, Credit and Balance. */
+const ROW_COLUMNS = ACCOUNTS_COLUMNS.slice(0, 4);
+
+/** Their widths as the columns machine starts them (`ACCOUNTS_COLUMN_SPECS`): 700 in all. */
+const TEMPLATE = "400px 100px 100px 100px";
+
+const ROW_TEMPLATE = { "--tree-grid-template": TEMPLATE } as CSSProperties;
+
+const POPOVER_BOX: CSSProperties = { position: "relative", margin: "0 12px" };
+
+/** The building and period the wizard dialog's props name. */
+const PICTURED_CONTEXT = { building: "Pozzetto", period: "2013" };
 
 interface SurroundProps {
   children: ReactNode;
@@ -91,15 +306,30 @@ interface SurroundProps {
  * What the app puts around everything it draws, without its layout: the
  * theme and the mode `ui/shell/AppRoot.tsx` sets on its root, where the
  * tokens read them. The mode is the session's preference, which the seeding
- * sets from the scenario. The page around a part keeps the body's colours,
- * the default theme's light ones.
+ * sets from the scenario.
+ *
+ * The app's root also draws the page under the parts: its background, the
+ * text's colour and font, and the mode's `color-scheme`, which the native
+ * controls follow. Alone, a part sits on the body, which draws the same
+ * from the same tokens. So the attributes go on the document's root as well
+ * as around the part: the body, the padding of a root capture and the
+ * viewport of a dialog then take the scenario's mode, not the default's.
  */
 function Surround({ children }: SurroundProps): ReactElement {
   const { useSession } = useViewModel();
   const { preferences } = useSession();
+  const { theme, mode } = preferences;
+
+  useLayoutEffect(() => {
+    const page = document.documentElement;
+
+    page.dataset.theme = theme;
+    page.dataset.mode = mode;
+    page.style.colorScheme = mode;
+  }, [theme, mode]);
 
   return (
-    <div data-theme={preferences.theme} data-mode={preferences.mode}>
+    <div data-theme={theme} data-mode={mode}>
       {children}
     </div>
   );
@@ -121,6 +351,90 @@ export function Mount({ scenario }: MountProps): ReactElement {
   }
 
   return <Surround>{entry(scenario)}</Surround>;
+}
+
+/** A row as `AccountsGrid` makes it from a node: a row with children is bold, Total sits on the zebra. */
+function accountRowOf(row: AccountRowPicture): TreeGridRowData {
+  const aggregate = row.hasChildren;
+
+  return {
+    key: row.key,
+    depth: row.depth,
+    hasChildren: row.hasChildren,
+    expanded: row.expanded,
+    selected: row.selected,
+    emphasis: aggregate,
+    zebra: row.root,
+    icon: (
+      <AccountIcon
+        icon={row.icon}
+        nature={row.nature}
+        open={row.expanded}
+        root={row.root}
+      />
+    ),
+    label: row.label,
+    cells: [
+      <Money
+        key="debit"
+        cents={cents(row.debit)}
+        variant="plain"
+        emphasis={aggregate}
+      />,
+      <Money
+        key="credit"
+        cents={cents(row.credit)}
+        variant="plain"
+        emphasis={aggregate}
+      />,
+      <Money key="balance" cents={cents(row.balance)} emphasis={aggregate} />,
+    ],
+  };
+}
+
+/** The state a wizard's machine would hold on the picture's step: its reason refuses the step's Next, or Save on the last. */
+function wizardStateOf(
+  picture: NonNullable<Scenario["wizardDialog"]>,
+): WizardState<unknown, unknown> {
+  const last = picture.step === picture.stepCount;
+  const judged: Result =
+    picture.reason === null ? ok() : rejected(picture.reason);
+
+  return {
+    step: picture.step,
+    firstStep: 1,
+    stepCount: picture.stepCount,
+    form: null,
+    choices: [],
+    preview: picture.preview.map((line) => {
+      return {
+        path: line.path,
+        debit: cents(line.debit),
+        credit: cents(line.credit),
+      };
+    }),
+    verdict: last ? judged : ok(),
+    stepVerdict: last ? ok() : judged,
+    summary: null,
+    touched: picture.reason !== null,
+    saving: false,
+    editing: picture.editing ? "edited" : null,
+  };
+}
+
+/** A field of the scenario that its mount shows, or the error that names both. */
+function required<T>(
+  scenario: Scenario,
+  field: keyof Scenario,
+  value: T | undefined,
+): T {
+  if (value === undefined) {
+    throw new Error(
+      `A "${scenario.mount ?? ""}" mount shows the scenario's \`${field}\`, and this one has none.`,
+    );
+  }
+
+  return value;
 }
 
 function settlementOf(scenario: Scenario): SettlementRow[] {
@@ -151,6 +465,11 @@ function installmentOf(scenario: Scenario): string {
   }
 
   return scenario.installmentId;
+}
+
+/** A reason in the words every wizard shares. */
+function wordForEveryWizard(reason: string): string {
+  return reasonText(reason);
 }
 
 /** A picture is never clicked. */

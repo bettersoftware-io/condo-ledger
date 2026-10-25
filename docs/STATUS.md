@@ -58,23 +58,6 @@ Work that has started and is not finished.
   and Calendar
   ([2026-10-11-app-v2-design.md](superpowers/specs/2026-10-11-app-v2-design.md));
   Installments is built (M2d). The two entries above open the first two.
-- **Visual goldens as a pyramid.** Since the `visual` add-on's 0.19.0 the
-  fourteen Accounts and Journal scenarios are pages (the whole app at 1280
-  or 1100 by 720), the shape its README says to avoid. M2c started the
-  pyramid: `tests/visual/registry.tsx`, its `Surround` carrying the
-  `data-theme` and `data-mode` that `ui/shell/AppRoot.tsx` sets, `render`
-  from `seeding.ts`, and three component scenarios (the collection wizard
-  on steps 1 and 2, its settlement table). M2d added three more: the
-  installment cells in each settlement state, the Create Budget
-  Installments wizard on step 2, and the Edit Installment dialog, beside
-  one page (the Installment Schedule at 1280). `Surround` sets the attributes
-  only, so the page around a part keeps the body's light colours: a dark
-  component scenario needs that page dark too. Left: component scenarios
-  before more pages. First: `Money` (positive, negative, zero),
-  `TreeGridRow` (aggregate, selected, collapsed, long label), `InlineEditor`
-  (editing, refused), `SegmentedControl`, `ConfirmAlert` and `WizardDialog`
-  mounted alone with `capture: "viewport"`. `pnpm visual:coverage` lists
-  what no scenario renders; `MultiCostPaymentWizard` has none (4.8%).
 - **A flaky server test, `packages/server/src/startServer.port.test.ts`.**
   During M2b's final fix wave (2026-10-17), one local `pnpm gate:full` run
   failed on an unhandled error from a socket read in this file; the rerun
@@ -210,6 +193,16 @@ Work that has started and is not finished.
 
 ## Known limits
 
+- **A visual state held in a view's own state has no picture in place.**
+  The budget editor in an Accounts row, the editor in an Installment
+  Schedule cell, the toolbars' menus and the top bar's pickers open on a
+  click into the view's `useState`, and a scenario never clicks. Each is
+  pictured as its component alone (`inline-editor-*`, `popover-*` in
+  `packages/client-react/tests/visual/scenarios.ts`), not where it sits.
+  Not pictured at all yet: the Placeholder screen, the Opening balances
+  wizard's message for an unreadable amount, and the New invoice wizard's
+  step 2 before a taxable amount is typed or with its non-taxable field.
+  `pnpm visual:coverage` lists the rest, mostly event handlers.
 - **The oracle check runs only where the design's export exists.** It skips
   in CI, by name. Pozzetto 2013 reconciles with four recorded deviations
   (`acc-p132` moved to `la219`; `acc-p135` budget 0 vs null; `acc-p184` and

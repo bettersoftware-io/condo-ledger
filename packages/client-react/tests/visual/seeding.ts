@@ -22,6 +22,8 @@ import type {
   JournalGridIntents,
   JournalGridState,
   Machine,
+  MultiCostPaymentForm,
+  MultiCostPaymentSummary,
   OpeningForm,
   OpeningSummary,
   SidebarIntents,
@@ -209,6 +211,30 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
           moveToStep(wizard, wanted.step);
         }
 
+        // Mounted alone, it stays on step 1 with the fields typed.
+        for (const [field, value] of Object.entries(scenario.invoice ?? {})) {
+          wizard.intents.edit({ [field]: value });
+        }
+
+        return wizard;
+      },
+      // The multi-cost wizard holds the scenario's fields, typed one at a
+      // time: the description, the amount paid, then the lines.
+      createMultiCostPaymentWizard: (
+        editing?: string | null,
+      ): Machine<
+        WizardState<MultiCostPaymentForm, MultiCostPaymentSummary>,
+        WizardIntents<MultiCostPaymentForm>
+      > => {
+        const wizard = machines.createMultiCostPaymentWizard(editing);
+        const wanted = scenario.multiCost;
+
+        if (wanted !== undefined) {
+          wizard.intents.edit({ description: wanted.description });
+          wizard.intents.edit({ amount: wanted.amount });
+          wizard.intents.edit({ lines: wanted.lines });
+        }
+
         return wizard;
       },
       // The Invoice payment wizard opens on its first step as it is.
@@ -288,8 +314,12 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
             return createElement(Mount, { scenario });
           },
     deliver: (): void => {
-      // A part mounted alone has its state before the first render.
+      // A part mounted alone has its state before the first render, but for
+      // what is read only while it listens: the account's selection, and
+      // the notices pressed.
       if (scenario.mount !== undefined) {
+        deliverToPart(harness, scenario, clock);
+
         return;
       }
 
@@ -317,6 +347,29 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
       clock.tick(0);
     },
   };
+}
+
+/** What a part mounted alone takes after its first render; with nothing to take, the clock does not move. */
+function deliverToPart(
+  harness: AppHarness,
+  scenario: Scenario,
+  clock: HostClock,
+): void {
+  const stubbed = scenario.stubbed ?? [];
+
+  if (scenario.selectedKey === undefined && stubbed.length === 0) {
+    return;
+  }
+
+  if (scenario.selectedKey !== undefined) {
+    harness.app.presenters.accounts.select(scenario.selectedKey);
+  }
+
+  for (const label of stubbed) {
+    harness.app.notices.stub(label);
+  }
+
+  clock.tick(0);
 }
 
 /** The period a page shows: the sidebar always holds one. */

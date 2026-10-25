@@ -2,10 +2,17 @@ import type {
   DirectPaymentKind,
   GenericLine,
   InvoiceForm,
+  MultiCostPaymentForm,
   OpeningAmount,
   SettlementRow,
 } from "@cl/client-core";
-import { type CellStatus, cents } from "@cl/domain";
+import {
+  type AccountNature,
+  type CellStatus,
+  cents,
+  type EntryKind,
+  type NodeIcon,
+} from "@cl/domain";
 
 import type { Picture } from "./host/picture.ts";
 
@@ -57,12 +64,100 @@ export interface Scenario extends Picture {
   installmentId?: string;
   /** The installment cells (`mount: "installment-cells"`), one under another, as their props. */
   cells?: CellPicture[];
+  /** A money cell (`mount: "money"`), as its props. */
+  money?: MoneyPicture;
+  /** Rows of the chart of accounts as the grid draws them: one alone (`mount: "tree-grid-row"`), or the grid's (`mount: "tree-grid"`), none for its empty state. */
+  accountRows?: AccountRowPicture[];
+  /** The inline editor (`mount: "inline-editor"`), as its props. */
+  editor?: EditorPicture;
+  /** The segmented control (`mount: "segmented-control"`), as its props. */
+  segments?: SegmentsPicture;
+  /** The yes-or-no question (`mount: "confirm-alert"`), as its props. */
+  confirm?: ConfirmPicture;
+  /** Any wizard's dialog (`mount: "wizard-dialog"`), as its props, over one field of a body. */
+  wizardDialog?: WizardDialogPicture;
+  /** The multi-cost payment wizard mounted alone (`mount: "multi-cost-payment-wizard"`), with what is typed in it, one field at a time. */
+  multiCost?: MultiCostPaymentForm;
+  /** The New invoice wizard mounted alone (`mount: "invoice-wizard"`) on step 1, its fields typed in the order written. */
+  invoice?: Partial<InvoiceForm>;
+  /** A popover menu (`mount: "popover"`), open, as its props: its label and its items. */
+  popover?: PopoverPicture;
+  /** The controls whose stub notice is on screen (`mount: "toast-host"`), in the order pressed. */
+  stubbed?: string[];
+  /** The tab the Accounts screen's bottom panel shows (`mount: "accounts-bottom-panel"`), over the account `selectedKey` names. */
+  bottomTab?: "Account Details" | "Ledger";
 }
 
-/** The budget wizard on step 2: the first due date typed on step 1, the other fields as they open. */
+/** The budget wizard on a step: the first due date typed on step 1, the other fields as they open, then moved on through its own Next. */
 interface BudgetInstallmentsStep {
-  step: 2;
+  step: 1 | 2 | 3;
   firstDue: string;
+}
+
+/** A money cell as its props: the amount in cents (null for a blank cell), its variant, and whether it is an aggregate's. */
+interface MoneyPicture {
+  cents: number | null;
+  variant: "colored" | "plain";
+  emphasis: boolean;
+}
+
+/** A row of the chart of accounts, as the Accounts grid makes it: the node's glyph, label and amounts in cents; a row with children is bold. */
+export interface AccountRowPicture {
+  key: string;
+  label: string;
+  depth: number;
+  icon: NodeIcon;
+  nature: AccountNature | null;
+  /** Total, the top of the tree: Σ on the zebra. */
+  root: boolean;
+  hasChildren: boolean;
+  expanded: boolean;
+  selected: boolean;
+  debit: number;
+  credit: number;
+  balance: number;
+}
+
+/** The inline editor as its props: the text it opens on, and what is wrong with the text committed. */
+interface EditorPicture {
+  value: string;
+  error: string | null;
+}
+
+/** The segmented control as its props. */
+interface SegmentsPicture {
+  label: string;
+  options: { value: string; label: string }[];
+  value: string;
+}
+
+/** The yes-or-no question as its props. */
+interface ConfirmPicture {
+  text: string;
+  error: string | null;
+}
+
+/** Any wizard's dialog as its props: where it stands, what it would write, and why it cannot go on. Its body is one Description field. */
+interface WizardDialogPicture {
+  name: string;
+  /** None for a wizard of one step. */
+  stepTitle?: string;
+  step: number;
+  stepCount: number;
+  /** An edit of an entry: titled "Edit {name}". */
+  editing: boolean;
+  description: string;
+  /** The domain's reason the step (the whole draft, on the last) cannot go on, after an edit, worded as every wizard words it; null when it can. */
+  reason: string | null;
+  writesEntry: boolean;
+  /** The "Entry postings", in cents. */
+  preview: { path: string; debit: number; credit: number }[];
+}
+
+/** A popover menu as its props: its label, and one item per entry kind, the kind's glyph before the label. */
+interface PopoverPicture {
+  label: string;
+  items: { label: string; kind: EntryKind }[];
 }
 
 /** One installment cell as its props: what it owes in cents (null for no item), its settlement, and whether a click edits it. */
@@ -147,6 +242,22 @@ const OPEN_TO_CASH = [
   "la153",
 ];
 
+/** The cash account's row, selected under its group: a leaf, so neither bold nor with a caret. */
+const CASH_ROW: AccountRowPicture = {
+  key: "la154",
+  label: "Cassa contanti",
+  depth: 4,
+  icon: "cash",
+  nature: "assets",
+  root: false,
+  hasChildren: false,
+  expanded: false,
+  selected: true,
+  debit: 312000,
+  credit: 287450,
+  balance: 24550,
+};
+
 /**
  * Every scenario, keyed by name. The name is the golden's file name
  * (`goldens/<platform>/<name>.png`) and the test's title, so keep it short,
@@ -160,7 +271,10 @@ const OPEN_TO_CASH = [
  * app's page height, and its settlement table at the width it has in the
  * wizard's body. The Installment Schedule of the same period, and its parts
  * alone: the cells in each state, the Create Budget Installments wizard over
- * a period with no schedule, and the Edit Installment dialog.
+ * a period with no schedule, and the Edit Installment dialog. Then the
+ * pyramid's base, the small components in each state that matters, from
+ * their props or over the same period; and two sections of the Accounts
+ * screen's bottom panel, each tab alone.
  */
 export const scenarios: Record<string, Scenario> = {
   "accounts-1280-light": {
@@ -410,6 +524,412 @@ export const scenarios: Record<string, Scenario> = {
     mode: "light",
     periodId: "p1",
     installmentId: "in1",
+  },
+
+  // The pyramid's base: the small components alone, one state each, from
+  // their props. A width is the one the app gives the component.
+
+  // A money cell in an amount column (100 wide, less its padding): blue when
+  // positive, red when negative, grey at zero; the Journal's and Ledger's
+  // Debit and Credit in the text's colour; an aggregate's bold.
+  "money-positive": {
+    level: "component",
+    mount: "money",
+    width: 100,
+    mode: "light",
+    money: { cents: 125050, variant: "colored", emphasis: false },
+  },
+  "money-negative": {
+    level: "component",
+    mount: "money",
+    width: 100,
+    mode: "light",
+    money: { cents: -125050, variant: "colored", emphasis: false },
+  },
+  "money-zero": {
+    level: "component",
+    mount: "money",
+    width: 100,
+    mode: "light",
+    money: { cents: 0, variant: "colored", emphasis: false },
+  },
+  "money-plain": {
+    level: "component",
+    mount: "money",
+    width: 100,
+    mode: "light",
+    money: { cents: 125050, variant: "plain", emphasis: false },
+  },
+  "money-emphasis": {
+    level: "component",
+    mount: "money",
+    width: 100,
+    mode: "light",
+    money: { cents: -125050, variant: "colored", emphasis: true },
+  },
+  // One row of the chart of accounts, under the grid's first four columns at
+  // their default widths: Total on the zebra with Σ; an open group, bold; a
+  // closed one; the cash account selected; a label far wider than its
+  // column, cut with an ellipsis; and the selected row in the dark mode.
+  "tree-grid-row-total": {
+    level: "component",
+    mount: "tree-grid-row",
+    width: 700,
+    mode: "light",
+    accountRows: [
+      {
+        key: "total",
+        label: "Total",
+        depth: 0,
+        icon: "folder",
+        nature: null,
+        root: true,
+        hasChildren: true,
+        expanded: true,
+        selected: false,
+        debit: 4821733,
+        credit: 4821733,
+        balance: 0,
+      },
+    ],
+  },
+  "tree-grid-row-aggregate": {
+    level: "component",
+    mount: "tree-grid-row",
+    width: 700,
+    mode: "light",
+    accountRows: [
+      {
+        key: "assets",
+        label: "Assets",
+        depth: 2,
+        icon: "folder",
+        nature: "assets",
+        root: false,
+        hasChildren: true,
+        expanded: true,
+        selected: false,
+        debit: 1893210,
+        credit: 1250400,
+        balance: 642810,
+      },
+    ],
+  },
+  "tree-grid-row-collapsed": {
+    level: "component",
+    mount: "tree-grid-row",
+    width: 700,
+    mode: "light",
+    accountRows: [
+      {
+        key: "costs",
+        label: "Costs",
+        depth: 1,
+        icon: "folder",
+        nature: "expenses",
+        root: false,
+        hasChildren: true,
+        expanded: false,
+        selected: false,
+        debit: 1042975,
+        credit: 0,
+        balance: 1042975,
+      },
+    ],
+  },
+  "tree-grid-row-selected": {
+    level: "component",
+    mount: "tree-grid-row",
+    width: 700,
+    mode: "light",
+    accountRows: [CASH_ROW],
+  },
+  "tree-grid-row-long-label": {
+    level: "component",
+    mount: "tree-grid-row",
+    width: 700,
+    mode: "light",
+    accountRows: [
+      {
+        ...CASH_ROW,
+        selected: false,
+        label:
+          "Cassa contanti per le piccole spese della gestione ordinaria, straordinaria e del riscaldamento",
+      },
+    ],
+  },
+  "tree-grid-row-selected-dark": {
+    level: "component",
+    mount: "tree-grid-row",
+    width: 700,
+    mode: "dark",
+    accountRows: [CASH_ROW],
+  },
+  // The grid with no row: its header, and the message in place of the rows.
+  "tree-grid-empty": {
+    level: "component",
+    mount: "tree-grid",
+    width: 700,
+    mode: "light",
+    accountRows: [],
+  },
+  // The inline editor in a budget cell (90 wide, less its padding), as it
+  // opens on the cell's amount, and refused under the text committed.
+  "inline-editor-editing": {
+    level: "component",
+    mount: "inline-editor",
+    width: 74,
+    mode: "light",
+    editor: { value: "1,200.00", error: null },
+  },
+  "inline-editor-refused": {
+    level: "component",
+    mount: "inline-editor",
+    width: 74,
+    mode: "light",
+    editor: { value: "-50.00", error: "a budget cannot be negative" },
+  },
+  // The New invoice wizard's withholding types at the width of the wizard's
+  // body, the second chosen.
+  "segmented-control": {
+    level: "component",
+    mount: "segmented-control",
+    width: 642,
+    mode: "light",
+    segments: {
+      label: "Withholding type",
+      options: [
+        { value: "company", label: "Company" },
+        {
+          value: "professionalWithRegister",
+          label: "Professional w/ register",
+        },
+        {
+          value: "professionalWithoutRegister",
+          label: "Professional w/o register",
+        },
+      ],
+      value: "professionalWithRegister",
+    },
+  },
+  // The Journal's question before a delete, and the same question after Yes
+  // was refused, in the Journal's words.
+  "confirm-alert-question": {
+    level: "component",
+    mount: "confirm-alert",
+    capture: "viewport",
+    width: 480,
+    height: 240,
+    mode: "light",
+    confirm: {
+      text: 'Delete the entry "Pagamento in contanti di spese postali"?',
+      error: null,
+    },
+  },
+  "confirm-alert-refused": {
+    level: "component",
+    mount: "confirm-alert",
+    capture: "viewport",
+    width: 480,
+    height: 240,
+    mode: "light",
+    confirm: {
+      text: 'Delete the entry "controllo ascensori"?',
+      error: "This invoice has payments. Delete them first.",
+    },
+  },
+  // Any wizard's dialog from its props, as the New invoice wizard stands in
+  // it: its first step, with no Back and Next enabled; and its last step on
+  // an edit, after an edit that left the draft refused: Back, the reason in
+  // every wizard's words, and Save disabled. A dialog that writes no entry
+  // is the budget wizard's review, below.
+  "wizard-dialog-first-step": {
+    level: "component",
+    mount: "wizard-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    wizardDialog: {
+      name: "New Invoice Entry",
+      stepTitle: "Select supplier",
+      step: 1,
+      stepCount: 2,
+      editing: false,
+      description: "controllo ascensori",
+      reason: null,
+      writesEntry: true,
+      preview: [
+        { path: "Costs › Ascensore", debit: 36018, credit: 0 },
+        {
+          path: "Suppliers › Cargnelutti Elevatori s.n.c.",
+          debit: 0,
+          credit: 36018,
+        },
+      ],
+    },
+  },
+  "wizard-dialog-refused": {
+    level: "component",
+    mount: "wizard-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    wizardDialog: {
+      name: "New Invoice Entry",
+      stepTitle: "Calculate withholding",
+      step: 2,
+      stepCount: 2,
+      editing: true,
+      description: "controllo ascensori",
+      reason: "negative",
+      writesEntry: true,
+      preview: [
+        { path: "Costs › Ascensore", debit: 36018, credit: 0 },
+        {
+          path: "Suppliers › Cargnelutti Elevatori s.n.c.",
+          debit: 0,
+          credit: 36018,
+        },
+      ],
+    },
+  },
+  // The bank purchase over several costs, over Pozzetto 2013: 1,000.00 paid,
+  // split over the building's insurance (`la173`) and its ordinary
+  // administration (`la174`); first in full, then short by 150.00.
+  "multi-cost-payment-wizard-balanced": {
+    level: "component",
+    mount: "multi-cost-payment-wizard",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p36",
+    multiCost: {
+      description: "Assicurazione e amministrazione",
+      amount: "1,000.00",
+      lines: [
+        { accountId: "la173", amount: "600.00" },
+        { accountId: "la174", amount: "400.00" },
+      ],
+    },
+  },
+  "multi-cost-payment-wizard-unbalanced": {
+    level: "component",
+    mount: "multi-cost-payment-wizard",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p36",
+    multiCost: {
+      description: "Assicurazione e amministrazione",
+      amount: "1,000.00",
+      lines: [
+        { accountId: "la173", amount: "600.00" },
+        { accountId: "la174", amount: "250.00" },
+      ],
+    },
+  },
+  // Step 1 of a new invoice from a seeded supplier (`md78`) under a number it
+  // already has in the period (1358, on entry 2): the warning under the
+  // number.
+  "invoice-wizard-duplicate-number": {
+    level: "component",
+    mount: "invoice-wizard",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p36",
+    invoice: { supplierId: "md78", number: "1358" },
+  },
+  // The budget wizard over 2015 of the test seed, as on step 2: its first
+  // step with the first due date typed, and its review per resident after
+  // step 2's default shares.
+  "budget-installments-wizard-step1": {
+    level: "component",
+    mount: "budget-installments-wizard",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    seed: "schedule",
+    periodId: "p3",
+    budgetInstallments: { step: 1, firstDue: "31/03/2015" },
+  },
+  "budget-installments-wizard-review": {
+    level: "component",
+    mount: "budget-installments-wizard",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    seed: "schedule",
+    periodId: "p3",
+    budgetInstallments: { step: 3, firstDue: "31/03/2015" },
+  },
+  // The Journal toolbar's Add transaction menu, open under its button's
+  // place: the label, then one item per kind with its glyph. A menu hangs
+  // from its box out of the flow, over a fixed scrim, so it is pictured as a
+  // dialog is, in a viewport of its own size.
+  "popover-add-transaction": {
+    level: "component",
+    mount: "popover",
+    capture: "viewport",
+    width: 220,
+    height: 280,
+    mode: "light",
+    popover: {
+      label: "Add transaction",
+      items: [
+        { label: "New invoice", kind: "invoice" },
+        { label: "Record collection", kind: "collection" },
+        { label: "Invoice payment", kind: "invoicePayment" },
+        { label: "Direct purchase via bank", kind: "directPaymentBank" },
+        { label: "Direct purchase with cash", kind: "directPaymentCash" },
+      ],
+    },
+  },
+  // Two notices, bottom right, from two controls not wired yet: the later
+  // under the earlier.
+  "toast-notices": {
+    level: "component",
+    mount: "toast-host",
+    capture: "viewport",
+    width: 480,
+    height: 160,
+    mode: "light",
+    stubbed: ["Print", "Export to PDF"],
+  },
+
+  // Sections: where the way parts sit together is what is pictured. The
+  // Accounts screen's bottom panel, its tabs over the tab's body, each tab
+  // over the account selected in Pozzetto 2013, at the width the panel has
+  // at the full layout.
+
+  // The cash account's ledger: its twelve postings, oldest first, with the
+  // running balance, and the totals row under them.
+  "accounts-bottom-panel-ledger": {
+    level: "section",
+    mount: "accounts-bottom-panel",
+    width: 1000,
+    mode: "light",
+    periodId: "p36",
+    selectedKey: "la154",
+    bottomTab: "Ledger",
+  },
+  // A cost account's sheet (the building's insurance, `la173`): the cost
+  // attributes it inherits, its balances and its budget.
+  "accounts-bottom-panel-cost-details": {
+    level: "section",
+    mount: "accounts-bottom-panel",
+    width: 1000,
+    mode: "light",
+    periodId: "p36",
+    selectedKey: "la173",
+    bottomTab: "Account Details",
   },
 };
 
