@@ -17,8 +17,14 @@ export type { SessionPort } from "./ports/sessionPort.ts";
 export { createAccountsSimulator } from "./simulators/accountsSimulator.ts";
 export { createBuildingsSimulator } from "./simulators/buildingsSimulator.ts";
 export { fixedClock } from "./simulators/fixedClock.ts";
-export { createInstallmentsSimulator } from "./simulators/installmentsSimulator.ts";
-export { createJournalSimulator } from "./simulators/journalSimulator.ts";
+export {
+  createInstallmentsSimulator,
+  type InstallmentsSimulator,
+} from "./simulators/installmentsSimulator.ts";
+export {
+  createJournalSimulator,
+  type JournalSimulator,
+} from "./simulators/journalSimulator.ts";
 export * from "./simulators/seed/legacySeed.ts";
 export {
   createSessionSimulator,

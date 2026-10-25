@@ -11,8 +11,10 @@ import {
   DESIGN_PRINCIPAL,
   type EntryKind,
   type InstallmentsPort,
+  type InstallmentsSimulator,
   type JournalEntry,
   type JournalPort,
+  type JournalSimulator,
   type LegacySeed,
   type SessionPort,
 } from "@cl/domain";
@@ -395,11 +397,32 @@ export function createApp(ports: AppPorts): App {
   };
 }
 
-/** The five simulators over one seed: what `pnpm dev` and the harness run on. */
+/**
+ * The five simulators over one seed: what `pnpm dev` and the harness run on.
+ * The journal and the installments read each other's current state, so a
+ * collection is judged against the schedule as it stands and an installment
+ * a collection pays is not deleted. Each reads the other only when a write
+ * asks, after both are built.
+ */
 export function createSimulatorPorts(
   seed: LegacySeed,
   clock: ClockPort,
 ): AppPorts {
+  const journal: JournalSimulator = createJournalSimulator(
+    seed,
+    clock,
+    (periodId) => {
+      return installments.current(periodId);
+    },
+  );
+
+  const installments: InstallmentsSimulator = createInstallmentsSimulator(
+    seed,
+    (periodId) => {
+      return journal.current(periodId);
+    },
+  );
+
   return {
     session: createSessionSimulator({
       principal: DESIGN_PRINCIPAL,
@@ -407,8 +430,8 @@ export function createSimulatorPorts(
     }),
     buildings: createBuildingsSimulator(seed),
     accounts: createAccountsSimulator(seed),
-    journal: createJournalSimulator(seed, clock),
-    installments: createInstallmentsSimulator(seed),
+    journal,
+    installments,
     clock,
   };
 }

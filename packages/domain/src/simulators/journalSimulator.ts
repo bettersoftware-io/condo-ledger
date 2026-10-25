@@ -1,7 +1,6 @@
 import { BehaviorSubject, type Observable, throwError } from "rxjs";
 
 import type { Account } from "#/entities/account.ts";
-import type { Installment, InstallmentItem } from "#/entities/installment.ts";
 import type { Invoice, WithholdingTax } from "#/entities/invoice.ts";
 import type { EntryDraft, JournalEntry } from "#/entities/journal.ts";
 import type { Party } from "#/entities/party.ts";
@@ -19,21 +18,30 @@ import { canDeleteEntry } from "#/useCases/canDeleteEntry.ts";
 import { canEditEntry } from "#/useCases/canEditEntry.ts";
 import { type EntryContext, validateEntry } from "#/useCases/validateEntry.ts";
 
+import {
+  type PeriodSchedule,
+  seededSchedule,
+} from "./installmentsSimulator.ts";
 import type { LegacySeed } from "./seed/legacySeed.ts";
+
+/** The port, and what the installments simulator reads of it: a period's entries as they stand now. */
+export interface JournalSimulator extends JournalPort {
+  /** In number order. Throws "missing: the period <id>" for a period the simulator does not have. */
+  current(periodId: string): JournalEntry[];
+}
 
 /**
  * A period's journal and invoices, kept in memory (entries in number order),
- * and what a draft is checked against: the accounts, the parties, the
- * withholding catalogue and the installment schedule (which never changes).
+ * and what a draft is checked against besides: the accounts, the parties and
+ * the withholding catalogue.
  */
 interface PeriodJournal {
+  periodId: string;
   entries$: BehaviorSubject<JournalEntry[]>;
   invoices$: BehaviorSubject<Invoice[]>;
   accounts: Account[];
   parties: Party[];
   withholdingTaxes: WithholdingTax[];
-  installments: Installment[];
-  installmentItems: InstallmentItem[];
 }
 
 /** An entry with the period journal that holds it. */
@@ -47,30 +55,27 @@ interface Held {
  * memory. Numbers and stamps as the legacy store did: the next number of the
  * period, the clock's moment on the Rome wall clock; a delete moves every later
  * entry down one number. A registration writes its invoice with it, and a
- * delete of one removes it. Throws on an unknown id: it never answers empty
- * for a wrong key.
+ * delete of one removes it. A collection is judged against the period's
+ * installment schedule as `scheduleOf` answers it now; left out, the seed's.
+ * Throws on an unknown id: it never answers empty for a wrong key.
  */
 export function createJournalSimulator(
   seed: LegacySeed,
   clock: ClockPort,
-): JournalPort {
+  scheduleOf: (periodId: string) => PeriodSchedule = (
+    periodId: string,
+  ): PeriodSchedule => {
+    return seededSchedule(seed, periodId);
+  },
+): JournalSimulator {
   const periods = new Map<string, PeriodJournal>();
   let added = 0;
   let invoicesAdded = 0;
 
   for (const building of seed.buildings) {
     for (const period of building.periods) {
-      const installments = seed.installments.filter((installment) => {
-        return installment.periodId === period.id;
-      });
-
-      const installmentIds = new Set(
-        installments.map((installment) => {
-          return installment.id;
-        }),
-      );
-
       periods.set(period.id, {
+        periodId: period.id,
         entries$: new BehaviorSubject(
           seed.entries
             .filter((entry) => {
@@ -95,16 +100,31 @@ export function createJournalSimulator(
         withholdingTaxes: seed.withholdingTaxes.filter((tax) => {
           return tax.periodId === period.id;
         }),
-        installments,
-        installmentItems: seed.installmentItems.filter((item) => {
-          return installmentIds.has(item.installmentId);
-        }),
       });
     }
   }
 
   function periodJournalOf(periodId: string): PeriodJournal {
     return must(periods.get(periodId), `the period ${periodId}`);
+  }
+
+  /** What a write to the period is judged against, the entry an edit rewrites named. */
+  function contextOf(
+    journal: PeriodJournal,
+    replacing: string | null,
+  ): EntryContext {
+    const schedule = scheduleOf(journal.periodId);
+
+    return {
+      accounts: journal.accounts,
+      parties: journal.parties,
+      withholdingTaxes: journal.withholdingTaxes,
+      invoices: journal.invoices$.getValue(),
+      entries: journal.entries$.getValue(),
+      installments: schedule.installments,
+      installmentItems: schedule.items,
+      replacing,
+    };
   }
 
   function heldOf(entryId: string): Held {
@@ -282,23 +302,9 @@ export function createJournalSimulator(
         resolve(remove(heldOf(entryId)));
       });
     },
-  };
-}
-
-/** What a write to the period is judged against, the entry an edit rewrites named. */
-function contextOf(
-  journal: PeriodJournal,
-  replacing: string | null,
-): EntryContext {
-  return {
-    accounts: journal.accounts,
-    parties: journal.parties,
-    withholdingTaxes: journal.withholdingTaxes,
-    invoices: journal.invoices$.getValue(),
-    entries: journal.entries$.getValue(),
-    installments: journal.installments,
-    installmentItems: journal.installmentItems,
-    replacing,
+    current: (periodId: string): JournalEntry[] => {
+      return periodJournalOf(periodId).entries$.getValue();
+    },
   };
 }
 

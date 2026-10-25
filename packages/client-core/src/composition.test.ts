@@ -1,9 +1,19 @@
 import { describe, expect, it } from "vitest";
 
-import { cents, type JournalEntryView, type LegacySeed } from "@cl/domain";
+import {
+  type Cents,
+  cents,
+  type EntryDraft,
+  fixedClock,
+  type JournalEntryView,
+  type LegacySeed,
+  loadLegacySeed,
+} from "@cl/domain";
+import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 import { createTwoPeriodSeed } from "@cl/domain/testing/createTwoPeriodSeed.ts";
 
+import { type AppPorts, createSimulatorPorts } from "./composition.ts";
 import { createAppHarness } from "./testing/appHarness.ts";
 
 describe("the application", () => {
@@ -162,6 +172,89 @@ describe("the application", () => {
     expect(createAppHarness().seed.buildings).toHaveLength(2);
   });
 });
+
+describe("the simulator ports over the real seed", () => {
+  it("an installment a collection pays refuses delete; once the journal deletes the collection, it goes", async () => {
+    const { installments, journal } = createRealPorts();
+    // Rata 12 of Pozzetto 2013: nothing paid on it yet.
+    const added = await journal.addEntry(
+      "p36",
+      createCollection("r163", "ii845", cents(5000)),
+    );
+    const id = added.ok ? added.value.id : "";
+
+    expect(added.ok).toBe(true);
+    expect(await installments.deleteInstallment("in36")).toEqual({
+      ok: false,
+      reason: "installment-paid",
+    });
+    expect(await journal.deleteEntry(id)).toEqual({ ok: true });
+    expect(await installments.deleteInstallment("in36")).toEqual({ ok: true });
+    expect(
+      await journal.addEntry(
+        "p36",
+        createCollection("r163", "ii845", cents(5000)),
+      ),
+    ).toEqual({ ok: false, reason: "unknown-item" });
+  });
+
+  it("a collection is judged against the schedule as edited: an item lowered to 10.00 refuses 20.00 with over-remaining-item", async () => {
+    const untouched = createRealPorts();
+    const edited = createRealPorts();
+
+    // Untouched, r162's ii844 on Rata 12 owes 134.98, and 20.00 of it is accepted.
+    expect(
+      await untouched.journal.addEntry(
+        "p36",
+        createCollection("r162", "ii844", cents(2000)),
+      ),
+    ).toMatchObject({ ok: true });
+    expect(
+      await edited.installments.setItemAmount("ii844", cents(1000)),
+    ).toEqual({ ok: true });
+    expect(
+      await edited.journal.addEntry(
+        "p36",
+        createCollection("r162", "ii844", cents(2000)),
+      ),
+    ).toEqual({ ok: false, reason: "over-remaining-item" });
+  });
+});
+
+/** The simulator ports over the real seed, each built afresh. */
+function createRealPorts(): AppPorts {
+  return createSimulatorPorts(
+    loadLegacySeed(legacySeedData),
+    fixedClock("2026-10-14T08:00:00Z"),
+  );
+}
+
+/** A collection into Pozzetto 2013's bank (la156), credited to the owners account (la158) on one resident's item. */
+function createCollection(
+  residentId: string,
+  itemId: string,
+  amount: Cents,
+): EntryDraft {
+  return {
+    kind: "collection",
+    description: `Incasso ${residentId}`,
+    postings: [
+      {
+        accountId: "la156",
+        debit: amount,
+        credit: cents(0),
+        counterpart: null,
+      },
+      {
+        accountId: "la158",
+        debit: cents(0),
+        credit: amount,
+        counterpart: { kind: "owner", id: residentId },
+        installmentItemId: itemId,
+      },
+    ],
+  };
+}
 
 /** The small seed's books with no building to hold them: nothing is selected. */
 function createSeedWithNoBuilding(): LegacySeed {
