@@ -70,9 +70,7 @@ export function AccountsGrid({
     return (result: Result): void => {
       settleBudgetOf(
         key,
-        result.ok
-          ? NOT_EDITING
-          : { editing: key, error: reasonText(result.reason) },
+        result.ok ? NOT_EDITING : { editing: key, error: result.reason },
       );
     };
   }
@@ -165,17 +163,8 @@ interface BudgetEdit {
 
 const NOT_EDITING: BudgetEdit = { editing: null, error: null };
 
-/** The domain's reasons as the person reads them; a reason not listed here is shown as it is. */
-const BUDGET_REASONS: Readonly<Record<string, string>> = {
-  negative: "a budget cannot be negative",
-};
-
 /** Restr. period, R/d, Allocation tables, Restriction on, Ecc., Default contra, R/s, Detr. */
 const ATTRIBUTE_CELLS = 8;
-
-function reasonText(reason: string): string {
-  return BUDGET_REASONS[reason] ?? reason;
-}
 
 /* v8 ignore next 3 -- only a real accounts store can fail to answer; the simulator always does */
 function reportUnsaved(error: unknown): void {

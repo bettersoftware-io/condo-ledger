@@ -233,7 +233,7 @@ describe("AccountsGrid", () => {
     expect(page.cellsOf("Ascensore")[3]).toBe("1,000.00");
   });
 
-  it("shows the domain's reason for a negative budget", async () => {
+  it("commits a negative budget, as the legacy books hold them, drawn red", async () => {
     const page = mountAccountsGrid();
     await page.clickCaret("Spese generali");
 
@@ -241,8 +241,37 @@ describe("AccountsGrid", () => {
     await page.typeBudget("-5");
     await page.pressEnter();
 
-    expect(page.budgetError()).toBe("a budget cannot be negative");
+    expect(page.budgetError()).toBeNull();
+    expect(page.cellsOf("Ascensore")[3]).toBe("-5.00");
+    expect(page.amountTonesOf("Ascensore")[3]).toBe("neg");
+    expect(page.cellsOf("Spese generali")[3]).toBe("495.00");
+    expect(page.cellsOf("Total")[3]).toBe("495.00");
+
+    await page.clickBudget("Pulizie");
+    await page.typeBudget("-1,200.00");
+    await page.pressEnter();
+
+    expect(page.budgetError()).toBeNull();
+    expect(page.cellsOf("Pulizie")[3]).toBe("-1,200.00");
+    expect(page.cellsOf("Spese generali")[3]).toBe("-1,205.00");
+    expect(page.amountTonesOf("Spese generali")[3]).toBe("neg");
+  });
+
+  it("shows the store's reason when it refuses a budget, and the budget stays", async () => {
+    const page = mountAccountsGrid();
+    await page.clickCaret("Spese generali");
+    page.refuseBudgets("not-a-leaf");
+
+    await page.clickBudget("Ascensore");
+    await page.typeBudget("1,200.00");
+    await page.pressEnter();
+
+    expect(page.budgetError()).toBe("not-a-leaf");
     expect(page.cellsOf("Spese generali")[3]).toBe("1,500.00");
+
+    await page.pressEscape();
+
+    expect(page.cellsOf("Ascensore")[3]).toBe("1,000.00");
   });
 
   it("leaving a budget cell unchanged writes nothing and shows no error", async () => {

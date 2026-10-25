@@ -11,6 +11,7 @@ describe("parseAmount", () => {
     expect(parseAmount("1234")).toBe(123400);
     expect(parseAmount(" 12 ")).toBe(1200);
     expect(parseAmount("-5")).toBe(-500);
+    expect(parseAmount("-1,200.00")).toBe(-120000);
   });
 
   it("rounds to the nearest cent where the binary fraction falls just short", () => {

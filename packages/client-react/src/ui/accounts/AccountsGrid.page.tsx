@@ -28,6 +28,8 @@ export interface AccountsGridPage {
   isBold: (label: string) => boolean;
   /** Whether a row has the root's background. */
   isZebra: (label: string) => boolean;
+  /** The sign each amount of a row is coloured by (`neg`, `zero`, `pos`, `blank`), in column order. */
+  amountTonesOf: (label: string) => string[];
   /** Drags the boundary before column `index + 1` to the given width. */
   resizeColumn: (index: number, toPx: number) => void;
   template: () => string;
@@ -50,6 +52,8 @@ export interface AccountsGridPage {
   holdBudgetVerdicts: () => void;
   /** Hands every held verdict back to the screen. */
   releaseBudgetVerdicts: () => Promise<void>;
+  /** From now on, the accounts store refuses every budget with this reason, saving nothing. */
+  refuseBudgets: (reason: string) => void;
 }
 
 /** Mounts the Accounts screen over the small books, as the person sees its top panel. */
@@ -157,6 +161,13 @@ export function mountAccountsGrid(): AccountsGridPage {
     isZebra: (label: string): boolean => {
       return rowOf(label).getAttribute("data-zebra") === "true";
     },
+    amountTonesOf: (label: string): string[] => {
+      return within(rowOf(label))
+        .getAllByTestId(TESTIDS.money)
+        .map((amount) => {
+          return amount.getAttribute("data-tone") ?? "";
+        });
+    },
     resizeColumn: (index: number, toPx: number): void => {
       const handle = within(top()).getAllByTestId(TESTIDS.treeGridResize)[
         index
@@ -209,5 +220,6 @@ export function mountAccountsGrid(): AccountsGridPage {
     budgetWrites: budgetWrites.count,
     holdBudgetVerdicts: budgetWrites.hold,
     releaseBudgetVerdicts: budgetWrites.release,
+    refuseBudgets: budgetWrites.refuse,
   };
 }

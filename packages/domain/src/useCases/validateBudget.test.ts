@@ -4,18 +4,18 @@ import { type Account, cents } from "../index.ts";
 import { validateBudget } from "./validateBudget.ts";
 
 describe("validateBudget", () => {
-  it("accepts a non-negative budget on a regular expense account", () => {
+  it("accepts any budget on a regular expense account", () => {
     expect(validateBudget(createAccount({}), cents(0))).toEqual({ ok: true });
     expect(validateBudget(createAccount({}), cents(216500))).toEqual({
       ok: true,
     });
   });
 
-  it("rejects a negative budget", () => {
-    expect(validateBudget(createAccount({}), cents(-1))).toEqual({
-      ok: false,
-      reason: "negative",
+  it("accepts a negative budget, as the legacy books hold them", () => {
+    expect(validateBudget(createAccount({}), cents(-120000))).toEqual({
+      ok: true,
     });
+    expect(validateBudget(createAccount({}), cents(-1))).toEqual({ ok: true });
   });
 
   it("rejects an account that is not a cost account", () => {
@@ -36,7 +36,7 @@ describe("validateBudget", () => {
     });
   });
 
-  it("names the first thing wrong: the nature, then the leaf, then the sign", () => {
+  it("names the first thing wrong: the nature, then the leaf", () => {
     expect(
       validateBudget(
         createAccount({ nature: "income", type: "grouping" }),

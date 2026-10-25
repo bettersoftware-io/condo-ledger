@@ -687,7 +687,7 @@ export const scenarios: Record<string, Scenario> = {
     mount: "inline-editor",
     width: 74,
     mode: "light",
-    editor: { value: "-50.00", error: "a budget cannot be negative" },
+    editor: { value: "1,20", error: "not an amount" },
   },
   // The New invoice wizard's withholding types at the width of the wizard's
   // body, the second chosen.
