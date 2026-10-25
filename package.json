@@ -51,7 +51,8 @@
     "worktree:audit": "node tools/agent-workflow/audit-worktrees.mts",
     "check:status": "node tools/agent-workflow/check-status.mts",
     "visual:check:styles": "node tools/visual/check-styles.mts",
-    "visual:coverage": "node tools/visual/coverage.mts"
+    "visual:coverage": "node tools/visual/coverage.mts",
+    "changelog:releases": "node tools/agent-workflow/sync-releases.mts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
