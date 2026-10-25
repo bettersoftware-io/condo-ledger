@@ -52,6 +52,10 @@ export {
   type SplitState,
 } from "./machines/splitMachine.ts";
 export type {
+  CollectionForm,
+  CollectionSummary,
+} from "./machines/wizards/collectionWizard.ts";
+export type {
   DirectPaymentForm,
   DirectPaymentKind,
   DirectPaymentSummary,
