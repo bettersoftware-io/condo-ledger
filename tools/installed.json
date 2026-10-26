@@ -94,6 +94,7 @@
     "files": {
       "tools/format-lint/biome.base.json": "0477f4392f093114ae01845b7a94640561c671fe531a9b6ffa455c9972da698b",
       "tools/format-lint/fix.mts": "5c8418be9ea4890a8b11dafd6b935dc0b0ec1256553c7683515dea87d5cd7f94",
+      "tools/templates/format-lint.AGENTS.section.md.txt": "95b094502db0c39d49f6c4ab01d5fccb0aa17e9dda2d34ea548312b002b14863",
       "tools/templates/format-lint.biome.json.txt": "837989065b90202735ec8a433beaeaab8610fe4bf2d3c4a6862282d0ea4dedbf"
     },
     "starting": [
@@ -107,6 +108,7 @@
       "tools/strict-lint/eslint.typed.base.mts": "eb9fdafbffdbc68d5ec932bba9205d60eda041d8fedc19767fb1f32bc75b46a0",
       "tools/strict-lint/lib/files.mts": "71fe26dc7e77dcef4c2217aae9d9891061edce27a2f124dbd96a53b2f2038d96",
       "tools/strict-lint/lib/run.mts": "70bba5152fc002adb1303a2d405beed8d1610337681e39cd4d4a221e892f1b2f",
+      "tools/templates/strict-lint.AGENTS.section.md.txt": "f37b8265fef329643e325fbced2eea93fce411578784ee35037ba6581e982066",
       "tools/templates/strict-lint.tools__strict-lint__eslint.config.mts.txt": "feb93ba515024fd0ba08a2f5b90157b3e56a825c25d770252c22e1959a17e8c1",
       "tools/templates/strict-lint.tools__strict-lint__knip.jsonc.txt": "d2c59e626ed7930d845ced2d540b12f3421dad28f27d793c91f65b97686ffd4b"
     },
@@ -133,6 +135,7 @@
       "tools/coverage/mutation-check.mts": "298fc942ce795e8bb9c41c8d16e4ff438af0c4907245259a7c616b7d1cb54334",
       "tools/coverage/publish-to-pages.mts": "005e5a8f60cbb66275b47a5bee7a636a6e848362ae492d86948f05a309ef9383",
       "tools/coverage/run.mts": "71a720658afa7fb70a7cfbb5c7492756b54cde7a3572c17c43a3f573ad739039",
+      "tools/templates/coverage.AGENTS.section.md.txt": "a24e1f778fb44c4335e6a2a98d7ee494bcd7d3f2a4a3d87eda6be2348859a8cc",
       "tools/templates/coverage.tools__coverage.config.mts.txt": "c2a2446495d7557fb6ec7761ae199900e7a1744c025f32eaeda42c3fe848bb7f"
     },
     "withoutActionRefs": {
@@ -158,6 +161,7 @@
       "tools/ci-security/lib/system.mts": "6fc11113bbe7bb516aff2dfe6db4cd4839924b57112abb18e1df5810b5760d44",
       "tools/ci-security/lint-workflows.mts": "e3cf7ddb033053576320cb9306219d001c20e6af58fb997b0b8e92ade8a8ac41",
       "tools/templates/ci-security..github__renovate.json5.txt": "d99a66cc46fe9c05da90909403e0ec73f03c68eb58456385a5955e6749a2929f",
+      "tools/templates/ci-security.AGENTS.section.md.txt": "851e51c961ed44b2072047c4c0c2df598af84d5a38057d08c436d83915ebaba7",
       "tools/templates/ci-security.SECURITY.md.txt": "33ed489e289b5466b53214fc838294861b1013fc9a735b434e328389e4b8808e"
     },
     "withoutActionRefs": {
@@ -191,6 +195,7 @@
       "packages/client-react/tests/visual/reach/vite.config.ts": "2f81bed9382c133777dfc9f9d9e364f57e0fa09fe41f0b2e51d44495a955efb9",
       "packages/client-react/tests/visual/tsconfig.json": "a0a6a1cd826b12ed3c33226f18216641b5bbae249053cf0c4eaf31edfa5e2d82",
       "packages/client-react/tests/visual/visual.pw.ts": "ea5695b89ded18b2784d0be46e7f920d5a6ffaa14fc6554f2ff76a99479d3c30",
+      "tools/templates/visual.AGENTS.section.md.txt": "393d9920f7046df6a163e4959bd0791fb0af5ba3fa3444979d1d0be0976a81ef",
       "tools/templates/visual.packages__client-react__tests__visual__framing.ts.txt": "1f502feec84cb6930ea9aa6fc3d223bcc707f1f8fed1472d8813772721f34633",
       "tools/templates/visual.packages__client-react__tests__visual__registry.tsx.txt": "3b821390393f3dfb0e743d2ca8094b7bdbd23f11778e0ad080df40c3c22bd15d",
       "tools/templates/visual.packages__client-react__tests__visual__scenarios.ts.txt": "447fb0344d88824cae17b3fb0c2296272c7e81311754a34049f5bd2368f8d235",
@@ -270,7 +275,7 @@
       "tools/agent-workflow/check.mts": "eea7286bfced1f932e2ce183592c2851653d582f7cd610bfe037e2cfd42f280f",
       "tools/agent-workflow/close-week.mts": "351638b71c9d7ca20e7b8a5de292633ded2aad89e9badd6b41391505b41307c8",
       "tools/agent-workflow/hooks/changelog-due.mts": "bc9e9743d33ae75323e83f7d34df93d95536237d8dbe2b53cb4ff479d29a541a",
-      "tools/agent-workflow/hooks/split-outward-commands.mts": "b055e933e9ede1e8b0caed379ceccbbb1f59231f89338426a11e3800e4dfa6ca",
+      "tools/agent-workflow/hooks/split-outward-commands.mts": "342d2fd6e34c417cbdea6090cd3c291b9f5039497b79d8c3fe671c73c792ba2e",
       "tools/agent-workflow/lib/changelog.mts": "d98cd64655da58085322e445f725ea15b546e516156f70b32fa1a762c6fd20d0",
       "tools/agent-workflow/lib/due-reminder.mts": "0c36b8a37f6f48352783d28e70faf4c99ce926ef79ead4db57b3c7cc95bbd2c9",
       "tools/agent-workflow/lib/due.mts": "4eb8b3c7687ec0372df9b320f9f826b22bc9cff284df16f69891a2ce547de426",
@@ -278,7 +283,7 @@
       "tools/agent-workflow/lib/hook-registration.mts": "a88ee68abbdaa63b8d733a0b97fa5102948e05a09ab7b7b07fcbbf97a44aa199",
       "tools/agent-workflow/lib/host.mts": "9dfeff37093b5c1b9072a3a003bd03873e86e98c050fdab74c880ec1d9fb569e",
       "tools/agent-workflow/lib/main.mts": "b9510ffce92e72c31b519bffcd5b2d464d723a11e9d2755b065afb91bca5d54c",
-      "tools/agent-workflow/lib/outward.mts": "1fbd27a8f424150aa96a70f327a9ad33e4827fd3cba26f0160d046da65abe0eb",
+      "tools/agent-workflow/lib/outward.mts": "eb5121435894b36b1325af4a7c659d9e3a326ea98599a61c2ded7f71c4ea2dcd",
       "tools/agent-workflow/lib/releases.mts": "173d68726a1e5a6be758eb2dfbb426dd89d4139c7d78649598c2c21136326238",
       "tools/agent-workflow/lib/shell.mts": "2fd79e4949295c9a1adf306a7b8829b8eac399546b29a5c2e74a1c6a57db4419",
       "tools/agent-workflow/lib/shown.mts": "aa8f086b0a46c74ca04ef7e514f61ef95e4fc3cfac194e0c2687cdbd31bc6e8e",
@@ -289,6 +294,7 @@
       "tools/agent-workflow/new-worktree.mts": "fa3785e68f65e50273ee354b91f72b225776a13eb9f9970371cbf42194f1c1f3",
       "tools/agent-workflow/requires.mts": "0d6555c1112fc35e211e77a85298ac31fbf033d95db56b5e992e69c877926dd3",
       "tools/agent-workflow/sync-releases.mts": "d0b1e985130b54f752058fff3bc6a6f25407f032fb6fc88f3dd2f885158ce3d1",
+      "tools/templates/agent-workflow.AGENTS.section.md.txt": "957a6a4b83807a415c8b4b16aa8ea464883ed2e10bdd06533b7e0f923ac93431",
       "tools/templates/agent-workflow.CHANGELOG.md.txt": "04cc722c39225da69db2942d06c405d2768518ad3d9db48d6b9b1719e95b99c7",
       "tools/templates/agent-workflow.docs__IDEAS.md.txt": "8472595386eb9ac467efb7cdf424bd5552007297ecb94d99793b08222acead55",
       "tools/templates/agent-workflow.docs__STATUS.md.txt": "0d79af20527d350ded8bebc82b40c76692febb4fee1566eace45ced555a1618a"
@@ -317,6 +323,7 @@
       "tools/repo-hygiene/lib/run.mts": "70bba5152fc002adb1303a2d405beed8d1610337681e39cd4d4a221e892f1b2f",
       "tools/repo-hygiene/lib/slug.mts": "1f38db3b299385f169784426d4a1d7eb17ca8db86f2cf289ec3836c784051375",
       "tools/repo-hygiene/stylelint.base.json": "9defab3c0488e96e6a31761f089d3629614ecc1c33510e7deebf56572bf725e2",
+      "tools/templates/repo-hygiene.AGENTS.section.md.txt": "5f1ab2d3a60a6fccad233e2958ab8d797779acd8672d6b0ea185c83d2cbbb144",
       "tools/templates/repo-hygiene.tools__repo-hygiene__stylelint.json.txt": "3f5948821caf872971488ab89b0df3a2ef531c09b75adbdb1c6ca8f41c59e696",
       "tools/templates/repo-hygiene.tools__repo-hygiene__syncpack.json.txt": "2bb932ca623dc94d6d4f30ae35f62c56a1af7a9290da88a1b667de539843a038"
     },
