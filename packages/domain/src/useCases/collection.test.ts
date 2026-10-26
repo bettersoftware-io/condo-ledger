@@ -154,6 +154,8 @@ function createAccount(
     type: "regular",
     role,
     budget: null,
+    abbreviation: null,
+    links: [],
   };
 }
 

@@ -686,6 +686,8 @@ function createTaxLeaf(): Account {
     type: "regular",
     role: "tax",
     budget: null,
+    abbreviation: null,
+    links: [],
   };
 }
 

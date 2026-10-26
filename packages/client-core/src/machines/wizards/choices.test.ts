@@ -41,6 +41,8 @@ describe("the wizards' choices", () => {
         type: "grouping",
         role: null,
         budget: null,
+        abbreviation: null,
+        links: [],
       },
     ]);
 
@@ -113,6 +115,8 @@ describe("the wizards' choices", () => {
         type: "grouping",
         role: null,
         budget: null,
+        abbreviation: null,
+        links: [],
       },
     ]);
 

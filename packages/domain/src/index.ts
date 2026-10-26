@@ -8,6 +8,8 @@ export * from "./entities/money.ts";
 export * from "./entities/party.ts";
 export * from "./entities/result.ts";
 export * from "./entities/session.ts";
+export * from "./entities/table.ts";
+export * from "./entities/unit.ts";
 export type { AccountsPort } from "./ports/accountsPort.ts";
 export type { BuildingsPort } from "./ports/buildingsPort.ts";
 export type { ClockPort } from "./ports/clockPort.ts";

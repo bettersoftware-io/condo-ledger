@@ -177,9 +177,12 @@ export function createSmallBooks(): SmallBooks {
         personId: "md10",
         name: "Rossi Mario",
         unitCode: "A01",
+        unitId: "uA01",
         startingBalance: cents(0),
         role: "PR",
+        share: null,
         restriction: null,
+        ownRestriction: null,
       },
       {
         kind: "owner",
@@ -187,9 +190,12 @@ export function createSmallBooks(): SmallBooks {
         personId: "md10",
         name: "Rossi Mario",
         unitCode: "A02",
+        unitId: "uA02",
         startingBalance: cents(0),
         role: "PR",
+        share: null,
         restriction: null,
+        ownRestriction: null,
       },
       {
         kind: "owner",
@@ -197,9 +203,12 @@ export function createSmallBooks(): SmallBooks {
         personId: "md11",
         name: "Bianchi Anna",
         unitCode: "B01",
+        unitId: "uB01",
         startingBalance: cents(0),
         role: "PR",
+        share: null,
         restriction: null,
+        ownRestriction: null,
       },
     ],
   };
@@ -233,6 +242,18 @@ export function createSmallSeed(): LegacySeed {
     withholdingTaxes: [],
     installments: [],
     installmentItems: [],
+    units: ["A01", "A02", "B01"].map((code) => {
+      return {
+        id: `u${code}`,
+        periodId: books.periodId,
+        code,
+        groupId: null,
+        restriction: null,
+      };
+    }),
+    unitGroups: [],
+    tables: [],
+    coefficients: [],
   };
 }
 
@@ -258,6 +279,8 @@ function createAccount(parts: AccountParts): Account {
     type: parts.type,
     role: parts.role ?? null,
     budget: parts.budget === undefined ? null : cents(parts.budget),
+    abbreviation: null,
+    links: [],
   };
 }
 

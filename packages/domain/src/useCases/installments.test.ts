@@ -175,9 +175,12 @@ function createOwner(
     personId,
     name: id,
     unitCode,
+    unitId: `u${unitCode}`,
     startingBalance: cents(0),
     role: "PR",
+    share: null,
     restriction: null,
+    ownRestriction: null,
   };
 }
 

@@ -5,6 +5,8 @@ import type {
   AccountNature,
   AccountRole,
   AccountType,
+  LegacySeedData,
+  TableLink,
 } from "@cl/domain";
 
 import { buildDb } from "../db.ts";
@@ -89,6 +91,18 @@ describe("projectLegacySeed on a small synthetic dump", () => {
             null,
           ),
           budget: 30000,
+          abbreviation: "Acqua CO",
+          links: [
+            {
+              id: "el30",
+              accountId: "la105",
+              tableId: "dt20",
+              use: "both",
+              percentage: null,
+              roles: { 1: null, 2: null, 3: 10000, 4: null },
+              present: { 1: false, 2: false, 3: true, 4: false },
+            },
+          ],
         },
       ],
       entries: [
@@ -142,9 +156,12 @@ describe("projectLegacySeed on a small synthetic dump", () => {
               personId: "md80",
               name: "Rossi Anna",
               unitCode: "A01",
+              unitId: "u50",
               startingBalance: 1250,
               role: "PR",
+              share: 1000000,
               restriction: null,
+              ownRestriction: null,
             },
             {
               kind: "owner",
@@ -152,9 +169,12 @@ describe("projectLegacySeed on a small synthetic dump", () => {
               personId: "md82",
               name: "Verdi Luca",
               unitCode: "A01",
+              unitId: "u50",
               startingBalance: -300,
               role: "CO",
+              share: null,
               restriction: { from: "2013-06-01", to: null },
+              ownRestriction: { from: "2013-06-01", to: null },
             },
           ],
         },
@@ -205,6 +225,35 @@ describe("projectLegacySeed on a small synthetic dump", () => {
           amount: 5000,
         },
       ],
+      units: [
+        {
+          id: "u50",
+          periodId: "p10",
+          code: "A01",
+          groupId: "ug5",
+          restriction: null,
+        },
+      ],
+      unitGroups: [
+        {
+          id: "ug5",
+          periodId: "p10",
+          code: "A",
+          name: "Scala A",
+          parentId: null,
+        },
+      ],
+      tables: [
+        {
+          id: "dt20",
+          periodId: "p10",
+          name: "Generale",
+          order: 1,
+          notes: "",
+          restrictionGroupId: null,
+        },
+      ],
+      coefficients: [{ tableId: "dt20", unitId: "u50", value: 380000 }],
     });
   });
 
@@ -364,6 +413,10 @@ describe("projectLegacySeed on a small synthetic dump", () => {
       withholdingTaxes: [],
       installments: [],
       installmentItems: [],
+      units: [],
+      unitGroups: [],
+      tables: [],
+      coefficients: [],
     });
   });
 
@@ -390,7 +443,225 @@ describe("projectLegacySeed on a small synthetic dump", () => {
   });
 });
 
+describe("projectLegacySeed's allocation data", () => {
+  it("projects a period's tables by their order, each coefficient in ten-thousandths, and a table's restriction to a group", () => {
+    const tables = edit(createSmallDump(), "distributionTable", "20", {
+      order: "2",
+      restrictionUnitGroupId: "5",
+      notes: "Per millesimi",
+    });
+
+    tables.distributionTable?.push({
+      id: "19",
+      accountingPeriodId: "10",
+      name: "Scale",
+      order: "1",
+      restrictionUnitGroupId: null,
+      notes: null,
+    });
+    tables.distributionTableItem?.push({
+      distributionTableId: "19",
+      unitId: "50",
+      coefficient: "0.999000",
+    });
+
+    const seed = projectLegacySeed(buildDb(tables));
+
+    expect([seed.tables, seed.coefficients]).toEqual([
+      [
+        {
+          id: "dt19",
+          periodId: "p10",
+          name: "Scale",
+          order: 1,
+          notes: "",
+          restrictionGroupId: null,
+        },
+        {
+          id: "dt20",
+          periodId: "p10",
+          name: "Generale",
+          order: 2,
+          notes: "Per millesimi",
+          restrictionGroupId: "ug5",
+        },
+      ],
+      [
+        { tableId: "dt19", unitId: "u50", value: 9990 },
+        { tableId: "dt20", unitId: "u50", value: 380000 },
+      ],
+    ]);
+  });
+
+  it.each([
+    [null, "both"],
+    ["estimate", "budget"],
+    ["currentBalance", "finalBalance"],
+  ])("projects a link of type %j as use %j", (type, use) => {
+    const tables = edit(createSmallDump(), "expenseLA2Table", "30", { type });
+
+    expect(linksOf(projectLegacySeed(buildDb(tables)))[0]?.use).toBe(use);
+  });
+
+  it("keeps a role row with an empty percentage apart from a missing row, and reads a link's percentage in hundredths", () => {
+    const tables = edit(createSmallDump(), "expenseLA2Table", "30", {
+      percentage: "50.00",
+    });
+
+    tables.expenseLA2Role?.push({
+      expenseLA2TableId: "30",
+      unitResidentPriorityId: "1",
+      percentage: null,
+    });
+
+    expect(linksOf(projectLegacySeed(buildDb(tables)))).toEqual([
+      {
+        id: "el30",
+        accountId: "la105",
+        tableId: "dt20",
+        use: "both",
+        percentage: 5000,
+        roles: { 1: null, 2: null, 3: 10000, 4: null },
+        present: { 1: true, 2: false, 3: true, 4: false },
+      },
+    ]);
+  });
+
+  it("keeps a resident's own dates as ownRestriction, while restriction falls back to its unit's", () => {
+    const tables = edit(createSmallDump(), "unit", "50", {
+      periodRestrictionStartDate: "2013-02-01 00:00:00",
+      periodRestrictionEndDate: null,
+    });
+
+    expect(
+      projectLegacySeed(buildDb(tables)).parties[0]?.parties.flatMap(
+        (party) => {
+          return party.kind === "owner"
+            ? [[party.id, party.restriction, party.ownRestriction]]
+            : [];
+        },
+      ),
+    ).toEqual([
+      ["r70", { from: "2013-02-01", to: null }, null],
+      [
+        "r72",
+        { from: "2013-06-01", to: null },
+        { from: "2013-06-01", to: null },
+      ],
+    ]);
+  });
+
+  it("gives the account a stored budget allocation credits the role budgetAllocation, and not the owners' or roundings accounts it credits too", () => {
+    const tables = edit(createSmallDump(), "accountingPeriod", "10", {
+      flatResidentRoundingOffLedgerAccountId: "109",
+    });
+
+    tables.ledgerAccount?.push(
+      account("108", null, "Da riparto preventivo", "regular", "income", "3"),
+      account("109", "100", "Arrotondamenti", "regular", "assets", "6"),
+    );
+    tables.ledgerTransaction?.push({
+      id: "202",
+      accountingPeriodId: "10",
+      code: "3",
+      timestamp: "2013-04-01 08:00:00",
+      type: "estimateDistribution",
+      ledgerInvoiceId: null,
+      description: "Riparto preventivo",
+    });
+    tables.ledgerEntry?.push(
+      entry("305", "202", "104", "305.01", "1", { unitResidentId: "70" }),
+      entry("306", "202", "104", "-5.00", "2", { unitResidentId: "72" }),
+      entry("307", "202", "109", "-0.01", "3", { unitResidentId: "70" }),
+      entry("308", "202", "108", "-300.00", "4", {}),
+    );
+
+    expect(
+      projectLegacySeed(buildDb(tables)).accounts.flatMap((projected) => {
+        return projected.role === null ? [] : [[projected.id, projected.role]];
+      }),
+    ).toEqual([
+      ["la101", "cash"],
+      ["la102", "bank"],
+      ["la103", "suppliers"],
+      ["la104", "owners"],
+      ["la107", "tax"],
+      ["la106", "tax"],
+      ["la108", "budgetAllocation"],
+      ["la109", "roundings"],
+    ]);
+  });
+});
+
 describe("projectLegacySeed refuses what it cannot project, naming the id", () => {
+  it("refuses a unit with two unit periods in a seeded period", () => {
+    const tables = createSmallDump();
+
+    tables.unitPeriod?.push({
+      id: "61",
+      unitId: "50",
+      unitOwnershipScenarioId: "2",
+    });
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow("the unit 50 has 2 unit periods; the allocation reads only one");
+  });
+
+  it("refuses a coefficient that is not a whole number of ten-thousandths", () => {
+    const tables = createSmallDump();
+
+    tables.distributionTableItem = [
+      { distributionTableId: "20", unitId: "50", coefficient: "38.000050" },
+    ];
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow(
+      "the coefficient of the unit 50 in the table 20 is 38.000050, which is not a whole number of ten-thousandths",
+    );
+  });
+
+  it("refuses a role priority the domain does not know", () => {
+    const tables = createSmallDump();
+
+    tables.expenseLA2Role?.push({
+      expenseLA2TableId: "30",
+      unitResidentPriorityId: "5",
+      percentage: "10.00",
+    });
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow(
+      "the link 30 has a role of priority 5, which the domain does not know",
+    );
+  });
+
+  it("refuses a share that is not a plain decimal", () => {
+    const tables = edit(createSmallDump(), "unitResident", "70", {
+      percentage: "-50.000000",
+    });
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow(
+      "the share of resident 70 is -50.000000, which is not a whole number of ten-thousandths",
+    );
+  });
+
+  it("refuses a link type the domain does not know", () => {
+    const tables = edit(createSmallDump(), "expenseLA2Table", "30", {
+      type: "forecast",
+    });
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow(
+      "the link 30 has the type forecast, which the domain does not know",
+    );
+  });
+
   it("refuses a transaction without a timestamp", () => {
     const tables = edit(createSmallDump(), "ledgerTransaction", "201", {
       timestamp: null,
@@ -629,7 +900,10 @@ describe("projectLegacySeed refuses what it cannot project, naming the id", () =
  * (2013-03-31 01:00 UTC): the registration of an invoice withholding 4%
  * (code 1019 on the tax account), and an owner's collection that pays the
  * owner's item of the period's one installment, and an installment of
- * another period.
+ * another period. For the allocation: A01 in group A, the owner's 100%
+ * share, one table (A01 at 38) and the cost account's link to it, 100% on the
+ * tenants' role (priority 3); and a group, a unit and a table of another
+ * period.
  */
 function createSmallDump(): Tables {
   return {
@@ -650,7 +924,26 @@ function createSmallDump(): Tables {
         flatResidentRoundingOffLedgerAccountId: null,
       },
     ],
-    unit: [{ id: "50", accountingPeriodId: "10", code: "A01" }],
+    unitGroup: [
+      {
+        id: "5",
+        accountingPeriodId: "10",
+        parentUnitGroupId: null,
+        code: "A",
+        name: "Scala A",
+      },
+      {
+        id: "6",
+        accountingPeriodId: "11",
+        parentUnitGroupId: null,
+        code: "B",
+        name: "Box",
+      },
+    ],
+    unit: [
+      { id: "50", accountingPeriodId: "10", code: "A01", unitGroupId: "5" },
+      { id: "51", accountingPeriodId: "11", code: "A01", unitGroupId: "6" },
+    ],
     unitPeriod: [{ id: "60", unitId: "50", unitOwnershipScenarioId: "1" }],
     unitResidentRole: [
       {
@@ -670,7 +963,7 @@ function createSmallDump(): Tables {
       },
     ],
     unitResident: [
-      resident("70", "80", "1", "12.50", {}),
+      resident("70", "80", "1", "12.50", { percentage: "100.000000" }),
       resident("71", "83", "1", "0.00", {
         periodRestrictionEndDate: "2012-12-31",
       }),
@@ -699,9 +992,50 @@ function createSmallDump(): Tables {
       account("104", "100", "Condomini", "controlUnitResident", "assets", "4"),
       account("107", "100", "Erario", "grouping", "liabilities", "5"),
       account("106", "107", "Ritenute", "regular", "liabilities", "1"),
-      account("105", null, "Acqua", "regular", "expenses", "2"),
+      {
+        ...account("105", null, "Acqua", "regular", "expenses", "2"),
+        abbreviation: "Acqua CO",
+      },
     ],
     expenseLedgerAccount: [{ ledgerAccountId: "105", estimate: "300.00" }],
+    distributionTable: [
+      {
+        id: "20",
+        accountingPeriodId: "10",
+        name: "Generale",
+        order: "1",
+        restrictionUnitGroupId: null,
+        notes: null,
+      },
+      {
+        id: "21",
+        accountingPeriodId: "11",
+        name: "Generale",
+        order: "1",
+        restrictionUnitGroupId: null,
+        notes: null,
+      },
+    ],
+    distributionTableItem: [
+      { distributionTableId: "20", unitId: "50", coefficient: "38.000000" },
+      { distributionTableId: "21", unitId: "51", coefficient: "1.000000" },
+    ],
+    expenseLA2Table: [
+      {
+        id: "30",
+        expenseLedgerAccountId: "105",
+        distributionTableId: "20",
+        type: null,
+        percentage: null,
+      },
+    ],
+    expenseLA2Role: [
+      {
+        expenseLA2TableId: "30",
+        unitResidentPriorityId: "3",
+        percentage: "100.00",
+      },
+    ],
     withholdingTax: [
       {
         id: "3",
@@ -817,6 +1151,12 @@ function edit(tables: Tables, table: string, id: string, changes: Row): Tables {
   return tables;
 }
 
+function linksOf(seed: LegacySeedData): TableLink[] {
+  return seed.accounts.flatMap((projected) => {
+    return projected.links;
+  });
+}
+
 function seedAccount(
   id: string,
   parentId: string | null,
@@ -836,6 +1176,8 @@ function seedAccount(
     type,
     role,
     budget: null,
+    abbreviation: null,
+    links: [],
   };
 }
 
@@ -872,6 +1214,7 @@ function resident(
     unitResidentPriorityId: priority,
     periodRestrictionStartDate: null,
     periodRestrictionEndDate: null,
+    percentage: null,
     startingBalance,
     ...restriction,
   };

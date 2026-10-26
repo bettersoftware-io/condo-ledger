@@ -160,6 +160,20 @@ describe("buildAccountTree", () => {
     expect(must("patrimonial").icon).toBe("folder");
   });
 
+  it("draws the revenue a budget allocation credits as any other account: a document for a leaf", () => {
+    const books = createSmallBooks();
+    const accounts = books.accounts.map((account) => {
+      return account.id === "la21"
+        ? { ...account, role: "budgetAllocation" as const }
+        : account;
+    });
+
+    expect(
+      findNode(buildAccountTree(accounts, books.entries, books.parties), "la21")
+        ?.icon,
+    ).toBe("document");
+  });
+
   it("gives a plain leaf an account scope and a node with children none", () => {
     expect(must("la21").scope).toEqual({ kind: "account", accountId: "la21" });
     expect(must("la20").scope).toBeNull();
@@ -479,6 +493,8 @@ function createControlAccount(id: string, type: AccountType): Account {
     type,
     role: null,
     budget: null,
+    abbreviation: null,
+    links: [],
   };
 }
 

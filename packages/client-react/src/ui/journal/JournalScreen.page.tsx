@@ -684,5 +684,7 @@ function createTaxAccount(id: string, name: string): Account {
     type: "regular",
     role: "tax",
     budget: null,
+    abbreviation: null,
+    links: [],
   };
 }
