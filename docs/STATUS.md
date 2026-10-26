@@ -12,7 +12,7 @@ One bullet for each entry: its name in bold, what is left, and a link to its
 plan when it has one. `AGENTS.md` says when an entry is added, moved and
 removed.
 
-**Last updated: 2026-10-25**
+**Last updated: 2026-10-26**
 
 ## In progress
 
@@ -93,6 +93,14 @@ Work that waits on a release, a decision or other work.
   star is not announced (`aria-required`); after a dialog closes, the focus
   lands on the grid's wrapper, whose outline is removed, so nothing shows
   where it is.
+- **Two Journal menu items wrap.** The Journal toolbar's "+" (Add
+  transaction) menu is a `wide` popover, 184px
+  (`packages/client-react/src/ui/shell/Popover.css`), and "Direct purchase
+  via bank" and "Direct purchase with cash"
+  (`packages/client-react/src/ui/journal/JournalToolbar.tsx`) break onto two
+  lines in it. Widen that menu, or let the popover size to its longest item;
+  either changes the menu's goldens. Noticed by the skills session while
+  drawing the visual pyramid (2026-10-25).
 - **Structural tidy-ups:** `missing()` duplicated across the two simulators;
   `TopBar.tsx` has two near-identical picker blocks; `LedgerTab` is a
   view-model reader that builds every row itself (split it like
@@ -120,11 +128,7 @@ Work that waits on a release, a decision or other work.
 
 ## Waiting on a person
 
-- **The legacy application's credentials (the user).** The pre-rewrite
-  history, and `old/` on this machine, hold the legacy PHP application's
-  MySQL password (a localhost database) and its application secret; no mail
-  or API credentials. The rewritten history never carried them into the
-  public repository. Change that password only where it was reused.
+A step or a decision an agent cannot take.
 
 ## Known limits
 
