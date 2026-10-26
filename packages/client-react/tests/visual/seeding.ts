@@ -100,6 +100,11 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
   // are there when the part mounts.
   if (scenario.mount !== undefined && scenario.periodId !== undefined) {
     buildings.selectPeriod(scenario.periodId);
+
+    // A new opening, mounted alone, needs the period without its seeded one.
+    if (wizardDialog(scenario.dialog)?.wizard === "openingBalances") {
+      deleteSeededOpening(harness, scenario.periodId);
+    }
   }
 
   const app: App = {
@@ -220,7 +225,8 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
           moveToStep(wizard, wanted.step);
         }
 
-        // Mounted alone, it stays on step 1 with the fields typed.
+        // Mounted alone with `invoice`, it stays on step 1 with the fields
+        // typed; with `dialog`, it moves on to the dialog's step as above.
         for (const [field, value] of Object.entries(scenario.invoice ?? {})) {
           wizard.intents.edit({ [field]: value });
         }

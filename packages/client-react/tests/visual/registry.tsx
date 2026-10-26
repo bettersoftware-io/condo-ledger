@@ -27,12 +27,15 @@ import { EntryIcon } from "#/ui/journal/EntryIcon.tsx";
 import { CollectionWizard } from "#/ui/journal/wizards/CollectionWizard.tsx";
 import { InvoiceWizard } from "#/ui/journal/wizards/InvoiceWizard.tsx";
 import { MultiCostPaymentWizard } from "#/ui/journal/wizards/MultiCostPaymentWizard.tsx";
+import { OpeningBalancesWizard } from "#/ui/journal/wizards/OpeningBalancesWizard.tsx";
 import { reasonText } from "#/ui/journal/wizards/reasons.ts";
 import { SettlementTable } from "#/ui/journal/wizards/SettlementTable.tsx";
 import { WizardDialog } from "#/ui/journal/wizards/WizardDialog.tsx";
 import { MenuItem } from "#/ui/MenuItem.tsx";
 import { Money } from "#/ui/Money.tsx";
 import { SegmentedControl } from "#/ui/SegmentedControl.tsx";
+import { menuLabel } from "#/ui/shell/labels.tsx";
+import { Placeholder } from "#/ui/shell/Placeholder.tsx";
 import { Popover } from "#/ui/shell/Popover.tsx";
 import { ToastHost } from "#/ui/shell/ToastHost.tsx";
 import { TabbedPanel } from "#/ui/TabbedPanel.tsx";
@@ -263,6 +266,24 @@ const registry: Record<string, Entry> = {
       />
     );
   },
+  "opening-balances-wizard": (): ReactElement => {
+    return (
+      <OpeningBalancesWizard
+        editing={null}
+        onSaved={ignoreClose}
+        onCancel={ignoreClose}
+      />
+    );
+  },
+  // A screen not built yet, in a box the height of a short main area: the
+  // placeholder fills the main area it is given.
+  placeholder: (): ReactElement => {
+    return (
+      <div style={PLACEHOLDER_BOX}>
+        <Placeholder title={menuLabel("thousandths")} />
+      </div>
+    );
+  },
   // The menu hangs from the box its button sits in, 34 pixels under the
   // box's top and flush with its right edge; the box is the picture's width
   // less a margin for the menu's shadow.
@@ -319,6 +340,12 @@ const TEMPLATE = "400px 100px 100px 100px";
 const ROW_TEMPLATE = { "--tree-grid-template": TEMPLATE } as CSSProperties;
 
 const POPOVER_BOX: CSSProperties = { position: "relative", margin: "0 12px" };
+
+const PLACEHOLDER_BOX: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  height: 240,
+};
 
 /** The building and period the wizard dialog's props name. */
 const PICTURED_CONTEXT = { building: "Pozzetto", period: "2013" };
