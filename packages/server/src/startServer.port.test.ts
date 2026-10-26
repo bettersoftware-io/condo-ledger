@@ -75,10 +75,12 @@ async function startTestServer(): Promise<RunningServer> {
 
 /**
  * Connects by hand and sends a frame no WebSocket client may send: one that is
- * not masked. Resolves when the server has dropped the connection.
+ * not masked, with more bytes behind it than the server reads before it drops
+ * the connection. Resolves when the server has dropped the connection.
  */
 function breakTheProtocol(port: number): Promise<void> {
   const UNMASKED_TEXT_FRAME = Buffer.from([0x81, 0x01, 0x61]);
+  const STILL_SENDING = Buffer.alloc(4 * 1024 * 1024);
   const socket = connect(port, "localhost");
 
   socket.write(
@@ -94,7 +96,15 @@ function breakTheProtocol(port: number): Promise<void> {
     ].join("\r\n"),
   );
   socket.once("data", () => {
-    socket.write(UNMASKED_TEXT_FRAME);
+    socket.write(Buffer.concat([UNMASKED_TEXT_FRAME, STILL_SENDING]));
+  });
+
+  // The server drops this client while its bytes are still arriving, so the
+  // socket fails (a reset, a broken pipe) before it closes. That failure is
+  // the drop this test waits for: "close" follows it, and without a listener
+  // it would end the run as an unhandled error.
+  socket.on("error", () => {
+    return undefined;
   });
 
   return new Promise((dropped) => {

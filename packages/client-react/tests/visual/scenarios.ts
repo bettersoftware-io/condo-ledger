@@ -55,7 +55,7 @@ export interface Scenario extends Picture {
   expandedEntries?: string[];
   /** The journal entry selected, by id, on the page that holds it. */
   selectedEntry?: string;
-  /** A dialog open over the Journal, with what is typed in it. */
+  /** A dialog open over the Journal, with what is typed in it; for a wizard mounted alone (`mount: "invoice-wizard"`, `"opening-balances-wizard"`), what is typed in it. */
   dialog?: ScenarioDialog;
   /** The Record owner collection wizard mounted alone (`mount: "collection-wizard"`), on the step it shows. */
   collection?: CollectionStep;
@@ -884,6 +884,67 @@ export const scenarios: Record<string, Scenario> = {
   // Step 1 of a new invoice from a seeded supplier (`md78`) under a number it
   // already has in the period (1358, on entry 2): the warning under the
   // number.
+  // Step 2 of a new invoice from the same supplier, before a taxable amount
+  // is typed: the rates prefilled, every computed row blank.
+  "invoice-wizard-step2-blank": {
+    level: "component",
+    mount: "invoice-wizard",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p36",
+    dialog: {
+      wizard: "invoice",
+      step: 2,
+      form: { supplierId: "md78", number: "3200" },
+    },
+  },
+  // Step 2 with non-subject amounts: the Non-taxable amount field shown, and
+  // counted into the total.
+  "invoice-wizard-non-subject": {
+    level: "component",
+    mount: "invoice-wizard",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p36",
+    dialog: {
+      wizard: "invoice",
+      step: 2,
+      form: {
+        supplierId: "md78",
+        number: "3200",
+        preset: "nonSubject",
+        taxable: "300.15",
+        nonTaxable: "45.00",
+      },
+    },
+  },
+  // A new opening over Pozzetto 2013, its seeded one deleted, with the
+  // bank's debit (`la156`) mistyped: the message names the row.
+  "opening-balances-wizard-unreadable": {
+    level: "component",
+    mount: "opening-balances-wizard",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p36",
+    dialog: {
+      wizard: "openingBalances",
+      deleteSeeded: true,
+      amounts: { la156: { debit: "6,25o.99", credit: "" } },
+    },
+  },
+  // A screen not built yet: its title, and when it comes.
+  placeholder: {
+    level: "component",
+    mount: "placeholder",
+    width: 800,
+    mode: "light",
+  },
   "invoice-wizard-duplicate-number": {
     level: "component",
     mount: "invoice-wizard",

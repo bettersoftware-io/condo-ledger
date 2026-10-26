@@ -52,14 +52,6 @@ Work that waits on a release, a decision or other work.
   and Calendar
   ([2026-10-11-app-v2-design.md](superpowers/specs/2026-10-11-app-v2-design.md));
   Installments is built (M2d). The two entries above open the first two.
-- **A flaky server test, `packages/server/src/startServer.port.test.ts`.**
-  During M2b's final fix wave (2026-10-17), one local `pnpm gate:full` run
-  failed on an unhandled error from a socket read in this file; the rerun
-  passed, and M2b never touched the server. Not investigated. A likely
-  suspect, unverified: `breakTheProtocol` opens a raw `net` socket with a
-  `close` listener and no `error` listener, so a reset when the server drops
-  the client (`ECONNRESET`) would surface as an unhandled error. Reproduce
-  it (run the file in a loop), and fix the cause rather than retrying.
 - **Per-grid persistence.** The design says a column resize persists per
   grid; today every per-component machine (grid expansion, columns, split,
   bottom tab) is rebuilt when its component mounts, so leaving the Accounts
@@ -93,14 +85,6 @@ Work that waits on a release, a decision or other work.
   star is not announced (`aria-required`); after a dialog closes, the focus
   lands on the grid's wrapper, whose outline is removed, so nothing shows
   where it is.
-- **Two Journal menu items wrap.** The Journal toolbar's "+" (Add
-  transaction) menu is a `wide` popover, 184px
-  (`packages/client-react/src/ui/shell/Popover.css`), and "Direct purchase
-  via bank" and "Direct purchase with cash"
-  (`packages/client-react/src/ui/journal/JournalToolbar.tsx`) break onto two
-  lines in it. Widen that menu, or let the popover size to its longest item;
-  either changes the menu's goldens. Noticed by the skills session while
-  drawing the visual pyramid (2026-10-25).
 - **Structural tidy-ups:** `missing()` duplicated across the two simulators;
   `TopBar.tsx` has two near-identical picker blocks; `LedgerTab` is a
   view-model reader that builds every row itself (split it like
@@ -145,10 +129,8 @@ A step or a decision an agent cannot take.
   click into the view's `useState`, and a scenario never clicks. Each is
   pictured as its component alone (`inline-editor-*`, `popover-*` in
   `packages/client-react/tests/visual/scenarios.ts`), not where it sits.
-  Not pictured at all yet: the Placeholder screen, the Opening balances
-  wizard's message for an unreadable amount, and the New invoice wizard's
-  step 2 before a taxable amount is typed or with its non-taxable field.
-  `pnpm visual:coverage` lists the rest, mostly event handlers.
+  `pnpm visual:coverage` lists what no scenario reaches yet, mostly event
+  handlers.
 - **The oracle check runs only where the design's export exists.** It skips
   in CI, by name. Pozzetto 2013 reconciles with four recorded deviations
   (`acc-p132` moved to `la219`; `acc-p135` budget 0 vs null; `acc-p184` and
