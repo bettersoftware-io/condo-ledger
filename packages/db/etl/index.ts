@@ -29,14 +29,9 @@ import {
 } from "./sources.ts";
 import { makeTransform } from "./transform.ts";
 
-const structureUrl = new URL(
-  "../../../old/db/it-jtime-condominium.structure.sql",
-  import.meta.url,
-);
-
 async function main(): Promise<void> {
   // 1. DDL: names + types for the column-less dumps.
-  const ddl = parseDdl(readFileSync(structureUrl, "utf8"));
+  const ddl = parseDdl(readFileSync(FILES.structure, "utf8"));
 
   // Column resolver for the column-LESS dumps. Tables whose dump predates the
   // studioId column (DROP_STUDIO_ID) must resolve to the DDL list MINUS studioId,

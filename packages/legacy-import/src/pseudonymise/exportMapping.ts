@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { basename, dirname, isAbsolute, relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { parseTables } from "../loadRows.ts";
 import { loadExtraEntries } from "./leftovers.ts";
@@ -14,9 +14,13 @@ import { replaceTextLines } from "./replaceText.ts";
 // pseudonymisation through the repository's history. The file holds the real
 // names, so it is only ever written outside the repository.
 
+// old/db under the repository root, or the folder LEGACY_DUMP_DIR names (a
+// worktree has no old/: it is kept in the project's own checkout).
 const DUMP_URL = new URL(
-  "../../../../old/db/it-jtime-condominium.all.sql",
-  import.meta.url,
+  "it-jtime-condominium.all.sql",
+  process.env.LEGACY_DUMP_DIR === undefined
+    ? new URL("../../../../old/db/", import.meta.url)
+    : pathToFileURL(`${process.env.LEGACY_DUMP_DIR}/`),
 );
 
 const target = process.argv[2];

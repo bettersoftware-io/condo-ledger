@@ -162,12 +162,6 @@ A step or a decision an agent cannot take.
 - **A control account's assets side is always present**, zero when empty;
   a control account nested under a grouping, or of a fixed nature, splits per
   counterpart with no side. The legacy report agrees; the spec did not say.
-- **`@cl/db`'s row-count test fails in a worktree when `LEGACY_DUMP_DIR` is
-  set.** `packages/db/etl/expectedCounts.ts` reads the structure dump from a
-  fixed relative `old/db`, which a worktree beside the project does not have,
-  while the env var says the dump is elsewhere. Without the variable the test
-  skips and the gate is green; the dump-backed generator runs need the
-  variable, so run `gate:full` without it.
 - **An export exists only once something imports it** (knip refuses the rest), so
   a later task that needs a name from an earlier one adds the export then.
 - **The outward-command hook is a guard against joined commands, not a
