@@ -128,11 +128,7 @@ Work that waits on a release, a decision or other work.
 
 ## Waiting on a person
 
-- **The legacy application's credentials (the user).** The pre-rewrite
-  history, and `old/` on this machine, hold the legacy PHP application's
-  MySQL password (a localhost database) and its application secret; no mail
-  or API credentials. The rewritten history never carried them into the
-  public repository. Change that password only where it was reused.
+A step or a decision an agent cannot take.
 
 ## Known limits
 
