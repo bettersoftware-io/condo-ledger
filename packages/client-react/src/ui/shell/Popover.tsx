@@ -69,7 +69,10 @@ export interface PopoverProps {
   open: boolean;
   /** The section label at its head, and its accessible name. */
   label: string;
-  /** 172px (`narrow`) or 184px (`wide`), as the README's two popovers. */
+  /**
+   * 172px (`narrow`) or 184px (`wide`), as the README's two popovers; a
+   * `wide` one grows to its longest item rather than wrap it.
+   */
   width?: "narrow" | "wide";
   onClose: () => void;
   children: ReactNode;

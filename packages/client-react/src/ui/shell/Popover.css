@@ -24,8 +24,10 @@
   animation: pop-in var(--ease-pop);
 }
 
+/* At least the README's 184px, and wider for an item that would wrap. */
 .popover[data-width="wide"] {
-  width: 184px;
+  width: max-content;
+  min-width: 184px;
 }
 
 .popover-label {
