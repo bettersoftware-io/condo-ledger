@@ -104,6 +104,7 @@ import {
 } from "./machines/splitMachine.ts";
 import {
   createTableDialog,
+  rewriting,
   type TableDialogIntents,
   type TableDialogState,
 } from "./machines/tableDialogMachine.ts";
@@ -295,7 +296,7 @@ interface AppMachines {
     BudgetAllocationForm,
     BudgetAllocationSummary
   >;
-  /** The New Thousandth Table dialog over the selected period's tables as they stand, or with `editing` the Edit one on a table of them; one they do not hold throws. */
+  /** The New Thousandth Table dialog over the selected period's tables as they stand, or with `editing` the Edit one on a table of them; one they do not hold throws. Its save answers the table's id, the new one's or the edited one's. */
   createTableDialog: (
     editing: string | null,
   ) => Machine<TableDialogState, TableDialogIntents>;
@@ -632,9 +633,11 @@ export function createApp(ports: AppPorts): App {
           `the table ${editing}`,
         );
 
-        return createTableDialog(tables, table, (draft) => {
-          return allocation.editTable(editing, draft);
-        });
+        return createTableDialog(
+          tables,
+          table,
+          rewriting(editing, allocation.editTable),
+        );
       },
       createInstallmentDialog: (
         installmentId: string,

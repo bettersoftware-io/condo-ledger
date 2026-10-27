@@ -1,8 +1,10 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
-  ok,
-  type Result,
+  accepted,
+  type ResultOf,
+  rejected,
+  type TableAdded,
   type TableDraft,
   type ThousandthTable,
 } from "@cl/domain";
@@ -13,6 +15,7 @@ import { type AppHarness, createAppHarness } from "#/testing/appHarness.ts";
 import type { Machine } from "./machine.ts";
 import {
   createTableDialog,
+  rewriting,
   type TableDialogIntents,
   type TableDialogState,
 } from "./tableDialogMachine.ts";
@@ -93,24 +96,27 @@ describe("the thousandth table dialog", () => {
       createTableDialog(TABLES, null, (draft) => {
         written.push(draft);
 
-        return Promise.resolve(ok());
+        return Promise.resolve(accepted({ id: "dt9" }));
       }),
     );
 
     machine.intents.edit({ name: "Test", order: " 7 ", notes: "Lift" });
 
-    await expect(machine.intents.save()).resolves.toEqual({ ok: true });
+    await expect(machine.intents.save()).resolves.toEqual({
+      ok: true,
+      value: { id: "dt9" },
+    });
     expect(written).toEqual([{ name: "Test", order: 7, notes: "Lift" }]);
   });
 
   it("Save writes nothing while the form is refused, and nothing twice while a save runs", async () => {
     let writes = 0;
-    const resolvers: ((result: Result) => void)[] = [];
+    const resolvers: ((result: ResultOf<TableAdded>) => void)[] = [];
     const machine = track(
       createTableDialog(TABLES, null, () => {
         writes += 1;
 
-        return new Promise<Result>((resolve) => {
+        return new Promise<ResultOf<TableAdded>>((resolve) => {
           resolvers.push(resolve);
         });
       }),
@@ -133,21 +139,21 @@ describe("the thousandth table dialog", () => {
     });
     expect(writes).toBe(1);
 
-    must(resolvers[0], "the first write")(ok());
-    await expect(first).resolves.toEqual({ ok: true });
+    must(resolvers[0], "the first write")(accepted({ id: "dt9" }));
+    await expect(first).resolves.toEqual({ ok: true, value: { id: "dt9" } });
     expect(machine.state$.getValue().saving).toBe(false);
   });
 
-  it("through the app, a new table is added to the selected period", async () => {
+  it("through the app, a new table is added to the selected period, and the save answers its id", async () => {
     const harness = createAppHarness();
     const machine = track(harness.app.machines.createTableDialog(null));
 
     machine.intents.edit({ name: "Test" });
 
-    await expect(machine.intents.save()).resolves.toEqual({
-      ok: true,
-      value: { id: "dt-new-1" },
-    });
+    const saved = await machine.intents.save();
+
+    // What a caller selecting the new table reads: no cast, only `ok`.
+    expect(saved.ok ? saved.value.id : saved.reason).toBe("dt-new-1");
     expect(tableOf(harness, "dt-new-1")).toMatchObject({
       name: "Test",
       order: 6,
@@ -179,12 +185,25 @@ describe("the thousandth table dialog", () => {
     });
 
     machine.intents.edit({ name: "Renamed", order: "1", notes: "n" });
-    await expect(machine.intents.save()).resolves.toEqual({ ok: true });
+    await expect(machine.intents.save()).resolves.toEqual({
+      ok: true,
+      value: { id: "dt2" },
+    });
     expect(tableOf(harness, "dt2")).toMatchObject({
       name: "Renamed",
       order: 1,
       notes: "n",
     });
+  });
+
+  it("an edit the port refuses answers the port's reason, not the table's id", async () => {
+    const write = rewriting("dt2", () => {
+      return Promise.resolve(rejected("name-taken"));
+    });
+
+    await expect(write({ name: "Lift", order: 2, notes: "" })).resolves.toEqual(
+      { ok: false, reason: "name-taken" },
+    );
   });
 
   it("an edit of a table the selected period does not hold is not built", () => {
@@ -211,8 +230,8 @@ function track(
   return machine;
 }
 
-function acceptWrite(): Promise<Result> {
-  return Promise.resolve(ok());
+function acceptWrite(): Promise<ResultOf<TableAdded>> {
+  return Promise.resolve(accepted({ id: "dt9" }));
 }
 
 /** A table of the selected period as the allocation presenter holds it now. */

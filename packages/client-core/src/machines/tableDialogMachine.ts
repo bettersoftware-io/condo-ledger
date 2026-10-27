@@ -2,8 +2,11 @@ import { type DefaultedStateObservable, state } from "@rx-state/core";
 import { BehaviorSubject, map } from "rxjs";
 
 import {
+  accepted,
   type Result,
+  type ResultOf,
   rejected,
+  type TableAdded,
   type TableDraft,
   type ThousandthTable,
   validateTable,
@@ -32,9 +35,12 @@ export interface TableDialogState {
 
 export interface TableDialogIntents {
   edit: (patch: Partial<TableDialogForm>) => void;
-  /** The form written, answered as the write answered; the verdict's Rejected, or `saving` while a save runs, without writing. */
-  save: () => Promise<Result>;
+  /** The form written, answered as the write answered: the table's id, a new one's or the edited one's. The verdict's Rejected, or `saving` while a save runs, without writing. */
+  save: () => Promise<ResultOf<TableAdded>>;
 }
+
+/** How the dialog writes its table: added, or the edited one rewritten. Either way it answers the table's id. */
+export type WriteTable = (draft: TableDraft) => Promise<ResultOf<TableAdded>>;
 
 interface Inner {
   form: TableDialogForm;
@@ -52,7 +58,7 @@ interface Inner {
 export function createTableDialog(
   tables: ThousandthTable[],
   editing: ThousandthTable | null,
-  write: (draft: TableDraft) => Promise<Result>,
+  write: WriteTable,
 ): Machine<TableDialogState, TableDialogIntents> {
   const editingId = editing?.id ?? null;
   const inner$ = new BehaviorSubject<Inner>({
@@ -95,7 +101,7 @@ export function createTableDialog(
           touched: true,
         });
       },
-      save: async (): Promise<Result> => {
+      save: async (): Promise<ResultOf<TableAdded>> => {
         if (inner$.getValue().saving) {
           return rejected("saving");
         }
@@ -120,6 +126,20 @@ export function createTableDialog(
       inner$.complete();
     },
   };
+}
+
+/** A write that rewrites this table: an accepted edit answers its id, a refused one its reason. */
+export function rewriting(
+  tableId: string,
+  editTable: (id: string, draft: TableDraft) => Promise<Result>,
+): WriteTable {
+  async function write(draft: TableDraft): Promise<ResultOf<TableAdded>> {
+    const result = await editTable(tableId, draft);
+
+    return result.ok ? accepted({ id: tableId }) : result;
+  }
+
+  return write;
 }
 
 /** The form as the port takes it: the order as it reads, NaN for text that does not. */
