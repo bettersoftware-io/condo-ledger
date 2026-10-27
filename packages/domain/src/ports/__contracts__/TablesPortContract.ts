@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, type Observable } from "rxjs";
 import { describe, expect, it } from "vitest";
 
 import type { TableDraft } from "#/useCases/validateTable.ts";
@@ -98,49 +98,54 @@ export function describeTablesPortContract(
       }
     });
 
-    it("adds a table with a 0 coefficient for every unit, and emits again", async () => {
+    it("adds a table with a 0 coefficient for every unit, emitting each read once more", async () => {
       const { port, periodId, unitIds, teardown } = createHarness();
+      const tables = watch(port.tables(periodId));
+      const coefficients = watch(port.coefficients(periodId));
 
       try {
         const added = await port.addTable(periodId, createDraft("Test"));
 
         expect(added.ok).toBe(true);
+        expect(tables.values).toHaveLength(2);
+        expect(coefficients.values).toHaveLength(2);
 
         const id = added.ok ? added.value.id : "";
-        const tables = await firstValueFrom(port.tables(periodId));
-        const coefficients = (
-          await firstValueFrom(port.coefficients(periodId))
-        ).filter((coefficient) => {
+        const ofNew = (coefficients.values[1] ?? []).filter((coefficient) => {
           return coefficient.tableId === id;
         });
 
         expect(
-          tables.find((table) => {
+          (tables.values[1] ?? []).find((table) => {
             return table.id === id;
           }),
         ).toMatchObject({ periodId, name: "Test", order: 9, notes: "n" });
         expect(
-          coefficients
+          ofNew
             .map((coefficient) => {
               return coefficient.unitId;
             })
             .sort(),
         ).toEqual([...unitIds].sort());
         expect(
-          coefficients.every((coefficient) => {
+          ofNew.every((coefficient) => {
             return coefficient.value === 0;
           }),
         ).toBe(true);
       } finally {
+        tables.stop();
+        coefficients.stop();
         teardown();
       }
     });
 
-    it("refuses a blank name and a name another table has", async () => {
+    it("refuses a blank name and a name another table has, emitting nothing", async () => {
       const { port, periodId, teardown } = createHarness();
+      const tables = watch(port.tables(periodId));
+      const coefficients = watch(port.coefficients(periodId));
 
       try {
-        const taken = (await firstValueFrom(port.tables(periodId)))[0]?.name;
+        const taken = tables.values[0]?.[0]?.name;
 
         expect(await port.addTable(periodId, createDraft("  "))).toEqual({
           ok: false,
@@ -149,20 +154,26 @@ export function describeTablesPortContract(
         expect(await port.addTable(periodId, createDraft(taken ?? ""))).toEqual(
           { ok: false, reason: "name-taken" },
         );
+        expect(tables.values).toHaveLength(1);
+        expect(coefficients.values).toHaveLength(1);
       } finally {
+        tables.stop();
+        coefficients.stop();
         teardown();
       }
     });
 
-    it("edits a table, and refuses what validateTable refuses", async () => {
+    it("edits a table, emitting the tables once more, and refuses what validateTable refuses, emitting nothing", async () => {
       const { port, periodId, unlinkedTableId, teardown } = createHarness();
+      const tables = watch(port.tables(periodId));
 
       try {
         expect(
           await port.editTable(unlinkedTableId, createDraft("Renamed")),
         ).toEqual({ ok: true });
+        expect(tables.values).toHaveLength(2);
         expect(
-          (await firstValueFrom(port.tables(periodId))).find((table) => {
+          (tables.values[1] ?? []).find((table) => {
             return table.id === unlinkedTableId;
           }),
         ).toMatchObject({ name: "Renamed", order: 9, notes: "n" });
@@ -170,81 +181,93 @@ export function describeTablesPortContract(
           ok: false,
           reason: "blank-name",
         });
+        expect(tables.values).toHaveLength(2);
       } finally {
+        tables.stop();
         teardown();
       }
     });
 
-    it("deletes an unlinked table with its coefficients", async () => {
+    it("deletes an unlinked table with its coefficients, emitting each read once more", async () => {
       const { port, periodId, unlinkedTableId, teardown } = createHarness();
+      const tables = watch(port.tables(periodId));
+      const coefficients = watch(port.coefficients(periodId));
 
       try {
         expect(await port.deleteTable(unlinkedTableId)).toEqual({ ok: true });
+        expect(tables.values).toHaveLength(2);
+        expect(coefficients.values).toHaveLength(2);
         expect(
-          (await firstValueFrom(port.tables(periodId))).some((table) => {
+          (tables.values[1] ?? []).some((table) => {
             return table.id === unlinkedTableId;
           }),
         ).toBe(false);
         expect(
-          (await firstValueFrom(port.coefficients(periodId))).some(
-            (coefficient) => {
-              return coefficient.tableId === unlinkedTableId;
-            },
-          ),
+          (coefficients.values[1] ?? []).some((coefficient) => {
+            return coefficient.tableId === unlinkedTableId;
+          }),
         ).toBe(false);
       } finally {
+        tables.stop();
+        coefficients.stop();
         teardown();
       }
     });
 
-    it("refuses to delete a linked table, naming the account that links it", async () => {
+    it("refuses to delete a linked table, naming the account that links it, emitting nothing", async () => {
       const { port, periodId, linkedTableId, linkingAccountId, teardown } =
         createHarness();
+      const tables = watch(port.tables(periodId));
+      const coefficients = watch(port.coefficients(periodId));
 
       try {
-        const before = await firstValueFrom(port.tables(periodId));
-
         expect(await port.deleteTable(linkedTableId)).toEqual({
           ok: false,
           reason: "table-linked",
           detail: linkingAccountId,
         });
-        expect(await firstValueFrom(port.tables(periodId))).toEqual(before);
+        expect(tables.values).toHaveLength(1);
+        expect(coefficients.values).toHaveLength(1);
       } finally {
+        tables.stop();
+        coefficients.stop();
         teardown();
       }
     });
 
-    it("sets a coefficient, and emits again", async () => {
+    it("sets a coefficient, emitting the coefficients once more and the tables not at all", async () => {
       const { port, periodId, unlinkedTableId, unitId, teardown } =
         createHarness();
+      const tables = watch(port.tables(periodId));
+      const coefficients = watch(port.coefficients(periodId));
 
       try {
         expect(
           await port.setCoefficient(unlinkedTableId, unitId, 123456),
         ).toEqual({ ok: true });
+        expect(coefficients.values).toHaveLength(2);
+        expect(tables.values).toHaveLength(1);
         expect(
-          (await firstValueFrom(port.coefficients(periodId))).find(
-            (coefficient) => {
-              return (
-                coefficient.tableId === unlinkedTableId &&
-                coefficient.unitId === unitId
-              );
-            },
-          ),
+          (coefficients.values[1] ?? []).find((coefficient) => {
+            return (
+              coefficient.tableId === unlinkedTableId &&
+              coefficient.unitId === unitId
+            );
+          }),
         ).toEqual({ tableId: unlinkedTableId, unitId, value: 123456 });
       } finally {
+        tables.stop();
+        coefficients.stop();
         teardown();
       }
     });
 
-    it("refuses a coefficient that is negative or not whole, and keeps the old one", async () => {
+    it("refuses a coefficient that is negative or not whole, emitting nothing", async () => {
       const { port, periodId, unlinkedTableId, unitId, teardown } =
         createHarness();
+      const coefficients = watch(port.coefficients(periodId));
 
       try {
-        const before = await firstValueFrom(port.coefficients(periodId));
-
         expect(await port.setCoefficient(unlinkedTableId, unitId, -1)).toEqual({
           ok: false,
           reason: "not-a-coefficient",
@@ -252,10 +275,9 @@ export function describeTablesPortContract(
         expect(await port.setCoefficient(unlinkedTableId, unitId, 1.5)).toEqual(
           { ok: false, reason: "not-a-coefficient" },
         );
-        expect(await firstValueFrom(port.coefficients(periodId))).toEqual(
-          before,
-        );
+        expect(coefficients.values).toHaveLength(1);
       } finally {
+        coefficients.stop();
         teardown();
       }
     });
@@ -281,6 +303,26 @@ export function describeTablesPortContract(
       }
     });
   });
+}
+
+/** What a subscription has been told so far: the current value, then each re-emission. */
+interface Watch<T> {
+  values: T[];
+  stop: () => void;
+}
+
+function watch<T>(source: Observable<T>): Watch<T> {
+  const values: T[] = [];
+  const subscription = source.subscribe((value) => {
+    values.push(value);
+  });
+
+  return {
+    values,
+    stop: (): void => {
+      subscription.unsubscribe();
+    },
+  };
 }
 
 function createDraft(name: string): TableDraft {
