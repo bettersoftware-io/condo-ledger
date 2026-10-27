@@ -1086,15 +1086,17 @@ export const scenarios: Record<string, Scenario> = {
     tableName: "Scale",
   },
   // The Budget allocation wizard over Saturno 2011 with its allocation
-  // (`tx5`) deleted: the postings each owner is charged and the revenue
-  // account credited. Then over the period as seeded, which already has
-  // one: the refusal shows as the wizard opens.
+  // (`tx5`) deleted: the whole entry, the eleven debits (each owner's charge
+  // and the 0.01 rounding) and the 7,400.00 credit to the revenue account.
+  // Its viewport is 900 high so the dialog stays under its 90vh ceiling and
+  // the postings do not scroll. Then over the period as seeded, which
+  // already has one: the refusal shows as the wizard opens.
   "budget-allocation-wizard": {
     level: "component",
     mount: "budget-allocation-wizard",
     capture: "viewport",
     width: 800,
-    height: 720,
+    height: 900,
     mode: "light",
     periodId: "p1",
     deletedEntry: "tx5",
