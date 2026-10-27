@@ -57,3 +57,19 @@ function resolve(
 
   return null;
 }
+
+/** "{building} {period}" of the period, as the breadcrumb shows them; null when the tree does not hold it. */
+export function periodLabelOf(
+  tree: Building[],
+  periodId: string,
+): string | null {
+  for (const building of tree) {
+    for (const period of building.periods) {
+      if (period.id === periodId) {
+        return `${building.name} ${period.name}`;
+      }
+    }
+  }
+
+  return null;
+}

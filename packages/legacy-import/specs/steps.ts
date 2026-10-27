@@ -1,6 +1,16 @@
 import { expect } from "vitest";
 
-import { buildRiparto, type Money } from "@cl/domain";
+import {
+  type Allocation,
+  type AllocationRow,
+  allocationBooksOf,
+  allocationOf,
+  allocationSourceOf,
+  buildRiparto,
+  type LegacySeed,
+  loadLegacySeed,
+  type Money,
+} from "@cl/domain";
 
 import { projectAccounts, projectTransactions } from "#/project/accounting.ts";
 import {
@@ -9,6 +19,7 @@ import {
 } from "#/project/anagrafiche.ts";
 import { projectDistribution } from "#/project/distribution.ts";
 import { projectInstallments } from "#/project/installments.ts";
+import { projectLegacySeed } from "#/project/legacySeed.ts";
 import { dbToRipartoInput } from "#/project/ripartoInput.ts";
 import { projectTree } from "#/project/structure.ts";
 import { projectUnits } from "#/project/units.ts";
@@ -186,6 +197,112 @@ Then(
     expect(Math.abs(sum(engine) - sum(legacy))).toBeLessThanOrEqual(residents);
   },
 );
+
+// --- allocation parity (the legacy algorithm) --------------------------------
+
+When(/^the new app computes the budget allocation$/, (world) => {
+  const w = world as SpecWorld;
+  w.allocation = allocationOf(
+    allocationBooksOf(
+      allocationSourceOf(projectedSeed(w), `p${w.legacyPeriodId!}`),
+    ),
+    "budget",
+  );
+});
+
+Then(
+  /^the allocation total of each of the (\d+) residents equals its line of the posted entry "([^"]+)"$/,
+  (world, count, entryId) => {
+    const w = world as SpecWorld;
+    const posted = postedLines(projectedSeed(w), entryId);
+    const totals = residentTotals(w.allocation as Allocation);
+    expect(totals.size).toBe(Number(count));
+    expect(totals).toEqual(posted);
+  },
+);
+
+Then(
+  /^the allocation total of each of the (\d+) residents other than "([^"]+)" and "([^"]+)" equals its line of the posted entry "([^"]+)"$/,
+  (world, count, first, second, entryId) => {
+    const w = world as SpecWorld;
+    const posted = postedLines(projectedSeed(w), entryId);
+    const totals = residentTotals(w.allocation as Allocation);
+
+    for (const excluded of [first, second]) {
+      totals.delete(excluded);
+      posted.delete(excluded);
+    }
+
+    expect(totals.size).toBe(Number(count));
+    expect(totals).toEqual(posted);
+  },
+);
+
+Then(
+  /^the allocation total of "([^"]+)" is (\d+) cents and of "([^"]+)" is (\d+) cents$/,
+  (world, first, firstCents, second, secondCents) => {
+    const totals = residentTotals(
+      (world as SpecWorld).allocation as Allocation,
+    );
+    expect(totals.get(first)).toBe(Number(firstCents));
+    expect(totals.get(second)).toBe(Number(secondCents));
+  },
+);
+
+let cachedSeed: LegacySeed | null = null;
+
+/** The generator's own projection of the dump, loaded as the simulators load the seed; built once per worker. */
+function projectedSeed(world: SpecWorld): LegacySeed {
+  if (!cachedSeed) {
+    cachedSeed = loadLegacySeed(projectLegacySeed(world.db));
+  }
+
+  return cachedSeed;
+}
+
+/** Each owner's line of a posted allocation entry: its postings on the account the entry opens with (a later one is a rounding). */
+function postedLines(seed: LegacySeed, entryId: string): Map<string, number> {
+  const entry = seed.entries.find((candidate) => {
+    return candidate.id === entryId;
+  });
+  const first = entry?.postings[0];
+
+  if (entry === undefined || first === undefined) {
+    throw new Error(`The projected seed has no entry ${entryId}`);
+  }
+
+  const lines = new Map<string, number>();
+
+  for (const posting of entry.postings) {
+    if (
+      posting.accountId === first.accountId &&
+      posting.counterpart?.kind === "owner"
+    ) {
+      lines.set(
+        posting.counterpart.id,
+        (lines.get(posting.counterpart.id) ?? 0) + posting.debit,
+      );
+    }
+  }
+
+  return lines;
+}
+
+/** The Total of each resident row, by resident id. */
+function residentTotals(allocation: Allocation): Map<string, number> {
+  const totals = new Map<string, number>();
+
+  function walk(row: AllocationRow): void {
+    if (row.kind === "resident") {
+      totals.set(row.key.replace(/^resident:/, ""), row.total);
+    }
+
+    row.children.forEach(walk);
+  }
+
+  walk(allocation.root);
+  return totals;
+}
 
 // --- installments parity ----------------------------------------------------
 

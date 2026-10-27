@@ -1,3 +1,4 @@
+import { firstValueFrom } from "rxjs";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -218,6 +219,25 @@ describe("the simulator ports over the real seed", () => {
         createCollection("r162", "ii844", cents(2000)),
       ),
     ).toEqual({ ok: false, reason: "over-remaining-item" });
+  });
+
+  it("wires the tables to the accounts as they stand: dt14 is linked, a new table is not", async () => {
+    const { tables, units } = createRealPorts();
+    const added = await tables.addTable("p36", {
+      name: "Test",
+      order: 99,
+      notes: "",
+    });
+
+    expect(await tables.deleteTable("dt14")).toMatchObject({
+      reason: "table-linked",
+      detail: "la172",
+    });
+    expect(added.ok).toBe(true);
+    expect(await tables.deleteTable(added.ok ? added.value.id : "")).toEqual({
+      ok: true,
+    });
+    expect((await firstValueFrom(units.units("p36"))).length).toBe(18);
   });
 });
 

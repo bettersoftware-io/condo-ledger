@@ -11,8 +11,12 @@ import {
   fixedClock,
   type Ledger,
   type LegacySeed,
+  type TableLink,
+  type ThousandthTable,
 } from "@cl/domain";
+import { createLink } from "@cl/domain/testing/createAllocationInput.ts";
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
+import { createTablesSeed } from "@cl/domain/testing/createTablesSeed.ts";
 
 import {
   type AccountDetails,
@@ -49,7 +53,68 @@ describe("the accounts presenter", () => {
       balance: 0,
       budget: 150000,
       systemId: "—",
+      allocationTables: { rows: [], inherited: false, separate: false },
     });
+  });
+
+  it("lists a cost account's own links with each table's name, and says when one serves a single allocation", () => {
+    const { presenter, latest } = createPresented(createTablesSeed());
+
+    presenter.select("la21");
+
+    expect(latest().details?.allocationTables).toEqual({
+      rows: [
+        {
+          id: "el1",
+          percentage: null,
+          table: "Property",
+          roles: { 1: null, 2: null, 3: null, 4: null },
+        },
+      ],
+      inherited: false,
+      separate: true,
+    });
+  });
+
+  it("a cost account with no links takes its nearest ancestor's, inherited; a role without a row reads blank", () => {
+    const seed = createTablesSeed();
+    const { presenter, latest } = createPresented({
+      ...seed,
+      accounts: seed.accounts.map((account) => {
+        if (account.id === "la20") {
+          return { ...account, links: [createSharedLink()] };
+        }
+
+        return account.id === "la21" ? { ...account, links: [] } : account;
+      }),
+    });
+
+    presenter.select("la21");
+
+    expect(latest().details?.allocationTables).toEqual({
+      rows: [
+        {
+          id: "el2",
+          percentage: 5000,
+          table: "Lift",
+          roles: { 1: 5000, 2: null, 3: 5000, 4: null },
+        },
+      ],
+      inherited: true,
+      separate: false,
+    });
+  });
+
+  it("names a table the period's tables do not hold by nothing", () => {
+    const { presenter, latest } = createPresented(
+      createTablesSeed(),
+      POZZETTO_2013,
+      [],
+    );
+
+    presenter.select("la21");
+
+    expect(latest().details?.allocationTables.rows[0]?.table).toBe("");
   });
 
   it("selects a node: its ledger and details follow", () => {
@@ -173,9 +238,11 @@ interface Presented {
 
 const POZZETTO_2013: PeriodSelection = { buildingId: "c1", periodId: "p1" };
 
+/** The presenter over the seed's books on the period, given the tables (the seed's, unless others are given). */
 function createPresented(
   seed: LegacySeed,
   initial: PeriodSelection | null = POZZETTO_2013,
+  tables: ThousandthTable[] = seed.tables,
 ): Presented {
   const selected$ = new BehaviorSubject<PeriodSelection | null>(initial);
   const accounts = createAccountsSimulator(seed);
@@ -188,7 +255,7 @@ function createPresented(
     selected$,
     of(seed.buildings),
   );
-  const presenter = createAccountsPresenter(books.books$, accounts);
+  const presenter = createAccountsPresenter(books.books$, accounts, of(tables));
 
   const latest: Latest = {
     tree: null,
@@ -248,6 +315,16 @@ function createPresented(
     keys: () => {
       return keys;
     },
+  };
+}
+
+/** A link of la20 to dt2 "Lift" for half the account, shared half and half by PR/NP/LE and CO, with no row for the other two: US/CF holds a percentage, and no row to read it from. */
+function createSharedLink(): TableLink {
+  return {
+    ...createLink("el2", "la20", "dt2", "both"),
+    percentage: 5000,
+    roles: { 1: 5000, 2: 2500, 3: 5000, 4: null },
+    present: { 1: true, 2: false, 3: true, 4: false },
   };
 }
 

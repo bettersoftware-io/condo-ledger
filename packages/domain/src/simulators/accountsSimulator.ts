@@ -18,8 +18,14 @@ interface PeriodBooks {
   withholdingTaxes: WithholdingTax[];
 }
 
+/** The port, and what the tables simulator reads of it: a period's accounts as they stand now. */
+export interface AccountsSimulator extends AccountsPort {
+  /** Throws "missing: the period <id>" for a period the simulator does not have. */
+  current(periodId: string): Account[];
+}
+
 /** The chart of accounts of every seeded period, with the budget edit kept in memory. Throws on an unknown id: it never answers empty for a wrong key. */
-export function createAccountsSimulator(seed: LegacySeed): AccountsPort {
+export function createAccountsSimulator(seed: LegacySeed): AccountsSimulator {
   const periods = new Map<string, PeriodBooks>();
 
   for (const building of seed.buildings) {
@@ -68,6 +74,12 @@ export function createAccountsSimulator(seed: LegacySeed): AccountsPort {
       return new Promise((resolve) => {
         resolve(applyBudget([...periods.values()], accountId, budget));
       });
+    },
+    current: (periodId: string): Account[] => {
+      return must(
+        periods.get(periodId),
+        `the period ${periodId}`,
+      ).accounts$.getValue();
     },
   };
 }

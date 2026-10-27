@@ -42,7 +42,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "assets",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la2",
@@ -53,7 +55,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "assets",
       "type": "regular",
       "role": "cash",
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la3",
@@ -64,7 +68,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "assets",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la4",
@@ -75,7 +81,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "assets",
       "type": "regular",
       "role": "bank",
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la5",
@@ -86,7 +94,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "assets",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la6",
@@ -97,7 +107,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "assets",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la7",
@@ -108,7 +120,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "assets",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la8",
@@ -119,7 +133,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "assets",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la9",
@@ -130,7 +146,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "assetsOrLiabilities",
       "type": "controlUnitResident",
       "role": "owners",
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la10",
@@ -141,7 +159,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "assetsOrLiabilities",
       "type": "controlUnitResident",
       "role": "roundings",
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la11",
@@ -152,7 +172,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la12",
@@ -163,7 +185,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la13",
@@ -174,7 +198,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la14",
@@ -185,7 +211,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la15",
@@ -196,7 +224,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la16",
@@ -207,7 +237,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "control",
       "role": "suppliers",
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la17",
@@ -218,7 +250,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la18",
@@ -229,7 +263,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la19",
@@ -240,7 +276,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la20",
@@ -251,7 +289,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la21",
@@ -262,7 +302,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la22",
@@ -273,7 +315,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "grouping",
       "role": "tax",
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la23",
@@ -284,7 +328,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "regular",
       "role": "tax",
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la24",
@@ -295,7 +341,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "regular",
       "role": "tax",
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la25",
@@ -306,7 +354,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "regular",
       "role": "tax",
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la26",
@@ -317,7 +367,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "regular",
       "role": "tax",
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la27",
@@ -328,7 +380,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la28",
@@ -339,7 +393,29 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": [
+        {
+          "id": "el89",
+          "accountId": "la28",
+          "tableId": "dt1",
+          "use": "both",
+          "percentage": null,
+          "roles": {
+            "1": 10000,
+            "2": null,
+            "3": null,
+            "4": null
+          },
+          "present": {
+            "1": true,
+            "2": false,
+            "3": false,
+            "4": false
+          }
+        }
+      ]
     },
     {
       "id": "la29",
@@ -350,7 +426,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 80000
+      "budget": 80000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la30",
@@ -361,7 +439,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 50000
+      "budget": 50000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la31",
@@ -372,7 +452,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 100000
+      "budget": 100000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la32",
@@ -383,7 +465,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 20000
+      "budget": 20000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la33",
@@ -394,7 +478,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 30000
+      "budget": 30000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la34",
@@ -405,7 +491,29 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": [
+        {
+          "id": "el2",
+          "accountId": "la34",
+          "tableId": "dt2",
+          "use": "both",
+          "percentage": null,
+          "roles": {
+            "1": null,
+            "2": null,
+            "3": 10000,
+            "4": null
+          },
+          "present": {
+            "1": false,
+            "2": false,
+            "3": true,
+            "4": false
+          }
+        }
+      ]
     },
     {
       "id": "la35",
@@ -416,7 +524,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 80000
+      "budget": 80000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la36",
@@ -427,7 +537,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 50000
+      "budget": 50000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la37",
@@ -438,7 +550,29 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": [
+        {
+          "id": "el3",
+          "accountId": "la37",
+          "tableId": "dt3",
+          "use": "both",
+          "percentage": null,
+          "roles": {
+            "1": null,
+            "2": null,
+            "3": 10000,
+            "4": null
+          },
+          "present": {
+            "1": false,
+            "2": false,
+            "3": true,
+            "4": false
+          }
+        }
+      ]
     },
     {
       "id": "la38",
@@ -449,7 +583,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 25000
+      "budget": 25000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la39",
@@ -460,7 +596,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 70000
+      "budget": 70000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la40",
@@ -471,7 +609,29 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": [
+        {
+          "id": "el4",
+          "accountId": "la40",
+          "tableId": "dt3",
+          "use": "both",
+          "percentage": null,
+          "roles": {
+            "1": null,
+            "2": null,
+            "3": 10000,
+            "4": null
+          },
+          "present": {
+            "1": false,
+            "2": false,
+            "3": true,
+            "4": false
+          }
+        }
+      ]
     },
     {
       "id": "la41",
@@ -482,7 +642,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 120000
+      "budget": 120000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la42",
@@ -493,7 +655,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 70000
+      "budget": 70000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la43",
@@ -504,7 +668,48 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": [
+        {
+          "id": "el84",
+          "accountId": "la43",
+          "tableId": "dt4",
+          "use": "budget",
+          "percentage": null,
+          "roles": {
+            "1": null,
+            "2": null,
+            "3": 10000,
+            "4": null
+          },
+          "present": {
+            "1": false,
+            "2": false,
+            "3": true,
+            "4": false
+          }
+        },
+        {
+          "id": "el85",
+          "accountId": "la43",
+          "tableId": "dt5",
+          "use": "finalBalance",
+          "percentage": null,
+          "roles": {
+            "1": null,
+            "2": null,
+            "3": 10000,
+            "4": null
+          },
+          "present": {
+            "1": false,
+            "2": false,
+            "3": true,
+            "4": false
+          }
+        }
+      ]
     },
     {
       "id": "la44",
@@ -515,7 +720,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 45000
+      "budget": 45000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la45",
@@ -526,7 +733,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 0
+      "budget": 0,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la46",
@@ -537,7 +746,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la47",
@@ -548,7 +759,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "controlUnitResident",
       "role": null,
-      "budget": 0
+      "budget": 0,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la48",
@@ -559,7 +772,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "income",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la49",
@@ -569,8 +784,10 @@ export const legacySeedData: LegacySeedData = {
       "order": 49,
       "nature": "income",
       "type": "regular",
-      "role": null,
-      "budget": null
+      "role": "budgetAllocation",
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la50",
@@ -581,7 +798,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "income",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la51",
@@ -592,7 +811,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "income",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la53",
@@ -603,7 +824,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "income",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la54",
@@ -614,7 +837,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "income",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la55",
@@ -625,7 +850,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "income",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la56",
@@ -636,7 +863,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "income",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la57",
@@ -647,7 +876,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "income",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la59",
@@ -658,7 +889,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "income",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la60",
@@ -669,7 +902,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "income",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la61",
@@ -680,7 +915,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "income",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la62",
@@ -691,7 +928,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "income",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la153",
@@ -702,7 +941,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "assets",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la154",
@@ -713,7 +954,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "assets",
       "type": "regular",
       "role": "cash",
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la155",
@@ -724,7 +967,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "assets",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la156",
@@ -735,7 +980,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "assets",
       "type": "regular",
       "role": "bank",
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la157",
@@ -746,7 +993,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "assetsOrLiabilities",
       "type": "control",
       "role": "suppliers",
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la158",
@@ -757,7 +1006,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "assetsOrLiabilities",
       "type": "controlUnitResident",
       "role": "owners",
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la159",
@@ -768,7 +1019,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "assetsOrLiabilities",
       "type": "controlUnitResident",
       "role": "roundings",
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la160",
@@ -779,7 +1032,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la161",
@@ -790,7 +1045,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "grouping",
       "role": "tax",
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la162",
@@ -801,7 +1058,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la163",
@@ -812,7 +1071,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la164",
@@ -823,7 +1084,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la165",
@@ -834,7 +1097,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "regular",
       "role": "tax",
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la166",
@@ -845,7 +1110,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "regular",
       "role": "tax",
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la167",
@@ -856,7 +1123,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "regular",
       "role": "tax",
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la168",
@@ -867,7 +1136,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "regular",
       "role": "tax",
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la169",
@@ -878,7 +1149,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "liabilities",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la170",
@@ -889,7 +1162,29 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": "Straordinarie PR",
+      "links": [
+        {
+          "id": "el109",
+          "accountId": "la170",
+          "tableId": "dt27",
+          "use": "both",
+          "percentage": null,
+          "roles": {
+            "1": null,
+            "2": null,
+            "3": 10000,
+            "4": null
+          },
+          "present": {
+            "1": false,
+            "2": false,
+            "3": true,
+            "4": false
+          }
+        }
+      ]
     },
     {
       "id": "la171",
@@ -900,7 +1195,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 0
+      "budget": 0,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la172",
@@ -911,7 +1208,29 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": "Generali PR",
+      "links": [
+        {
+          "id": "el110",
+          "accountId": "la172",
+          "tableId": "dt14",
+          "use": "both",
+          "percentage": null,
+          "roles": {
+            "1": 10000,
+            "2": null,
+            "3": null,
+            "4": null
+          },
+          "present": {
+            "1": true,
+            "2": false,
+            "3": false,
+            "4": false
+          }
+        }
+      ]
     },
     {
       "id": "la173",
@@ -922,7 +1241,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 216500
+      "budget": 216500,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la174",
@@ -933,7 +1254,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 190944
+      "budget": 190944,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la175",
@@ -944,7 +1267,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 0
+      "budget": 0,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la176",
@@ -955,7 +1280,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 0
+      "budget": 0,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la177",
@@ -966,7 +1293,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 0
+      "budget": 0,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la178",
@@ -977,7 +1306,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 0
+      "budget": 0,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la179",
@@ -988,7 +1319,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 6240
+      "budget": 6240,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la180",
@@ -999,7 +1332,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 12480
+      "budget": 12480,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la181",
@@ -1010,7 +1345,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 12480
+      "budget": 12480,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la182",
@@ -1021,7 +1358,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 0
+      "budget": 0,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la183",
@@ -1032,7 +1371,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 0
+      "budget": 0,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la185",
@@ -1043,7 +1384,29 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": "Generali PR+CO",
+      "links": [
+        {
+          "id": "el111",
+          "accountId": "la185",
+          "tableId": "dt14",
+          "use": "both",
+          "percentage": null,
+          "roles": {
+            "1": 5000,
+            "2": null,
+            "3": 5000,
+            "4": null
+          },
+          "present": {
+            "1": true,
+            "2": false,
+            "3": true,
+            "4": false
+          }
+        }
+      ]
     },
     {
       "id": "la186",
@@ -1054,7 +1417,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 25000
+      "budget": 25000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la187",
@@ -1065,7 +1430,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 70000
+      "budget": 70000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la188",
@@ -1076,7 +1443,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 40000
+      "budget": 40000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la189",
@@ -1087,7 +1456,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 17712
+      "budget": 17712,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la191",
@@ -1098,7 +1469,29 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": "Generali CO",
+      "links": [
+        {
+          "id": "el112",
+          "accountId": "la191",
+          "tableId": "dt14",
+          "use": "both",
+          "percentage": null,
+          "roles": {
+            "1": null,
+            "2": null,
+            "3": 10000,
+            "4": null
+          },
+          "present": {
+            "1": false,
+            "2": false,
+            "3": true,
+            "4": false
+          }
+        }
+      ]
     },
     {
       "id": "la192",
@@ -1109,7 +1502,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 45000
+      "budget": 45000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la193",
@@ -1120,7 +1515,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 40000
+      "budget": 40000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la194",
@@ -1131,7 +1528,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 30000
+      "budget": 30000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la195",
@@ -1142,7 +1541,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 0
+      "budget": 0,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la196",
@@ -1153,7 +1554,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 0
+      "budget": 0,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la197",
@@ -1164,7 +1567,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 6000
+      "budget": 6000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la198",
@@ -1175,7 +1580,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 70000
+      "budget": 70000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la199",
@@ -1186,7 +1593,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 30000
+      "budget": 30000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la200",
@@ -1197,7 +1606,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 30000
+      "budget": 30000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la201",
@@ -1208,7 +1619,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 71500
+      "budget": 71500,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la202",
@@ -1219,7 +1632,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 72644
+      "budget": 72644,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la203",
@@ -1230,7 +1645,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 38500
+      "budget": 38500,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la204",
@@ -1241,7 +1658,29 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": "Scale CO",
+      "links": [
+        {
+          "id": "el113",
+          "accountId": "la204",
+          "tableId": "dt18",
+          "use": "both",
+          "percentage": null,
+          "roles": {
+            "1": null,
+            "2": null,
+            "3": 10000,
+            "4": null
+          },
+          "present": {
+            "1": false,
+            "2": false,
+            "3": true,
+            "4": false
+          }
+        }
+      ]
     },
     {
       "id": "la205",
@@ -1252,7 +1691,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 280000
+      "budget": 280000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la206",
@@ -1263,7 +1704,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 0
+      "budget": 0,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la207",
@@ -1274,7 +1717,67 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": "Riscaldamento CO",
+      "links": [
+        {
+          "id": "el114",
+          "accountId": "la207",
+          "tableId": "dt19",
+          "use": "both",
+          "percentage": 3000,
+          "roles": {
+            "1": null,
+            "2": null,
+            "3": 10000,
+            "4": null
+          },
+          "present": {
+            "1": false,
+            "2": false,
+            "3": true,
+            "4": false
+          }
+        },
+        {
+          "id": "el115",
+          "accountId": "la207",
+          "tableId": "dt21",
+          "use": "both",
+          "percentage": 6000,
+          "roles": {
+            "1": null,
+            "2": null,
+            "3": 10000,
+            "4": null
+          },
+          "present": {
+            "1": false,
+            "2": false,
+            "3": true,
+            "4": false
+          }
+        },
+        {
+          "id": "el116",
+          "accountId": "la207",
+          "tableId": "dt23",
+          "use": "both",
+          "percentage": 1000,
+          "roles": {
+            "1": null,
+            "2": null,
+            "3": 10000,
+            "4": null
+          },
+          "present": {
+            "1": false,
+            "2": false,
+            "3": true,
+            "4": false
+          }
+        }
+      ]
     },
     {
       "id": "la208",
@@ -1285,7 +1788,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 1800000
+      "budget": 1800000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la209",
@@ -1296,7 +1801,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 280000
+      "budget": 280000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la210",
@@ -1307,7 +1814,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 0
+      "budget": 0,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la211",
@@ -1318,7 +1827,29 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": "Acqua calda CO",
+      "links": [
+        {
+          "id": "el117",
+          "accountId": "la211",
+          "tableId": "dt23",
+          "use": "both",
+          "percentage": null,
+          "roles": {
+            "1": null,
+            "2": null,
+            "3": 10000,
+            "4": null
+          },
+          "present": {
+            "1": false,
+            "2": false,
+            "3": true,
+            "4": false
+          }
+        }
+      ]
     },
     {
       "id": "la212",
@@ -1329,7 +1860,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 38000
+      "budget": 38000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la213",
@@ -1340,7 +1873,29 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": "Acqua fredda CO",
+      "links": [
+        {
+          "id": "el118",
+          "accountId": "la213",
+          "tableId": "dt24",
+          "use": "both",
+          "percentage": null,
+          "roles": {
+            "1": null,
+            "2": null,
+            "3": 10000,
+            "4": null
+          },
+          "present": {
+            "1": false,
+            "2": false,
+            "3": true,
+            "4": false
+          }
+        }
+      ]
     },
     {
       "id": "la214",
@@ -1351,7 +1906,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 232000
+      "budget": 232000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la215",
@@ -1362,7 +1919,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": -120000
+      "budget": -120000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la216",
@@ -1373,7 +1932,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": -38000
+      "budget": -38000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la217",
@@ -1384,7 +1945,29 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": "Quota fissa CO",
+      "links": [
+        {
+          "id": "el119",
+          "accountId": "la217",
+          "tableId": "dt27",
+          "use": "both",
+          "percentage": null,
+          "roles": {
+            "1": null,
+            "2": null,
+            "3": 10000,
+            "4": null
+          },
+          "present": {
+            "1": false,
+            "2": false,
+            "3": true,
+            "4": false
+          }
+        }
+      ]
     },
     {
       "id": "la218",
@@ -1395,7 +1978,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 120000
+      "budget": 120000,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la219",
@@ -1406,7 +1991,48 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 168000
+      "budget": 168000,
+      "abbreviation": null,
+      "links": [
+        {
+          "id": "el120",
+          "accountId": "la219",
+          "tableId": "dt15",
+          "use": "both",
+          "percentage": 5000,
+          "roles": {
+            "1": null,
+            "2": null,
+            "3": 10000,
+            "4": null
+          },
+          "present": {
+            "1": false,
+            "2": false,
+            "3": true,
+            "4": false
+          }
+        },
+        {
+          "id": "el121",
+          "accountId": "la219",
+          "tableId": "dt17",
+          "use": "both",
+          "percentage": 5000,
+          "roles": {
+            "1": null,
+            "2": null,
+            "3": 10000,
+            "4": null
+          },
+          "present": {
+            "1": false,
+            "2": false,
+            "3": true,
+            "4": false
+          }
+        }
+      ]
     },
     {
       "id": "la220",
@@ -1417,7 +2043,29 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": [
+        {
+          "id": "el102",
+          "accountId": "la220",
+          "tableId": "dt27",
+          "use": "both",
+          "percentage": null,
+          "roles": {
+            "1": null,
+            "2": null,
+            "3": 10000,
+            "4": null
+          },
+          "present": {
+            "1": false,
+            "2": false,
+            "3": true,
+            "4": false
+          }
+        }
+      ]
     },
     {
       "id": "la221",
@@ -1428,7 +2076,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 0
+      "budget": 0,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la222",
@@ -1439,7 +2089,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la223",
@@ -1450,7 +2102,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "controlUnitResident",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la224",
@@ -1461,7 +2115,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "controlUnitResident",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la225",
@@ -1472,7 +2128,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "controlUnitResident",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la226",
@@ -1483,7 +2141,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "controlUnitResident",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la227",
@@ -1494,7 +2154,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "controlUnitResident",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la228",
@@ -1505,7 +2167,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "controlUnitResident",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la229",
@@ -1516,7 +2180,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "income",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la230",
@@ -1526,8 +2192,10 @@ export const legacySeedData: LegacySeedData = {
       "order": 1,
       "nature": "income",
       "type": "regular",
-      "role": null,
-      "budget": null
+      "role": "budgetAllocation",
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la231",
@@ -1538,7 +2206,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "income",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la233",
@@ -1549,7 +2219,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "income",
       "type": "grouping",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la234",
@@ -1560,7 +2232,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "income",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la235",
@@ -1571,7 +2245,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "income",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la237",
@@ -1582,7 +2258,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "income",
       "type": "regular",
       "role": null,
-      "budget": null
+      "budget": null,
+      "abbreviation": null,
+      "links": []
     },
     {
       "id": "la238",
@@ -1593,7 +2271,9 @@ export const legacySeedData: LegacySeedData = {
       "nature": "expenses",
       "type": "regular",
       "role": null,
-      "budget": 15000
+      "budget": 15000,
+      "abbreviation": null,
+      "links": []
     }
   ],
   "entries": [
@@ -8422,12 +9102,15 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md3",
           "name": "Cargnelutti Lidia",
           "unitCode": "A1",
+          "unitId": "u1",
           "startingBalance": 3000,
           "role": "PR",
+          "share": null,
           "restriction": {
             "from": "2011-05-01",
             "to": "2011-05-31"
-          }
+          },
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8435,12 +9118,15 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md3",
           "name": "Cargnelutti Lidia",
           "unitCode": "A2",
+          "unitId": "u2",
           "startingBalance": 1322,
           "role": "PR",
+          "share": null,
           "restriction": {
             "from": "2011-05-27",
             "to": null
-          }
+          },
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8448,12 +9134,15 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md4",
           "name": "Forgiarini Lino",
           "unitCode": "A2",
+          "unitId": "u2",
           "startingBalance": -760,
           "role": "CO",
+          "share": null,
           "restriction": {
             "from": "2011-05-27",
             "to": null
-          }
+          },
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8461,12 +9150,15 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md7",
           "name": "Minisini Ilaria",
           "unitCode": "A3",
+          "unitId": "u3",
           "startingBalance": 1930,
           "role": "PR",
+          "share": null,
           "restriction": {
             "from": null,
             "to": "2011-05-27"
-          }
+          },
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8474,9 +9166,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md6",
           "name": "Sarcinelli Albino",
           "unitCode": "A4",
+          "unitId": "u4",
           "startingBalance": 3450,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8484,9 +9179,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md3",
           "name": "Cargnelutti Lidia",
           "unitCode": "B1",
+          "unitId": "u5",
           "startingBalance": 1122,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8494,9 +9192,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md4",
           "name": "Forgiarini Lino",
           "unitCode": "B1",
+          "unitId": "u5",
           "startingBalance": -1267,
           "role": "CO",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8504,9 +9205,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md3",
           "name": "Cargnelutti Lidia",
           "unitCode": "B2",
+          "unitId": "u6",
           "startingBalance": 2140,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8514,9 +9218,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md5",
           "name": "Tavano Ornella",
           "unitCode": "B3",
+          "unitId": "u7",
           "startingBalance": 13455,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8524,9 +9231,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md6",
           "name": "Sarcinelli Albino",
           "unitCode": "B4",
+          "unitId": "u8",
           "startingBalance": 4500,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         }
       ]
     },
@@ -8599,9 +9309,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md89",
           "name": "Morandini Dina",
           "unitCode": "A01",
+          "unitId": "u133",
           "startingBalance": -86065,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8609,9 +9322,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md90",
           "name": "Variola Dina",
           "unitCode": "A02",
+          "unitId": "u135",
           "startingBalance": -43739,
           "role": "PR",
-          "restriction": null
+          "share": 1000000,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8619,9 +9335,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md91",
           "name": "Rosso Sergio",
           "unitCode": "A02",
+          "unitId": "u135",
           "startingBalance": 0,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8629,9 +9348,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md92",
           "name": "Buttazzoni Laura",
           "unitCode": "A03",
+          "unitId": "u136",
           "startingBalance": 352842,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8639,9 +9361,15 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md93",
           "name": "Iacuzzi Tullio",
           "unitCode": "A04",
+          "unitId": "u137",
           "startingBalance": 0,
           "role": "PR",
+          "share": 1000000,
           "restriction": {
+            "from": "2013-01-19",
+            "to": null
+          },
+          "ownRestriction": {
             "from": "2013-01-19",
             "to": null
           }
@@ -8652,9 +9380,15 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md94",
           "name": "Fattori Gilda",
           "unitCode": "A04",
+          "unitId": "u137",
           "startingBalance": 269711,
           "role": "PR",
+          "share": 1000000,
           "restriction": {
+            "from": null,
+            "to": "2013-01-18"
+          },
+          "ownRestriction": {
             "from": null,
             "to": "2013-01-18"
           }
@@ -8665,9 +9399,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md95",
           "name": "Fornasier Marco",
           "unitCode": "A05",
+          "unitId": "u138",
           "startingBalance": 25484,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8675,9 +9412,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md96",
           "name": "Quaglia Selene",
           "unitCode": "A06",
+          "unitId": "u139",
           "startingBalance": -183567,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8685,9 +9425,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md97",
           "name": "Tondolo Rino",
           "unitCode": "A07",
+          "unitId": "u140",
           "startingBalance": -304241,
           "role": "PR",
-          "restriction": null
+          "share": 1000000,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8695,9 +9438,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md98",
           "name": "Colautti Iolanda",
           "unitCode": "A07",
+          "unitId": "u140",
           "startingBalance": 0,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8705,9 +9451,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md99",
           "name": "Zanier Lidia",
           "unitCode": "A08",
+          "unitId": "u141",
           "startingBalance": -48571,
           "role": "PR",
-          "restriction": null
+          "share": 1000000,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8715,9 +9464,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md100",
           "name": "Treppo",
           "unitCode": "A08",
+          "unitId": "u141",
           "startingBalance": 0,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8725,9 +9477,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md101",
           "name": "Zuliani Selene",
           "unitCode": "A09",
+          "unitId": "u142",
           "startingBalance": -59131,
           "role": "PR",
-          "restriction": null
+          "share": 1000000,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8735,9 +9490,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md102",
           "name": "Feruglio Silvano",
           "unitCode": "A09",
+          "unitId": "u142",
           "startingBalance": 0,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8745,9 +9503,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md103",
           "name": "Flebus Beatrice",
           "unitCode": "A09",
+          "unitId": "u142",
           "startingBalance": -11929,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8755,9 +9516,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md104",
           "name": "Adami Pietro",
           "unitCode": "A10",
+          "unitId": "u143",
           "startingBalance": -129616,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8765,9 +9529,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md105",
           "name": "Masotti Sabrina",
           "unitCode": "A11",
+          "unitId": "u144",
           "startingBalance": -13294,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8775,9 +9542,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md106",
           "name": "Carlutti Zaira",
           "unitCode": "A12",
+          "unitId": "u145",
           "startingBalance": -179882,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8785,9 +9555,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md107",
           "name": "Bertossi Lidia",
           "unitCode": "A13",
+          "unitId": "u146",
           "startingBalance": -51414,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8795,9 +9568,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md108",
           "name": "Morandini Olga",
           "unitCode": "A14",
+          "unitId": "u147",
           "startingBalance": -93802,
           "role": "PR",
-          "restriction": null
+          "share": 1000000,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8805,9 +9581,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md109",
           "name": "Cozzi Ivo",
           "unitCode": "A14",
+          "unitId": "u147",
           "startingBalance": 0,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8815,9 +9594,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md109",
           "name": "Cozzi Ivo",
           "unitCode": "A15",
+          "unitId": "u148",
           "startingBalance": -113949,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8825,9 +9607,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md110",
           "name": "Blasutig Livia",
           "unitCode": "A16",
+          "unitId": "u149",
           "startingBalance": -110587,
           "role": "PR",
-          "restriction": null
+          "share": 1000000,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8835,9 +9620,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md111",
           "name": "Petris Bruno",
           "unitCode": "A16",
+          "unitId": "u149",
           "startingBalance": 0,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8845,9 +9633,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md112",
           "name": "Scarbolo Flavio",
           "unitCode": "A17",
+          "unitId": "u150",
           "startingBalance": 151778,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8855,9 +9646,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md113",
           "name": "Candotti Diego",
           "unitCode": "A18",
+          "unitId": "u151",
           "startingBalance": 4873,
           "role": "PR",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         },
         {
           "kind": "owner",
@@ -8865,9 +9659,12 @@ export const legacySeedData: LegacySeedData = {
           "personId": "md114",
           "name": "Bearzi Servizi s.a.s.",
           "unitCode": "A18",
+          "unitId": "u151",
           "startingBalance": 0,
           "role": "CO",
-          "restriction": null
+          "share": null,
+          "restriction": null,
+          "ownRestriction": null
         }
       ]
     }
@@ -12011,6 +12808,1615 @@ export const legacySeedData: LegacySeedData = {
       "installmentId": "in36",
       "residentId": "r188",
       "amount": 17938
+    }
+  ],
+  "units": [
+    {
+      "id": "u1",
+      "periodId": "p1",
+      "code": "A1",
+      "groupId": "ug1",
+      "restriction": {
+        "from": "2011-05-01",
+        "to": "2011-05-31"
+      }
+    },
+    {
+      "id": "u2",
+      "periodId": "p1",
+      "code": "A2",
+      "groupId": "ug1",
+      "restriction": {
+        "from": "2011-05-27",
+        "to": null
+      }
+    },
+    {
+      "id": "u3",
+      "periodId": "p1",
+      "code": "A3",
+      "groupId": "ug1",
+      "restriction": {
+        "from": null,
+        "to": "2011-05-27"
+      }
+    },
+    {
+      "id": "u4",
+      "periodId": "p1",
+      "code": "A4",
+      "groupId": "ug1",
+      "restriction": null
+    },
+    {
+      "id": "u5",
+      "periodId": "p1",
+      "code": "B1",
+      "groupId": "ug2",
+      "restriction": null
+    },
+    {
+      "id": "u6",
+      "periodId": "p1",
+      "code": "B2",
+      "groupId": "ug2",
+      "restriction": null
+    },
+    {
+      "id": "u7",
+      "periodId": "p1",
+      "code": "B3",
+      "groupId": "ug2",
+      "restriction": null
+    },
+    {
+      "id": "u8",
+      "periodId": "p1",
+      "code": "B4",
+      "groupId": "ug2",
+      "restriction": null
+    },
+    {
+      "id": "u133",
+      "periodId": "p36",
+      "code": "A01",
+      "groupId": null,
+      "restriction": null
+    },
+    {
+      "id": "u135",
+      "periodId": "p36",
+      "code": "A02",
+      "groupId": null,
+      "restriction": null
+    },
+    {
+      "id": "u136",
+      "periodId": "p36",
+      "code": "A03",
+      "groupId": null,
+      "restriction": null
+    },
+    {
+      "id": "u137",
+      "periodId": "p36",
+      "code": "A04",
+      "groupId": null,
+      "restriction": null
+    },
+    {
+      "id": "u138",
+      "periodId": "p36",
+      "code": "A05",
+      "groupId": null,
+      "restriction": null
+    },
+    {
+      "id": "u139",
+      "periodId": "p36",
+      "code": "A06",
+      "groupId": null,
+      "restriction": null
+    },
+    {
+      "id": "u140",
+      "periodId": "p36",
+      "code": "A07",
+      "groupId": null,
+      "restriction": null
+    },
+    {
+      "id": "u141",
+      "periodId": "p36",
+      "code": "A08",
+      "groupId": null,
+      "restriction": null
+    },
+    {
+      "id": "u142",
+      "periodId": "p36",
+      "code": "A09",
+      "groupId": null,
+      "restriction": null
+    },
+    {
+      "id": "u143",
+      "periodId": "p36",
+      "code": "A10",
+      "groupId": null,
+      "restriction": null
+    },
+    {
+      "id": "u144",
+      "periodId": "p36",
+      "code": "A11",
+      "groupId": null,
+      "restriction": null
+    },
+    {
+      "id": "u145",
+      "periodId": "p36",
+      "code": "A12",
+      "groupId": null,
+      "restriction": null
+    },
+    {
+      "id": "u146",
+      "periodId": "p36",
+      "code": "A13",
+      "groupId": null,
+      "restriction": null
+    },
+    {
+      "id": "u147",
+      "periodId": "p36",
+      "code": "A14",
+      "groupId": null,
+      "restriction": null
+    },
+    {
+      "id": "u148",
+      "periodId": "p36",
+      "code": "A15",
+      "groupId": null,
+      "restriction": null
+    },
+    {
+      "id": "u149",
+      "periodId": "p36",
+      "code": "A16",
+      "groupId": null,
+      "restriction": null
+    },
+    {
+      "id": "u150",
+      "periodId": "p36",
+      "code": "A17",
+      "groupId": null,
+      "restriction": null
+    },
+    {
+      "id": "u151",
+      "periodId": "p36",
+      "code": "A18",
+      "groupId": null,
+      "restriction": null
+    }
+  ],
+  "unitGroups": [
+    {
+      "id": "ug1",
+      "periodId": "p1",
+      "code": "A",
+      "name": "Scala A",
+      "parentId": null
+    },
+    {
+      "id": "ug2",
+      "periodId": "p1",
+      "code": "B",
+      "name": "Box",
+      "parentId": null
+    }
+  ],
+  "tables": [
+    {
+      "id": "dt1",
+      "periodId": "p1",
+      "name": "Proprietà",
+      "order": 1,
+      "notes": "",
+      "restrictionGroupId": null
+    },
+    {
+      "id": "dt2",
+      "periodId": "p1",
+      "name": "Generale residenti",
+      "order": 2,
+      "notes": "",
+      "restrictionGroupId": null
+    },
+    {
+      "id": "dt3",
+      "periodId": "p1",
+      "name": "Scale",
+      "order": 3,
+      "notes": "",
+      "restrictionGroupId": "ug1"
+    },
+    {
+      "id": "dt4",
+      "periodId": "p1",
+      "name": "Acqua preventivo",
+      "order": 4,
+      "notes": "",
+      "restrictionGroupId": null
+    },
+    {
+      "id": "dt5",
+      "periodId": "p1",
+      "name": "Acqua consuntivo",
+      "order": 5,
+      "notes": "",
+      "restrictionGroupId": null
+    },
+    {
+      "id": "dt14",
+      "periodId": "p36",
+      "name": "Generale",
+      "order": 1,
+      "notes": "",
+      "restrictionGroupId": null
+    },
+    {
+      "id": "dt15",
+      "periodId": "p36",
+      "name": "Ascensore",
+      "order": 2,
+      "notes": "",
+      "restrictionGroupId": null
+    },
+    {
+      "id": "dt16",
+      "periodId": "p36",
+      "name": "Scala",
+      "order": 3,
+      "notes": "",
+      "restrictionGroupId": null
+    },
+    {
+      "id": "dt17",
+      "periodId": "p36",
+      "name": "Quota piano",
+      "order": 4,
+      "notes": "",
+      "restrictionGroupId": null
+    },
+    {
+      "id": "dt18",
+      "periodId": "p36",
+      "name": "Pulizia",
+      "order": 5,
+      "notes": "",
+      "restrictionGroupId": null
+    },
+    {
+      "id": "dt19",
+      "periodId": "p36",
+      "name": "Volumetrico",
+      "order": 6,
+      "notes": "",
+      "restrictionGroupId": null
+    },
+    {
+      "id": "dt20",
+      "periodId": "p36",
+      "name": "Riscaldamento contaore",
+      "order": 7,
+      "notes": "Questo dovrebbe essere collegato al contatore contaore di riscaldamentonn(nelle tabelle di Valerio è chiamato \"Riscaldamento 70% Contaore\")",
+      "restrictionGroupId": null
+    },
+    {
+      "id": "dt22",
+      "periodId": "p36",
+      "name": "Superficie",
+      "order": 8,
+      "notes": "Nelle tabelle di Valerio è chiamato \"sup. corpi radianti\", serve come una tabella intermedia per ottenere \"ore x sup. corpi radianti\"",
+      "restrictionGroupId": null
+    },
+    {
+      "id": "dt21",
+      "periodId": "p36",
+      "name": "Riscaldamento",
+      "order": 9,
+      "notes": "Nelle tabelle di Valerio è chiamato \"ore x sup. corpi radianti\", ottenuta dalla moltiplicazione di 2 tabelle: \"70% contaore\" (Riscaldamento contaore) e \"sup. corpi radianti\" (Superficie)",
+      "restrictionGroupId": null
+    },
+    {
+      "id": "dt23",
+      "periodId": "p36",
+      "name": "Acqua calda contatore",
+      "order": 10,
+      "notes": "",
+      "restrictionGroupId": null
+    },
+    {
+      "id": "dt24",
+      "periodId": "p36",
+      "name": "Acqua fredda contatore",
+      "order": 11,
+      "notes": "",
+      "restrictionGroupId": null
+    },
+    {
+      "id": "dt27",
+      "periodId": "p36",
+      "name": "Parti uguali",
+      "order": 12,
+      "notes": "",
+      "restrictionGroupId": null
+    }
+  ],
+  "coefficients": [
+    {
+      "tableId": "dt1",
+      "unitId": "u1",
+      "value": 1000000
+    },
+    {
+      "tableId": "dt1",
+      "unitId": "u2",
+      "value": 1700000
+    },
+    {
+      "tableId": "dt1",
+      "unitId": "u3",
+      "value": 3000000
+    },
+    {
+      "tableId": "dt1",
+      "unitId": "u4",
+      "value": 3500000
+    },
+    {
+      "tableId": "dt1",
+      "unitId": "u5",
+      "value": 200000
+    },
+    {
+      "tableId": "dt1",
+      "unitId": "u6",
+      "value": 200000
+    },
+    {
+      "tableId": "dt1",
+      "unitId": "u7",
+      "value": 200000
+    },
+    {
+      "tableId": "dt1",
+      "unitId": "u8",
+      "value": 200000
+    },
+    {
+      "tableId": "dt2",
+      "unitId": "u1",
+      "value": 1000000
+    },
+    {
+      "tableId": "dt2",
+      "unitId": "u2",
+      "value": 1700000
+    },
+    {
+      "tableId": "dt2",
+      "unitId": "u3",
+      "value": 3000000
+    },
+    {
+      "tableId": "dt2",
+      "unitId": "u4",
+      "value": 3500000
+    },
+    {
+      "tableId": "dt2",
+      "unitId": "u5",
+      "value": 200000
+    },
+    {
+      "tableId": "dt2",
+      "unitId": "u6",
+      "value": 200000
+    },
+    {
+      "tableId": "dt2",
+      "unitId": "u7",
+      "value": 200000
+    },
+    {
+      "tableId": "dt2",
+      "unitId": "u8",
+      "value": 200000
+    },
+    {
+      "tableId": "dt3",
+      "unitId": "u1",
+      "value": 1000000
+    },
+    {
+      "tableId": "dt3",
+      "unitId": "u2",
+      "value": 1500000
+    },
+    {
+      "tableId": "dt3",
+      "unitId": "u3",
+      "value": 3000000
+    },
+    {
+      "tableId": "dt3",
+      "unitId": "u4",
+      "value": 4500000
+    },
+    {
+      "tableId": "dt4",
+      "unitId": "u1",
+      "value": 2230000
+    },
+    {
+      "tableId": "dt4",
+      "unitId": "u2",
+      "value": 1440000
+    },
+    {
+      "tableId": "dt4",
+      "unitId": "u3",
+      "value": 1234000
+    },
+    {
+      "tableId": "dt4",
+      "unitId": "u4",
+      "value": 899900
+    },
+    {
+      "tableId": "dt4",
+      "unitId": "u5",
+      "value": 80000
+    },
+    {
+      "tableId": "dt4",
+      "unitId": "u6",
+      "value": 110000
+    },
+    {
+      "tableId": "dt4",
+      "unitId": "u7",
+      "value": 126000
+    },
+    {
+      "tableId": "dt4",
+      "unitId": "u8",
+      "value": 97000
+    },
+    {
+      "tableId": "dt5",
+      "unitId": "u1",
+      "value": 0
+    },
+    {
+      "tableId": "dt5",
+      "unitId": "u2",
+      "value": 0
+    },
+    {
+      "tableId": "dt5",
+      "unitId": "u3",
+      "value": 0
+    },
+    {
+      "tableId": "dt5",
+      "unitId": "u4",
+      "value": 0
+    },
+    {
+      "tableId": "dt5",
+      "unitId": "u5",
+      "value": 0
+    },
+    {
+      "tableId": "dt5",
+      "unitId": "u6",
+      "value": 0
+    },
+    {
+      "tableId": "dt5",
+      "unitId": "u7",
+      "value": 0
+    },
+    {
+      "tableId": "dt5",
+      "unitId": "u8",
+      "value": 0
+    },
+    {
+      "tableId": "dt14",
+      "unitId": "u133",
+      "value": 380000
+    },
+    {
+      "tableId": "dt14",
+      "unitId": "u135",
+      "value": 590000
+    },
+    {
+      "tableId": "dt14",
+      "unitId": "u136",
+      "value": 690000
+    },
+    {
+      "tableId": "dt14",
+      "unitId": "u137",
+      "value": 410000
+    },
+    {
+      "tableId": "dt14",
+      "unitId": "u138",
+      "value": 590000
+    },
+    {
+      "tableId": "dt14",
+      "unitId": "u139",
+      "value": 650000
+    },
+    {
+      "tableId": "dt14",
+      "unitId": "u140",
+      "value": 410000
+    },
+    {
+      "tableId": "dt14",
+      "unitId": "u141",
+      "value": 590000
+    },
+    {
+      "tableId": "dt14",
+      "unitId": "u142",
+      "value": 650000
+    },
+    {
+      "tableId": "dt14",
+      "unitId": "u143",
+      "value": 410000
+    },
+    {
+      "tableId": "dt14",
+      "unitId": "u144",
+      "value": 590000
+    },
+    {
+      "tableId": "dt14",
+      "unitId": "u145",
+      "value": 650000
+    },
+    {
+      "tableId": "dt14",
+      "unitId": "u146",
+      "value": 410000
+    },
+    {
+      "tableId": "dt14",
+      "unitId": "u147",
+      "value": 590000
+    },
+    {
+      "tableId": "dt14",
+      "unitId": "u148",
+      "value": 600000
+    },
+    {
+      "tableId": "dt14",
+      "unitId": "u149",
+      "value": 410000
+    },
+    {
+      "tableId": "dt14",
+      "unitId": "u150",
+      "value": 830000
+    },
+    {
+      "tableId": "dt14",
+      "unitId": "u151",
+      "value": 550000
+    },
+    {
+      "tableId": "dt15",
+      "unitId": "u133",
+      "value": 0
+    },
+    {
+      "tableId": "dt15",
+      "unitId": "u135",
+      "value": 590000
+    },
+    {
+      "tableId": "dt15",
+      "unitId": "u136",
+      "value": 690000
+    },
+    {
+      "tableId": "dt15",
+      "unitId": "u137",
+      "value": 410000
+    },
+    {
+      "tableId": "dt15",
+      "unitId": "u138",
+      "value": 590000
+    },
+    {
+      "tableId": "dt15",
+      "unitId": "u139",
+      "value": 650000
+    },
+    {
+      "tableId": "dt15",
+      "unitId": "u140",
+      "value": 410000
+    },
+    {
+      "tableId": "dt15",
+      "unitId": "u141",
+      "value": 590000
+    },
+    {
+      "tableId": "dt15",
+      "unitId": "u142",
+      "value": 650000
+    },
+    {
+      "tableId": "dt15",
+      "unitId": "u143",
+      "value": 410000
+    },
+    {
+      "tableId": "dt15",
+      "unitId": "u144",
+      "value": 590000
+    },
+    {
+      "tableId": "dt15",
+      "unitId": "u145",
+      "value": 650000
+    },
+    {
+      "tableId": "dt15",
+      "unitId": "u146",
+      "value": 410000
+    },
+    {
+      "tableId": "dt15",
+      "unitId": "u147",
+      "value": 590000
+    },
+    {
+      "tableId": "dt15",
+      "unitId": "u148",
+      "value": 600000
+    },
+    {
+      "tableId": "dt15",
+      "unitId": "u149",
+      "value": 410000
+    },
+    {
+      "tableId": "dt15",
+      "unitId": "u150",
+      "value": 0
+    },
+    {
+      "tableId": "dt15",
+      "unitId": "u151",
+      "value": 0
+    },
+    {
+      "tableId": "dt16",
+      "unitId": "u133",
+      "value": 380000
+    },
+    {
+      "tableId": "dt16",
+      "unitId": "u135",
+      "value": 590000
+    },
+    {
+      "tableId": "dt16",
+      "unitId": "u136",
+      "value": 690000
+    },
+    {
+      "tableId": "dt16",
+      "unitId": "u137",
+      "value": 410000
+    },
+    {
+      "tableId": "dt16",
+      "unitId": "u138",
+      "value": 590000
+    },
+    {
+      "tableId": "dt16",
+      "unitId": "u139",
+      "value": 650000
+    },
+    {
+      "tableId": "dt16",
+      "unitId": "u140",
+      "value": 410000
+    },
+    {
+      "tableId": "dt16",
+      "unitId": "u141",
+      "value": 590000
+    },
+    {
+      "tableId": "dt16",
+      "unitId": "u142",
+      "value": 650000
+    },
+    {
+      "tableId": "dt16",
+      "unitId": "u143",
+      "value": 410000
+    },
+    {
+      "tableId": "dt16",
+      "unitId": "u144",
+      "value": 590000
+    },
+    {
+      "tableId": "dt16",
+      "unitId": "u145",
+      "value": 650000
+    },
+    {
+      "tableId": "dt16",
+      "unitId": "u146",
+      "value": 410000
+    },
+    {
+      "tableId": "dt16",
+      "unitId": "u147",
+      "value": 590000
+    },
+    {
+      "tableId": "dt16",
+      "unitId": "u148",
+      "value": 600000
+    },
+    {
+      "tableId": "dt16",
+      "unitId": "u149",
+      "value": 410000
+    },
+    {
+      "tableId": "dt16",
+      "unitId": "u150",
+      "value": 0
+    },
+    {
+      "tableId": "dt16",
+      "unitId": "u151",
+      "value": 0
+    },
+    {
+      "tableId": "dt17",
+      "unitId": "u133",
+      "value": 0
+    },
+    {
+      "tableId": "dt17",
+      "unitId": "u135",
+      "value": 220
+    },
+    {
+      "tableId": "dt17",
+      "unitId": "u136",
+      "value": 220
+    },
+    {
+      "tableId": "dt17",
+      "unitId": "u137",
+      "value": 220
+    },
+    {
+      "tableId": "dt17",
+      "unitId": "u138",
+      "value": 440
+    },
+    {
+      "tableId": "dt17",
+      "unitId": "u139",
+      "value": 440
+    },
+    {
+      "tableId": "dt17",
+      "unitId": "u140",
+      "value": 440
+    },
+    {
+      "tableId": "dt17",
+      "unitId": "u141",
+      "value": 670
+    },
+    {
+      "tableId": "dt17",
+      "unitId": "u142",
+      "value": 670
+    },
+    {
+      "tableId": "dt17",
+      "unitId": "u143",
+      "value": 670
+    },
+    {
+      "tableId": "dt17",
+      "unitId": "u144",
+      "value": 890
+    },
+    {
+      "tableId": "dt17",
+      "unitId": "u145",
+      "value": 890
+    },
+    {
+      "tableId": "dt17",
+      "unitId": "u146",
+      "value": 890
+    },
+    {
+      "tableId": "dt17",
+      "unitId": "u147",
+      "value": 1110
+    },
+    {
+      "tableId": "dt17",
+      "unitId": "u148",
+      "value": 1110
+    },
+    {
+      "tableId": "dt17",
+      "unitId": "u149",
+      "value": 1110
+    },
+    {
+      "tableId": "dt17",
+      "unitId": "u150",
+      "value": 0
+    },
+    {
+      "tableId": "dt17",
+      "unitId": "u151",
+      "value": 0
+    },
+    {
+      "tableId": "dt18",
+      "unitId": "u133",
+      "value": 607800
+    },
+    {
+      "tableId": "dt18",
+      "unitId": "u135",
+      "value": 1247400
+    },
+    {
+      "tableId": "dt18",
+      "unitId": "u136",
+      "value": 1407300
+    },
+    {
+      "tableId": "dt18",
+      "unitId": "u137",
+      "value": 959400
+    },
+    {
+      "tableId": "dt18",
+      "unitId": "u138",
+      "value": 1551000
+    },
+    {
+      "tableId": "dt18",
+      "unitId": "u139",
+      "value": 1647000
+    },
+    {
+      "tableId": "dt18",
+      "unitId": "u140",
+      "value": 1263100
+    },
+    {
+      "tableId": "dt18",
+      "unitId": "u141",
+      "value": 1868400
+    },
+    {
+      "tableId": "dt18",
+      "unitId": "u142",
+      "value": 1964400
+    },
+    {
+      "tableId": "dt18",
+      "unitId": "u143",
+      "value": 1580500
+    },
+    {
+      "tableId": "dt18",
+      "unitId": "u144",
+      "value": 2172100
+    },
+    {
+      "tableId": "dt18",
+      "unitId": "u145",
+      "value": 2268100
+    },
+    {
+      "tableId": "dt18",
+      "unitId": "u146",
+      "value": 1884200
+    },
+    {
+      "tableId": "dt18",
+      "unitId": "u147",
+      "value": 2475700
+    },
+    {
+      "tableId": "dt18",
+      "unitId": "u148",
+      "value": 2491700
+    },
+    {
+      "tableId": "dt18",
+      "unitId": "u149",
+      "value": 2187800
+    },
+    {
+      "tableId": "dt18",
+      "unitId": "u150",
+      "value": 0
+    },
+    {
+      "tableId": "dt18",
+      "unitId": "u151",
+      "value": 0
+    },
+    {
+      "tableId": "dt19",
+      "unitId": "u133",
+      "value": 2700000
+    },
+    {
+      "tableId": "dt19",
+      "unitId": "u135",
+      "value": 3880000
+    },
+    {
+      "tableId": "dt19",
+      "unitId": "u136",
+      "value": 4240000
+    },
+    {
+      "tableId": "dt19",
+      "unitId": "u137",
+      "value": 2700000
+    },
+    {
+      "tableId": "dt19",
+      "unitId": "u138",
+      "value": 3880000
+    },
+    {
+      "tableId": "dt19",
+      "unitId": "u139",
+      "value": 4240000
+    },
+    {
+      "tableId": "dt19",
+      "unitId": "u140",
+      "value": 2700000
+    },
+    {
+      "tableId": "dt19",
+      "unitId": "u141",
+      "value": 3880000
+    },
+    {
+      "tableId": "dt19",
+      "unitId": "u142",
+      "value": 4240000
+    },
+    {
+      "tableId": "dt19",
+      "unitId": "u143",
+      "value": 2700000
+    },
+    {
+      "tableId": "dt19",
+      "unitId": "u144",
+      "value": 3880000
+    },
+    {
+      "tableId": "dt19",
+      "unitId": "u145",
+      "value": 4240000
+    },
+    {
+      "tableId": "dt19",
+      "unitId": "u146",
+      "value": 2700000
+    },
+    {
+      "tableId": "dt19",
+      "unitId": "u147",
+      "value": 3880000
+    },
+    {
+      "tableId": "dt19",
+      "unitId": "u148",
+      "value": 3650000
+    },
+    {
+      "tableId": "dt19",
+      "unitId": "u149",
+      "value": 2700000
+    },
+    {
+      "tableId": "dt19",
+      "unitId": "u150",
+      "value": 6400000
+    },
+    {
+      "tableId": "dt19",
+      "unitId": "u151",
+      "value": 5100000
+    },
+    {
+      "tableId": "dt20",
+      "unitId": "u133",
+      "value": 13820000
+    },
+    {
+      "tableId": "dt20",
+      "unitId": "u135",
+      "value": 5320000
+    },
+    {
+      "tableId": "dt20",
+      "unitId": "u136",
+      "value": 11470000
+    },
+    {
+      "tableId": "dt20",
+      "unitId": "u137",
+      "value": 0
+    },
+    {
+      "tableId": "dt20",
+      "unitId": "u138",
+      "value": 10670000
+    },
+    {
+      "tableId": "dt20",
+      "unitId": "u139",
+      "value": 9870000
+    },
+    {
+      "tableId": "dt20",
+      "unitId": "u140",
+      "value": 3290000
+    },
+    {
+      "tableId": "dt20",
+      "unitId": "u141",
+      "value": 2010000
+    },
+    {
+      "tableId": "dt20",
+      "unitId": "u142",
+      "value": 1400000
+    },
+    {
+      "tableId": "dt20",
+      "unitId": "u143",
+      "value": 5510000
+    },
+    {
+      "tableId": "dt20",
+      "unitId": "u144",
+      "value": 3610000
+    },
+    {
+      "tableId": "dt20",
+      "unitId": "u145",
+      "value": 6380000
+    },
+    {
+      "tableId": "dt20",
+      "unitId": "u146",
+      "value": 5590000
+    },
+    {
+      "tableId": "dt20",
+      "unitId": "u147",
+      "value": 15680000
+    },
+    {
+      "tableId": "dt20",
+      "unitId": "u148",
+      "value": 3820000
+    },
+    {
+      "tableId": "dt20",
+      "unitId": "u149",
+      "value": 8390000
+    },
+    {
+      "tableId": "dt20",
+      "unitId": "u150",
+      "value": 4400000
+    },
+    {
+      "tableId": "dt20",
+      "unitId": "u151",
+      "value": 7540000
+    },
+    {
+      "tableId": "dt22",
+      "unitId": "u133",
+      "value": 70450000
+    },
+    {
+      "tableId": "dt22",
+      "unitId": "u135",
+      "value": 113780000
+    },
+    {
+      "tableId": "dt22",
+      "unitId": "u136",
+      "value": 104080000
+    },
+    {
+      "tableId": "dt22",
+      "unitId": "u137",
+      "value": 102820000
+    },
+    {
+      "tableId": "dt22",
+      "unitId": "u138",
+      "value": 117400000
+    },
+    {
+      "tableId": "dt22",
+      "unitId": "u139",
+      "value": 125630000
+    },
+    {
+      "tableId": "dt22",
+      "unitId": "u140",
+      "value": 87510000
+    },
+    {
+      "tableId": "dt22",
+      "unitId": "u141",
+      "value": 122810000
+    },
+    {
+      "tableId": "dt22",
+      "unitId": "u142",
+      "value": 127620000
+    },
+    {
+      "tableId": "dt22",
+      "unitId": "u143",
+      "value": 92460000
+    },
+    {
+      "tableId": "dt22",
+      "unitId": "u144",
+      "value": 115630000
+    },
+    {
+      "tableId": "dt22",
+      "unitId": "u145",
+      "value": 95820000
+    },
+    {
+      "tableId": "dt22",
+      "unitId": "u146",
+      "value": 69400000
+    },
+    {
+      "tableId": "dt22",
+      "unitId": "u147",
+      "value": 137020000
+    },
+    {
+      "tableId": "dt22",
+      "unitId": "u148",
+      "value": 121520000
+    },
+    {
+      "tableId": "dt22",
+      "unitId": "u149",
+      "value": 97350000
+    },
+    {
+      "tableId": "dt22",
+      "unitId": "u150",
+      "value": 372900000
+    },
+    {
+      "tableId": "dt22",
+      "unitId": "u151",
+      "value": 213900000
+    },
+    {
+      "tableId": "dt21",
+      "unitId": "u133",
+      "value": 97361900000
+    },
+    {
+      "tableId": "dt21",
+      "unitId": "u135",
+      "value": 60530960000
+    },
+    {
+      "tableId": "dt21",
+      "unitId": "u136",
+      "value": 119379760000
+    },
+    {
+      "tableId": "dt21",
+      "unitId": "u137",
+      "value": 0
+    },
+    {
+      "tableId": "dt21",
+      "unitId": "u138",
+      "value": 125265800000
+    },
+    {
+      "tableId": "dt21",
+      "unitId": "u139",
+      "value": 123996810000
+    },
+    {
+      "tableId": "dt21",
+      "unitId": "u140",
+      "value": 28790790000
+    },
+    {
+      "tableId": "dt21",
+      "unitId": "u141",
+      "value": 24684810000
+    },
+    {
+      "tableId": "dt21",
+      "unitId": "u142",
+      "value": 17866800000
+    },
+    {
+      "tableId": "dt21",
+      "unitId": "u143",
+      "value": 50945460000
+    },
+    {
+      "tableId": "dt21",
+      "unitId": "u144",
+      "value": 41742430000
+    },
+    {
+      "tableId": "dt21",
+      "unitId": "u145",
+      "value": 61133160000
+    },
+    {
+      "tableId": "dt21",
+      "unitId": "u146",
+      "value": 38794600000
+    },
+    {
+      "tableId": "dt21",
+      "unitId": "u147",
+      "value": 214847360000
+    },
+    {
+      "tableId": "dt21",
+      "unitId": "u148",
+      "value": 46420640000
+    },
+    {
+      "tableId": "dt21",
+      "unitId": "u149",
+      "value": 81676650000
+    },
+    {
+      "tableId": "dt21",
+      "unitId": "u150",
+      "value": 164076000000
+    },
+    {
+      "tableId": "dt21",
+      "unitId": "u151",
+      "value": 161280600000
+    },
+    {
+      "tableId": "dt23",
+      "unitId": "u133",
+      "value": 90000
+    },
+    {
+      "tableId": "dt23",
+      "unitId": "u135",
+      "value": 540000
+    },
+    {
+      "tableId": "dt23",
+      "unitId": "u136",
+      "value": 0
+    },
+    {
+      "tableId": "dt23",
+      "unitId": "u137",
+      "value": 70000
+    },
+    {
+      "tableId": "dt23",
+      "unitId": "u138",
+      "value": 470000
+    },
+    {
+      "tableId": "dt23",
+      "unitId": "u139",
+      "value": 350000
+    },
+    {
+      "tableId": "dt23",
+      "unitId": "u140",
+      "value": 40000
+    },
+    {
+      "tableId": "dt23",
+      "unitId": "u141",
+      "value": 20000
+    },
+    {
+      "tableId": "dt23",
+      "unitId": "u142",
+      "value": 290000
+    },
+    {
+      "tableId": "dt23",
+      "unitId": "u143",
+      "value": 220000
+    },
+    {
+      "tableId": "dt23",
+      "unitId": "u144",
+      "value": 170000
+    },
+    {
+      "tableId": "dt23",
+      "unitId": "u145",
+      "value": 190000
+    },
+    {
+      "tableId": "dt23",
+      "unitId": "u146",
+      "value": 290000
+    },
+    {
+      "tableId": "dt23",
+      "unitId": "u147",
+      "value": 380000
+    },
+    {
+      "tableId": "dt23",
+      "unitId": "u148",
+      "value": 150000
+    },
+    {
+      "tableId": "dt23",
+      "unitId": "u149",
+      "value": 460000
+    },
+    {
+      "tableId": "dt23",
+      "unitId": "u150",
+      "value": 0
+    },
+    {
+      "tableId": "dt23",
+      "unitId": "u151",
+      "value": 40000
+    },
+    {
+      "tableId": "dt24",
+      "unitId": "u133",
+      "value": 380000
+    },
+    {
+      "tableId": "dt24",
+      "unitId": "u135",
+      "value": 570000
+    },
+    {
+      "tableId": "dt24",
+      "unitId": "u136",
+      "value": 0
+    },
+    {
+      "tableId": "dt24",
+      "unitId": "u137",
+      "value": 0
+    },
+    {
+      "tableId": "dt24",
+      "unitId": "u138",
+      "value": 800000
+    },
+    {
+      "tableId": "dt24",
+      "unitId": "u139",
+      "value": 940000
+    },
+    {
+      "tableId": "dt24",
+      "unitId": "u140",
+      "value": 1600000
+    },
+    {
+      "tableId": "dt24",
+      "unitId": "u141",
+      "value": 1210000
+    },
+    {
+      "tableId": "dt24",
+      "unitId": "u142",
+      "value": 850000
+    },
+    {
+      "tableId": "dt24",
+      "unitId": "u143",
+      "value": 360000
+    },
+    {
+      "tableId": "dt24",
+      "unitId": "u144",
+      "value": 320000
+    },
+    {
+      "tableId": "dt24",
+      "unitId": "u145",
+      "value": 230000
+    },
+    {
+      "tableId": "dt24",
+      "unitId": "u146",
+      "value": 640000
+    },
+    {
+      "tableId": "dt24",
+      "unitId": "u147",
+      "value": 540000
+    },
+    {
+      "tableId": "dt24",
+      "unitId": "u148",
+      "value": 480000
+    },
+    {
+      "tableId": "dt24",
+      "unitId": "u149",
+      "value": 1030000
+    },
+    {
+      "tableId": "dt24",
+      "unitId": "u150",
+      "value": 1970000
+    },
+    {
+      "tableId": "dt24",
+      "unitId": "u151",
+      "value": 180000
+    },
+    {
+      "tableId": "dt27",
+      "unitId": "u133",
+      "value": 10000
+    },
+    {
+      "tableId": "dt27",
+      "unitId": "u135",
+      "value": 10000
+    },
+    {
+      "tableId": "dt27",
+      "unitId": "u136",
+      "value": 10000
+    },
+    {
+      "tableId": "dt27",
+      "unitId": "u137",
+      "value": 10000
+    },
+    {
+      "tableId": "dt27",
+      "unitId": "u138",
+      "value": 10000
+    },
+    {
+      "tableId": "dt27",
+      "unitId": "u139",
+      "value": 10000
+    },
+    {
+      "tableId": "dt27",
+      "unitId": "u140",
+      "value": 10000
+    },
+    {
+      "tableId": "dt27",
+      "unitId": "u141",
+      "value": 10000
+    },
+    {
+      "tableId": "dt27",
+      "unitId": "u142",
+      "value": 10000
+    },
+    {
+      "tableId": "dt27",
+      "unitId": "u143",
+      "value": 10000
+    },
+    {
+      "tableId": "dt27",
+      "unitId": "u144",
+      "value": 10000
+    },
+    {
+      "tableId": "dt27",
+      "unitId": "u145",
+      "value": 10000
+    },
+    {
+      "tableId": "dt27",
+      "unitId": "u146",
+      "value": 10000
+    },
+    {
+      "tableId": "dt27",
+      "unitId": "u147",
+      "value": 10000
+    },
+    {
+      "tableId": "dt27",
+      "unitId": "u148",
+      "value": 10000
+    },
+    {
+      "tableId": "dt27",
+      "unitId": "u149",
+      "value": 10000
+    },
+    {
+      "tableId": "dt27",
+      "unitId": "u150",
+      "value": 10000
+    },
+    {
+      "tableId": "dt27",
+      "unitId": "u151",
+      "value": 10000
     }
   ]
 };

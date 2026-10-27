@@ -8,6 +8,7 @@ import type {
 } from "@cl/client-core";
 import {
   type AccountNature,
+  type AllocationMode,
   type CellStatus,
   cents,
   type EntryKind,
@@ -48,7 +49,7 @@ export interface Scenario extends Picture {
   /** Accounts given another name, by id: a label the seed does not have. */
   renamed?: Record<string, string>;
   /** The Buildings menu item on screen; Accounts when absent. */
-  menu?: "accounts" | "journal" | "installments";
+  menu?: "accounts" | "journal" | "installments" | "thousandths";
   /** The seed the app runs on: the generated one when absent; `schedule`, the test seed whose 2015 (`p3`) has books and no installments. */
   seed?: "schedule";
   /** The journal entries open, by id. */
@@ -91,6 +92,14 @@ export interface Scenario extends Picture {
   stubbed?: string[];
   /** The tab the Accounts screen's bottom panel shows (`mount: "accounts-bottom-panel"`), over the account `selectedKey` names. */
   bottomTab?: "Account Details" | "Ledger";
+  /** The thousandth table selected, by id, as a click on the Thousandth Tables panel selects it; the period's first when absent. */
+  tableId?: string;
+  /** The allocation the Allocation panel shows, as its mode menu chooses it; the budget's when absent. */
+  allocationMode?: AllocationMode;
+  /** The name typed in the New Thousandth Table dialog (`mount: "table-dialog"`). */
+  tableName?: string;
+  /** A journal entry of the period deleted through the journal port before the part mounts (a wizard mounted alone over books without it). */
+  deletedEntry?: string;
 }
 
 /** The budget wizard on a step: the first due date typed on step 1, the other fields as they open, then moved on through its own Next. */
@@ -279,7 +288,9 @@ const CASH_ROW: AccountRowPicture = {
  * app's page height, and its settlement table at the width it has in the
  * wizard's body. The Installment Schedule of the same period, and its parts
  * alone: the cells in each state, the Create Budget Installments wizard over
- * a period with no schedule, and the Edit Installment dialog. Then the
+ * a period with no schedule, and the Edit Installment dialog. Saturno 2011's
+ * Thousandth Tables & Allocation, its panels, the table dialog and the Budget
+ * allocation wizard alone, and Account Details' tables mini-grid. Then the
  * pyramid's base, the small components in each state that matters, from
  * their props or over the same period; and two sections of the Accounts
  * screen's bottom panel, each tab alone.
@@ -507,6 +518,16 @@ export const scenarios: Record<string, Scenario> = {
     mode: "light",
     periodId: "p36",
     menu: "installments",
+  },
+  // Saturno 2011's Thousandth Tables & Allocation: its five tables, the
+  // first selected with its coefficients beside it, and the budget's
+  // allocation under them.
+  "allocation-1280-light": {
+    width: 1280,
+    height: 720,
+    mode: "light",
+    periodId: "p1",
+    menu: "thousandths",
   },
   // One cell per settlement, from the top: settled, partial, unsettled,
   // nothing owed, no item (blank); then an unsettled one a click edits,
@@ -1014,6 +1035,93 @@ export const scenarios: Record<string, Scenario> = {
     stubbed: ["Print", "Export to PDF"],
   },
 
+  // Thousandth Tables & Allocation's parts alone, over Saturno 2011 (`p1`),
+  // each panel at the width it has at the full layout and its content's
+  // height. The tables in order, the first selected; the coefficients of
+  // Scale (`dt3`), restricted to group A: only that group and its units; the
+  // allocation of the final balance, chosen through the mode menu.
+  "thousandth-tables-panel": {
+    level: "component",
+    mount: "thousandth-tables-panel",
+    width: 489,
+    mode: "light",
+    periodId: "p1",
+  },
+  "coefficients-stairs-restricted": {
+    level: "component",
+    mount: "coefficients-panel",
+    width: 489,
+    mode: "light",
+    periodId: "p1",
+    tableId: "dt3",
+  },
+  "allocation-panel-final-balance": {
+    level: "component",
+    mount: "allocation-panel",
+    width: 990,
+    mode: "light",
+    periodId: "p1",
+    allocationMode: "finalBalance",
+  },
+  // The New Thousandth Table dialog as it opens (the order after the
+  // period's last table), and with a name the period already has: the
+  // refusal under the fields, and + Add disabled.
+  "table-dialog-new": {
+    level: "component",
+    mount: "table-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p1",
+  },
+  "table-dialog-name-taken": {
+    level: "component",
+    mount: "table-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p1",
+    tableName: "Scale",
+  },
+  // The Budget allocation wizard over Saturno 2011 with its allocation
+  // (`tx5`) deleted: the whole entry, the eleven debits (each owner's charge
+  // and the 0.01 rounding) and the 7,400.00 credit to the revenue account.
+  // Its viewport is 900 high so the dialog stays under its 90vh ceiling and
+  // the postings do not scroll. Then over the period as seeded, which
+  // already has one: the refusal shows as the wizard opens.
+  "budget-allocation-wizard": {
+    level: "component",
+    mount: "budget-allocation-wizard",
+    capture: "viewport",
+    width: 800,
+    height: 900,
+    mode: "light",
+    periodId: "p1",
+    deletedEntry: "tx5",
+  },
+  "budget-allocation-wizard-refused": {
+    level: "component",
+    mount: "budget-allocation-wizard",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p1",
+  },
+  // Account Details' ALLOCATION TABLES mini-grid for the building's
+  // insurance in Pozzetto 2013 (`la173`): its one link, Generale at 100%,
+  // at the width the grid has in the bottom panel.
+  "account-allocation-tables": {
+    level: "component",
+    mount: "account-allocation-tables",
+    width: 728,
+    mode: "light",
+    periodId: "p36",
+    selectedKey: "la173",
+  },
+
   // Sections: where the way parts sit together is what is pictured. The
   // Accounts screen's bottom panel, its tabs over the tab's body, each tab
   // over the account selected in Pozzetto 2013, at the width the panel has
@@ -1031,7 +1139,8 @@ export const scenarios: Record<string, Scenario> = {
     bottomTab: "Ledger",
   },
   // A cost account's sheet (the building's insurance, `la173`): the cost
-  // attributes it inherits, its balances and its budget.
+  // attributes it inherits, the table that allocates it, its balances and
+  // its budget.
   "accounts-bottom-panel-cost-details": {
     level: "section",
     mount: "accounts-bottom-panel",

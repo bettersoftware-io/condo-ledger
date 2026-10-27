@@ -49,5 +49,7 @@ function createTaxAccount(
     type,
     role: "tax",
     budget: null,
+    abbreviation: null,
+    links: [],
   };
 }

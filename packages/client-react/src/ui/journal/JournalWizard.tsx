@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 
 import type { WizardName } from "@cl/client-core";
 
+import { BudgetAllocationWizard } from "./wizards/BudgetAllocationWizard.tsx";
 import { CollectionWizard } from "./wizards/CollectionWizard.tsx";
 import { DirectPaymentWizard } from "./wizards/DirectPaymentWizard.tsx";
 import { GenericEntryWizard } from "./wizards/GenericEntryWizard.tsx";
@@ -78,6 +79,9 @@ export function JournalWizard({
           onCancel={onCancel}
         />
       );
+    case "budgetAllocation":
+      // An allocation is never edited: the wizard always writes a new one.
+      return <BudgetAllocationWizard onSaved={onSaved} onCancel={onCancel} />;
   }
 }
 

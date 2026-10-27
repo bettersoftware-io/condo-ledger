@@ -205,7 +205,7 @@ describe("JournalScreen", () => {
     ]);
   });
 
-  it("the Add transaction menu lists the ten wizards; a stubbed one posts a notice", async () => {
+  it("the Add transaction menu lists the ten wizards; Budget allocation opens its own", async () => {
     const page = mountJournalScreen();
 
     expect(page.toolMenu("Add transaction")).toBe("menu closed");
@@ -228,8 +228,10 @@ describe("JournalScreen", () => {
 
     await page.clickMenuItem("Budget allocation");
 
-    expect(page.toasts()).toEqual(["Budget allocation: not yet available"]);
-    expect(page.dialogOpen()).toBe(false);
+    expect(page.toasts()).toEqual([]);
+    expect(page.wizard().title()).toBe(
+      "Budget Allocation — Accounting entry summary",
+    );
     expect(page.menuItems()).toEqual([]);
   });
 
@@ -316,7 +318,7 @@ describe("JournalScreen", () => {
   it("a refused delete keeps the alert open with the reason and the entry in the grid", async () => {
     const page = mountJournalScreen();
 
-    await page.clickRow("Riparto");
+    await page.clickRow("Spesa individuale");
     await page.clickTool("Delete entry");
     await page.confirmYes();
 
@@ -325,7 +327,7 @@ describe("JournalScreen", () => {
       "This kind of entry is removed through its own flow, which is not built yet.",
     );
     expect(page.entryLabels()).toHaveLength(9);
-    expect(page.isSelected("Riparto")).toBe(true);
+    expect(page.isSelected("Spesa individuale")).toBe(true);
 
     await page.confirmNo();
     expect(page.confirmOpen()).toBe(false);

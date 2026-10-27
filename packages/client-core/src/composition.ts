@@ -1,5 +1,9 @@
+import { map, type Observable, switchMap } from "rxjs";
+
 import {
   type AccountsPort,
+  type AccountsSimulator,
+  type Allocation,
   type BuildingsPort,
   type ClockPort,
   createAccountsSimulator,
@@ -7,6 +11,8 @@ import {
   createInstallmentsSimulator,
   createJournalSimulator,
   createSessionSimulator,
+  createTablesSimulator,
+  createUnitsSimulator,
   DESIGN_FIRM,
   DESIGN_PRINCIPAL,
   type EntryKind,
@@ -18,6 +24,9 @@ import {
   type LegacySeed,
   type Result,
   type SessionPort,
+  type TablesPort,
+  type ThousandthTable,
+  type UnitsPort,
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
@@ -27,6 +36,19 @@ import {
   type AccountsGridState,
   createAccountsGridMachine,
 } from "./machines/accountsGridMachine.ts";
+import {
+  type AllocationGridState,
+  type AllocationModeIntents,
+  type AllocationModeState,
+  type CoefficientsGridState,
+  createAllocationGridMachine,
+  createAllocationModeMachine,
+  createCoefficientsGridMachine,
+  createTableSelectionMachine,
+  type TableSelectionIntents,
+  type TableSelectionState,
+  type TreeGridIntents,
+} from "./machines/allocationMachines.ts";
 import {
   type BottomTabIntents,
   type BottomTabState,
@@ -81,6 +103,17 @@ import {
   type SplitState,
 } from "./machines/splitMachine.ts";
 import {
+  createTableDialog,
+  rewriting,
+  type TableDialogIntents,
+  type TableDialogState,
+} from "./machines/tableDialogMachine.ts";
+import {
+  type BudgetAllocationForm,
+  type BudgetAllocationSummary,
+  createBudgetAllocationWizard,
+} from "./machines/wizards/budgetAllocationWizard.ts";
+import {
   type BudgetInstallmentsForm,
   type BudgetInstallmentsSummary,
   createBudgetInstallmentsWizard,
@@ -133,6 +166,10 @@ import {
   createAccountsPresenter,
 } from "./presenters/accountsPresenter.ts";
 import {
+  type AllocationPresenter,
+  createAllocationPresenter,
+} from "./presenters/allocationPresenter.ts";
+import {
   type Books,
   type BooksPresenter,
   createBooksPresenter,
@@ -163,6 +200,8 @@ export interface AppPorts {
   accounts: AccountsPort;
   journal: JournalPort;
   installments: InstallmentsPort;
+  tables: TablesPort;
+  units: UnitsPort;
   clock: ClockPort;
 }
 
@@ -174,6 +213,7 @@ interface AppPresenters {
   accounts: AccountsPresenter;
   journal: JournalPresenter;
   schedule: InstallmentSchedulePresenter;
+  allocation: AllocationPresenter;
 }
 
 /** Per-component state: each call builds a machine of its own. */
@@ -190,6 +230,24 @@ interface AppMachines {
   createSidebar: () => Machine<SidebarState, SidebarIntents>;
   createJournalGrid: () => Machine<JournalGridState, JournalGridIntents>;
   createScheduleGrid: () => Machine<ScheduleGridState, ScheduleGridIntents>;
+  /** Which of the selected period's tables the coefficients show: its first, until one is selected. */
+  createTableSelection: () => Machine<
+    TableSelectionState,
+    TableSelectionIntents
+  >;
+  /** Which allocation the panel shows: the budget's, until another is chosen. */
+  createAllocationMode: () => Machine<
+    AllocationModeState,
+    AllocationModeIntents
+  >;
+  /** The coefficients tree of the table a selection holds, as it changes. */
+  createCoefficientsGrid: (
+    selection$: Observable<TableSelectionState>,
+  ) => Machine<CoefficientsGridState, TreeGridIntents>;
+  /** The allocation in the mode a mode machine holds, as it changes. */
+  createAllocationGrid: (
+    mode$: Observable<AllocationModeState>,
+  ) => Machine<AllocationGridState, TreeGridIntents>;
   /** The dialog over the selected period's books as they stand when an intent asks: an edit opens only for an entry they hold. */
   createJournalDialog: () => Machine<JournalDialogState, JournalDialogIntents>;
   /**
@@ -233,6 +291,15 @@ interface AppMachines {
     BudgetInstallmentsSummary,
     Result
   >;
+  /** The Budget allocation wizard over the selected period's books and its budget allocation as they stand: with no period, refused. */
+  createBudgetAllocationWizard: () => WizardMachine<
+    BudgetAllocationForm,
+    BudgetAllocationSummary
+  >;
+  /** The New Thousandth Table dialog over the selected period's tables as they stand, or with `editing` the Edit one on a table of them; one they do not hold throws. Its save answers the table's id, the new one's or the edited one's. */
+  createTableDialog: (
+    editing: string | null,
+  ) => Machine<TableDialogState, TableDialogIntents>;
   /** The Edit Installment dialog over an installment of the selected period's books as they stand; one they do not hold throws. */
   createInstallmentDialog: (
     installmentId: string,
@@ -261,7 +328,28 @@ export function createApp(ports: AppPorts): App {
     buildings.selected$,
     buildings.tree$,
   );
-  const accounts = createAccountsPresenter(books.books$, ports.accounts);
+
+  const allocation = createAllocationPresenter(
+    books.books$,
+    buildings.tree$,
+    { tables: ports.tables, units: ports.units },
+    session.amountLocale$,
+  );
+
+  const periodTables$ = allocation.tables$.pipe(
+    map((views) => {
+      return views.map((view) => {
+        return view.table;
+      });
+    }),
+  );
+
+  const accounts = createAccountsPresenter(
+    books.books$,
+    ports.accounts,
+    periodTables$,
+  );
+
   const journal = createJournalPresenter(
     books.books$,
     buildings.tree$,
@@ -275,11 +363,23 @@ export function createApp(ports: AppPorts): App {
     ports.installments,
     ports.clock,
   );
+
   let latestBooks: Books | null = null;
+  let latestTables: ThousandthTable[] = [];
+  let latestBudgetAllocation: Allocation | null = null;
 
   // The books presenter lives as long as the application: nothing unsubscribes.
   books.books$.subscribe((next) => {
     latestBooks = next;
+  });
+  // The table dialog and the Budget allocation wizard are built over the
+  // period's tables and budget allocation as they stand: held for the
+  // application's life, as the books are.
+  periodTables$.subscribe((tables) => {
+    latestTables = tables;
+  });
+  allocation.allocation$("budget").subscribe((next) => {
+    latestBudgetAllocation = next;
   });
   // The wizards read the amounts' locale as it stands whenever they judge:
   // held for the application's life, so it always has the session's.
@@ -331,7 +431,15 @@ export function createApp(ports: AppPorts): App {
   }
 
   return {
-    presenters: { session, buildings, books, accounts, journal, schedule },
+    presenters: {
+      session,
+      buildings,
+      books,
+      accounts,
+      journal,
+      schedule,
+      allocation,
+    },
     navigation: createNavigationMachine(),
     notices: createNotices(),
     machines: {
@@ -354,6 +462,35 @@ export function createApp(ports: AppPorts): App {
         ScheduleGridIntents
       > => {
         return createScheduleGridMachine(schedule.schedule$);
+      },
+      createTableSelection: (): Machine<
+        TableSelectionState,
+        TableSelectionIntents
+      > => {
+        return createTableSelectionMachine(allocation.tables$);
+      },
+      createAllocationMode: createAllocationModeMachine,
+      createCoefficientsGrid: (
+        selection$: Observable<TableSelectionState>,
+      ): Machine<CoefficientsGridState, TreeGridIntents> => {
+        return createCoefficientsGridMachine(
+          selection$.pipe(
+            switchMap(({ tableId }) => {
+              return allocation.coefficients$(tableId);
+            }),
+          ),
+        );
+      },
+      createAllocationGrid: (
+        mode$: Observable<AllocationModeState>,
+      ): Machine<AllocationGridState, TreeGridIntents> => {
+        return createAllocationGridMachine(
+          mode$.pipe(
+            switchMap(({ mode }) => {
+              return allocation.allocation$(mode);
+            }),
+          ),
+        );
       },
       createJournalDialog: (): Machine<
         JournalDialogState,
@@ -483,6 +620,38 @@ export function createApp(ports: AppPorts): App {
           },
         );
       },
+      createBudgetAllocationWizard: (): WizardMachine<
+        BudgetAllocationForm,
+        BudgetAllocationSummary
+      > => {
+        return createBudgetAllocationWizard(
+          latestBooks,
+          latestBudgetAllocation,
+          journal.addEntry,
+        );
+      },
+      createTableDialog: (
+        editing: string | null,
+      ): Machine<TableDialogState, TableDialogIntents> => {
+        const tables = latestTables;
+
+        if (editing === null) {
+          return createTableDialog(tables, null, allocation.addTable);
+        }
+
+        const table = must(
+          tables.find((candidate) => {
+            return candidate.id === editing;
+          }),
+          `the table ${editing}`,
+        );
+
+        return createTableDialog(
+          tables,
+          table,
+          rewriting(editing, allocation.editTable),
+        );
+      },
       createInstallmentDialog: (
         installmentId: string,
       ): Machine<InstallmentDialogState, InstallmentDialogIntents> => {
@@ -507,11 +676,12 @@ export function createApp(ports: AppPorts): App {
 }
 
 /**
- * The five simulators over one seed: what `pnpm dev` and the harness run on.
+ * The seven simulators over one seed: what `pnpm dev` and the harness run on.
  * The journal and the installments read each other's current state, so a
  * collection is judged against the schedule as it stands and an installment
  * a collection pays is not deleted. Each reads the other only when a write
- * asks, after both are built.
+ * asks, after both are built. A table is deleted only when no account, as
+ * the accounts simulator holds it now, links to it.
  */
 export function createSimulatorPorts(
   seed: LegacySeed,
@@ -532,15 +702,21 @@ export function createSimulatorPorts(
     },
   );
 
+  const accounts: AccountsSimulator = createAccountsSimulator(seed);
+
   return {
     session: createSessionSimulator({
       principal: DESIGN_PRINCIPAL,
       firm: DESIGN_FIRM,
     }),
     buildings: createBuildingsSimulator(seed),
-    accounts: createAccountsSimulator(seed),
+    accounts,
     journal,
     installments,
+    tables: createTablesSimulator(seed, (periodId) => {
+      return accounts.current(periodId);
+    }),
+    units: createUnitsSimulator(seed),
     clock,
   };
 }

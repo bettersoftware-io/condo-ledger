@@ -60,6 +60,8 @@ function createAccount(overrides: Partial<Account>): Account {
     type: "regular",
     role: null,
     budget: null,
+    abbreviation: null,
+    links: [],
     ...overrides,
   };
 }

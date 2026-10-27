@@ -57,12 +57,7 @@ export function JournalToolbar({
   function choosing(item: AddItem): () => void {
     return (): void => {
       setMenu(null);
-
-      if (item.wizard === null) {
-        onStub(item.label);
-      } else {
-        onAdd(item.wizard);
-      }
+      onAdd(item.wizard);
     };
   }
 
@@ -209,9 +204,9 @@ export interface JournalToolbarProps {
   pageCount: number;
   pageSize: PageSize;
   onSearch: (text: string) => void;
-  /** Opens a built wizard. */
+  /** Opens the wizard of an Add transaction item. */
   onAdd: (wizard: WizardName) => void;
-  /** A tool or a menu item that is not built yet, by name. */
+  /** A tool that is not built yet, by name. */
   onStub: (label: string) => void;
   /** Opens the selected entry's edit. */
   onEdit: () => void;
@@ -224,12 +219,12 @@ export interface JournalToolbarProps {
 
 type Menu = "add" | "sizes";
 
-/** A row of the Add transaction menu: its wizard, or null while the flow is not built. */
+/** A row of the Add transaction menu and the wizard it opens. */
 interface AddItem {
   label: string;
   /** The kind of entry it writes, for its icon. */
   kind: EntryKind;
-  wizard: WizardName | null;
+  wizard: WizardName;
 }
 
 /** In the design's order. */
@@ -261,7 +256,11 @@ const ADD_ITEMS: readonly AddItem[] = [
     kind: "openingBalances",
     wizard: "openingBalances",
   },
-  { label: "Budget allocation", kind: "budgetAllocation", wizard: null },
+  {
+    label: "Budget allocation",
+    kind: "budgetAllocation",
+    wizard: "budgetAllocation",
+  },
   { label: "Generic entry", kind: "generic", wizard: "genericEntry" },
   {
     label: "Direct payment to multiple cost accounts",

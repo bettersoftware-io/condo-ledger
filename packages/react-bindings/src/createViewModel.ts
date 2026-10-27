@@ -4,12 +4,16 @@ import type {
   AccountDetails,
   AccountsGridIntents,
   AccountsGridState,
+  AllocationGridState,
   AmountLocale,
   App,
   BottomTabIntents,
   BottomTabState,
+  BudgetAllocationForm,
+  BudgetAllocationSummary,
   BudgetInstallmentsForm,
   BudgetInstallmentsSummary,
+  CoefficientsGridState,
   CollectionForm,
   CollectionSummary,
   ColumnSpec,
@@ -47,11 +51,17 @@ import type {
   SidebarState,
   SplitIntents,
   SplitState,
+  TableDialogIntents,
+  TableDialogState,
+  TableView,
+  TreeGridIntents,
   WizardIntents,
   WizardState,
 } from "@cl/client-core";
 import type {
   AccountNode,
+  Allocation,
+  AllocationMode,
   Building,
   Cents,
   EntryAdded,
@@ -105,6 +115,31 @@ export interface ScheduleView {
   schedule: Schedule | null;
   deleteInstallment: (id: string) => Promise<Result>;
   setItemAmount: (itemId: string, amount: Cents) => Promise<Result>;
+}
+
+/**
+ * The Thousandth Tables & Allocation screen: the period's tables and the one
+ * selected, the allocation in the mode chosen, and the writes. The selection and the mode are the application's, so every
+ * reader, and the grids, follow the same ones.
+ */
+export interface AllocationView {
+  tables: TableView[];
+  /** The table whose coefficients are shown; null while the period has none. */
+  selectedTableId: string | null;
+  /** Null while the period's books or tables are on their way. */
+  allocation: Allocation | null;
+  mode: AllocationMode;
+  chooseMode: (mode: AllocationMode) => void;
+  selectTable: (tableId: string) => void;
+  deleteTable: (id: string) => Promise<Result>;
+  /** The account's path in the selected period's books, as a refusal names it; its id when they do not hold it. */
+  accountPath: (accountId: string) => string;
+  /** Reads the text in the session's locale: text that does not read, or a negative coefficient, is refused `not-a-coefficient`. */
+  setCoefficient: (
+    tableId: string,
+    unitId: string,
+    text: string,
+  ) => Promise<Result>;
 }
 
 export interface NoticesView {
@@ -186,11 +221,35 @@ export interface ViewModel {
   useInstallmentDialog: (
     installmentId: string,
   ) => MachineView<InstallmentDialogState, InstallmentDialogIntents>;
+  /** The Budget allocation wizard over the selected period's books and budget allocation as they stand when it opens. */
+  useBudgetAllocationWizard: () => WizardView<
+    BudgetAllocationForm,
+    BudgetAllocationSummary
+  >;
+  /** Reads its argument on the first render only: the New Thousandth Table dialog (null) or the Edit one on the table it opened on. */
+  useTableDialog: (
+    editing: string | null,
+  ) => MachineView<TableDialogState, TableDialogIntents>;
+  useAllocation: () => AllocationView;
+  /** The selected table's coefficients tree: which of its groups are open, for this reader. */
+  useCoefficientsGrid: () => MachineView<
+    CoefficientsGridState,
+    TreeGridIntents
+  >;
+  /** The allocation in the chosen mode: which of its rows are open, for this reader. */
+  useAllocationGrid: () => MachineView<AllocationGridState, TreeGridIntents>;
 }
 
 /** Built once at startup, in the composition root, from the application. */
 export function createViewModel(app: App): ViewModel {
-  const { session, buildings, accounts, journal, schedule } = app.presenters;
+  const { session, buildings, accounts, journal, schedule, allocation } =
+    app.presenters;
+  // The screen's table selection and allocation mode belong to the
+  // application, not to one reader: every reader of useAllocation, and each
+  // reader's grids, follow the same ones. Like the presenters, they live as
+  // long as the application.
+  const tableSelection = app.machines.createTableSelection();
+  const allocationMode = app.machines.createAllocationMode();
 
   return {
     useSession: (): SessionView => {
@@ -370,6 +429,51 @@ export function createViewModel(app: App): ViewModel {
     ): MachineView<InstallmentDialogState, InstallmentDialogIntents> => {
       return useMachine(() => {
         return app.machines.createInstallmentDialog(installmentId);
+      });
+    },
+    useBudgetAllocationWizard: (): WizardView<
+      BudgetAllocationForm,
+      BudgetAllocationSummary
+    > => {
+      return useMachine(app.machines.createBudgetAllocationWizard);
+    },
+    useTableDialog: (
+      editing: string | null,
+    ): MachineView<TableDialogState, TableDialogIntents> => {
+      return useMachine(() => {
+        return app.machines.createTableDialog(editing);
+      });
+    },
+    useAllocation: (): AllocationView => {
+      const { tableId } = useStateObservable(tableSelection.state$);
+      const { mode } = useStateObservable(allocationMode.state$);
+
+      return {
+        tables: useStateObservable(allocation.tables$),
+        selectedTableId: tableId,
+        allocation: useStateObservable(allocation.allocation$(mode)),
+        mode,
+        chooseMode: allocationMode.intents.choose,
+        selectTable: tableSelection.intents.select,
+        deleteTable: allocation.deleteTable,
+        accountPath: allocation.accountPath,
+        setCoefficient: allocation.setCoefficient,
+      };
+    },
+    useCoefficientsGrid: (): MachineView<
+      CoefficientsGridState,
+      TreeGridIntents
+    > => {
+      return useMachine(() => {
+        return app.machines.createCoefficientsGrid(tableSelection.state$);
+      });
+    },
+    useAllocationGrid: (): MachineView<
+      AllocationGridState,
+      TreeGridIntents
+    > => {
+      return useMachine(() => {
+        return app.machines.createAllocationGrid(allocationMode.state$);
       });
     },
   };

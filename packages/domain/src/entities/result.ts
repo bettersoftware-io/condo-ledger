@@ -6,6 +6,8 @@ export interface Ok {
 export interface Rejected {
   readonly ok: false;
   readonly reason: string;
+  /** What the reason is about, when it names one: an account's id, a missing role. */
+  readonly detail?: string;
 }
 
 /** A command that answers with a value when it is done. */
@@ -25,6 +27,8 @@ export function accepted<T>(value: T): Accepted<T> {
   return { ok: true, value };
 }
 
-export function rejected(reason: string): Rejected {
-  return { ok: false, reason };
+export function rejected(reason: string, detail?: string): Rejected {
+  return detail === undefined
+    ? { ok: false, reason }
+    : { ok: false, reason, detail };
 }

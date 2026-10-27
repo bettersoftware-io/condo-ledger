@@ -28,6 +28,8 @@ import type {
   OpeningSummary,
   SidebarIntents,
   SidebarState,
+  TableDialogIntents,
+  TableDialogState,
   WizardIntents,
   WizardState,
 } from "@cl/client-core";
@@ -67,6 +69,16 @@ import type { NewEntryDialog, Scenario } from "./scenarios.ts";
 // `mount`, in the app's surround (`Mount`, in `registry.tsx`). With no `mount`
 // it is undefined, and the host shows the whole app.
 
+/** The screen's table selection, as the application builds it. */
+type TableSelectionMachine = ReturnType<
+  App["machines"]["createTableSelection"]
+>;
+
+/** The Allocation panel's mode, as the application builds it. */
+type AllocationModeMachine = ReturnType<
+  App["machines"]["createAllocationMode"]
+>;
+
 /** The application and the deliveries of one scenario. Called once, before the first render. */
 export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
   // The seed is a port's memory, so a renamed account goes in before the
@@ -104,6 +116,11 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
     // A new opening, mounted alone, needs the period without its seeded one.
     if (wizardDialog(scenario.dialog)?.wizard === "openingBalances") {
       deleteSeededOpening(harness, scenario.periodId);
+    }
+
+    // So does a wizard over books without one of their entries.
+    if (scenario.deletedEntry !== undefined) {
+      deleteEntry(harness, scenario.deletedEntry);
     }
   }
 
@@ -317,6 +334,40 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
 
         return wizard;
       },
+      // The screen's table selection holds the scenario's table, selected
+      // through its own intent as a click on the tables panel selects it.
+      createTableSelection: (): TableSelectionMachine => {
+        const selection = machines.createTableSelection();
+
+        if (scenario.tableId !== undefined) {
+          selection.intents.select(scenario.tableId);
+        }
+
+        return selection;
+      },
+      // The Allocation panel's mode, chosen through its own intent as the
+      // mode menu chooses it.
+      createAllocationMode: (): AllocationModeMachine => {
+        const mode = machines.createAllocationMode();
+
+        if (scenario.allocationMode !== undefined) {
+          mode.intents.choose(scenario.allocationMode);
+        }
+
+        return mode;
+      },
+      // The table dialog holds the scenario's name, typed.
+      createTableDialog: (
+        editing: string | null,
+      ): Machine<TableDialogState, TableDialogIntents> => {
+        const dialog = machines.createTableDialog(editing);
+
+        if (scenario.tableName !== undefined) {
+          dialog.intents.edit({ name: scenario.tableName });
+        }
+
+        return dialog;
+      },
     },
   };
 
@@ -448,12 +499,7 @@ function wizardDialog(dialog: Scenario["dialog"]): NewEntryDialog | null {
   return dialog;
 }
 
-/**
- * The period's seeded opening entry, deleted through the journal port. The
- * simulator removes it before the promise settles, so the books no longer
- * hold it when the menu mounts. Nothing may wait (the host's contract is
- * synchronous); a refusal is rethrown on the page.
- */
+/** The period's seeded opening entry, deleted through the journal port. */
 function deleteSeededOpening(harness: AppHarness, periodId: string): void {
   const opening = harness.seed.entries.find((entry) => {
     return entry.periodId === periodId && entry.kind === "openingBalances";
@@ -463,8 +509,18 @@ function deleteSeededOpening(harness: AppHarness, periodId: string): void {
     throw new Error(`the period ${periodId} has no seeded opening entry`);
   }
 
+  deleteEntry(harness, opening.id);
+}
+
+/**
+ * A journal entry, deleted through the journal port. The simulator removes
+ * it before the promise settles, so the books no longer hold it when the
+ * part or the menu mounts. Nothing may wait (the host's contract is
+ * synchronous); a refusal is rethrown on the page.
+ */
+function deleteEntry(harness: AppHarness, entryId: string): void {
   void harness.ports.journal
-    .deleteEntry(opening.id)
+    .deleteEntry(entryId)
     .then(failOnRefusal)
     .catch(reportOnThePage);
 }

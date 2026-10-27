@@ -3,7 +3,10 @@ export { createWsConnection } from "./adapters/wsConnection.ts";
 export {
   type AmountLocale,
   DEFAULT_AMOUNT_LOCALE,
+  formatTenThousandths,
+  hundredthsText,
   parseAmount,
+  tenThousandthsText,
 } from "./amounts.ts";
 export {
   type App,
@@ -15,6 +18,11 @@ export type {
   AccountsGridIntents,
   AccountsGridState,
 } from "./machines/accountsGridMachine.ts";
+export type {
+  AllocationGridState,
+  CoefficientsGridState,
+  TreeGridIntents,
+} from "./machines/allocationMachines.ts";
 export type {
   BottomTabIntents,
   BottomTabState,
@@ -66,6 +74,15 @@ export {
   type SplitState,
 } from "./machines/splitMachine.ts";
 export type {
+  TableDialogForm,
+  TableDialogIntents,
+  TableDialogState,
+} from "./machines/tableDialogMachine.ts";
+export type {
+  BudgetAllocationForm,
+  BudgetAllocationSummary,
+} from "./machines/wizards/budgetAllocationWizard.ts";
+export type {
   BudgetInstallmentsForm,
   BudgetInstallmentsSummary,
   ReviewRow,
@@ -114,6 +131,10 @@ export type {
   WizardState,
 } from "./machines/wizards/wizard.ts";
 export type { Notice } from "./notices.ts";
-export type { AccountDetails } from "./presenters/accountsPresenter.ts";
+export type {
+  AccountDetails,
+  AllocationTableRow,
+} from "./presenters/accountsPresenter.ts";
+export type { TableView } from "./presenters/allocationPresenter.ts";
 export type { PeriodSelection } from "./presenters/buildingsPresenter.ts";
 export type { JournalContext } from "./presenters/journalPresenter.ts";

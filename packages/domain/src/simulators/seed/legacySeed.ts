@@ -5,6 +5,8 @@ import type { Installment, InstallmentItem } from "#/entities/installment.ts";
 import { type Invoice, rate, type WithholdingTax } from "#/entities/invoice.ts";
 import type { Counterpart, JournalEntry } from "#/entities/journal.ts";
 import type { OwnerParty, Party, SupplierParty } from "#/entities/party.ts";
+import type { Coefficient, ThousandthTable } from "#/entities/table.ts";
+import type { Unit, UnitGroup } from "#/entities/unit.ts";
 
 /** What the simulators answer from: the legacy periods that have books, pseudonymised, as the generator emits them. */
 export interface LegacySeed {
@@ -18,6 +20,12 @@ export interface LegacySeed {
   installments: Installment[];
   /** What each resident owes on each installment; an item's period is its installment's. */
   installmentItems: InstallmentItem[];
+  units: Unit[];
+  unitGroups: UnitGroup[];
+  /** Every seeded period's thousandth tables, each period's by their order. */
+  tables: ThousandthTable[];
+  /** Each table's coefficient for each unit; a coefficient's period is its table's. */
+  coefficients: Coefficient[];
 }
 
 /** A period's parties: the building's suppliers and the residencies that overlap the period. */
@@ -82,6 +90,10 @@ export interface LegacySeedData {
   withholdingTaxes: WithholdingTaxData[];
   installments: Installment[];
   installmentItems: InstallmentItemData[];
+  units: Unit[];
+  unitGroups: UnitGroup[];
+  tables: ThousandthTable[];
+  coefficients: Coefficient[];
 }
 
 /** Brands every amount. A fraction in the generated file fails here, once, instead of somewhere in a sum. */
@@ -125,6 +137,10 @@ export function loadLegacySeed(data: LegacySeedData): LegacySeed {
     installmentItems: data.installmentItems.map((item) => {
       return { ...item, amount: cents(item.amount) };
     }),
+    units: data.units,
+    unitGroups: data.unitGroups,
+    tables: data.tables,
+    coefficients: data.coefficients,
   };
 }
 

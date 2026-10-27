@@ -8,6 +8,21 @@ import { createTwoPeriodSeed } from "../testing/createTwoPeriodSeed.ts";
 import { createAccountsSimulator } from "./accountsSimulator.ts";
 
 describe("accounts simulator", () => {
+  it("answers its current accounts, budget edit included, and fails for a period it does not have", async () => {
+    const port = createAccountsSimulator(createSmallSeed());
+
+    await port.setBudget("la21", cents(1234));
+
+    expect(
+      port.current("p1").find((account) => {
+        return account.id === "la21";
+      })?.budget,
+    ).toBe(1234);
+    expect(() => {
+      return port.current("p99");
+    }).toThrow("missing: the period p99");
+  });
+
   it("answers the period's parties, whether or not a posting names them", async () => {
     const seed = createSmallSeed();
     const port = createAccountsSimulator({

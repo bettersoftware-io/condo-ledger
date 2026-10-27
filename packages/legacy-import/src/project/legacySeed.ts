@@ -4,6 +4,7 @@ import {
   type AccountRole,
   type AccountType,
   type Building,
+  type Coefficient,
   type Counterpart,
   type EntryKind,
   type Installment,
@@ -11,10 +12,17 @@ import {
   type InvoiceData,
   type JournalEntryData,
   type LegacySeedData,
+  type LinkUse,
   type PartyData,
   type PostingData,
   type Restriction,
+  type RolePresence,
+  type RoleShares,
   romeTime,
+  type TableLink,
+  type ThousandthTable,
+  type Unit,
+  type UnitGroup,
   type WithholdingTaxData,
 } from "@cl/domain";
 
@@ -49,6 +57,16 @@ const TYPES: Record<AccountType, true> = {
   control: true,
   controlUnitResident: true,
 };
+
+/** The dump's expenseLA2Table.type, in the domain's words. An untyped link serves both allocations. */
+const LINK_USES: Record<string, LinkUse> = {
+  estimate: "budget",
+  currentBalance: "finalBalance",
+};
+
+type Priority = keyof RoleShares;
+
+const PRIORITIES: Record<string, Priority> = { 1: 1, 2: 2, 3: 3, 4: 4 };
 
 /** The dump's ledgerTransaction.type, in the domain's words. An untyped transaction is a generic entry. */
 export const ENTRY_KIND_OF_TYPE: Record<string, EntryKind> = {
@@ -144,6 +162,18 @@ export function projectLegacySeed(db: Db): LegacySeedData {
     installmentItems: periodIds.flatMap((periodId) => {
       return projectInstallmentItems(db, periodId);
     }),
+    units: periodIds.flatMap((periodId) => {
+      return projectUnits(db, periodId);
+    }),
+    unitGroups: periodIds.flatMap((periodId) => {
+      return projectUnitGroups(db, periodId);
+    }),
+    tables: periodIds.flatMap((periodId) => {
+      return projectTables(db, periodId);
+    }),
+    coefficients: periodIds.flatMap((periodId) => {
+      return projectCoefficients(db, periodId);
+    }),
   };
 }
 
@@ -198,7 +228,13 @@ function projectAccounts(db: Db, periodId: string): AccountData[] {
     }
   }
 
+  for (const id of budgetAllocationRevenues(db, periodId, roles)) {
+    assignRole(roles, id, "budgetAllocation");
+  }
+
   const estimates = db.by("expenseLedgerAccount", "ledgerAccountId");
+  const links = db.group("expenseLA2Table", "expenseLedgerAccountId");
+  const linkRoles = db.group("expenseLA2Role", "expenseLA2TableId");
 
   return rows.map((row) => {
     const id = String(row.id);
@@ -216,13 +252,262 @@ function projectAccounts(db: Db, periodId: string): AccountData[] {
       periodId: `p${periodId}`,
       parentId: parent === undefined ? null : `la${parent}`,
       name: String(row.name),
-      order: orderOf(row, id),
+      order: orderOf(row, `the account ${id}`),
       nature: natureOf(row, id),
       type: typeOf(row, id),
       role: roles.get(id) ?? null,
       budget: estimate === undefined ? null : eur(estimate).cents,
+      abbreviation: text(row.abbreviation) ?? null,
+      links: (links.get(id) ?? [])
+        .slice()
+        .sort(byId)
+        .map((link) => {
+          return projectLink(link, linkRoles.get(String(link.id)) ?? []);
+        }),
     };
   });
+}
+
+/**
+ * The accounts a stored budget allocation of the period credits, apart from
+ * the owners' and the roundings accounts: the revenue it was posted to. The
+ * legacy period names no such account; the entry is the evidence.
+ */
+function budgetAllocationRevenues(
+  db: Db,
+  periodId: string,
+  roles: Map<string, AccountRole>,
+): Set<string> {
+  const allocations = new Set(
+    db
+      .rows("ledgerTransaction")
+      .filter((row) => {
+        return (
+          String(row.accountingPeriodId) === periodId &&
+          text(row.type) === "estimateDistribution"
+        );
+      })
+      .map((row) => {
+        return String(row.id);
+      }),
+  );
+  const revenues = new Set<string>();
+
+  for (const line of db.rows("ledgerEntry")) {
+    const id = text(line.postingAccountId);
+    const role = id === undefined ? undefined : roles.get(id);
+
+    if (
+      id !== undefined &&
+      allocations.has(String(line.ledgerTransactionId)) &&
+      eur(text(line.amount)).cents < 0 &&
+      role !== "owners" &&
+      role !== "roundings"
+    ) {
+      revenues.add(id);
+    }
+  }
+
+  return revenues;
+}
+
+/** An expenseLA2Table row and its expenseLA2Role rows. A role with no row is absent, which is not the same as a row with an empty percentage. */
+function projectLink(link: Row, roleRows: Row[]): TableLink {
+  const id = String(link.id);
+  const type = text(link.type);
+  const roles: RoleShares = { 1: null, 2: null, 3: null, 4: null };
+  const present: RolePresence = { 1: false, 2: false, 3: false, 4: false };
+
+  if (type !== undefined && !Object.hasOwn(LINK_USES, type)) {
+    throw new Error(
+      `the link ${id} has the type ${type}, which the domain does not know`,
+    );
+  }
+
+  for (const row of roleRows) {
+    const priority = String(row.unitResidentPriorityId);
+
+    if (!Object.hasOwn(PRIORITIES, priority)) {
+      throw new Error(
+        `the link ${id} has a role of priority ${priority}, which the domain does not know`,
+      );
+    }
+
+    const key = PRIORITIES[priority] as Priority;
+
+    present[key] = true;
+    roles[key] = scaledOrNull(
+      row.percentage,
+      2,
+      "hundredths",
+      `the percentage of the role ${priority} of the link ${id}`,
+    );
+  }
+
+  return {
+    id: `el${id}`,
+    accountId: `la${String(link.expenseLedgerAccountId)}`,
+    tableId: `dt${String(link.distributionTableId)}`,
+    use: type === undefined ? "both" : (LINK_USES[type] as LinkUse),
+    percentage: scaledOrNull(
+      link.percentage,
+      2,
+      "hundredths",
+      `the percentage of the link ${id}`,
+    ),
+    roles,
+    present,
+  };
+}
+
+/** The period's units in id order. One with more than one unit period (a change of ownership scenario) is refused: the allocation reads only one. */
+function projectUnits(db: Db, periodId: string): Unit[] {
+  const unitPeriods = db.group("unitPeriod", "unitId");
+
+  return db
+    .rows("unit")
+    .filter((row) => {
+      return String(row.accountingPeriodId) === periodId;
+    })
+    .sort(byId)
+    .map((row) => {
+      const id = String(row.id);
+      const count = unitPeriods.get(id)?.length ?? 0;
+      const group = text(row.unitGroupId);
+
+      if (count > 1) {
+        throw new Error(
+          `the unit ${id} has ${count} unit periods; the allocation reads only one`,
+        );
+      }
+
+      return {
+        id: `u${id}`,
+        periodId: `p${periodId}`,
+        code: must(text(row.code), `the code of the unit ${id}`),
+        groupId: group === undefined ? null : `ug${group}`,
+        restriction: restrictionOf(row),
+      };
+    });
+}
+
+/** The period's unit groups in id order. */
+function projectUnitGroups(db: Db, periodId: string): UnitGroup[] {
+  return db
+    .rows("unitGroup")
+    .filter((row) => {
+      return String(row.accountingPeriodId) === periodId;
+    })
+    .sort(byId)
+    .map((row) => {
+      const parent = text(row.parentUnitGroupId);
+
+      return {
+        id: `ug${String(row.id)}`,
+        periodId: `p${periodId}`,
+        code: String(row.code),
+        name: String(row.name),
+        parentId: parent === undefined ? null : `ug${parent}`,
+      };
+    });
+}
+
+/** The period's thousandth tables by their order, then id. */
+function projectTables(db: Db, periodId: string): ThousandthTable[] {
+  return tableRowsOf(db, periodId).map((row) => {
+    const id = String(row.id);
+    const group = text(row.restrictionUnitGroupId);
+
+    return {
+      id: `dt${id}`,
+      periodId: `p${periodId}`,
+      name: String(row.name),
+      order: orderOf(row, `the table ${id}`),
+      notes: text(row.notes) ?? "",
+      restrictionGroupId: group === undefined ? null : `ug${group}`,
+    };
+  });
+}
+
+/** Each table's coefficients, table by table, each in unit id order, in ten-thousandths. */
+function projectCoefficients(db: Db, periodId: string): Coefficient[] {
+  const items = db.group("distributionTableItem", "distributionTableId");
+
+  return tableRowsOf(db, periodId).flatMap((table) => {
+    const tableId = String(table.id);
+
+    return (items.get(tableId) ?? [])
+      .slice()
+      .sort((a, b) => {
+        return Number(a.unitId) - Number(b.unitId);
+      })
+      .map((item) => {
+        const unitId = String(item.unitId);
+        const what = `the coefficient of the unit ${unitId} in the table ${tableId}`;
+
+        return {
+          tableId: `dt${tableId}`,
+          unitId: `u${unitId}`,
+          value: scaled(
+            must(text(item.coefficient), what),
+            4,
+            "ten-thousandths",
+            what,
+          ),
+        };
+      });
+  });
+}
+
+function tableRowsOf(db: Db, periodId: string): Row[] {
+  return db
+    .rows("distributionTable")
+    .filter((row) => {
+      return String(row.accountingPeriodId) === periodId;
+    })
+    .sort((a, b) => {
+      return Number(a.order) - Number(b.order) || byId(a, b);
+    });
+}
+
+/** A legacy decimal as a whole number of hundredths or ten-thousandths (see scaled); null when empty. */
+function scaledOrNull(
+  value: unknown,
+  places: number,
+  unit: string,
+  what: string,
+): number | null {
+  const written = text(value);
+
+  return written === undefined ? null : scaled(written, places, unit, what);
+}
+
+/**
+ * A legacy decimal ("38.000000") as a whole number of hundredths or
+ * ten-thousandths (380000), read digit by digit so no float rounds it. One
+ * with a nonzero digit past those places, or a sign, is refused.
+ */
+function scaled(
+  written: string,
+  places: number,
+  unit: string,
+  what: string,
+): number {
+  const match = /^(\d+)(?:\.(\d+))?$/.exec(written);
+  const whole = match?.[1];
+  const fraction = match?.[2] ?? "";
+
+  if (whole === undefined || /[1-9]/.test(fraction.slice(places))) {
+    throw new Error(
+      `${what} is ${written}, which is not a whole number of ${unit}`,
+    );
+  }
+
+  return Number(whole + fraction.slice(0, places).padEnd(places, "0"));
+}
+
+function byId(a: Row, b: Row): number {
+  return Number(a.id) - Number(b.id);
 }
 
 function projectEntries(
@@ -612,9 +897,17 @@ function ownerParty(db: Db, residentId: string): PartyData {
       text(unit.code),
       `the code of the unit ${String(unit.id)} of resident ${residentId}`,
     ),
+    unitId: `u${String(unit.id)}`,
     startingBalance: eur(text(resident.startingBalance)).cents,
     role: roleOf(db, resident, unitPeriod),
+    share: scaledOrNull(
+      resident.percentage,
+      4,
+      "ten-thousandths",
+      `the share of resident ${residentId}`,
+    ),
     restriction: restrictionOf(resident) ?? restrictionOf(unit),
+    ownRestriction: restrictionOf(resident),
   };
 }
 
@@ -657,12 +950,13 @@ function assignRole(
   roles.set(id, role);
 }
 
-function orderOf(row: Row, id: string): number {
-  const order = Number(must(text(row.order), `the order of the account ${id}`));
+/** A row's order; `what` names the row ("the account 105"). */
+function orderOf(row: Row, what: string): number {
+  const order = Number(must(text(row.order), `the order of ${what}`));
 
   if (!Number.isInteger(order)) {
     throw new Error(
-      `the account ${id} has the order ${String(row.order)}, which is not a whole number`,
+      `${what} has the order ${String(row.order)}, which is not a whole number`,
     );
   }
 

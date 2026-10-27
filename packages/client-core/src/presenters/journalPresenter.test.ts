@@ -123,7 +123,7 @@ describe("the journal presenter", () => {
 
     expect(await presenter.deleteEntry("e6")).toEqual({ ok: true });
     expect(latest().entries.map(numberOf)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
-    expect(await presenter.deleteEntry("e4")).toEqual({
+    expect(await presenter.deleteEntry("e7")).toEqual({
       ok: false,
       reason: "kind-not-deletable",
     });

@@ -35,9 +35,12 @@ describe("loadLegacySeed", () => {
       personId: "md19",
       name: "Neri Ugo",
       unitCode: "C01",
+      unitId: "uC01",
       startingBalance: 0.5,
       role: "PR",
+      share: null,
       restriction: null,
+      ownRestriction: null,
     });
 
     expect(() => {

@@ -1,0 +1,17 @@
+/* ta-design.md §3: a unit's coefficient, drawn as the number it shows, edited in place on a click. */
+.coefficients-cell {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+  font: inherit;
+  text-align: right;
+  cursor: text;
+}
+
+.coefficients-cell:hover,
+.coefficients-cell:focus-visible {
+  outline: 1px dashed var(--bd);
+  outline-offset: 1px;
+}

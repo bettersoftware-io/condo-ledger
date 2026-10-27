@@ -137,6 +137,66 @@ export function parseHundredths(
   return sign === "-" ? 0 - value : value;
 }
 
+/**
+ * Reads a coefficient typed in the locale as ten-thousandths: the locale's
+ * decimal separator, up to four decimals, no groups (`0,022` is 220 in it-IT,
+ * `38` is 380000). Read digit by digit, as parseHundredths reads; a leading
+ * minus negates it, and whether one is allowed is the caller's call. Anything
+ * else is null.
+ */
+export function parseTenThousandths(
+  text: string,
+  locale: AmountLocale,
+): number | null {
+  const { decimal } = SEPARATORS[locale];
+  const match = new RegExp(
+    `^(-?)(\\d+)(?:${escaped(decimal)}(\\d{1,4}))?$`,
+    "u",
+  ).exec(text.trim());
+
+  if (match === null) {
+    return null;
+  }
+
+  const [, sign, whole = "", fraction = ""] = match;
+  const value = Number(whole) * 10000 + Number(fraction.padEnd(4, "0"));
+
+  return sign === "-" ? 0 - value : value;
+}
+
+/** One formatter of whole numbers per locale, made the first time the locale is shown. */
+const WHOLES = new Map<AmountLocale, Intl.NumberFormat>();
+
+/**
+ * Ten-thousandths with four decimals in the locale, every group marked as
+ * money is shown: `1,000.0000` in en-US, `1.000,0000` in it-IT. The decimals
+ * are written from the integer, never through a binary fraction.
+ */
+export function formatTenThousandths(
+  value: number,
+  locale: AmountLocale,
+): string {
+  const sign = value < 0 ? "-" : "";
+  const magnitude = Math.abs(value);
+  const whole = wholesIn(locale).format(Math.floor(magnitude / 10000));
+  const fraction = String(magnitude % 10000).padStart(4, "0");
+
+  return `${sign}${whole}${SEPARATORS[locale].decimal}${fraction}`;
+}
+
+/** Ten-thousandths as the text parseTenThousandths reads back in the locale: four decimals and no group (`1000,0000` in it-IT). What an editor holds for a coefficient it did not have typed. */
+export function tenThousandthsText(
+  value: number,
+  locale: AmountLocale,
+): string {
+  const sign = value < 0 ? "-" : "";
+  const magnitude = Math.abs(value);
+  const whole = Math.floor(magnitude / 10000);
+  const fraction = String(magnitude % 10000).padStart(4, "0");
+
+  return `${sign}${whole}${SEPARATORS[locale].decimal}${fraction}`;
+}
+
 /** Hundredths as the text parseHundredths reads back in the locale, with no trailing zero: 2150 is `21,5` in it-IT, 2000 is `20`. What a form holds for a rate or a percentage it did not have typed. */
 export function hundredthsText(value: number, locale: AmountLocale): string {
   return String(value / 100).replace(".", SEPARATORS[locale].decimal);
@@ -199,6 +259,23 @@ function patternOf({ decimal, groups }: Separators): RegExp {
   const whole = `(?:\\d{1,3}(?:${group}\\d{3})+|\\d+)`;
 
   return new RegExp(`^-?${whole}(?:${escaped(decimal)}\\d{1,2})?$`, "u");
+}
+
+function wholesIn(locale: AmountLocale): Intl.NumberFormat {
+  const known = WHOLES.get(locale);
+
+  if (known !== undefined) {
+    return known;
+  }
+
+  const made = new Intl.NumberFormat(locale, {
+    maximumFractionDigits: 0,
+    useGrouping: "always",
+  });
+
+  WHOLES.set(locale, made);
+
+  return made;
 }
 
 function escaped(text: string): string {

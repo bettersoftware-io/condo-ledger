@@ -5,11 +5,15 @@ import type {
   AccountDetails,
   AccountsGridIntents,
   AccountsGridState,
+  AllocationGridState,
   AmountLocale,
   BottomTabIntents,
   BottomTabState,
+  BudgetAllocationForm,
+  BudgetAllocationSummary,
   BudgetInstallmentsForm,
   BudgetInstallmentsSummary,
+  CoefficientsGridState,
   CollectionForm,
   CollectionSummary,
   ColumnSpec,
@@ -44,6 +48,9 @@ import type {
   SidebarState,
   SplitIntents,
   SplitState,
+  TableDialogIntents,
+  TableDialogState,
+  TreeGridIntents,
   WizardIntents,
   WizardState,
 } from "@cl/client-core";
@@ -59,6 +66,7 @@ import type {
 } from "@cl/domain";
 
 import {
+  type AllocationView,
   createViewModel,
   type NoticesView,
   type ScheduleView,
@@ -129,6 +137,15 @@ export interface Seen {
     WizardState<BudgetInstallmentsForm, BudgetInstallmentsSummary>,
     WizardIntents<BudgetInstallmentsForm, Result>
   >;
+  allocation: AllocationView;
+  coefficientsGrid: MachineView<CoefficientsGridState, TreeGridIntents>;
+  allocationGrid: MachineView<AllocationGridState, TreeGridIntents>;
+  budgetAllocation: MachineView<
+    WizardState<BudgetAllocationForm, BudgetAllocationSummary>,
+    WizardIntents<BudgetAllocationForm>
+  >;
+  /** The New Thousandth Table dialog. */
+  tableDialog: MachineView<TableDialogState, TableDialogIntents>;
   /** Null unless the page was mounted with an installment to edit. */
   installmentDialog: MachineView<
     InstallmentDialogState,
@@ -268,6 +285,11 @@ function Reader({
     useSchedule,
     useScheduleGrid,
     useBudgetInstallmentsWizard,
+    useAllocation,
+    useCoefficientsGrid,
+    useAllocationGrid,
+    useBudgetAllocationWizard,
+    useTableDialog,
   } = useViewModel();
 
   seen[index] = {
@@ -303,6 +325,11 @@ function Reader({
     schedule: useSchedule(),
     scheduleGrid: useScheduleGrid(),
     budgetInstallments: useBudgetInstallmentsWizard(),
+    allocation: useAllocation(),
+    coefficientsGrid: useCoefficientsGrid(),
+    allocationGrid: useAllocationGrid(),
+    budgetAllocation: useBudgetAllocationWizard(),
+    tableDialog: useTableDialog(null),
     installmentDialog: null,
   };
 

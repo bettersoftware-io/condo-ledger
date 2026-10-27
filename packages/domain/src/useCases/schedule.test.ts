@@ -521,6 +521,8 @@ function createAccount(id: string, role: AccountRole | null): Account {
     type: role === null ? "regular" : "controlUnitResident",
     role,
     budget: null,
+    abbreviation: null,
+    links: [],
   };
 }
 
@@ -536,9 +538,12 @@ function createOwner(
     personId: `p${id}`,
     name: `owner ${id.slice(1)}`,
     unitCode,
+    unitId: `u${unitCode}`,
     startingBalance: cents(0),
     role,
+    share: null,
     restriction,
+    ownRestriction: null,
   };
 }
 

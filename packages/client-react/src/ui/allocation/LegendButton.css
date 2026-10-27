@@ -1,0 +1,14 @@
+/* ta-design.md §1: the header's right side, 11.5px, dim. */
+.legend-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 11.5px;
+  color: var(--txd);
+  cursor: pointer;
+}
+
+.legend-button:hover {
+  color: var(--tx);
+}

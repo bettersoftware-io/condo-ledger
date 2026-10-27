@@ -180,6 +180,8 @@ function createAccount(id: string, role: AccountRole | null): Account {
     type: role === null ? "regular" : "controlUnitResident",
     role,
     budget: null,
+    abbreviation: null,
+    links: [],
   };
 }
 
@@ -198,9 +200,12 @@ function createOwner(id: string, startingBalance: number): OwnerParty {
     personId: `p${id}`,
     name: `Owner ${id}`,
     unitCode: "A1",
+    unitId: "uA1",
     startingBalance: cents(startingBalance),
     role: "PR",
+    share: null,
     restriction: null,
+    ownRestriction: null,
   };
 }
 
