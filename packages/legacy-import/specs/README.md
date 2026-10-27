@@ -69,9 +69,13 @@ pinned constants (counts).
 - **double-entry** — every projected transaction balances; the account tree's saldo ties
   to the raw sum of entries.
 - **riparto** — the distribution matrix totals tie out to the linked expense subtree;
-  total per-resident *preventivo* matches the legacy `estimateDistribution` postings.
-  *(See the `# NOTE:` in `riparto.feature`: the per-resident split diverges within one
-  unit, so a Σ-only invariant is asserted — a documented, accepted gap.)*
+  total per-resident *preventivo* matches the legacy `estimateDistribution` postings
+  (the old engine, `buildRiparto`, the prototype seed's: its per-resident split diverges
+  within one unit, so a Σ-only invariant is asserted, see the `# NOTE:` in the feature);
+  and the budget allocation of the legacy algorithm (`allocationOf`, run on the
+  generator's own projection of the dump) equals the posted allocation entry to the cent:
+  Saturno 2011's ten residents against `tx5`, Pozzetto 2013's 25 against `tx291`, and
+  A04's `r166` and `r167` against the legacy report's 898.64 and 46.63.
 - **installments** — the plan's group total equals Σ legacy `installmentItem.amount`.
 - **units-money** — each resident's `saldoPrec` equals the legacy
   `unitResident.startingBalance`; group rows roll up exactly.

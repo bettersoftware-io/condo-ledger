@@ -46,6 +46,13 @@ export { createUnitsSimulator } from "./simulators/unitsSimulator.ts";
 export * from "./support/romeTime.ts";
 export * from "./useCases/accountTree.ts";
 export * from "./useCases/allocate.ts";
+export {
+  type Allocation,
+  type AllocationRow,
+  type AllocationSource,
+  allocationBooksOf,
+  allocationOf,
+} from "./useCases/allocation/allocation.ts";
 export * from "./useCases/budgetShares.ts";
 export * from "./useCases/collection.ts";
 export * from "./useCases/installments.ts";
