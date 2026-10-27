@@ -11,6 +11,7 @@ import {
 import { loadExtraEntries } from "./pseudonymise/leftovers.ts";
 import { pseudonymiseTables } from "./pseudonymise/pseudonymise.ts";
 import { reconcilePeriods } from "./reconcile.ts";
+import { translateLegacySeed } from "./translate/translateSeed.ts";
 
 // old/db under the repository root, or the folder LEGACY_DUMP_DIR names (a
 // worktree has no old/: it is kept in the project's own checkout).
@@ -71,6 +72,10 @@ writeFileSync(OUT_URL, `${JSON.stringify(seed, null, 2)}\n`);
 console.log("");
 console.log(`Wrote ${OUT_URL.pathname}`);
 
-// The M1 simulators' seed, from the same pseudonymised db.
-writeFileSync(SEED_MODULE_URL, renderLegacySeedModule(projectLegacySeed(db)));
+// The M1 simulators' seed, from the same pseudonymised db, its text in
+// English (the dump stays Italian; see src/translate/).
+writeFileSync(
+  SEED_MODULE_URL,
+  renderLegacySeedModule(translateLegacySeed(projectLegacySeed(db))),
+);
 console.log(`Wrote ${SEED_MODULE_URL.pathname}`);
