@@ -11,6 +11,15 @@ Run them: `pnpm --filter @cl/legacy-import test` (the parity specs run with the 
 Design rationale: [`docs/superpowers/specs/2026-06-14-accounting-parity-specs-design.md`](../../../docs/superpowers/specs/2026-06-14-accounting-parity-specs-design.md).
 Domain background: [`docs/domain/accounting-and-distribution.md`](../../../docs/domain/accounting-and-distribution.md).
 
+The generator (`pnpm --filter @cl/legacy-import gen:data`) also writes the app's
+seed, `packages/domain/src/simulators/seed/legacySeed.generated.ts`. That seed's
+text (account names, entry descriptions, invoice reasons, installment, table and
+group names) is translated to English at import, from `src/translate/`: an exact
+map, and a few patterns for templated text such as invoice registrations. A
+string with neither stops the generator, naming the field and the record. The
+dump stays Italian, and so do these specs, which read the projection before it
+is translated.
+
 ## What these tests actually exercise
 
 **The offline generator's projection layer** (`packages/legacy-import/src/`) — *not* the prototype
