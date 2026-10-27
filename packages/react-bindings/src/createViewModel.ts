@@ -64,7 +64,6 @@ import type {
   AllocationMode,
   Building,
   Cents,
-  CoefficientNode,
   EntryAdded,
   EntryKind,
   Firm,
@@ -77,8 +76,6 @@ import type {
   Result,
   ResultOf,
   Schedule,
-  TableAdded,
-  TableDraft,
   Theme,
 } from "@cl/domain";
 
@@ -122,8 +119,7 @@ export interface ScheduleView {
 
 /**
  * The Thousandth Tables & Allocation screen: the period's tables and the one
- * selected, that table's coefficients, the allocation in the mode chosen, and
- * the writes. The selection and the mode are the application's, so every
+ * selected, the allocation in the mode chosen, and the writes. The selection and the mode are the application's, so every
  * reader, and the grids, follow the same ones.
  */
 export interface AllocationView {
@@ -132,12 +128,9 @@ export interface AllocationView {
   selectedTableId: string | null;
   /** Null while the period's books or tables are on their way. */
   allocation: Allocation | null;
-  coefficients: CoefficientNode[];
   mode: AllocationMode;
   chooseMode: (mode: AllocationMode) => void;
   selectTable: (tableId: string) => void;
-  addTable: (draft: TableDraft) => Promise<ResultOf<TableAdded>>;
-  editTable: (id: string, draft: TableDraft) => Promise<Result>;
   deleteTable: (id: string) => Promise<Result>;
   /** The account's path in the selected period's books, as a refusal names it; its id when they do not hold it. */
   accountPath: (accountId: string) => string;
@@ -459,12 +452,9 @@ export function createViewModel(app: App): ViewModel {
         tables: useStateObservable(allocation.tables$),
         selectedTableId: tableId,
         allocation: useStateObservable(allocation.allocation$(mode)),
-        coefficients: useStateObservable(allocation.coefficients$(tableId)),
         mode,
         chooseMode: allocationMode.intents.choose,
         selectTable: tableSelection.intents.select,
-        addTable: allocation.addTable,
-        editTable: allocation.editTable,
         deleteTable: allocation.deleteTable,
         accountPath: allocation.accountPath,
         setCoefficient: allocation.setCoefficient,

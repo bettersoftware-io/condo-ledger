@@ -326,11 +326,6 @@ describe("the view model", () => {
     expect(allocation.selectedTableId).toBe("dt1");
     expect(allocation.mode).toBe("budget");
     expect(allocation.allocation?.root.total).toBe(740000);
-    expect(
-      allocation.coefficients.map((node) => {
-        return node.key;
-      }),
-    ).toEqual(["group:ug1", "group:ug2"]);
     expect(coefficientsGrid.state.rows[0]?.key).toBe("group:ug1");
     expect(allocationGrid.state.rows[0]?.node.kind).toBe("root");
   });
@@ -373,7 +368,7 @@ describe("the view model", () => {
     expect(page.read(1).allocationGrid.state.rows.length).toBeGreaterThan(1);
   });
 
-  it("the allocation's writes reach the tables: a coefficient read in the session's locale, a table added, edited and deleted", async () => {
+  it("the allocation's writes reach the tables: a coefficient read in the session's locale, a table added through the dialog and deleted", async () => {
     const page = mountUnderProvider(loadLegacySeed(legacySeedData));
     const answers: Result[] = [];
 
@@ -388,24 +383,14 @@ describe("the view model", () => {
     ]);
     expect(page.read().allocation.tables[0]?.total).toBe(11000000);
 
+    await page.send((seen) => {
+      seen.tableDialog.edit({ name: "Test" });
+    });
     await page.send(async (seen) => {
-      const added = await seen.allocation.addTable({
-        name: "Test",
-        order: 6,
-        notes: "",
-      });
-
-      answers.push(added);
-      answers.push(
-        await seen.allocation.editTable("dt-new-1", {
-          name: "Test 2",
-          order: 6,
-          notes: "",
-        }),
-      );
+      answers.push(await seen.tableDialog.save());
     });
 
-    expect(page.read().allocation.tables.at(-1)?.table.name).toBe("Test 2");
+    expect(page.read().allocation.tables.at(-1)?.table.name).toBe("Test");
 
     await page.send(async (seen) => {
       answers.push(await seen.allocation.deleteTable("dt-new-1"));
@@ -413,7 +398,6 @@ describe("the view model", () => {
 
     expect(answers.slice(2)).toEqual([
       { ok: true, value: { id: "dt-new-1" } },
-      { ok: true },
       { ok: true },
     ]);
     expect(page.read().allocation.tables).toHaveLength(5);
