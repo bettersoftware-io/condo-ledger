@@ -1,5 +1,6 @@
 import {
   type AccountsPort,
+  type AccountsSimulator,
   type BuildingsPort,
   type ClockPort,
   createAccountsSimulator,
@@ -7,6 +8,8 @@ import {
   createInstallmentsSimulator,
   createJournalSimulator,
   createSessionSimulator,
+  createTablesSimulator,
+  createUnitsSimulator,
   DESIGN_FIRM,
   DESIGN_PRINCIPAL,
   type EntryKind,
@@ -18,6 +21,8 @@ import {
   type LegacySeed,
   type Result,
   type SessionPort,
+  type TablesPort,
+  type UnitsPort,
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
@@ -163,6 +168,8 @@ export interface AppPorts {
   accounts: AccountsPort;
   journal: JournalPort;
   installments: InstallmentsPort;
+  tables: TablesPort;
+  units: UnitsPort;
   clock: ClockPort;
 }
 
@@ -507,11 +514,12 @@ export function createApp(ports: AppPorts): App {
 }
 
 /**
- * The five simulators over one seed: what `pnpm dev` and the harness run on.
+ * The seven simulators over one seed: what `pnpm dev` and the harness run on.
  * The journal and the installments read each other's current state, so a
  * collection is judged against the schedule as it stands and an installment
  * a collection pays is not deleted. Each reads the other only when a write
- * asks, after both are built.
+ * asks, after both are built. A table is deleted only when no account, as
+ * the accounts simulator holds it now, links to it.
  */
 export function createSimulatorPorts(
   seed: LegacySeed,
@@ -532,15 +540,21 @@ export function createSimulatorPorts(
     },
   );
 
+  const accounts: AccountsSimulator = createAccountsSimulator(seed);
+
   return {
     session: createSessionSimulator({
       principal: DESIGN_PRINCIPAL,
       firm: DESIGN_FIRM,
     }),
     buildings: createBuildingsSimulator(seed),
-    accounts: createAccountsSimulator(seed),
+    accounts,
     journal,
     installments,
+    tables: createTablesSimulator(seed, (periodId) => {
+      return accounts.current(periodId);
+    }),
+    units: createUnitsSimulator(seed),
     clock,
   };
 }

@@ -19,7 +19,12 @@ export type {
 } from "./ports/installmentsPort.ts";
 export type { EntryAdded, JournalPort } from "./ports/journalPort.ts";
 export type { SessionPort } from "./ports/sessionPort.ts";
-export { createAccountsSimulator } from "./simulators/accountsSimulator.ts";
+export type { TablesPort } from "./ports/tablesPort.ts";
+export type { UnitsPort } from "./ports/unitsPort.ts";
+export {
+  type AccountsSimulator,
+  createAccountsSimulator,
+} from "./simulators/accountsSimulator.ts";
 export { createBuildingsSimulator } from "./simulators/buildingsSimulator.ts";
 export { fixedClock } from "./simulators/fixedClock.ts";
 export {
@@ -36,6 +41,8 @@ export {
   DESIGN_FIRM,
   DESIGN_PRINCIPAL,
 } from "./simulators/sessionSimulator.ts";
+export { createTablesSimulator } from "./simulators/tablesSimulator.ts";
+export { createUnitsSimulator } from "./simulators/unitsSimulator.ts";
 export * from "./support/romeTime.ts";
 export * from "./useCases/accountTree.ts";
 export * from "./useCases/allocate.ts";
@@ -57,3 +64,4 @@ export * from "./useCases/schedule.ts";
 export * from "./useCases/validateBudget.ts";
 export * from "./useCases/validateEntry.ts";
 export * from "./useCases/validateSchedule.ts";
+export * from "./useCases/validateTable.ts";
