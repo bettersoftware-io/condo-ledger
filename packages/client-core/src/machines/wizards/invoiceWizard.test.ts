@@ -123,7 +123,7 @@ describe("the New invoice wizard", () => {
     );
     expect(
       choices.some((choice) => {
-        return choice.key === "la219" && choice.label.endsWith("Ascensore");
+        return choice.key === "la219" && choice.label.endsWith("Elevator");
       }),
     ).toBe(true);
     expect(
@@ -150,7 +150,7 @@ describe("the New invoice wizard", () => {
       vatRate: "20",
       withholdingCode: "1020",
       withholdingOnSocialSecurity: false,
-      reason: "controllo ascensori",
+      reason: "Elevator inspection",
       preset: "company",
       description: "",
     });
@@ -168,7 +168,7 @@ describe("the New invoice wizard", () => {
     machine.intents.edit({ number: "12" });
 
     expect(machine.state$.getValue().form.description).toBe(
-      `Invoice 12 — ${name}: controllo ascensori`,
+      `Invoice 12 — ${name}: Elevator inspection`,
     );
 
     machine.intents.edit({ reason: "verifica biennale" });
@@ -208,7 +208,7 @@ describe("the New invoice wizard", () => {
       "costAccountId",
     ]);
     expect(machine.state$.getValue().form.reason).not.toBe(
-      "controllo ascensori",
+      "Elevator inspection",
     );
   });
 
@@ -542,7 +542,7 @@ describe("the New invoice wizard", () => {
     machine.intents.edit({ supplierId: "md78" });
 
     expect(li50.number).toBe("3163");
-    expect(machine.state$.getValue().form.reason).toBe("controllo ascensori");
+    expect(machine.state$.getValue().form.reason).toBe("Elevator inspection");
   });
 
   it("the Company and Professional w/o register pills clear social security, the flag and the non-taxable amount", () => {
@@ -652,7 +652,7 @@ describe("the New invoice wizard", () => {
       number: 141,
       at: "2026-10-14T10:00:00",
       kind: "invoice",
-      description: `Invoice 4001 — ${supplierName(harness, "md78")}: controllo ascensori`,
+      description: `Invoice 4001 — ${supplierName(harness, "md78")}: Elevator inspection`,
     });
 
     const invoice = must(

@@ -263,7 +263,7 @@ describe("editing a direct payment", () => {
       },
       verdict: { ok: true },
       stepVerdict: { ok: true },
-      summary: { paidFrom: "Cassa Contanti" },
+      summary: { paidFrom: "Cash on hand" },
     });
   });
 

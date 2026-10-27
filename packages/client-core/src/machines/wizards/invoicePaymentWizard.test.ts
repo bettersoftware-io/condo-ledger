@@ -242,7 +242,7 @@ describe("the Invoice payment wizard", () => {
     expect(preview[0]?.path).toMatch(
       new RegExp(` › ${escaped(supplierName(harness, "md78"))}$`),
     );
-    expect(preview[1]?.path).toMatch(/Cassa contanti$/);
+    expect(preview[1]?.path).toMatch(/Cash on hand$/);
   });
 
   it("paid in two tranches: the first leaves the rest open, the second settles it", async () => {

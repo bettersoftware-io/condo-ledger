@@ -1074,24 +1074,24 @@ describe("the Record owner collection wizard", () => {
       "The amount is allocated against the owner's outstanding installments, oldest first.",
     );
     expect(wizard.settlement()).toEqual([
-      ["Rata 9", "A01", "20/09/2013", "134.98", "134.98"],
-      ["Rata 10", "A01", "20/10/2013", "134.98", "134.98"],
-      ["Rata 11", "A01", "20/11/2013", "134.98", "134.98"],
-      ["Rata 12", "A01", "20/12/2013", "134.98", "134.98"],
+      ["Installment 9", "A01", "20/09/2013", "134.98", "134.98"],
+      ["Installment 10", "A01", "20/10/2013", "134.98", "134.98"],
+      ["Installment 11", "A01", "20/11/2013", "134.98", "134.98"],
+      ["Installment 12", "A01", "20/12/2013", "134.98", "134.98"],
     ]);
     expect(wizard.partialRows()).toEqual([]);
 
     await wizard.fill("Amount collected", "200");
 
     expect(wizard.settlement()).toEqual([
-      ["Rata 9", "A01", "20/09/2013", "134.98", "134.98"],
-      ["Rata 10", "A01", "20/10/2013", "134.98", "65.02"],
+      ["Installment 9", "A01", "20/09/2013", "134.98", "134.98"],
+      ["Installment 10", "A01", "20/10/2013", "134.98", "65.02"],
     ]);
     expect(wizard.partialRows()).toEqual([1]);
 
     await wizard.next();
 
-    const description = `Collection of installments from ${name}: Rata 9 (20/09/2013), Rata 10 (20/10/2013)`;
+    const description = `Collection of installments from ${name}: Installment 9 (20/09/2013), Installment 10 (20/10/2013)`;
 
     expect(wizard.title()).toBe(
       "Record Owner Collection — Step 3: Description",
@@ -1182,7 +1182,7 @@ describe("the Record owner collection wizard", () => {
     await page.collectElsewhere("r162", ["ii763"], 13498);
     await wizard.save();
 
-    const description = `Collection of installments from ${name}: Rata 10 (20/10/2013), Rata 11 (20/11/2013)`;
+    const description = `Collection of installments from ${name}: Installment 10 (20/10/2013), Installment 11 (20/11/2013)`;
 
     expect(page.dialogOpen()).toBe(true);
     expect(wizard.message()).toBe(
@@ -1241,8 +1241,8 @@ describe("the Record owner collection wizard", () => {
     expect(wizard.hasBack()).toBe(false);
     expect(wizard.fieldValue("Amount collected")).toBe("1000.00");
     expect(wizard.settlement()).toEqual([
-      ["Rata nr. 1", "A4", "15/03/2011", "961.14", "926.84"],
-      ["Rata nr. 1", "B4", "15/03/2011", "74.02", "73.16"],
+      ["Installment 1", "A4", "15/03/2011", "961.14", "926.84"],
+      ["Installment 1", "B4", "15/03/2011", "74.02", "73.16"],
     ]);
     expect(wizard.partialRows()).toEqual([0, 1]);
 
@@ -1252,7 +1252,7 @@ describe("the Record owner collection wizard", () => {
   });
 });
 
-/** p36's A01 (r162): the four installment items it still owes, Rata 9 to 12, 134.98 each. */
+/** p36's A01 (r162): the four installment items it still owes, Installment 9 to 12, 134.98 each. */
 const A01_OPEN_ITEMS = ["ii763", "ii790", "ii817", "ii844"];
 
 const UNBALANCED =

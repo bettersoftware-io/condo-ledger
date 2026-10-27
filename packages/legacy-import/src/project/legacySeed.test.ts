@@ -15,6 +15,7 @@ import {
 import { parseTables } from "../loadRows.ts";
 import { loadExtraEntries } from "../pseudonymise/leftovers.ts";
 import { pseudonymiseTables } from "../pseudonymise/pseudonymise.ts";
+import { translateLegacySeed } from "../translate/translateSeed.ts";
 import { projectLegacySeed } from "./legacySeed.ts";
 
 describe.skipIf(!legacyDumpAvailable())(
@@ -197,8 +198,8 @@ describe.skipIf(!legacyDumpAvailable())(
       ).toHaveLength(47);
     });
 
-    it("is what the committed module holds", () => {
-      expect(seed).toEqual(legacySeedData);
+    it("is, its text in English, what the committed module holds", () => {
+      expect(translateLegacySeed(seed)).toEqual(legacySeedData);
     });
 
     let db: Db;

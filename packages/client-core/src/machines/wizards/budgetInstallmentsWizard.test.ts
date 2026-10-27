@@ -363,7 +363,7 @@ describe("the Create budget installments wizard", () => {
     expect(
       stepReasonAfter(saturno, {
         rows: [
-          createRow("Rata nr. 2", "34"),
+          createRow("Installment 2", "34"),
           createRow("Installment 5", "33"),
           createRow("Installment 6", "33"),
         ],

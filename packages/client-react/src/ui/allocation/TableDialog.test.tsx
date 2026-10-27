@@ -27,9 +27,9 @@ describe("TableDialog", () => {
   it("refuses a name another table has, a blank name and an order that is not a whole number from 1", async () => {
     const { dialog } = mountTableDialog(null);
 
-    await dialog.fill("Name", "Scale");
+    await dialog.fill("Name", "Stairs");
 
-    expect(dialog.message()).toBe("A table named Scale already exists");
+    expect(dialog.message()).toBe("A table named Stairs already exists");
     expect(dialog.isSaveDisabled()).toBe(true);
 
     await dialog.fill("Name", "");
@@ -43,11 +43,11 @@ describe("TableDialog", () => {
     expect(dialog.isSaveDisabled()).toBe(true);
   });
 
-  it("edits a table as it stands: Scale, order 3, saved under its own id", async () => {
+  it("edits a table as it stands: Stairs, order 3, saved under its own id", async () => {
     const { dialog, saved } = mountTableDialog("dt3");
 
     expect(dialog.title()).toBe("Edit Thousandth Table");
-    expect(dialog.fieldValue("Name")).toBe("Scale");
+    expect(dialog.fieldValue("Name")).toBe("Stairs");
     expect(dialog.fieldValue("Order")).toBe("3");
     expect(dialog.saveLabel()).toBe("✎ Save");
     expect(dialog.isSaveDisabled()).toBe(false);
@@ -61,7 +61,7 @@ describe("TableDialog", () => {
   it("Enter does nothing while Save cannot go on, and Cancel closes", async () => {
     const { dialog, saved, cancels } = mountTableDialog(null);
 
-    await dialog.fill("Name", "Scale");
+    await dialog.fill("Name", "Stairs");
     await dialog.pressEnter();
 
     expect(saved()).toEqual([]);

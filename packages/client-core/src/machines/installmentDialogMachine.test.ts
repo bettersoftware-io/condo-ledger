@@ -30,7 +30,7 @@ describe("the Edit Installment dialog", () => {
     const { machine } = createDialog("in5");
 
     expect(machine.state$.getValue()).toEqual({
-      form: { name: "Rata nr. 2", dueDate: "15/07/2011", locked: false },
+      form: { name: "Installment 2", dueDate: "15/07/2011", locked: false },
       dueDate: "2011-07-15",
       verdict: { ok: true },
       touched: false,
@@ -40,7 +40,7 @@ describe("the Edit Installment dialog", () => {
 
   it.each([
     [{ name: "  " }, "blank-name"],
-    [{ name: "Rata nr. 3" }, "name-taken"],
+    [{ name: "Installment 3" }, "name-taken"],
     [{ dueDate: "30/02/2011" }, "invalid-due-date"],
     [{ dueDate: "2011-08-15" }, "invalid-due-date"],
     [{ dueDate: "" }, "invalid-due-date"],
@@ -77,7 +77,7 @@ describe("the Edit Installment dialog", () => {
     const { machine, harness } = createDialog("in1");
 
     expect(machine.state$.getValue().form).toEqual({
-      name: "Rata nr. 1",
+      name: "Installment 1",
       dueDate: "15/03/2011",
       locked: true,
     });
@@ -91,9 +91,9 @@ describe("the Edit Installment dialog", () => {
       ok: false,
       reason: "installment-locked",
     });
-    expect(installmentOf(harness, "in1").name).toBe("Rata nr. 1");
+    expect(installmentOf(harness, "in1").name).toBe("Installment 1");
 
-    machine.intents.edit({ name: "Rata nr. 1", dueDate: "15/04/2011" });
+    machine.intents.edit({ name: "Installment 1", dueDate: "15/04/2011" });
     expect(machine.state$.getValue().verdict).toEqual({
       ok: false,
       reason: "installment-locked",

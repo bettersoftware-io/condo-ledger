@@ -37,7 +37,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la1",
       "periodId": "p1",
       "parentId": null,
-      "name": "Liquidità",
+      "name": "Liquidity",
       "order": 1,
       "nature": "assets",
       "type": "grouping",
@@ -50,7 +50,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la2",
       "periodId": "p1",
       "parentId": "la1",
-      "name": "Cassa Contanti",
+      "name": "Cash on hand",
       "order": 2,
       "nature": "assets",
       "type": "regular",
@@ -63,7 +63,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la3",
       "periodId": "p1",
       "parentId": "la1",
-      "name": "Banche",
+      "name": "Banks",
       "order": 3,
       "nature": "assets",
       "type": "grouping",
@@ -76,7 +76,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la4",
       "periodId": "p1",
       "parentId": "la3",
-      "name": "Banca Alto Livenza - C/C 0764.94",
+      "name": "Banca Alto Livenza - a/c 0764.94",
       "order": 4,
       "nature": "assets",
       "type": "regular",
@@ -89,7 +89,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la5",
       "periodId": "p1",
       "parentId": "la3",
-      "name": "Credito Carnico - C/C 4990808838",
+      "name": "Credito Carnico - a/c 4990808838",
       "order": 5,
       "nature": "assets",
       "type": "regular",
@@ -102,7 +102,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la6",
       "periodId": "p1",
       "parentId": "la1",
-      "name": "Poste",
+      "name": "Post office",
       "order": 6,
       "nature": "assets",
       "type": "grouping",
@@ -115,7 +115,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la7",
       "periodId": "p1",
       "parentId": "la6",
-      "name": "Cassa Rurale del Torre - C/C 8125011",
+      "name": "Cassa Rurale del Torre - a/c 8125011",
       "order": 7,
       "nature": "assets",
       "type": "regular",
@@ -128,7 +128,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la8",
       "periodId": "p1",
       "parentId": "la1",
-      "name": "Libretti di Risparmio/Depositi",
+      "name": "Savings books / Deposits",
       "order": 8,
       "nature": "assets",
       "type": "grouping",
@@ -141,7 +141,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la9",
       "periodId": "p1",
       "parentId": null,
-      "name": "Crediti/debiti vs condòmini",
+      "name": "Receivables/payables vs owners",
       "order": 9,
       "nature": "assetsOrLiabilities",
       "type": "controlUnitResident",
@@ -154,7 +154,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la10",
       "periodId": "p1",
       "parentId": null,
-      "name": "Arrotondamenti attivi/passivi",
+      "name": "Active/passive roundings",
       "order": 10,
       "nature": "assetsOrLiabilities",
       "type": "controlUnitResident",
@@ -167,7 +167,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la11",
       "periodId": "p1",
       "parentId": null,
-      "name": "Fondi",
+      "name": "Funds",
       "order": 11,
       "nature": "liabilities",
       "type": "grouping",
@@ -180,7 +180,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la12",
       "periodId": "p1",
       "parentId": "la11",
-      "name": "Accumulato dai condòmini",
+      "name": "Accumulated from owners",
       "order": 12,
       "nature": "liabilities",
       "type": "regular",
@@ -193,7 +193,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la13",
       "periodId": "p1",
       "parentId": "la11",
-      "name": "Interessi per morosità",
+      "name": "Late-payment interest",
       "order": 13,
       "nature": "liabilities",
       "type": "regular",
@@ -206,7 +206,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la14",
       "periodId": "p1",
       "parentId": "la11",
-      "name": "Imprevisti",
+      "name": "Contingencies",
       "order": 14,
       "nature": "liabilities",
       "type": "regular",
@@ -219,7 +219,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la15",
       "periodId": "p1",
       "parentId": null,
-      "name": "Debiti vs terzi",
+      "name": "Payables to third parties",
       "order": 15,
       "nature": "liabilities",
       "type": "grouping",
@@ -232,7 +232,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la16",
       "periodId": "p1",
       "parentId": "la15",
-      "name": "Fornitori",
+      "name": "Suppliers",
       "order": 16,
       "nature": "liabilities",
       "type": "control",
@@ -245,7 +245,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la17",
       "periodId": "p1",
       "parentId": "la15",
-      "name": "Amministrazione",
+      "name": "Administration",
       "order": 17,
       "nature": "liabilities",
       "type": "regular",
@@ -258,7 +258,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la18",
       "periodId": "p1",
       "parentId": "la15",
-      "name": "Dipendenti",
+      "name": "Employees",
       "order": 18,
       "nature": "liabilities",
       "type": "grouping",
@@ -271,7 +271,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la19",
       "periodId": "p1",
       "parentId": "la18",
-      "name": "Salari e stipendi",
+      "name": "Salaries & wages",
       "order": 19,
       "nature": "liabilities",
       "type": "regular",
@@ -284,7 +284,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la20",
       "periodId": "p1",
       "parentId": "la18",
-      "name": "13° e 14° non versati",
+      "name": "Unpaid 13th & 14th month pay",
       "order": 20,
       "nature": "liabilities",
       "type": "regular",
@@ -297,7 +297,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la21",
       "periodId": "p1",
       "parentId": "la18",
-      "name": "Fondo di accantonamento TFR",
+      "name": "Severance (TFR) reserve",
       "order": 21,
       "nature": "liabilities",
       "type": "regular",
@@ -310,7 +310,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la22",
       "periodId": "p1",
       "parentId": "la15",
-      "name": "Erario",
+      "name": "Tax authority",
       "order": 22,
       "nature": "liabilities",
       "type": "grouping",
@@ -323,7 +323,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la23",
       "periodId": "p1",
       "parentId": "la22",
-      "name": "Professionisti - trib. 1040",
+      "name": "Professionals - tax code 1040",
       "order": 23,
       "nature": "liabilities",
       "type": "regular",
@@ -336,7 +336,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la24",
       "periodId": "p1",
       "parentId": "la22",
-      "name": "Amministratori occasionali - trib. 1004",
+      "name": "Occasional administrators - tax code 1004",
       "order": 24,
       "nature": "liabilities",
       "type": "regular",
@@ -349,7 +349,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la25",
       "periodId": "p1",
       "parentId": "la22",
-      "name": "Società di persone - trib. 1019",
+      "name": "Partnerships - tax code 1019",
       "order": 25,
       "nature": "liabilities",
       "type": "regular",
@@ -362,7 +362,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la26",
       "periodId": "p1",
       "parentId": "la22",
-      "name": "Società di capitali - trib. 1020",
+      "name": "Corporations - tax code 1020",
       "order": 26,
       "nature": "liabilities",
       "type": "regular",
@@ -375,7 +375,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la27",
       "periodId": "p1",
       "parentId": "la15",
-      "name": "Istituti previdenziali",
+      "name": "Social security institutions",
       "order": 27,
       "nature": "liabilities",
       "type": "regular",
@@ -388,7 +388,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la28",
       "periodId": "p1",
       "parentId": null,
-      "name": "Spese generali",
+      "name": "General expenses",
       "order": 28,
       "nature": "expenses",
       "type": "grouping",
@@ -421,7 +421,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la29",
       "periodId": "p1",
       "parentId": "la28",
-      "name": "Assicurazione",
+      "name": "Insurance",
       "order": 29,
       "nature": "expenses",
       "type": "regular",
@@ -434,7 +434,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la30",
       "periodId": "p1",
       "parentId": "la28",
-      "name": "Aumento annuale fondo accantonamento",
+      "name": "Annual reserve fund increase",
       "order": 30,
       "nature": "expenses",
       "type": "regular",
@@ -447,7 +447,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la31",
       "periodId": "p1",
       "parentId": "la28",
-      "name": "Compenso amministratore",
+      "name": "Administrator fee",
       "order": 31,
       "nature": "expenses",
       "type": "regular",
@@ -460,7 +460,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la32",
       "periodId": "p1",
       "parentId": "la28",
-      "name": "Modello 770 e adempimenti fiscali",
+      "name": "Form 770 & tax compliance",
       "order": 32,
       "nature": "expenses",
       "type": "regular",
@@ -473,7 +473,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la33",
       "periodId": "p1",
       "parentId": "la28",
-      "name": "Spesa tenuta cc bancario",
+      "name": "Bank account fee",
       "order": 33,
       "nature": "expenses",
       "type": "regular",
@@ -486,7 +486,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la34",
       "periodId": "p1",
       "parentId": null,
-      "name": "Generali residenti",
+      "name": "General residents",
       "order": 34,
       "nature": "expenses",
       "type": "grouping",
@@ -519,7 +519,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la35",
       "periodId": "p1",
       "parentId": "la34",
-      "name": "Spese giardino",
+      "name": "Garden expenses",
       "order": 35,
       "nature": "expenses",
       "type": "regular",
@@ -532,7 +532,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la36",
       "periodId": "p1",
       "parentId": "la34",
-      "name": "Spese varie di manutenzione",
+      "name": "Miscellaneous maintenance",
       "order": 36,
       "nature": "expenses",
       "type": "regular",
@@ -545,7 +545,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la37",
       "periodId": "p1",
       "parentId": null,
-      "name": "Spese scala",
+      "name": "Stair expenses",
       "order": 37,
       "nature": "expenses",
       "type": "grouping",
@@ -578,7 +578,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la38",
       "periodId": "p1",
       "parentId": "la37",
-      "name": "Illuminazione",
+      "name": "Lighting",
       "order": 38,
       "nature": "expenses",
       "type": "regular",
@@ -591,7 +591,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la39",
       "periodId": "p1",
       "parentId": "la37",
-      "name": "Pulizia",
+      "name": "Cleaning",
       "order": 39,
       "nature": "expenses",
       "type": "regular",
@@ -604,7 +604,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la40",
       "periodId": "p1",
       "parentId": null,
-      "name": "Spese ascensore",
+      "name": "Elevator expenses",
       "order": 40,
       "nature": "expenses",
       "type": "grouping",
@@ -637,7 +637,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la41",
       "periodId": "p1",
       "parentId": "la40",
-      "name": "Forza motrice",
+      "name": "Motor power",
       "order": 41,
       "nature": "expenses",
       "type": "regular",
@@ -650,7 +650,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la42",
       "periodId": "p1",
       "parentId": "la40",
-      "name": "Manutenzione",
+      "name": "Maintenance",
       "order": 42,
       "nature": "expenses",
       "type": "regular",
@@ -663,7 +663,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la43",
       "periodId": "p1",
       "parentId": null,
-      "name": "Consumi",
+      "name": "Consumption",
       "order": 43,
       "nature": "expenses",
       "type": "grouping",
@@ -715,7 +715,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la44",
       "periodId": "p1",
       "parentId": "la43",
-      "name": "Acqua",
+      "name": "Water",
       "order": 44,
       "nature": "expenses",
       "type": "regular",
@@ -741,7 +741,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la46",
       "periodId": "p1",
       "parentId": "la43",
-      "name": "Elettricità",
+      "name": "Electricity",
       "order": 46,
       "nature": "expenses",
       "type": "regular",
@@ -754,7 +754,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la47",
       "periodId": "p1",
       "parentId": null,
-      "name": "Spese personali",
+      "name": "Personal expenses",
       "order": 47,
       "nature": "expenses",
       "type": "controlUnitResident",
@@ -767,7 +767,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la48",
       "periodId": "p1",
       "parentId": null,
-      "name": "Da condòmini",
+      "name": "From owners",
       "order": 48,
       "nature": "income",
       "type": "grouping",
@@ -780,7 +780,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la49",
       "periodId": "p1",
       "parentId": "la48",
-      "name": "Da riparto preventivo",
+      "name": "From budget allocation",
       "order": 49,
       "nature": "income",
       "type": "regular",
@@ -793,7 +793,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la50",
       "periodId": "p1",
       "parentId": "la48",
-      "name": "Da conguaglio a consuntivo",
+      "name": "From final balance settlement",
       "order": 50,
       "nature": "income",
       "type": "regular",
@@ -806,7 +806,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la51",
       "periodId": "p1",
       "parentId": "la48",
-      "name": "Da riparto preventivo straordinario",
+      "name": "From extraordinary budget allocation",
       "order": 51,
       "nature": "income",
       "type": "regular",
@@ -819,7 +819,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la53",
       "periodId": "p1",
       "parentId": "la48",
-      "name": "Da riparto consuntivo mensile",
+      "name": "From monthly final balance allocation",
       "order": 53,
       "nature": "income",
       "type": "regular",
@@ -832,7 +832,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la54",
       "periodId": "p1",
       "parentId": null,
-      "name": "Da affitti attivi",
+      "name": "From rental income",
       "order": 54,
       "nature": "income",
       "type": "regular",
@@ -845,7 +845,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la55",
       "periodId": "p1",
       "parentId": null,
-      "name": "Da interessi attivi",
+      "name": "From interest income",
       "order": 55,
       "nature": "income",
       "type": "grouping",
@@ -858,7 +858,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la56",
       "periodId": "p1",
       "parentId": "la55",
-      "name": "Da conto corrente",
+      "name": "From bank account",
       "order": 56,
       "nature": "income",
       "type": "regular",
@@ -871,7 +871,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la57",
       "periodId": "p1",
       "parentId": "la55",
-      "name": "Da condòmini morosi",
+      "name": "From defaulting owners",
       "order": 57,
       "nature": "income",
       "type": "regular",
@@ -884,7 +884,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la59",
       "periodId": "p1",
       "parentId": null,
-      "name": "Rimborsi/sconti",
+      "name": "Refunds / discounts",
       "order": 59,
       "nature": "income",
       "type": "grouping",
@@ -897,7 +897,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la60",
       "periodId": "p1",
       "parentId": "la59",
-      "name": "Rimborsi assicurativi per danno a parti comuni",
+      "name": "Insurance refunds for damage to common parts",
       "order": 60,
       "nature": "income",
       "type": "regular",
@@ -910,7 +910,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la61",
       "periodId": "p1",
       "parentId": null,
-      "name": "Utilizzo fondi",
+      "name": "Use of funds",
       "order": 61,
       "nature": "income",
       "type": "grouping",
@@ -923,7 +923,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la62",
       "periodId": "p1",
       "parentId": "la61",
-      "name": "Conguaglio quote fondo accantonamento utilizzate",
+      "name": "Settlement of used reserve fund shares",
       "order": 62,
       "nature": "income",
       "type": "regular",
@@ -936,7 +936,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la153",
       "periodId": "p36",
       "parentId": null,
-      "name": "Liquidità",
+      "name": "Liquidity",
       "order": 1,
       "nature": "assets",
       "type": "grouping",
@@ -949,7 +949,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la154",
       "periodId": "p36",
       "parentId": "la153",
-      "name": "Cassa contanti",
+      "name": "Cash on hand",
       "order": 1,
       "nature": "assets",
       "type": "regular",
@@ -962,7 +962,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la155",
       "periodId": "p36",
       "parentId": "la153",
-      "name": "Banche",
+      "name": "Banks",
       "order": 2,
       "nature": "assets",
       "type": "grouping",
@@ -975,7 +975,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la156",
       "periodId": "p36",
       "parentId": "la155",
-      "name": "Cassa di Risparmio del Natisone - c/c IBAN IT98 G 74055 86050 143294173320",
+      "name": "Cassa di Risparmio del Natisone - a/c IBAN IT98 G 74055 86050 143294173320",
       "order": 1,
       "nature": "assets",
       "type": "regular",
@@ -988,7 +988,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la157",
       "periodId": "p36",
       "parentId": null,
-      "name": "Debiti/crediti vs fornitori",
+      "name": "Payables/receivables vs suppliers",
       "order": 2,
       "nature": "assetsOrLiabilities",
       "type": "control",
@@ -1001,7 +1001,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la158",
       "periodId": "p36",
       "parentId": null,
-      "name": "Crediti/debiti vs condòmini",
+      "name": "Receivables/payables vs owners",
       "order": 3,
       "nature": "assetsOrLiabilities",
       "type": "controlUnitResident",
@@ -1014,7 +1014,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la159",
       "periodId": "p36",
       "parentId": null,
-      "name": "Arrotondamenti attivi/passivi",
+      "name": "Active/passive roundings",
       "order": 4,
       "nature": "assetsOrLiabilities",
       "type": "controlUnitResident",
@@ -1027,7 +1027,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la160",
       "periodId": "p36",
       "parentId": null,
-      "name": "Fondi",
+      "name": "Funds",
       "order": 1,
       "nature": "liabilities",
       "type": "grouping",
@@ -1040,7 +1040,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la161",
       "periodId": "p36",
       "parentId": null,
-      "name": "Debiti vs Erario",
+      "name": "Payables to the tax authority",
       "order": 2,
       "nature": "liabilities",
       "type": "grouping",
@@ -1053,7 +1053,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la162",
       "periodId": "p36",
       "parentId": "la160",
-      "name": "Accumulato dai condòmini",
+      "name": "Accumulated from owners",
       "order": 1,
       "nature": "liabilities",
       "type": "regular",
@@ -1066,7 +1066,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la163",
       "periodId": "p36",
       "parentId": "la160",
-      "name": "Interessi per morosità",
+      "name": "Late-payment interest",
       "order": 2,
       "nature": "liabilities",
       "type": "regular",
@@ -1079,7 +1079,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la164",
       "periodId": "p36",
       "parentId": "la160",
-      "name": "Imprevisti",
+      "name": "Contingencies",
       "order": 3,
       "nature": "liabilities",
       "type": "regular",
@@ -1092,7 +1092,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la165",
       "periodId": "p36",
       "parentId": "la161",
-      "name": "Professionisti - trib. 1040",
+      "name": "Professionals - tax code 1040",
       "order": 1,
       "nature": "liabilities",
       "type": "regular",
@@ -1105,7 +1105,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la166",
       "periodId": "p36",
       "parentId": "la161",
-      "name": "Amministratori occasionali - trib. 1004",
+      "name": "Occasional administrators - tax code 1004",
       "order": 2,
       "nature": "liabilities",
       "type": "regular",
@@ -1118,7 +1118,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la167",
       "periodId": "p36",
       "parentId": "la161",
-      "name": "Società di persone - trib. 1019",
+      "name": "Partnerships - tax code 1019",
       "order": 3,
       "nature": "liabilities",
       "type": "regular",
@@ -1131,7 +1131,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la168",
       "periodId": "p36",
       "parentId": "la161",
-      "name": "Società di capitali - trib. 1020",
+      "name": "Corporations - tax code 1020",
       "order": 4,
       "nature": "liabilities",
       "type": "regular",
@@ -1144,7 +1144,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la169",
       "periodId": "p36",
       "parentId": null,
-      "name": "Anticipi amministrazione Studio Bertoli Amministrazioni",
+      "name": "Administration advances - Studio Bertoli Amministrazioni",
       "order": 3,
       "nature": "liabilities",
       "type": "regular",
@@ -1157,13 +1157,13 @@ export const legacySeedData: LegacySeedData = {
       "id": "la170",
       "periodId": "p36",
       "parentId": null,
-      "name": "Spese straordinarie (proprietari)",
+      "name": "Extraordinary expenses (owners)",
       "order": 1,
       "nature": "expenses",
       "type": "grouping",
       "role": null,
       "budget": null,
-      "abbreviation": "Straordinarie PR",
+      "abbreviation": "Extraordinary PR",
       "links": [
         {
           "id": "el109",
@@ -1190,7 +1190,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la171",
       "periodId": "p36",
       "parentId": "la170",
-      "name": "Manutenzione straordinaria ascensore",
+      "name": "Extraordinary elevator maintenance",
       "order": 1,
       "nature": "expenses",
       "type": "regular",
@@ -1203,13 +1203,13 @@ export const legacySeedData: LegacySeedData = {
       "id": "la172",
       "periodId": "p36",
       "parentId": null,
-      "name": "Spese generali (proprietari)",
+      "name": "General expenses (owners)",
       "order": 2,
       "nature": "expenses",
       "type": "grouping",
       "role": null,
       "budget": null,
-      "abbreviation": "Generali PR",
+      "abbreviation": "General PR",
       "links": [
         {
           "id": "el110",
@@ -1236,7 +1236,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la173",
       "periodId": "p36",
       "parentId": "la172",
-      "name": "Assicurazione fabbricato (Minisini Assicurazioni s.r.l.)",
+      "name": "Building insurance (Minisini Assicurazioni s.r.l.)",
       "order": 1,
       "nature": "expenses",
       "type": "regular",
@@ -1249,7 +1249,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la174",
       "periodId": "p36",
       "parentId": "la172",
-      "name": "Amministrazione ordinaria",
+      "name": "Ordinary administration",
       "order": 2,
       "nature": "expenses",
       "type": "regular",
@@ -1262,7 +1262,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la175",
       "periodId": "p36",
       "parentId": "la172",
-      "name": "Amministrazione straordinaria",
+      "name": "Extraordinary administration",
       "order": 3,
       "nature": "expenses",
       "type": "regular",
@@ -1275,7 +1275,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la176",
       "periodId": "p36",
       "parentId": "la172",
-      "name": "Pratica detrazione fiscale 36% (Opere risanamento terrazze - asfaltatura)",
+      "name": "Tax deduction 36% filing (terrace renovation works - asphalting)",
       "order": 4,
       "nature": "expenses",
       "type": "regular",
@@ -1288,7 +1288,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la177",
       "periodId": "p36",
       "parentId": "la172",
-      "name": "Contratti appalto manutenzioni",
+      "name": "Maintenance contracts",
       "order": 5,
       "nature": "expenses",
       "type": "regular",
@@ -1301,7 +1301,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la178",
       "periodId": "p36",
       "parentId": "la172",
-      "name": "Manutenzione straordinaria CT",
+      "name": "Extraordinary heating plant maintenance",
       "order": 6,
       "nature": "expenses",
       "type": "regular",
@@ -1314,7 +1314,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la179",
       "periodId": "p36",
       "parentId": "la172",
-      "name": "Compilazione Quadro AC",
+      "name": "Form AC compilation",
       "order": 7,
       "nature": "expenses",
       "type": "regular",
@@ -1327,7 +1327,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la180",
       "periodId": "p36",
       "parentId": "la172",
-      "name": "Adempimenti comma 43 L. 296/06",
+      "name": "Compliance with para. 43, Law 296/06",
       "order": 8,
       "nature": "expenses",
       "type": "regular",
@@ -1340,7 +1340,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la181",
       "periodId": "p36",
       "parentId": "la172",
-      "name": "Compilazione ed invio mod. 770",
+      "name": "Form 770 compilation & filing",
       "order": 9,
       "nature": "expenses",
       "type": "regular",
@@ -1353,7 +1353,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la182",
       "periodId": "p36",
       "parentId": "la172",
-      "name": "Diritti segreteria e fotocopie Comune Nimis",
+      "name": "Registry fees & copies - Nimis municipality",
       "order": 10,
       "nature": "expenses",
       "type": "regular",
@@ -1366,7 +1366,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la183",
       "periodId": "p36",
       "parentId": "la172",
-      "name": "Interessi / sanzioni ravvedimenti operosi",
+      "name": "Interest / penalties for voluntary settlement",
       "order": 11,
       "nature": "expenses",
       "type": "regular",
@@ -1379,13 +1379,13 @@ export const legacySeedData: LegacySeedData = {
       "id": "la185",
       "periodId": "p36",
       "parentId": null,
-      "name": "Spese generali (50% proprietari e 50% conduttori)",
+      "name": "General expenses (50% owners & 50% tenants)",
       "order": 3,
       "nature": "expenses",
       "type": "grouping",
       "role": null,
       "budget": null,
-      "abbreviation": "Generali PR+CO",
+      "abbreviation": "General PR+CO",
       "links": [
         {
           "id": "el111",
@@ -1412,7 +1412,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la186",
       "periodId": "p36",
       "parentId": "la185",
-      "name": "Cancelleria",
+      "name": "Stationery",
       "order": 1,
       "nature": "expenses",
       "type": "regular",
@@ -1425,7 +1425,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la187",
       "periodId": "p36",
       "parentId": "la185",
-      "name": "Competenze Banca c/c ordinario",
+      "name": "Bank account fees",
       "order": 2,
       "nature": "expenses",
       "type": "regular",
@@ -1438,7 +1438,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la188",
       "periodId": "p36",
       "parentId": "la185",
-      "name": "Postali e valori bollati",
+      "name": "Postage & revenue stamps",
       "order": 3,
       "nature": "expenses",
       "type": "regular",
@@ -1451,7 +1451,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la189",
       "periodId": "p36",
       "parentId": "la185",
-      "name": "Varie",
+      "name": "Miscellaneous",
       "order": 4,
       "nature": "expenses",
       "type": "regular",
@@ -1464,13 +1464,13 @@ export const legacySeedData: LegacySeedData = {
       "id": "la191",
       "periodId": "p36",
       "parentId": null,
-      "name": "Spese generali (conduttori)",
+      "name": "General expenses (tenants)",
       "order": 4,
       "nature": "expenses",
       "type": "grouping",
       "role": null,
       "budget": null,
-      "abbreviation": "Generali CO",
+      "abbreviation": "General CO",
       "links": [
         {
           "id": "el112",
@@ -1497,7 +1497,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la192",
       "periodId": "p36",
       "parentId": "la191",
-      "name": "Manutenzione ordinaria generale",
+      "name": "General ordinary maintenance",
       "order": 1,
       "nature": "expenses",
       "type": "regular",
@@ -1510,7 +1510,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la193",
       "periodId": "p36",
       "parentId": "la191",
-      "name": "Manutenzione ordinaria impianti elettrici",
+      "name": "Ordinary maintenance - electrical systems",
       "order": 2,
       "nature": "expenses",
       "type": "regular",
@@ -1523,7 +1523,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la194",
       "periodId": "p36",
       "parentId": "la191",
-      "name": "Manutenzione ordinaria igienici",
+      "name": "Ordinary maintenance - sanitary fittings",
       "order": 4,
       "nature": "expenses",
       "type": "regular",
@@ -1536,7 +1536,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la195",
       "periodId": "p36",
       "parentId": "la191",
-      "name": "Manutenzione ordinaria copertura",
+      "name": "Ordinary maintenance - roof",
       "order": 5,
       "nature": "expenses",
       "type": "regular",
@@ -1549,7 +1549,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la196",
       "periodId": "p36",
       "parentId": "la191",
-      "name": "Spese manutenzione porte comuni",
+      "name": "Common doors maintenance",
       "order": 6,
       "nature": "expenses",
       "type": "regular",
@@ -1562,7 +1562,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la197",
       "periodId": "p36",
       "parentId": "la191",
-      "name": "Manutenzione ordinaria estintori",
+      "name": "Ordinary maintenance - extinguishers",
       "order": 7,
       "nature": "expenses",
       "type": "regular",
@@ -1575,7 +1575,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la198",
       "periodId": "p36",
       "parentId": "la191",
-      "name": "ENERGIE DEL LEDRA contratto luci utenza n. 395 123 456",
+      "name": "ENERGIE DEL LEDRA lighting contract, supply no. 395 123 456",
       "order": 8,
       "nature": "expenses",
       "type": "regular",
@@ -1588,7 +1588,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la199",
       "periodId": "p36",
       "parentId": "la191",
-      "name": "Pulizia marciapiedi esterni",
+      "name": "Outdoor pavement cleaning",
       "order": 9,
       "nature": "expenses",
       "type": "regular",
@@ -1601,7 +1601,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la200",
       "periodId": "p36",
       "parentId": "la191",
-      "name": "Manutenzione verde comune",
+      "name": "Common garden maintenance",
       "order": 10,
       "nature": "expenses",
       "type": "regular",
@@ -1614,7 +1614,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la201",
       "periodId": "p36",
       "parentId": "la191",
-      "name": "Manutenzione ordinaria Centrale Termica",
+      "name": "Ordinary maintenance - heating plant",
       "order": 11,
       "nature": "expenses",
       "type": "regular",
@@ -1627,7 +1627,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la202",
       "periodId": "p36",
       "parentId": "la191",
-      "name": "Manutenzione Centrale Termica: interventi e sostituzioni",
+      "name": "Heating plant maintenance: works & replacements",
       "order": 12,
       "nature": "expenses",
       "type": "regular",
@@ -1640,7 +1640,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la203",
       "periodId": "p36",
       "parentId": "la191",
-      "name": "Contratto Terzo Responsabile CT",
+      "name": "Heating plant third-party manager contract",
       "order": 13,
       "nature": "expenses",
       "type": "regular",
@@ -1653,13 +1653,13 @@ export const legacySeedData: LegacySeedData = {
       "id": "la204",
       "periodId": "p36",
       "parentId": null,
-      "name": "Pulizia scale (conduttori)",
+      "name": "Stair cleaning (tenants)",
       "order": 5,
       "nature": "expenses",
       "type": "grouping",
       "role": null,
       "budget": null,
-      "abbreviation": "Scale CO",
+      "abbreviation": "Stairs CO",
       "links": [
         {
           "id": "el113",
@@ -1686,7 +1686,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la205",
       "periodId": "p36",
       "parentId": "la204",
-      "name": "Pulizia ordinaria scale",
+      "name": "Ordinary stair cleaning",
       "order": 1,
       "nature": "expenses",
       "type": "regular",
@@ -1699,7 +1699,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la206",
       "periodId": "p36",
       "parentId": "la204",
-      "name": "Pulizia straordinaria scale",
+      "name": "Extraordinary stair cleaning",
       "order": 2,
       "nature": "expenses",
       "type": "regular",
@@ -1712,13 +1712,13 @@ export const legacySeedData: LegacySeedData = {
       "id": "la207",
       "periodId": "p36",
       "parentId": null,
-      "name": "Riscaldamento elettricità e gas (conduttori)",
+      "name": "Heating, electricity & gas (tenants)",
       "order": 6,
       "nature": "expenses",
       "type": "grouping",
       "role": null,
       "budget": null,
-      "abbreviation": "Riscaldamento CO",
+      "abbreviation": "Heating CO",
       "links": [
         {
           "id": "el114",
@@ -1783,7 +1783,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la208",
       "periodId": "p36",
       "parentId": "la207",
-      "name": "GAS Metano",
+      "name": "Natural gas",
       "order": 1,
       "nature": "expenses",
       "type": "regular",
@@ -1796,7 +1796,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la209",
       "periodId": "p36",
       "parentId": "la207",
-      "name": "ENERGIE DEL LEDRA utenza n. 395 123 555",
+      "name": "ENERGIE DEL LEDRA supply no. 395 123 555",
       "order": 2,
       "nature": "expenses",
       "type": "regular",
@@ -1809,7 +1809,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la210",
       "periodId": "p36",
       "parentId": "la207",
-      "name": "Metano ZONA FRANCA",
+      "name": "Natural gas (free zone)",
       "order": 3,
       "nature": "expenses",
       "type": "regular",
@@ -1822,13 +1822,13 @@ export const legacySeedData: LegacySeedData = {
       "id": "la211",
       "periodId": "p36",
       "parentId": null,
-      "name": "Consumo acqua calda (conduttori)",
+      "name": "Hot water consumption (tenants)",
       "order": 7,
       "nature": "expenses",
       "type": "grouping",
       "role": null,
       "budget": null,
-      "abbreviation": "Acqua calda CO",
+      "abbreviation": "Hot water CO",
       "links": [
         {
           "id": "el117",
@@ -1855,7 +1855,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la212",
       "periodId": "p36",
       "parentId": "la211",
-      "name": "Acqua calda",
+      "name": "Hot water",
       "order": 1,
       "nature": "expenses",
       "type": "regular",
@@ -1868,13 +1868,13 @@ export const legacySeedData: LegacySeedData = {
       "id": "la213",
       "periodId": "p36",
       "parentId": null,
-      "name": "Consumo acqua fredda (conduttori)",
+      "name": "Cold water consumption (tenants)",
       "order": 8,
       "nature": "expenses",
       "type": "grouping",
       "role": null,
       "budget": null,
-      "abbreviation": "Acqua fredda CO",
+      "abbreviation": "Cold water CO",
       "links": [
         {
           "id": "el118",
@@ -1901,7 +1901,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la214",
       "periodId": "p36",
       "parentId": "la213",
-      "name": "Acqua fredda",
+      "name": "Cold water",
       "order": 1,
       "nature": "expenses",
       "type": "regular",
@@ -1914,7 +1914,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la215",
       "periodId": "p36",
       "parentId": "la213",
-      "name": "Deduzione quota fissa Acque Fella (rif. conto \"Quota fissa acqua (conduttori)\")",
+      "name": "Acque Fella fixed charge deduction (see account \"Water fixed charge (tenants)\")",
       "order": 2,
       "nature": "expenses",
       "type": "regular",
@@ -1927,7 +1927,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la216",
       "periodId": "p36",
       "parentId": "la213",
-      "name": "Acqua calda imputata al conto \"Consumo acqua calda (conduttori)\"",
+      "name": "Hot water charged to the account \"Hot water consumption (tenants)\"",
       "order": 3,
       "nature": "expenses",
       "type": "regular",
@@ -1940,13 +1940,13 @@ export const legacySeedData: LegacySeedData = {
       "id": "la217",
       "periodId": "p36",
       "parentId": null,
-      "name": "Quota fissa acqua (conduttori)",
+      "name": "Water fixed charge (tenants)",
       "order": 9,
       "nature": "expenses",
       "type": "grouping",
       "role": null,
       "budget": null,
-      "abbreviation": "Quota fissa CO",
+      "abbreviation": "Fixed charge CO",
       "links": [
         {
           "id": "el119",
@@ -1973,7 +1973,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la218",
       "periodId": "p36",
       "parentId": "la217",
-      "name": "Quota fissa Acque Fella",
+      "name": "Acque Fella fixed charge",
       "order": 1,
       "nature": "expenses",
       "type": "regular",
@@ -1986,7 +1986,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la219",
       "periodId": "p36",
       "parentId": null,
-      "name": "Ascensore",
+      "name": "Elevator",
       "order": 10,
       "nature": "expenses",
       "type": "regular",
@@ -2038,7 +2038,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la220",
       "periodId": "p36",
       "parentId": null,
-      "name": "Zona franca",
+      "name": "Free zone",
       "order": 11,
       "nature": "expenses",
       "type": "grouping",
@@ -2071,7 +2071,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la221",
       "periodId": "p36",
       "parentId": "la220",
-      "name": "Detrazione",
+      "name": "Deduction",
       "order": 1,
       "nature": "expenses",
       "type": "regular",
@@ -2084,7 +2084,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la222",
       "periodId": "p36",
       "parentId": null,
-      "name": "Spese individuali",
+      "name": "Individual expenses",
       "order": 12,
       "nature": "expenses",
       "type": "grouping",
@@ -2097,7 +2097,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la223",
       "periodId": "p36",
       "parentId": "la222",
-      "name": "Spese postali singole unità (convocazione - verbale - comunicazioni)",
+      "name": "Postage, single units (notices - minutes - communications)",
       "order": 1,
       "nature": "expenses",
       "type": "controlUnitResident",
@@ -2110,7 +2110,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la224",
       "periodId": "p36",
       "parentId": "la222",
-      "name": "Spese manutenzioni singole unità",
+      "name": "Maintenance, single units",
       "order": 2,
       "nature": "expenses",
       "type": "controlUnitResident",
@@ -2123,7 +2123,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la225",
       "periodId": "p36",
       "parentId": "la222",
-      "name": "Spese manutenzioni antenna",
+      "name": "Antenna maintenance",
       "order": 3,
       "nature": "expenses",
       "type": "controlUnitResident",
@@ -2136,7 +2136,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la226",
       "periodId": "p36",
       "parentId": "la222",
-      "name": "Interessi di mora",
+      "name": "Default interest",
       "order": 4,
       "nature": "expenses",
       "type": "controlUnitResident",
@@ -2149,7 +2149,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la227",
       "periodId": "p36",
       "parentId": "la222",
-      "name": "Solleciti di pagamento",
+      "name": "Payment reminders",
       "order": 5,
       "nature": "expenses",
       "type": "controlUnitResident",
@@ -2162,7 +2162,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la228",
       "periodId": "p36",
       "parentId": "la222",
-      "name": "Spese postali per solleciti",
+      "name": "Postage for reminders",
       "order": 6,
       "nature": "expenses",
       "type": "controlUnitResident",
@@ -2175,7 +2175,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la229",
       "periodId": "p36",
       "parentId": null,
-      "name": "Da condòmini",
+      "name": "From owners",
       "order": 1,
       "nature": "income",
       "type": "grouping",
@@ -2188,7 +2188,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la230",
       "periodId": "p36",
       "parentId": "la229",
-      "name": "Da riparto preventivo",
+      "name": "From budget allocation",
       "order": 1,
       "nature": "income",
       "type": "regular",
@@ -2201,7 +2201,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la231",
       "periodId": "p36",
       "parentId": "la229",
-      "name": "Da conguaglio a consuntivo",
+      "name": "From final balance settlement",
       "order": 2,
       "nature": "income",
       "type": "regular",
@@ -2214,7 +2214,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la233",
       "periodId": "p36",
       "parentId": null,
-      "name": "Da interessi attivi",
+      "name": "From interest income",
       "order": 2,
       "nature": "income",
       "type": "grouping",
@@ -2227,7 +2227,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la234",
       "periodId": "p36",
       "parentId": "la233",
-      "name": "Da conto corrente",
+      "name": "From bank account",
       "order": 1,
       "nature": "income",
       "type": "regular",
@@ -2240,7 +2240,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la235",
       "periodId": "p36",
       "parentId": "la233",
-      "name": "Da condòmini morosi",
+      "name": "From defaulting owners",
       "order": 2,
       "nature": "income",
       "type": "regular",
@@ -2253,7 +2253,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la237",
       "periodId": "p36",
       "parentId": null,
-      "name": "Rimborsi assicurativi",
+      "name": "Insurance refunds",
       "order": 4,
       "nature": "income",
       "type": "regular",
@@ -2266,7 +2266,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "la238",
       "periodId": "p36",
       "parentId": "la191",
-      "name": "Manutenzione ordinaria impianti idrici",
+      "name": "Ordinary maintenance - plumbing",
       "order": 3,
       "nature": "expenses",
       "type": "regular",
@@ -2283,7 +2283,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 1,
       "at": "2011-01-01T14:04:43",
       "kind": "openingBalances",
-      "description": "Inserimento saldi apertura",
+      "description": "Opening balances entry",
       "postings": [
         {
           "accountId": "la2",
@@ -2438,7 +2438,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 2,
       "at": "2011-01-01T16:05:19",
       "kind": "generic",
-      "description": "Incremento fondo accantonamento",
+      "description": "Reserve fund increase",
       "postings": [
         {
           "accountId": "la30",
@@ -2461,7 +2461,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 3,
       "at": "2011-02-23T14:06:51",
       "kind": "directPaymentBank",
-      "description": "Acquisto contenitore per pubblicità condominiale da posizionare nell'androne",
+      "description": "Purchase of a holder for condominium notices, for the entrance hall",
       "postings": [
         {
           "accountId": "la36",
@@ -2484,7 +2484,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 4,
       "at": "2011-03-13T14:07:00",
       "kind": "directPaymentBank",
-      "description": "Bolletta elettricità Gen-Feb 2011",
+      "description": "Electricity bill Jan-Feb 2011",
       "postings": [
         {
           "accountId": "la38",
@@ -2513,7 +2513,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 5,
       "at": "2011-03-15T14:12:50",
       "kind": "budgetAllocation",
-      "description": "Riparto preventivo (n°1 del 14/03/2011)",
+      "description": "Budget allocation (no. 1 of 14/03/2011)",
       "postings": [
         {
           "accountId": "la9",
@@ -2629,7 +2629,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 6,
       "at": "2011-03-15T16:13:05",
       "kind": "collection",
-      "description": "Incasso rate 2011 (Ordinario) n.1 del (Sarcinelli Albino)",
+      "description": "Installment collection 2011 (Ordinary) no. 1 (Sarcinelli Albino)",
       "postings": [
         {
           "accountId": "la4",
@@ -2666,7 +2666,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 7,
       "at": "2011-03-31T15:16:35",
       "kind": "directPaymentBank",
-      "description": "Competenze bancarie 1° trimestre",
+      "description": "Bank charges, 1st quarter",
       "postings": [
         {
           "accountId": "la33",
@@ -2689,7 +2689,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 8,
       "at": "2011-04-11T16:15:36",
       "kind": "directPaymentCash",
-      "description": "Acquisto zerbino per l'ingresso principale",
+      "description": "Purchase of a doormat for the main entrance",
       "postings": [
         {
           "accountId": "la36",
@@ -2712,7 +2712,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 9,
       "at": "2011-04-18T16:16:06",
       "kind": "directPaymentBank",
-      "description": "Premio polizza assicurazione fabbricato",
+      "description": "Building insurance premium",
       "postings": [
         {
           "accountId": "la29",
@@ -2735,7 +2735,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 10,
       "at": "2011-04-23T16:17:09",
       "kind": "invoice",
-      "description": "Registrazione fattura Cragno Giardinaggio soc. coop. n. 42 del 23/04/2011: Taglio siepe giardino",
+      "description": "Invoice Cragno Giardinaggio soc. coop. no. 42 of 23/04/2011: Garden hedge trimming",
       "postings": [
         {
           "accountId": "la35",
@@ -2767,7 +2767,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 11,
       "at": "2011-04-23T18:17:21",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Cragno Giardinaggio soc. coop. n. 42 del 23/04/2011: Taglio siepe giardino",
+      "description": "Payment of invoice Cragno Giardinaggio soc. coop. no. 42 of 23/04/2011: Garden hedge trimming",
       "postings": [
         {
           "accountId": "la16",
@@ -2793,7 +2793,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 12,
       "at": "2011-04-23T19:18:45",
       "kind": "withholdingPayment",
-      "description": "Versamento R/A (Società di persone - trib. 1019)",
+      "description": "Withholding payment (Partnerships - tax code 1019)",
       "postings": [
         {
           "accountId": "la25",
@@ -2816,7 +2816,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 13,
       "at": "2011-05-01T16:19:20",
       "kind": "invoice",
-      "description": "Registrazione fattura Cragno Giardinaggio soc. coop. n. 76 del 01/05/2011: Trattamento antiparassitario sequioia",
+      "description": "Invoice Cragno Giardinaggio soc. coop. no. 76 of 01/05/2011: Pest treatment of the sequoia",
       "postings": [
         {
           "accountId": "la35",
@@ -2848,7 +2848,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 14,
       "at": "2011-05-03T16:20:49",
       "kind": "directPaymentBank",
-      "description": "Bolletta elettricità Mar-Apr 2011",
+      "description": "Electricity bill Mar-Apr 2011",
       "postings": [
         {
           "accountId": "la38",
@@ -2877,7 +2877,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 15,
       "at": "2011-12-31T15:21:22",
       "kind": "closingBalances",
-      "description": "Conguaglio a consuntivo",
+      "description": "Final balance settlement",
       "postings": [
         {
           "accountId": "la9",
@@ -2984,7 +2984,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 16,
       "at": "2011-12-06T15:55:04",
       "kind": "collection",
-      "description": "Incasso Rate 2011 (Ordinario) / Minisini Ilaria",
+      "description": "Installment collection 2011 (Ordinary) / Minisini Ilaria",
       "postings": [
         {
           "accountId": "la4",
@@ -3021,7 +3021,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 17,
       "at": "2011-12-06T15:56:01",
       "kind": "collection",
-      "description": "Incasso Rate 2011 (Ordinario) / Cargnelutti Lidia",
+      "description": "Installment collection 2011 (Ordinary) / Cargnelutti Lidia",
       "postings": [
         {
           "accountId": "la4",
@@ -3078,7 +3078,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 18,
       "at": "2011-12-28T15:56:44",
       "kind": "collection",
-      "description": "Incasso Rate 2011 (Ordinario) / Forgiarini Lino",
+      "description": "Installment collection 2011 (Ordinary) / Forgiarini Lino",
       "postings": [
         {
           "accountId": "la4",
@@ -3105,7 +3105,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 1,
       "at": "2013-01-10T11:09:01",
       "kind": "openingBalances",
-      "description": "Inserimento saldi apertura",
+      "description": "Opening balances entry",
       "postings": [
         {
           "accountId": "la158",
@@ -3293,7 +3293,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 2,
       "at": "2013-01-10T15:59:29",
       "kind": "invoice",
-      "description": "Registrazione fattura Cargnelutti Elevatori s.n.c. n. 1358 del 01/12/2012: controllo ascensori",
+      "description": "Invoice Cargnelutti Elevatori s.n.c. no. 1358 of 01/12/2012: Elevator inspection",
       "postings": [
         {
           "accountId": "la219",
@@ -3325,7 +3325,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 3,
       "at": "2013-01-11T15:48:34",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Cargnelutti Elevatori s.n.c. n. 1358 effettuato il 10/01/2013: controllo ascensori",
+      "description": "Payment of invoice Cargnelutti Elevatori s.n.c. no. 1358 on 10/01/2013: Elevator inspection",
       "postings": [
         {
           "accountId": "la157",
@@ -3351,7 +3351,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 4,
       "at": "2013-01-18T15:36:16",
       "kind": "collection",
-      "description": "Incasso Parziale Rate da Buttazzoni Laura: Rata 1 (20/01/2013)",
+      "description": "Partial collection of installments from Buttazzoni Laura: Installment 1 (20/01/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -3378,7 +3378,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 5,
       "at": "2013-01-20T15:44:27",
       "kind": "collection",
-      "description": "Incasso Parziale Rate da Fornasier Marco: Rata 1 (20/01/2013)",
+      "description": "Partial collection of installments from Fornasier Marco: Installment 1 (20/01/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -3405,7 +3405,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 6,
       "at": "2013-01-31T15:16:48",
       "kind": "invoice",
-      "description": "Registrazione fattura Energie del Ledra S.p.A. n. 41117 del 13/01/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - dicembre '12 - gennaio '13",
+      "description": "Invoice Energie del Ledra S.p.A. no. 41117 of 13/01/2013: Energie del Ledra heating, supply no. 395 123 555 - December '12 - January '13",
       "postings": [
         {
           "accountId": "la209",
@@ -3431,7 +3431,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 7,
       "at": "2013-01-31T15:37:21",
       "kind": "collection",
-      "description": "Incasso Rate da Buttazzoni Laura: Rata 1 (20/01/2013)",
+      "description": "Collection of installments from Buttazzoni Laura: Installment 1 (20/01/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -3458,7 +3458,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 8,
       "at": "2013-02-05T12:30:07",
       "kind": "invoice",
-      "description": "Registrazione fattura Energie del Ledra S.p.A. n. 43116 del 13/01/2013: Spese luci utenza n. 395 123 456: dicembre '09 - gennaio '10",
+      "description": "Invoice Energie del Ledra S.p.A. no. 43116 of 13/01/2013: Lighting bill, supply no. 395 123 456: December '09 - January '10",
       "postings": [
         {
           "accountId": "la198",
@@ -3484,7 +3484,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 9,
       "at": "2013-02-09T14:31:02",
       "kind": "invoice",
-      "description": "Registrazione fattura Natisone Gas S.p.A. n. 7736 del 13/01/2013: spese gas dicembre '09",
+      "description": "Invoice Natisone Gas S.p.A. no. 7736 of 13/01/2013: Gas bill December '09",
       "postings": [
         {
           "accountId": "la208",
@@ -3516,7 +3516,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 10,
       "at": "2013-02-15T14:51:57",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Energie del Ledra S.p.A. n. 43116 effettuato il 13/02/2013: Spese luci utenza n. 395 123 456: dicembre '12 - gennaio '13",
+      "description": "Payment of invoice Energie del Ledra S.p.A. no. 43116 on 13/02/2013: Lighting bill, supply no. 395 123 456: December '12 - January '13",
       "postings": [
         {
           "accountId": "la157",
@@ -3542,7 +3542,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 11,
       "at": "2013-02-15T15:08:39",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Energie del Ledra S.p.A. n. 41117 effettuato il 13/02/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - dicembre '12 - gennaio '13",
+      "description": "Payment of invoice Energie del Ledra S.p.A. no. 41117 on 13/02/2013: Energie del Ledra heating, supply no. 395 123 555 - December '12 - January '13",
       "postings": [
         {
           "accountId": "la157",
@@ -3568,7 +3568,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 12,
       "at": "2013-02-15T15:10:52",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Natisone Gas S.p.A. n. 7736 effettuato il 13/02/2013: spese gas dicembre '12",
+      "description": "Payment of invoice Natisone Gas S.p.A. no. 7736 on 13/02/2013: Gas bill December '12",
       "postings": [
         {
           "accountId": "la157",
@@ -3594,7 +3594,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 13,
       "at": "2013-02-15T16:00:36",
       "kind": "collection",
-      "description": "Incasso Rate da Scarbolo Flavio: Rata 1 (20/01/2013)",
+      "description": "Collection of installments from Scarbolo Flavio: Installment 1 (20/01/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -3621,7 +3621,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 14,
       "at": "2013-02-18T10:47:00",
       "kind": "budgetAllocation",
-      "description": "Riparto relatvo al bilancio preventivo approvato il 13/02/2012",
+      "description": "Allocation of the budget approved on 13/02/2012",
       "postings": [
         {
           "accountId": "la158",
@@ -4124,7 +4124,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 15,
       "at": "2013-02-20T15:42:05",
       "kind": "collection",
-      "description": "Incasso Rate da Fattori Gilda: Rata 1 (20/01/2013)",
+      "description": "Collection of installments from Fattori Gilda: Installment 1 (20/01/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -4151,7 +4151,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 16,
       "at": "2013-02-21T15:11:16",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Natisone Gas S.p.A. n. 7736 effettuato il 20/02/2013: spese gas dicembre '12",
+      "description": "Payment of invoice Natisone Gas S.p.A. no. 7736 on 20/02/2013: Gas bill December '12",
       "postings": [
         {
           "accountId": "la157",
@@ -4177,7 +4177,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 17,
       "at": "2013-02-28T12:20:20",
       "kind": "invoice",
-      "description": "Registrazione fattura Ferramenta Cossio s.a.s. n. 223 del 04/02/2013: Riparazione porte",
+      "description": "Invoice Ferramenta Cossio s.a.s. no. 223 of 04/02/2013: Door repairs",
       "postings": [
         {
           "accountId": "la196",
@@ -4209,7 +4209,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 18,
       "at": "2013-02-28T16:04:00",
       "kind": "collection",
-      "description": "Incasso Rate da Bearzi Servizi s.a.s.: Rata 1 (20/01/2013), Rata 2 (20/02/2013)",
+      "description": "Collection of installments from Bearzi Servizi s.a.s.: Installment 1 (20/01/2013), Installment 2 (20/02/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -4246,7 +4246,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 19,
       "at": "2013-03-04T15:50:24",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Ferramenta Cossio s.a.s. n. 223 effettuato il 04/03/2013: Riparazione porte",
+      "description": "Payment of invoice Ferramenta Cossio s.a.s. no. 223 on 04/03/2013: Door repairs",
       "postings": [
         {
           "accountId": "la157",
@@ -4272,7 +4272,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 20,
       "at": "2013-03-12T15:39:42",
       "kind": "collection",
-      "description": "Incasso Rate da Iacuzzi Tullio: Rata 1 (20/01/2013), Rata 2 (20/02/2013), Rata 3 (20/03/2013)",
+      "description": "Collection of installments from Iacuzzi Tullio: Installment 1 (20/01/2013), Installment 2 (20/02/2013), Installment 3 (20/03/2013)",
       "postings": [
         {
           "accountId": "la154",
@@ -4319,7 +4319,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 21,
       "at": "2013-03-15T15:11:35",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Natisone Gas S.p.A. n. 7736 effettuato il 05/03/2013: spese gas dicembre '12",
+      "description": "Payment of invoice Natisone Gas S.p.A. no. 7736 on 05/03/2013: Gas bill December '12",
       "postings": [
         {
           "accountId": "la157",
@@ -4345,7 +4345,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 22,
       "at": "2013-03-15T16:21:47",
       "kind": "invoice",
-      "description": "Registrazione fattura Cargnelutti Elevatori s.n.c. n. 472 del 01/03/2013: controllo ascensori",
+      "description": "Invoice Cargnelutti Elevatori s.n.c. no. 472 of 01/03/2013: Elevator inspection",
       "postings": [
         {
           "accountId": "la219",
@@ -4377,7 +4377,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 23,
       "at": "2013-03-15T16:52:47",
       "kind": "invoice",
-      "description": "Registrazione fattura Cassin Certificazioni S.p.A. n. 1106378 del 02/03/2013: verifica straordinaria",
+      "description": "Invoice Cassin Certificazioni S.p.A. no. 1106378 of 02/03/2013: Extraordinary inspection",
       "postings": [
         {
           "accountId": "la219",
@@ -4409,7 +4409,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 24,
       "at": "2013-03-20T15:45:42",
       "kind": "collection",
-      "description": "Incasso Rate da Fornasier Marco: Rata 1 (20/01/2013), Rata 2 (20/02/2013), Rata 3 (20/03/2013)",
+      "description": "Collection of installments from Fornasier Marco: Installment 1 (20/01/2013), Installment 2 (20/02/2013), Installment 3 (20/03/2013)",
       "postings": [
         {
           "accountId": "la154",
@@ -4456,7 +4456,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 25,
       "at": "2013-03-24T12:31:38",
       "kind": "invoice",
-      "description": "Registrazione fattura n. 43117 del 13/03/2013 (Energie del Ledra S.p.A. / Spese luci utenza n. 395 123 456: febbraio - marzo)",
+      "description": "Invoice no. 43117 of 13/03/2013 (Energie del Ledra S.p.A. / Lighting bill, supply no. 395 123 456: February - March)",
       "postings": [
         {
           "accountId": "la198",
@@ -4482,7 +4482,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 26,
       "at": "2013-03-27T15:19:21",
       "kind": "invoice",
-      "description": "Registrazione fattura Energie del Ledra S.p.A. n. 41118 del 13/03/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - febbraio - marzo",
+      "description": "Invoice Energie del Ledra S.p.A. no. 41118 of 13/03/2013: Energie del Ledra heating, supply no. 395 123 555 - February - March",
       "postings": [
         {
           "accountId": "la209",
@@ -4508,7 +4508,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 27,
       "at": "2013-03-29T14:35:30",
       "kind": "invoice",
-      "description": "Registrazione fattura Natisone Gas S.p.A. n. 64135 del 11/03/2013: spese gas gennaio",
+      "description": "Invoice Natisone Gas S.p.A. no. 64135 of 11/03/2013: Gas bill January",
       "postings": [
         {
           "accountId": "la208",
@@ -4540,7 +4540,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 28,
       "at": "2013-04-01T16:52:53",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Cargnelutti Elevatori s.n.c. n. 472 effettuato il 01/04/2013: controllo ascensori",
+      "description": "Payment of invoice Cargnelutti Elevatori s.n.c. no. 472 on 01/04/2013: Elevator inspection",
       "postings": [
         {
           "accountId": "la157",
@@ -4566,7 +4566,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 29,
       "at": "2013-04-02T13:24:39",
       "kind": "invoice",
-      "description": "Registrazione fattura Estintori Toniutti & C. s.a.s. n. 274 del 22/03/2013: Sostituzione estintori",
+      "description": "Invoice Estintori Toniutti & C. s.a.s. no. 274 of 22/03/2013: Extinguisher replacement",
       "postings": [
         {
           "accountId": "la197",
@@ -4598,7 +4598,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 30,
       "at": "2013-04-02T16:54:04",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Cassin Certificazioni S.p.A. n. 1106378 effettuato il 02/04/2013: verifica straordinaria",
+      "description": "Payment of invoice Cassin Certificazioni S.p.A. no. 1106378 on 02/04/2013: Extraordinary inspection",
       "postings": [
         {
           "accountId": "la157",
@@ -4624,7 +4624,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 31,
       "at": "2013-04-04T15:37:11",
       "kind": "invoice",
-      "description": "Registrazione fattura Natisone Gas S.p.A. n. 86391 del 24/03/2013: spese gas febbraio",
+      "description": "Invoice Natisone Gas S.p.A. no. 86391 of 24/03/2013: Gas bill February",
       "postings": [
         {
           "accountId": "la208",
@@ -4656,7 +4656,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 32,
       "at": "2013-04-07T12:17:14",
       "kind": "invoice",
-      "description": "Registrazione fattura Adami Valerio n. 74 del 01/04/2013: Spese di amministrazione condominiale",
+      "description": "Invoice Adami Valerio no. 74 of 01/04/2013: Condominium administration fees",
       "postings": [
         {
           "accountId": "la174",
@@ -4688,7 +4688,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 33,
       "at": "2013-04-10T16:33:08",
       "kind": "collection",
-      "description": "Incasso Rate da Variola Dina: Rata 3 (20/03/2013), Rata 4 (20/04/2013)",
+      "description": "Collection of installments from Variola Dina: Installment 3 (20/03/2013), Installment 4 (20/04/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -4725,7 +4725,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 34,
       "at": "2013-04-12T12:12:44",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Natisone Gas S.p.A. n. 64135 effettuato il 11/04/2013: spese gas gennaio",
+      "description": "Payment of invoice Natisone Gas S.p.A. no. 64135 on 11/04/2013: Gas bill January",
       "postings": [
         {
           "accountId": "la157",
@@ -4751,7 +4751,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 35,
       "at": "2013-04-13T13:55:30",
       "kind": "invoice",
-      "description": "Registrazione fattura Pontoni Servizi di Pulizia s.n.c. n. 2165 del 31/03/2013: pulizia marciapiedi",
+      "description": "Invoice Pontoni Servizi di Pulizia s.n.c. no. 2165 of 31/03/2013: Pavement cleaning",
       "postings": [
         {
           "accountId": "la199",
@@ -4783,7 +4783,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 36,
       "at": "2013-04-13T16:55:16",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Energie del Ledra S.p.A. n. 43117 effettuato il 13/04/2013: Spese luci utenza n. 395 123 456: febbraio - marzo",
+      "description": "Payment of invoice Energie del Ledra S.p.A. no. 43117 on 13/04/2013: Lighting bill, supply no. 395 123 456: February - March",
       "postings": [
         {
           "accountId": "la157",
@@ -4809,7 +4809,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 37,
       "at": "2013-04-13T16:56:03",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Energie del Ledra S.p.A. n. 41118 effettuato il 13/04/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - febbraio - marzo",
+      "description": "Payment of invoice Energie del Ledra S.p.A. no. 41118 on 13/04/2013: Energie del Ledra heating, supply no. 395 123 555 - February - March",
       "postings": [
         {
           "accountId": "la157",
@@ -4835,7 +4835,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 38,
       "at": "2013-04-14T13:53:28",
       "kind": "invoice",
-      "description": "Registrazione fattura Pontoni Servizi di Pulizia s.n.c. n. 1022 del 31/03/2013: pulizia marciapiedi",
+      "description": "Invoice Pontoni Servizi di Pulizia s.n.c. no. 1022 of 31/03/2013: Pavement cleaning",
       "postings": [
         {
           "accountId": "la199",
@@ -4867,7 +4867,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 39,
       "at": "2013-04-17T16:38:00",
       "kind": "collection",
-      "description": "Incasso Rate da Buttazzoni Laura: Rata 2 (20/02/2013), Rata 3 (20/03/2013), Rata 4 (20/04/2013)",
+      "description": "Collection of installments from Buttazzoni Laura: Installment 2 (20/02/2013), Installment 3 (20/03/2013), Installment 4 (20/04/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -4914,7 +4914,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 40,
       "at": "2013-04-19T15:39:23",
       "kind": "invoice",
-      "description": "Registrazione fattura Natisone Gas S.p.A. n. 114419 del 15/04/2013: spese gas marzo",
+      "description": "Invoice Natisone Gas S.p.A. no. 114419 of 15/04/2013: Gas bill March",
       "postings": [
         {
           "accountId": "la208",
@@ -4946,7 +4946,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 41,
       "at": "2013-04-21T13:08:14",
       "kind": "generic",
-      "description": "Pagamento in contanti di spese postali",
+      "description": "Cash payment of postage",
       "postings": [
         {
           "accountId": "la188",
@@ -4969,7 +4969,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 42,
       "at": "2013-04-22T16:56:44",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Estintori Toniutti & C. s.a.s. n. 274 effettuato il 22/04/2013: Sostituzione estintori",
+      "description": "Payment of invoice Estintori Toniutti & C. s.a.s. no. 274 on 22/04/2013: Extinguisher replacement",
       "postings": [
         {
           "accountId": "la157",
@@ -4995,7 +4995,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 43,
       "at": "2013-04-22T17:02:40",
       "kind": "collection",
-      "description": "Incasso Rate da Candotti Diego: Rata 1 (20/01/2013), Rata 2 (20/02/2013), Rata 3 (20/03/2013), Rata 4 (20/04/2013), Rata 5 (20/05/2013), Rata 6 (20/06/2013), Rata 7 (20/07/2013)",
+      "description": "Collection of installments from Candotti Diego: Installment 1 (20/01/2013), Installment 2 (20/02/2013), Installment 3 (20/03/2013), Installment 4 (20/04/2013), Installment 5 (20/05/2013), Installment 6 (20/06/2013), Installment 7 (20/07/2013)",
       "postings": [
         {
           "accountId": "la154",
@@ -5082,7 +5082,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 44,
       "at": "2013-04-23T13:42:17",
       "kind": "invoice",
-      "description": "Registrazione fattura Energie del Ledra S.p.A. n. 43112 del 04/11/2013: Spese luci utenza n. 395 123 456: ottobre - novembre",
+      "description": "Invoice Energie del Ledra S.p.A. no. 43112 of 04/11/2013: Lighting bill, supply no. 395 123 456: October - November",
       "postings": [
         {
           "accountId": "la198",
@@ -5108,7 +5108,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 45,
       "at": "2013-04-24T16:57:33",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Natisone Gas S.p.A. n. 86391 effettuato il 24/04/2013: spese gas febbraio",
+      "description": "Payment of invoice Natisone Gas S.p.A. no. 86391 on 24/04/2013: Gas bill February",
       "postings": [
         {
           "accountId": "la157",
@@ -5134,7 +5134,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 46,
       "at": "2013-05-03T16:58:28",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Adami Valerio n. 74 effettuato il 03/05/2013: Spese di amministrazione condominiale",
+      "description": "Payment of invoice Adami Valerio no. 74 on 03/05/2013: Condominium administration fees",
       "postings": [
         {
           "accountId": "la157",
@@ -5160,7 +5160,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 47,
       "at": "2013-05-04T13:18:21",
       "kind": "invoice",
-      "description": "Registrazione fattura Treppo Impianti Elettrici S.p.A. n. 72 del 27/04/2013: Revisione caldaia",
+      "description": "Invoice Treppo Impianti Elettrici S.p.A. no. 72 of 27/04/2013: Boiler service",
       "postings": [
         {
           "accountId": "la193",
@@ -5192,7 +5192,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 48,
       "at": "2013-05-12T16:58:04",
       "kind": "collection",
-      "description": "Incasso Rate da Morandini Olga: Rata 3 (20/03/2013), Rata 4 (20/04/2013), Rata 5 (20/05/2013)",
+      "description": "Collection of installments from Morandini Olga: Installment 3 (20/03/2013), Installment 4 (20/04/2013), Installment 5 (20/05/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -5239,7 +5239,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 49,
       "at": "2013-05-15T16:59:51",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Natisone Gas S.p.A. n. 114419 effettuato il 15/05/2013: spese gas marzo",
+      "description": "Payment of invoice Natisone Gas S.p.A. no. 114419 on 15/05/2013: Gas bill March",
       "postings": [
         {
           "accountId": "la157",
@@ -5265,7 +5265,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 50,
       "at": "2013-05-17T16:21:03",
       "kind": "invoice",
-      "description": "Registrazione fattura Energie del Ledra S.p.A. n. 41119 del 14/05/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - aprile - maggio",
+      "description": "Invoice Energie del Ledra S.p.A. no. 41119 of 14/05/2013: Energie del Ledra heating, supply no. 395 123 555 - April - May",
       "postings": [
         {
           "accountId": "la209",
@@ -5291,7 +5291,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 51,
       "at": "2013-05-20T16:40:40",
       "kind": "collection",
-      "description": "Incasso Rate da Iacuzzi Tullio: Rata 4 (20/04/2013), Rata 5 (20/05/2013)",
+      "description": "Collection of installments from Iacuzzi Tullio: Installment 4 (20/04/2013), Installment 5 (20/05/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -5328,7 +5328,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 52,
       "at": "2013-05-20T16:55:59",
       "kind": "collection",
-      "description": "Incasso Rate da Masotti Sabrina: Rata 1 (20/01/2013), Rata 2 (20/02/2013), Rata 3 (20/03/2013), Rata 4 (20/04/2013), Rata 5 (20/05/2013), Rata 6 (20/06/2013)",
+      "description": "Collection of installments from Masotti Sabrina: Installment 1 (20/01/2013), Installment 2 (20/02/2013), Installment 3 (20/03/2013), Installment 4 (20/04/2013), Installment 5 (20/05/2013), Installment 6 (20/06/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -5405,7 +5405,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 53,
       "at": "2013-05-27T17:01:37",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Treppo Impianti Elettrici S.p.A. n. 72 effettuato il 27/05/2013: Revisione caldaia",
+      "description": "Payment of invoice Treppo Impianti Elettrici S.p.A. no. 72 on 27/05/2013: Boiler service",
       "postings": [
         {
           "accountId": "la157",
@@ -5431,7 +5431,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 54,
       "at": "2013-06-03T15:41:09",
       "kind": "invoice",
-      "description": "Registrazione fattura Natisone Gas S.p.A. n. 131841 del 19/05/2013: spese gas aprile",
+      "description": "Invoice Natisone Gas S.p.A. no. 131841 of 19/05/2013: Gas bill April",
       "postings": [
         {
           "accountId": "la208",
@@ -5463,7 +5463,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 55,
       "at": "2013-06-06T13:34:12",
       "kind": "invoice",
-      "description": "Registrazione fattura Energie del Ledra S.p.A. n. 43118 del 14/05/2013: Spese luci utenza n. 395 123 456: aprile - maggio",
+      "description": "Invoice Energie del Ledra S.p.A. no. 43118 of 14/05/2013: Lighting bill, supply no. 395 123 456: April - May",
       "postings": [
         {
           "accountId": "la198",
@@ -5489,7 +5489,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 56,
       "at": "2013-06-07T16:32:43",
       "kind": "invoice",
-      "description": "Registrazione fattura Acque Fella s.r.l. n. 42961 del 20/05/2013: bolletta acqua",
+      "description": "Invoice Acque Fella s.r.l. no. 42961 of 20/05/2013: Water bill",
       "postings": [
         {
           "accountId": "la214",
@@ -5521,7 +5521,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 57,
       "at": "2013-06-10T17:01:21",
       "kind": "collection",
-      "description": "Incasso Rate da Scarbolo Flavio: Rata 2 (20/02/2013), Rata 3 (20/03/2013), Rata 4 (20/04/2013), Rata 5 (20/05/2013), Rata 6 (20/06/2013)",
+      "description": "Collection of installments from Scarbolo Flavio: Installment 2 (20/02/2013), Installment 3 (20/03/2013), Installment 4 (20/04/2013), Installment 5 (20/05/2013), Installment 6 (20/06/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -5588,7 +5588,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 58,
       "at": "2013-06-14T17:03:04",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Energie del Ledra S.p.A. n. 43118 effettuato il 14/06/2013: Spese luci utenza n. 395 123 456: aprile - maggio",
+      "description": "Payment of invoice Energie del Ledra S.p.A. no. 43118 on 14/06/2013: Lighting bill, supply no. 395 123 456: April - May",
       "postings": [
         {
           "accountId": "la157",
@@ -5614,7 +5614,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 59,
       "at": "2013-06-14T17:04:04",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Energie del Ledra S.p.A. n. 41119 effettuato il 14/06/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - aprile - maggio",
+      "description": "Payment of invoice Energie del Ledra S.p.A. no. 41119 on 14/06/2013: Energie del Ledra heating, supply no. 395 123 555 - April - May",
       "postings": [
         {
           "accountId": "la157",
@@ -5640,7 +5640,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 60,
       "at": "2013-06-14T17:22:38",
       "kind": "invoice",
-      "description": "Registrazione fattura Cargnelutti Elevatori s.n.c. n. 1320 del 01/06/2013: controllo ascensori",
+      "description": "Invoice Cargnelutti Elevatori s.n.c. no. 1320 of 01/06/2013: Elevator inspection",
       "postings": [
         {
           "accountId": "la219",
@@ -5672,7 +5672,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 61,
       "at": "2013-06-15T17:00:33",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Natisone Gas S.p.A. n. 114419 effettuato il 15/06/2013: spese gas marzo",
+      "description": "Payment of invoice Natisone Gas S.p.A. no. 114419 on 15/06/2013: Gas bill March",
       "postings": [
         {
           "accountId": "la157",
@@ -5698,7 +5698,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 62,
       "at": "2013-06-17T17:04:44",
       "kind": "collection",
-      "description": "Incasso Rate da Bearzi Servizi s.a.s.: Rata 3 (20/03/2013), Rata 4 (20/04/2013), Rata 5 (20/05/2013), Rata 6 (20/06/2013)",
+      "description": "Collection of installments from Bearzi Servizi s.a.s.: Installment 3 (20/03/2013), Installment 4 (20/04/2013), Installment 5 (20/05/2013), Installment 6 (20/06/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -5755,7 +5755,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 63,
       "at": "2013-06-19T14:46:43",
       "kind": "collection",
-      "description": "Incasso Rate da Morandini Dina: Rata 6 (20/06/2013)",
+      "description": "Collection of installments from Morandini Dina: Installment 6 (20/06/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -5782,7 +5782,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 64,
       "at": "2013-06-19T17:04:41",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Natisone Gas S.p.A. n. 131841 effettuato il 19/06/2013: spese gas aprile",
+      "description": "Payment of invoice Natisone Gas S.p.A. no. 131841 on 19/06/2013: Gas bill April",
       "postings": [
         {
           "accountId": "la157",
@@ -5808,7 +5808,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 65,
       "at": "2013-06-20T17:05:15",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Acque Fella s.r.l. n. 42961 effettuato il 20/06/2013: bolletta acqua",
+      "description": "Payment of invoice Acque Fella s.r.l. no. 42961 on 20/06/2013: Water bill",
       "postings": [
         {
           "accountId": "la157",
@@ -5834,7 +5834,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 66,
       "at": "2013-06-30T15:42:45",
       "kind": "invoice",
-      "description": "Registrazione fattura Natisone Gas S.p.A. n. 167930 del 16/06/2013: spese gas maggio",
+      "description": "Invoice Natisone Gas S.p.A. no. 167930 of 16/06/2013: Gas bill May",
       "postings": [
         {
           "accountId": "la208",
@@ -5866,7 +5866,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 67,
       "at": "2013-07-01T17:05:51",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Cargnelutti Elevatori s.n.c. n. 1320 effettuato il 01/07/2013: controllo ascensori",
+      "description": "Payment of invoice Cargnelutti Elevatori s.n.c. no. 1320 on 01/07/2013: Elevator inspection",
       "postings": [
         {
           "accountId": "la157",
@@ -5892,7 +5892,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 68,
       "at": "2013-07-03T16:34:00",
       "kind": "collection",
-      "description": "Incasso Rate da Variola Dina: Rata 5 (20/05/2013), Rata 6 (20/06/2013), Rata 7 (20/07/2013)",
+      "description": "Collection of installments from Variola Dina: Installment 5 (20/05/2013), Installment 6 (20/06/2013), Installment 7 (20/07/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -5939,7 +5939,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 69,
       "at": "2013-07-12T12:29:49",
       "kind": "invoice",
-      "description": "Registrazione fattura Adami Valerio n. 149 del 30/06/2013: Spese di amministrazione condominiale",
+      "description": "Invoice Adami Valerio no. 149 of 30/06/2013: Condominium administration fees",
       "postings": [
         {
           "accountId": "la174",
@@ -5971,7 +5971,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 70,
       "at": "2013-07-16T17:06:56",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Natisone Gas S.p.A. n. 167930 effettuato il 16/07/2013: spese gas maggio",
+      "description": "Payment of invoice Natisone Gas S.p.A. no. 167930 on 16/07/2013: Gas bill May",
       "postings": [
         {
           "accountId": "la157",
@@ -5997,7 +5997,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 71,
       "at": "2013-07-17T16:22:47",
       "kind": "invoice",
-      "description": "Registrazione fattura Energie del Ledra S.p.A. n. 41111 del 03/07/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - giugno - luglio",
+      "description": "Invoice Energie del Ledra S.p.A. no. 41111 of 03/07/2013: Energie del Ledra heating, supply no. 395 123 555 - June - July",
       "postings": [
         {
           "accountId": "la209",
@@ -6023,7 +6023,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 72,
       "at": "2013-07-20T13:10:09",
       "kind": "generic",
-      "description": "Pagamento di noleggio sala riunioni",
+      "description": "Payment of meeting room rental",
       "postings": [
         {
           "accountId": "la189",
@@ -6046,7 +6046,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 73,
       "at": "2013-07-20T14:48:52",
       "kind": "collection",
-      "description": "Incasso Rate da Morandini Dina: Rata 7 (20/07/2013)",
+      "description": "Collection of installments from Morandini Dina: Installment 7 (20/07/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -6073,7 +6073,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 74,
       "at": "2013-07-20T16:54:29",
       "kind": "collection",
-      "description": "Incasso Rate da Zuliani Selene: Rata 4 (20/04/2013), Rata 5 (20/05/2013), Rata 6 (20/06/2013), Rata 7 (20/07/2013)",
+      "description": "Collection of installments from Zuliani Selene: Installment 4 (20/04/2013), Installment 5 (20/05/2013), Installment 6 (20/06/2013), Installment 7 (20/07/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -6130,7 +6130,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 75,
       "at": "2013-07-20T17:00:04",
       "kind": "collection",
-      "description": "Incasso Rate da Blasutig Livia: Rata 6 (20/06/2013), Rata 7 (20/07/2013)",
+      "description": "Collection of installments from Blasutig Livia: Installment 6 (20/06/2013), Installment 7 (20/07/2013)",
       "postings": [
         {
           "accountId": "la154",
@@ -6167,7 +6167,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 76,
       "at": "2013-07-21T13:36:08",
       "kind": "invoice",
-      "description": "Registrazione fattura Energie del Ledra S.p.A. n. 43119 del 03/07/2013: Spese luci utenza n. 395 123 456: giugno - luglio",
+      "description": "Invoice Energie del Ledra S.p.A. no. 43119 of 03/07/2013: Lighting bill, supply no. 395 123 456: June - July",
       "postings": [
         {
           "accountId": "la198",
@@ -6193,7 +6193,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 77,
       "at": "2013-07-22T16:57:24",
       "kind": "collection",
-      "description": "Incasso Rate da Bertossi Lidia: Rata 4 (20/04/2013), Rata 5 (20/05/2013), Rata 6 (20/06/2013), Rata 7 (20/07/2013)",
+      "description": "Collection of installments from Bertossi Lidia: Installment 4 (20/04/2013), Installment 5 (20/05/2013), Installment 6 (20/06/2013), Installment 7 (20/07/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -6250,7 +6250,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 78,
       "at": "2013-07-27T15:44:25",
       "kind": "invoice",
-      "description": "Registrazione fattura Natisone Gas S.p.A. n. 192606 del 13/07/2013: spese gas giugno",
+      "description": "Invoice Natisone Gas S.p.A. no. 192606 of 13/07/2013: Gas bill June",
       "postings": [
         {
           "accountId": "la208",
@@ -6282,7 +6282,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 79,
       "at": "2013-07-29T16:46:42",
       "kind": "collection",
-      "description": "Incasso Rate da Fornasier Marco: Rata 3 (20/03/2013), Rata 4 (20/04/2013), Rata 5 (20/05/2013), Rata 6 (20/06/2013), Rata 7 (20/07/2013)",
+      "description": "Collection of installments from Fornasier Marco: Installment 3 (20/03/2013), Installment 4 (20/04/2013), Installment 5 (20/05/2013), Installment 6 (20/06/2013), Installment 7 (20/07/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -6349,7 +6349,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 80,
       "at": "2013-07-29T16:48:18",
       "kind": "collection",
-      "description": "Incasso Rate da Zanier Lidia: Rata 4 (20/04/2013), Rata 5 (20/05/2013), Rata 6 (20/06/2013), Rata 7 (20/07/2013)",
+      "description": "Collection of installments from Zanier Lidia: Installment 4 (20/04/2013), Installment 5 (20/05/2013), Installment 6 (20/06/2013), Installment 7 (20/07/2013)",
       "postings": [
         {
           "accountId": "la154",
@@ -6406,7 +6406,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 81,
       "at": "2013-07-30T17:16:47",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Adami Valerio n. 149 effettuato il 30/07/2013: Spese di amministrazione condominiale",
+      "description": "Payment of invoice Adami Valerio no. 149 on 30/07/2013: Condominium administration fees",
       "postings": [
         {
           "accountId": "la157",
@@ -6432,7 +6432,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 82,
       "at": "2013-08-01T16:38:49",
       "kind": "collection",
-      "description": "Incasso Rate da Buttazzoni Laura: Rata 5 (20/05/2013), Rata 6 (20/06/2013), Rata 7 (20/07/2013), Rata 8 (20/08/2013)",
+      "description": "Collection of installments from Buttazzoni Laura: Installment 5 (20/05/2013), Installment 6 (20/06/2013), Installment 7 (20/07/2013), Installment 8 (20/08/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -6489,7 +6489,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 83,
       "at": "2013-08-04T17:05:54",
       "kind": "collection",
-      "description": "Incasso Rate da Bearzi Servizi s.a.s.: Rata 7 (20/07/2013), Rata 8 (20/08/2013), Rata 9 (20/09/2013)",
+      "description": "Collection of installments from Bearzi Servizi s.a.s.: Installment 7 (20/07/2013), Installment 8 (20/08/2013), Installment 9 (20/09/2013)",
       "postings": [
         {
           "accountId": "la154",
@@ -6536,7 +6536,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 84,
       "at": "2013-08-05T16:43:15",
       "kind": "collection",
-      "description": "Incasso Rate da Fattori Gilda: Rata 2 (20/02/2013), Rata 3 (20/03/2013), Rata 4 (20/04/2013), Rata 5 (20/05/2013), Rata 6 (20/06/2013), Rata 7 (20/07/2013), Rata 8 (20/08/2013)",
+      "description": "Collection of installments from Fattori Gilda: Installment 2 (20/02/2013), Installment 3 (20/03/2013), Installment 4 (20/04/2013), Installment 5 (20/05/2013), Installment 6 (20/06/2013), Installment 7 (20/07/2013), Installment 8 (20/08/2013)",
       "postings": [
         {
           "accountId": "la154",
@@ -6623,7 +6623,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 85,
       "at": "2013-08-06T17:17:16",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Energie del Ledra S.p.A. n. 43119 effettuato il 03/08/2013: Spese luci utenza n. 395 123 456: giugno - luglio",
+      "description": "Payment of invoice Energie del Ledra S.p.A. no. 43119 on 03/08/2013: Lighting bill, supply no. 395 123 456: June - July",
       "postings": [
         {
           "accountId": "la157",
@@ -6649,7 +6649,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 86,
       "at": "2013-08-06T17:27:50",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Energie del Ledra S.p.A. n. 41111 effettuato il 03/08/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - giugno - luglio",
+      "description": "Payment of invoice Energie del Ledra S.p.A. no. 41111 on 03/08/2013: Energie del Ledra heating, supply no. 395 123 555 - June - July",
       "postings": [
         {
           "accountId": "la157",
@@ -6675,7 +6675,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 87,
       "at": "2013-08-09T16:41:16",
       "kind": "collection",
-      "description": "Incasso Rate da Iacuzzi Tullio: Rata 6 (20/06/2013), Rata 7 (20/07/2013), Rata 8 (20/08/2013)",
+      "description": "Collection of installments from Iacuzzi Tullio: Installment 6 (20/06/2013), Installment 7 (20/07/2013), Installment 8 (20/08/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -6722,7 +6722,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 88,
       "at": "2013-08-10T16:31:31",
       "kind": "collection",
-      "description": "Incasso Rate da Morandini Dina: Rata 8 (20/08/2013)",
+      "description": "Collection of installments from Morandini Dina: Installment 8 (20/08/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -6749,7 +6749,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 89,
       "at": "2013-08-10T16:58:33",
       "kind": "collection",
-      "description": "Incasso Rate da Morandini Olga: Rata 6 (20/06/2013), Rata 7 (20/07/2013), Rata 8 (20/08/2013)",
+      "description": "Collection of installments from Morandini Olga: Installment 6 (20/06/2013), Installment 7 (20/07/2013), Installment 8 (20/08/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -6796,7 +6796,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 90,
       "at": "2013-08-11T17:03:14",
       "kind": "collection",
-      "description": "Incasso Rate da Candotti Diego: Rata 7 (20/07/2013), Rata 8 (20/08/2013)",
+      "description": "Collection of installments from Candotti Diego: Installment 7 (20/07/2013), Installment 8 (20/08/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -6833,7 +6833,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 91,
       "at": "2013-08-13T20:53:03",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Natisone Gas S.p.A. n. 192606 effettuato il 13/08/2013: spese gas giugno",
+      "description": "Payment of invoice Natisone Gas S.p.A. no. 192606 on 13/08/2013: Gas bill June",
       "postings": [
         {
           "accountId": "la157",
@@ -6859,7 +6859,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 92,
       "at": "2013-08-20T16:48:54",
       "kind": "collection",
-      "description": "Incasso Rate da Zanier Lidia: Rata 7 (20/07/2013), Rata 8 (20/08/2013)",
+      "description": "Collection of installments from Zanier Lidia: Installment 7 (20/07/2013), Installment 8 (20/08/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -6896,7 +6896,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 93,
       "at": "2013-08-20T16:56:37",
       "kind": "collection",
-      "description": "Incasso Rate da Masotti Sabrina: Rata 6 (20/06/2013), Rata 7 (20/07/2013), Rata 8 (20/08/2013)",
+      "description": "Collection of installments from Masotti Sabrina: Installment 6 (20/06/2013), Installment 7 (20/07/2013), Installment 8 (20/08/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -6943,7 +6943,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 94,
       "at": "2013-08-25T15:46:28",
       "kind": "invoice",
-      "description": "Registrazione fattura Natisone Gas S.p.A. n. 224757 del 13/08/2013: spese gas luglio",
+      "description": "Invoice Natisone Gas S.p.A. no. 224757 of 13/08/2013: Gas bill July",
       "postings": [
         {
           "accountId": "la208",
@@ -6975,7 +6975,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 95,
       "at": "2013-08-28T16:59:15",
       "kind": "collection",
-      "description": "Incasso Rate da Cozzi Ivo: Rata 7 (20/07/2013), Rata 8 (20/08/2013)",
+      "description": "Collection of installments from Cozzi Ivo: Installment 7 (20/07/2013), Installment 8 (20/08/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -7012,7 +7012,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 96,
       "at": "2013-08-28T17:01:49",
       "kind": "collection",
-      "description": "Incasso Rate da Scarbolo Flavio: Rata 7 (20/07/2013), Rata 8 (20/08/2013)",
+      "description": "Collection of installments from Scarbolo Flavio: Installment 7 (20/07/2013), Installment 8 (20/08/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -7049,7 +7049,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 97,
       "at": "2013-09-01T16:34:50",
       "kind": "collection",
-      "description": "Incasso Rate da Variola Dina: Rata 8 (20/08/2013)",
+      "description": "Collection of installments from Variola Dina: Installment 8 (20/08/2013)",
       "postings": [
         {
           "accountId": "la156",
@@ -7076,7 +7076,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 98,
       "at": "2013-09-02T13:25:49",
       "kind": "invoice",
-      "description": "Registrazione fattura Estintori Toniutti & C. s.a.s. n. 617 del 25/08/2013: Revisione estintori",
+      "description": "Invoice Estintori Toniutti & C. s.a.s. no. 617 of 25/08/2013: Extinguisher service",
       "postings": [
         {
           "accountId": "la197",
@@ -7108,7 +7108,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 99,
       "at": "2013-09-10T13:22:19",
       "kind": "invoice",
-      "description": "Registrazione fattura Ferramenta Cossio s.a.s. n. 1474 del 23/08/2013: Riparazione porte",
+      "description": "Invoice Ferramenta Cossio s.a.s. no. 1474 of 23/08/2013: Door repairs",
       "postings": [
         {
           "accountId": "la196",
@@ -7140,7 +7140,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 100,
       "at": "2013-09-11T16:23:47",
       "kind": "invoice",
-      "description": "Registrazione fattura Energie del Ledra S.p.A. n. 41112 del 02/09/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - agosto - settembre",
+      "description": "Invoice Energie del Ledra S.p.A. no. 41112 of 02/09/2013: Energie del Ledra heating, supply no. 395 123 555 - August - September",
       "postings": [
         {
           "accountId": "la209",
@@ -7166,7 +7166,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 101,
       "at": "2013-09-13T20:54:14",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Natisone Gas S.p.A. n. 224757 effettuato il 13/09/2013: spese gas luglio",
+      "description": "Payment of invoice Natisone Gas S.p.A. no. 224757 on 13/09/2013: Gas bill July",
       "postings": [
         {
           "accountId": "la157",
@@ -7192,7 +7192,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 102,
       "at": "2013-09-22T17:27:21",
       "kind": "invoice",
-      "description": "Registrazione fattura Cargnelutti Elevatori s.n.c. n. 2157 del 01/09/2013: controllo ascensori",
+      "description": "Invoice Cargnelutti Elevatori s.n.c. no. 2157 of 01/09/2013: Elevator inspection",
       "postings": [
         {
           "accountId": "la219",
@@ -7224,7 +7224,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 103,
       "at": "2013-09-23T20:54:51",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Ferramenta Cossio s.a.s. n. 1474 effettuato il 23/09/2013: Riparazione porte",
+      "description": "Payment of invoice Ferramenta Cossio s.a.s. no. 1474 on 23/09/2013: Door repairs",
       "postings": [
         {
           "accountId": "la157",
@@ -7250,7 +7250,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 104,
       "at": "2013-09-25T20:55:08",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Estintori Toniutti & C. s.a.s. n. 617 effettuato il 25/09/2013: Revisione estintori",
+      "description": "Payment of invoice Estintori Toniutti & C. s.a.s. no. 617 on 25/09/2013: Extinguisher service",
       "postings": [
         {
           "accountId": "la157",
@@ -7276,7 +7276,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 105,
       "at": "2013-09-27T13:38:55",
       "kind": "invoice",
-      "description": "Registrazione fattura Energie del Ledra S.p.A. n. 43111 del 02/09/2013: Spese luci utenza n. 395 123 456: agosto - settembre",
+      "description": "Invoice Energie del Ledra S.p.A. no. 43111 of 02/09/2013: Lighting bill, supply no. 395 123 456: August - September",
       "postings": [
         {
           "accountId": "la198",
@@ -7302,7 +7302,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 106,
       "at": "2013-09-29T15:48:34",
       "kind": "invoice",
-      "description": "Registrazione fattura Natisone Gas S.p.A. n. 251755 del 14/09/2013: spese gas agosto",
+      "description": "Invoice Natisone Gas S.p.A. no. 251755 of 14/09/2013: Gas bill August",
       "postings": [
         {
           "accountId": "la208",
@@ -7334,7 +7334,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 107,
       "at": "2013-10-01T20:56:32",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Cargnelutti Elevatori s.n.c. n. 2157 effettuato il 01/10/2013: controllo ascensori",
+      "description": "Payment of invoice Cargnelutti Elevatori s.n.c. no. 2157 on 01/10/2013: Elevator inspection",
       "postings": [
         {
           "accountId": "la157",
@@ -7360,7 +7360,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 108,
       "at": "2013-10-02T20:57:05",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Energie del Ledra S.p.A. n. 43111 effettuato il 02/10/2013: Spese luci utenza n. 395 123 456: agosto - settembre",
+      "description": "Payment of invoice Energie del Ledra S.p.A. no. 43111 on 02/10/2013: Lighting bill, supply no. 395 123 456: August - September",
       "postings": [
         {
           "accountId": "la157",
@@ -7386,7 +7386,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 109,
       "at": "2013-10-02T20:57:34",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Energie del Ledra S.p.A. n. 41112 effettuato il 02/10/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - agosto - settembre",
+      "description": "Payment of invoice Energie del Ledra S.p.A. no. 41112 on 02/10/2013: Energie del Ledra heating, supply no. 395 123 555 - August - September",
       "postings": [
         {
           "accountId": "la157",
@@ -7412,7 +7412,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 110,
       "at": "2013-10-05T13:07:03",
       "kind": "generic",
-      "description": "Pagamento diretto di spese bancarie",
+      "description": "Direct payment of bank charges",
       "postings": [
         {
           "accountId": "la187",
@@ -7435,7 +7435,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 111,
       "at": "2013-10-14T20:58:26",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Natisone Gas S.p.A. n. 251755 effettuato il 14/10/2013: spese gas agosto",
+      "description": "Payment of invoice Natisone Gas S.p.A. no. 251755 on 14/10/2013: Gas bill August",
       "postings": [
         {
           "accountId": "la157",
@@ -7461,7 +7461,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 112,
       "at": "2013-10-17T12:31:07",
       "kind": "invoice",
-      "description": "Registrazione fattura Adami Valerio n. 223 del 01/10/2013: Spese di amministrazione condominiale",
+      "description": "Invoice Adami Valerio no. 223 of 01/10/2013: Condominium administration fees",
       "postings": [
         {
           "accountId": "la174",
@@ -7493,7 +7493,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 113,
       "at": "2013-10-17T13:57:18",
       "kind": "invoice",
-      "description": "Registrazione fattura Pontoni Servizi di Pulizia s.n.c. n. 3171 del 30/09/2013: pulizia marciapiedi",
+      "description": "Invoice Pontoni Servizi di Pulizia s.n.c. no. 3171 of 30/09/2013: Pavement cleaning",
       "postings": [
         {
           "accountId": "la199",
@@ -7525,7 +7525,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 114,
       "at": "2013-10-21T16:36:43",
       "kind": "generic",
-      "description": "Deduzione Quota fissa Acque Fella",
+      "description": "Acque Fella fixed charge deduction",
       "postings": [
         {
           "accountId": "la218",
@@ -7548,7 +7548,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 115,
       "at": "2013-11-02T15:00:24",
       "kind": "invoice",
-      "description": "Registrazione fattura Natisone Gas S.p.A. n. 291113 del 21/10/2013: spese gas settembre",
+      "description": "Invoice Natisone Gas S.p.A. no. 291113 of 21/10/2013: Gas bill September",
       "postings": [
         {
           "accountId": "la208",
@@ -7580,7 +7580,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 116,
       "at": "2013-11-02T19:58:43",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Adami Valerio n. 223 effettuato il 02/11/2013: Spese di amministrazione condominiale",
+      "description": "Payment of invoice Adami Valerio no. 223 on 02/11/2013: Condominium administration fees",
       "postings": [
         {
           "accountId": "la157",
@@ -7606,7 +7606,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 117,
       "at": "2013-11-03T15:41:14",
       "kind": "generic",
-      "description": "Imputazione quota tra acqua calda e fredda",
+      "description": "Apportionment of the charge between hot and cold water",
       "postings": [
         {
           "accountId": "la212",
@@ -7629,7 +7629,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 118,
       "at": "2013-11-17T15:03:26",
       "kind": "invoice",
-      "description": "Registrazione fattura Natisone Gas S.p.A. n. 304836 del 12/11/2013: spese gas ottobre",
+      "description": "Invoice Natisone Gas S.p.A. no. 304836 of 12/11/2013: Gas bill October",
       "postings": [
         {
           "accountId": "la208",
@@ -7661,7 +7661,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 119,
       "at": "2013-11-21T19:59:22",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Natisone Gas S.p.A. n. 291113 effettuato il 21/11/2013: spese gas settembre",
+      "description": "Payment of invoice Natisone Gas S.p.A. no. 291113 on 21/11/2013: Gas bill September",
       "postings": [
         {
           "accountId": "la157",
@@ -7687,7 +7687,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 120,
       "at": "2013-11-28T22:39:04",
       "kind": "generic",
-      "description": "Spese singole - postali per solleciti",
+      "description": "Individual expenses - postage for reminders",
       "postings": [
         {
           "accountId": "la228",
@@ -7722,7 +7722,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 121,
       "at": "2013-11-30T15:25:19",
       "kind": "invoice",
-      "description": "Registrazione fattura Energie del Ledra S.p.A. n. 41113 del 04/11/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - ottobre - novembre",
+      "description": "Invoice Energie del Ledra S.p.A. no. 41113 of 04/11/2013: Energie del Ledra heating, supply no. 395 123 555 - October - November",
       "postings": [
         {
           "accountId": "la209",
@@ -7748,7 +7748,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 122,
       "at": "2013-12-01T15:34:04",
       "kind": "invoice",
-      "description": "Registrazione fattura Acque Fella s.r.l. n. 107104 del 16/11/2013: bolletta acqua",
+      "description": "Invoice Acque Fella s.r.l. no. 107104 of 16/11/2013: Water bill",
       "postings": [
         {
           "accountId": "la214",
@@ -7780,7 +7780,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 123,
       "at": "2013-12-04T20:00:01",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Energie del Ledra S.p.A. n. 43112 effettuato il 04/12/2013: Spese luci utenza n. 395 123 456: ottobre - novembre",
+      "description": "Payment of invoice Energie del Ledra S.p.A. no. 43112 on 04/12/2013: Lighting bill, supply no. 395 123 456: October - November",
       "postings": [
         {
           "accountId": "la157",
@@ -7806,7 +7806,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 124,
       "at": "2013-12-04T20:00:35",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Energie del Ledra S.p.A. n. 41113 effettuato il 04/12/2013: Energie del Ledra riscaldamento utenza n. 395 123 555 - ottobre - novembre",
+      "description": "Payment of invoice Energie del Ledra S.p.A. no. 41113 on 04/12/2013: Energie del Ledra heating, supply no. 395 123 555 - October - November",
       "postings": [
         {
           "accountId": "la157",
@@ -7832,7 +7832,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 125,
       "at": "2013-12-12T16:45:42",
       "kind": "invoice",
-      "description": "Registrazione fattura Cargnelutti Elevatori s.n.c. n. 2959 del 01/12/2013: controllo ascensori",
+      "description": "Invoice Cargnelutti Elevatori s.n.c. no. 2959 of 01/12/2013: Elevator inspection",
       "postings": [
         {
           "accountId": "la219",
@@ -7864,7 +7864,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 126,
       "at": "2013-12-12T16:51:26",
       "kind": "invoice",
-      "description": "Registrazione fattura Cargnelutti Elevatori s.n.c. n. 3163 del 01/12/2013: controllo ascensori",
+      "description": "Invoice Cargnelutti Elevatori s.n.c. no. 3163 of 01/12/2013: Elevator inspection",
       "postings": [
         {
           "accountId": "la219",
@@ -7896,7 +7896,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 127,
       "at": "2013-12-12T20:01:09",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Natisone Gas S.p.A. n. 304836 effettuato il 12/12/2013: spese gas ottobre",
+      "description": "Payment of invoice Natisone Gas S.p.A. no. 304836 on 12/12/2013: Gas bill October",
       "postings": [
         {
           "accountId": "la157",
@@ -7922,7 +7922,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 128,
       "at": "2013-12-16T20:01:52",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Acque Fella s.r.l. n. 107104 effettuato il 16/12/2013: bolletta acqua",
+      "description": "Payment of invoice Acque Fella s.r.l. no. 107104 on 16/12/2013: Water bill",
       "postings": [
         {
           "accountId": "la157",
@@ -7948,7 +7948,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 129,
       "at": "2013-12-20T20:02:22",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Acque Fella s.r.l. n. 107104 effettuato il 20/12/2013: bolletta acqua",
+      "description": "Payment of invoice Acque Fella s.r.l. no. 107104 on 20/12/2013: Water bill",
       "postings": [
         {
           "accountId": "la157",
@@ -7974,7 +7974,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 130,
       "at": "2013-12-26T18:08:00",
       "kind": "invoice",
-      "description": "Registrazione fattura Adami Valerio n. 309 del 23/12/2013: Spese amministrazione condominiale - parziale - caso particolare con attribuzione costi individuale",
+      "description": "Invoice Adami Valerio no. 309 of 23/12/2013: Condominium administration fees - partial - special case with individual cost allocation",
       "postings": [
         {
           "accountId": "la180",
@@ -8006,7 +8006,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 131,
       "at": "2013-12-27T23:22:46",
       "kind": "generic",
-      "description": "Pagamento diretto polizza assicurativa",
+      "description": "Direct payment of insurance policy",
       "postings": [
         {
           "accountId": "la173",
@@ -8029,7 +8029,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 132,
       "at": "2013-12-27T23:41:16",
       "kind": "generic",
-      "description": "Pagamento in contanti al Comune Nimis per fotocopie",
+      "description": "Cash payment to Nimis municipality for photocopies",
       "postings": [
         {
           "accountId": "la182",
@@ -8052,7 +8052,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 133,
       "at": "2013-12-28T22:10:15",
       "kind": "generic",
-      "description": "Spese singole - postali per invio raccomandate",
+      "description": "Individual expenses - registered mail postage",
       "postings": [
         {
           "accountId": "la223",
@@ -8231,7 +8231,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 134,
       "at": "2013-12-28T22:33:10",
       "kind": "generic",
-      "description": "Spese singole - manutenzione antenna",
+      "description": "Individual expenses - antenna maintenance",
       "postings": [
         {
           "accountId": "la225",
@@ -8404,7 +8404,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 135,
       "at": "2013-12-28T22:36:55",
       "kind": "generic",
-      "description": "Spese singole - Fattura parziale n. 309: amministrazione condominiale",
+      "description": "Individual expenses - partial invoice no. 309: condominium administration",
       "postings": [
         {
           "accountId": "la227",
@@ -8442,7 +8442,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 136,
       "at": "2013-12-30T15:04:52",
       "kind": "invoice",
-      "description": "Registrazione fattura Natisone Gas S.p.A n. 346562 del 23/12/2013: spese gas novembre",
+      "description": "Invoice Natisone Gas S.p.A no. 346562 of 23/12/2013: Gas bill November",
       "postings": [
         {
           "accountId": "la208",
@@ -8474,7 +8474,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 137,
       "at": "2013-12-30T20:06:42",
       "kind": "invoicePayment",
-      "description": "Pagamento fattura Adami Valerio n. 309 effettuato il 30/12/2013: Spese amministrazione condominiale - parziale - caso particolare con attribuzione costi individuale",
+      "description": "Payment of invoice Adami Valerio no. 309 on 30/12/2013: Condominium administration fees - partial - special case with individual cost allocation",
       "postings": [
         {
           "accountId": "la157",
@@ -8500,7 +8500,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 138,
       "at": "2014-01-10T12:59:57",
       "kind": "invoice",
-      "description": "Registrazione fattura Pontoni Servizi di Pulizia s.n.c. n. 4350 del 31/12/2013: pulizia marciapiedi",
+      "description": "Invoice Pontoni Servizi di Pulizia s.n.c. no. 4350 of 31/12/2013: Pavement cleaning",
       "postings": [
         {
           "accountId": "la205",
@@ -8532,7 +8532,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 139,
       "at": "2014-01-10T13:03:29",
       "kind": "invoice",
-      "description": "Registrazione fattura Puntel Claudio n. 334 del 31/12/2013: revisione caldaia",
+      "description": "Invoice Puntel Claudio no. 334 of 31/12/2013: Boiler service",
       "postings": [
         {
           "accountId": "la203",
@@ -8564,7 +8564,7 @@ export const legacySeedData: LegacySeedData = {
       "number": 140,
       "at": "2014-01-11T10:42:06",
       "kind": "closingBalances",
-      "description": "Conguaglio a consuntivo",
+      "description": "Final balance settlement",
       "postings": [
         {
           "accountId": "la158",
@@ -9676,7 +9676,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx10",
       "supplierId": "md10",
       "number": "42",
-      "reason": "Intervento di manutenzione giardino: siepe e vialetto",
+      "reason": "Garden maintenance: hedge and path",
       "date": "2012-04-23",
       "dueDate": null,
       "costAccountId": "la35",
@@ -9693,7 +9693,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx13",
       "supplierId": "md10",
       "number": "76",
-      "reason": "Trattamento antiparassitario alla sequoia centinaria del giardino posteriore",
+      "reason": "Pest treatment of the century-old sequoia in the back garden",
       "date": "2012-05-01",
       "dueDate": null,
       "costAccountId": "la35",
@@ -9710,7 +9710,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx101",
       "supplierId": "md76",
       "number": "74",
-      "reason": "Spese di amministrazione condominiale",
+      "reason": "Condominium administration fees",
       "date": "2013-04-01",
       "dueDate": null,
       "costAccountId": "la174",
@@ -9727,7 +9727,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx102",
       "supplierId": "md76",
       "number": "149",
-      "reason": "Spese di amministrazione condominiale",
+      "reason": "Condominium administration fees",
       "date": "2013-06-30",
       "dueDate": null,
       "costAccountId": "la174",
@@ -9744,7 +9744,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx103",
       "supplierId": "md76",
       "number": "223",
-      "reason": "Spese di amministrazione condominiale",
+      "reason": "Condominium administration fees",
       "date": "2013-10-01",
       "dueDate": null,
       "costAccountId": "la174",
@@ -9761,7 +9761,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx111",
       "supplierId": "md80",
       "number": "72",
-      "reason": "Revisione caldaia",
+      "reason": "Boiler service",
       "date": "2013-04-27",
       "dueDate": null,
       "costAccountId": "la193",
@@ -9778,7 +9778,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx112",
       "supplierId": "md81",
       "number": "223",
-      "reason": "Riparazione porte",
+      "reason": "Door repairs",
       "date": "2013-02-04",
       "dueDate": null,
       "costAccountId": "la196",
@@ -9795,7 +9795,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx113",
       "supplierId": "md81",
       "number": "1474",
-      "reason": "Riparazione porte",
+      "reason": "Door repairs",
       "date": "2013-08-23",
       "dueDate": null,
       "costAccountId": "la196",
@@ -9812,7 +9812,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx114",
       "supplierId": "md83",
       "number": "274",
-      "reason": "Sostituzione estintori",
+      "reason": "Extinguisher replacement",
       "date": "2013-03-22",
       "dueDate": null,
       "costAccountId": "la197",
@@ -9829,7 +9829,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx115",
       "supplierId": "md83",
       "number": "617",
-      "reason": "Revisione estintori",
+      "reason": "Extinguisher service",
       "date": "2013-08-25",
       "dueDate": null,
       "costAccountId": "la197",
@@ -9846,7 +9846,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx116",
       "supplierId": "md15",
       "number": "43116",
-      "reason": "Spese luci utenza n. 395 123 456: dicembre '12 - gennaio '13",
+      "reason": "Lighting bill, supply no. 395 123 456: December '12 - January '13",
       "date": "2013-01-13",
       "dueDate": null,
       "costAccountId": "la198",
@@ -9863,7 +9863,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx117",
       "supplierId": "md15",
       "number": "43117",
-      "reason": "Spese luci utenza n. 395 123 456: febbraio - marzo",
+      "reason": "Lighting bill, supply no. 395 123 456: February - March",
       "date": "2013-03-13",
       "dueDate": null,
       "costAccountId": "la198",
@@ -9880,7 +9880,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx118",
       "supplierId": "md15",
       "number": "43118",
-      "reason": "Spese luci utenza n. 395 123 456: aprile - maggio",
+      "reason": "Lighting bill, supply no. 395 123 456: April - May",
       "date": "2013-05-14",
       "dueDate": null,
       "costAccountId": "la198",
@@ -9897,7 +9897,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx119",
       "supplierId": "md15",
       "number": "43119",
-      "reason": "Spese luci utenza n. 395 123 456: giugno - luglio",
+      "reason": "Lighting bill, supply no. 395 123 456: June - July",
       "date": "2013-07-03",
       "dueDate": null,
       "costAccountId": "la198",
@@ -9914,7 +9914,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx120",
       "supplierId": "md15",
       "number": "43111",
-      "reason": "Spese luci utenza n. 395 123 456: agosto - settembre",
+      "reason": "Lighting bill, supply no. 395 123 456: August - September",
       "date": "2013-09-02",
       "dueDate": null,
       "costAccountId": "la198",
@@ -9931,7 +9931,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx121",
       "supplierId": "md15",
       "number": "43112",
-      "reason": "Spese luci utenza n. 395 123 456: ottobre - novembre",
+      "reason": "Lighting bill, supply no. 395 123 456: October - November",
       "date": "2013-11-04",
       "dueDate": null,
       "costAccountId": "la198",
@@ -9948,7 +9948,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx122",
       "supplierId": "md82",
       "number": "1022",
-      "reason": "pulizia marciapiedi",
+      "reason": "Pavement cleaning",
       "date": "2013-03-31",
       "dueDate": null,
       "costAccountId": "la199",
@@ -9965,7 +9965,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx123",
       "supplierId": "md82",
       "number": "2165",
-      "reason": "pulizia marciapiedi",
+      "reason": "Pavement cleaning",
       "date": "2013-03-31",
       "dueDate": null,
       "costAccountId": "la199",
@@ -9982,7 +9982,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx124",
       "supplierId": "md82",
       "number": "3171",
-      "reason": "pulizia marciapiedi",
+      "reason": "Pavement cleaning",
       "date": "2013-09-30",
       "dueDate": null,
       "costAccountId": "la199",
@@ -9999,7 +9999,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx125",
       "supplierId": "md82",
       "number": "4350",
-      "reason": "pulizia marciapiedi",
+      "reason": "Pavement cleaning",
       "date": "2013-12-31",
       "dueDate": null,
       "costAccountId": "la205",
@@ -10016,7 +10016,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx126",
       "supplierId": "md119",
       "number": "334",
-      "reason": "revisione caldaia",
+      "reason": "Boiler service",
       "date": "2013-12-31",
       "dueDate": null,
       "costAccountId": "la203",
@@ -10033,7 +10033,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx127",
       "supplierId": "md79",
       "number": "7736",
-      "reason": "spese gas dicembre '12",
+      "reason": "Gas bill December '12",
       "date": "2013-01-13",
       "dueDate": null,
       "costAccountId": "la208",
@@ -10050,7 +10050,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx128",
       "supplierId": "md79",
       "number": "64135",
-      "reason": "spese gas gennaio",
+      "reason": "Gas bill January",
       "date": "2013-03-11",
       "dueDate": null,
       "costAccountId": "la208",
@@ -10067,7 +10067,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx129",
       "supplierId": "md79",
       "number": "86391",
-      "reason": "spese gas febbraio",
+      "reason": "Gas bill February",
       "date": "2013-03-24",
       "dueDate": null,
       "costAccountId": "la208",
@@ -10084,7 +10084,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx130",
       "supplierId": "md79",
       "number": "114419",
-      "reason": "spese gas marzo",
+      "reason": "Gas bill March",
       "date": "2013-04-15",
       "dueDate": null,
       "costAccountId": "la208",
@@ -10101,7 +10101,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx131",
       "supplierId": "md79",
       "number": "131841",
-      "reason": "spese gas aprile",
+      "reason": "Gas bill April",
       "date": "2013-05-19",
       "dueDate": null,
       "costAccountId": "la208",
@@ -10118,7 +10118,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx132",
       "supplierId": "md79",
       "number": "167930",
-      "reason": "spese gas maggio",
+      "reason": "Gas bill May",
       "date": "2013-06-16",
       "dueDate": null,
       "costAccountId": "la208",
@@ -10135,7 +10135,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx133",
       "supplierId": "md79",
       "number": "192606",
-      "reason": "spese gas giugno",
+      "reason": "Gas bill June",
       "date": "2013-07-13",
       "dueDate": null,
       "costAccountId": "la208",
@@ -10152,7 +10152,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx134",
       "supplierId": "md79",
       "number": "224757",
-      "reason": "spese gas luglio",
+      "reason": "Gas bill July",
       "date": "2013-08-13",
       "dueDate": null,
       "costAccountId": "la208",
@@ -10169,7 +10169,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx135",
       "supplierId": "md79",
       "number": "251755",
-      "reason": "spese gas agosto",
+      "reason": "Gas bill August",
       "date": "2013-09-14",
       "dueDate": null,
       "costAccountId": "la208",
@@ -10186,7 +10186,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx137",
       "supplierId": "md79",
       "number": "291113",
-      "reason": "spese gas settembre",
+      "reason": "Gas bill September",
       "date": "2013-10-21",
       "dueDate": null,
       "costAccountId": "la208",
@@ -10203,7 +10203,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx138",
       "supplierId": "md79",
       "number": "304836",
-      "reason": "spese gas ottobre",
+      "reason": "Gas bill October",
       "date": "2013-11-12",
       "dueDate": null,
       "costAccountId": "la208",
@@ -10220,7 +10220,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx139",
       "supplierId": "md79",
       "number": "346562",
-      "reason": "spese gas novembre",
+      "reason": "Gas bill November",
       "date": "2013-12-23",
       "dueDate": null,
       "costAccountId": "la208",
@@ -10237,7 +10237,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx140",
       "supplierId": "md15",
       "number": "41117",
-      "reason": "Energie del Ledra riscaldamento utenza n. 395 123 555 - dicembre '12 - gennaio '13",
+      "reason": "Energie del Ledra heating, supply no. 395 123 555 - December '12 - January '13",
       "date": "2013-01-13",
       "dueDate": null,
       "costAccountId": "la209",
@@ -10254,7 +10254,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx141",
       "supplierId": "md15",
       "number": "41118",
-      "reason": "Energie del Ledra riscaldamento utenza n. 395 123 555 - febbraio - marzo",
+      "reason": "Energie del Ledra heating, supply no. 395 123 555 - February - March",
       "date": "2013-03-13",
       "dueDate": null,
       "costAccountId": "la209",
@@ -10271,7 +10271,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx142",
       "supplierId": "md15",
       "number": "41119",
-      "reason": "Energie del Ledra riscaldamento utenza n. 395 123 555 - aprile - maggio",
+      "reason": "Energie del Ledra heating, supply no. 395 123 555 - April - May",
       "date": "2013-05-14",
       "dueDate": null,
       "costAccountId": "la209",
@@ -10288,7 +10288,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx143",
       "supplierId": "md15",
       "number": "41111",
-      "reason": "Energie del Ledra riscaldamento utenza n. 395 123 555 - giugno - luglio",
+      "reason": "Energie del Ledra heating, supply no. 395 123 555 - June - July",
       "date": "2013-07-03",
       "dueDate": null,
       "costAccountId": "la209",
@@ -10305,7 +10305,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx144",
       "supplierId": "md15",
       "number": "41112",
-      "reason": "Energie del Ledra riscaldamento utenza n. 395 123 555 - agosto - settembre",
+      "reason": "Energie del Ledra heating, supply no. 395 123 555 - August - September",
       "date": "2013-09-02",
       "dueDate": null,
       "costAccountId": "la209",
@@ -10322,7 +10322,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx145",
       "supplierId": "md15",
       "number": "41113",
-      "reason": "Energie del Ledra riscaldamento utenza n. 395 123 555 - ottobre - novembre",
+      "reason": "Energie del Ledra heating, supply no. 395 123 555 - October - November",
       "date": "2013-11-04",
       "dueDate": null,
       "costAccountId": "la209",
@@ -10339,7 +10339,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx146",
       "supplierId": "md85",
       "number": "42961",
-      "reason": "bolletta acqua",
+      "reason": "Water bill",
       "date": "2013-05-20",
       "dueDate": null,
       "costAccountId": "la214",
@@ -10356,7 +10356,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx147",
       "supplierId": "md85",
       "number": "107104",
-      "reason": "bolletta acqua",
+      "reason": "Water bill",
       "date": "2013-11-16",
       "dueDate": null,
       "costAccountId": "la214",
@@ -10373,7 +10373,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx150",
       "supplierId": "md78",
       "number": "1358",
-      "reason": "controllo ascensori",
+      "reason": "Elevator inspection",
       "date": "2012-12-01",
       "dueDate": null,
       "costAccountId": "la219",
@@ -10390,7 +10390,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx151",
       "supplierId": "md78",
       "number": "472",
-      "reason": "controllo ascensori",
+      "reason": "Elevator inspection",
       "date": "2013-03-01",
       "dueDate": null,
       "costAccountId": "la219",
@@ -10407,7 +10407,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx152",
       "supplierId": "md78",
       "number": "1320",
-      "reason": "controllo ascensori",
+      "reason": "Elevator inspection",
       "date": "2013-06-01",
       "dueDate": null,
       "costAccountId": "la219",
@@ -10424,7 +10424,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx153",
       "supplierId": "md78",
       "number": "2157",
-      "reason": "controllo ascensori",
+      "reason": "Elevator inspection",
       "date": "2013-09-01",
       "dueDate": null,
       "costAccountId": "la219",
@@ -10441,7 +10441,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx154",
       "supplierId": "md78",
       "number": "2959",
-      "reason": "controllo ascensori",
+      "reason": "Elevator inspection",
       "date": "2013-12-01",
       "dueDate": null,
       "costAccountId": "la219",
@@ -10458,7 +10458,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx155",
       "supplierId": "md78",
       "number": "3163",
-      "reason": "controllo ascensori",
+      "reason": "Elevator inspection",
       "date": "2013-12-01",
       "dueDate": null,
       "costAccountId": "la219",
@@ -10475,7 +10475,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx156",
       "supplierId": "md84",
       "number": "1106378",
-      "reason": "verifica straordinaria",
+      "reason": "Extraordinary inspection",
       "date": "2013-03-02",
       "dueDate": null,
       "costAccountId": "la219",
@@ -10492,7 +10492,7 @@ export const legacySeedData: LegacySeedData = {
       "entryId": "tx157",
       "supplierId": "md76",
       "number": "309",
-      "reason": "Spese amministrazione condominiale - parziale - caso particolare con attribuzione costi individuale",
+      "reason": "Condominium administration fees - partial - special case with individual cost allocation",
       "date": "2013-12-23",
       "dueDate": null,
       "costAccountId": "la180",
@@ -10508,56 +10508,56 @@ export const legacySeedData: LegacySeedData = {
     {
       "periodId": "p1",
       "code": "1004",
-      "name": "Amm. di condomìnio senza P.IVA",
+      "name": "Condominium administrators without VAT no.",
       "rate": 0,
       "accountId": "la24"
     },
     {
       "periodId": "p1",
       "code": "1019",
-      "name": "Società di persone",
+      "name": "Partnerships",
       "rate": 400,
       "accountId": "la25"
     },
     {
       "periodId": "p1",
       "code": "1020",
-      "name": "Società di capitali",
+      "name": "Corporations",
       "rate": 400,
       "accountId": "la26"
     },
     {
       "periodId": "p1",
       "code": "1040",
-      "name": "Professionisti con P.IVA",
+      "name": "Professionals with VAT no.",
       "rate": 2000,
       "accountId": "la23"
     },
     {
       "periodId": "p36",
       "code": "1004",
-      "name": "Amm. di condomìnio senza P.IVA",
+      "name": "Condominium administrators without VAT no.",
       "rate": 0,
       "accountId": "la166"
     },
     {
       "periodId": "p36",
       "code": "1019",
-      "name": "Società di persone",
+      "name": "Partnerships",
       "rate": 400,
       "accountId": "la167"
     },
     {
       "periodId": "p36",
       "code": "1020",
-      "name": "Società di capitali",
+      "name": "Corporations",
       "rate": 400,
       "accountId": "la168"
     },
     {
       "periodId": "p36",
       "code": "1040",
-      "name": "Professionisti con P.IVA",
+      "name": "Professionals with VAT no.",
       "rate": 2000,
       "accountId": "la165"
     }
@@ -10567,7 +10567,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "in1",
       "periodId": "p1",
       "number": 1,
-      "name": "Rata nr. 1",
+      "name": "Installment 1",
       "dueDate": "2011-03-15",
       "locked": true
     },
@@ -10575,7 +10575,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "in5",
       "periodId": "p1",
       "number": 2,
-      "name": "Rata nr. 2",
+      "name": "Installment 2",
       "dueDate": "2011-07-15",
       "locked": false
     },
@@ -10583,7 +10583,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "in6",
       "periodId": "p1",
       "number": 3,
-      "name": "Rata nr. 3",
+      "name": "Installment 3",
       "dueDate": "2011-12-15",
       "locked": false
     },
@@ -10591,7 +10591,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "in25",
       "periodId": "p36",
       "number": 1,
-      "name": "Rata 1",
+      "name": "Installment 1",
       "dueDate": "2013-01-20",
       "locked": false
     },
@@ -10599,7 +10599,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "in26",
       "periodId": "p36",
       "number": 2,
-      "name": "Rata 2",
+      "name": "Installment 2",
       "dueDate": "2013-02-20",
       "locked": false
     },
@@ -10607,7 +10607,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "in27",
       "periodId": "p36",
       "number": 3,
-      "name": "Rata 3",
+      "name": "Installment 3",
       "dueDate": "2013-03-20",
       "locked": false
     },
@@ -10615,7 +10615,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "in28",
       "periodId": "p36",
       "number": 4,
-      "name": "Rata 4",
+      "name": "Installment 4",
       "dueDate": "2013-04-20",
       "locked": false
     },
@@ -10623,7 +10623,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "in29",
       "periodId": "p36",
       "number": 5,
-      "name": "Rata 5",
+      "name": "Installment 5",
       "dueDate": "2013-05-20",
       "locked": false
     },
@@ -10631,7 +10631,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "in30",
       "periodId": "p36",
       "number": 6,
-      "name": "Rata 6",
+      "name": "Installment 6",
       "dueDate": "2013-06-20",
       "locked": false
     },
@@ -10639,7 +10639,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "in31",
       "periodId": "p36",
       "number": 7,
-      "name": "Rata 7",
+      "name": "Installment 7",
       "dueDate": "2013-07-20",
       "locked": false
     },
@@ -10647,7 +10647,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "in32",
       "periodId": "p36",
       "number": 8,
-      "name": "Rata 8",
+      "name": "Installment 8",
       "dueDate": "2013-08-20",
       "locked": false
     },
@@ -10655,7 +10655,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "in33",
       "periodId": "p36",
       "number": 9,
-      "name": "Rata 9",
+      "name": "Installment 9",
       "dueDate": "2013-09-20",
       "locked": false
     },
@@ -10663,7 +10663,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "in34",
       "periodId": "p36",
       "number": 10,
-      "name": "Rata 10",
+      "name": "Installment 10",
       "dueDate": "2013-10-20",
       "locked": false
     },
@@ -10671,7 +10671,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "in35",
       "periodId": "p36",
       "number": 11,
-      "name": "Rata 11",
+      "name": "Installment 11",
       "dueDate": "2013-11-20",
       "locked": false
     },
@@ -10679,7 +10679,7 @@ export const legacySeedData: LegacySeedData = {
       "id": "in36",
       "periodId": "p36",
       "number": 12,
-      "name": "Rata 12",
+      "name": "Installment 12",
       "dueDate": "2013-12-20",
       "locked": false
     }
@@ -13008,14 +13008,14 @@ export const legacySeedData: LegacySeedData = {
       "id": "ug1",
       "periodId": "p1",
       "code": "A",
-      "name": "Scala A",
+      "name": "Stairwell A",
       "parentId": null
     },
     {
       "id": "ug2",
       "periodId": "p1",
       "code": "B",
-      "name": "Box",
+      "name": "Garages",
       "parentId": null
     }
   ],
@@ -13023,7 +13023,7 @@ export const legacySeedData: LegacySeedData = {
     {
       "id": "dt1",
       "periodId": "p1",
-      "name": "Proprietà",
+      "name": "Property",
       "order": 1,
       "notes": "",
       "restrictionGroupId": null
@@ -13031,7 +13031,7 @@ export const legacySeedData: LegacySeedData = {
     {
       "id": "dt2",
       "periodId": "p1",
-      "name": "Generale residenti",
+      "name": "General residents",
       "order": 2,
       "notes": "",
       "restrictionGroupId": null
@@ -13039,7 +13039,7 @@ export const legacySeedData: LegacySeedData = {
     {
       "id": "dt3",
       "periodId": "p1",
-      "name": "Scale",
+      "name": "Stairs",
       "order": 3,
       "notes": "",
       "restrictionGroupId": "ug1"
@@ -13047,7 +13047,7 @@ export const legacySeedData: LegacySeedData = {
     {
       "id": "dt4",
       "periodId": "p1",
-      "name": "Acqua preventivo",
+      "name": "Water budget",
       "order": 4,
       "notes": "",
       "restrictionGroupId": null
@@ -13055,7 +13055,7 @@ export const legacySeedData: LegacySeedData = {
     {
       "id": "dt5",
       "periodId": "p1",
-      "name": "Acqua consuntivo",
+      "name": "Water actual",
       "order": 5,
       "notes": "",
       "restrictionGroupId": null
@@ -13063,7 +13063,7 @@ export const legacySeedData: LegacySeedData = {
     {
       "id": "dt14",
       "periodId": "p36",
-      "name": "Generale",
+      "name": "General",
       "order": 1,
       "notes": "",
       "restrictionGroupId": null
@@ -13071,7 +13071,7 @@ export const legacySeedData: LegacySeedData = {
     {
       "id": "dt15",
       "periodId": "p36",
-      "name": "Ascensore",
+      "name": "Elevator",
       "order": 2,
       "notes": "",
       "restrictionGroupId": null
@@ -13079,7 +13079,7 @@ export const legacySeedData: LegacySeedData = {
     {
       "id": "dt16",
       "periodId": "p36",
-      "name": "Scala",
+      "name": "Stairs",
       "order": 3,
       "notes": "",
       "restrictionGroupId": null
@@ -13087,7 +13087,7 @@ export const legacySeedData: LegacySeedData = {
     {
       "id": "dt17",
       "periodId": "p36",
-      "name": "Quota piano",
+      "name": "Floor share",
       "order": 4,
       "notes": "",
       "restrictionGroupId": null
@@ -13095,7 +13095,7 @@ export const legacySeedData: LegacySeedData = {
     {
       "id": "dt18",
       "periodId": "p36",
-      "name": "Pulizia",
+      "name": "Cleaning",
       "order": 5,
       "notes": "",
       "restrictionGroupId": null
@@ -13103,7 +13103,7 @@ export const legacySeedData: LegacySeedData = {
     {
       "id": "dt19",
       "periodId": "p36",
-      "name": "Volumetrico",
+      "name": "Volume",
       "order": 6,
       "notes": "",
       "restrictionGroupId": null
@@ -13111,31 +13111,31 @@ export const legacySeedData: LegacySeedData = {
     {
       "id": "dt20",
       "periodId": "p36",
-      "name": "Riscaldamento contaore",
+      "name": "Heating hour meter",
       "order": 7,
-      "notes": "Questo dovrebbe essere collegato al contatore contaore di riscaldamentonn(nelle tabelle di Valerio è chiamato \"Riscaldamento 70% Contaore\")",
+      "notes": "This should be linked to the heating hour meter (in Valerio's tables it is called \"Heating 70% hour meter\")",
       "restrictionGroupId": null
     },
     {
       "id": "dt22",
       "periodId": "p36",
-      "name": "Superficie",
+      "name": "Surface area",
       "order": 8,
-      "notes": "Nelle tabelle di Valerio è chiamato \"sup. corpi radianti\", serve come una tabella intermedia per ottenere \"ore x sup. corpi radianti\"",
+      "notes": "In Valerio's tables it is called \"radiator surface\"; it serves as an intermediate table to obtain \"hours x radiator surface\"",
       "restrictionGroupId": null
     },
     {
       "id": "dt21",
       "periodId": "p36",
-      "name": "Riscaldamento",
+      "name": "Heating",
       "order": 9,
-      "notes": "Nelle tabelle di Valerio è chiamato \"ore x sup. corpi radianti\", ottenuta dalla moltiplicazione di 2 tabelle: \"70% contaore\" (Riscaldamento contaore) e \"sup. corpi radianti\" (Superficie)",
+      "notes": "In Valerio's tables it is called \"hours x radiator surface\", obtained by multiplying 2 tables: \"70% hour meter\" (Heating hour meter) and \"radiator surface\" (Surface area)",
       "restrictionGroupId": null
     },
     {
       "id": "dt23",
       "periodId": "p36",
-      "name": "Acqua calda contatore",
+      "name": "Hot water meter",
       "order": 10,
       "notes": "",
       "restrictionGroupId": null
@@ -13143,7 +13143,7 @@ export const legacySeedData: LegacySeedData = {
     {
       "id": "dt24",
       "periodId": "p36",
-      "name": "Acqua fredda contatore",
+      "name": "Cold water meter",
       "order": 11,
       "notes": "",
       "restrictionGroupId": null
@@ -13151,7 +13151,7 @@ export const legacySeedData: LegacySeedData = {
     {
       "id": "dt27",
       "periodId": "p36",
-      "name": "Parti uguali",
+      "name": "Equal shares",
       "order": 12,
       "notes": "",
       "restrictionGroupId": null

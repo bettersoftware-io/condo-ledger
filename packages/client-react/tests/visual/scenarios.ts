@@ -261,7 +261,7 @@ const OPEN_TO_CASH = [
 /** The cash account's row, selected under its group: a leaf, so neither bold nor with a caret. */
 const CASH_ROW: AccountRowPicture = {
   key: "la154",
-  label: "Cassa contanti",
+  label: "Cash on hand",
   depth: 4,
   icon: "cash",
   nature: "assets",
@@ -358,7 +358,7 @@ export const scenarios: Record<string, Scenario> = {
     expanded: OPEN_TO_CASH,
     renamed: {
       la154:
-        "Cassa contanti per le piccole spese della gestione ordinaria, straordinaria e del riscaldamento, con il riporto dei saldi dell'esercizio precedente",
+        "Cash on hand for the petty expenses of the ordinary, extraordinary and heating management, with the balances carried over from the previous financial year",
     },
   },
   "journal-1280-light": {
@@ -389,7 +389,7 @@ export const scenarios: Record<string, Scenario> = {
     menu: "journal",
     dialog: {
       wizard: "genericEntry",
-      description: "Nota di credito",
+      description: "Credit note",
       lines: [
         { scopeKey: "la154", debit: "50", credit: "" },
         { scopeKey: "la173", debit: "", credit: "30" },
@@ -484,8 +484,8 @@ export const scenarios: Record<string, Scenario> = {
     periodId: "p36",
     collection: { step: 1 },
   },
-  // Step 2 for the owner of A01 (`md89`, who owes Rata 9 to Rata 12, 134.98
-  // each), 300.00 typed: Rata 9 and Rata 10 are settled, Rata 11 in part.
+  // Step 2 for the owner of A01 (`md89`, who owes Installment 9 to 12, 134.98
+  // each), 300.00 typed: Installments 9 and 10 are settled, 11 in part.
   "collection-wizard-amount": {
     level: "component",
     mount: "collection-wizard",
@@ -504,9 +504,9 @@ export const scenarios: Record<string, Scenario> = {
     width: 642,
     mode: "light",
     settlement: [
-      createSettlementRow("Rata 9", "2013-09-20", 13498, 13498),
-      createSettlementRow("Rata 10", "2013-10-20", 13498, 13498),
-      createSettlementRow("Rata 11", "2013-11-20", 13498, 3004),
+      createSettlementRow("Installment 9", "2013-09-20", 13498, 13498),
+      createSettlementRow("Installment 10", "2013-10-20", 13498, 13498),
+      createSettlementRow("Installment 11", "2013-11-20", 13498, 3004),
     ],
   },
   // Pozzetto 2013's schedule: the units open, their residents' items
@@ -560,7 +560,7 @@ export const scenarios: Record<string, Scenario> = {
     periodId: "p3",
     budgetInstallments: { step: 2, firstDue: "31/03/2015" },
   },
-  // Saturno 2011's first installment (`in1`, Rata nr. 1), locked: its name
+  // Saturno 2011's first installment (`in1`, Installment 1), locked: its name
   // and due date cannot change until Locked is unticked.
   "installment-dialog": {
     level: "component",
@@ -724,7 +724,7 @@ export const scenarios: Record<string, Scenario> = {
         ...CASH_ROW,
         selected: false,
         label:
-          "Cassa contanti per le piccole spese della gestione ordinaria, straordinaria e del riscaldamento",
+          "Cash on hand for the petty expenses of the ordinary, extraordinary and heating management",
       },
     ],
   },
@@ -792,7 +792,7 @@ export const scenarios: Record<string, Scenario> = {
     height: 240,
     mode: "light",
     confirm: {
-      text: 'Delete the entry "Pagamento in contanti di spese postali"?',
+      text: 'Delete the entry "Cash payment of postage"?',
       error: null,
     },
   },
@@ -804,7 +804,7 @@ export const scenarios: Record<string, Scenario> = {
     height: 240,
     mode: "light",
     confirm: {
-      text: 'Delete the entry "controllo ascensori"?',
+      text: 'Delete the entry "Elevator inspection"?',
       error: "This invoice has payments. Delete them first.",
     },
   },
@@ -826,11 +826,11 @@ export const scenarios: Record<string, Scenario> = {
       step: 1,
       stepCount: 2,
       editing: false,
-      description: "controllo ascensori",
+      description: "Elevator inspection",
       reason: null,
       writesEntry: true,
       preview: [
-        { path: "Costs › Ascensore", debit: 36018, credit: 0 },
+        { path: "Costs › Elevator", debit: 36018, credit: 0 },
         {
           path: "Suppliers › Cargnelutti Elevatori s.n.c.",
           debit: 0,
@@ -852,11 +852,11 @@ export const scenarios: Record<string, Scenario> = {
       step: 2,
       stepCount: 2,
       editing: true,
-      description: "controllo ascensori",
+      description: "Elevator inspection",
       reason: "negative",
       writesEntry: true,
       preview: [
-        { path: "Costs › Ascensore", debit: 36018, credit: 0 },
+        { path: "Costs › Elevator", debit: 36018, credit: 0 },
         {
           path: "Suppliers › Cargnelutti Elevatori s.n.c.",
           debit: 0,
@@ -877,7 +877,7 @@ export const scenarios: Record<string, Scenario> = {
     mode: "light",
     periodId: "p36",
     multiCost: {
-      description: "Assicurazione e amministrazione",
+      description: "Insurance and administration",
       amount: "1,000.00",
       lines: [
         { accountId: "la173", amount: "600.00" },
@@ -894,7 +894,7 @@ export const scenarios: Record<string, Scenario> = {
     mode: "light",
     periodId: "p36",
     multiCost: {
-      description: "Assicurazione e amministrazione",
+      description: "Insurance and administration",
       amount: "1,000.00",
       lines: [
         { accountId: "la173", amount: "600.00" },
@@ -1038,7 +1038,7 @@ export const scenarios: Record<string, Scenario> = {
   // Thousandth Tables & Allocation's parts alone, over Saturno 2011 (`p1`),
   // each panel at the width it has at the full layout and its content's
   // height. The tables in order, the first selected; the coefficients of
-  // Scale (`dt3`), restricted to group A: only that group and its units; the
+  // Stairs (`dt3`), restricted to group A: only that group and its units; the
   // allocation of the final balance, chosen through the mode menu.
   "thousandth-tables-panel": {
     level: "component",
@@ -1083,7 +1083,7 @@ export const scenarios: Record<string, Scenario> = {
     height: 720,
     mode: "light",
     periodId: "p1",
-    tableName: "Scale",
+    tableName: "Stairs",
   },
   // The Budget allocation wizard over Saturno 2011 with its allocation
   // (`tx5`) deleted: the whole entry, the eleven debits (each owner's charge
@@ -1111,7 +1111,7 @@ export const scenarios: Record<string, Scenario> = {
     periodId: "p1",
   },
   // Account Details' ALLOCATION TABLES mini-grid for the building's
-  // insurance in Pozzetto 2013 (`la173`): its one link, Generale at 100%,
+  // insurance in Pozzetto 2013 (`la173`): its one link, General at 100%,
   // at the width the grid has in the bottom panel.
   "account-allocation-tables": {
     level: "component",

@@ -67,8 +67,8 @@ describe("coefficientsTreeOf, Saturno 2011 (p1)", () => {
         return [node.key, node.label, node.period, node.value];
       }),
     ).toEqual([
-      ["group:ug1", "A - Scala A", "", 9200000],
-      ["group:ug2", "B - Box", "", 800000],
+      ["group:ug1", "A - Stairwell A", "", 9200000],
+      ["group:ug2", "B - Garages", "", 800000],
     ]);
   });
 
