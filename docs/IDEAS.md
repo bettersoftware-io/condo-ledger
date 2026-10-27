@@ -66,3 +66,10 @@ be worth doing. Not how.
   red; the design colours an item by its settlement only (settled, partial,
   unsettled), and M2d follows the design. Overdue could add a fourth state,
   or a mark on the three.
+- **Meters.** The "Counter" column of Thousandth Tables is blank in M2e; a
+  table could be tied to a meter whose readings feed its coefficients.
+- **Group rows and columns, and Include installments**, the Allocation
+  screen's three options the legacy app also disabled. M2e shows them
+  disabled.
+- **A table's restriction group made editable.** M2e shows the "Restriction
+  on" column and keeps it as seeded.

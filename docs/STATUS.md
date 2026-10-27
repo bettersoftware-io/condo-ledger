@@ -12,7 +12,7 @@ One bullet for each entry: its name in bold, what is left, and a link to its
 plan when it has one. `AGENTS.md` says when an entry is added, moved and
 removed.
 
-**Last updated: 2026-10-26**
+**Last updated: 2026-10-27**
 
 ## In progress
 
@@ -32,26 +32,25 @@ Work that waits on a release, a decision or other work.
 
 ## Next, with no plan yet
 
-- **Budget allocation, in the Tables & Allocation group.** Moved out of
-  M2c ([2026-10-24-m2c-owner-collection-design.md](superpowers/specs/2026-10-24-m2c-owner-collection-design.md),
-  "Scope"). An allocation charges each owner the share the engine computes,
-  so it needs units, thousandth tables, residency dates and the allocation
-  engine running in the app, none of which the app has. Left too: the 0/0
-  lines of the legacy allocation, and the engine's divergence on Pozzetto
-  2013 (it reproduces Saturno 2011, but is off by cents per owner on
-  Pozzetto, about 426 euros between the two residents of unit A04). The
-  menu item keeps M2a's notice until then.
+- **Retire the old allocation engine.** `buildRiparto`, `recomputePeriod`
+  and the prototype's seed `data.generated.json` have no caller but the
+  generator, since M2e's allocation
+  (`packages/domain/src/useCases/allocation/`) replaced them in the app.
+  Remove them together.
+- **Edit an account's allocation tables.** Account Details shows the
+  tables an account is allocated by, read-only; the Edit Account dialog is
+  where the legacy app changed them.
 - **Unit groups and the Units entity, in the Building Data & Units group.**
-  The Installment Schedule does not draw Saturno's unit groups (A and B):
-  its rows are units, then residents, until the Unit and UnitGroup entities
-  arrive with their group
+  The entities and `UnitsPort` exist (M2e). The Installment Schedule does
+  not draw Saturno's unit groups (A and B) yet: its rows are units, then
+  residents
   ([2026-10-25-m2d-installment-schedule-design.md](superpowers/specs/2026-10-25-m2d-installment-schedule-design.md),
   "Scope").
 - **The rest of the Buildings module for M2.** The groups the parent design
-  names, one spec each: Tables & Allocation, Building Data & Units, Contacts
-  and Calendar
+  names, one spec each: Building Data & Units, Contacts and Calendar
   ([2026-10-11-app-v2-design.md](superpowers/specs/2026-10-11-app-v2-design.md));
-  Installments is built (M2d). The two entries above open the first two.
+  Installments (M2d) and Tables & Allocation (M2e) are built. The entry
+  above opens the first.
 - **Per-grid persistence.** The design says a column resize persists per
   grid; today every per-component machine (grid expansion, columns, split,
   bottom tab) is rebuilt when its component mounts, so leaving the Accounts
@@ -72,7 +71,15 @@ Work that waits on a release, a decision or other work.
   relies on a synchronous first emission and has one subscriber; the
   simulator keeps a draft's postings by reference; the delete alert is
   hidden, not closed, when the selection vanishes while it is open, and
-  comes back on the next selection.
+  comes back on the next selection. In Tables & Allocation (M2e): the
+  tables port's contract counts emissions synchronously right after an
+  awaited write, which a live adapter may need to flush; the allocation and
+  tables streams and the table selection stay subscribed for the app's life;
+  a period switch shows a loading state whose words ("No period is
+  selected.", "No table is selected.") are wrong for that moment and
+  remounts the Allocation grid, which resets dragged column widths; clicking
+  the edit or delete button while the selection is not yet listed would
+  throw.
 - **Accessibility polish.** The tabbed panel lacks `aria-labelledby` and
   arrow keys; the popover menus have no focus return and no arrow keys; the
   inline editor's input has no label, `aria-invalid` or `role="alert"` on its
@@ -116,6 +123,15 @@ A step or a decision an agent cannot take.
 
 ## Known limits
 
+- **The Allocation's Days differ from the legacy screen in two cells.**
+  Saturno A3 shows 147/365 where the legacy app showed 146/365 (it lost an
+  hour to the March clock change before a floor), and A4 is blank where the
+  legacy showed 365/365 (the seed gives it no restriction of its own). The
+  shares match to the cent.
+- **Co-owners with an explicit 0% beside an empty percentage** are each
+  given 1 divided by the empty count, as the legacy code does, so the unit
+  is over-allocated and the Roundings row goes negative. The seed has no
+  explicit 0%; it matters once co-ownership percentages can be edited.
 - **The Accounts grid's stripes are faint in the light themes.** It now
   follows the legacy screen: bold labels, regular-weight amounts, and rows
   striped by position. The stripe colour is the `--zebra` token, which is
