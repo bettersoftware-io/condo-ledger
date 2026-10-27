@@ -62,6 +62,22 @@ describe("shareOf a grouping account", () => {
 });
 
 describe("shareOf a regular account", () => {
+  it("rounds each column to the cent before adding it to the account's share", () => {
+    // A1's owner alone pays both columns of 100.10 × 50%: 35.035 and 15.015,
+    // 35.04 + 15.02 one by one. Rounding their sum, 50.05, would give a cent less.
+    const input = createAllocationInput();
+    input.residents = input.residents.filter((resident) => {
+      return resident.id !== "r2";
+    });
+    input.accounts = input.accounts.map((account) => {
+      return account.id === "la11"
+        ? { ...account, budget: cents(10010) }
+        : account;
+    });
+
+    expect(shareOf(input, "budget", "la11", "r1")).toBe(5006);
+  });
+
   it("takes the links of the nearest account up its chain that has any", () => {
     const input = createAllocationInput();
     input.accounts = input.accounts.map((account) => {
