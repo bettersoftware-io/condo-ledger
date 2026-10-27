@@ -46,9 +46,19 @@ describe("ThousandthTablesPanel", () => {
     expect(onSelect).toHaveBeenCalledWith("dt1");
   });
 
-  it("offers the design's tools, each one not built yet posting its notice", async () => {
+  it("offers the design's tools: + ✎ − ask for the table dialogs, the rest post their notice", async () => {
+    const onAdd = vi.fn();
+    const onEdit = vi.fn();
+    const onDelete = vi.fn();
     const onStub = vi.fn();
-    const page = mountThousandthTablesPanel({ onStub });
+    const page = mountThousandthTablesPanel({
+      tables: [createTableView("dt1")],
+      selectedTableId: "dt1",
+      onAdd,
+      onEdit,
+      onDelete,
+      onStub,
+    });
 
     expect(page.toolLabels()).toEqual([
       "New Thousandth Table",
@@ -65,14 +75,22 @@ describe("ThousandthTablesPanel", () => {
 
     await page.clickLegend();
 
+    expect(onAdd).toHaveBeenCalledTimes(1);
+    expect(onEdit).toHaveBeenCalledTimes(1);
+    expect(onDelete).toHaveBeenCalledTimes(1);
     expect(onStub.mock.calls).toEqual([
-      ["New Thousandth Table"],
-      ["Edit Thousandth Table"],
-      ["Delete Thousandth Table"],
       ["Print"],
       ["Export to PDF"],
       ["Export to Excel"],
       ["Legend"],
     ]);
+  });
+
+  it("✎ and − wait for a selected table; + does not", () => {
+    const page = mountThousandthTablesPanel({});
+
+    expect(page.isToolDisabled("New Thousandth Table")).toBe(false);
+    expect(page.isToolDisabled("Edit Thousandth Table")).toBe(true);
+    expect(page.isToolDisabled("Delete Thousandth Table")).toBe(true);
   });
 });

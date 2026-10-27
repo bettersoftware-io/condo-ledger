@@ -3,6 +3,7 @@ import {
   budgetAllocationDraftOf,
   type EntryAdded,
   type EntryDraft,
+  pathOf,
   type Result,
   type ResultOf,
 } from "@cl/domain";
@@ -27,6 +28,8 @@ export interface BudgetAllocationForm {
 export interface BudgetAllocationSummary {
   /** The entry the budget allocation posts, as the domain draws it; null while the domain refuses it. */
   preview: EntryDraft | null;
+  /** The path of the account the domain's refusal names, a budget no table allocates; null when it names none. */
+  accountPath: string | null;
 }
 
 const DEFAULT_DESCRIPTION = "Budget allocation (no.1)";
@@ -57,7 +60,13 @@ export function createBudgetAllocationWizard(
       summarize: (form: BudgetAllocationForm): BudgetAllocationSummary => {
         const draft = draftOf(books, allocation, form);
 
-        return { preview: draft?.ok === true ? draft.value : null };
+        return {
+          preview: draft?.ok === true ? draft.value : null,
+          accountPath:
+            books === null || draft === null
+              ? null
+              : namedAccount(books, draft),
+        };
       },
       stepVerdict: (form: BudgetAllocationForm): Result => {
         return derived(form).verdict;
@@ -91,6 +100,18 @@ function derive(
   });
 
   return judged(preview, draft.value, contextOf(books, null));
+}
+
+/** The path of the account whose budget the draft's refusal says nothing allocates; null for any other verdict. */
+function namedAccount(
+  books: Books,
+  draft: ResultOf<EntryDraft>,
+): string | null {
+  return !draft.ok &&
+    draft.reason === "unallocated-budget" &&
+    draft.detail !== undefined
+    ? pathOf(books.tree, draft.detail)
+    : null;
 }
 
 /** The domain's draft over the books and the allocation; null with either missing. */

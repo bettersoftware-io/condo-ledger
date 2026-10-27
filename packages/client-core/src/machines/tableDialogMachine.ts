@@ -15,7 +15,7 @@ import {
 import type { Machine } from "./machine.ts";
 
 /** What the New and Edit Thousandth Table dialogs' fields hold. */
-interface TableDialogForm {
+export interface TableDialogForm {
   name: string;
   /** As typed: a whole number from 1. */
   order: string;

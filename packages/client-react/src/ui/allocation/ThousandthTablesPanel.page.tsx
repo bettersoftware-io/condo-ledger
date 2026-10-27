@@ -28,6 +28,9 @@ export function mountThousandthTablesPanel(
       template=""
       onSelect={vi.fn()}
       onResize={vi.fn()}
+      onAdd={vi.fn()}
+      onEdit={vi.fn()}
+      onDelete={vi.fn()}
       onStub={vi.fn()}
       {...props}
     />,

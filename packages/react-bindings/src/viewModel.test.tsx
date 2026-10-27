@@ -419,6 +419,39 @@ describe("the view model", () => {
     expect(page.read().allocation.tables).toHaveLength(5);
   });
 
+  it("the Budget allocation wizard mounts over p1, which refuses a second allocation; the allocation names an account by its path", () => {
+    const page = mountUnderProvider(loadLegacySeed(legacySeedData));
+
+    expect(page.read().budgetAllocation.state).toMatchObject({
+      form: { description: "Budget allocation (no.1)" },
+      verdict: { ok: false, reason: "allocation-exists" },
+    });
+    expect(page.read().allocation.accountPath("la28")).toBe(
+      "Total › Costs › Spese generali",
+    );
+  });
+
+  it("the table dialog hook opens a new table on the next order, and its save answers the new table's id", async () => {
+    const page = mountUnderProvider(loadLegacySeed(legacySeedData));
+    const answers: Result[] = [];
+
+    expect(page.read().tableDialog.state.form).toEqual({
+      name: "",
+      order: "6",
+      notes: "",
+    });
+
+    await page.send((seen) => {
+      seen.tableDialog.edit({ name: "Test" });
+    });
+    await page.send(async (seen) => {
+      answers.push(await seen.tableDialog.save());
+    });
+
+    expect(answers).toEqual([{ ok: true, value: { id: "dt-new-1" } }]);
+    expect(page.read().allocation.tables.at(-1)?.table.name).toBe("Test");
+  });
+
   it("a wizard hook given an entry to edit shows that entry's form", () => {
     const page = mountUnderProvider(createSmallSeed(), 1, "e6");
 

@@ -1,4 +1,4 @@
-import { type Observable, switchMap } from "rxjs";
+import { map, type Observable, switchMap } from "rxjs";
 
 import {
   type AccountsPort,
@@ -328,7 +328,28 @@ export function createApp(ports: AppPorts): App {
     buildings.selected$,
     buildings.tree$,
   );
-  const accounts = createAccountsPresenter(books.books$, ports.accounts);
+
+  const allocation = createAllocationPresenter(
+    books.books$,
+    buildings.tree$,
+    { tables: ports.tables, units: ports.units },
+    session.amountLocale$,
+  );
+
+  const periodTables$ = allocation.tables$.pipe(
+    map((views) => {
+      return views.map((view) => {
+        return view.table;
+      });
+    }),
+  );
+
+  const accounts = createAccountsPresenter(
+    books.books$,
+    ports.accounts,
+    periodTables$,
+  );
+
   const journal = createJournalPresenter(
     books.books$,
     buildings.tree$,
@@ -343,12 +364,6 @@ export function createApp(ports: AppPorts): App {
     ports.clock,
   );
 
-  const allocation = createAllocationPresenter(
-    books.books$,
-    buildings.tree$,
-    { tables: ports.tables, units: ports.units },
-    session.amountLocale$,
-  );
   let latestBooks: Books | null = null;
   let latestTables: ThousandthTable[] = [];
   let latestBudgetAllocation: Allocation | null = null;
@@ -360,10 +375,8 @@ export function createApp(ports: AppPorts): App {
   // The table dialog and the Budget allocation wizard are built over the
   // period's tables and budget allocation as they stand: held for the
   // application's life, as the books are.
-  allocation.tables$.subscribe((views) => {
-    latestTables = views.map((view) => {
-      return view.table;
-    });
+  periodTables$.subscribe((tables) => {
+    latestTables = tables;
   });
   allocation.allocation$("budget").subscribe((next) => {
     latestBudgetAllocation = next;

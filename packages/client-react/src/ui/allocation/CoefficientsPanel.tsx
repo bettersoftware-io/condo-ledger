@@ -50,18 +50,24 @@ export function CoefficientsPanel({
     };
   }
 
-  function editingOf(key: string): () => void {
+  /** Opens the editor on row `key`, showing the coefficient as the locale writes it now. */
+  function editingOf(key: string, value: number): () => void {
     return (): void => {
-      setEdit({ editing: key, error: null });
+      setEdit({
+        editing: key,
+        before: tenThousandthsText(value, locale),
+        error: null,
+      });
     };
   }
 
-  /** The commit of the editor on row `key`, which opened showing `before`. */
+  /** The commit of the editor on row `key`, which opened showing `before`, in the locale of that moment. */
   function committingOf(key: string, before: string): (text: string) => void {
     return (text: string): void => {
-      // Leaving the text as it was is a cancel: nothing to write.
+      // Leaving the text as it was is a cancel: nothing to write, even when
+      // the language changed since.
       if (text === before) {
-        settleOf(key, NOT_EDITING);
+        settleOf(key, closed);
 
         return;
       }
@@ -76,19 +82,21 @@ export function CoefficientsPanel({
 
   function showingVerdictOf(key: string): (result: Result) => void {
     return (result: Result): void => {
-      settleOf(
-        key,
-        result.ok
+      settleOf(key, (current) => {
+        return result.ok
           ? NOT_EDITING
-          : { editing: key, error: allocationReasonText(result) },
-      );
+          : { ...current, error: allocationReasonText(result) };
+      });
     };
   }
 
   /** Applies what a commit on row `key` decided, unless another row's editor has opened since. */
-  function settleOf(key: string, next: CoefficientEdit): void {
+  function settleOf(
+    key: string,
+    next: (current: CoefficientEdit) => CoefficientEdit,
+  ): void {
     setEdit((current) => {
-      return current.editing === key ? next : current;
+      return current.editing === key ? next(current) : current;
     });
   }
 
@@ -104,14 +112,12 @@ export function CoefficientsPanel({
     }
 
     if (edit.editing === row.key) {
-      const before = tenThousandthsText(node.value, locale);
-
       return (
         <InlineEditor
           key="coefficient"
-          value={before}
+          value={edit.before}
           error={edit.error}
-          onCommit={committingOf(row.key, before)}
+          onCommit={committingOf(row.key, edit.before)}
           onCancel={cancelEdit}
         />
       );
@@ -123,7 +129,7 @@ export function CoefficientsPanel({
         type="button"
         className="coefficients-cell"
         data-testid={TESTIDS.coefficientCell}
-        onClick={editingOf(row.key)}
+        onClick={editingOf(row.key, node.value)}
       >
         <Coefficient value={node.value} />
       </button>
@@ -198,13 +204,20 @@ export interface CoefficientsPanelProps {
   onStub: (label: string) => void;
 }
 
-/** The unit whose coefficient is being edited, by its row's key, and what is wrong with its text. */
+/** The unit whose coefficient is being edited, by its row's key, the text its editor opened on, and what is wrong with its text. */
 interface CoefficientEdit {
   editing: string | null;
+  /** The coefficient as the locale wrote it when the editor opened: a commit of this text writes nothing. */
+  before: string;
   error: string | null;
 }
 
-const NOT_EDITING: CoefficientEdit = { editing: null, error: null };
+const NOT_EDITING: CoefficientEdit = { editing: null, before: "", error: null };
+
+/** The editor closed, whatever it held. */
+function closed(): CoefficientEdit {
+  return NOT_EDITING;
+}
 
 /** A group's row is an aggregate: bold, on the zebra background. */
 function rowDataOf(row: GridRow, coefficient: ReactNode): TreeGridRowData {

@@ -31,6 +31,7 @@ export interface PanelPage {
   /** Every tool's name, in the order drawn. */
   toolLabels: () => string[];
   clickTool: (label: string) => Promise<void>;
+  isToolDisabled: (label: string) => boolean;
   clickLegend: () => Promise<void>;
 }
 
@@ -50,6 +51,11 @@ export function panelIn(root: () => HTMLElement, user: User): PanelPage {
     },
     clickTool: async (label: string): Promise<void> => {
       await user.click(within(root()).getByRole("button", { name: label }));
+    },
+    isToolDisabled: (label: string): boolean => {
+      return within(root())
+        .getByRole<HTMLButtonElement>("button", { name: label })
+        .hasAttribute("disabled");
     },
     clickLegend: async (): Promise<void> => {
       await user.click(within(root()).getByTestId(TESTIDS.panelLegend));

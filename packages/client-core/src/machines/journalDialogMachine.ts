@@ -10,7 +10,8 @@ export type WizardName =
   | "invoice"
   | "invoicePayment"
   | "openingBalances"
-  | "collection";
+  | "collection"
+  | "budgetAllocation";
 
 interface WizardDialog {
   kind: "wizard";

@@ -47,6 +47,8 @@ export function allocationReasonText(
       return `${account} has a budget but no table to allocate it`;
     case "no-budget":
       return "There is no budget to allocate";
+    case "blank-description":
+      return "A description is required";
     case "missing-account":
       return `This period has no ${MISSING_ACCOUNTS[account] ?? account} account`;
     default:

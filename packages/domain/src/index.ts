@@ -55,6 +55,7 @@ export {
   allocationOf,
 } from "./useCases/allocation/allocation.ts";
 export { budgetAllocationDraftOf } from "./useCases/allocation/budgetAllocationDraft.ts";
+export { appliedLinksOf } from "./useCases/allocation/links.ts";
 export type { AllocationMode } from "./useCases/allocation/share.ts";
 export {
   type CoefficientNode,

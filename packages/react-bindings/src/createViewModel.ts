@@ -9,6 +9,8 @@ import type {
   App,
   BottomTabIntents,
   BottomTabState,
+  BudgetAllocationForm,
+  BudgetAllocationSummary,
   BudgetInstallmentsForm,
   BudgetInstallmentsSummary,
   CoefficientsGridState,
@@ -49,6 +51,8 @@ import type {
   SidebarState,
   SplitIntents,
   SplitState,
+  TableDialogIntents,
+  TableDialogState,
   TableView,
   TreeGridIntents,
   WizardIntents,
@@ -135,6 +139,8 @@ export interface AllocationView {
   addTable: (draft: TableDraft) => Promise<ResultOf<TableAdded>>;
   editTable: (id: string, draft: TableDraft) => Promise<Result>;
   deleteTable: (id: string) => Promise<Result>;
+  /** The account's path in the selected period's books, as a refusal names it; its id when they do not hold it. */
+  accountPath: (accountId: string) => string;
   /** Reads the text in the session's locale: text that does not read, or a negative coefficient, is refused `not-a-coefficient`. */
   setCoefficient: (
     tableId: string,
@@ -222,6 +228,15 @@ export interface ViewModel {
   useInstallmentDialog: (
     installmentId: string,
   ) => MachineView<InstallmentDialogState, InstallmentDialogIntents>;
+  /** The Budget allocation wizard over the selected period's books and budget allocation as they stand when it opens. */
+  useBudgetAllocationWizard: () => WizardView<
+    BudgetAllocationForm,
+    BudgetAllocationSummary
+  >;
+  /** Reads its argument on the first render only: the New Thousandth Table dialog (null) or the Edit one on the table it opened on. */
+  useTableDialog: (
+    editing: string | null,
+  ) => MachineView<TableDialogState, TableDialogIntents>;
   useAllocation: () => AllocationView;
   /** The selected table's coefficients tree: which of its groups are open, for this reader. */
   useCoefficientsGrid: () => MachineView<
@@ -423,6 +438,19 @@ export function createViewModel(app: App): ViewModel {
         return app.machines.createInstallmentDialog(installmentId);
       });
     },
+    useBudgetAllocationWizard: (): WizardView<
+      BudgetAllocationForm,
+      BudgetAllocationSummary
+    > => {
+      return useMachine(app.machines.createBudgetAllocationWizard);
+    },
+    useTableDialog: (
+      editing: string | null,
+    ): MachineView<TableDialogState, TableDialogIntents> => {
+      return useMachine(() => {
+        return app.machines.createTableDialog(editing);
+      });
+    },
     useAllocation: (): AllocationView => {
       const { tableId } = useStateObservable(tableSelection.state$);
       const { mode } = useStateObservable(allocationMode.state$);
@@ -438,6 +466,7 @@ export function createViewModel(app: App): ViewModel {
         addTable: allocation.addTable,
         editTable: allocation.editTable,
         deleteTable: allocation.deleteTable,
+        accountPath: allocation.accountPath,
         setCoefficient: allocation.setCoefficient,
       };
     },

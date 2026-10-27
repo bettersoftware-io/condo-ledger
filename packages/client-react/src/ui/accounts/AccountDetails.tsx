@@ -7,14 +7,16 @@ import { Fieldset } from "../Fieldset.tsx";
 import { formatCents } from "../format.ts";
 import { Row } from "../Row.tsx";
 import { Scheda } from "../Scheda.tsx";
+import { AllocationTablesGrid } from "./AllocationTablesGrid.tsx";
 
 import "./AccountDetails.css";
 
 /**
  * The selected account's sheet (README "Account Details", with the
  * prototype's values): its path, type and nature, the attributes a cost
- * account inherits, its balances and its system id. What the accounts do not
- * carry yet reads as inherited from the parent. Empty before a period is
+ * account inherits, the thousandth tables that allocate it (its own, or its
+ * nearest ancestor's), its balances and its system id. What the accounts do
+ * not carry yet reads as inherited from the parent. Empty before a period is
  * chosen.
  */
 export function AccountDetails(): ReactElement {
@@ -25,6 +27,11 @@ export function AccountDetails(): ReactElement {
   if (details === null) {
     return <Scheda wide>{null}</Scheda>;
   }
+
+  const tables = details.allocationTables;
+  // The account's own links: neither the legend nor the checkbox defers to
+  // a parent.
+  const ownTables = tables.rows.length > 0 && !tables.inherited;
 
   return (
     <Scheda wide>
@@ -57,14 +64,29 @@ export function AccountDetails(): ReactElement {
           </Fieldset>
           <Row label="Separate tables for budget & final balance" tone="muted">
             <span className="account-details-check">
-              <input type="checkbox" checked={false} disabled readOnly />
-              (uses parent account settings)
+              <input
+                type="checkbox"
+                checked={tables.separate}
+                disabled
+                readOnly
+              />
+              {ownTables ? null : "(uses parent account settings)"}
             </span>
           </Row>
-          <Fieldset legend="ALLOCATION TABLES (USES PARENT ACCOUNT SETTINGS)">
-            <p className="account-details-note">
-              No tables linked — uses parent account settings.
-            </p>
+          <Fieldset
+            legend={
+              ownTables
+                ? "ALLOCATION TABLES"
+                : "ALLOCATION TABLES (USES PARENT ACCOUNT SETTINGS)"
+            }
+          >
+            {tables.rows.length === 0 ? (
+              <p className="account-details-note">
+                No tables linked — uses parent account settings.
+              </p>
+            ) : (
+              <AllocationTablesGrid rows={tables.rows} />
+            )}
           </Fieldset>
         </>
       ) : null}

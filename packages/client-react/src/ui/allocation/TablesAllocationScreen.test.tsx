@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 
-import { mountTablesAllocation } from "./TablesAllocationScreen.page.tsx";
+import {
+  mountTablesAllocation,
+  type TablesAllocationScreenPage,
+} from "./TablesAllocationScreen.page.tsx";
 
 describe("TablesAllocationScreen", () => {
   it("draws the three panels with the design's headers on the Thousandth Tables menu", () => {
@@ -226,6 +229,125 @@ describe("TablesAllocationScreen", () => {
     expect(page.coefficients.grid.rowTexts("A - Scala A")[2]).toBe("920.0000");
   });
 
+  it("a refused editor does not survive a switch to another table: nothing is written into it", async () => {
+    const page = mountTablesAllocation("p1");
+    const a1 = page.labelOfUnit("u1");
+
+    await page.coefficients.clickCoefficient(a1);
+    await page.coefficients.typeCoefficient("abc");
+    await page.tables.grid.clickRow("Scale");
+
+    expect(page.tables.grid.selectedLabels()).toEqual(["Scale"]);
+    expect(page.coefficients.editorOpen()).toBe(false);
+    expect(page.coefficients.grid.rowTexts(a1)[2]).toBe("100.0000");
+    expect(page.tables.grid.rowTexts("Scale")[3]).toBe("1,000.0000");
+  });
+
+  it("an editor opened in one language and left untouched writes nothing after a switch to another", async () => {
+    const page = mountTablesAllocation("p1");
+    const a1 = page.labelOfUnit("u1");
+
+    await page.pickLanguage("it");
+    await page.coefficients.clickCoefficient(a1);
+    await page.pickLanguage("en");
+    await page.coefficients.blur();
+
+    expect(page.coefficients.editorOpen()).toBe(false);
+    expect(page.coefficients.editorError()).toBeNull();
+    expect(page.coefficients.grid.rowTexts(a1)[2]).toBe("100.0000");
+  });
+
+  it("+ adds a table: Test comes last, selected, with a coefficient of 0 for every unit", async () => {
+    const page = mountTablesAllocation("p1");
+
+    await page.tables.clickTool("New Thousandth Table");
+
+    expect(page.tableDialog.title()).toBe("New Thousandth Table");
+
+    await page.tableDialog.fill("Name", "Test");
+    await page.tableDialog.save();
+
+    expect(page.tableDialog.isShown()).toBe(false);
+    expect(page.tables.grid.rowLabels().at(-1)).toBe("Test");
+    expect(page.tables.grid.selectedLabels()).toEqual(["Test"]);
+    expect(page.tables.grid.rowTexts("Test")[3]).toBe("0.0000");
+    expect(page.coefficientTexts()).toEqual(
+      Array.from({ length: 10 }, () => {
+        return "0.0000";
+      }),
+    );
+  });
+
+  it("✎ edits the selected table: Test renamed Test 2 with order 1 moves first", async () => {
+    const page = mountTablesAllocation("p1");
+
+    await addTable(page, "Test");
+    await page.tables.clickTool("Edit Thousandth Table");
+
+    expect(page.tableDialog.title()).toBe("Edit Thousandth Table");
+    expect(page.tableDialog.fieldValue("Name")).toBe("Test");
+
+    await page.tableDialog.fill("Name", "Test 2");
+    await page.tableDialog.fill("Order", "1");
+    await page.tableDialog.save();
+
+    expect(page.tableDialog.isShown()).toBe(false);
+    expect(page.tables.grid.rowLabels()[0]).toBe("Test 2");
+    expect(page.tables.grid.selectedLabels()).toEqual(["Test 2"]);
+  });
+
+  it("− deletes the selected table once confirmed, and No keeps it", async () => {
+    const page = mountTablesAllocation("p1");
+
+    await addTable(page, "Test");
+    await page.tables.clickTool("Delete Thousandth Table");
+
+    expect(page.confirmText()).toBe("Delete the table Test?");
+
+    await page.confirmNo();
+
+    expect(page.confirmOpen()).toBe(false);
+    expect(page.tables.grid.rowLabels()).toContain("Test");
+
+    await page.tables.clickTool("Delete Thousandth Table");
+    await page.confirmYes();
+
+    expect(page.confirmOpen()).toBe(false);
+    expect(page.tables.grid.rowLabels()).not.toContain("Test");
+    expect(page.tables.grid.selectedLabels()).toEqual(["Proprietà"]);
+  });
+
+  it("− on a table an account allocates through is refused, naming the account", async () => {
+    const page = mountTablesAllocation("p1");
+
+    await page.tables.clickTool("Delete Thousandth Table");
+
+    expect(page.confirmText()).toBe("Delete the table Proprietà?");
+
+    await page.confirmYes();
+
+    expect(page.confirmOpen()).toBe(true);
+    expect(page.confirmError()).toBe(
+      "Proprietà allocates Total › Costs › Spese generali; unlink it first",
+    );
+    expect(page.tables.grid.rowLabels()).toContain("Proprietà");
+
+    await page.cancelDialog();
+
+    expect(page.confirmOpen()).toBe(false);
+  });
+
+  it("Cancel closes the table dialog and changes nothing", async () => {
+    const page = mountTablesAllocation("p1");
+
+    await page.tables.clickTool("Edit Thousandth Table");
+    await page.tableDialog.fill("Name", "Renamed");
+    await page.tableDialog.cancel();
+
+    expect(page.tableDialog.isShown()).toBe(false);
+    expect(page.tables.grid.rowLabels()[0]).toBe("Proprietà");
+  });
+
   it("on p36, A04 holds its two residents with their days", () => {
     const page = mountTablesAllocation("p36");
     const leaving = page.labelOfResident("r167");
@@ -338,5 +460,16 @@ describe("TablesAllocationScreen", () => {
     expect(page.coefficients.grid.emptyMessage()).toBe("No table is selected.");
     expect(page.allocation.grid.emptyMessage()).toBe("No period is selected.");
     expect(page.allocation.grid.headers()).toHaveLength(8);
+    expect(page.tables.isToolDisabled("Edit Thousandth Table")).toBe(true);
+    expect(page.tables.isToolDisabled("Delete Thousandth Table")).toBe(true);
   });
 });
+
+async function addTable(
+  page: TablesAllocationScreenPage,
+  name: string,
+): Promise<void> {
+  await page.tables.clickTool("New Thousandth Table");
+  await page.tableDialog.fill("Name", name);
+  await page.tableDialog.save();
+}

@@ -99,4 +99,11 @@ export const TESTIDS = {
   coefficientCell: "coefficient-cell",
   allocationMode: "allocation-mode",
   panelLegend: "panel-legend",
+  tableDialogMessage: "table-dialog-message",
+  tableDialogSave: "table-dialog-save",
+  tableDialogCancel: "table-dialog-cancel",
+  budgetAllocationHelper: "budget-allocation-helper",
+  allocationTablesGrid: "allocation-tables-grid",
+  allocationTablesHead: "allocation-tables-head",
+  allocationTablesRow: "allocation-tables-row",
 } as const;

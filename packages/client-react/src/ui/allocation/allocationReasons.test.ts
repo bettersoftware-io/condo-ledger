@@ -52,6 +52,9 @@ describe("allocationReasonText", () => {
     expect(allocationReasonText(rejected("no-budget"))).toBe(
       "There is no budget to allocate",
     );
+    expect(allocationReasonText(rejected("blank-description"))).toBe(
+      "A description is required",
+    );
   });
 
   it.each([

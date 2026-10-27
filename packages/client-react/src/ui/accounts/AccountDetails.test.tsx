@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { loadLegacySeed } from "@cl/domain";
+import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 
 import { mountAccountDetails } from "./AccountDetails.page.tsx";
@@ -51,6 +53,71 @@ describe("AccountDetails", () => {
     expect(page.toneOf("Created on")).toBe("muted");
   });
 
+  it("on p36, la173 shows the link it inherits from its grouping: Generale, PR/NP/LE 100%", async () => {
+    const page = mountAccountDetails(loadLegacySeed(legacySeedData), "p36");
+
+    await page.select("la173");
+
+    expect(
+      page.hasGroup("ALLOCATION TABLES (USES PARENT ACCOUNT SETTINGS)"),
+    ).toBe(true);
+    expect(page.tables.headers()).toEqual([
+      "%",
+      "Table",
+      "PR/NP/LE",
+      "US/CF",
+      "CO",
+      "SC",
+      "Table restr. on group",
+    ]);
+    expect(page.tables.rows()).toEqual([
+      ["-", "Generale", "100%", "-", "-", "-", "-None-"],
+    ]);
+    expect(
+      page.checkboxOf("Separate tables for budget & final balance"),
+    ).toEqual({ checked: false, disabled: true });
+    expect(page.valueOf("Separate tables for budget & final balance")).toBe(
+      "(uses parent account settings)",
+    );
+  });
+
+  it("on p1, Acqua inherits two links, one for the budget and one for the final balance: separate tables", async () => {
+    const page = mountAccountDetails(loadLegacySeed(legacySeedData), "p1");
+
+    await page.select("la44");
+
+    expect(
+      page.checkboxOf("Separate tables for budget & final balance"),
+    ).toEqual({ checked: true, disabled: true });
+    expect(page.tables.rows().map(tableOf)).toEqual([
+      "Acqua preventivo",
+      "Acqua consuntivo",
+    ]);
+  });
+
+  it("an account's own links read as its own: no parent's settings", async () => {
+    const page = mountAccountDetails(loadLegacySeed(legacySeedData), "p1");
+
+    await page.select("la28");
+
+    expect(page.hasGroup("ALLOCATION TABLES")).toBe(true);
+    expect(
+      page.hasGroup("ALLOCATION TABLES (USES PARENT ACCOUNT SETTINGS)"),
+    ).toBe(false);
+    expect(page.tables.rows().map(tableOf)).toEqual(["Proprietà"]);
+    expect(page.valueOf("Separate tables for budget & final balance")).toBe("");
+  });
+
+  it("an account with no link up its chain keeps the empty state", async () => {
+    const page = mountAccountDetails(loadLegacySeed(legacySeedData), "p1");
+
+    await page.select("la47");
+
+    expect(
+      page.textOf("ALLOCATION TABLES (USES PARENT ACCOUNT SETTINGS)"),
+    ).toBe("No tables linked — uses parent account settings.");
+  });
+
   it("shows Total without the cost attributes and with no system id", () => {
     const page = mountAccountDetails();
 
@@ -84,3 +151,7 @@ describe("AccountDetails", () => {
 });
 
 const PARENT = "-None- (uses parent account settings)";
+
+function tableOf(row: string[]): string {
+  return row[1] ?? "";
+}

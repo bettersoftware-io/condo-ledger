@@ -5,13 +5,13 @@ import type {
   Coefficient,
   LinkUse,
   RoleShares,
-  TableLink,
   ThousandthTable,
 } from "#/entities/table.ts";
 import type { Unit } from "#/entities/unit.ts";
 import { must } from "#/support/must.ts";
 
 import { daysFromTo, type PeriodDates } from "../schedule.ts";
+import { appliedLinksOf } from "./links.ts";
 
 /** Which allocation is worked out: the budget's, or the final balance's. */
 export type AllocationMode = "budget" | "finalBalance";
@@ -123,7 +123,7 @@ function regularShareOf(
   const compound = compoundCoefficientOf(input, resident);
   let share = 0;
 
-  for (const link of linksOf(input.accounts, account)) {
+  for (const link of appliedLinksOf(input.accounts, account.id).links) {
     const tic = serves(link.use, mode)
       ? tableItemCoefficientOf(
           input.coefficients,
@@ -168,20 +168,6 @@ function baseOf(
   return mode === "budget"
     ? (account.budget ?? 0)
     : (input.balances.get(account.id) ?? 0);
-}
-
-/** The links of the nearest account up the chain that has any; none when no account has. */
-function linksOf(accounts: Account[], account: Account): TableLink[] {
-  let current: Account | undefined = account;
-
-  while (current !== undefined && current.links.length === 0) {
-    const parentId: string | null = current.parentId;
-    current = accounts.find((candidate) => {
-      return candidate.id === parentId;
-    });
-  }
-
-  return current === undefined ? [] : current.links;
 }
 
 function serves(use: LinkUse, mode: AllocationMode): boolean {

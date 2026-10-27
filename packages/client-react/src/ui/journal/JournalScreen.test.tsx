@@ -205,7 +205,7 @@ describe("JournalScreen", () => {
     ]);
   });
 
-  it("the Add transaction menu lists the ten wizards; a stubbed one posts a notice", async () => {
+  it("the Add transaction menu lists the ten wizards; Budget allocation opens its own", async () => {
     const page = mountJournalScreen();
 
     expect(page.toolMenu("Add transaction")).toBe("menu closed");
@@ -228,8 +228,10 @@ describe("JournalScreen", () => {
 
     await page.clickMenuItem("Budget allocation");
 
-    expect(page.toasts()).toEqual(["Budget allocation: not yet available"]);
-    expect(page.dialogOpen()).toBe(false);
+    expect(page.toasts()).toEqual([]);
+    expect(page.wizard().title()).toBe(
+      "Budget Allocation — Accounting entry summary",
+    );
     expect(page.menuItems()).toEqual([]);
   });
 

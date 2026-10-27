@@ -9,6 +9,8 @@ import type {
   AmountLocale,
   BottomTabIntents,
   BottomTabState,
+  BudgetAllocationForm,
+  BudgetAllocationSummary,
   BudgetInstallmentsForm,
   BudgetInstallmentsSummary,
   CoefficientsGridState,
@@ -46,6 +48,8 @@ import type {
   SidebarState,
   SplitIntents,
   SplitState,
+  TableDialogIntents,
+  TableDialogState,
   TreeGridIntents,
   WizardIntents,
   WizardState,
@@ -136,6 +140,12 @@ export interface Seen {
   allocation: AllocationView;
   coefficientsGrid: MachineView<CoefficientsGridState, TreeGridIntents>;
   allocationGrid: MachineView<AllocationGridState, TreeGridIntents>;
+  budgetAllocation: MachineView<
+    WizardState<BudgetAllocationForm, BudgetAllocationSummary>,
+    WizardIntents<BudgetAllocationForm>
+  >;
+  /** The New Thousandth Table dialog. */
+  tableDialog: MachineView<TableDialogState, TableDialogIntents>;
   /** Null unless the page was mounted with an installment to edit. */
   installmentDialog: MachineView<
     InstallmentDialogState,
@@ -278,6 +288,8 @@ function Reader({
     useAllocation,
     useCoefficientsGrid,
     useAllocationGrid,
+    useBudgetAllocationWizard,
+    useTableDialog,
   } = useViewModel();
 
   seen[index] = {
@@ -316,6 +328,8 @@ function Reader({
     allocation: useAllocation(),
     coefficientsGrid: useCoefficientsGrid(),
     allocationGrid: useAllocationGrid(),
+    budgetAllocation: useBudgetAllocationWizard(),
+    tableDialog: useTableDialog(null),
     installmentDialog: null,
   };
 

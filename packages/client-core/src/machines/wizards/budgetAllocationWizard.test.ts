@@ -111,7 +111,7 @@ describe("the Budget allocation wizard", () => {
       verdict: { ok: false, reason: "allocation-exists" },
       stepVerdict: { ok: false, reason: "allocation-exists" },
       preview: [],
-      summary: { preview: null },
+      summary: { preview: null, accountPath: null },
     });
     await expect(machine.intents.save()).resolves.toEqual({
       ok: false,
@@ -188,7 +188,10 @@ describe("the Budget allocation wizard", () => {
       reason: "unallocated-budget",
       detail: "la29",
     });
-    expect(machine.state$.getValue().summary.preview).toBeNull();
+    expect(machine.state$.getValue().summary).toEqual({
+      preview: null,
+      accountPath: "Total › Costs › Spese generali › Assicurazione",
+    });
   });
 
   it("Review Focus 5: on p36, installments planned, tx291 deleted and the allocation posted again: the installments stay, and the shares follow the new entry", async () => {

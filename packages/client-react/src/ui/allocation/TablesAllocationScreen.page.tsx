@@ -21,6 +21,7 @@ import {
   type CoefficientsPanelPage,
   coefficientsPanelIn,
 } from "./CoefficientsPanel.page.tsx";
+import { type TableDialogPage, tableDialogIn } from "./TableDialog.page.tsx";
 import {
   type ThousandthTablesPanelPage,
   thousandthTablesPanelIn,
@@ -39,6 +40,18 @@ export interface TablesAllocationScreenPage {
   tables: ThousandthTablesPanelPage;
   coefficients: CoefficientsPanelPage;
   allocation: AllocationPanelPage;
+  /** The New or Edit Thousandth Table dialog, while it is open. */
+  tableDialog: TableDialogPage;
+  /** Every coefficient the selected table shows, groups and units, in the order drawn. */
+  coefficientTexts: () => string[];
+  confirmOpen: () => boolean;
+  confirmText: () => string;
+  /** Why Yes did not go through, under the question; null when nothing failed. */
+  confirmError: () => string | null;
+  confirmYes: () => Promise<void>;
+  confirmNo: () => Promise<void>;
+  /** Escape on the open dialog. */
+  cancelDialog: () => Promise<void>;
   /** The label of the unit's row in the selected table's coefficients: a test never spells a person's name. */
   labelOfUnit: (unitId: string) => string;
   /** The label of the resident's row in the allocation shown. */
@@ -133,6 +146,15 @@ export function mountTablesAllocation(
     return Number.parseFloat(element.style.getPropertyValue(property));
   }
 
+  const coefficients = coefficientsPanelIn(
+    inScreen(TESTIDS.coefficientsPanel),
+    user,
+  );
+
+  function container(): HTMLElement {
+    return rendered.container;
+  }
+
   return {
     titles: (): string[] => {
       return within(screen())
@@ -145,11 +167,32 @@ export function mountTablesAllocation(
       inScreen(TESTIDS.thousandthTablesPanel),
       user,
     ),
-    coefficients: coefficientsPanelIn(
-      inScreen(TESTIDS.coefficientsPanel),
-      user,
-    ),
+    coefficients,
     allocation: allocationPanelIn(inScreen(TESTIDS.allocationPanel), user),
+    tableDialog: tableDialogIn(container, user),
+    coefficientTexts: (): string[] => {
+      return coefficients.grid.rowLabels().map((label) => {
+        return coefficients.grid.rowTexts(label)[2] ?? "";
+      });
+    },
+    confirmOpen: (): boolean => {
+      return rendered.queryByTestId(TESTIDS.confirmText) !== null;
+    },
+    confirmText: (): string => {
+      return rendered.getByTestId(TESTIDS.confirmText).textContent ?? "";
+    },
+    confirmError: (): string | null => {
+      return rendered.queryByTestId(TESTIDS.confirmError)?.textContent ?? null;
+    },
+    confirmYes: async (): Promise<void> => {
+      await user.click(rendered.getByTestId(TESTIDS.confirmYes));
+    },
+    confirmNo: async (): Promise<void> => {
+      await user.click(rendered.getByTestId(TESTIDS.confirmNo));
+    },
+    cancelDialog: async (): Promise<void> => {
+      await user.keyboard("{Escape}");
+    },
     labelOfUnit: (unitId: string): string => {
       const nodes = app.presenters.allocation
         .coefficients$(selectedTableId())

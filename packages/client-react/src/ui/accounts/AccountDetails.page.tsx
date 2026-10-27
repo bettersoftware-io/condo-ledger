@@ -7,6 +7,10 @@ import { createViewModel, ViewModelProvider } from "@cl/react-bindings";
 
 import { TESTIDS } from "../testids.ts";
 import { AccountDetails } from "./AccountDetails.tsx";
+import {
+  type AllocationTablesGridPage,
+  allocationTablesGridIn,
+} from "./AllocationTablesGrid.page.tsx";
 
 /** What a test can do with, and ask of, the selected account's details. */
 export interface AccountDetailsPage {
@@ -19,6 +23,8 @@ export interface AccountDetailsPage {
   textOf: (legend: string) => string;
   /** Whether the row's checkbox is checked and can be changed. */
   checkboxOf: (label: string) => CheckboxState;
+  /** The ALLOCATION TABLES mini-grid, while the account has tables. */
+  tables: AllocationTablesGridPage;
 }
 
 interface CheckboxState {
@@ -26,11 +32,17 @@ interface CheckboxState {
   disabled: boolean;
 }
 
-/** Mounts the details over the real application on the small books, or on the seed given. */
+/** Mounts the details over the real application on the small books, or on the seed given; on its first period, or the one given. */
 export function mountAccountDetails(
   seed: LegacySeed = createSmallSeed(),
+  periodId: string | null = null,
 ): AccountDetailsPage {
   const { app } = createAppHarness(seed);
+
+  if (periodId !== null) {
+    app.presenters.buildings.selectPeriod(periodId);
+  }
+
   const rendered = render(
     <ViewModelProvider viewModel={createViewModel(app)}>
       <AccountDetails />
@@ -86,6 +98,9 @@ export function mountAccountDetails(
         group(legend).querySelector(".account-details-note")?.textContent ?? ""
       );
     },
+    tables: allocationTablesGridIn(() => {
+      return rendered.container;
+    }),
     checkboxOf: (label: string): CheckboxState => {
       const box = within(valueElement(label)).getByRole("checkbox");
 

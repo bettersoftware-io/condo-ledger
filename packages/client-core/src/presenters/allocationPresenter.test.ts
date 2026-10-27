@@ -202,6 +202,24 @@ describe("the allocation presenter", () => {
     stop();
   });
 
+  it("names an account by its path in the selected period's books, and by its id when they do not hold it", () => {
+    const { app, stop } = createAllocated();
+    const { allocation } = app.presenters;
+
+    expect(allocation.accountPath("la28")).toBe(
+      "Total › Costs › Spese generali",
+    );
+    expect(allocation.accountPath("la999")).toBe("la999");
+
+    stop();
+  });
+
+  it("names an account by its id with no period", () => {
+    const { app } = createAppHarness({ ...seedOf(), buildings: [] });
+
+    expect(app.presenters.allocation.accountPath("la28")).toBe("la28");
+  });
+
   it("follows the period: p36 lists its own tables and never mixes in p1's", () => {
     const { app, tables, allocation, stop } = createAllocated();
     const seen: string[][] = [];

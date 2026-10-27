@@ -12,9 +12,11 @@ import {
 } from "rxjs";
 
 import {
+  type Account,
   type AccountNature,
   type AccountNode,
   type AccountsPort,
+  appliedLinksOf,
   type Cents,
   findNode,
   type Ledger,
@@ -22,6 +24,9 @@ import {
   pathOf,
   type Result,
   ROOT_KEY,
+  type RoleShares,
+  type TableLink,
+  type ThousandthTable,
 } from "@cl/domain";
 
 import type { Books } from "./booksPresenter.ts";
@@ -36,6 +41,29 @@ export interface AccountDetails {
   balance: Cents;
   budget: Cents | null;
   systemId: string;
+  /** The thousandth tables that allocate the account; none for a node of no account. */
+  allocationTables: AllocationTables;
+}
+
+/** The thousandth tables that allocate an account, as Account Details lists them. */
+interface AllocationTables {
+  rows: AllocationTableRow[];
+  /** The rows are the nearest ancestor's: the account has no link of its own. */
+  inherited: boolean;
+  /** Some link serves only the budget or only the final balance. */
+  separate: boolean;
+}
+
+/** One link of an account's allocation tables. */
+export interface AllocationTableRow {
+  /** The link's id. */
+  id: string;
+  /** The table's share of the account, in hundredths of a percent; null when empty. */
+  percentage: number | null;
+  /** The table's name; blank while the period's tables do not hold it. */
+  table: string;
+  /** Each role priority's percentage, in hundredths of a percent; null when blank or without a row. */
+  roles: RoleShares;
 }
 
 export interface AccountsPresenter {
@@ -64,13 +92,19 @@ interface View {
   key: string;
   node: AccountNode;
   ledger: Ledger;
-  details: AccountDetails;
+  /** The period's accounts: their links decide the allocation tables. */
+  accounts: Account[];
 }
 
-/** The Accounts screen: the tree of the selected period, the selected node, its ledger and its details. */
+/**
+ * The Accounts screen: the tree of the selected period, the selected node,
+ * its ledger and its details. The details name each allocation table by its
+ * name in `tables$`, the selected period's tables.
+ */
 export function createAccountsPresenter(
   books$: Observable<Books | null>,
   accounts: AccountsPort,
+  tables$: Observable<ThousandthTable[]>,
 ): AccountsPresenter {
   const chosenKey$ = new Subject<string>();
   const periodId$ = books$.pipe(
@@ -142,9 +176,9 @@ export function createAccountsPresenter(
       null,
     ),
     details$: state(
-      view$.pipe(
-        map((view) => {
-          return view?.details ?? null;
+      combineLatest([view$, tables$]).pipe(
+        map(([view, tables]) => {
+          return view === null ? null : detailsOf(view, tables);
         }),
       ),
       null,
@@ -171,11 +205,13 @@ function viewOf(books: Books, key: string): View {
     key,
     node,
     ledger: ledgerOf(books.tree, key, books.entries),
-    details: detailsOf(books.tree, node),
+    accounts: books.accounts,
   };
 }
 
-function detailsOf(tree: AccountNode, node: AccountNode): AccountDetails {
+function detailsOf(view: View, tables: ThousandthTable[]): AccountDetails {
+  const { tree, node } = view;
+
   return {
     path: pathOf(tree, node.key),
     typeLabel: typeLabelOf(node),
@@ -187,6 +223,47 @@ function detailsOf(tree: AccountNode, node: AccountNode): AccountDetails {
     budget: node.budget,
     systemId:
       node.accountId === null ? NO_VALUE : node.accountId.replace(/^la/, ""),
+    allocationTables: allocationTablesOf(view.accounts, node, tables),
+  };
+}
+
+/** The links that apply to the node's account, each with its table's name. */
+function allocationTablesOf(
+  accounts: Account[],
+  node: AccountNode,
+  tables: ThousandthTable[],
+): AllocationTables {
+  const { links, inherited } =
+    node.accountId === null
+      ? { links: [], inherited: false }
+      : appliedLinksOf(accounts, node.accountId);
+
+  return {
+    rows: links.map((link) => {
+      return {
+        id: link.id,
+        percentage: link.percentage,
+        table:
+          tables.find((table) => {
+            return table.id === link.tableId;
+          })?.name ?? "",
+        roles: rolesOf(link),
+      };
+    }),
+    inherited,
+    separate: links.some((link) => {
+      return link.use !== "both";
+    }),
+  };
+}
+
+/** A role's percentage where the link has a row for it; null elsewhere. */
+function rolesOf(link: TableLink): RoleShares {
+  return {
+    1: link.present[1] ? link.roles[1] : null,
+    2: link.present[2] ? link.roles[2] : null,
+    3: link.present[3] ? link.roles[3] : null,
+    4: link.present[4] ? link.roles[4] : null,
   };
 }
 

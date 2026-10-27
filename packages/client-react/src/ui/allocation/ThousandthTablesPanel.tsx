@@ -20,9 +20,11 @@ import "./ThousandthTablesPanel.css";
 /**
  * Thousandth Tables: the period's tables in order, each with the group its
  * coefficients are limited to, a blank counter and its total. A click
- * selects a table, and the selection drives the coefficients. The tools
- * below it post a notice through `onStub` with their name until they are
- * built. Takes only props, so the compiler memoizes it.
+ * selects a table, and the selection drives the coefficients. `+` asks for
+ * a new table; `✎` and `−` ask to edit and to delete the selected one, and
+ * wait for a selection. Print and the exports post a notice through `onStub`
+ * with their name until they are built. Takes only props, so the compiler
+ * memoizes it.
  */
 export function ThousandthTablesPanel({
   tables,
@@ -30,8 +32,13 @@ export function ThousandthTablesPanel({
   template,
   onSelect,
   onResize,
+  onAdd,
+  onEdit,
+  onDelete,
   onStub,
 }: ThousandthTablesPanelProps): ReactElement {
+  const noSelection = selectedTableId === null;
+
   function stubbing(label: string): () => void {
     return (): void => {
       onStub(label);
@@ -66,21 +73,23 @@ export function ThousandthTablesPanel({
                 icon="+"
                 tone="ok"
                 iconOnly
-                onClick={stubbing("New Thousandth Table")}
+                onClick={onAdd}
               />
               <ToolbarButton
                 label="Edit Thousandth Table"
                 icon="✎"
                 tone="muted"
                 iconOnly
-                onClick={stubbing("Edit Thousandth Table")}
+                disabled={noSelection}
+                onClick={onEdit}
               />
               <ToolbarButton
                 label="Delete Thousandth Table"
                 icon="−"
                 tone="neg"
                 iconOnly
-                onClick={stubbing("Delete Thousandth Table")}
+                disabled={noSelection}
+                onClick={onDelete}
               />
               <ToolbarDivider />
               <ToolbarButton
@@ -118,6 +127,12 @@ export interface ThousandthTablesPanelProps {
   template: string;
   onSelect: (tableId: string) => void;
   onResize: (index: number, px: number) => void;
+  /** `+`: a new table. */
+  onAdd: () => void;
+  /** `✎`: the selected table's edit. */
+  onEdit: () => void;
+  /** `−`: the selected table's deletion. */
+  onDelete: () => void;
   /** A tool that is not built yet, by name. */
   onStub: (label: string) => void;
 }

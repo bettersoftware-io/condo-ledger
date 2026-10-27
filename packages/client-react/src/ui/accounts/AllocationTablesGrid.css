@@ -1,0 +1,55 @@
+/* The Accounts bottom panel's ALLOCATION TABLES mini-grid (PROTO 806-810): read-only, the share columns centred and tabular. */
+.account-tables-scroll {
+  overflow: auto;
+  margin-top: 4px;
+}
+
+.account-tables {
+  width: 100%;
+  min-width: 520px;
+  border: 1px solid var(--bd2);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.account-tables-head,
+.account-tables-row {
+  display: grid;
+  grid-template-columns: 48px minmax(110px, 1.4fr) 72px 60px 54px 48px minmax(
+      130px,
+      1.3fr
+    );
+}
+
+.account-tables-head > span,
+.account-tables-row > span {
+  padding: 5px 8px;
+}
+
+.account-tables-head {
+  background: var(--ph);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--phf);
+}
+
+.account-tables-row {
+  align-items: center;
+  border-top: 1px solid var(--bd2);
+  font-size: 11.5px;
+  color: var(--tx);
+}
+
+.account-tables-share {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.account-tables-percentage {
+  text-align: center;
+  color: var(--txd);
+}
+
+.account-tables-restriction {
+  color: var(--txd);
+}

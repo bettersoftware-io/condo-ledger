@@ -19,6 +19,8 @@ import {
   type Coefficient,
   type CoefficientNode,
   coefficientsTreeOf,
+  findNode,
+  pathOf,
   type Result,
   type ResultOf,
   rejected,
@@ -61,6 +63,8 @@ export interface AllocationPresenter {
   addTable: (draft: TableDraft) => Promise<ResultOf<TableAdded>>;
   editTable: (id: string, draft: TableDraft) => Promise<Result>;
   deleteTable: (id: string) => Promise<Result>;
+  /** The account's path in the selected period's books, as a refusal names it ("Total › … › name"); its id when the books do not hold it. */
+  accountPath: (accountId: string) => string;
   /** Reads the text in the session's locale; text that does not read is refused `not-a-coefficient` without a write. */
   setCoefficient: (
     tableId: string,
@@ -140,6 +144,13 @@ export function createAllocationPresenter(
     },
     deleteTable: (id: string): Promise<Result> => {
       return ports.tables.deleteTable(id);
+    },
+    accountPath: (accountId: string): string => {
+      const tree = books$.getValue()?.tree;
+
+      return tree === undefined || findNode(tree, accountId) === undefined
+        ? accountId
+        : pathOf(tree, accountId);
     },
     setCoefficient: (
       tableId: string,
