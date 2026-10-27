@@ -63,7 +63,7 @@ export interface ScheduleNode {
 }
 
 /** The period's first and last day, "YYYY-MM-DD". */
-interface SchedulePeriod {
+export interface PeriodDates {
   start: string;
   end: string;
 }
@@ -71,7 +71,7 @@ interface SchedulePeriod {
 /** One period's books, as much of them as the schedule reads. */
 export interface ScheduleInput {
   periodLabel: string;
-  period: SchedulePeriod;
+  period: PeriodDates;
   accounts: Account[];
   parties: Party[];
   entries: JournalEntry[];
@@ -123,7 +123,7 @@ export function scheduleOf(input: ScheduleInput, today: string): Schedule {
 /** What every resident row is worked out from. */
 interface ScheduleContext {
   installments: Installment[];
-  period: SchedulePeriod;
+  period: PeriodDates;
   today: string;
   shares: BudgetShares;
   previous: Map<string, Cents>;
@@ -385,10 +385,7 @@ function statusOf(amount: Cents | null, paid: Cents): CellStatus | null {
 }
 
 /** "{covered}/{period days}", both ends counted; an open end of the restriction runs to the period's. */
-function daysOf(
-  restriction: Restriction | null,
-  period: SchedulePeriod,
-): string {
+function daysOf(restriction: Restriction | null, period: PeriodDates): string {
   if (restriction === null) {
     return "";
   }
@@ -401,7 +398,8 @@ function daysOf(
   return `${covered}/${daysFromTo(period.start, period.end)}`;
 }
 
-function daysFromTo(from: string, to: string): number {
+/** The days from one "YYYY-MM-DD" date to another, both counted. */
+export function daysFromTo(from: string, to: string): number {
   return Math.round((Date.parse(to) - Date.parse(from)) / DAY) + 1;
 }
 
