@@ -101,7 +101,7 @@ export function createTablesSimulator(
 
     const id = `dt-new-${tablesAdded}`;
 
-    // The coefficients land before their table, so no reader sees a coefficient name a table it cannot find.
+    // The coefficients land before their table, so no reader ever sees a table without coefficients. A reader may briefly see coefficients whose table is not there yet; that is harmless, since totals filter by table.
     state.coefficients$.next([
       ...state.coefficients$.getValue(),
       ...state.unitIds.map((unitId): Coefficient => {
