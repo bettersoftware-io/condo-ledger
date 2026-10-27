@@ -1,14 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import type { Cents } from "#/entities/cents.ts";
-import { legacySeedData } from "#/simulators/seed/legacySeed.generated.ts";
-import { loadLegacySeed } from "#/simulators/seed/legacySeed.ts";
 import { must } from "#/support/must.ts";
+import { createSeedAllocationSource } from "#/testing/createSeedAllocationSource.ts";
 
 import {
   type Allocation,
   type AllocationRow,
-  type AllocationSource,
   allocationBooksOf,
   allocationOf,
 } from "./allocation.ts";
@@ -188,56 +186,10 @@ function allocationOfPeriod(
   periodId: string,
   mode: AllocationMode,
 ): Allocation {
-  return allocationOf(allocationBooksOf(sourceOf(periodId)), mode);
-}
-
-function sourceOf(periodId: string): AllocationSource {
-  const building = must(
-    seed.buildings.find((candidate) => {
-      return candidate.periods.some((period) => {
-        return period.id === periodId;
-      });
-    }),
-    `the building of ${periodId}`,
+  return allocationOf(
+    allocationBooksOf(createSeedAllocationSource(periodId)),
+    mode,
   );
-
-  const period = must(
-    building.periods.find((candidate) => {
-      return candidate.id === periodId;
-    }),
-    `the period ${periodId}`,
-  );
-
-  return {
-    periodLabel: `${building.name} ${period.name}`,
-    period: { start: period.start, end: period.end },
-    accounts: seed.accounts.filter((account) => {
-      return account.periodId === periodId;
-    }),
-    parties: must(
-      seed.parties.find((list) => {
-        return list.periodId === periodId;
-      }),
-      `the parties of ${periodId}`,
-    ).parties,
-    entries: seed.entries.filter((entry) => {
-      return entry.periodId === periodId;
-    }),
-    tables: seed.tables.filter((table) => {
-      return table.periodId === periodId;
-    }),
-    coefficients: seed.coefficients.filter((coefficient) => {
-      return seed.tables.some((table) => {
-        return table.id === coefficient.tableId && table.periodId === periodId;
-      });
-    }),
-    units: seed.units.filter((unit) => {
-      return unit.periodId === periodId;
-    }),
-    groups: seed.unitGroups.filter((group) => {
-      return group.periodId === periodId;
-    }),
-  };
 }
 
 function residentTotals(allocation: Allocation): Map<string, Cents> {
@@ -291,9 +243,3 @@ function find(rows: AllocationRow[], key: string): AllocationRow | undefined {
 
   return undefined;
 }
-
-// The figures the legacy app drew for Saturno 2011 (p1) and Pozzetto 2013
-// (p36): the spec's "Pinned figures", from the legacy reports
-// (ta-legacy.md §5, ta-design.md §4 and §7).
-
-const seed = loadLegacySeed(legacySeedData);

@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import { cents } from "../entities/cents.ts";
 import type { EntryKind, JournalEntry } from "../entities/journal.ts";
+import { must } from "../support/must.ts";
+import { createSeedAllocationSource } from "../testing/createSeedAllocationSource.ts";
 import { canDeleteEntry, DELETABLE_KINDS } from "./canDeleteEntry.ts";
 
 describe("canDeleteEntry", () => {
-  it("accepts the kinds M2a, M2b and M2c write", () => {
+  it("accepts the kinds M2a, M2b and M2c write, and M2e's budget allocation", () => {
     expect(DELETABLE_KINDS).toEqual([
       "generic",
       "directPaymentCash",
@@ -15,6 +17,7 @@ describe("canDeleteEntry", () => {
       "invoicePayment",
       "openingBalances",
       "collection",
+      "budgetAllocation",
     ]);
 
     for (const kind of DELETABLE_KINDS) {
@@ -61,12 +64,20 @@ describe("canDeleteEntry", () => {
     ).toEqual({ ok: true });
   });
 
+  it("accepts Saturno 2011's budget allocation, tx5, as the legacy app did", () => {
+    const tx5 = must(
+      createSeedAllocationSource("p1").entries.find((entry) => {
+        return entry.id === "tx5";
+      }),
+      "tx5",
+    );
+
+    expect(tx5.kind).toBe("budgetAllocation");
+    expect(canDeleteEntry(tx5, [tx5])).toEqual({ ok: true });
+  });
+
   it("refuses the kinds whose side effects are not modelled yet, naming the reason", () => {
-    for (const kind of [
-      "budgetAllocation",
-      "closingBalances",
-      "individualExpense",
-    ] as const) {
+    for (const kind of ["closingBalances", "individualExpense"] as const) {
       expect(canDeleteEntry(createEntry("e5", kind, null), [])).toEqual({
         ok: false,
         reason: "kind-not-deletable",

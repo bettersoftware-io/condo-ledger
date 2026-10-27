@@ -7,7 +7,12 @@ import type {
   Rate,
   WithholdingTax,
 } from "../entities/invoice.ts";
-import type { EntryDraft, JournalEntry, Posting } from "../entities/journal.ts";
+import type {
+  EntryDraft,
+  EntryKind,
+  JournalEntry,
+  Posting,
+} from "../entities/journal.ts";
 import type { Party } from "../entities/party.ts";
 import { ok, type Result, rejected } from "../entities/result.ts";
 import { type ItemBalance, itemBalances } from "./installments.ts";
@@ -66,7 +71,7 @@ function linesReason(draft: EntryDraft, accounts: Account[]): string | null {
   );
 
   for (const posting of draft.postings) {
-    const reason = lineReason(posting, byId);
+    const reason = lineReason(posting, byId, draft.kind);
 
     if (reason !== null) {
       return reason;
@@ -346,9 +351,11 @@ function samePostings(expected: Posting[], actual: Posting[]): boolean {
   );
 }
 
+/** A budget allocation keeps a 0.00 line for a resident whose share is 0, as the legacy entry has them; every other kind refuses an empty line. */
 function lineReason(
   posting: Posting,
   byId: Map<string, Account>,
+  kind: EntryKind,
 ): string | null {
   const account = byId.get(posting.accountId);
 
@@ -360,7 +367,11 @@ function lineReason(
     return "not-a-leaf";
   }
 
-  if (posting.debit === 0 && posting.credit === 0) {
+  if (
+    posting.debit === 0 &&
+    posting.credit === 0 &&
+    kind !== "budgetAllocation"
+  ) {
     return "empty-line";
   }
 

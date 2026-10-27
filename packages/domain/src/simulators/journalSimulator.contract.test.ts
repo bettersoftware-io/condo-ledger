@@ -46,7 +46,7 @@ describeJournalPortContract("journal simulator", () => {
     },
     refusedReason: "unbalanced",
     deletableEntryId: "e6",
-    undeletableEntryId: "e4",
+    undeletableEntryId: "e7",
     editableEntryId: "e6",
     uneditableEntryId: "e4",
     // Taxable 100.00, VAT 20%, 20% withheld on la7: the cost takes 120.00, the supplier is owed 100.00.

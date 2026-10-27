@@ -102,6 +102,26 @@ describe("validateEntry", () => {
     ).toEqual({ ok: true });
   });
 
+  it("admits a budget allocation's 0.00 line for a resident, and still refuses one in a generic entry with empty-line", () => {
+    const postings = [
+      createOwnerLine("la5", 600, 0, "r1"),
+      createOwnerLine("la5", 0, 0, "r2"),
+      createOwnerLine("la5", 400, 0, "r3"),
+      createLine("la30", 0, 1000),
+    ];
+
+    expect(
+      validateEntry(
+        { kind: "budgetAllocation", description: "Riparto", postings },
+        createContext(),
+      ),
+    ).toEqual({ ok: true });
+    expect(validateEntry(createDraft(postings), createContext())).toEqual({
+      ok: false,
+      reason: "empty-line",
+    });
+  });
+
   describe("invoices, payments and the opening", () => {
     it("accepts a registration whose postings are its terms' postings", () => {
       expect(
