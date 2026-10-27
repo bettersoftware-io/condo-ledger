@@ -54,6 +54,7 @@ export {
   allocationBooksOf,
   allocationOf,
 } from "./useCases/allocation/allocation.ts";
+export { allocationSourceOf } from "./useCases/allocation/allocationSource.ts";
 export { budgetAllocationDraftOf } from "./useCases/allocation/budgetAllocationDraft.ts";
 export { appliedLinksOf } from "./useCases/allocation/links.ts";
 export type { AllocationMode } from "./useCases/allocation/share.ts";

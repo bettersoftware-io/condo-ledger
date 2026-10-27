@@ -5,6 +5,7 @@ import {
   type AllocationRow,
   allocationBooksOf,
   allocationOf,
+  allocationSourceOf,
   buildRiparto,
   type LegacySeed,
   loadLegacySeed,
@@ -12,7 +13,6 @@ import {
 } from "@cl/domain";
 
 import { projectAccounts, projectTransactions } from "#/project/accounting.ts";
-import { allocationSourceOf } from "#/project/allocationSource.ts";
 import {
   projectAnagrafiche,
   projectCategories,
