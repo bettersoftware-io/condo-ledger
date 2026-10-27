@@ -190,7 +190,7 @@ describe("the Budget allocation wizard", () => {
     });
     expect(machine.state$.getValue().summary).toEqual({
       preview: null,
-      accountPath: "Total › Costs › Spese generali › Assicurazione",
+      accountPath: "Total › Costs › General expenses › Insurance",
     });
   });
 

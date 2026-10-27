@@ -32,12 +32,12 @@ describe("TablesAllocationScreen", () => {
       "Role",
       "Restr. period",
       "Days",
-      "Spese generali",
-      "Generali residenti",
-      "Spese scala",
-      "Spese ascensore",
-      "Consumi",
-      "Spese personali",
+      "General expenses",
+      "General residents",
+      "Stair expenses",
+      "Elevator expenses",
+      "Consumption",
+      "Personal expenses",
       "Total",
       "Prev. bal.",
       "Total due",
@@ -45,40 +45,40 @@ describe("TablesAllocationScreen", () => {
     ]);
   });
 
-  it("lists p1's five tables in order, Proprietà selected with its Total", () => {
+  it("lists p1's five tables in order, Property selected with its Total", () => {
     const page = mountTablesAllocation("p1");
 
     expect(page.tables.grid.rowLabels()).toEqual([
-      "Proprietà",
-      "Generale residenti",
-      "Scale",
-      "Acqua preventivo",
-      "Acqua consuntivo",
+      "Property",
+      "General residents",
+      "Stairs",
+      "Water budget",
+      "Water actual",
     ]);
-    expect(page.tables.grid.rowTexts("Proprietà")).toEqual([
-      "Proprietà",
+    expect(page.tables.grid.rowTexts("Property")).toEqual([
+      "Property",
       "",
       "",
       "1,000.0000",
     ]);
-    expect(page.tables.grid.rowTexts("Scale")[1]).toBe("Scala A");
-    expect(page.tables.grid.selectedLabels()).toEqual(["Proprietà"]);
+    expect(page.tables.grid.rowTexts("Stairs")[1]).toBe("Stairwell A");
+    expect(page.tables.grid.selectedLabels()).toEqual(["Property"]);
   });
 
-  it("shows Proprietà's coefficients under groups A and B, each group the sum of its units", () => {
+  it("shows Property's coefficients under groups A and B, each group the sum of its units", () => {
     const page = mountTablesAllocation("p1");
     const units = ["u1", "u2", "u3", "u4"].map(page.labelOfUnit);
 
-    expect(page.coefficients.grid.childrenOf("A - Scala A")).toEqual(units);
-    expect(page.coefficients.grid.childrenOf("B - Box")).toEqual(
+    expect(page.coefficients.grid.childrenOf("A - Stairwell A")).toEqual(units);
+    expect(page.coefficients.grid.childrenOf("B - Garages")).toEqual(
       ["u5", "u6", "u7", "u8"].map(page.labelOfUnit),
     );
-    expect(page.coefficients.grid.rowTexts("A - Scala A")).toEqual([
-      "A - Scala A",
+    expect(page.coefficients.grid.rowTexts("A - Stairwell A")).toEqual([
+      "A - Stairwell A",
       "",
       "920.0000",
     ]);
-    expect(page.coefficients.grid.isAggregate("A - Scala A")).toBe(true);
+    expect(page.coefficients.grid.isAggregate("A - Stairwell A")).toBe(true);
     expect(page.coefficients.grid.rowTexts(units[1] ?? "")).toEqual([
       units[1],
       "27/05/2011 - end of FY",
@@ -86,14 +86,14 @@ describe("TablesAllocationScreen", () => {
     ]);
   });
 
-  it("a table clicked shows its own coefficients: Scale, limited to group A", async () => {
+  it("a table clicked shows its own coefficients: Stairs, limited to group A", async () => {
     const page = mountTablesAllocation("p1");
 
-    await page.tables.grid.clickRow("Scale");
+    await page.tables.grid.clickRow("Stairs");
 
-    expect(page.tables.grid.selectedLabels()).toEqual(["Scale"]);
+    expect(page.tables.grid.selectedLabels()).toEqual(["Stairs"]);
     expect(page.coefficients.grid.rowLabels()).toEqual([
-      "A - Scala A",
+      "A - Stairwell A",
       ...["u1", "u2", "u3", "u4"].map(page.labelOfUnit),
     ]);
   });
@@ -164,7 +164,7 @@ describe("TablesAllocationScreen", () => {
     expect(page.allocation.grid.rowTexts(root)[10]).toBe("2,455.19");
   });
 
-  it("A1's coefficient in Proprietà edited to 200 moves the table's Total and A1's share", async () => {
+  it("A1's coefficient in Property edited to 200 moves the table's Total and A1's share", async () => {
     const page = mountTablesAllocation("p1");
     const a1 = page.labelOfUnit("u1");
     const resident = page.labelOfResident("r1");
@@ -180,10 +180,10 @@ describe("TablesAllocationScreen", () => {
 
     expect(page.coefficients.editorOpen()).toBe(false);
     expect(page.coefficients.grid.rowTexts(a1)[2]).toBe("200.0000");
-    expect(page.coefficients.grid.rowTexts("A - Scala A")[2]).toBe(
+    expect(page.coefficients.grid.rowTexts("A - Stairwell A")[2]).toBe(
       "1,020.0000",
     );
-    expect(page.tables.grid.rowTexts("Proprietà")[3]).toBe("1,100.0000");
+    expect(page.tables.grid.rowTexts("Property")[3]).toBe("1,100.0000");
     expect(page.allocation.grid.rowTexts(resident)[4]).toBe("509.09");
   });
 
@@ -199,8 +199,10 @@ describe("TablesAllocationScreen", () => {
     expect(page.coefficients.editorError()).toBe(
       "Enter a coefficient of zero or more, with at most 4 decimals",
     );
-    expect(page.tables.grid.rowTexts("Proprietà")[3]).toBe("1,000.0000");
-    expect(page.coefficients.grid.rowTexts("A - Scala A")[2]).toBe("920.0000");
+    expect(page.tables.grid.rowTexts("Property")[3]).toBe("1,000.0000");
+    expect(page.coefficients.grid.rowTexts("A - Stairwell A")[2]).toBe(
+      "920.0000",
+    );
     expect(page.allocation.grid.rowTexts(resident)[4]).toBe("280.00");
 
     await page.coefficients.pressEscape();
@@ -220,13 +222,15 @@ describe("TablesAllocationScreen", () => {
 
     await page.coefficients.typeCoefficient("12,5");
 
-    expect(page.tables.grid.rowTexts("Proprietà")[3]).toBe("1.000,0000");
+    expect(page.tables.grid.rowTexts("Property")[3]).toBe("1.000,0000");
 
     await page.pickLanguage("en");
 
     expect(page.coefficients.editorText()).toBe("12,5");
-    expect(page.tables.grid.rowTexts("Proprietà")[3]).toBe("1,000.0000");
-    expect(page.coefficients.grid.rowTexts("A - Scala A")[2]).toBe("920.0000");
+    expect(page.tables.grid.rowTexts("Property")[3]).toBe("1,000.0000");
+    expect(page.coefficients.grid.rowTexts("A - Stairwell A")[2]).toBe(
+      "920.0000",
+    );
   });
 
   it("a refused editor does not survive a switch to another table: nothing is written into it", async () => {
@@ -235,12 +239,12 @@ describe("TablesAllocationScreen", () => {
 
     await page.coefficients.clickCoefficient(a1);
     await page.coefficients.typeCoefficient("abc");
-    await page.tables.grid.clickRow("Scale");
+    await page.tables.grid.clickRow("Stairs");
 
-    expect(page.tables.grid.selectedLabels()).toEqual(["Scale"]);
+    expect(page.tables.grid.selectedLabels()).toEqual(["Stairs"]);
     expect(page.coefficients.editorOpen()).toBe(false);
     expect(page.coefficients.grid.rowTexts(a1)[2]).toBe("100.0000");
-    expect(page.tables.grid.rowTexts("Scale")[3]).toBe("1,000.0000");
+    expect(page.tables.grid.rowTexts("Stairs")[3]).toBe("1,000.0000");
   });
 
   it("an editor opened in one language and left untouched writes nothing after a switch to another", async () => {
@@ -314,7 +318,7 @@ describe("TablesAllocationScreen", () => {
 
     expect(page.confirmOpen()).toBe(false);
     expect(page.tables.grid.rowLabels()).not.toContain("Test");
-    expect(page.tables.grid.selectedLabels()).toEqual(["Proprietà"]);
+    expect(page.tables.grid.selectedLabels()).toEqual(["Property"]);
   });
 
   it("− on a table an account allocates through is refused, naming the account", async () => {
@@ -322,15 +326,15 @@ describe("TablesAllocationScreen", () => {
 
     await page.tables.clickTool("Delete Thousandth Table");
 
-    expect(page.confirmText()).toBe("Delete the table Proprietà?");
+    expect(page.confirmText()).toBe("Delete the table Property?");
 
     await page.confirmYes();
 
     expect(page.confirmOpen()).toBe(true);
     expect(page.confirmError()).toBe(
-      "Proprietà allocates Total › Costs › Spese generali; unlink it first",
+      "Property allocates Total › Costs › General expenses; unlink it first",
     );
-    expect(page.tables.grid.rowLabels()).toContain("Proprietà");
+    expect(page.tables.grid.rowLabels()).toContain("Property");
 
     await page.cancelDialog();
 
@@ -345,7 +349,7 @@ describe("TablesAllocationScreen", () => {
     await page.tableDialog.cancel();
 
     expect(page.tableDialog.isShown()).toBe(false);
-    expect(page.tables.grid.rowLabels()[0]).toBe("Proprietà");
+    expect(page.tables.grid.rowLabels()[0]).toBe("Property");
   });
 
   it("on p36, A04 holds its two residents with their days", () => {
@@ -392,8 +396,8 @@ describe("TablesAllocationScreen", () => {
     await page.coefficients.clickTool("Collapse all");
 
     expect(page.coefficients.grid.rowLabels()).toEqual([
-      "A - Scala A",
-      "B - Box",
+      "A - Stairwell A",
+      "B - Garages",
     ]);
     expect(page.allocation.grid.rowLabels().length).toBeGreaterThan(2);
 

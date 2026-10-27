@@ -6,12 +6,12 @@ import {
 } from "./InstallmentScheduleScreen.page.tsx";
 
 describe("InstallmentDialog", () => {
-  it('on p36, Edit "Rata 3" renames it and moves its due date: the menu and the header show them', async () => {
+  it('on p36, Edit "Installment 3" renames it and moves its due date: the menu and the header show them', async () => {
     const page = mountInstallmentSchedule("p36");
-    const dialog = await openEdit(page, "Rata 3");
+    const dialog = await openEdit(page, "Installment 3");
 
     expect(dialog.title()).toBe("Edit Installment");
-    expect(dialog.fieldValue("Name")).toBe("Rata 3");
+    expect(dialog.fieldValue("Name")).toBe("Installment 3");
     expect(dialog.fieldValue("Due date")).toBe("20/03/2013");
     expect(dialog.isLocked()).toBe(false);
 
@@ -30,11 +30,11 @@ describe("InstallmentDialog", () => {
 
   it("refuses a name another installment has, a blank name and a day that is not one, and Save waits", async () => {
     const page = mountInstallmentSchedule("p36");
-    const dialog = await openEdit(page, "Rata 3");
+    const dialog = await openEdit(page, "Installment 3");
 
     expect(dialog.message()).toBeNull();
 
-    await dialog.fill("Name", "Rata 4");
+    await dialog.fill("Name", "Installment 4");
 
     expect(dialog.message()).toBe(
       "Another installment of this period already has this name.",
@@ -45,7 +45,7 @@ describe("InstallmentDialog", () => {
 
     expect(dialog.message()).toBe("An installment needs a name.");
 
-    await dialog.fill("Name", "Rata 3");
+    await dialog.fill("Name", "Installment 3");
     await dialog.fill("Due date", "31/02/2013");
 
     expect(dialog.message()).toBe("Enter a due date as day/month/year.");
@@ -54,7 +54,7 @@ describe("InstallmentDialog", () => {
 
   it("while Locked is on, Name and Due date are disabled; unticked, a rename saves with the unlock in one", async () => {
     const page = mountInstallmentSchedule("p1");
-    const dialog = await openEdit(page, "Rata nr. 1");
+    const dialog = await openEdit(page, "Installment 1");
 
     expect(dialog.isLocked()).toBe(true);
     expect(dialog.isEnabled("Name")).toBe(false);
@@ -78,9 +78,9 @@ describe("InstallmentDialog", () => {
 
   it("Enter in a field saves as Save does, and does nothing while the form is refused", async () => {
     const page = mountInstallmentSchedule("p36");
-    const dialog = await openEdit(page, "Rata 3");
+    const dialog = await openEdit(page, "Installment 3");
 
-    await dialog.fill("Name", "Rata 4");
+    await dialog.fill("Name", "Installment 4");
     await dialog.pressEnter();
 
     expect(dialog.isShown()).toBe(true);
@@ -97,10 +97,10 @@ describe("InstallmentDialog", () => {
 
   it("a name another installment took meanwhile is refused by the store, said in the dialog, and an edit clears it", async () => {
     const page = mountInstallmentSchedule("p36");
-    const dialog = await openEdit(page, "Rata 3");
+    const dialog = await openEdit(page, "Installment 3");
 
     await dialog.fill("Name", "Rata tre");
-    await page.renameElsewhere("Rata 4", "Rata tre");
+    await page.renameElsewhere("Installment 4", "Rata tre");
     await dialog.save();
 
     expect(dialog.isShown()).toBe(true);
@@ -119,7 +119,7 @@ describe("InstallmentDialog", () => {
 
   it("Cancel closes it and changes nothing", async () => {
     const page = mountInstallmentSchedule("p36");
-    const dialog = await openEdit(page, "Rata 3");
+    const dialog = await openEdit(page, "Installment 3");
 
     await dialog.fill("Due date", "25/03/2013");
     await dialog.cancel();

@@ -112,8 +112,8 @@ describe("InstallmentScheduleScreen", () => {
     await page.toolbar.clickTool("Delete installments");
 
     expect(page.toolbar.menuItems()).toEqual([
-      'Delete "Rata nr. 2"',
-      'Delete "Rata nr. 3"',
+      'Delete "Installment 2"',
+      'Delete "Installment 3"',
     ]);
   });
 
@@ -121,10 +121,10 @@ describe("InstallmentScheduleScreen", () => {
     const page = mountInstallmentSchedule("p36");
 
     await page.toolbar.clickTool("Delete installments");
-    await page.toolbar.clickMenuItem('Delete "Rata 12"');
+    await page.toolbar.clickMenuItem('Delete "Installment 12"');
 
     expect(page.confirmText()).toBe(
-      "Delete the installment “Rata 12”? This cannot be undone.",
+      "Delete the installment “Installment 12”? This cannot be undone.",
     );
 
     await page.confirmYes();
@@ -138,7 +138,7 @@ describe("InstallmentScheduleScreen", () => {
     const page = mountInstallmentSchedule("p36");
 
     await page.toolbar.clickTool("Delete installments");
-    await page.toolbar.clickMenuItem('Delete "Rata 1"');
+    await page.toolbar.clickMenuItem('Delete "Installment 1"');
     await page.confirmYes();
 
     expect(page.confirmOpen()).toBe(true);
@@ -183,11 +183,11 @@ describe("InstallmentScheduleScreen", () => {
 
     expect(page.toolbar.menuItems()).toHaveLength(12);
 
-    await page.toolbar.clickMenuItem('Edit "Rata 1"');
+    await page.toolbar.clickMenuItem('Edit "Installment 1"');
 
     expect(page.toolbar.menuItems()).toEqual([]);
     expect(page.installmentDialog.title()).toBe("Edit Installment");
-    expect(page.installmentDialog.fieldValue("Name")).toBe("Rata 1");
+    expect(page.installmentDialog.fieldValue("Name")).toBe("Installment 1");
     expect(page.toasts()).toEqual([]);
   });
 
@@ -212,11 +212,11 @@ describe("InstallmentScheduleScreen", () => {
     await record.next();
     await record.save();
 
-    const collection = `Collection of installments from ${name}: Rata 9 (20/09/2013), Rata 10 (20/10/2013), Rata 11 (20/11/2013), Rata 12 (20/12/2013)`;
+    const collection = `Collection of installments from ${name}: Installment 9 (20/09/2013), Installment 10 (20/10/2013), Installment 11 (20/11/2013), Installment 12 (20/12/2013)`;
     const schedule = await journal.openSchedule();
 
     await schedule.toolbar.clickTool("Delete installments");
-    await schedule.toolbar.clickMenuItem('Delete "Rata 12"');
+    await schedule.toolbar.clickMenuItem('Delete "Installment 12"');
     await schedule.confirmYes();
 
     expect(schedule.confirmError()).toBe(
@@ -237,7 +237,7 @@ describe("InstallmentScheduleScreen", () => {
 
     await journal.openSchedule();
     await schedule.toolbar.clickTool("Delete installments");
-    await schedule.toolbar.clickMenuItem('Delete "Rata 12"');
+    await schedule.toolbar.clickMenuItem('Delete "Installment 12"');
     await schedule.confirmYes();
 
     expect(schedule.confirmOpen()).toBe(false);

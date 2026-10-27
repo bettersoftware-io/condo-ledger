@@ -43,7 +43,7 @@ describe("the allocation presenter", () => {
     ).toEqual(["dt1", "dt2", "dt3", "dt4", "dt5"]);
     expect(tableOf(tables(), "dt1").total).toBe(10000000);
     expect(tableOf(tables(), "dt1").restriction).toBe("");
-    expect(tableOf(tables(), "dt3").restriction).toBe("Scala A");
+    expect(tableOf(tables(), "dt3").restriction).toBe("Stairwell A");
 
     stop();
   });
@@ -207,7 +207,7 @@ describe("the allocation presenter", () => {
     const { allocation } = app.presenters;
 
     expect(allocation.accountPath("la28")).toBe(
-      "Total › Costs › Spese generali",
+      "Total › Costs › General expenses",
     );
     expect(allocation.accountPath("la999")).toBe("la999");
 

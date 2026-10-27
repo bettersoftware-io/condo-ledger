@@ -16,11 +16,11 @@ describe("the seed's allocation data: Saturno 2011 (p1)", () => {
         return [table.id, table.name, table.order, table.restrictionGroupId];
       }),
     ).toEqual([
-      ["dt1", "Proprietà", 1, null],
-      ["dt2", "Generale residenti", 2, null],
-      ["dt3", "Scale", 3, groupA().id],
-      ["dt4", "Acqua preventivo", 4, null],
-      ["dt5", "Acqua consuntivo", 5, null],
+      ["dt1", "Property", 1, null],
+      ["dt2", "General residents", 2, null],
+      ["dt3", "Stairs", 3, groupA().id],
+      ["dt4", "Water budget", 4, null],
+      ["dt5", "Water actual", 5, null],
     ]);
   });
 
@@ -120,10 +120,10 @@ describe("the seed's allocation data: Pozzetto 2013 (p36)", () => {
     );
   });
 
-  it("abbreviates la172 Generali PR and links it to dt14, 100% on the owners' role", () => {
+  it("abbreviates la172 General PR and links it to dt14, 100% on the owners' role", () => {
     const account = accountOf("la172");
 
-    expect(account.abbreviation).toBe("Generali PR");
+    expect(account.abbreviation).toBe("General PR");
     expect(
       account.links.map((link) => {
         return [link.tableId, link.roles[1], link.present[1]];

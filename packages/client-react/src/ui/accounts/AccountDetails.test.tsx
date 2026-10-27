@@ -53,7 +53,7 @@ describe("AccountDetails", () => {
     expect(page.toneOf("Created on")).toBe("muted");
   });
 
-  it("on p36, la173 shows the link it inherits from its grouping: Generale, PR/NP/LE 100%", async () => {
+  it("on p36, la173 shows the link it inherits from its grouping: General, PR/NP/LE 100%", async () => {
     const page = mountAccountDetails(loadLegacySeed(legacySeedData), "p36");
 
     await page.select("la173");
@@ -71,7 +71,7 @@ describe("AccountDetails", () => {
       "Table restr. on group",
     ]);
     expect(page.tables.rows()).toEqual([
-      ["-", "Generale", "100%", "-", "-", "-", "-None-"],
+      ["-", "General", "100%", "-", "-", "-", "-None-"],
     ]);
     expect(
       page.checkboxOf("Separate tables for budget & final balance"),
@@ -81,7 +81,7 @@ describe("AccountDetails", () => {
     );
   });
 
-  it("on p1, Acqua inherits two links, one for the budget and one for the final balance: separate tables", async () => {
+  it("on p1, Water inherits two links, one for the budget and one for the final balance: separate tables", async () => {
     const page = mountAccountDetails(loadLegacySeed(legacySeedData), "p1");
 
     await page.select("la44");
@@ -90,8 +90,8 @@ describe("AccountDetails", () => {
       page.checkboxOf("Separate tables for budget & final balance"),
     ).toEqual({ checked: true, disabled: true });
     expect(page.tables.rows().map(tableOf)).toEqual([
-      "Acqua preventivo",
-      "Acqua consuntivo",
+      "Water budget",
+      "Water actual",
     ]);
   });
 
@@ -104,7 +104,7 @@ describe("AccountDetails", () => {
     expect(
       page.hasGroup("ALLOCATION TABLES (USES PARENT ACCOUNT SETTINGS)"),
     ).toBe(false);
-    expect(page.tables.rows().map(tableOf)).toEqual(["Proprietà"]);
+    expect(page.tables.rows().map(tableOf)).toEqual(["Property"]);
     expect(page.valueOf("Separate tables for budget & final balance")).toBe("");
   });
 

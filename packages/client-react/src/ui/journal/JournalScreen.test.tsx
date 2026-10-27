@@ -514,14 +514,14 @@ describe("JournalScreen", () => {
     await record.next();
     await record.save();
 
-    const inFull = `Collection of installments from ${name}: Rata 9 (20/09/2013), Rata 10 (20/10/2013), Rata 11 (20/11/2013), Rata 12 (20/12/2013)`;
+    const inFull = `Collection of installments from ${name}: Installment 9 (20/09/2013), Installment 10 (20/10/2013), Installment 11 (20/11/2013), Installment 12 (20/12/2013)`;
 
     expect(page.isSelected(inFull)).toBe(true);
     expect(await ownerAfterReopening(page, name)).toBeNull();
 
     await editAmount(page, inFull, "539.92", "100");
 
-    const edited = `Collection of installments from ${name}: Rata 9 (20/09/2013)`;
+    const edited = `Collection of installments from ${name}: Installment 9 (20/09/2013)`;
 
     expect(page.dialogOpen()).toBe(false);
     expect(page.isSelected(edited)).toBe(true);

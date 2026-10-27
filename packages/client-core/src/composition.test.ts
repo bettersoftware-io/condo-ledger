@@ -177,7 +177,7 @@ describe("the application", () => {
 describe("the simulator ports over the real seed", () => {
   it("an installment a collection pays refuses delete; once the journal deletes the collection, it goes", async () => {
     const { installments, journal } = createRealPorts();
-    // Rata 12 of Pozzetto 2013: nothing paid on it yet.
+    // Installment 12 of Pozzetto 2013: nothing paid on it yet.
     const added = await journal.addEntry(
       "p36",
       createCollection("r163", "ii845", cents(5000)),
@@ -203,7 +203,7 @@ describe("the simulator ports over the real seed", () => {
     const untouched = createRealPorts();
     const edited = createRealPorts();
 
-    // Untouched, r162's ii844 on Rata 12 owes 134.98, and 20.00 of it is accepted.
+    // Untouched, r162's ii844 on Installment 12 owes 134.98, and 20.00 of it is accepted.
     expect(
       await untouched.journal.addEntry(
         "p36",

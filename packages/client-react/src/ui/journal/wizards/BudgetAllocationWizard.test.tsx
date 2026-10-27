@@ -74,7 +74,7 @@ describe("BudgetAllocationWizard", () => {
     });
 
     expect(wizard.message()).toBe(
-      "Total › Costs › Spese generali › Assicurazione has a budget but no table to allocate it",
+      "Total › Costs › General expenses › Insurance has a budget but no table to allocate it",
     );
   });
 
@@ -104,7 +104,7 @@ describe("BudgetAllocationWizard", () => {
 });
 
 /** tx5's description: Saturno 2011's budget allocation as the seed holds it. */
-const TX5 = "Riparto preventivo (n°1 del 14/03/2011)";
+const TX5 = "Budget allocation (no. 1 of 14/03/2011)";
 
 /** The real seed with every coefficient of the table at 0. */
 function createZeroTableSeed(tableId: string): LegacySeed {

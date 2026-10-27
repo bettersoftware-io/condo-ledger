@@ -156,7 +156,7 @@ describe("BudgetInstallmentsWizard", () => {
       ["Installment 14", "15/04/2014", "50"],
     ]);
 
-    await wizard.fillName(0, "Rata 1");
+    await wizard.fillName(0, "Installment 1");
 
     expect(wizard.message()).toBe(
       "Another installment of this period already has this name.",

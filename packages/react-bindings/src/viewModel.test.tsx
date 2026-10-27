@@ -272,7 +272,7 @@ describe("the view model", () => {
 
     expect(page.read().schedule.schedule?.root.budget).toBe(740000);
     expect(page.read().installmentDialog?.state.form).toMatchObject({
-      name: "Rata nr. 2",
+      name: "Installment 2",
       dueDate: "15/07/2011",
       locked: false,
     });
@@ -411,7 +411,7 @@ describe("the view model", () => {
       verdict: { ok: false, reason: "allocation-exists" },
     });
     expect(page.read().allocation.accountPath("la28")).toBe(
-      "Total › Costs › Spese generali",
+      "Total › Costs › General expenses",
     );
   });
 

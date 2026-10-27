@@ -484,8 +484,8 @@ export const scenarios: Record<string, Scenario> = {
     periodId: "p36",
     collection: { step: 1 },
   },
-  // Step 2 for the owner of A01 (`md89`, who owes Rata 9 to Rata 12, 134.98
-  // each), 300.00 typed: Rata 9 and Rata 10 are settled, Rata 11 in part.
+  // Step 2 for the owner of A01 (`md89`, who owes Installment 9 to 12, 134.98
+  // each), 300.00 typed: Installments 9 and 10 are settled, 11 in part.
   "collection-wizard-amount": {
     level: "component",
     mount: "collection-wizard",
@@ -560,7 +560,7 @@ export const scenarios: Record<string, Scenario> = {
     periodId: "p3",
     budgetInstallments: { step: 2, firstDue: "31/03/2015" },
   },
-  // Saturno 2011's first installment (`in1`, Rata nr. 1), locked: its name
+  // Saturno 2011's first installment (`in1`, Installment 1), locked: its name
   // and due date cannot change until Locked is unticked.
   "installment-dialog": {
     level: "component",
@@ -1038,7 +1038,7 @@ export const scenarios: Record<string, Scenario> = {
   // Thousandth Tables & Allocation's parts alone, over Saturno 2011 (`p1`),
   // each panel at the width it has at the full layout and its content's
   // height. The tables in order, the first selected; the coefficients of
-  // Scale (`dt3`), restricted to group A: only that group and its units; the
+  // Stairs (`dt3`), restricted to group A: only that group and its units; the
   // allocation of the final balance, chosen through the mode menu.
   "thousandth-tables-panel": {
     level: "component",
@@ -1083,7 +1083,7 @@ export const scenarios: Record<string, Scenario> = {
     height: 720,
     mode: "light",
     periodId: "p1",
-    tableName: "Scale",
+    tableName: "Stairs",
   },
   // The Budget allocation wizard over Saturno 2011 with its allocation
   // (`tx5`) deleted: the whole entry, the eleven debits (each owner's charge
@@ -1111,7 +1111,7 @@ export const scenarios: Record<string, Scenario> = {
     periodId: "p1",
   },
   // Account Details' ALLOCATION TABLES mini-grid for the building's
-  // insurance in Pozzetto 2013 (`la173`): its one link, Generale at 100%,
+  // insurance in Pozzetto 2013 (`la173`): its one link, General at 100%,
   // at the width the grid has in the bottom panel.
   "account-allocation-tables": {
     level: "component",
