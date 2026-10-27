@@ -93,7 +93,7 @@ describe("the allocation of Saturno 2011 (p1)", () => {
     ).toEqual([24552, 40568, 73656, 91782, 3740, 3740, 3740, 3740]);
   });
 
-  it("draws groups A and B, then Roundings, with A1's own dates", () => {
+  it("draws groups A and B, then Roundings, with A1's dates and days, and A2's dates without days", () => {
     const allocation = allocationOfPeriod("p1", "budget");
 
     expect(
@@ -104,6 +104,10 @@ describe("the allocation of Saturno 2011 (p1)", () => {
     expect(rowOf(allocation, "resident:r1")).toMatchObject({
       restriction: "01/05/2011 - 31/05/2011",
       days: "31/365",
+    });
+    expect(rowOf(allocation, "unit:u2")).toMatchObject({
+      restriction: "27/05/2011 - end of FY",
+      days: "",
     });
   });
 

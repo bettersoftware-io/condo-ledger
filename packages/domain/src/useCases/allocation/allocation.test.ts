@@ -368,7 +368,7 @@ describe("allocationOf, the rows", () => {
     });
   });
 
-  it("writes a unit's dates on the unit's row, and on the one resident's row that stands for it", () => {
+  it("writes a unit's dates, without days, on the row of a unit with several residents, and dates and days on the one resident's row that stands for a unit", () => {
     const books = createBooks();
     const may = { from: "2013-05-01", to: "2013-05-31" };
     books.input.units = books.input.units.map((unit) => {
@@ -390,7 +390,7 @@ describe("allocationOf, the rows", () => {
 
     expect(rowOf(allocation, "unit:u1")).toMatchObject({
       restriction: "01/05/2013 - 31/05/2013",
-      days: "31/365",
+      days: "",
     });
     expect(rowOf(allocation, "resident:r1")).toMatchObject({
       restriction: "",

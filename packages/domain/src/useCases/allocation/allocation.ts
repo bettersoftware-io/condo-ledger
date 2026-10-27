@@ -244,7 +244,7 @@ function levelRows(
   ];
 }
 
-/** A unit with one resident is that resident's row; with several, a row over theirs. */
+/** A unit with one resident is that resident's row; with several, a row over theirs, with the unit's dates and no days. */
 function unitRow(unit: Unit, context: RowContext): AllocationRow {
   const { input } = context.books;
   const residents = residentsOf(input.residents, unit.id);
@@ -265,7 +265,8 @@ function unitRow(unit: Unit, context: RowContext): AllocationRow {
       kind: "unit",
       label: unit.code,
       restriction: restrictionTextOf(unit.restriction),
-      days: daysOf(unit.restriction, input.period),
+      // The legacy screen counts no days on a unit's row, only on a resident's.
+      days: "",
     },
     residents.map((resident) => {
       return residentRow(
