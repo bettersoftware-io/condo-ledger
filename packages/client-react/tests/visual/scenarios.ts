@@ -261,7 +261,7 @@ const OPEN_TO_CASH = [
 /** The cash account's row, selected under its group: a leaf, so neither bold nor with a caret. */
 const CASH_ROW: AccountRowPicture = {
   key: "la154",
-  label: "Cassa contanti",
+  label: "Cash on hand",
   depth: 4,
   icon: "cash",
   nature: "assets",
@@ -358,7 +358,7 @@ export const scenarios: Record<string, Scenario> = {
     expanded: OPEN_TO_CASH,
     renamed: {
       la154:
-        "Cassa contanti per le piccole spese della gestione ordinaria, straordinaria e del riscaldamento, con il riporto dei saldi dell'esercizio precedente",
+        "Cash on hand for the petty expenses of the ordinary, extraordinary and heating management, with the balances carried over from the previous financial year",
     },
   },
   "journal-1280-light": {
@@ -389,7 +389,7 @@ export const scenarios: Record<string, Scenario> = {
     menu: "journal",
     dialog: {
       wizard: "genericEntry",
-      description: "Nota di credito",
+      description: "Credit note",
       lines: [
         { scopeKey: "la154", debit: "50", credit: "" },
         { scopeKey: "la173", debit: "", credit: "30" },
@@ -504,9 +504,9 @@ export const scenarios: Record<string, Scenario> = {
     width: 642,
     mode: "light",
     settlement: [
-      createSettlementRow("Rata 9", "2013-09-20", 13498, 13498),
-      createSettlementRow("Rata 10", "2013-10-20", 13498, 13498),
-      createSettlementRow("Rata 11", "2013-11-20", 13498, 3004),
+      createSettlementRow("Installment 9", "2013-09-20", 13498, 13498),
+      createSettlementRow("Installment 10", "2013-10-20", 13498, 13498),
+      createSettlementRow("Installment 11", "2013-11-20", 13498, 3004),
     ],
   },
   // Pozzetto 2013's schedule: the units open, their residents' items
@@ -724,7 +724,7 @@ export const scenarios: Record<string, Scenario> = {
         ...CASH_ROW,
         selected: false,
         label:
-          "Cassa contanti per le piccole spese della gestione ordinaria, straordinaria e del riscaldamento",
+          "Cash on hand for the petty expenses of the ordinary, extraordinary and heating management",
       },
     ],
   },
@@ -792,7 +792,7 @@ export const scenarios: Record<string, Scenario> = {
     height: 240,
     mode: "light",
     confirm: {
-      text: 'Delete the entry "Pagamento in contanti di spese postali"?',
+      text: 'Delete the entry "Cash payment of postage"?',
       error: null,
     },
   },
@@ -804,7 +804,7 @@ export const scenarios: Record<string, Scenario> = {
     height: 240,
     mode: "light",
     confirm: {
-      text: 'Delete the entry "controllo ascensori"?',
+      text: 'Delete the entry "Elevator inspection"?',
       error: "This invoice has payments. Delete them first.",
     },
   },
@@ -826,11 +826,11 @@ export const scenarios: Record<string, Scenario> = {
       step: 1,
       stepCount: 2,
       editing: false,
-      description: "controllo ascensori",
+      description: "Elevator inspection",
       reason: null,
       writesEntry: true,
       preview: [
-        { path: "Costs › Ascensore", debit: 36018, credit: 0 },
+        { path: "Costs › Elevator", debit: 36018, credit: 0 },
         {
           path: "Suppliers › Cargnelutti Elevatori s.n.c.",
           debit: 0,
@@ -852,11 +852,11 @@ export const scenarios: Record<string, Scenario> = {
       step: 2,
       stepCount: 2,
       editing: true,
-      description: "controllo ascensori",
+      description: "Elevator inspection",
       reason: "negative",
       writesEntry: true,
       preview: [
-        { path: "Costs › Ascensore", debit: 36018, credit: 0 },
+        { path: "Costs › Elevator", debit: 36018, credit: 0 },
         {
           path: "Suppliers › Cargnelutti Elevatori s.n.c.",
           debit: 0,
@@ -877,7 +877,7 @@ export const scenarios: Record<string, Scenario> = {
     mode: "light",
     periodId: "p36",
     multiCost: {
-      description: "Assicurazione e amministrazione",
+      description: "Insurance and administration",
       amount: "1,000.00",
       lines: [
         { accountId: "la173", amount: "600.00" },
@@ -894,7 +894,7 @@ export const scenarios: Record<string, Scenario> = {
     mode: "light",
     periodId: "p36",
     multiCost: {
-      description: "Assicurazione e amministrazione",
+      description: "Insurance and administration",
       amount: "1,000.00",
       lines: [
         { accountId: "la173", amount: "600.00" },
