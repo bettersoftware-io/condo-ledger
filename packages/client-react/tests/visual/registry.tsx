@@ -6,7 +6,13 @@ import {
 } from "react";
 
 import type { SettlementRow, WizardState } from "@cl/client-core";
-import { cents, ok, type Result, rejected } from "@cl/domain";
+import {
+  type AllocationMode,
+  cents,
+  ok,
+  type Result,
+  rejected,
+} from "@cl/domain";
 import { useViewModel } from "@cl/react-bindings";
 
 import { AmountLocaleProvider } from "#/ui/AmountLocaleProvider.tsx";
@@ -15,8 +21,18 @@ import { AccountIcon } from "#/ui/accounts/AccountIcon.tsx";
 // The bottom panel's body is styled with the screen; alone, it needs the
 // screen's stylesheet.
 import "#/ui/accounts/AccountsScreen.css";
+import { AllocationTablesGrid } from "#/ui/accounts/AllocationTablesGrid.tsx";
 import { ACCOUNTS_COLUMNS } from "#/ui/accounts/columns.ts";
 import { LedgerTab } from "#/ui/accounts/LedgerTab.tsx";
+import { AllocationPanel } from "#/ui/allocation/AllocationPanel.tsx";
+import { CoefficientsPanel } from "#/ui/allocation/CoefficientsPanel.tsx";
+import {
+  allocationColumnSpecs,
+  COEFFICIENTS_COLUMN_SPECS,
+  TABLES_COLUMN_SPECS,
+} from "#/ui/allocation/columns.ts";
+import { TableDialog } from "#/ui/allocation/TableDialog.tsx";
+import { ThousandthTablesPanel } from "#/ui/allocation/ThousandthTablesPanel.tsx";
 import { ConfirmAlert } from "#/ui/ConfirmAlert.tsx";
 import { FormField } from "#/ui/FormField.tsx";
 import { InlineEditor } from "#/ui/InlineEditor.tsx";
@@ -24,6 +40,7 @@ import { BudgetInstallmentsWizard } from "#/ui/installments/BudgetInstallmentsWi
 import { InstallmentCell } from "#/ui/installments/InstallmentCell.tsx";
 import { InstallmentDialog } from "#/ui/installments/InstallmentDialog.tsx";
 import { EntryIcon } from "#/ui/journal/EntryIcon.tsx";
+import { BudgetAllocationWizard } from "#/ui/journal/wizards/BudgetAllocationWizard.tsx";
 import { CollectionWizard } from "#/ui/journal/wizards/CollectionWizard.tsx";
 import { InvoiceWizard } from "#/ui/journal/wizards/InvoiceWizard.tsx";
 import { MultiCostPaymentWizard } from "#/ui/journal/wizards/MultiCostPaymentWizard.tsx";
@@ -280,7 +297,7 @@ const registry: Record<string, Entry> = {
   placeholder: (): ReactElement => {
     return (
       <div style={PLACEHOLDER_BOX}>
-        <Placeholder title={menuLabel("thousandths")} />
+        <Placeholder title={menuLabel("units")} />
       </div>
     );
   },
@@ -326,7 +343,140 @@ const registry: Record<string, Entry> = {
       </TabbedPanel>
     );
   },
+  // The Thousandth Tables & Allocation screen's panels, each read from the
+  // view model as the screen reads it, over the period the sidebar holds:
+  // the screen's table selection and allocation mode, which the seeding
+  // sets through their own intents.
+  "thousandth-tables-panel": (): ReactElement => {
+    return <TablesPanelPart />;
+  },
+  "coefficients-panel": (): ReactElement => {
+    return <CoefficientsPanelPart />;
+  },
+  "allocation-panel": (): ReactElement => {
+    return <AllocationPanelPart />;
+  },
+  // The New Thousandth Table dialog reads its machine, which the seeding
+  // fills from the scenario, over the period's tables.
+  "table-dialog": (): ReactElement => {
+    return (
+      <TableDialog
+        editing={null}
+        onSaved={ignoreClose}
+        onCancel={ignoreClose}
+      />
+    );
+  },
+  // The wizard reads its machine over the period's books as they stand.
+  "budget-allocation-wizard": (): ReactElement => {
+    return (
+      <BudgetAllocationWizard onSaved={ignoreClose} onCancel={ignoreClose} />
+    );
+  },
+  // Account Details' tables mini-grid, over the account the seeding selects.
+  "account-allocation-tables": (): ReactElement => {
+    return <AccountTablesPart />;
+  },
 };
+
+/** The Thousandth Tables panel as the screen hands it its props. */
+function TablesPanelPart(): ReactElement {
+  const { useAllocation, useColumns } = useViewModel();
+  const { tables, selectedTableId } = useAllocation();
+  const columns = useColumns(TABLES_COLUMN_SPECS);
+
+  return (
+    <ThousandthTablesPanel
+      tables={tables}
+      selectedTableId={selectedTableId}
+      template={columns.state.template}
+      onSelect={ignoreClose}
+      onResize={ignoreClose}
+      onAdd={ignoreClose}
+      onEdit={ignoreClose}
+      onDelete={ignoreClose}
+      onStub={ignoreClose}
+    />
+  );
+}
+
+/** The Table Coefficients panel as the screen hands it its props: the selected table's tree. */
+function CoefficientsPanelPart(): ReactElement {
+  const { useCoefficientsGrid, useColumns } = useViewModel();
+  const grid = useCoefficientsGrid();
+  const columns = useColumns(COEFFICIENTS_COLUMN_SPECS);
+
+  return (
+    <CoefficientsPanel
+      rows={grid.state.rows}
+      template={columns.state.template}
+      onToggle={ignoreClose}
+      onExpandAll={ignoreClose}
+      onCollapseAll={ignoreClose}
+      onResize={ignoreClose}
+      onSetCoefficient={writeNothing}
+      onStub={ignoreClose}
+    />
+  );
+}
+
+/** The Allocation panel as the screen hands it its props, its column widths built for its count of accounts. */
+function AllocationPanelPart(): ReactElement {
+  const { useAllocation } = useViewModel();
+  const { allocation, mode } = useAllocation();
+  const columns =
+    allocation?.columns.map((column) => {
+      return column.label;
+    }) ?? [];
+
+  return (
+    <AllocationColumns key={columns.length} columns={columns} mode={mode} />
+  );
+}
+
+interface AllocationColumnsProps {
+  columns: string[];
+  mode: AllocationMode;
+}
+
+/** The Allocation for one count of accounts: the columns machine reads its spec once. */
+function AllocationColumns({
+  columns,
+  mode,
+}: AllocationColumnsProps): ReactElement {
+  const { useAllocationGrid, useColumns } = useViewModel();
+  const grid = useAllocationGrid();
+  const widths = useColumns(allocationColumnSpecs(columns.length));
+
+  return (
+    <AllocationPanel
+      columns={columns}
+      rows={grid.state.rows}
+      mode={mode}
+      template={widths.state.template}
+      maximized={false}
+      onChooseMode={ignoreClose}
+      onToggle={ignoreClose}
+      onExpandAll={ignoreClose}
+      onCollapseAll={ignoreClose}
+      onResize={ignoreClose}
+      onToggleMaximize={ignoreClose}
+      onStub={ignoreClose}
+    />
+  );
+}
+
+/** The selected account's tables mini-grid, as Account Details hands it its rows, on the sheet's surface. */
+function AccountTablesPart(): ReactElement {
+  const { useAccountDetails } = useViewModel();
+  const details = useAccountDetails();
+
+  return (
+    <div style={PANEL_SURFACE}>
+      <AllocationTablesGrid rows={details?.allocationTables.rows ?? []} />
+    </div>
+  );
+}
 
 /** The bottom panel's tabs, in `AccountsScreen`'s order. */
 const BOTTOM_TABS = ["Account Details", "Ledger"] as const;
@@ -340,6 +490,9 @@ const TEMPLATE = "400px 100px 100px 100px";
 const ROW_TEMPLATE = { "--tree-grid-template": TEMPLATE } as CSSProperties;
 
 const POPOVER_BOX: CSSProperties = { position: "relative", margin: "0 12px" };
+
+/** The surface of the panel a part sits on in the app: Account Details' sheet, under the mini-grid's rows and border. */
+const PANEL_SURFACE: CSSProperties = { background: "var(--panel)" };
 
 const PLACEHOLDER_BOX: CSSProperties = {
   display: "flex",
@@ -511,6 +664,11 @@ function installmentOf(scenario: Scenario): string {
 /** A reason in the words every wizard shares. */
 function wordForEveryWizard(reason: string): string {
   return reasonText(reason);
+}
+
+/** A picture is never typed in: no coefficient is written. */
+function writeNothing(): Promise<Result> {
+  return Promise.resolve(ok());
 }
 
 /** A picture is never clicked. */
