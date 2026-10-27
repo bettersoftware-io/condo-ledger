@@ -1,20 +1,32 @@
 import { state } from "@rx-state/core";
-import { BehaviorSubject } from "rxjs";
+import {
+  BehaviorSubject,
+  filter,
+  type Observable,
+  switchMap,
+  take,
+} from "rxjs";
 import { describe, expect, it } from "vitest";
 
 import {
   type Allocation,
   type AllocationRow,
   type Building,
+  type Coefficient,
   type CoefficientNode,
   type LegacySeed,
   loadLegacySeed,
+  type ThousandthTable,
+  type Unit,
+  type UnitGroup,
 } from "@cl/domain";
 import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
 
 import type { AmountLocale } from "../amounts.ts";
+import { createTableSelectionMachine } from "../machines/allocationMachines.ts";
 import { createAppHarness } from "../testing/appHarness.ts";
 import {
+  type AllocationPresenterPorts,
   createAllocationPresenter,
   type TableView,
 } from "./allocationPresenter.ts";
@@ -279,7 +291,98 @@ describe("the allocation presenter", () => {
     held.unsubscribe();
     subscription.unsubscribe();
   });
+
+  it("holds nothing of p1 while p36's tables and units are on their way, then shows p36's", () => {
+    const { app, ports } = createAppHarness();
+    const answered$ = new BehaviorSubject(false);
+    const presenter = createAllocationPresenter(
+      app.presenters.books.books$,
+      app.presenters.buildings.tree$,
+      createLatePorts(ports, "p36", answered$),
+      createLocale("en-US"),
+    );
+    const selection = createTableSelectionMachine(presenter.tables$);
+    const nodes: CoefficientNode[][] = [];
+    const subscriptions = [
+      presenter.allocation$("budget").subscribe(),
+      selection.state$
+        .pipe(
+          switchMap(({ tableId }) => {
+            return presenter.coefficients$(tableId);
+          }),
+        )
+        .subscribe((next) => {
+          nodes.push(next);
+        }),
+    ];
+
+    app.presenters.buildings.selectPeriod("p1");
+
+    expect(selection.state$.getValue()).toEqual({ tableId: "dt1" });
+
+    nodes.length = 0;
+    app.presenters.buildings.selectPeriod("p36");
+
+    expect(presenter.tables$.getValue()).toEqual([]);
+    expect(presenter.allocation$("budget").getValue()).toBeNull();
+    expect(selection.state$.getValue()).toEqual({ tableId: null });
+    expect(nodes.flat()).toEqual([]);
+
+    answered$.next(true);
+
+    expect(presenter.tables$.getValue()[0]?.table.id).toBe("dt14");
+    expect(selection.state$.getValue()).toEqual({ tableId: "dt14" });
+    expect(presenter.allocation$("budget").getValue()?.root.label).toBe(
+      labelOfPeriod(seedOf(), "p36"),
+    );
+    expect(nodes.at(-1)?.[0]?.key).toBe("unit:u133");
+
+    for (const subscription of subscriptions) {
+      subscription.unsubscribe();
+    }
+
+    selection.dispose();
+  });
 });
+
+/** The tables and units ports, with the period's reads held until `answered$` says true: a port that answers late. */
+function createLatePorts(
+  ports: ReturnType<typeof createAppHarness>["ports"],
+  latePeriodId: string,
+  answered$: Observable<boolean>,
+): AllocationPresenterPorts {
+  function late<T>(periodId: string, read: Observable<T>): Observable<T> {
+    return periodId === latePeriodId
+      ? answered$.pipe(
+          filter(Boolean),
+          take(1),
+          switchMap(() => {
+            return read;
+          }),
+        )
+      : read;
+  }
+
+  return {
+    tables: {
+      ...ports.tables,
+      tables: (periodId: string): Observable<ThousandthTable[]> => {
+        return late(periodId, ports.tables.tables(periodId));
+      },
+      coefficients: (periodId: string): Observable<Coefficient[]> => {
+        return late(periodId, ports.tables.coefficients(periodId));
+      },
+    },
+    units: {
+      units: (periodId: string): Observable<Unit[]> => {
+        return late(periodId, ports.units.units(periodId));
+      },
+      groups: (periodId: string): Observable<UnitGroup[]> => {
+        return late(periodId, ports.units.groups(periodId));
+      },
+    },
+  };
+}
 
 function createAllocated(): Allocated {
   const { app, ports } = createAppHarness();

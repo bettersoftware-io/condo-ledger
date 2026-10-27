@@ -2,7 +2,6 @@ import { type DefaultedStateObservable, state } from "@rx-state/core";
 import {
   combineLatest,
   distinctUntilChanged,
-  filter,
   map,
   type Observable,
   of,
@@ -176,9 +175,11 @@ interface PortTables {
 }
 
 /**
- * The books with the same period's tables and units: a pair of two periods,
- * while the ports catch up with a switch, is skipped. Null with no books, or
- * while the tree does not hold their period.
+ * The books with the same period's tables and units. Null while the ports
+ * have not answered for the books' period (they may answer late, or still
+ * hold the previous one), so no reader keeps the old period's values under
+ * the new period. Null too with no books, or while the tree does not hold
+ * their period.
  */
 function periodOf(
   books$: Observable<Books | null>,
@@ -196,16 +197,15 @@ function periodOf(
   );
 
   return combineLatest([books$, portTables$, tree$]).pipe(
-    filter(([books, held]) => {
-      return books?.periodId === held?.periodId;
-    }),
     map(([books, held, tree]) => {
-      const periodLabel =
-        books === null ? null : periodLabelOf(tree, books.periodId);
+      // The ports still hold the previous period, or have not answered yet.
+      if (books === null || held?.periodId !== books.periodId) {
+        return null;
+      }
 
-      return books === null || held === null || periodLabel === null
-        ? null
-        : { ...held, books, periodLabel };
+      const periodLabel = periodLabelOf(tree, books.periodId);
+
+      return periodLabel === null ? null : { ...held, books, periodLabel };
     }),
   );
 }
