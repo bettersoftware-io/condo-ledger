@@ -15,15 +15,7 @@ import { parseInserts } from "./parse.ts";
 import { FILES } from "./sources.ts";
 
 export function expectedOperationalCounts(): Record<string, number> {
-  const ddl = parseDdl(
-    readFileSync(
-      new URL(
-        "../../../old/db/it-jtime-condominium.structure.sql",
-        import.meta.url,
-      ),
-      "utf8",
-    ),
-  );
+  const ddl = parseDdl(readFileSync(FILES.structure, "utf8"));
 
   function resolve(t: string): string[] {
     return tableColumns(ddl, t);

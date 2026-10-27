@@ -1,10 +1,18 @@
 // Source-file URLs for the three-tier seed and their tier membership.
-//
-// Resolution: this module lives at packages/db/etl/, and the legacy dumps live at
-// the repo's old/db/ — three directory levels up (etl -> db -> packages -> repo).
-const DB = new URL("../../../old/db/", import.meta.url);
+
+import { pathToFileURL } from "node:url";
+
+// Resolution: the legacy dumps live in the folder LEGACY_DUMP_DIR names (a
+// worktree has no old/: it is kept in the project's own checkout), or else at the
+// repo's old/db/ — three directory levels up (etl -> db -> packages -> repo).
+const DB =
+  process.env.LEGACY_DUMP_DIR === undefined
+    ? new URL("../../../old/db/", import.meta.url)
+    : pathToFileURL(`${process.env.LEGACY_DUMP_DIR}/`);
 
 export const FILES = {
+  // The legacy DDL — the column names and types of the column-less data dumps.
+  structure: new URL("it-jtime-condominium.structure.sql", DB),
   // Per-condominium operational dumps — Tier C is derived dynamically from these.
   saturnoOnly: new URL("it-jtime-condominium-saturno-only.data.sql", DB),
   pozzettoOnly: new URL("it-jtime-condominium-pozzetto-only.data.sql", DB),
