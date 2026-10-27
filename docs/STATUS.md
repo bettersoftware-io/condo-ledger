@@ -39,7 +39,12 @@ Work that waits on a release, a decision or other work.
   Remove them together.
 - **Edit an account's allocation tables.** Account Details shows the
   tables an account is allocated by, read-only; the Edit Account dialog is
-  where the legacy app changed them.
+  where the legacy app changed them. Once links are editable, an account
+  served by two tables, one of them all zeros, is only partly allocated:
+  `unallocated` stays empty, and the wizard would post the rest as a
+  "rounding" on the first resident (`budgetAllocationDraft.ts`). The draft
+  must then refuse, or name the account, when a column's Roundings exceeds
+  a rounding.
 - **Unit groups and the Units entity, in the Building Data & Units group.**
   The entities and `UnitsPort` exist (M2e). The Installment Schedule does
   not draw Saturno's unit groups (A and B) yet: its rows are units, then
@@ -79,7 +84,12 @@ Work that waits on a release, a decision or other work.
   selected.", "No table is selected.") are wrong for that moment and
   remounts the Allocation grid, which resets dragged column widths; clicking
   the edit or delete button while the selection is not yet listed would
-  throw.
+  throw; Account Details now reads the tables and units ports, through
+  `allocation.tables$` (`composition.ts`), so a failing live tables or
+  units adapter would fail Account Details too, though only table names
+  are at stake; and the Budget allocation wizard reads a null allocation
+  as "There is no budget to allocate" when it means the tables are still
+  on their way, so a live adapter needs a "still loading" state there.
 - **Accessibility polish.** The tabbed panel lacks `aria-labelledby` and
   arrow keys; the popover menus have no focus return and no arrow keys; the
   inline editor's input has no label, `aria-invalid` or `role="alert"` on its
