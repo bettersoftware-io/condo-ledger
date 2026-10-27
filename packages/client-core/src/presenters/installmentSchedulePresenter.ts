@@ -17,6 +17,7 @@ import {
 
 import { todayOf } from "../today.ts";
 import type { Books } from "./booksPresenter.ts";
+import { periodLabelOf } from "./buildingsPresenter.ts";
 
 export interface InstallmentSchedulePresenter {
   /** Each resident cell says whether its item's amount may be edited (`ScheduleCell.editable`). */
@@ -49,7 +50,7 @@ export function createInstallmentSchedulePresenter(
           // books$ derives from tree$, so for a moment the tree can lack the
           // books' period: no schedule then, as books$ is about to say.
           const periodLabel =
-            books === null ? null : labelOf(tree, books.periodId);
+            books === null ? null : periodLabelOf(tree, books.periodId);
 
           return books === null || periodLabel === null
             ? null
@@ -98,17 +99,4 @@ export function scheduleContextOf(books: Books): ScheduleContext {
     entries: books.entries,
     budgetFound: budgetSharesOf(books.entries, books.accounts).found,
   };
-}
-
-/** "{building} {period}" of the period; null when the tree does not hold it. */
-function labelOf(tree: Building[], periodId: string): string | null {
-  for (const building of tree) {
-    for (const period of building.periods) {
-      if (period.id === periodId) {
-        return `${building.name} ${period.name}`;
-      }
-    }
-  }
-
-  return null;
 }

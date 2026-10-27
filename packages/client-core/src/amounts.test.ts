@@ -9,10 +9,12 @@ import {
   amountLocaleOf,
   amountText,
   amountTextsIn,
+  formatTenThousandths,
   hundredthsText,
   parseAmount,
   parseDate,
   parseHundredths,
+  parseTenThousandths,
 } from "./amounts.ts";
 
 describe("parseAmount", () => {
@@ -185,6 +187,55 @@ describe("hundredthsText", () => {
       );
     }
   });
+});
+
+describe("parseTenThousandths", () => {
+  it("reads a coefficient as ten-thousandths, up to four decimals", () => {
+    expect(parseTenThousandths("38", "en-US")).toBe(380000);
+    expect(parseTenThousandths(" 0.022 ", "en-US")).toBe(220);
+    expect(parseTenThousandths("1.2345", "en-US")).toBe(12345);
+    expect(parseTenThousandths("0", "en-US")).toBe(0);
+    expect(parseTenThousandths("0,022", "it-IT")).toBe(220);
+  });
+
+  it("refuses a fifth decimal, another locale's separator, a group and text", () => {
+    expect(parseTenThousandths("1.23456", "en-US")).toBeNull();
+    expect(parseTenThousandths("1.5", "it-IT")).toBeNull();
+    expect(parseTenThousandths("1.000", "it-IT")).toBeNull();
+    expect(parseTenThousandths("1,000", "en-US")).toBeNull();
+    expect(parseTenThousandths("", "en-US")).toBeNull();
+    expect(parseTenThousandths("abc", "en-US")).toBeNull();
+  });
+
+  it("negates a leading minus and leaves its refusal to the caller", () => {
+    expect(parseTenThousandths("-1", "en-US")).toBe(-10000);
+  });
+});
+
+describe("formatTenThousandths", () => {
+  it("writes four decimals, every group marked, in the locale", () => {
+    expect(formatTenThousandths(10000000, "en-US")).toBe("1,000.0000");
+    expect(formatTenThousandths(10000000, "it-IT")).toBe("1.000,0000");
+    expect(formatTenThousandths(220, "it-IT")).toBe("0,0220");
+    expect(formatTenThousandths(12345, "de-DE")).toBe("1,2345");
+    expect(formatTenThousandths(0, "en-US")).toBe("0.0000");
+    expect(formatTenThousandths(-10000, "en-US")).toBe("-1.0000");
+  });
+
+  it.each(AMOUNT_LOCALES)(
+    "groups as Intl groups money in %s, then four exact decimals",
+    (locale) => {
+      const money = new Intl.NumberFormat(locale, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        useGrouping: "always",
+      }).format(12345.67);
+
+      expect(formatTenThousandths(123456789, locale)).toBe(
+        `${money.slice(0, -1)}789`,
+      );
+    },
+  );
 });
 
 describe("amountLocaleOf", () => {

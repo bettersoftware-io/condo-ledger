@@ -19,7 +19,7 @@ export type {
 } from "./ports/installmentsPort.ts";
 export type { EntryAdded, JournalPort } from "./ports/journalPort.ts";
 export type { SessionPort } from "./ports/sessionPort.ts";
-export type { TablesPort } from "./ports/tablesPort.ts";
+export type { TableAdded, TablesPort } from "./ports/tablesPort.ts";
 export type { UnitsPort } from "./ports/unitsPort.ts";
 export {
   type AccountsSimulator,
@@ -48,11 +48,18 @@ export * from "./useCases/accountTree.ts";
 export * from "./useCases/allocate.ts";
 export {
   type Allocation,
+  type AllocationBooks,
   type AllocationRow,
   type AllocationSource,
   allocationBooksOf,
   allocationOf,
 } from "./useCases/allocation/allocation.ts";
+export type { AllocationMode } from "./useCases/allocation/share.ts";
+export {
+  type CoefficientNode,
+  coefficientsTreeOf,
+  tableTotalsOf,
+} from "./useCases/allocation/tables.ts";
 export * from "./useCases/budgetShares.ts";
 export * from "./useCases/collection.ts";
 export * from "./useCases/installments.ts";

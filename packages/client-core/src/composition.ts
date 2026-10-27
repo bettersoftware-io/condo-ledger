@@ -1,3 +1,5 @@
+import { type Observable, switchMap } from "rxjs";
+
 import {
   type AccountsPort,
   type AccountsSimulator,
@@ -32,6 +34,19 @@ import {
   type AccountsGridState,
   createAccountsGridMachine,
 } from "./machines/accountsGridMachine.ts";
+import {
+  type AllocationGridState,
+  type AllocationModeIntents,
+  type AllocationModeState,
+  type CoefficientsGridState,
+  createAllocationGridMachine,
+  createAllocationModeMachine,
+  createCoefficientsGridMachine,
+  createTableSelectionMachine,
+  type TableSelectionIntents,
+  type TableSelectionState,
+  type TreeGridIntents,
+} from "./machines/allocationMachines.ts";
 import {
   type BottomTabIntents,
   type BottomTabState,
@@ -138,6 +153,10 @@ import {
   createAccountsPresenter,
 } from "./presenters/accountsPresenter.ts";
 import {
+  type AllocationPresenter,
+  createAllocationPresenter,
+} from "./presenters/allocationPresenter.ts";
+import {
   type Books,
   type BooksPresenter,
   createBooksPresenter,
@@ -181,6 +200,7 @@ interface AppPresenters {
   accounts: AccountsPresenter;
   journal: JournalPresenter;
   schedule: InstallmentSchedulePresenter;
+  allocation: AllocationPresenter;
 }
 
 /** Per-component state: each call builds a machine of its own. */
@@ -197,6 +217,24 @@ interface AppMachines {
   createSidebar: () => Machine<SidebarState, SidebarIntents>;
   createJournalGrid: () => Machine<JournalGridState, JournalGridIntents>;
   createScheduleGrid: () => Machine<ScheduleGridState, ScheduleGridIntents>;
+  /** Which of the selected period's tables the coefficients show: its first, until one is selected. */
+  createTableSelection: () => Machine<
+    TableSelectionState,
+    TableSelectionIntents
+  >;
+  /** Which allocation the panel shows: the budget's, until another is chosen. */
+  createAllocationMode: () => Machine<
+    AllocationModeState,
+    AllocationModeIntents
+  >;
+  /** The coefficients tree of the table a selection holds, as it changes. */
+  createCoefficientsGrid: (
+    selection$: Observable<TableSelectionState>,
+  ) => Machine<CoefficientsGridState, TreeGridIntents>;
+  /** The allocation in the mode a mode machine holds, as it changes. */
+  createAllocationGrid: (
+    mode$: Observable<AllocationModeState>,
+  ) => Machine<AllocationGridState, TreeGridIntents>;
   /** The dialog over the selected period's books as they stand when an intent asks: an edit opens only for an entry they hold. */
   createJournalDialog: () => Machine<JournalDialogState, JournalDialogIntents>;
   /**
@@ -282,6 +320,13 @@ export function createApp(ports: AppPorts): App {
     ports.installments,
     ports.clock,
   );
+
+  const allocation = createAllocationPresenter(
+    books.books$,
+    buildings.tree$,
+    { tables: ports.tables, units: ports.units },
+    session.amountLocale$,
+  );
   let latestBooks: Books | null = null;
 
   // The books presenter lives as long as the application: nothing unsubscribes.
@@ -338,7 +383,15 @@ export function createApp(ports: AppPorts): App {
   }
 
   return {
-    presenters: { session, buildings, books, accounts, journal, schedule },
+    presenters: {
+      session,
+      buildings,
+      books,
+      accounts,
+      journal,
+      schedule,
+      allocation,
+    },
     navigation: createNavigationMachine(),
     notices: createNotices(),
     machines: {
@@ -361,6 +414,35 @@ export function createApp(ports: AppPorts): App {
         ScheduleGridIntents
       > => {
         return createScheduleGridMachine(schedule.schedule$);
+      },
+      createTableSelection: (): Machine<
+        TableSelectionState,
+        TableSelectionIntents
+      > => {
+        return createTableSelectionMachine(allocation.tables$);
+      },
+      createAllocationMode: createAllocationModeMachine,
+      createCoefficientsGrid: (
+        selection$: Observable<TableSelectionState>,
+      ): Machine<CoefficientsGridState, TreeGridIntents> => {
+        return createCoefficientsGridMachine(
+          selection$.pipe(
+            switchMap(({ tableId }) => {
+              return allocation.coefficients$(tableId);
+            }),
+          ),
+        );
+      },
+      createAllocationGrid: (
+        mode$: Observable<AllocationModeState>,
+      ): Machine<AllocationGridState, TreeGridIntents> => {
+        return createAllocationGridMachine(
+          mode$.pipe(
+            switchMap(({ mode }) => {
+              return allocation.allocation$(mode);
+            }),
+          ),
+        );
       },
       createJournalDialog: (): Machine<
         JournalDialogState,
