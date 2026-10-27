@@ -120,7 +120,61 @@
 <a name='L55'></a><a href='#L55'>55</a>
 <a name='L56'></a><a href='#L56'>56</a>
 <a name='L57'></a><a href='#L57'>57</a>
-<a name='L58'></a><a href='#L58'>58</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -187,6 +241,8 @@ export * from "./entities/money.ts";
 export * from "./entities/party.ts";
 export * from "./entities/result.ts";
 export * from "./entities/session.ts";
+export * from "./entities/table.ts";
+export * from "./entities/unit.ts";
 export type { AccountsPort } from "./ports/accountsPort.ts";
 export type { BuildingsPort } from "./ports/buildingsPort.ts";
 export type { ClockPort } from "./ports/clockPort.ts";
@@ -196,7 +252,12 @@ export type {
 } from "./ports/installmentsPort.ts";
 export type { EntryAdded, JournalPort } from "./ports/journalPort.ts";
 export type { SessionPort } from "./ports/sessionPort.ts";
-export { createAccountsSimulator } from "./simulators/accountsSimulator.ts";
+export type { TableAdded, TablesPort } from "./ports/tablesPort.ts";
+export type { UnitsPort } from "./ports/unitsPort.ts";
+export {
+  type AccountsSimulator,
+  createAccountsSimulator,
+} from "./simulators/accountsSimulator.ts";
 export { createBuildingsSimulator } from "./simulators/buildingsSimulator.ts";
 export { fixedClock } from "./simulators/fixedClock.ts";
 export {
@@ -213,9 +274,28 @@ export {
   DESIGN_FIRM,
   DESIGN_PRINCIPAL,
 } from "./simulators/sessionSimulator.ts";
+export { createTablesSimulator } from "./simulators/tablesSimulator.ts";
+export { createUnitsSimulator } from "./simulators/unitsSimulator.ts";
 export * from "./support/romeTime.ts";
 export * from "./useCases/accountTree.ts";
 export * from "./useCases/allocate.ts";
+export {
+  type Allocation,
+  type AllocationBooks,
+  type AllocationRow,
+  type AllocationSource,
+  allocationBooksOf,
+  allocationOf,
+} from "./useCases/allocation/allocation.ts";
+export { allocationSourceOf } from "./useCases/allocation/allocationSource.ts";
+export { budgetAllocationDraftOf } from "./useCases/allocation/budgetAllocationDraft.ts";
+export { appliedLinksOf } from "./useCases/allocation/links.ts";
+export type { AllocationMode } from "./useCases/allocation/share.ts";
+export {
+  type CoefficientNode,
+  coefficientsTreeOf,
+  tableTotalsOf,
+} from "./useCases/allocation/tables.ts";
 export * from "./useCases/budgetShares.ts";
 export * from "./useCases/collection.ts";
 export * from "./useCases/installments.ts";
@@ -234,6 +314,7 @@ export * from "./useCases/schedule.ts";
 export * from "./useCases/validateBudget.ts";
 export * from "./useCases/validateEntry.ts";
 export * from "./useCases/validateSchedule.ts";
+export * from "./useCases/validateTable.ts";
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -241,7 +322,7 @@ export * from "./useCases/validateSchedule.ts";
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-26T23:51:13.173Z
+                at 2026-10-27T02:46:27.169Z
             </div>
         <script src="../prettify.js"></script>
         <script>
