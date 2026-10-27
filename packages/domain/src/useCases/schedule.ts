@@ -385,7 +385,10 @@ function statusOf(amount: Cents | null, paid: Cents): CellStatus | null {
 }
 
 /** "{covered}/{period days}", both ends counted; an open end of the restriction runs to the period's. */
-function daysOf(restriction: Restriction | null, period: PeriodDates): string {
+export function daysOf(
+  restriction: Restriction | null,
+  period: PeriodDates,
+): string {
   if (restriction === null) {
     return "";
   }
