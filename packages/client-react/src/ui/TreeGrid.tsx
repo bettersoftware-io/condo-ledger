@@ -116,8 +116,8 @@ export interface TreeGridRowData {
   leading?: ReactNode[];
   /** One per column after the tree column. */
   cells: ReactNode[];
-  /** A row that stands under another (a posting under its entry): small and dim. */
-  tone?: "muted";
+  /** `muted`: a row that stands under another (a posting under its entry), small and dim. `aside`: a row apart from the tree's (the allocation's Roundings), italic and dim. */
+  tone?: "muted" | "aside";
 }
 
 export interface TreeGridProps {

@@ -1,0 +1,66 @@
+/* ta-design.md §1: the tables beside their coefficients, over the Allocation, each split by the ratio its splitter holds. */
+.allocation-screen {
+  --rows-split: 0.5;
+  --columns-split: 0.5;
+
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+
+.allocation-top,
+.allocation-bottom {
+  display: flex;
+  min-height: 0;
+  max-height: 3000px;
+  transition:
+    max-height 0.18s ease,
+    flex-basis 0.18s ease;
+}
+
+.allocation-top {
+  flex: calc(var(--rows-split) * 100) 1 0;
+  gap: 6px;
+}
+
+.allocation-bottom {
+  flex: calc((1 - var(--rows-split)) * 100) 1 0;
+}
+
+/* The splitter's hit area overlaps both gaps beside it, as the one between the rows does: the panels stand 12px apart. */
+.allocation-top > .splitter {
+  margin: 0 -6px;
+}
+
+.allocation-tables,
+.allocation-coefficients {
+  display: flex;
+  min-width: 0;
+}
+
+.allocation-tables {
+  flex: calc(var(--columns-split) * 100) 1 0;
+}
+
+.allocation-coefficients {
+  flex: calc((1 - var(--columns-split)) * 100) 1 0;
+}
+
+/* The maximized Allocation leaves the tables their header strip. */
+.allocation-screen[data-maximized="bottom"] .allocation-top {
+  flex: 0 0 auto;
+  max-height: 34px;
+}
+
+.allocation-screen[data-maximized="bottom"] > .splitter {
+  display: none;
+}
+
+/* Compact (README "Compact mode", Sidebar.css's breakpoint): the panels keep their split, and the splitters are hidden. */
+@media (width <= 1179px) {
+  .allocation-screen .splitter {
+    display: none;
+  }
+}

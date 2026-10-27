@@ -4,12 +4,14 @@ import type {
   AccountDetails,
   AccountsGridIntents,
   AccountsGridState,
+  AllocationGridState,
   AmountLocale,
   App,
   BottomTabIntents,
   BottomTabState,
   BudgetInstallmentsForm,
   BudgetInstallmentsSummary,
+  CoefficientsGridState,
   CollectionForm,
   CollectionSummary,
   ColumnSpec,
@@ -47,13 +49,18 @@ import type {
   SidebarState,
   SplitIntents,
   SplitState,
+  TableView,
+  TreeGridIntents,
   WizardIntents,
   WizardState,
 } from "@cl/client-core";
 import type {
   AccountNode,
+  Allocation,
+  AllocationMode,
   Building,
   Cents,
+  CoefficientNode,
   EntryAdded,
   EntryKind,
   Firm,
@@ -66,6 +73,8 @@ import type {
   Result,
   ResultOf,
   Schedule,
+  TableAdded,
+  TableDraft,
   Theme,
 } from "@cl/domain";
 
@@ -105,6 +114,33 @@ export interface ScheduleView {
   schedule: Schedule | null;
   deleteInstallment: (id: string) => Promise<Result>;
   setItemAmount: (itemId: string, amount: Cents) => Promise<Result>;
+}
+
+/**
+ * The Thousandth Tables & Allocation screen: the period's tables and the one
+ * selected, that table's coefficients, the allocation in the mode chosen, and
+ * the writes. The selection and the mode are the application's, so every
+ * reader, and the grids, follow the same ones.
+ */
+export interface AllocationView {
+  tables: TableView[];
+  /** The table whose coefficients are shown; null while the period has none. */
+  selectedTableId: string | null;
+  /** Null while the period's books or tables are on their way. */
+  allocation: Allocation | null;
+  coefficients: CoefficientNode[];
+  mode: AllocationMode;
+  chooseMode: (mode: AllocationMode) => void;
+  selectTable: (tableId: string) => void;
+  addTable: (draft: TableDraft) => Promise<ResultOf<TableAdded>>;
+  editTable: (id: string, draft: TableDraft) => Promise<Result>;
+  deleteTable: (id: string) => Promise<Result>;
+  /** Reads the text in the session's locale: text that does not read, or a negative coefficient, is refused `not-a-coefficient`. */
+  setCoefficient: (
+    tableId: string,
+    unitId: string,
+    text: string,
+  ) => Promise<Result>;
 }
 
 export interface NoticesView {
@@ -186,11 +222,26 @@ export interface ViewModel {
   useInstallmentDialog: (
     installmentId: string,
   ) => MachineView<InstallmentDialogState, InstallmentDialogIntents>;
+  useAllocation: () => AllocationView;
+  /** The selected table's coefficients tree: which of its groups are open, for this reader. */
+  useCoefficientsGrid: () => MachineView<
+    CoefficientsGridState,
+    TreeGridIntents
+  >;
+  /** The allocation in the chosen mode: which of its rows are open, for this reader. */
+  useAllocationGrid: () => MachineView<AllocationGridState, TreeGridIntents>;
 }
 
 /** Built once at startup, in the composition root, from the application. */
 export function createViewModel(app: App): ViewModel {
-  const { session, buildings, accounts, journal, schedule } = app.presenters;
+  const { session, buildings, accounts, journal, schedule, allocation } =
+    app.presenters;
+  // The screen's table selection and allocation mode belong to the
+  // application, not to one reader: every reader of useAllocation, and each
+  // reader's grids, follow the same ones. Like the presenters, they live as
+  // long as the application.
+  const tableSelection = app.machines.createTableSelection();
+  const allocationMode = app.machines.createAllocationMode();
 
   return {
     useSession: (): SessionView => {
@@ -370,6 +421,40 @@ export function createViewModel(app: App): ViewModel {
     ): MachineView<InstallmentDialogState, InstallmentDialogIntents> => {
       return useMachine(() => {
         return app.machines.createInstallmentDialog(installmentId);
+      });
+    },
+    useAllocation: (): AllocationView => {
+      const { tableId } = useStateObservable(tableSelection.state$);
+      const { mode } = useStateObservable(allocationMode.state$);
+
+      return {
+        tables: useStateObservable(allocation.tables$),
+        selectedTableId: tableId,
+        allocation: useStateObservable(allocation.allocation$(mode)),
+        coefficients: useStateObservable(allocation.coefficients$(tableId)),
+        mode,
+        chooseMode: allocationMode.intents.choose,
+        selectTable: tableSelection.intents.select,
+        addTable: allocation.addTable,
+        editTable: allocation.editTable,
+        deleteTable: allocation.deleteTable,
+        setCoefficient: allocation.setCoefficient,
+      };
+    },
+    useCoefficientsGrid: (): MachineView<
+      CoefficientsGridState,
+      TreeGridIntents
+    > => {
+      return useMachine(() => {
+        return app.machines.createCoefficientsGrid(tableSelection.state$);
+      });
+    },
+    useAllocationGrid: (): MachineView<
+      AllocationGridState,
+      TreeGridIntents
+    > => {
+      return useMachine(() => {
+        return app.machines.createAllocationGrid(allocationMode.state$);
       });
     },
   };

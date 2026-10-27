@@ -77,6 +77,15 @@
   color: var(--txd);
 }
 
+/* A row apart from the tree's (the allocation's Roundings): italic, its label dim. */
+.tree-grid-row[data-tone="aside"] {
+  font-style: italic;
+}
+
+.tree-grid-row[data-tone="aside"] .tree-grid-text {
+  color: var(--txd);
+}
+
 .tree-grid-row[aria-selected="true"] {
   background: var(--sel);
   box-shadow: inset 3px 0 0 var(--acc);

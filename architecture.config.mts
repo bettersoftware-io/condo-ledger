@@ -37,6 +37,14 @@ const config: ArchitectureConfig = {
         { file: "src/ui/TreeGridRow.tsx", fn: "TreeGridRow" },
         { file: "src/ui/journal/JournalGrid.tsx", fn: "JournalGrid" },
         { file: "src/ui/installments/ScheduleGrid.tsx", fn: "ScheduleGrid" },
+        {
+          file: "src/ui/allocation/AllocationPanel.tsx",
+          fn: "AllocationPanel",
+        },
+        {
+          file: "src/ui/allocation/CoefficientsPanel.tsx",
+          fn: "CoefficientsPanel",
+        },
       ],
     },
     "packages/server": { role: "server" },

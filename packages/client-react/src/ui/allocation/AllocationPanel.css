@@ -1,0 +1,59 @@
+/* ta-design.md §4: the mode button, 11.5px 600, and the menu it opens under it. */
+.allocation-mode-anchor {
+  position: relative;
+}
+
+.allocation-mode-anchor > .popover[data-width] {
+  top: 28px;
+  right: auto;
+  left: 0;
+}
+
+.allocation-mode {
+  height: 24px;
+  padding: 0 11px;
+  border: 1px solid var(--bd);
+  border-radius: 5px;
+  background: var(--ctrl);
+  color: var(--tx);
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.allocation-mode:hover {
+  background: var(--hover);
+}
+
+.allocation-caret {
+  font-size: 9px;
+  color: var(--txd);
+}
+
+/* The grouping: a dim caption, then its value on a chip the legacy app never let change. */
+.allocation-chip-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+}
+
+.allocation-chip-caption {
+  color: var(--txd);
+}
+
+.allocation-chip {
+  padding: 3px 9px;
+  border: 1px solid var(--bd);
+  border-radius: 5px;
+  background: var(--ctrl);
+  color: var(--tx);
+  font: inherit;
+  opacity: 0.6;
+}
+
+.allocation-installments {
+  font-size: 11.5px;
+  opacity: 0.6;
+}

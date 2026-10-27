@@ -5,11 +5,13 @@ import type {
   AccountDetails,
   AccountsGridIntents,
   AccountsGridState,
+  AllocationGridState,
   AmountLocale,
   BottomTabIntents,
   BottomTabState,
   BudgetInstallmentsForm,
   BudgetInstallmentsSummary,
+  CoefficientsGridState,
   CollectionForm,
   CollectionSummary,
   ColumnSpec,
@@ -44,6 +46,7 @@ import type {
   SidebarState,
   SplitIntents,
   SplitState,
+  TreeGridIntents,
   WizardIntents,
   WizardState,
 } from "@cl/client-core";
@@ -59,6 +62,7 @@ import type {
 } from "@cl/domain";
 
 import {
+  type AllocationView,
   createViewModel,
   type NoticesView,
   type ScheduleView,
@@ -129,6 +133,9 @@ export interface Seen {
     WizardState<BudgetInstallmentsForm, BudgetInstallmentsSummary>,
     WizardIntents<BudgetInstallmentsForm, Result>
   >;
+  allocation: AllocationView;
+  coefficientsGrid: MachineView<CoefficientsGridState, TreeGridIntents>;
+  allocationGrid: MachineView<AllocationGridState, TreeGridIntents>;
   /** Null unless the page was mounted with an installment to edit. */
   installmentDialog: MachineView<
     InstallmentDialogState,
@@ -268,6 +275,9 @@ function Reader({
     useSchedule,
     useScheduleGrid,
     useBudgetInstallmentsWizard,
+    useAllocation,
+    useCoefficientsGrid,
+    useAllocationGrid,
   } = useViewModel();
 
   seen[index] = {
@@ -303,6 +313,9 @@ function Reader({
     schedule: useSchedule(),
     scheduleGrid: useScheduleGrid(),
     budgetInstallments: useBudgetInstallmentsWizard(),
+    allocation: useAllocation(),
+    coefficientsGrid: useCoefficientsGrid(),
+    allocationGrid: useAllocationGrid(),
     installmentDialog: null,
   };
 

@@ -184,6 +184,19 @@ export function formatTenThousandths(
   return `${sign}${whole}${SEPARATORS[locale].decimal}${fraction}`;
 }
 
+/** Ten-thousandths as the text parseTenThousandths reads back in the locale: four decimals and no group (`1000,0000` in it-IT). What an editor holds for a coefficient it did not have typed. */
+export function tenThousandthsText(
+  value: number,
+  locale: AmountLocale,
+): string {
+  const sign = value < 0 ? "-" : "";
+  const magnitude = Math.abs(value);
+  const whole = Math.floor(magnitude / 10000);
+  const fraction = String(magnitude % 10000).padStart(4, "0");
+
+  return `${sign}${whole}${SEPARATORS[locale].decimal}${fraction}`;
+}
+
 /** Hundredths as the text parseHundredths reads back in the locale, with no trailing zero: 2150 is `21,5` in it-IT, 2000 is `20`. What a form holds for a rate or a percentage it did not have typed. */
 export function hundredthsText(value: number, locale: AmountLocale): string {
   return String(value / 100).replace(".", SEPARATORS[locale].decimal);

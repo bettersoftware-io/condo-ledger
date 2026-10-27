@@ -15,6 +15,7 @@ import {
   parseDate,
   parseHundredths,
   parseTenThousandths,
+  tenThousandthsText,
 } from "./amounts.ts";
 
 describe("parseAmount", () => {
@@ -210,6 +211,26 @@ describe("parseTenThousandths", () => {
   it("negates a leading minus and leaves its refusal to the caller", () => {
     expect(parseTenThousandths("-1", "en-US")).toBe(-10000);
   });
+});
+
+describe("tenThousandthsText", () => {
+  it("writes four decimals with the locale's separator and no group", () => {
+    expect(tenThousandthsText(10000000, "en-US")).toBe("1000.0000");
+    expect(tenThousandthsText(10000000, "it-IT")).toBe("1000,0000");
+    expect(tenThousandthsText(220, "fr-FR")).toBe("0,0220");
+    expect(tenThousandthsText(-10000, "en-US")).toBe("-1.0000");
+  });
+
+  it.each(AMOUNT_LOCALES)(
+    "is read back by parseTenThousandths in %s",
+    (locale) => {
+      for (const value of [0, 220, 380000, 14587945300000, -12345]) {
+        expect(
+          parseTenThousandths(tenThousandthsText(value, locale), locale),
+        ).toBe(value);
+      }
+    },
+  );
 });
 
 describe("formatTenThousandths", () => {

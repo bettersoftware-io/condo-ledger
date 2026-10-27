@@ -314,6 +314,111 @@ describe("the view model", () => {
     ).toContain("Seconda");
   });
 
+  it("the allocation hooks mount over the selected period: p1's tables, its first table's coefficients and its budget allocation", () => {
+    const page = mountUnderProvider(loadLegacySeed(legacySeedData));
+    const { allocation, coefficientsGrid, allocationGrid } = page.read();
+
+    expect(
+      allocation.tables.map((view) => {
+        return view.table.id;
+      }),
+    ).toEqual(["dt1", "dt2", "dt3", "dt4", "dt5"]);
+    expect(allocation.selectedTableId).toBe("dt1");
+    expect(allocation.mode).toBe("budget");
+    expect(allocation.allocation?.root.total).toBe(740000);
+    expect(
+      allocation.coefficients.map((node) => {
+        return node.key;
+      }),
+    ).toEqual(["group:ug1", "group:ug2"]);
+    expect(coefficientsGrid.state.rows[0]?.key).toBe("group:ug1");
+    expect(allocationGrid.state.rows[0]?.node.kind).toBe("root");
+  });
+
+  it("a table selected and a mode chosen reach every reader and both grids", async () => {
+    const page = mountUnderProvider(loadLegacySeed(legacySeedData), 2);
+
+    await page.send((seen) => {
+      seen.allocation.selectTable("dt3");
+      seen.allocation.chooseMode("finalBalance");
+    });
+
+    for (const reader of [0, 1]) {
+      const { allocation, coefficientsGrid, allocationGrid } =
+        page.read(reader);
+
+      expect(allocation.selectedTableId).toBe("dt3");
+      expect(allocation.mode).toBe("finalBalance");
+      expect(allocation.allocation?.root.total).toBe(245519);
+      expect(
+        coefficientsGrid.state.rows.map((row) => {
+          return row.key;
+        }),
+      ).toEqual(["group:ug1", "unit:u1", "unit:u2", "unit:u3", "unit:u4"]);
+      expect(allocationGrid.state.rows[0]?.node.total).toBe(245519);
+    }
+  });
+
+  it("each reader opens and closes its own grids' rows", async () => {
+    const page = mountUnderProvider(loadLegacySeed(legacySeedData), 2);
+
+    await page.send((seen) => {
+      seen.coefficientsGrid.toggle("group:ug1");
+      seen.allocationGrid.collapseAll();
+    });
+
+    expect(page.read(0).coefficientsGrid.state.rows).toHaveLength(6);
+    expect(page.read(0).allocationGrid.state.rows).toHaveLength(1);
+    expect(page.read(1).coefficientsGrid.state.rows).toHaveLength(10);
+    expect(page.read(1).allocationGrid.state.rows.length).toBeGreaterThan(1);
+  });
+
+  it("the allocation's writes reach the tables: a coefficient read in the session's locale, a table added, edited and deleted", async () => {
+    const page = mountUnderProvider(loadLegacySeed(legacySeedData));
+    const answers: Result[] = [];
+
+    await page.send(async (seen) => {
+      answers.push(await seen.allocation.setCoefficient("dt1", "u1", "200"));
+      answers.push(await seen.allocation.setCoefficient("dt1", "u2", "-1"));
+    });
+
+    expect(answers).toEqual([
+      { ok: true },
+      { ok: false, reason: "not-a-coefficient" },
+    ]);
+    expect(page.read().allocation.tables[0]?.total).toBe(11000000);
+
+    await page.send(async (seen) => {
+      const added = await seen.allocation.addTable({
+        name: "Test",
+        order: 6,
+        notes: "",
+      });
+
+      answers.push(added);
+      answers.push(
+        await seen.allocation.editTable("dt-new-1", {
+          name: "Test 2",
+          order: 6,
+          notes: "",
+        }),
+      );
+    });
+
+    expect(page.read().allocation.tables.at(-1)?.table.name).toBe("Test 2");
+
+    await page.send(async (seen) => {
+      answers.push(await seen.allocation.deleteTable("dt-new-1"));
+    });
+
+    expect(answers.slice(2)).toEqual([
+      { ok: true, value: { id: "dt-new-1" } },
+      { ok: true },
+      { ok: true },
+    ]);
+    expect(page.read().allocation.tables).toHaveLength(5);
+  });
+
   it("a wizard hook given an entry to edit shows that entry's form", () => {
     const page = mountUnderProvider(createSmallSeed(), 1, "e6");
 

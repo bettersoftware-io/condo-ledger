@@ -1,0 +1,19 @@
+/* ta-design.md §2–§3: a table's numbers as the prototype's plain money cell, 11.5px, tabular, right-aligned, grey when zero. */
+.coefficient {
+  display: block;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-size: 11.5px;
+  padding: 3px 0;
+  white-space: nowrap;
+  font-weight: 500;
+  color: var(--tx);
+}
+
+.coefficient[data-emphasis="true"] {
+  font-weight: 700;
+}
+
+.coefficient[data-zero="true"] {
+  color: var(--txd);
+}

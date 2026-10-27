@@ -92,4 +92,11 @@ export const TESTIDS = {
   settlementTable: "settlement-table",
   settlementRow: "settlement-row",
   settlementPartial: "settlement-partial",
+  tablesAllocationScreen: "tables-allocation-screen",
+  thousandthTablesPanel: "thousandth-tables-panel",
+  coefficientsPanel: "coefficients-panel",
+  allocationPanel: "allocation-panel",
+  coefficientCell: "coefficient-cell",
+  allocationMode: "allocation-mode",
+  panelLegend: "panel-legend",
 } as const;

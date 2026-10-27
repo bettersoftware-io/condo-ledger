@@ -1,0 +1,4 @@
+/* ta-design.md §2: Restriction on and Counter are 12px, dim, a size above the other panels' text cells. */
+.tables-text {
+  font-size: 12px;
+}
