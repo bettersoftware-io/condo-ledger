@@ -3,6 +3,7 @@ import { type Observable, switchMap } from "rxjs";
 import {
   type AccountsPort,
   type AccountsSimulator,
+  type Allocation,
   type BuildingsPort,
   type ClockPort,
   createAccountsSimulator,
@@ -24,6 +25,7 @@ import {
   type Result,
   type SessionPort,
   type TablesPort,
+  type ThousandthTable,
   type UnitsPort,
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
@@ -100,6 +102,16 @@ import {
   type SplitIntents,
   type SplitState,
 } from "./machines/splitMachine.ts";
+import {
+  createTableDialog,
+  type TableDialogIntents,
+  type TableDialogState,
+} from "./machines/tableDialogMachine.ts";
+import {
+  type BudgetAllocationForm,
+  type BudgetAllocationSummary,
+  createBudgetAllocationWizard,
+} from "./machines/wizards/budgetAllocationWizard.ts";
 import {
   type BudgetInstallmentsForm,
   type BudgetInstallmentsSummary,
@@ -278,6 +290,15 @@ interface AppMachines {
     BudgetInstallmentsSummary,
     Result
   >;
+  /** The Budget allocation wizard over the selected period's books and its budget allocation as they stand: with no period, refused. */
+  createBudgetAllocationWizard: () => WizardMachine<
+    BudgetAllocationForm,
+    BudgetAllocationSummary
+  >;
+  /** The New Thousandth Table dialog over the selected period's tables as they stand, or with `editing` the Edit one on a table of them; one they do not hold throws. */
+  createTableDialog: (
+    editing: string | null,
+  ) => Machine<TableDialogState, TableDialogIntents>;
   /** The Edit Installment dialog over an installment of the selected period's books as they stand; one they do not hold throws. */
   createInstallmentDialog: (
     installmentId: string,
@@ -328,10 +349,23 @@ export function createApp(ports: AppPorts): App {
     session.amountLocale$,
   );
   let latestBooks: Books | null = null;
+  let latestTables: ThousandthTable[] = [];
+  let latestBudgetAllocation: Allocation | null = null;
 
   // The books presenter lives as long as the application: nothing unsubscribes.
   books.books$.subscribe((next) => {
     latestBooks = next;
+  });
+  // The table dialog and the Budget allocation wizard are built over the
+  // period's tables and budget allocation as they stand: held for the
+  // application's life, as the books are.
+  allocation.tables$.subscribe((views) => {
+    latestTables = views.map((view) => {
+      return view.table;
+    });
+  });
+  allocation.allocation$("budget").subscribe((next) => {
+    latestBudgetAllocation = next;
   });
   // The wizards read the amounts' locale as it stands whenever they judge:
   // held for the application's life, so it always has the session's.
@@ -571,6 +605,36 @@ export function createApp(ports: AppPorts): App {
             return latestBooks;
           },
         );
+      },
+      createBudgetAllocationWizard: (): WizardMachine<
+        BudgetAllocationForm,
+        BudgetAllocationSummary
+      > => {
+        return createBudgetAllocationWizard(
+          latestBooks,
+          latestBudgetAllocation,
+          journal.addEntry,
+        );
+      },
+      createTableDialog: (
+        editing: string | null,
+      ): Machine<TableDialogState, TableDialogIntents> => {
+        const tables = latestTables;
+
+        if (editing === null) {
+          return createTableDialog(tables, null, allocation.addTable);
+        }
+
+        const table = must(
+          tables.find((candidate) => {
+            return candidate.id === editing;
+          }),
+          `the table ${editing}`,
+        );
+
+        return createTableDialog(tables, table, (draft) => {
+          return allocation.editTable(editing, draft);
+        });
       },
       createInstallmentDialog: (
         installmentId: string,
