@@ -1,11 +1,11 @@
 # packages/legacy-import/specs/features/units-money.feature
-Feature: Per-resident units money parity
+Feature: Per-resident previous balances parity
 
-  Scenario Outline: resident saldoPrec reproduces the legacy startingBalance
+  Scenario Outline: the previous balance of each resident is the legacy startingBalance
     Given the legacy data for period "<period>"
-    When the new app projects the units tree
-    Then each resident saldoPrec equals the legacy unitResident startingBalance
-    And the group saldoPrec equals the sum of resident saldoPrec
+    When the new app computes the previous balances
+    Then each resident's previous balance equals the legacy unitResident startingBalance
+    And the total of the previous balances equals the sum of the legacy startingBalance
 
     Examples:
       | period        |

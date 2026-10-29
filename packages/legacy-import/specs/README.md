@@ -9,9 +9,10 @@ The parity specs and the other dump-based tests need `old/db/it-jtime-condominiu
 Run them: `pnpm --filter @cl/legacy-import test` (the parity specs run with the package's unit tests; to run only the specs: `pnpm --filter @cl/legacy-import exec vitest run specs`).
 
 Design rationale: [`docs/superpowers/specs/2026-06-14-accounting-parity-specs-design.md`](../../../docs/superpowers/specs/2026-06-14-accounting-parity-specs-design.md).
+The old riparto engine (`buildRiparto`, `recomputePeriod`) and the prototype's JSON seed were retired once the allocation replaced them; their specs went with them.
 Domain background: [`docs/domain/accounting-and-distribution.md`](../../../docs/domain/accounting-and-distribution.md).
 
-The generator (`pnpm --filter @cl/legacy-import gen:data`) also writes the app's
+The generator (`pnpm --filter @cl/legacy-import gen:data`) writes the app's
 seed, `packages/domain/src/simulators/seed/legacySeed.generated.ts`. That seed's
 text (account names, entry descriptions, invoice reasons, installment, table and
 group names) is translated to English at import, from `src/translate/`: an exact
@@ -22,41 +23,41 @@ is translated.
 
 ## What these tests actually exercise
 
-**The offline generator's projection layer** (`packages/legacy-import/src/`) — *not* the prototype
+**The offline generator's projection layer** (`packages/legacy-import/src/`) — *not* the app
 UI and *not* the legacy app.
 
 ```
-old/db/…all.sql   →   legacy-import/src projections         →   data.generated.json   →   React prototype renders it
- (legacy dump        (parseTables→buildDb→project*,        (committed app seed)       (the UI you click)
-  = the ORACLE)        reconcile, buildRiparto)
+old/db/…all.sql   →   legacy-import/src projections         →   legacySeed.generated.ts   →   the app's simulators
+ (legacy dump        (parseTables→buildDb→project*,        (committed app seed)          (the UI you click)
+  = the ORACLE)        reconcile, allocationOf)
                        ▲ the specs assert on THIS
 ```
 
 The steps call the pure projections directly — `projectAccounts`, `projectTransactions`,
-`reconcilePeriods`, `projectDistribution`, `buildRiparto`, `projectUnits`,
+`reconcilePeriods`, `projectLegacySeed` (run through the domain's `allocationOf`),
 `projectInstallments`, `projectAnagrafiche`, `projectTree` — and compare their output to
 values read **independently** from the dump by `oracle.ts`.
 
 | Subject | Covered here? |
 |---|---|
-| Generator projections + riparto engine (the data producer) | **Yes** — asserted directly |
-| The numbers the prototype **displays** | **Transitively** — these projections *are* `data.generated.json`, the prototype's seed, so asserting them asserts the data behind the screen |
-| The prototype **UI** (components, routing, search, dialogs, rendering) | No — no DOM/component rendering here |
+| Generator projections + the allocation algorithm (the data producer) | **Yes** — asserted directly |
+| The numbers the app **displays** | **Partly** — the allocation specs run on `projectLegacySeed`, the projection that becomes `legacySeed.generated.ts`; the other projections (ledger, installments, registry, tree) are the generator's own checks of the dump |
+| The app **UI** (components, routing, search, dialogs, rendering) | No — no DOM/component rendering here |
 | The legacy PHP/Flex app | Not executed (it isn't runnable) — its dump is the frozen-output **oracle** we compare against |
-| Recompute / mutation flows (the archived prototype's recompute code under `old/prototype-web`) | No — parity here is about the *initial legacy state*, not post-edit recomputation |
+| Recompute / mutation flows | No — parity here is about the *initial legacy state*, not post-edit recomputation |
 
 ### Why this is genuine parity, not a self-test
 
 The legacy app **stored its own computed riparto results in the ledger** (the
 `ledgerTransaction.type='estimateDistribution'` postings). So the specs compare *our
-engine's recomputation* against *the legacy app's own saved answer* — an independent
+allocation's recomputation* against *the legacy app's own saved answer* — an independent
 oracle, not our code checked against its own output. The oracles in `oracle.ts` read raw
 rows through a different code path than the projections, keeping the comparison
 non-circular.
 
 Oracle strength, strongest first: (1) legacy-stored values (`estimateDistribution`
 postings, `startingBalance`, `installmentItem.amount`); (2) raw-row invariants computed
-in-step (Σ signed entries = 0; Σ matrix = Σ expense subtree); (3) a few clearly-labelled
+in-step (Σ signed entries = 0); (3) a few clearly-labelled
 pinned constants (counts).
 
 ## Layout
@@ -77,17 +78,15 @@ pinned constants (counts).
   €0.00 and the reconciliation gate marks them reconciled.
 - **double-entry** — every projected transaction balances; the account tree's saldo ties
   to the raw sum of entries.
-- **riparto** — the distribution matrix totals tie out to the linked expense subtree;
-  total per-resident *preventivo* matches the legacy `estimateDistribution` postings
-  (the old engine, `buildRiparto`, the prototype seed's: its per-resident split diverges
-  within one unit, so a Σ-only invariant is asserted, see the `# NOTE:` in the feature);
-  and the budget allocation of the legacy algorithm (`allocationOf`, run on the
+- **allocation** — the budget allocation of the legacy algorithm (`allocationOf`, run on the
   generator's own projection of the dump) equals the posted allocation entry to the cent:
   Saturno 2011's ten residents against `tx5`, Pozzetto 2013's 25 against `tx291`, and
   A04's `r166` and `r167` against the legacy report's 898.64 and 46.63.
 - **installments** — the plan's group total equals Σ legacy `installmentItem.amount`.
-- **units-money** — each resident's `saldoPrec` equals the legacy
-  `unitResident.startingBalance`; group rows roll up exactly.
+- **units-money** — the previous balance of each resident, computed by the domain's
+  `previousBalancesOf` on the generator's own projection of the dump, equals the legacy
+  `unitResident.startingBalance`; their total ties to the legacy sum (the new path has no
+  group rows).
 - **anagrafiche-structure** — the registry projects every categorised party; the building
   tree applies the real selection rules (Pozzetto's NULL code renders blank, super-condo
   Sole kept, junk "test" buildings excluded).

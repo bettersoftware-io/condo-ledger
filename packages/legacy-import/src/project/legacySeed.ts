@@ -30,8 +30,8 @@ import { eur } from "../amounts.ts";
 import type { Db } from "../db.ts";
 import type { Row } from "../loadRows.ts";
 import { reconcilePeriods } from "../reconcile.ts";
+import { masterDataName } from "./masterData.ts";
 import { projectTree } from "./structure.ts";
-import { masterDataName } from "./units.ts";
 
 const ROLE_COLUMNS: Record<string, AccountRole> = {
   paymentInCashLedgerAccountId: "cash",

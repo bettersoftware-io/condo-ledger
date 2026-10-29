@@ -45,7 +45,6 @@ export { createTablesSimulator } from "./simulators/tablesSimulator.ts";
 export { createUnitsSimulator } from "./simulators/unitsSimulator.ts";
 export * from "./support/romeTime.ts";
 export * from "./useCases/accountTree.ts";
-export * from "./useCases/allocate.ts";
 export {
   type Allocation,
   type AllocationBooks,
@@ -71,12 +70,6 @@ export * from "./useCases/journal.ts";
 export * from "./useCases/ledger.ts";
 export * from "./useCases/openInvoices.ts";
 export * from "./useCases/planInstallments.ts";
-export * from "./useCases/riparto/computeBalances.ts";
-export * from "./useCases/riparto/computeInstallments.ts";
-export * from "./useCases/riparto/computeRiparto.ts";
-export * from "./useCases/riparto/periodTypes.ts";
-export * from "./useCases/riparto/recomputePeriod.ts";
-export * from "./useCases/riparto/types.ts";
 export * from "./useCases/schedule.ts";
 export * from "./useCases/validateBudget.ts";
 export * from "./useCases/validateEntry.ts";

@@ -45,31 +45,6 @@ export function entryCount(db: Db, periodId: string): number {
   return n;
 }
 
-/** Per-resident preventivo as the LEGACY posted it (estimateDistribution entries). Map<unitResidentId, cents>. */
-export function estimateDistributionByResident(
-  db: Db,
-  periodId: string,
-): Map<string, number> {
-  const tx = txIdsInPeriod(db, periodId, "estimateDistribution");
-  const m = new Map<string, number>();
-
-  for (const e of db.rows("ledgerEntry")) {
-    if (!tx.has(String(e.ledgerTransactionId))) {
-      continue;
-    }
-
-    const ur = str(e.unitResidentId);
-
-    if (!ur) {
-      continue;
-    }
-
-    m.set(ur, (m.get(ur) ?? 0) + eur(str(e.amount)).cents);
-  }
-
-  return m;
-}
-
 /** unitResident.startingBalance per resident (legacy stored), for residents in this period. */
 export function startingBalanceByResident(
   db: Db,
