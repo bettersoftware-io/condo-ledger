@@ -1002,9 +1002,11 @@ export const scenarios: Record<string, Scenario> = {
     budgetInstallments: { step: 3, firstDue: "31/03/2015" },
   },
   // The Journal toolbar's Add transaction menu, open under its button's
-  // place: the label, then one item per kind with its glyph. A menu hangs
-  // from its box out of the flow, over a fixed scrim, so it is pictured as a
-  // dialog is, in a viewport of its own size.
+  // place: the label, then one item per kind with its glyph. It opens with
+  // the focus on its first item, which the page, never touched by a pointer,
+  // draws as the keyboard's: New invoice is tinted. A menu hangs from its box
+  // out of the flow, over a fixed scrim, so it is pictured as a dialog is, in
+  // a viewport of its own size.
   "popover-add-transaction": {
     level: "component",
     mount: "popover",

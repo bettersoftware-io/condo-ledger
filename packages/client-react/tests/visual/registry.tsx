@@ -97,6 +97,7 @@ const registry: Record<string, Entry> = {
             <InstallmentCell
               // biome-ignore lint/suspicious/noArrayIndexKey: a picture's cells never move; two may be alike
               key={index}
+              label="Installment"
               amount={cell.amount === null ? null : cents(cell.amount)}
               status={cell.status}
               emphasis={false}
@@ -207,6 +208,7 @@ const registry: Record<string, Entry> = {
 
     return (
       <InlineEditor
+        label="Budget"
         value={editor.value}
         error={editor.error}
         onCommit={ignoreClose}

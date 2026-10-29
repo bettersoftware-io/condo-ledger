@@ -11,6 +11,12 @@ export interface FormFieldPage {
   isReadOnly: () => boolean;
   /** Whether a text box is found by this name, as a person's label names it. */
   hasTextBoxNamed: (name: string) => boolean;
+  /** Whether the text box of this name is announced as required. */
+  isTextBoxRequired: (name: string) => boolean;
+  /** The text of the group of this name; null when assistive technology finds no such group. */
+  groupText: (name: string) => string | null;
+  /** Whether the row is a `<label>`: it should be only when it holds a field to name. */
+  isLabelElement: () => boolean;
 }
 
 export function mountFormField(props: Partial<FormFieldProps>): FormFieldPage {
@@ -36,6 +42,19 @@ export function mountFormField(props: Partial<FormFieldProps>): FormFieldPage {
     },
     hasTextBoxNamed: (name: string): boolean => {
       return rendered.queryByRole("textbox", { name }) !== null;
+    },
+    isTextBoxRequired: (name: string): boolean => {
+      return (
+        rendered
+          .getByRole("textbox", { name })
+          .getAttribute("aria-required") === "true"
+      );
+    },
+    groupText: (name: string): string | null => {
+      return rendered.queryByRole("group", { name })?.textContent ?? null;
+    },
+    isLabelElement: (): boolean => {
+      return field() instanceof HTMLLabelElement;
     },
   };
 }

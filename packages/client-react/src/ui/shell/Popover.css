@@ -60,6 +60,12 @@
   background: var(--hover);
 }
 
+/* The keyboard's place in the menu: a ring, which shows on the checked option too. */
+.popover-option:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: -2px;
+}
+
 .popover-option[aria-checked="true"] {
   background: var(--sel);
   font-weight: 600;

@@ -28,4 +28,79 @@ describe("TabbedPanel", () => {
 
     expect(onActivate).toHaveBeenCalledWith("Journal");
   });
+
+  it("names its panel by the active tab", () => {
+    const page = mountTabbedPanel({
+      tabs: ["Accounts", "Journal"],
+      active: "Journal",
+      onActivate: vi.fn(),
+      children: "x",
+    });
+
+    expect(page.panelName()).toBe("Journal");
+  });
+
+  it("is one stop for the Tab key: the active tab", () => {
+    const page = mountTabbedPanel({
+      tabs: ["Accounts", "Journal", "Ledger"],
+      active: "Journal",
+      onActivate: vi.fn(),
+      children: "x",
+    });
+
+    expect(page.tabStops()).toEqual(["Journal"]);
+  });
+
+  it.each([
+    ["ArrowRight", "Ledger"],
+    ["ArrowLeft", "Accounts"],
+    ["Home", "Accounts"],
+    ["End", "Ledger"],
+  ])("%s moves the focus to %s and activates it", async (key, next) => {
+    const onActivate = vi.fn();
+    const page = mountTabbedPanel({
+      tabs: ["Accounts", "Journal", "Ledger"],
+      active: "Journal",
+      onActivate,
+      children: "x",
+    });
+
+    await page.pressOnActiveTab(key);
+
+    expect(page.focusedTab()).toBe(next);
+    expect(onActivate).toHaveBeenCalledExactlyOnceWith(next);
+  });
+
+  it.each([
+    ["ArrowRight", "Ledger", "Accounts"],
+    ["ArrowLeft", "Accounts", "Ledger"],
+  ])("%s from %s wraps around to %s", async (key, active, next) => {
+    const onActivate = vi.fn();
+    const page = mountTabbedPanel({
+      tabs: ["Accounts", "Journal", "Ledger"],
+      active,
+      onActivate,
+      children: "x",
+    });
+
+    await page.pressOnActiveTab(key);
+
+    expect(page.focusedTab()).toBe(next);
+    expect(onActivate).toHaveBeenCalledExactlyOnceWith(next);
+  });
+
+  it("does nothing on another key", async () => {
+    const onActivate = vi.fn();
+    const page = mountTabbedPanel({
+      tabs: ["Accounts", "Journal"],
+      active: "Journal",
+      onActivate,
+      children: "x",
+    });
+
+    await page.pressOnActiveTab("ArrowDown");
+
+    expect(page.focusedTab()).toBe("Journal");
+    expect(onActivate).not.toHaveBeenCalled();
+  });
 });

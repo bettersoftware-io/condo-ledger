@@ -12,7 +12,7 @@ One bullet for each entry: its name in bold, what is left, and a link to its
 plan when it has one. `AGENTS.md` says when an entry is added, moved and
 removed.
 
-**Last updated: 2026-10-27**
+**Last updated: 2026-10-29**
 
 ## In progress
 
@@ -90,18 +90,13 @@ Work that waits on a release, a decision or other work.
   are at stake; and the Budget allocation wizard reads a null allocation
   as "There is no budget to allocate" when it means the tables are still
   on their way, so a live adapter needs a "still loading" state there.
-- **Accessibility polish.** The tabbed panel lacks `aria-labelledby` and
-  arrow keys; the popover menus have no focus return and no arrow keys; the
-  inline editor's input has no label, `aria-invalid` or `role="alert"` on its
-  error; the disabled checkbox in Account Details has no accessible name; the
-  splitter has no `onPointerCancel`. From the Journal: `ConfirmAlert` is a
-  `dialog` with no `aria-describedby`, so its question may not be read (an
-  `alertdialog`); `Dialog` traps no focus and gives none back when a wizard
-  closes on its own; one Escape would close two stacked dialogs; a
-  `FormField` read-only row is a `<label>` naming nothing, and the required
-  star is not announced (`aria-required`); after a dialog closes, the focus
-  lands on the grid's wrapper, whose outline is removed, so nothing shows
-  where it is.
+- **Accessibility polish, what is left.** The tabbed panel, the popover
+  menus, the dialogs, the inline editor and the form rows follow WAI-ARIA's
+  patterns now. Two gaps of the same kind were outside that branch's list:
+  the top bar's module tabs (`ModuleTabs`) are a tab list with no arrow
+  keys, no roving tab stop and no panel named by the tab; the grid's column
+  resize handle (`ResizeHandle`) has no `onPointerCancel`, as the splitter
+  had.
 - **Structural tidy-ups:** `missing()` duplicated across the two simulators;
   `TopBar.tsx` has two near-identical picker blocks; `LedgerTab` is a
   view-model reader that builds every row itself (split it like

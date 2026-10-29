@@ -14,6 +14,8 @@ export interface ConfirmAlertPage {
   yes: () => Promise<void>;
   no: () => Promise<void>;
   pressEscape: () => void;
+  /** Whether assistive technology finds an alert dialog named Notice that reads this after its name. */
+  isAlertDescribedAs: (description: string) => boolean;
 }
 
 export function mountConfirmAlert(
@@ -48,6 +50,12 @@ export function mountConfirmAlert(
     },
     no: async (): Promise<void> => {
       await user.click(rendered.getByTestId(TESTIDS.confirmNo));
+    },
+    isAlertDescribedAs: (description: string): boolean => {
+      return (
+        rendered.queryByRole("alertdialog", { name: "Notice", description }) !==
+        null
+      );
     },
     pressEscape: (): void => {
       fireEvent.keyDown(rendered.getByTestId(TESTIDS.dialog), {

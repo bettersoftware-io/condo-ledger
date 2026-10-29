@@ -22,9 +22,10 @@
   overflow: auto;
 }
 
-/* Focused by the screen when a dialog closes, so the keyboard carries on from the grid; the rows draw their own focus. */
-.journal-grid:focus {
-  outline: none;
+/* Focused by the screen when a dialog closes, so the keyboard carries on from the grid: a ring inside its edge shows it has the focus when the keyboard closed the dialog. A click on the grid draws none. */
+.journal-grid:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: -2px;
 }
 
 /* A toolbar button and the menu that hangs from it. */

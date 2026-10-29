@@ -31,6 +31,7 @@ export function Splitter({ direction, onDrag }: SplitterProps): ReactElement {
     onDrag(delta);
   }
 
+  /** On the pointer let go, or cancelled by the browser (a touch it takes for a scroll): the drag ends either way. */
   function endDrag(event: PointerEvent<HTMLDivElement>): void {
     event.currentTarget.releasePointerCapture(event.pointerId);
   }
@@ -43,6 +44,7 @@ export function Splitter({ direction, onDrag }: SplitterProps): ReactElement {
       onPointerDown={startDrag}
       onPointerMove={reportTravel}
       onPointerUp={endDrag}
+      onPointerCancel={endDrag}
     >
       <span className="splitter-pill" />
     </div>

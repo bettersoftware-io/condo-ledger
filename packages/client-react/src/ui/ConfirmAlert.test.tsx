@@ -10,6 +10,25 @@ describe("ConfirmAlert", () => {
     expect(page.width()).toBe("alert");
   });
 
+  it("is an alert dialog that reads its question after its name", () => {
+    const page = mountConfirmAlert({ text: 'Delete the entry "Rent"?' });
+
+    expect(page.isAlertDescribedAs('Delete the entry "Rent"?')).toBe(true);
+  });
+
+  it("reads the reason Yes failed after its question", () => {
+    const page = mountConfirmAlert({
+      text: 'Delete the entry "Rent"?',
+      error: "This entry cannot be deleted.",
+    });
+
+    expect(
+      page.isAlertDescribedAs(
+        'Delete the entry "Rent"? This entry cannot be deleted.',
+      ),
+    ).toBe(true);
+  });
+
   it("shows its text", () => {
     const page = mountConfirmAlert({ text: 'Delete the entry "Rent"?' });
 

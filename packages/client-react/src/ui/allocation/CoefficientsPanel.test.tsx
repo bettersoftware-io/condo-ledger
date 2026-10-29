@@ -37,6 +37,7 @@ describe("CoefficientsPanel", () => {
     await page.clickCoefficient("A1");
 
     expect(page.editorText()).toBe("1000.0000");
+    expect(page.isEditorNamed("Coefficient of A1")).toBe(true);
   });
 
   it("hands the text typed to the write, for the unit, and closes on its acceptance", async () => {

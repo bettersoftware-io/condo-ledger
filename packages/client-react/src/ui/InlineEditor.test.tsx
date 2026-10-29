@@ -74,4 +74,26 @@ describe("InlineEditor", () => {
   it("shows no error when there is none", () => {
     expect(mountInlineEditor({ error: null }).errorText()).toBeNull();
   });
+
+  it("is a text box named by its label", () => {
+    const page = mountInlineEditor({ label: "Budget of Cleaning" });
+
+    expect(page.isNamed("Budget of Cleaning")).toBe(true);
+  });
+
+  it("says its text is wrong, and announces why, when there is an error", () => {
+    const page = mountInlineEditor({ error: "Not a number" });
+
+    expect(page.isInvalid()).toBe(true);
+    expect(page.alertText()).toBe("Not a number");
+    expect(page.description()).toBe("Not a number");
+  });
+
+  it("is valid and announces nothing when there is no error", () => {
+    const page = mountInlineEditor({ error: null });
+
+    expect(page.isInvalid()).toBe(false);
+    expect(page.alertText()).toBeNull();
+    expect(page.description()).toBe("");
+  });
 });

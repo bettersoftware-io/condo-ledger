@@ -108,14 +108,29 @@ export function ScheduleGrid({
     setEdit(NOT_EDITING);
   }
 
-  function installmentCellOf(cell: ScheduleCell, emphasis: boolean): ReactNode {
+  /** The editor's name: the installment's number, and the row it is on. */
+  function cellLabelOf(cell: ScheduleCell, owner: string): string {
+    const installment = installments.find((candidate) => {
+      return candidate.id === cell.installmentId;
+    });
+
+    return `Installment ${installment?.number ?? ""} of ${owner}`;
+  }
+
+  function installmentCellOf(
+    cell: ScheduleCell,
+    emphasis: boolean,
+    owner: string,
+  ): ReactNode {
     const { itemId } = cell;
+    const label = cellLabelOf(cell, owner);
 
     // A unit's, the root's, or a resident's without an item: nothing to edit.
     if (itemId === null) {
       return (
         <InstallmentCell
           key={cell.installmentId}
+          label={label}
           amount={cell.amount}
           status={cell.status}
           emphasis={emphasis}
@@ -136,6 +151,7 @@ export function ScheduleGrid({
     return (
       <InstallmentCell
         key={cell.installmentId}
+        label={label}
         amount={cell.amount}
         status={cell.status}
         emphasis={emphasis}
@@ -209,7 +225,11 @@ function installmentColumnOf(installment: Installment): TreeGridColumn {
 function rowDataOf(
   row: ScheduleGridRow,
   selected: string | null,
-  installmentCellOf: (cell: ScheduleCell, emphasis: boolean) => ReactNode,
+  installmentCellOf: (
+    cell: ScheduleCell,
+    emphasis: boolean,
+    owner: string,
+  ) => ReactNode,
 ): TreeGridRowData {
   const { node } = row;
   const aggregate = node.kind === "root" || node.kind === "unit";
@@ -243,7 +263,7 @@ function rowDataOf(
       <Money key="budget" cents={node.budget} emphasis={aggregate} />,
       <Money key="due" cents={node.due} emphasis={aggregate} />,
       ...node.cells.map((cell) => {
-        return installmentCellOf(cell, aggregate);
+        return installmentCellOf(cell, aggregate, node.label);
       }),
       <Money
         key="total"
