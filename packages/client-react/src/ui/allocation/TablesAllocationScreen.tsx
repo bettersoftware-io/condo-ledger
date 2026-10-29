@@ -61,10 +61,13 @@ export function TablesAllocationScreen({
     setCoefficient,
   } = useAllocation();
   const coefficientsGrid = useCoefficientsGrid();
-  const tablesColumns = useColumns(TABLES_COLUMN_SPECS);
-  const coefficientsColumns = useColumns(COEFFICIENTS_COLUMN_SPECS);
-  const rowsSplit = useSplit();
-  const columnsSplit = useSplit();
+  const tablesColumns = useColumns("tables", TABLES_COLUMN_SPECS);
+  const coefficientsColumns = useColumns(
+    "coefficients",
+    COEFFICIENTS_COLUMN_SPECS,
+  );
+  const rowsSplit = useSplit("allocationRows");
+  const columnsSplit = useSplit("allocationColumns");
   const { stub } = useNotices();
   const [dialog, setDialog] = useState<TablesDialog | null>(null);
   const [deleteRefusal, setDeleteRefusal] = useState<Rejected | null>(null);
@@ -225,9 +228,6 @@ export function TablesAllocationScreen({
       <Splitter direction="horizontal" onDrag={moveRowsSplitBy} />
       <div className="allocation-bottom">
         <AllocationArea
-          // The columns machine reads its spec once: an allocation with
-          // another count of accounts gets a machine of its own.
-          key={accountColumns.length}
           columns={accountColumns}
           mode={mode}
           maximized={maximized === "bottom"}
@@ -288,7 +288,7 @@ interface AllocationAreaProps {
   onStub: (label: string) => void;
 }
 
-/** The Allocation with its grid's rows and column widths, for one count of accounts. */
+/** The Allocation with its grid's rows and the column widths kept for its count of accounts. */
 function AllocationArea({
   columns,
   mode,
@@ -299,7 +299,10 @@ function AllocationArea({
 }: AllocationAreaProps): ReactElement {
   const { useAllocationGrid, useColumns } = useViewModel();
   const grid = useAllocationGrid();
-  const widths = useColumns(allocationColumnSpecs(columns.length));
+  const widths = useColumns(
+    "allocation",
+    allocationColumnSpecs(columns.length),
+  );
 
   return (
     <AllocationPanel

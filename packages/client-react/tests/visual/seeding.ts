@@ -19,8 +19,6 @@ import type {
   InvoiceSummary,
   JournalDialogIntents,
   JournalDialogState,
-  JournalGridIntents,
-  JournalGridState,
   Machine,
   MultiCostPaymentForm,
   MultiCostPaymentSummary,
@@ -61,23 +59,15 @@ import type { NewEntryDialog, Scenario } from "./scenarios.ts";
 // - `app`: what must be true before the first render. A port that answers
 //   from memory is given its data when the harness is built; a machine is
 //   wrapped so that each one built already holds the scenario's value, set
-//   through its own intent.
+//   through its own intent. The screens' grids are the application's, kept
+//   for the session, and a period switch opens their rows as they start:
+//   their state is set through their own intents once the period is chosen.
 // - `deliver`: what arrives after the UI is on screen, in order. A wait is
 //   `clock.tick(...)`, never a real one.
 //
 // What is shown is `render`: the registry entry a scenario names in its
 // `mount`, in the app's surround (`Mount`, in `registry.tsx`). With no `mount`
 // it is undefined, and the host shows the whole app.
-
-/** The screen's table selection, as the application builds it. */
-type TableSelectionMachine = ReturnType<
-  App["machines"]["createTableSelection"]
->;
-
-/** The Allocation panel's mode, as the application builds it. */
-type AllocationModeMachine = ReturnType<
-  App["machines"]["createAllocationMode"]
->;
 
 /** The application and the deliveries of one scenario. Called once, before the first render. */
 export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
@@ -124,23 +114,14 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
     }
   }
 
+  if (scenario.mount !== undefined) {
+    seedScreens(harness, scenario);
+  }
+
   const app: App = {
     ...harness.app,
     machines: {
       ...machines,
-      // The grid opens the scenario's rows, through its own toggle.
-      createAccountsGrid: (): Machine<
-        AccountsGridState,
-        AccountsGridIntents
-      > => {
-        const grid = machines.createAccountsGrid();
-
-        if (scenario.expanded !== undefined) {
-          openOnly(grid, scenario.expanded);
-        }
-
-        return grid;
-      },
       // The sidebar starts open as a drawer, through its own intent.
       createSidebar: (): Machine<SidebarState, SidebarIntents> => {
         const sidebar = machines.createSidebar();
@@ -150,21 +131,6 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
         }
 
         return sidebar;
-      },
-      // The Journal grid opens the scenario's entries and shows the selected
-      // one on its page, through its own intents.
-      createJournalGrid: (): Machine<JournalGridState, JournalGridIntents> => {
-        const grid = machines.createJournalGrid();
-
-        for (const id of scenario.expandedEntries ?? []) {
-          grid.intents.toggle(id);
-        }
-
-        if (scenario.selectedEntry !== undefined) {
-          grid.intents.reveal(scenario.selectedEntry);
-        }
-
-        return grid;
       },
       // The Journal's dialog starts open, through its own intent.
       createJournalDialog: (): Machine<
@@ -334,28 +300,6 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
 
         return wizard;
       },
-      // The screen's table selection holds the scenario's table, selected
-      // through its own intent as a click on the tables panel selects it.
-      createTableSelection: (): TableSelectionMachine => {
-        const selection = machines.createTableSelection();
-
-        if (scenario.tableId !== undefined) {
-          selection.intents.select(scenario.tableId);
-        }
-
-        return selection;
-      },
-      // The Allocation panel's mode, chosen through its own intent as the
-      // mode menu chooses it.
-      createAllocationMode: (): AllocationModeMachine => {
-        const mode = machines.createAllocationMode();
-
-        if (scenario.allocationMode !== undefined) {
-          mode.intents.choose(scenario.allocationMode);
-        }
-
-        return mode;
-      },
       // The table dialog holds the scenario's name, typed.
       createTableDialog: (
         editing: string | null,
@@ -406,13 +350,46 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
         accounts.select(scenario.selectedKey);
       }
 
-      // The menu last: the Journal's grid and dialog are built when it
-      // mounts, over the period already chosen.
+      seedScreens(harness, scenario);
+
+      // The menu last: the Journal's dialog is built when it mounts, over
+      // the period already chosen.
       harness.app.navigation.intents.selectMenu(scenario.menu ?? "accounts");
 
       clock.tick(0);
     },
   };
+}
+
+/**
+ * The screens' state the scenario names, over the period already chosen,
+ * each through its own intent: the chart's open rows; the Journal's open
+ * entries and the selected one shown on its page; the table selected, as a
+ * click on the tables panel selects it; the Allocation's mode, as its menu
+ * chooses it.
+ */
+function seedScreens(harness: AppHarness, scenario: Scenario): void {
+  const { screens } = harness.app;
+
+  if (scenario.expanded !== undefined) {
+    openOnly(screens.accountsGrid(), scenario.expanded);
+  }
+
+  for (const id of scenario.expandedEntries ?? []) {
+    screens.journalGrid().intents.toggle(id);
+  }
+
+  if (scenario.selectedEntry !== undefined) {
+    screens.journalGrid().intents.reveal(scenario.selectedEntry);
+  }
+
+  if (scenario.tableId !== undefined) {
+    screens.tableSelection().intents.select(scenario.tableId);
+  }
+
+  if (scenario.allocationMode !== undefined) {
+    screens.allocationMode().intents.choose(scenario.allocationMode);
+  }
 }
 
 /** What a part mounted alone takes after its first render; with nothing to take, the clock does not move. */

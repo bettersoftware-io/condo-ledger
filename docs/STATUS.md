@@ -51,13 +51,6 @@ Work that waits on a release, a decision or other work.
   ([2026-10-11-app-v2-design.md](superpowers/specs/2026-10-11-app-v2-design.md));
   Installments (M2d) and Tables & Allocation (M2e) are built. The entry
   above opens the first.
-- **Per-grid persistence.** The design says a column resize persists per
-  grid; today every per-component machine (grid expansion, columns, split,
-  bottom tab) is rebuilt when its component mounts, so leaving the Accounts
-  menu and coming back resets them, and the Ledger's column widths reset on
-  every tab switch. `useColumns(spec)` and `useBottomTab(tabs)` also take the
-  first render's argument only; document that in the `ViewModel` interface
-  until it changes.
 - **Presenter robustness before the live adapters (M3).** In
   `packages/client-core/src/presenters/accountsPresenter.ts`, a key the tree
   no longer has should fall back to Total rather than error the stream for
@@ -76,26 +69,30 @@ Work that waits on a release, a decision or other work.
   awaited write, which a live adapter may need to flush; the allocation and
   tables streams and the table selection stay subscribed for the app's life;
   a period switch shows a loading state whose words ("No period is
-  selected.", "No table is selected.") are wrong for that moment and
-  remounts the Allocation grid, which resets dragged column widths; clicking
+  selected.", "No table is selected.") are wrong for that moment; clicking
   the edit or delete button while the selection is not yet listed would
   throw; Account Details now reads the tables and units ports, through
   `allocation.tables$` (`composition.ts`), so a failing live tables or
   units adapter would fail Account Details too, though only table names
   are at stake; and the Budget allocation wizard reads a null allocation
   as "There is no budget to allocate" when it means the tables are still
-  on their way, so a live adapter needs a "still loading" state there.
-- **Structural tidy-ups (left over):** `TopBar.tsx` has two near-identical
-  picker blocks around `Popover`, and `Wizards.css` reaches into
-  `FormField`'s class with `:has()`; the accessibility work that changed
-  `Popover` and `FormField` is done, so nothing holds these now.
+  on their way, so a live adapter needs a "still loading" state there. The
+  screens' grids (`packages/client-core/src/screens.ts`) subscribe their
+  presenter streams when a screen first asks for them and stay subscribed
+  for the session, so a screen once visited keeps its data live off-screen:
+  the allocation recomputes on every change of the books, and a live
+  port's subscriptions behind them would stay open.
+- **Structural tidy-ups (left over):** the branches that held these back
+  (the accessibility work on `Popover` and `FormField`, the per-grid
+  persistence on the grid machines) are done, so nothing holds any of them
+  now. `TopBar.tsx` has two near-identical picker blocks around `Popover`;
+  `Wizards.css` reaches into `FormField`'s class with `:has()`;
   `JournalScreen` restates the grid machine's blank-search rule (a
-  `searching` flag on the grid's state), held back while the per-grid
-  persistence work changes those machines. The three wizard machine tests
-  copy one create-and-dispose harness, and the three wizard readers repeat
-  one skeleton; the `knip.jsonc` client-react workspace repeats the
-  `packages/*` settings (knip does not merge a named workspace with the
-  glob, so it stays in sync by hand).
+  `searching` flag on the grid's state would hold it in one place); the
+  three wizard machine tests copy one create-and-dispose harness, and the
+  three wizard readers repeat one skeleton; the `knip.jsonc` client-react
+  workspace repeats the `packages/*` settings (knip does not merge a named
+  workspace with the glob, so it stays in sync by hand).
 
 ## Waiting on a person
 
@@ -103,6 +100,10 @@ A step or a decision an agent cannot take.
 
 ## Known limits
 
+- **The module tabs name no panel.** `ModuleTabs` is a named tab list with
+  the keyboard of WAI-ARIA's tabs, but the main area below it is not marked
+  as its `tabpanel` and named by the active tab: that needs an id shared
+  between `ModuleTabs` and `AppRoot`.
 - **The Allocation's Days differ from the legacy screen in two cells.**
   Saturno A3 shows 147/365 where the legacy app showed 146/365 (it lost an
   hour to the March clock change before a floor), and A4 is blank where the
@@ -112,6 +113,14 @@ A step or a decision an agent cannot take.
   given 1 divided by the empty count, as the legacy code does, so the unit
   is over-allocated and the Roundings row goes negative. The seed has no
   explicit 0%; it matters once co-ownership percentages can be edited.
+- **Column widths that follow the data are kept per count of columns.**
+  The screens' state (`packages/client-core/src/screens.ts`) keeps a grid's
+  widths for each set of columns it is drawn with. The Installment
+  Schedule's columns follow its installments and the Allocation's its
+  accounts, so a period, a mode or a deleted installment that changes the
+  count starts that grid from its default widths, and the widths come back
+  with the count. Carrying a width across counts needs each column named,
+  not counted. The widths last the session only: nothing is stored.
 - **The Accounts grid's stripes are faint in the light themes.** It now
   follows the legacy screen: bold labels, regular-weight amounts, and rows
   striped by position. The stripe colour is the `--zebra` token, which is

@@ -265,3 +265,21 @@ function polyfillPointerCapture(): void {
     return captured.has(this);
   };
 }
+
+/** Drags the boundary on the right of column `index` of the grid under `root` to the given width, as the person does. */
+export function resizeColumnIn(
+  root: HTMLElement,
+  index: number,
+  toPx: number,
+): void {
+  const handle = within(root).getAllByTestId(TESTIDS.treeGridResize)[index];
+
+  if (handle === undefined) {
+    throw new Error(`No boundary ${index}`);
+  }
+
+  polyfillPointerCapture();
+  fireEvent.pointerDown(handle, { clientX: 0, pointerId: 1 });
+  fireEvent.pointerMove(handle, { clientX: toPx, pointerId: 1 });
+  fireEvent.pointerUp(handle, { clientX: toPx, pointerId: 1 });
+}

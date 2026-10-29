@@ -14,7 +14,7 @@ import { LedgerGrid } from "./LedgerGrid.tsx";
 export function LedgerTab(): ReactElement {
   const { useLedger, useColumns } = useViewModel();
   const ledger = useLedger();
-  const columns = useColumns(LEDGER_COLUMN_SPECS);
+  const columns = useColumns("ledger", LEDGER_COLUMN_SPECS);
 
   return (
     <LedgerGrid

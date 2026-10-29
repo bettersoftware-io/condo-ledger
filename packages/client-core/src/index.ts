@@ -138,3 +138,4 @@ export type {
 export type { TableView } from "./presenters/allocationPresenter.ts";
 export type { PeriodSelection } from "./presenters/buildingsPresenter.ts";
 export type { JournalContext } from "./presenters/journalPresenter.ts";
+export type { GridName, SplitName, TabbedPanelName } from "./screens.ts";

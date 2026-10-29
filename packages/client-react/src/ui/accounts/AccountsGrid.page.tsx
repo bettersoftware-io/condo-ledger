@@ -1,8 +1,8 @@
-import { act, fireEvent, within } from "@testing-library/react";
+import { act, within } from "@testing-library/react";
 
 import type { Language } from "@cl/domain";
 
-import { polyfillPointerCapture } from "../shell/Splitter.page.tsx";
+import { resizeColumnIn } from "../TreeGrid.page.tsx";
 import { TESTIDS } from "../testids.ts";
 import { mountScreen } from "./AccountsScreen.page.tsx";
 
@@ -176,18 +176,7 @@ export function mountAccountsGrid(): AccountsGridPage {
         });
     },
     resizeColumn: (index: number, toPx: number): void => {
-      const handle = within(top()).getAllByTestId(TESTIDS.treeGridResize)[
-        index
-      ];
-
-      if (handle === undefined) {
-        throw new Error(`No boundary ${index}`);
-      }
-
-      polyfillPointerCapture();
-      fireEvent.pointerDown(handle, { clientX: 0, pointerId: 1 });
-      fireEvent.pointerMove(handle, { clientX: toPx, pointerId: 1 });
-      fireEvent.pointerUp(handle, { clientX: toPx, pointerId: 1 });
+      resizeColumnIn(top(), index, toPx);
     },
     template: (): string => {
       return within(top())

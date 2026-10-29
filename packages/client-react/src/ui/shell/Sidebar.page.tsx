@@ -12,6 +12,10 @@ import {
   ViewModelProvider,
 } from "@cl/react-bindings";
 
+import {
+  type AccountsScreenPage,
+  accountsScreenIn,
+} from "../accounts/AccountsScreen.page.tsx";
 import { TESTIDS } from "../testids.ts";
 import { AppRoot } from "./AppRoot.tsx";
 import { dragSplitterElement } from "./Splitter.page.tsx";
@@ -51,6 +55,8 @@ export interface SidebarPage {
   maximizePanel: () => Promise<void>;
   /** Which panel of the Accounts screen fills it: top, bottom or none. */
   accountsMaximized: () => string | null;
+  /** The Accounts screen in the main area, while its menu item is chosen. */
+  accounts: AccountsScreenPage;
 }
 
 export interface SidebarOptions {
@@ -245,6 +251,7 @@ export function mountSidebar(options: SidebarOptions = {}): SidebarPage {
           ?.getAttribute("data-maximized") ?? null
       );
     },
+    accounts: accountsScreenIn({ rendered, user }),
   };
 }
 

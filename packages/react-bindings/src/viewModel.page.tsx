@@ -160,13 +160,13 @@ export interface ViewModelPage {
   send: (use: (seen: Seen) => unknown, reader?: number) => Promise<void>;
 }
 
-/** The columns every reader's columns machine is built over. */
+/** The columns every reader asks the accounts grid's widths for. */
 const COLUMNS: readonly ColumnSpec[] = [
   { def: 200, min: 120, max: 400, grow: true },
   { def: 90, min: 60, max: 180, grow: false },
 ];
 
-/** The tabs every reader's tab machine is built over. */
+/** The tabs every reader asks the accounts panel's tab for. */
 const TABS: readonly string[] = ["Ledger", "Details"];
 
 /** Mounts readers of every hook under one provider, on the real application over the given seed. */
@@ -305,9 +305,9 @@ function Reader({
     navigation: useNavigation(),
     notices: useNotices(),
     grid: useAccountsGrid(),
-    columns: useColumns(COLUMNS),
-    split: useSplit(),
-    bottomTab: useBottomTab(TABS),
+    columns: useColumns("accounts", COLUMNS),
+    split: useSplit("accounts"),
+    bottomTab: useBottomTab("accounts", TABS),
     maximize: useMaximize(),
     sidebar: useSidebar(),
     journalEntries: useJournalEntries(),

@@ -4,6 +4,7 @@ import { vi } from "vitest";
 
 import type { Result } from "@cl/domain";
 
+import { resizeColumnIn } from "../TreeGrid.page.tsx";
 import { TESTIDS } from "../testids.ts";
 import {
   type InstallmentCellPage,
@@ -30,6 +31,10 @@ export interface ScheduleGridPage {
   /** The installment cell of the row under this header. */
   cell: (label: string, header: string) => InstallmentCellPage;
   emptyMessage: () => string | null;
+  /** The columns' layout, as written for the stylesheet. */
+  template: () => string;
+  /** Drags the boundary on the right of column `index` to the given width. */
+  resizeColumn: (index: number, toPx: number) => void;
 }
 
 /** Mounts the grid alone; each cell's `editable` says whether a click edits it. */
@@ -156,6 +161,12 @@ export function scheduleGridIn(
     },
     emptyMessage: (): string | null => {
       return root().querySelector(".tree-grid-empty")?.textContent ?? null;
+    },
+    template: (): string => {
+      return root().style.getPropertyValue("--tree-grid-template");
+    },
+    resizeColumn: (index: number, toPx: number): void => {
+      resizeColumnIn(root(), index, toPx);
     },
   };
 }

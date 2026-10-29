@@ -1,5 +1,11 @@
 import { type DefaultedStateObservable, state } from "@rx-state/core";
-import { BehaviorSubject, combineLatest, map, type Observable } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  map,
+  NEVER,
+  type Observable,
+} from "rxjs";
 
 import { type AccountNode, ROOT_KEY } from "@cl/domain";
 
@@ -45,11 +51,13 @@ interface Preferences {
 
 /**
  * What the Accounts grid shows of the presenter's tree: which nodes are open,
- * the search and the hide-empty filter. One per grid on screen; the tree is
- * the presenter's and shared.
+ * the search and the hide-empty filter. The tree is the presenter's and
+ * shared. Each emission of `restart$` opens the nodes as they start again,
+ * and keeps the search and the filter.
  */
 export function createAccountsGridMachine(
   tree$: Observable<AccountNode | null>,
+  restart$: Observable<unknown> = NEVER,
 ): Machine<AccountsGridState, AccountsGridIntents> {
   const preferences$ = new BehaviorSubject<Preferences>({
     expanded: new Set(INITIAL_EXPANDED),
@@ -81,6 +89,9 @@ export function createAccountsGridMachine(
     { rows: [], expanded: [...INITIAL_EXPANDED], search: "", hideEmpty: false },
   );
   const subscription = state$.subscribe();
+  const restarts = restart$.subscribe(() => {
+    update({ expanded: new Set(INITIAL_EXPANDED) });
+  });
 
   function update(change: Partial<Preferences>): void {
     preferences$.next({ ...preferences$.getValue(), ...change });
@@ -115,6 +126,7 @@ export function createAccountsGridMachine(
       },
     },
     dispose: (): void => {
+      restarts.unsubscribe();
       subscription.unsubscribe();
       preferences$.complete();
     },

@@ -35,10 +35,10 @@ export function AccountsScreen({
     useSetBudget,
   } = useViewModel();
   const grid = useAccountsGrid();
-  const columns = useColumns(ACCOUNTS_COLUMN_SPECS);
+  const columns = useColumns("accounts", ACCOUNTS_COLUMN_SPECS);
   const selection = useSelectedAccount();
-  const split = useSplit();
-  const tabs = useBottomTab(BOTTOM_TABS);
+  const split = useSplit("accounts");
+  const tabs = useBottomTab("accounts", BOTTOM_TABS);
   const { stub } = useNotices();
   const setBudget = useSetBudget();
   const screen = useRef<HTMLDivElement>(null);

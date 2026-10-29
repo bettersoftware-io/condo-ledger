@@ -5,6 +5,7 @@ import {
   distinctUntilChanged,
   map,
   merge,
+  NEVER,
   type Observable,
   Subject,
   scan,
@@ -135,16 +136,18 @@ export function createAllocationModeMachine(): Machine<
   );
 }
 
-/** Which nodes of the selected table's coefficients are open. Everything starts open. */
+/** Which nodes of the selected table's coefficients are open. Everything starts open, and again on each emission of `restart$`. */
 export function createCoefficientsGridMachine(
   nodes$: Observable<CoefficientNode[]>,
+  restart$: Observable<unknown> = NEVER,
 ): Machine<CoefficientsGridState, TreeGridIntents> {
-  return createTreeGridMachine(nodes$);
+  return createTreeGridMachine(nodes$, restart$);
 }
 
-/** Which rows of the allocation are open, from its root. Everything starts open. */
+/** Which rows of the allocation are open, from its root. Everything starts open, and again on each emission of `restart$`. */
 export function createAllocationGridMachine(
   allocation$: Observable<Allocation | null>,
+  restart$: Observable<unknown> = NEVER,
 ): Machine<AllocationGridState, TreeGridIntents> {
   return createTreeGridMachine(
     allocation$.pipe(
@@ -152,6 +155,7 @@ export function createAllocationGridMachine(
         return allocation === null ? [] : [allocation.root];
       }),
     ),
+    restart$,
   );
 }
 
@@ -198,10 +202,12 @@ function idsOf(tables: TableView[]): string[] {
 
 /**
  * Which nodes of a tree are open. Everything starts open, a node new to a
- * later tree too: the machine keeps what was closed.
+ * later tree too: the machine keeps what was closed, until `restart$` opens
+ * everything again.
  */
 function createTreeGridMachine<TNode extends TreeNode<TNode>>(
   roots$: Observable<TNode[]>,
+  restart$: Observable<unknown>,
 ): Machine<TreeGridState<TNode>, TreeGridIntents> {
   const closed$ = new BehaviorSubject<ReadonlySet<string>>(new Set());
   const latestRoots = new BehaviorSubject<TNode[]>([]);
@@ -216,6 +222,9 @@ function createTreeGridMachine<TNode extends TreeNode<TNode>>(
     { rows: [], expanded: [] },
   );
   const subscription = state$.subscribe();
+  const restarts = restart$.subscribe(() => {
+    closed$.next(new Set());
+  });
 
   return {
     state$,
@@ -237,6 +246,7 @@ function createTreeGridMachine<TNode extends TreeNode<TNode>>(
       },
     },
     dispose: (): void => {
+      restarts.unsubscribe();
       subscription.unsubscribe();
       closed$.complete();
       latestRoots.complete();

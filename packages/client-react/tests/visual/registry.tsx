@@ -390,7 +390,7 @@ const registry: Record<string, Entry> = {
 function TablesPanelPart(): ReactElement {
   const { useAllocation, useColumns } = useViewModel();
   const { tables, selectedTableId } = useAllocation();
-  const columns = useColumns(TABLES_COLUMN_SPECS);
+  const columns = useColumns("tables", TABLES_COLUMN_SPECS);
 
   return (
     <ThousandthTablesPanel
@@ -411,7 +411,7 @@ function TablesPanelPart(): ReactElement {
 function CoefficientsPanelPart(): ReactElement {
   const { useCoefficientsGrid, useColumns } = useViewModel();
   const grid = useCoefficientsGrid();
-  const columns = useColumns(COEFFICIENTS_COLUMN_SPECS);
+  const columns = useColumns("coefficients", COEFFICIENTS_COLUMN_SPECS);
 
   return (
     <CoefficientsPanel
@@ -436,9 +436,7 @@ function AllocationPanelPart(): ReactElement {
       return column.label;
     }) ?? [];
 
-  return (
-    <AllocationColumns key={columns.length} columns={columns} mode={mode} />
-  );
+  return <AllocationColumns columns={columns} mode={mode} />;
 }
 
 interface AllocationColumnsProps {
@@ -446,14 +444,17 @@ interface AllocationColumnsProps {
   mode: AllocationMode;
 }
 
-/** The Allocation for one count of accounts: the columns machine reads its spec once. */
+/** The Allocation with the column widths kept for its count of accounts. */
 function AllocationColumns({
   columns,
   mode,
 }: AllocationColumnsProps): ReactElement {
   const { useAllocationGrid, useColumns } = useViewModel();
   const grid = useAllocationGrid();
-  const widths = useColumns(allocationColumnSpecs(columns.length));
+  const widths = useColumns(
+    "allocation",
+    allocationColumnSpecs(columns.length),
+  );
 
   return (
     <AllocationPanel

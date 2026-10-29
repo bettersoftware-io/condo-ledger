@@ -1,5 +1,11 @@
 import { type DefaultedStateObservable, state } from "@rx-state/core";
-import { BehaviorSubject, combineLatest, map, type Observable } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  map,
+  NEVER,
+  type Observable,
+} from "rxjs";
 
 import type { JournalEntryView, PostingView } from "@cl/domain";
 
@@ -68,12 +74,15 @@ const INITIAL: Preferences = {
 
 /**
  * What the Journal grid shows of the presenter's entries: the page, the open
- * entries, the search and the selection. One per grid on screen. The state is
+ * entries, the search and the selection. The state is
  * reconciled with the entries on every emission: a selected or open entry
- * that is gone is dropped, a page past the end becomes the last.
+ * that is gone is dropped, a page past the end becomes the last. Each
+ * emission of `restart$` goes back to the first page, with nothing open or
+ * selected, and keeps the search and the page size.
  */
 export function createJournalGridMachine(
   entries$: Observable<JournalEntryView[]>,
+  restart$: Observable<unknown> = NEVER,
 ): Machine<JournalGridState, JournalGridIntents> {
   const preferences$ = new BehaviorSubject<Preferences>(INITIAL);
   const latest = new BehaviorSubject<JournalEntryView[]>([]);
@@ -88,6 +97,9 @@ export function createJournalGridMachine(
     stateOf([], INITIAL),
   );
   const subscription = state$.subscribe();
+  const restarts = restart$.subscribe(() => {
+    update({ selectedId: null, expanded: new Set(), page: 1 });
+  });
 
   function update(change: Partial<Preferences>): void {
     preferences$.next({ ...preferences$.getValue(), ...change });
@@ -148,6 +160,7 @@ export function createJournalGridMachine(
       },
     },
     dispose: (): void => {
+      restarts.unsubscribe();
       subscription.unsubscribe();
       preferences$.complete();
     },
