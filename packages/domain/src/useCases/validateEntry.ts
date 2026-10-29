@@ -395,9 +395,9 @@ function lineReason(
   }
 
   if (control && posting.counterpart !== null) {
-    const kind = counterpartKindOf(account);
+    const expected = counterpartKindOf(account);
 
-    if (kind !== null && posting.counterpart.kind !== kind) {
+    if (expected !== null && posting.counterpart.kind !== expected) {
       return "counterpart-mismatch";
     }
   }
