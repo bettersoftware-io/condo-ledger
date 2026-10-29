@@ -28,19 +28,14 @@ export function GenericEntryWizard({
   const { useGenericEntryWizard, useJournalContext } = useViewModel();
   const wizard = useGenericEntryWizard(editing);
   const context = useJournalContext();
-  const saving = useWizardSave(wizard.save, onSaved);
-
-  function edit(patch: Partial<GenericEntryForm>): void {
-    saving.forget();
-    wizard.edit(patch);
-  }
+  const saving = useWizardSave(wizard, onSaved);
 
   return (
     <GenericEntryBody
       context={context}
       state={wizard.state}
       refusal={saving.refusal}
-      onEdit={edit}
+      onEdit={saving.edit}
       onNext={wizard.next}
       onBack={wizard.back}
       onSave={saving.save}

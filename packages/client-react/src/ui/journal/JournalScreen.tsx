@@ -130,7 +130,7 @@ export function JournalScreen({ maximize }: JournalScreenProps): ReactElement {
             <JournalGrid
               rows={grid.state.rows}
               template={columns.state.template}
-              searching={grid.state.search.trim() !== ""}
+              searching={grid.state.searching}
               onToggle={grid.toggle}
               onSelect={grid.select}
               onEdit={dialog.openEdit}

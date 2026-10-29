@@ -1,5 +1,5 @@
 import { Subject } from "rxjs";
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
   accepted,
@@ -14,6 +14,7 @@ import {
 } from "@cl/domain";
 
 import { parseAmount } from "#/amounts.ts";
+import { disposeAfterEach } from "#/testing/disposeAfterEach.ts";
 
 import {
   createWizardMachine,
@@ -23,12 +24,6 @@ import {
   type WizardDefinition,
   type WizardMachine,
 } from "./wizard.ts";
-
-afterEach(() => {
-  for (const machine of [...created.splice(0), ...notedCreated.splice(0)]) {
-    machine.dispose();
-  }
-});
 
 describe("a wizard machine", () => {
   it("judges the form again, as it stands, each time rejudge$ emits, and only then", () => {
@@ -53,7 +48,7 @@ describe("a wizard machine", () => {
       rejudge$,
     );
 
-    created.push(machine);
+    track(machine);
     machine.intents.edit({ amount: "12.50" });
     open = false;
 
@@ -182,7 +177,7 @@ describe("a wizard machine", () => {
       },
     );
 
-    created.push(machine);
+    track(machine);
 
     expect(machine.state$.getValue().editing).toBe("tx8");
   });
@@ -246,7 +241,7 @@ describe("a wizard machine", () => {
       return Promise.reject(new Error("the port is down"));
     });
 
-    created.push(machine);
+    track(machine);
     machine.intents.edit({ amount: "1" });
 
     await expect(machine.intents.save()).rejects.toThrow("the port is down");
@@ -264,7 +259,7 @@ describe("a wizard machine", () => {
       }),
     );
 
-    created.push(machine);
+    track(machine);
     machine.intents.edit({ amount: "12.50" });
 
     expect(await machine.intents.save()).toEqual({
@@ -282,7 +277,7 @@ describe("a wizard machine", () => {
       }),
     );
 
-    created.push(machine);
+    track(machine);
     machine.intents.edit({ amount: "12.50" });
 
     expect(await machine.intents.save()).toEqual({
@@ -299,7 +294,7 @@ describe("a wizard machine", () => {
       }),
     );
 
-    created.push(machine);
+    track(machine);
     machine.intents.edit({ amount: "12.50" });
 
     expect(await machine.intents.save()).toEqual({
@@ -361,7 +356,7 @@ function createWizard(stepCount = 1, hold = false): CreatedWizard {
 
   const machine = createWizardMachine(createDefinition(stepCount), addEntry);
 
-  created.push(machine);
+  track(machine);
 
   return {
     machine,
@@ -434,7 +429,7 @@ function createNotedWizard(
     return Promise.resolve(accepted({ id: "new1" }));
   });
 
-  notedCreated.push(machine);
+  trackNoted(machine);
 
   return machine;
 }
@@ -474,6 +469,6 @@ function deriveAmount(form: AmountForm): Derived {
   };
 }
 
-const created: WizardMachine<AmountForm, AmountSummary>[] = [];
+const track = disposeAfterEach();
 
-const notedCreated: WizardMachine<NotedForm, null>[] = [];
+const trackNoted = disposeAfterEach();

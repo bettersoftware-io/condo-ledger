@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
   accepted,
@@ -15,6 +15,7 @@ import { amountText } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 import { type AppHarness, createAppHarness } from "#/testing/appHarness.ts";
 import { createAmountTexts } from "#/testing/createAmountTexts.ts";
+import { disposeAfterEach } from "#/testing/disposeAfterEach.ts";
 import { currentBooks, currentEntry } from "#/testing/harnessBooks.ts";
 
 import { liquidityChoices } from "./choices.ts";
@@ -25,12 +26,6 @@ import {
   type OpenInvoiceRow,
 } from "./invoicePaymentWizard.ts";
 import type { WizardMachine } from "./wizard.ts";
-
-afterEach(() => {
-  for (const machine of created.splice(0)) {
-    machine.dispose();
-  }
-});
 
 describe("the Invoice payment wizard", () => {
   it("starts on step 1 of 3 with no invoice, the bank account chosen, and the eight open invoices by date", () => {
@@ -393,7 +388,7 @@ describe("the Invoice payment wizard", () => {
       null,
     );
 
-    created.push(machine);
+    track(machine);
     machine.intents.edit({ invoiceId: "li19" });
 
     expect(await machine.intents.save()).toEqual(accepted({ id: "new1" }));
@@ -424,7 +419,7 @@ describe("the Invoice payment wizard", () => {
       null,
     );
 
-    created.push(machine);
+    track(machine);
 
     const rows = machine.state$.getValue().summary.open;
 
@@ -450,7 +445,7 @@ describe("the Invoice payment wizard", () => {
       null,
     );
 
-    created.push(machine);
+    track(machine);
     machine.intents.edit({ invoiceId: "li49" });
 
     expect(machine.state$.getValue()).toMatchObject({
@@ -469,7 +464,7 @@ describe("the Invoice payment wizard", () => {
       null,
     );
 
-    created.push(machine);
+    track(machine);
     machine.intents.edit({ invoiceId: "li49" });
 
     expect(machine.state$.getValue()).toMatchObject({
@@ -605,7 +600,7 @@ function createPaymentEdit(): CreatedWizard {
   const harness = createP36Harness();
   const machine = harness.app.machines.createInvoicePaymentWizard("tx198");
 
-  created.push(machine);
+  track(machine);
 
   return { machine, harness };
 }
@@ -616,7 +611,7 @@ function createPaymentWizard(
 ): WizardMachine<InvoicePaymentForm, InvoicePaymentSummary> {
   const machine = harness.app.machines.createInvoicePaymentWizard(null);
 
-  created.push(machine);
+  track(machine);
 
   return machine;
 }
@@ -684,4 +679,4 @@ function escaped(text: string): string {
   return text.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-const created: WizardMachine<InvoicePaymentForm, InvoicePaymentSummary>[] = [];
+const track = disposeAfterEach();

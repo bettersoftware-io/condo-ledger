@@ -82,17 +82,6 @@ Work that waits on a release, a decision or other work.
   for the session, so a screen once visited keeps its data live off-screen:
   the allocation recomputes on every change of the books, and a live
   port's subscriptions behind them would stay open.
-- **Structural tidy-ups (left over):** the branches that held these back
-  (the accessibility work on `Popover` and `FormField`, the per-grid
-  persistence on the grid machines) are done, so nothing holds any of them
-  now. `TopBar.tsx` has two near-identical picker blocks around `Popover`;
-  `Wizards.css` reaches into `FormField`'s class with `:has()`;
-  `JournalScreen` restates the grid machine's blank-search rule (a
-  `searching` flag on the grid's state would hold it in one place); the
-  three wizard machine tests copy one create-and-dispose harness, and the
-  three wizard readers repeat one skeleton; the `knip.jsonc` client-react
-  workspace repeats the `packages/*` settings (knip does not merge a named
-  workspace with the glob, so it stays in sync by hand).
 
 ## Waiting on a person
 
@@ -100,6 +89,8 @@ A step or a decision an agent cannot take.
 
 ## Known limits
 
+- **`Wizards.css` and `BudgetInstallmentsWizard.css` style `FormField`'s box with `:has()`.**
+  A change to `FormField`'s markup must check them.
 - **The module tabs name no panel.** `ModuleTabs` is a named tab list with
   the keyboard of WAI-ARIA's tabs, but the main area below it is not marked
   as its `tabpanel` and named by the active tab: that needs an id shared
