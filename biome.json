@@ -13,7 +13,6 @@
       "!**/.turbo",
       "!old",
       "!docs",
-      "!packages/legacy-import/seed",
       "!packages/domain/src/simulators/seed/legacySeed.generated.ts",
       "!packages/domain/src/testing/pozzetto2013.oracle.ts",
       "!packages/domain/src/testing/pozzetto2013.journal.ts",
