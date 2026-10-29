@@ -12,7 +12,7 @@ One bullet for each entry: its name in bold, what is left, and a link to its
 plan when it has one. `AGENTS.md` says when an entry is added, moved and
 removed.
 
-**Last updated: 2026-10-27**
+**Last updated: 2026-10-29**
 
 ## In progress
 
@@ -32,11 +32,6 @@ Work that waits on a release, a decision or other work.
 
 ## Next, with no plan yet
 
-- **Retire the old allocation engine.** `buildRiparto`, `recomputePeriod`
-  and the prototype's seed `data.generated.json` have no caller but the
-  generator, since M2e's allocation
-  (`packages/domain/src/useCases/allocation/`) replaced them in the app.
-  Remove them together.
 - **Edit an account's allocation tables.** Account Details shows the
   tables an account is allocated by, read-only; the Edit Account dialog is
   where the legacy app changed them. Once links are editable, an account

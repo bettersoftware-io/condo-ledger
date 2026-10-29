@@ -14,9 +14,9 @@
 
 ## 1. Where the numbers come from
 
-The running web app does **not** talk to a database. It reads everything through the
-`MockDataSource` port from an in-memory `MockStore`, seeded by a static JSON file that an
-**offline generator** produces from the legacy SQL dump.
+The running web app does **not** talk to a database. Its simulators are seeded by a
+committed TypeScript module (`packages/domain/src/simulators/seed/legacySeed.generated.ts`)
+that an **offline generator** produces from the legacy SQL dump.
 
 ```mermaid
 flowchart LR
@@ -24,22 +24,21 @@ flowchart LR
   PARSE["@cl/db ETL parser<br/>parseDdl · parseInserts"]
   ROWS["loadRows.ts<br/>typed rows by table"]
   DB["db.ts buildDb()<br/>indexes + real-building selection"]
-  PROJ["project/*.ts<br/>pure projections → app DTOs"]
+  PROJ["project/legacySeed.ts<br/>pure projection → the domain's seed"]
   REC["reconcile.ts<br/>per-period trial balance"]
-  ASM["assemble.ts<br/>Seed (reconcile-gated)"]
-  JSON["src/mock/data.generated.json<br/>(committed, ~656 KB)"]
-  STORE["MockStore (createGeneratedDataSource)"]
-  APP["React app<br/>(Condomini · Calendario · Anagrafiche)"]
+  SEED["legacySeed.generated.ts<br/>(committed)"]
+  SIM["the domain's simulators"]
+  APP["React app"]
 
-  DUMP --> PARSE --> ROWS --> DB --> PROJ --> ASM --> JSON --> STORE --> APP
-  DB --> REC --> ASM
+  DUMP --> PARSE --> ROWS --> DB --> PROJ --> SEED --> SIM --> APP
+  DB --> REC --> PROJ
 ```
 
 Key properties:
 
-- **Pure functions, no DB at runtime.** Every projection in `apps/web/tools/gen/project/`
-  is a pure function `(db, periodId) → DTO`. The dump is read once at *generation* time;
-  the committed JSON is the app's seed, so build/CI never need the 48 MB file.
+- **Pure functions, no DB at runtime.** Every projection in `packages/legacy-import/src/project/`
+  is a pure function of the loaded dump. The dump is read once at *generation* time;
+  the committed seed module is the app's seed, so build/CI never need the 48 MB file.
 - **Money is integer cents.** Every monetary value is `Money = { cents: number }`
   (`@cl/domain`). Legacy decimal strings like `"-44.20"` are parsed once via `eur()` →
   `{ cents: -4420 }`. No floating-point money flows through the app.

@@ -6,10 +6,8 @@ import {
   allocationBooksOf,
   allocationOf,
   allocationSourceOf,
-  buildRiparto,
   type LegacySeed,
   loadLegacySeed,
-  type Money,
 } from "@cl/domain";
 
 import { projectAccounts, projectTransactions } from "#/project/accounting.ts";
@@ -17,12 +15,9 @@ import {
   projectAnagrafiche,
   projectCategories,
 } from "#/project/anagrafiche.ts";
-import { projectDistribution } from "#/project/distribution.ts";
 import { projectInstallments } from "#/project/installments.ts";
 import { projectLegacySeed } from "#/project/legacySeed.ts";
-import { dbToRipartoInput } from "#/project/ripartoInput.ts";
 import { projectTree } from "#/project/structure.ts";
-import { projectUnits } from "#/project/units.ts";
 import { reconcilePeriods } from "#/reconcile.ts";
 import type {
   Anagrafica,
@@ -30,16 +25,13 @@ import type {
   InstallmentRow,
   LedgerAccountRow,
   LedgerTxnRow,
-  UnitRow,
 } from "#/seedTypes.ts";
 
 import { Given, Then, When } from "./gherkin/run.ts";
 import {
   entryCount,
-  estimateDistributionByResident,
   installmentItemTotalCents,
   rawTrialBalanceCents,
-  startingBalanceByResident,
 } from "./oracle.ts";
 import { resolvePeriod, type SpecWorld } from "./world.ts";
 
@@ -99,104 +91,6 @@ Then(/^the account tree saldo equals the raw sum of entries$/, (world) => {
   }, 0);
   expect(treeSaldo).toBe(rawTrialBalanceCents(w.db, w.legacyPeriodId!));
 });
-
-// --- riparto (distribution) parity -----------------------------------------
-
-/** The part of a matrix row that sumMatrix reads. */
-interface MatrixRow {
-  total: Money;
-}
-
-/** group row is rows[0]; its total is the whole matrix total. */
-function sumMatrix(rows: MatrixRow[]): number {
-  return rows.length ? rows[0]!.total.cents : 0;
-}
-
-When(/^the new app computes the riparto matrices$/, (world) => {
-  const w = world as SpecWorld;
-  w.dist = projectDistribution(w.db, w.legacyPeriodId!);
-});
-
-Then(
-  /^the estimate matrix total equals the sum of linked expense estimates$/,
-  (world) => {
-    const w = world as SpecWorld;
-    const dist = w.dist as ReturnType<typeof projectDistribution>;
-    const eng = buildRiparto(dbToRipartoInput(w.db, w.legacyPeriodId!));
-    const src = eng.columns.reduce((s, c) => {
-      return s + eng.subtree(c.legacyAccountId).estimateCents;
-    }, 0);
-    const matrix = sumMatrix(dist.estimate.rows);
-    // tolerance: ~one rounding cent per allocated (column x unit) cell. A multi-link
-    // column rounds once per chosen link, so a cell can contribute >1 cent; in practice
-    // link counts are small and errors rarely align, so this remains a safe upper bound.
-    expect(Math.abs(matrix - src)).toBeLessThanOrEqual(
-      eng.columns.length * eng.unitLegacyIds.length,
-    );
-  },
-);
-
-Then(
-  /^the current matrix total equals the sum of linked expense actuals$/,
-  (world) => {
-    const w = world as SpecWorld;
-    const dist = w.dist as ReturnType<typeof projectDistribution>;
-    const eng = buildRiparto(dbToRipartoInput(w.db, w.legacyPeriodId!));
-    const src = eng.columns.reduce((s, c) => {
-      return s + eng.subtree(c.legacyAccountId).actualCents;
-    }, 0);
-    const matrix = sumMatrix(dist.current.rows);
-    expect(Math.abs(matrix - src)).toBeLessThanOrEqual(
-      eng.columns.length * eng.unitLegacyIds.length,
-    );
-  },
-);
-
-When(
-  /^the new app computes per-resident preventivo from the riparto engine$/,
-  (world) => {
-    const w = world as SpecWorld;
-    const eng = buildRiparto(dbToRipartoInput(w.db, w.legacyPeriodId!));
-    const byResident = new Map<string, number>();
-
-    for (const unitId of eng.unitLegacyIds) {
-      for (const col of eng.columns) {
-        for (const [ur, cents] of eng.perResidentAmount(
-          col.legacyAccountId,
-          "estimate",
-          unitId,
-        )) {
-          byResident.set(ur, (byResident.get(ur) ?? 0) + cents);
-        }
-      }
-    }
-
-    w.enginePreventivo = byResident;
-  },
-);
-
-// Σ-only fallback: the per-resident split diverges materially (see feature NOTE),
-// but the TOTAL preventivo the engine emits ties out to what the legacy app
-// posted, within rounding. Tolerance = number of residents (≤1 cent per resident
-// rounding), generous enough to cover the per-cell rounding of the split.
-Then(
-  /^the total engine preventivo equals the total legacy estimateDistribution within rounding$/,
-  (world) => {
-    const w = world as SpecWorld;
-    const engine = w.enginePreventivo as Map<string, number>;
-    const legacy = estimateDistributionByResident(w.db, w.legacyPeriodId!);
-
-    function sum(mm: Map<string, number>): number {
-      return [...mm.values()].reduce((s, v) => {
-        return s + v;
-      }, 0);
-    }
-
-    const residents = new Set<string>([...engine.keys(), ...legacy.keys()])
-      .size;
-    expect(Math.abs(sum(engine) - sum(legacy))).toBeLessThanOrEqual(residents);
-  },
-);
 
 // --- allocation parity (the legacy algorithm) --------------------------------
 
@@ -321,56 +215,6 @@ Then(
     expect(projected).toBe(installmentItemTotalCents(w.db, w.legacyPeriodId!));
   },
 );
-
-// --- units money (per-resident saldoPrec) parity ---------------------------
-
-// Resident rows carry id `r<unitResident.id>` (see project/units.ts: `id: \`r${r.id}\``),
-// so stripping the leading `r` recovers the raw unitResident.id that
-// startingBalanceByResident keys by.
-function residentRows(rows: UnitRow[]): UnitRow[] {
-  const out: UnitRow[] = [];
-
-  function walk(r: UnitRow): void {
-    if (r.kind === "resident") {
-      out.push(r);
-    }
-
-    (r.children ?? []).forEach(walk);
-  }
-
-  rows.forEach(walk);
-  return out;
-}
-
-When(/^the new app projects the units tree$/, (world) => {
-  const w = world as SpecWorld;
-  w.units = projectUnits(w.db, w.legacyPeriodId!);
-});
-
-Then(
-  /^each resident saldoPrec equals the legacy unitResident startingBalance$/,
-  (world) => {
-    const w = world as SpecWorld;
-    const residents = residentRows(w.units as UnitRow[]);
-    const legacy = startingBalanceByResident(w.db, w.legacyPeriodId!);
-    expect(residents.length).toBeGreaterThan(0);
-
-    for (const r of residents) {
-      const legacyId = r.id.replace(/^r/, "");
-      expect(r.saldoPrec.cents).toBe(legacy.get(legacyId) ?? 0);
-    }
-  },
-);
-
-Then(/^the group saldoPrec equals the sum of resident saldoPrec$/, (world) => {
-  const rows = (world as SpecWorld).units as UnitRow[];
-  expect(rows.length).toBeGreaterThan(0); // fail readably (not a raw TypeError) on an empty tree
-  const group = rows[0]!;
-  const sum = residentRows(rows).reduce((s, r) => {
-    return s + r.saldoPrec.cents;
-  }, 0);
-  expect(group.saldoPrec.cents).toBe(sum);
-});
 
 // --- anagrafiche + structure projection parity ------------------------------
 

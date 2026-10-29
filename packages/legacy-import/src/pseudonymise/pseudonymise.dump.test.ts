@@ -2,8 +2,11 @@ import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
+import type { LegacySeedData } from "@cl/domain";
+
+import type { Anagrafica } from "#/seedTypes.ts";
+
 import { formatAddress, parseAddressVO } from "../addressVO.ts";
-import { assemble, type Seed } from "../assemble.ts";
 import { buildDb } from "../db.ts";
 import {
   DUMP_SUITE_TIMEOUT_MS,
@@ -12,6 +15,9 @@ import {
   legacyDumpPath,
 } from "../legacyDump.ts";
 import { parseTables, type Tables } from "../loadRows.ts";
+import { projectAnagrafiche } from "../project/anagrafiche.ts";
+import { projectLegacySeed } from "../project/legacySeed.ts";
+import { translateLegacySeed } from "../translate/translateSeed.ts";
 import { identifierReplacements } from "./freeText.ts";
 import { loadExtraEntries } from "./leftovers.ts";
 import { TOWNS } from "./names.ts";
@@ -28,9 +34,9 @@ describe.skipIf(!legacyDumpAvailable())(
   dumpSuiteName("pseudonymise over the real dump"),
   { timeout: DUMP_SUITE_TIMEOUT_MS },
   () => {
-    it("leaves no original name, code, contact or address anywhere in the seed", () => {
-      const { tables, seed } = load();
-      const json = JSON.stringify(seed);
+    it("leaves no original name, code, contact or address anywhere in the seed or the registry", () => {
+      const { tables, seed, anagrafiche } = load();
+      const json = JSON.stringify({ seed, anagrafiche });
       const leaks = originalValues(tables).filter((value) => {
         return wholeWord(value).test(json);
       });
@@ -54,9 +60,9 @@ describe.skipIf(!legacyDumpAvailable())(
     });
 
     it("pins three pseudonyms, so a regeneration cannot drift", () => {
-      const { seed } = load();
+      const { anagrafiche } = load();
       const byId = new Map(
-        seed.anagrafiche.map((a) => {
+        anagrafiche.map((a) => {
           return [a.id, a];
         }),
       );
@@ -74,15 +80,17 @@ describe.skipIf(!legacyDumpAvailable())(
   },
 );
 
-// The seed exactly as generate-data.ts builds it.
+// The simulators' seed exactly as generate-data.ts builds it, and the registry projected from the same db.
 function load(): Loaded {
   if (!cached) {
     const tables = parseTables(readFileSync(legacyDumpPath(), "utf8"));
     const pseudonymised = pseudonymiseTables(tables, loadExtraEntries());
+    const db = buildDb(pseudonymised);
     cached = {
       tables,
       pseudonymised,
-      seed: assemble(buildDb(pseudonymised)),
+      seed: translateLegacySeed(projectLegacySeed(db)),
+      anagrafiche: projectAnagrafiche(db),
     };
   }
 
@@ -221,7 +229,8 @@ const ADDRESS_COLUMNS: readonly (readonly [string, string])[] = [
 interface Loaded {
   tables: Tables;
   pseudonymised: Tables;
-  seed: Seed;
+  seed: LegacySeedData;
+  anagrafiche: Anagrafica[];
 }
 
 let cached: Loaded | null = null;

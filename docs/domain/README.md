@@ -27,27 +27,10 @@ legacy app itself. Run with `pnpm --filter @cl/legacy-import test`. See
 exactly what is and isn't covered; design:
 `docs/superpowers/specs/2026-06-14-accounting-parity-specs-design.md`.
 
-**Riparto engine** — the faithful distribution math lives once in
-`packages/domain/src/riparto/computeRiparto.ts` (pure, store/DB-agnostic). The offline
-generator adapts the legacy dump into it via `apps/web/tools/gen/project/ripartoInput.ts`;
-`data.generated.json` is byte-identical to the pre-extraction output (the parity specs are
-the gate). This is Phase 0 of the recompute-engine work
-(`docs/superpowers/specs/2026-06-16-recompute-engine-design.md`); the live-app reactive
-cascade is a later phase.
-The period cascade `packages/domain/src/riparto/recomputePeriod.ts` builds on it (pure
-`recomputePeriod(state) → { riparto, installments, balances }`); Phase 1b wires the generator
-and the live app through it.
-The build-time seed generator consumes it via `apps/web/tools/gen/project/periodState.ts`
-(`dbToPeriodState`): distribution and per-resident balances are derived from
-`recomputePeriod(state)` (byte-identical to the prior `buildRiparto` path); installments
-remain on their legacy `installmentItem` source. For the live app, the generator also seeds
-`periodStateByPeriod` (the pure-cascade input) and `individualByPeriod` (per-resident individual
-expenses) into `data.generated.json`, so the app can rebuild distribution + balances by calling
-`recomputePeriod` at runtime. Phase 1b-2b wires that into the live store: `distribution`
-and `unitsTree` are derived by assembling a live `PeriodState` from the editable subjects
-(`tables$`/`accounts$`/`paid$`) and overlaying `recomputePeriod` onto the seeded DTO
-skeletons; the bespoke `recomputeDistribution` is retired. Installments remain a
-command-patched source.
+**Allocation** — the legacy distribution (riparto) algorithm lives once in
+`packages/domain/src/useCases/allocation/` (`allocationOf`). The earlier riparto engine
+(`buildRiparto`, `recomputePeriod`) and the prototype's JSON seed were retired when the
+allocation replaced them in the app.
 
 ## Quick mental model
 

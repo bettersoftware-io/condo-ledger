@@ -461,7 +461,7 @@ Expected from the dump:
     line for line. For Pozzetto it equals the stored tx291 except A04's two
     lines and the roundings lines. That difference is the stored entry's,
     and the test names it.
-- **legacy-import specs:** `riparto.feature` runs on `allocationOf`:
+- **legacy-import specs:** `riparto.feature` (since renamed `allocation.feature`) runs on `allocationOf`:
   Saturno all residents equal; Pozzetto 25 equal to the posted entry and A04
   equal to the report's 898.64 / 46.63, with the NOTE rewritten to say why.
   The old one-cent tolerance goes.
