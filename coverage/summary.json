@@ -1,8 +1,8 @@
 {
-  "commit": "e30684664f2df3451981ed02cf57696c5c384748",
+  "commit": "aa62a62cbe767be8c88e7c4958ac9666fd6c4a9a",
   "uncommittedChanges": false,
   "ref": "main",
-  "builtAt": "2026-10-29T13:17:42.335Z",
+  "builtAt": "2026-10-29T13:24:12.637Z",
   "thresholds": {
     "lines": 95,
     "statements": 95,
@@ -56,9 +56,9 @@
     {
       "directory": "packages/domain",
       "verdict": "PASS",
-      "reason": "45 files at or above the bar",
-      "measuredFiles": 45,
-      "emptyFiles": 18,
+      "reason": "40 files at or above the bar",
+      "measuredFiles": 40,
+      "emptyFiles": 16,
       "underTheBar": [],
       "unexplainedIgnores": [],
       "failedTests": []
