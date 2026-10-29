@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
   accepted,
@@ -15,6 +15,7 @@ import { must } from "@cl/domain/support/must.ts";
 
 import { type AppHarness, createAppHarness } from "#/testing/appHarness.ts";
 import { createAmountTexts } from "#/testing/createAmountTexts.ts";
+import { disposeAfterEach } from "#/testing/disposeAfterEach.ts";
 import { currentBooks, currentEntry } from "#/testing/harnessBooks.ts";
 
 import {
@@ -26,12 +27,6 @@ import {
   WITHHOLDING_GROUP,
 } from "./invoiceWizard.ts";
 import type { WizardMachine } from "./wizard.ts";
-
-afterEach(() => {
-  for (const machine of created.splice(0)) {
-    machine.dispose();
-  }
-});
 
 describe("the New invoice wizard", () => {
   it("starts on step 1 of 2 with no supplier, the period's last day as the date, VAT 20 and no withholding", () => {
@@ -426,7 +421,7 @@ describe("the New invoice wizard", () => {
       null,
     );
 
-    created.push(machine);
+    track(machine);
     machine.intents.edit({
       supplierId: "md999",
       number: "5",
@@ -538,7 +533,7 @@ describe("the New invoice wizard", () => {
       null,
     );
 
-    created.push(machine);
+    track(machine);
     machine.intents.edit({ supplierId: "md78" });
 
     expect(li50.number).toBe("3163");
@@ -685,7 +680,7 @@ describe("the New invoice wizard", () => {
 
     const edit = harness.app.machines.createInvoiceWizard(id);
 
-    created.push(edit);
+    track(edit);
     expect(edit.state$.getValue().form).toMatchObject({
       date: "23/04/2013",
       dueDate: "23/05/2013",
@@ -711,7 +706,7 @@ describe("the New invoice wizard", () => {
       null,
     );
 
-    created.push(machine);
+    track(machine);
     machine.intents.edit({
       supplierId: "md81",
       number: "5",
@@ -737,7 +732,7 @@ describe("the New invoice wizard", () => {
       null,
     );
 
-    created.push(machine);
+    track(machine);
     machine.intents.edit({ supplierId: "md78", taxable: "100" });
 
     expect(machine.state$.getValue()).toMatchObject({
@@ -843,7 +838,7 @@ describe("editing an invoice", () => {
       open.invoice.entryId,
     );
 
-    created.push(machine);
+    track(machine);
 
     expect(machine.state$.getValue().summary).toMatchObject({
       supplierLocked: false,
@@ -946,7 +941,7 @@ describe("rates in the session's language", () => {
       null,
     );
 
-    created.push(machine);
+    track(machine);
     machine.intents.edit({ supplierId: "md78" });
 
     expect(machine.state$.getValue().form).toMatchObject({
@@ -964,7 +959,7 @@ async function createItalianStepTwo(): Promise<CreatedWizard> {
 
   const machine = harness.app.machines.createInvoiceWizard(null);
 
-  created.push(machine);
+  track(machine);
   machine.intents.edit({ supplierId: "md81", number: "5" });
   machine.intents.edit({
     taxable: "1.000,00",
@@ -980,7 +975,7 @@ function createWizard(clock?: ClockPort): CreatedWizard {
   const harness = createP36Harness(clock);
   const machine = harness.app.machines.createInvoiceWizard(null);
 
-  created.push(machine);
+  track(machine);
 
   return { machine, harness };
 }
@@ -1000,7 +995,7 @@ function createPaidInvoiceEdit(): EditedInvoice {
   );
   const machine = harness.app.machines.createInvoiceWizard(invoice.entryId);
 
-  created.push(machine);
+  track(machine);
 
   return { machine, harness, invoice };
 }
@@ -1037,7 +1032,7 @@ function escaped(text: string): string {
   return text.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-const created: WizardMachine<InvoiceForm, InvoiceSummary>[] = [];
+const track = disposeAfterEach();
 
 interface CreatedWizard {
   machine: WizardMachine<InvoiceForm, InvoiceSummary>;

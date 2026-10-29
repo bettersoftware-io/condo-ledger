@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
   budgetSharesOf,
@@ -12,6 +12,7 @@ import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.
 import { must } from "@cl/domain/support/must.ts";
 
 import { type AppHarness, createAppHarness } from "#/testing/appHarness.ts";
+import { disposeAfterEach } from "#/testing/disposeAfterEach.ts";
 import { currentBooks, currentEntry } from "#/testing/harnessBooks.ts";
 
 import {
@@ -20,12 +21,6 @@ import {
   createBudgetAllocationWizard,
 } from "./budgetAllocationWizard.ts";
 import type { WizardMachine } from "./wizard.ts";
-
-afterEach(() => {
-  for (const machine of created.splice(0)) {
-    machine.dispose();
-  }
-});
 
 describe("the Budget allocation wizard", () => {
   it("on p1 with tx5 deleted, previews tx5 again line for line, under the default description, accepted", async () => {
@@ -239,18 +234,7 @@ interface Line {
   credit: Cents;
 }
 
-/** What a test disposes after it: the machines it built. */
-interface Disposable {
-  dispose: () => void;
-}
-
-const created: Disposable[] = [];
-
-function track<TMachine extends Disposable>(machine: TMachine): TMachine {
-  created.push(machine);
-
-  return machine;
-}
+const track = disposeAfterEach();
 
 function neverWrite(): Promise<never> {
   throw new Error("nothing is written");

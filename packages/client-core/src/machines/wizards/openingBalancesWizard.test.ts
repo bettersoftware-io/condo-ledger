@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
   accepted,
@@ -19,6 +19,7 @@ import type { Books } from "#/presenters/booksPresenter.ts";
 import { type AppHarness, createAppHarness } from "#/testing/appHarness.ts";
 import { createAmountTexts } from "#/testing/createAmountTexts.ts";
 import { createBooks } from "#/testing/createBooks.ts";
+import { disposeAfterEach } from "#/testing/disposeAfterEach.ts";
 import { currentBooks, currentEntry } from "#/testing/harnessBooks.ts";
 
 import {
@@ -32,12 +33,6 @@ import {
   openingRows,
 } from "./openingBalancesWizard.ts";
 import type { WizardMachine } from "./wizard.ts";
-
-afterEach(() => {
-  for (const machine of created.splice(0)) {
-    machine.dispose();
-  }
-});
 
 describe("openingRows", () => {
   it("lists the regular assets and liabilities leaves, then one row per resident under the owners account", async () => {
@@ -342,7 +337,7 @@ describe("the Opening balances wizard", () => {
     const dialog = harness.app.machines.createJournalDialog();
     const machine = harness.app.machines.createOpeningBalancesWizard(null);
 
-    created.push(machine);
+    track(machine);
     editAmount(machine, "la156", { debit: "6,250.99", credit: "" });
 
     const saved = await machine.intents.save();
@@ -383,7 +378,7 @@ describe("the Opening balances wizard", () => {
     const entry = currentEntry(harness, "tx100");
     const machine = harness.app.machines.createOpeningBalancesWizard("tx100");
 
-    created.push(machine);
+    track(machine);
 
     const state = machine.state$.getValue();
 
@@ -491,7 +486,7 @@ interface CreatedWizard {
 
 const SAVED: EntryAdded = { id: "saved" };
 
-const created: WizardMachine<OpeningForm, OpeningSummary>[] = [];
+const track = disposeAfterEach();
 
 function createWizard(books: Books | null): CreatedWizard {
   const drafts: EntryDraft[] = [];
@@ -509,7 +504,7 @@ function createWizard(books: Books | null): CreatedWizard {
     null,
   );
 
-  created.push(machine);
+  track(machine);
 
   return {
     machine,

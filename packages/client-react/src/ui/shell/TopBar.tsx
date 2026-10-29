@@ -1,7 +1,7 @@
 import { ChevronDown, Moon, Sun } from "lucide-react";
 import { type ReactElement, useState } from "react";
 
-import type { Language, Principal, Result, Theme } from "@cl/domain";
+import type { Language, Mode, Principal, Result, Theme } from "@cl/domain";
 import { useViewModel } from "@cl/react-bindings";
 
 import { TESTIDS } from "../testids.ts";
@@ -42,18 +42,14 @@ export function TopBar(): ReactElement {
     setPicker(null);
   }
 
-  function pickingTheme(theme: Theme): () => void {
-    return (): void => {
-      setPicker(null);
-      save(setTheme(theme));
-    };
+  function pickTheme(theme: Theme): void {
+    setPicker(null);
+    save(setTheme(theme));
   }
 
-  function pickingLanguage(language: Language): () => void {
-    return (): void => {
-      setPicker(null);
-      save(setLanguage(language));
-    };
+  function pickLanguage(language: Language): void {
+    setPicker(null);
+    save(setLanguage(language));
   }
 
   function stubLogOut(): void {
@@ -112,36 +108,16 @@ export function TopBar(): ReactElement {
                 {THEME_NAMES[preferences.theme]}
                 <ChevronDown className="topbar-chevron" size={11} />
               </button>
-              <Popover
+              <PickerMenu
                 open={picker === "theme"}
                 label="Theme"
+                values={THEMES}
+                selected={preferences.theme}
+                nameOf={themeName}
+                iconOf={themeSwatch(preferences.mode)}
+                onPick={pickTheme}
                 onClose={closePicker}
-              >
-                {THEMES.map((theme) => {
-                  return (
-                    <button
-                      key={theme}
-                      type="button"
-                      className="popover-option"
-                      role="menuitemradio"
-                      aria-checked={theme === preferences.theme}
-                      onClick={pickingTheme(theme)}
-                    >
-                      <span
-                        className="topbar-swatch topbar-swatch-option"
-                        data-theme={theme}
-                        data-mode={preferences.mode}
-                      />
-                      <span className="popover-option-name">
-                        {THEME_NAMES[theme]}
-                      </span>
-                      <span className="popover-option-check" aria-hidden="true">
-                        ✓
-                      </span>
-                    </button>
-                  );
-                })}
-              </Popover>
+              />
             </div>
           </div>
           <div className="topbar-controls">
@@ -158,33 +134,17 @@ export function TopBar(): ReactElement {
                 {FLAGS[preferences.language]}
                 <ChevronDown className="topbar-chevron" size={11} />
               </button>
-              <Popover
+              <PickerMenu
                 open={picker === "language"}
                 label="Language"
                 width="wide"
+                values={LANGUAGES}
+                selected={preferences.language}
+                nameOf={languageName}
+                iconOf={languageFlag}
+                onPick={pickLanguage}
                 onClose={closePicker}
-              >
-                {LANGUAGES.map((language) => {
-                  return (
-                    <button
-                      key={language}
-                      type="button"
-                      className="popover-option"
-                      role="menuitemradio"
-                      aria-checked={language === preferences.language}
-                      onClick={pickingLanguage(language)}
-                    >
-                      {FLAGS[language]}
-                      <span className="popover-option-name">
-                        {LANGUAGE_NAMES[language]}
-                      </span>
-                      <span className="popover-option-check" aria-hidden="true">
-                        ✓
-                      </span>
-                    </button>
-                  );
-                })}
-              </Popover>
+              />
             </div>
             <button
               type="button"
@@ -206,6 +166,60 @@ export function TopBar(): ReactElement {
 }
 
 type Picker = "theme" | "language";
+
+/** One of the pickers' menus: a radio option for each value, the chosen one checked. */
+function PickerMenu<Value extends string>({
+  open,
+  label,
+  width,
+  values,
+  selected,
+  nameOf,
+  iconOf,
+  onPick,
+  onClose,
+}: PickerMenuProps<Value>): ReactElement {
+  function picking(value: Value): () => void {
+    return (): void => {
+      onPick(value);
+    };
+  }
+
+  return (
+    <Popover open={open} label={label} width={width} onClose={onClose}>
+      {values.map((value) => {
+        return (
+          <button
+            key={value}
+            type="button"
+            className="popover-option"
+            role="menuitemradio"
+            aria-checked={value === selected}
+            onClick={picking(value)}
+          >
+            {iconOf(value)}
+            <span className="popover-option-name">{nameOf(value)}</span>
+            <span className="popover-option-check" aria-hidden="true">
+              ✓
+            </span>
+          </button>
+        );
+      })}
+    </Popover>
+  );
+}
+
+interface PickerMenuProps<Value extends string> {
+  open: boolean;
+  label: string;
+  width?: "narrow" | "wide";
+  values: readonly Value[];
+  selected: Value;
+  nameOf: (value: Value) => string;
+  iconOf: (value: Value) => ReactElement;
+  onPick: (value: Value) => void;
+  onClose: () => void;
+}
 
 const ROLES: Record<Principal["role"], string> = {
   administrator: "Administrator",
@@ -229,6 +243,30 @@ const LANGUAGE_NAMES: Record<Language, string> = {
   de: "Deutsch",
   es: "Español",
 };
+
+function themeName(theme: Theme): string {
+  return THEME_NAMES[theme];
+}
+
+function languageName(language: Language): string {
+  return LANGUAGE_NAMES[language];
+}
+
+function languageFlag(language: Language): ReactElement {
+  return FLAGS[language];
+}
+
+function themeSwatch(mode: Mode): (theme: Theme) => ReactElement {
+  return (theme: Theme): ReactElement => {
+    return (
+      <span
+        className="topbar-swatch topbar-swatch-option"
+        data-theme={theme}
+        data-mode={mode}
+      />
+    );
+  };
+}
 
 /** Saves a preference the person picked. A refused one leaves the session's stream as it was, so the screen stays true. */
 function save(saving: Promise<Result>): void {

@@ -28,12 +28,7 @@ export function DirectPaymentWizard({
   const { useDirectPaymentWizard, useJournalContext } = useViewModel();
   const wizard = useDirectPaymentWizard(kind, editing);
   const context = useJournalContext();
-  const saving = useWizardSave(wizard.save, onSaved);
-
-  function edit(patch: Partial<DirectPaymentForm>): void {
-    saving.forget();
-    wizard.edit(patch);
-  }
+  const saving = useWizardSave(wizard, onSaved);
 
   return (
     <DirectPaymentBody
@@ -41,7 +36,7 @@ export function DirectPaymentWizard({
       context={context}
       state={wizard.state}
       refusal={saving.refusal}
-      onEdit={edit}
+      onEdit={saving.edit}
       onNext={wizard.next}
       onBack={wizard.back}
       onSave={saving.save}

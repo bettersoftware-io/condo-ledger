@@ -203,6 +203,18 @@ describe("the journal grid machine", () => {
     expect(machine.state$.getValue().rows.map(kindAndId)).toEqual(["entry e3"]);
   });
 
+  it("a search that is blank, spaces and all, is not searching", () => {
+    const { machine } = createGrid();
+
+    expect(machine.state$.getValue().searching).toBe(false);
+
+    machine.intents.setSearch("   ");
+    expect(machine.state$.getValue().searching).toBe(false);
+
+    machine.intents.setSearch(" a ");
+    expect(machine.state$.getValue().searching).toBe(true);
+  });
+
   it("a number matches the whole number, not a part of it", () => {
     const { machine, entries$ } = createGrid();
 

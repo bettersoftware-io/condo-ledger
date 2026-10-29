@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
   accepted,
@@ -18,6 +18,7 @@ import type { Books } from "#/presenters/booksPresenter.ts";
 import { createAppHarness } from "#/testing/appHarness.ts";
 import { createAmountTexts } from "#/testing/createAmountTexts.ts";
 import { createBooks } from "#/testing/createBooks.ts";
+import { disposeAfterEach } from "#/testing/disposeAfterEach.ts";
 import { currentBooks, currentEntry } from "#/testing/harnessBooks.ts";
 
 import {
@@ -27,12 +28,6 @@ import {
   postingOf,
 } from "./genericEntryWizard.ts";
 import type { WizardMachine } from "./wizard.ts";
-
-afterEach(() => {
-  for (const machine of created.splice(0)) {
-    machine.dispose();
-  }
-});
 
 describe("the generic-entry wizard", () => {
   it("starts with one empty line and no description: the description is the first thing refused", () => {
@@ -374,7 +369,7 @@ describe("editing an entry line by line", () => {
     const harness = createAppHarness();
     const machine = harness.app.machines.createGenericEntryWizard("tx2");
 
-    created.push(machine);
+    track(machine);
 
     expect(machine.state$.getValue()).toMatchObject({
       editing: "tx2",
@@ -395,7 +390,7 @@ describe("editing an entry line by line", () => {
     const before = currentBooks(harness).entries.length;
     const machine = harness.app.machines.createGenericEntryWizard("tx2");
 
-    created.push(machine);
+    track(machine);
 
     expect(await machine.intents.save()).toEqual({
       ok: true,
@@ -421,7 +416,8 @@ describe("editing an entry line by line", () => {
       "openingBalances",
     );
 
-    created.push(editing, fresh);
+    track(editing);
+    track(fresh);
     fresh.intents.edit(editing.state$.getValue().form);
 
     expect(editing.state$.getValue().verdict).toEqual({ ok: true });
@@ -449,7 +445,7 @@ describe("editing an entry line by line", () => {
     const harness = createAppHarness();
     const machine = harness.app.machines.createGenericEntryWizard("tx1");
 
-    created.push(machine);
+    track(machine);
 
     expect(machine.state$.getValue().verdict).toEqual({ ok: true });
     expect(await machine.intents.save()).toEqual({
@@ -528,7 +524,7 @@ describe("amounts in the session's language", () => {
     const harness = createAppHarness();
     const machine = harness.app.machines.createGenericEntryWizard("tx2");
 
-    created.push(machine);
+    track(machine);
     machine.intents.edit({ lines: linesOf("1,234.56") });
 
     expect(machine.state$.getValue().summary.debit).toBe(123456);
@@ -558,7 +554,7 @@ async function createEditIn(
 
   const machine = harness.app.machines.createGenericEntryWizard(id);
 
-  created.push(machine);
+  track(machine);
 
   return machine;
 }
@@ -597,7 +593,7 @@ function createWizard(
     kind,
   );
 
-  created.push(machine);
+  track(machine);
 
   return {
     machine,
@@ -650,4 +646,4 @@ function createBooksWithUnnamedParties(): Books {
   };
 }
 
-const created: WizardMachine<GenericEntryForm, GenericEntrySummary>[] = [];
+const track = disposeAfterEach();

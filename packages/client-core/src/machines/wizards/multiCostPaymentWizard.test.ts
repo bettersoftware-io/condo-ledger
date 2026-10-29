@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
   accepted,
@@ -12,6 +12,7 @@ import type { Books } from "#/presenters/booksPresenter.ts";
 import { createAppHarness } from "#/testing/appHarness.ts";
 import { createAmountTexts } from "#/testing/createAmountTexts.ts";
 import { createBooks } from "#/testing/createBooks.ts";
+import { disposeAfterEach } from "#/testing/disposeAfterEach.ts";
 import { currentBooks, currentEntry } from "#/testing/harnessBooks.ts";
 
 import {
@@ -21,12 +22,6 @@ import {
   type MultiCostPaymentSummary,
 } from "./multiCostPaymentWizard.ts";
 import type { WizardMachine } from "./wizard.ts";
-
-afterEach(() => {
-  for (const machine of created.splice(0)) {
-    machine.dispose();
-  }
-});
 
 describe("the multi-cost payment wizard", () => {
   it("starts with one empty line, the bank purchase's description, paid from the bank, the expense leaves to choose", () => {
@@ -253,7 +248,7 @@ describe("editing a bank purchase of several costs", () => {
     const harness = createAppHarness();
     const machine = harness.app.machines.createMultiCostPaymentWizard("tx4");
 
-    created.push(machine);
+    track(machine);
 
     expect(machine.state$.getValue()).toMatchObject({
       editing: "tx4",
@@ -276,7 +271,7 @@ describe("editing a bank purchase of several costs", () => {
     const before = currentBooks(harness).entries.length;
     const machine = harness.app.machines.createMultiCostPaymentWizard("tx4");
 
-    created.push(machine);
+    track(machine);
 
     expect(await machine.intents.save()).toEqual({
       ok: true,
@@ -344,7 +339,7 @@ function createWizard(books: Books | null = createBooks()): CreatedWizard {
     null,
   );
 
-  created.push(machine);
+  track(machine);
 
   return {
     machine,
@@ -363,5 +358,4 @@ function createBooksWithoutBank(): Books {
   );
 }
 
-const created: WizardMachine<MultiCostPaymentForm, MultiCostPaymentSummary>[] =
-  [];
+const track = disposeAfterEach();

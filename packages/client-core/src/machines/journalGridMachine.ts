@@ -37,6 +37,8 @@ export interface JournalGridState {
   selectedId: string | null;
   expanded: string[];
   search: string;
+  /** Whether the search narrows the entries: false for a blank one, spaces and all. */
+  searching: boolean;
   page: number;
   pageSize: PageSize;
   pageCount: number;
@@ -218,6 +220,7 @@ function stateOf(
     selectedId,
     expanded,
     search: preferences.search,
+    searching: preferences.search.trim() !== "",
     page,
     pageSize: preferences.pageSize,
     pageCount,

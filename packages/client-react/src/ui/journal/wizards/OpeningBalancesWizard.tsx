@@ -36,19 +36,14 @@ export function OpeningBalancesWizard({
   const { useOpeningBalancesWizard, useJournalContext } = useViewModel();
   const wizard = useOpeningBalancesWizard(editing);
   const context = useJournalContext();
-  const saving = useWizardSave(wizard.save, onSaved);
-
-  function edit(patch: Partial<OpeningForm>): void {
-    saving.forget();
-    wizard.edit(patch);
-  }
+  const saving = useWizardSave(wizard, onSaved);
 
   return (
     <OpeningBalancesBody
       context={context}
       state={wizard.state}
       refusal={saving.refusal}
-      onEdit={edit}
+      onEdit={saving.edit}
       onNext={wizard.next}
       onBack={wizard.back}
       onSave={saving.save}

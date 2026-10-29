@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
   accepted,
@@ -14,6 +14,7 @@ import { must } from "@cl/domain/support/must.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 import { type AppHarness, createAppHarness } from "#/testing/appHarness.ts";
 import { createAmountTexts } from "#/testing/createAmountTexts.ts";
+import { disposeAfterEach } from "#/testing/disposeAfterEach.ts";
 import { currentBooks, currentEntry } from "#/testing/harnessBooks.ts";
 
 import {
@@ -25,12 +26,6 @@ import {
   type SettlementRow,
 } from "./collectionWizard.ts";
 import type { WizardMachine } from "./wizard.ts";
-
-afterEach(() => {
-  for (const machine of created.splice(0)) {
-    machine.dispose();
-  }
-});
 
 describe("the Record owner collection wizard", () => {
   it("starts on step 1 of 3 with no owner, the bank account chosen, and the persons who owe something in unit order", () => {
@@ -436,7 +431,7 @@ describe("the Record owner collection wizard", () => {
       null,
     );
 
-    created.push(machine);
+    track(machine);
     machine.intents.edit({ personId: "md89" });
 
     expect(await machine.intents.save()).toEqual(accepted({ id: "new1" }));
@@ -464,7 +459,7 @@ describe("the Record owner collection wizard", () => {
       null,
     );
 
-    created.push(machine);
+    track(machine);
     machine.intents.edit({ personId: "md89" });
 
     expect(machine.state$.getValue()).toMatchObject({
@@ -483,7 +478,7 @@ describe("the Record owner collection wizard", () => {
       null,
     );
 
-    created.push(machine);
+    track(machine);
     machine.intents.edit({ personId: "md89" });
 
     expect(machine.state$.getValue()).toMatchObject({
@@ -804,7 +799,7 @@ function createEdit(id: string): CreatedWizard {
   const harness = createAppHarness();
   const machine = harness.app.machines.createCollectionWizard(id);
 
-  created.push(machine);
+  track(machine);
 
   return { machine, harness };
 }
@@ -815,7 +810,7 @@ function createNewWizard(
 ): WizardMachine<CollectionForm, CollectionSummary> {
   const machine = harness.app.machines.createCollectionWizard(null);
 
-  created.push(machine);
+  track(machine);
 
   return machine;
 }
@@ -940,4 +935,4 @@ function neverWrite(): Promise<ResultOf<EntryAdded>> {
   return Promise.resolve(accepted({ id: "never" }));
 }
 
-const created: WizardMachine<CollectionForm, CollectionSummary>[] = [];
+const track = disposeAfterEach();
