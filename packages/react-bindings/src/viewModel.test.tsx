@@ -4,12 +4,12 @@ import {
   cents,
   DESIGN_FIRM,
   DESIGN_PRINCIPAL,
-  type LegacySeed,
   loadLegacySeed,
   type Result,
 } from "@cl/domain";
 import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
+import { createTwoPeriodSeed } from "@cl/domain/testing/createTwoPeriodSeed.ts";
 
 import {
   mountUnderProvider,
@@ -33,7 +33,7 @@ describe("the view model", () => {
   });
 
   it("selectPeriod moves the selection", async () => {
-    const page = mountUnderProvider(createSeedWithASecondPeriod());
+    const page = mountUnderProvider(createTwoPeriodSeed());
 
     await page.send((seen) => {
       seen.period.selectPeriod("p2");
@@ -482,23 +482,6 @@ describe("the view model", () => {
     }).toThrow("useViewModel needs a <ViewModelProvider> above it in the tree");
   });
 });
-
-/** The small seed with a second, empty period, p2, in the same building: somewhere to move the selection to. */
-function createSeedWithASecondPeriod(): LegacySeed {
-  const seed = createSmallSeed();
-
-  return {
-    ...seed,
-    buildings: seed.buildings.map((building) => {
-      return {
-        ...building,
-        periods: building.periods.flatMap((period) => {
-          return [period, { ...period, id: "p2", name: "2014" }];
-        }),
-      };
-    }),
-  };
-}
 
 /** The states of the machines a reader gets of its own. */
 function ownStatesOf(seen: Seen): unknown[] {

@@ -83,7 +83,6 @@ export function Sidebar({
             <button
               type="button"
               className="sidebar-tool"
-              data-tone="muted"
               aria-label="Edit management"
               onClick={stubEditManagement}
             >
@@ -102,7 +101,6 @@ export function Sidebar({
             <button
               type="button"
               className="sidebar-tool"
-              data-tone="muted"
               aria-label="Refresh"
               onClick={stubRefresh}
             >

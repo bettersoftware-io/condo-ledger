@@ -8,6 +8,8 @@ import { Popover } from "../shell/Popover.tsx";
 import { ToolbarButton } from "../ToolbarButton.tsx";
 import { TESTIDS } from "../testids.ts";
 
+import "./JournalScreen.css";
+
 /**
  * The Journal toolbar's paging group: previous and next, each disabled at its
  * end, "Page n of m" between them, and the page-size chip with its menu.

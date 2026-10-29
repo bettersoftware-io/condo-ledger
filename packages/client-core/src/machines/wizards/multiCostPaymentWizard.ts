@@ -10,15 +10,15 @@ import type { AmountTexts } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 
 import {
+  type Debit,
   isExpenseLeaf,
+  judgedPayment,
   leafChoices,
   type Paying,
   payingOf,
 } from "./choices.ts";
 import {
-  type Debit,
   DIRECT_PAYMENT_DESCRIPTIONS,
-  judgedPayment,
   paymentDebits,
 } from "./directPaymentWizard.ts";
 import {

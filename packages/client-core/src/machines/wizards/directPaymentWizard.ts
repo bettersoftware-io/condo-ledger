@@ -2,9 +2,6 @@ import {
   type Account,
   type AccountRole,
   addCents,
-  type Cents,
-  type EntryDraft,
-  type EntryKind,
   type JournalEntry,
   type Posting,
   type Result,
@@ -16,18 +13,16 @@ import type { AmountTexts } from "#/amounts.ts";
 import type { Books } from "#/presenters/booksPresenter.ts";
 
 import {
-  contextOf,
   isExpenseLeaf,
+  judgedPayment,
   leafChoices,
   type Paying,
   payingOf,
   roleAccount,
-  shortPath,
 } from "./choices.ts";
 import {
   createWizardMachine,
   type Derived,
-  judged,
   refused,
   type WizardChoice,
   type WizardMachine,
@@ -76,12 +71,6 @@ const TARGETS: Record<DirectPaymentKind, (account: Account) => boolean> = {
   directPaymentBank: isExpenseLeaf,
   withholdingPayment: isTaxLeaf,
 };
-
-/** A leaf a payment debits: the one chosen, and its amount. */
-export interface Debit {
-  choice: WizardChoice;
-  amount: Cents;
-}
 
 /**
  * One target leaf debited, the cash or bank account credited: the three
@@ -275,55 +264,6 @@ function derive(
     amount,
     replacing,
   );
-}
-
-/**
- * A payment's draft: each debit on its leaf, then the account paid from
- * credited with the amount paid; previewed in that order, and judged with the
- * entry it rewrites, if any, left out.
- */
-export function judgedPayment(
-  kind: EntryKind,
-  description: string,
-  paying: Paying,
-  debits: Debit[],
-  paid: Cents,
-  replacing: string | null,
-): Derived {
-  const { books, paidFrom } = paying;
-  const draft: EntryDraft = {
-    kind,
-    description,
-    postings: [
-      ...debits.map((debit): Posting => {
-        return {
-          accountId: debit.choice.key,
-          debit: debit.amount,
-          credit: ZERO_CENTS,
-          counterpart: null,
-        };
-      }),
-      {
-        accountId: paidFrom.id,
-        debit: ZERO_CENTS,
-        credit: paid,
-        counterpart: null,
-      },
-    ],
-  };
-
-  const preview = [
-    ...debits.map((debit) => {
-      return {
-        path: debit.choice.label,
-        debit: debit.amount,
-        credit: ZERO_CENTS,
-      };
-    }),
-    { path: shortPath(books, paidFrom.id), debit: ZERO_CENTS, credit: paid },
-  ];
-
-  return judged(preview, draft, contextOf(books, replacing));
 }
 
 /** The description the wizard proposes: a withholding names the tax account chosen. */

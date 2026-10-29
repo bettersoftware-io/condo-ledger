@@ -1,4 +1,4 @@
-import { BehaviorSubject, type Observable, throwError } from "rxjs";
+import { BehaviorSubject, type Observable } from "rxjs";
 
 import type { Account } from "#/entities/account.ts";
 import type { Cents } from "#/entities/cents.ts";
@@ -25,6 +25,7 @@ import {
   validateUpdate,
 } from "#/useCases/validateSchedule.ts";
 
+import { missingPeriod } from "./missingPeriod.ts";
 import type { LegacySeed } from "./seed/legacySeed.ts";
 
 /** A period's installments and the items of those installments. */
@@ -260,14 +261,14 @@ export function createInstallmentsSimulator(
       const state = periods.get(periodId);
 
       return state === undefined
-        ? missing(periodId)
+        ? missingPeriod(periodId)
         : state.installments$.asObservable();
     },
     items: (periodId: string): Observable<InstallmentItem[]> => {
       const state = periods.get(periodId);
 
       return state === undefined
-        ? missing(periodId)
+        ? missingPeriod(periodId)
         : state.items$.asObservable();
     },
     createInstallments: (
@@ -350,10 +351,4 @@ function compareText(a: string, b: string): number {
   }
 
   return a < b ? -1 : 1;
-}
-
-function missing<T>(periodId: string): Observable<T> {
-  return throwError(() => {
-    return new Error(`missing: the period ${periodId}`);
-  });
 }

@@ -1,4 +1,4 @@
-import { BehaviorSubject, type Observable, throwError } from "rxjs";
+import { BehaviorSubject, type Observable } from "rxjs";
 
 import type { Account } from "#/entities/account.ts";
 import { accepted, ok, type Result, type ResultOf } from "#/entities/result.ts";
@@ -12,6 +12,7 @@ import {
   validateTableDelete,
 } from "#/useCases/validateTable.ts";
 
+import { missingPeriod } from "./missingPeriod.ts";
 import type { LegacySeed } from "./seed/legacySeed.ts";
 
 /** A period's tables and coefficients, kept in memory, and the ids of its units. */
@@ -222,14 +223,14 @@ export function createTablesSimulator(
       const state = periods.get(periodId);
 
       return state === undefined
-        ? missing(periodId)
+        ? missingPeriod(periodId)
         : state.tables$.asObservable();
     },
     coefficients: (periodId: string): Observable<Coefficient[]> => {
       const state = periods.get(periodId);
 
       return state === undefined
-        ? missing(periodId)
+        ? missingPeriod(periodId)
         : state.coefficients$.asObservable();
     },
     addTable: (
@@ -272,10 +273,4 @@ function ranked(tables: ThousandthTable[]): ThousandthTable[] {
 
 function compareText(a: string, b: string): number {
   return a < b ? -1 : 1;
-}
-
-function missing<T>(periodId: string): Observable<T> {
-  return throwError(() => {
-    return new Error(`missing: the period ${periodId}`);
-  });
 }
