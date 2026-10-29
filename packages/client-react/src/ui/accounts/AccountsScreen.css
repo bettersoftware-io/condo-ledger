@@ -82,7 +82,7 @@
   outline-offset: 1px;
 }
 
-/* The print menu's button carries its ▾ beside the glyph. */
+/* An icon-only button here is as wide as its glyph, not a fixed square: the print menu's ▾ and the PDF and XLS marks sit beside or are wider than a 26px icon. */
 .accounts-top .toolbar-button[data-icon-only="true"] {
   width: auto;
   min-width: 26px;

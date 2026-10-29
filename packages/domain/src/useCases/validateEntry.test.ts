@@ -71,6 +71,20 @@ describe("validateEntry", () => {
       ]),
     ],
     [
+      "counterpart-mismatch",
+      createDraft([
+        createLine("la21", 1000, 0),
+        createOwnerLine("la4", 0, 1000, "r1"),
+      ]),
+    ],
+    [
+      "counterpart-mismatch",
+      createDraft([
+        createLine("la1", 1000, 0),
+        createLine("la5", 0, 1000, "md1"),
+      ]),
+    ],
+    [
       "unbalanced",
       createDraft([createLine("la21", 1000, 0), createLine("la1", 0, 900)]),
     ],

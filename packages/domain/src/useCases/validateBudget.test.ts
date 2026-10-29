@@ -36,6 +36,16 @@ describe("validateBudget", () => {
     });
   });
 
+  it.each(["control", "controlUnitResident"] as const)(
+    "rejects a %s account, which is not a regular leaf",
+    (type) => {
+      expect(validateBudget(createAccount({ type }), cents(1))).toEqual({
+        ok: false,
+        reason: "not-a-leaf",
+      });
+    },
+  );
+
   it("names the first thing wrong: the nature, then the leaf", () => {
     expect(
       validateBudget(

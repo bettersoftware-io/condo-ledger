@@ -29,12 +29,14 @@ const config: ArchitectureConfig = {
       entry: ["main.tsx", "index.css", "*.d.ts"],
       noNodeBuiltins: true,
       reactCompiler: true,
-      // The grid re-renders on every tree change; a row that did not change
-      // is skipped only while the compiler memoizes it. The Journal grid's
-      // rows are mapped afresh from the machine's on each render; memoized,
-      // the mapping and the rows it hands the tree grid keep their identity.
+      // The grids and panels that map their rows afresh on each render: a row
+      // that did not change is skipped, and the rows handed to the tree grid
+      // keep their identity, only while the compiler memoizes the component.
+      // TreeGridRow is the row itself; the Accounts, Journal and Schedule
+      // grids and the two Allocation panels build the rows they pass down.
       compilerTracked: [
         { file: "src/ui/TreeGridRow.tsx", fn: "TreeGridRow" },
+        { file: "src/ui/accounts/AccountsGrid.tsx", fn: "AccountsGrid" },
         { file: "src/ui/journal/JournalGrid.tsx", fn: "JournalGrid" },
         { file: "src/ui/installments/ScheduleGrid.tsx", fn: "ScheduleGrid" },
         {

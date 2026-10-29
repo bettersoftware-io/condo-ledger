@@ -11,7 +11,7 @@ export function validateBudget(account: Account, _budget: Cents): Result {
     return rejected("not-a-cost-account");
   }
 
-  if (account.type === "grouping") {
+  if (account.type !== "regular") {
     return rejected("not-a-leaf");
   }
 
