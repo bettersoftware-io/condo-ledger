@@ -96,9 +96,6 @@ export function InstallmentScheduleScreen({
           />
           <div className="schedule-grid">
             <ScheduleGridArea
-              // The columns machine reads its spec once: a schedule with
-              // another count of installments gets a machine of its own.
-              key={installments.length}
               rows={grid.state.rows}
               installments={installments}
               onToggle={grid.toggle}
@@ -170,7 +167,7 @@ interface ScheduleGridAreaProps {
   onSetItemAmount: (itemId: string, amount: Cents) => Promise<Result>;
 }
 
-/** The grid with its column widths, for one count of installments. */
+/** The grid with the column widths kept for its count of installments. */
 function ScheduleGridArea({
   rows,
   installments,
@@ -178,7 +175,10 @@ function ScheduleGridArea({
   onSetItemAmount,
 }: ScheduleGridAreaProps): ReactElement {
   const { useColumns } = useViewModel();
-  const columns = useColumns(scheduleColumnSpecs(installments.length));
+  const columns = useColumns(
+    "schedule",
+    scheduleColumnSpecs(installments.length),
+  );
 
   return (
     <ScheduleGrid

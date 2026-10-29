@@ -148,36 +148,39 @@ describe("the view model", () => {
     expect(page.read().notices.notices).toEqual([]);
   });
 
-  it("gives each reader machines of its own", async () => {
+  it("hands every reader the same grids, columns, split and tab, and each its own dialogs, wizards and shell parts", async () => {
     const page = mountUnderProvider(createSmallSeed(), 2);
-    const before = machineStatesOf(page.read(1));
+    const before = ownStatesOf(page.read(1));
 
     await page.send((seen) => {
       seen.grid.toggle("la10");
       seen.columns.resize(1, 120);
       seen.split.setRatio(0.3);
       seen.bottomTab.activate("Details");
+      seen.journalGrid.toggle("e1");
       seen.maximize.toggle("top");
       seen.sidebar.open();
-      seen.journalGrid.toggle("e1");
       seen.journalDialog.openDelete();
       seen.directPayment.edit({ amount: "1" });
       seen.multiCostPayment.edit({ amount: "2" });
       seen.genericEntry.edit({ description: "Prova" });
     });
 
-    expect(page.read(0).grid.state.expanded).toContain("la10");
-    expect(page.read(0).columns.state.widths).toEqual([null, 120]);
-    expect(page.read(0).split.state).toEqual({ ratio: 0.3 });
-    expect(page.read(0).bottomTab.state).toEqual({ active: "Details" });
+    for (const reader of [0, 1]) {
+      expect(page.read(reader).grid.state.expanded).toContain("la10");
+      expect(page.read(reader).columns.state.widths).toEqual([null, 120]);
+      expect(page.read(reader).split.state).toEqual({ ratio: 0.3 });
+      expect(page.read(reader).bottomTab.state).toEqual({ active: "Details" });
+      expect(page.read(reader).journalGrid.state.expanded).toEqual(["e1"]);
+    }
+
     expect(page.read(0).maximize.state).toEqual({ maximized: "top" });
     expect(page.read(0).sidebar.state.open).toBe(true);
-    expect(page.read(0).journalGrid.state.expanded).toEqual(["e1"]);
     expect(page.read(0).journalDialog.state.open).toEqual({ kind: "delete" });
     expect(page.read(0).directPayment.state.form.amount).toBe("1");
     expect(page.read(0).multiCostPayment.state.form.amount).toBe("2");
     expect(page.read(0).genericEntry.state.form.description).toBe("Prova");
-    expect(machineStatesOf(page.read(1))).toEqual(before);
+    expect(ownStatesOf(page.read(1))).toEqual(before);
   });
 
   it("reads the selected period's journal entries and the context the wizards show", async () => {
@@ -354,7 +357,7 @@ describe("the view model", () => {
     }
   });
 
-  it("each reader opens and closes its own grids' rows", async () => {
+  it("every reader opens and closes the same grids' rows", async () => {
     const page = mountUnderProvider(loadLegacySeed(legacySeedData), 2);
 
     await page.send((seen) => {
@@ -362,10 +365,10 @@ describe("the view model", () => {
       seen.allocationGrid.collapseAll();
     });
 
-    expect(page.read(0).coefficientsGrid.state.rows).toHaveLength(6);
-    expect(page.read(0).allocationGrid.state.rows).toHaveLength(1);
-    expect(page.read(1).coefficientsGrid.state.rows).toHaveLength(10);
-    expect(page.read(1).allocationGrid.state.rows.length).toBeGreaterThan(1);
+    for (const reader of [0, 1]) {
+      expect(page.read(reader).coefficientsGrid.state.rows).toHaveLength(6);
+      expect(page.read(reader).allocationGrid.state.rows).toHaveLength(1);
+    }
   });
 
   it("the allocation's writes reach the tables: a coefficient read in the session's locale, a table added through the dialog and deleted", async () => {
@@ -480,15 +483,11 @@ describe("the view model", () => {
   });
 });
 
-function machineStatesOf(seen: Seen): unknown[] {
+/** The states of the machines a reader gets of its own. */
+function ownStatesOf(seen: Seen): unknown[] {
   return [
-    seen.grid.state.expanded,
-    seen.columns.state,
-    seen.split.state,
-    seen.bottomTab.state,
     seen.maximize.state,
     seen.sidebar.state,
-    seen.journalGrid.state.expanded,
     seen.journalDialog.state,
     seen.directPayment.state.form,
     seen.multiCostPayment.state.form,

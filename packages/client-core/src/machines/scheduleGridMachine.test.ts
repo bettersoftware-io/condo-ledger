@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { loadLegacySeed } from "@cl/domain";
 import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
 
-import { createAppHarness } from "../testing/appHarness.ts";
+import { type AppHarness, createAppHarness } from "../testing/appHarness.ts";
 import type { ScheduleGridRow } from "./scheduleGridMachine.ts";
 
 describe("the schedule grid machine", () => {
@@ -46,12 +46,27 @@ describe("the schedule grid machine", () => {
     stop();
   });
 
+  it("a period switch opens the rows a person closed: back on p36, A04 is open again", () => {
+    const { machine, stop, app } = createGrid();
+
+    machine.intents.toggle("unit:A04");
+
+    expect(machine.state$.getValue().expanded).not.toContain("unit:A04");
+
+    app.presenters.buildings.selectPeriod("p1");
+    app.presenters.buildings.selectPeriod("p36");
+
+    expect(machine.state$.getValue().expanded).toContain("unit:A04");
+
+    stop();
+  });
+
   it("shows no rows before a period's schedule is there, and keeps its intents harmless", () => {
     const { app } = createAppHarness({
       ...loadLegacySeed(legacySeedData),
       buildings: [],
     });
-    const machine = app.machines.createScheduleGrid();
+    const machine = app.screens.scheduleGrid();
 
     machine.intents.collapseAll();
     machine.intents.toggle("root");
@@ -84,9 +99,10 @@ function createGrid(): Grid {
 
   app.presenters.buildings.selectPeriod("p36");
 
-  const machine = app.machines.createScheduleGrid();
+  const machine = app.screens.scheduleGrid();
 
   return {
+    app,
     machine,
     stop: (): void => {
       machine.dispose();
@@ -96,8 +112,9 @@ function createGrid(): Grid {
 }
 
 interface Grid {
+  app: AppHarness["app"];
   machine: ReturnType<
-    ReturnType<typeof createAppHarness>["app"]["machines"]["createScheduleGrid"]
+    ReturnType<typeof createAppHarness>["app"]["screens"]["scheduleGrid"]
   >;
   stop: () => void;
 }

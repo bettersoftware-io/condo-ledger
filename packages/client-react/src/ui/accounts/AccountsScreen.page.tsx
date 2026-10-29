@@ -20,6 +20,7 @@ import {
 import { AmountLocaleProvider } from "../AmountLocaleProvider.tsx";
 import { dragSplitterElement } from "../shell/Splitter.page.tsx";
 import { ToastHost } from "../shell/ToastHost.tsx";
+import { resizeColumnIn } from "../TreeGrid.page.tsx";
 import { TESTIDS } from "../testids.ts";
 import { AccountsScreen } from "./AccountsScreen.tsx";
 
@@ -52,6 +53,16 @@ export interface AccountsScreenPage {
   clickAccountCaret: (label: string) => Promise<void>;
   /** The Ledger tab's lines, each as its cells' texts. */
   ledgerRows: () => string[][];
+  /** The chart of accounts' rows, by label, in order. */
+  chartLabels: () => string[];
+  /** The chart of accounts' column layout, as written for the stylesheet. */
+  chartTemplate: () => string;
+  /** Drags the chart's boundary on the right of column `index` to the given width. */
+  resizeChartColumn: (index: number, toPx: number) => void;
+  /** The Ledger tab's column layout, as written for the stylesheet. */
+  ledgerTemplate: () => string;
+  /** Drags the Ledger tab's boundary on the right of column `index` to the given width. */
+  resizeLedgerColumn: (index: number, toPx: number) => void;
 }
 
 /** Mounts the Accounts screen over the small books, with the toasts its stubs post. */
@@ -118,6 +129,12 @@ export function accountsScreenIn({
     }
 
     return row;
+  }
+
+  function templateIn(panel: HTMLElement): string {
+    return within(panel)
+      .getByTestId(TESTIDS.treeGrid)
+      .style.getPropertyValue("--tree-grid-template");
   }
 
   function dragThrough(steps: number[], screenHeight: number): void {
@@ -202,6 +219,25 @@ export function accountsScreenIn({
     },
     ledgerRows: (): string[][] => {
       return rowTexts(bottom());
+    },
+    chartLabels: (): string[] => {
+      return within(top())
+        .queryAllByTestId(TESTIDS.treeGridRow)
+        .map((row) => {
+          return row.querySelector(".tree-grid-text")?.textContent ?? "";
+        });
+    },
+    chartTemplate: (): string => {
+      return templateIn(top());
+    },
+    resizeChartColumn: (index: number, toPx: number): void => {
+      resizeColumnIn(top(), index, toPx);
+    },
+    ledgerTemplate: (): string => {
+      return templateIn(bottom());
+    },
+    resizeLedgerColumn: (index: number, toPx: number): void => {
+      resizeColumnIn(bottom(), index, toPx);
     },
   };
 }

@@ -1,9 +1,10 @@
 import type { DefaultedStateObservable } from "@rx-state/core";
 
 /**
- * State that belongs to one component instance and changes on intents. The
- * logic is a pure reducer; the bindings create one machine per mount and
- * dispose it on unmount.
+ * State that changes on intents; the logic is a pure reducer. A dialog's or
+ * a wizard's belongs to one component instance: the bindings create one per
+ * mount and dispose it on unmount. A screen's grid, columns, split or tabs
+ * belong to the application (`App.screens`), which keeps one for the session.
  */
 export interface Machine<TState, TIntents extends object> {
   state$: DefaultedStateObservable<TState>;

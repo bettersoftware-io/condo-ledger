@@ -1,5 +1,11 @@
 import { type DefaultedStateObservable, state } from "@rx-state/core";
-import { BehaviorSubject, combineLatest, map, type Observable } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  map,
+  NEVER,
+  type Observable,
+} from "rxjs";
 
 import type { Schedule, ScheduleNode } from "@cl/domain";
 
@@ -29,9 +35,11 @@ export interface ScheduleGridIntents {
 /**
  * Which nodes of the presenter's schedule are open. Everything starts open,
  * a node new to a later schedule too: the machine keeps what was closed.
+ * Each emission of `restart$` opens everything again.
  */
 export function createScheduleGridMachine(
   schedule$: Observable<Schedule | null>,
+  restart$: Observable<unknown> = NEVER,
 ): Machine<ScheduleGridState, ScheduleGridIntents> {
   const closed$ = new BehaviorSubject<ReadonlySet<string>>(new Set());
   const latestRoot = new BehaviorSubject<ScheduleNode | null>(null);
@@ -48,6 +56,9 @@ export function createScheduleGridMachine(
     { rows: [], expanded: [] },
   );
   const subscription = state$.subscribe();
+  const restarts = restart$.subscribe(() => {
+    closed$.next(new Set());
+  });
 
   return {
     state$,
@@ -71,6 +82,7 @@ export function createScheduleGridMachine(
       },
     },
     dispose: (): void => {
+      restarts.unsubscribe();
       subscription.unsubscribe();
       closed$.complete();
       latestRoot.complete();

@@ -1,4 +1,4 @@
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
@@ -27,6 +27,31 @@ afterEach(() => {
 });
 
 describe("the journal grid machine", () => {
+  it("a restart goes back to the first page with nothing open or selected, and keeps the search and the page size", () => {
+    const entries$ = new BehaviorSubject<JournalEntryView[]>(
+      createManyEntries(60),
+    );
+    const restart$ = new Subject<void>();
+    const machine = createJournalGridMachine(entries$, restart$);
+
+    created.push(machine);
+    machine.intents.setSearch("1");
+    machine.intents.setPageSize(10);
+    machine.intents.setPage(2);
+    machine.intents.expandAll();
+    machine.intents.reveal(firstIdOf(machine.state$.getValue().rows));
+
+    restart$.next();
+
+    expect(machine.state$.getValue()).toMatchObject({
+      expanded: [],
+      selectedId: null,
+      search: "1",
+      page: 1,
+      pageSize: 10,
+    });
+  });
+
   it("starts on page 1 of 1 at ten per page, nothing expanded or selected", () => {
     const { machine } = createGrid();
 
@@ -393,3 +418,13 @@ function createEntryView(
 }
 
 const created: Machine<JournalGridState, JournalGridIntents>[] = [];
+
+function firstIdOf(rows: JournalGridRow[]): string {
+  const [first] = rows;
+
+  if (first?.kind !== "entry") {
+    throw new Error("missing: the page's first entry");
+  }
+
+  return first.entry.id;
+}

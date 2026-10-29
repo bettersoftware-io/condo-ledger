@@ -1,4 +1,4 @@
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 import { describe, expect, it } from "vitest";
 
 import { type AccountNode, buildAccountTree, cents } from "@cl/domain";
@@ -26,6 +26,28 @@ describe("the accounts grid machine", () => {
       "la4@assets",
     ]);
     expect(rowOf(rows, "la10")?.expanded).toBe(false);
+
+    machine.dispose();
+  });
+
+  it("a restart opens the nodes as they start again, and keeps the search and the filter", () => {
+    const restart$ = new Subject<void>();
+    const machine = createAccountsGridMachine(
+      new BehaviorSubject<AccountNode | null>(createTree()),
+      restart$,
+    );
+
+    machine.intents.toggle("la10");
+    machine.intents.toggle("costs");
+    machine.intents.setSearch("cassa");
+    machine.intents.setHideEmpty(true);
+    restart$.next();
+
+    expect(machine.state$.getValue()).toMatchObject({
+      expanded: [...INITIAL_EXPANDED],
+      search: "cassa",
+      hideEmpty: true,
+    });
 
     machine.dispose();
   });
