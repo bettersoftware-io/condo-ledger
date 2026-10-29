@@ -18,13 +18,13 @@ import { createAmountTexts } from "#/testing/createAmountTexts.ts";
 import { createAccountsWithTax, createBooks } from "#/testing/createBooks.ts";
 import { currentBooks, currentEntry } from "#/testing/harnessBooks.ts";
 
+import { judgedPayment } from "./choices.ts";
 import {
   createDirectPaymentWizard,
   type DirectPaymentForm,
   type DirectPaymentKind,
   type DirectPaymentSummary,
   fitsDirectPayment,
-  judgedPayment,
 } from "./directPaymentWizard.ts";
 import type { WizardMachine } from "./wizard.ts";
 

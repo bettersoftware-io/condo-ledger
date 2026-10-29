@@ -32,11 +32,6 @@ Work that waits on a release, a decision or other work.
 
 ## Next, with no plan yet
 
-- **Retire the old allocation engine.** `buildRiparto`, `recomputePeriod`
-  and the prototype's seed `data.generated.json` have no caller but the
-  generator, since M2e's allocation
-  (`packages/domain/src/useCases/allocation/`) replaced them in the app.
-  Remove them together.
 - **Edit an account's allocation tables.** Account Details shows the
   tables an account is allocated by, read-only; the Edit Account dialog is
   where the legacy app changed them. Once links are editable, an account
@@ -90,37 +85,17 @@ Work that waits on a release, a decision or other work.
   are at stake; and the Budget allocation wizard reads a null allocation
   as "There is no budget to allocate" when it means the tables are still
   on their way, so a live adapter needs a "still loading" state there.
-- **Accessibility polish, what is left.** The tabbed panel, the popover
-  menus, the dialogs, the inline editor and the form rows follow WAI-ARIA's
-  patterns now. Two gaps of the same kind were outside that branch's list:
-  the top bar's module tabs (`ModuleTabs`) are a tab list with no arrow
-  keys, no roving tab stop and no panel named by the tab; the grid's column
-  resize handle (`ResizeHandle`) has no `onPointerCancel`, as the splitter
-  had.
-- **Structural tidy-ups:** `missing()` duplicated across the two simulators;
-  `TopBar.tsx` has two near-identical picker blocks; `LedgerTab` is a
-  view-model reader that builds every row itself (split it like
-  `AccountsGrid`); `.accounts-top .toolbar-button[data-icon-only]` reaches
-  wider than its comment; `createSeedWithASecondPeriod` duplicates half of
-  `createTwoPeriodSeed`; `twoBuildings()` is not named `create…`;
-  `Counterpart.kind` is never checked against the account's role;
-  `validateBudget` rejects only `grouping` as "not a leaf" (use
-  `type !== "regular"`); the `compilerTracked` rationale and `AccountsGrid`'s
-  doc comment are inaccurate; `Breadcrumb` keys rows by their text; a dead
-  `data-tone="muted"`; `tokens.css` still names the prototype's path in its
-  header; the `knip.jsonc` client-react workspace repeats the `packages/*`
-  settings (keep in sync). From the Journal: `judgedPayment` and `Debit`
-  live in `directPaymentWizard.ts`, though the multi-cost wizard uses them
-  too (beside `payingOf` in `choices.ts`); the three wizard machine tests
+- **Structural tidy-ups (left over):** `TopBar.tsx` has two near-identical
+  picker blocks around `Popover`, and `Wizards.css` reaches into
+  `FormField`'s class with `:has()`; the accessibility work that changed
+  `Popover` and `FormField` is done, so nothing holds these now.
+  `JournalScreen` restates the grid machine's blank-search rule (a
+  `searching` flag on the grid's state), held back while the per-grid
+  persistence work changes those machines. The three wizard machine tests
   copy one create-and-dispose harness, and the three wizard readers repeat
-  one skeleton; `JournalScreen` restates the grid machine's blank-search rule
-  (a `searching` flag on the grid's state); `JournalPaging` and
-  `JournalToolbar` use classes from `JournalScreen.css` without importing it;
-  `Wizards.css` reaches into `FormField`'s class with `:has()`; posting keys
-  (`entryId/index`) assume an entry id holds no slash.
-- **AGENTS.md:** the oracle's path is written without backticks so the
-  `agent-docs` gate does not look for a file that is not in git; pointing at
-  the test and `DESIGN_ORACLE_DIR` instead would be cleaner.
+  one skeleton; the `knip.jsonc` client-react workspace repeats the
+  `packages/*` settings (knip does not merge a named workspace with the
+  glob, so it stays in sync by hand).
 
 ## Waiting on a person
 

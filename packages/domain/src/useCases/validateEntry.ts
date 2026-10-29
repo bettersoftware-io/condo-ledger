@@ -394,5 +394,22 @@ function lineReason(
     return "counterpart-not-allowed";
   }
 
+  if (control && posting.counterpart !== null) {
+    const expected = counterpartKindOf(account);
+
+    if (expected !== null && posting.counterpart.kind !== expected) {
+      return "counterpart-mismatch";
+    }
+  }
+
   return null;
+}
+
+/** The kind of party a control account's role names: suppliers, or owners; null for any other control account. */
+function counterpartKindOf(account: Account): "supplier" | "owner" | null {
+  if (account.role === "suppliers") {
+    return "supplier";
+  }
+
+  return account.role === "owners" ? "owner" : null;
 }

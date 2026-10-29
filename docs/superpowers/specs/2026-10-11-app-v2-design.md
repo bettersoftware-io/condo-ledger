@@ -218,7 +218,7 @@ ledger running-balance rule in `accountsPresenter`.
 | Tier | Where | Proves | Runs in |
 |---|---|---|---|
 | Contract | `domain/src/ports/__contracts__`, run by every simulator and later every server adapter | each implementation of a port behaves the same | `gate:full`; the `port-contracts` gate fails an adapter folder that skips one |
-| Engine parity | `domain` use-case tests; `legacy-import` Gherkin-over-dump specs | riparto, balances, installments match the dump; M2e's allocation reproduces both periods ([spec](2026-10-26-m2e-tables-allocation-design.md)); the posted A04 lines were typed by hand | `gate:full` |
+| Engine parity | `domain` use-case tests; `legacy-import` Gherkin-over-dump specs | allocation, previous balances, installments match the dump; M2e's allocation reproduces both periods ([spec](2026-10-26-m2e-tables-allocation-design.md)); the posted A04 lines were typed by hand | `gate:full` |
 | Presenter | `client-core` on `createAppHarness`, fake timers | Accounts totals, running balance, selection against `acc.json`; wizard machines step by step | `gate:full` |
 | UI | `client-react` page objects + `visual` goldens | a component renders its props and fires its intents; the screen is pixel-close | page tests in `gate:full`; goldens in the visual workflow |
 

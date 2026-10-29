@@ -30,7 +30,7 @@ export function Breadcrumb(): ReactElement {
         const current = index === crumbs.length - 1;
 
         return (
-          <Fragment key={crumb}>
+          <Fragment key={crumb.part}>
             <span className="breadcrumb-separator" aria-hidden="true">
               ›
             </span>
@@ -38,7 +38,7 @@ export function Breadcrumb(): ReactElement {
               className="breadcrumb-item"
               aria-current={current ? "page" : undefined}
             >
-              {crumb}
+              {crumb.text}
             </span>
           </Fragment>
         );
@@ -52,9 +52,9 @@ function crumbsOf(
   navigation: NavigationState,
   buildings: Building[],
   selected: PeriodSelection | null,
-): string[] {
+): Crumb[] {
   if (navigation.module !== "buildings") {
-    return [moduleLabel(navigation.module)];
+    return [{ part: "module", text: moduleLabel(navigation.module) }];
   }
 
   const building = buildings.find((candidate) => {
@@ -65,10 +65,23 @@ function crumbsOf(
     return candidate.id === selected?.periodId;
   });
 
-  const place =
+  const place: Crumb[] =
     building === undefined || period === undefined
       ? []
-      : [building.name, periodLabel(period)];
+      : [
+          { part: "building", text: building.name },
+          { part: "period", text: periodLabel(period) },
+        ];
 
-  return [moduleLabel("buildings"), ...place, menuLabel(navigation.menu)];
+  return [
+    { part: "module", text: moduleLabel("buildings") },
+    ...place,
+    { part: "menu", text: menuLabel(navigation.menu) },
+  ];
+}
+
+/** One crumb: the part of the path it names, which keys it (two parts can read the same), and its text. */
+interface Crumb {
+  part: "module" | "building" | "period" | "menu";
+  text: string;
 }

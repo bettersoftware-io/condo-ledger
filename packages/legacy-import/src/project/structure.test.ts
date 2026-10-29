@@ -2,12 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { buildDb } from "../db.ts";
 import type { Tables } from "../loadRows.ts";
-import {
-  projectDetails,
-  projectF24,
-  projectFunctional,
-  projectTree,
-} from "./structure.ts";
+import { projectTree } from "./structure.ts";
 
 const tables: Tables = {
   condominium: [
@@ -108,43 +103,7 @@ describe("structure projection", () => {
       },
     ]);
   });
-  it("builds detail with address + suppliers", () => {
-    const d = projectDetails(db).p1!;
-    expect(d).toMatchObject({
-      intestazione: "Saturno",
-      codice: "SAT",
-      codiceFiscale: "TC",
-      idSistema: "1",
-    });
-    expect(d.indirizzo).toContain("33100");
-    expect(d.suppliers).toEqual([
-      {
-        id: "sup1-10",
-        nominativo: "Lucente Pulizie",
-        categoria: "Impresa di pulizie",
-      },
-    ]);
-  });
-  it("maps functional accounts from period columns", () => {
-    expect(projectFunctional(db).p1).toEqual({
-      liquid: "la14",
-      payable: "la20",
-      withholding: "la21",
-      credit: "la22",
-    });
-  });
-  it("maps f24 with stato from confirmed", () => {
-    expect(projectF24(db).p1).toEqual([
-      {
-        id: "f24-1",
-        descrizione: "Modello F24",
-        scadenza: "2011-04-16",
-        importo: { cents: 0 },
-        stato: "pagato",
-      },
-    ]);
-  });
-  it("renders a null condominium code as empty (tree) / dash (detail), never the string 'null'", () => {
+  it("renders a null condominium code as empty (tree), never the string 'null'", () => {
     // Real dump: Pozzetto (id 19) has code=NULL — must not surface as the literal "null".
     const nullCode = buildDb({
       condominium: [
@@ -192,7 +151,6 @@ describe("structure projection", () => {
       ],
     });
     expect(projectTree(nullCode)[0]!.code).toBe("");
-    expect(projectDetails(nullCode).p5!.codice).toBe("—");
   });
   it("renders a null period endDate as empty string, never 'null' (structure-only periods)", () => {
     // Real dump: e.g. Mercurio "Tinteggiatura esterna" has endDate=NULL — must not surface as "null".
