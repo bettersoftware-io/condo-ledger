@@ -16,7 +16,7 @@
   </head>
   <body>
     <h1>Coverage report</h1>
-    <p class="build">Built from commit 5724f93 (main) on 2026-10-29 16:03 UTC.</p>
+    <p class="build">Built from commit b28256d (main) on 2026-10-29 16:57 UTC.</p>
     <p>A published report shows the commit that built it, not the newest one. Compare the commit above with the code you are reading before you trust a number here.</p>
     <p>The bar, for every file: lines ≥ 95%, statements ≥ 95%, functions ≥ 95%, branches ≥ 85%.</p>
     <table>
@@ -25,6 +25,7 @@
       <tr><td><a href="./packages/client-react/index.html">packages/client-react</a></td><td class="pass">PASS</td><td>102 files at or above the bar</td><td class="number">99.82%</td><td class="number">99.82%</td><td class="number">100%</td><td class="number">96.58%</td></tr>
       <tr><td>packages/db</td><td class="skip">SKIP</td><td>no file to measure: none matches `include`, or every one is excluded</td><td class="number">–</td><td class="number">–</td><td class="number">–</td><td class="number">–</td></tr>
       <tr><td><a href="./packages/domain/index.html">packages/domain</a></td><td class="pass">PASS</td><td>40 files at or above the bar</td><td class="number">99.84%</td><td class="number">99.84%</td><td class="number">99.6%</td><td class="number">98.55%</td></tr>
+      <tr><td>packages/e2e</td><td class="skip">SKIP</td><td>its tests are Playwright's (playwright.config.ts, and no test script): they drive the built application in a browser, in another process, so there is nothing here for this tool to run or to measure</td><td class="number">–</td><td class="number">–</td><td class="number">–</td><td class="number">–</td></tr>
       <tr><td>packages/integration</td><td class="skip">SKIP</td><td>no file to measure: none matches `include`, or every one is excluded</td><td class="number">–</td><td class="number">–</td><td class="number">–</td><td class="number">–</td></tr>
       <tr><td>packages/legacy-import</td><td class="skip">SKIP</td><td>no file to measure: none matches `include`, or every one is excluded</td><td class="number">–</td><td class="number">–</td><td class="number">–</td><td class="number">–</td></tr>
       <tr><td><a href="./packages/react-bindings/index.html">packages/react-bindings</a></td><td class="pass">PASS</td><td>6 files at or above the bar</td><td class="number">100%</td><td class="number">100%</td><td class="number">100%</td><td class="number">100%</td></tr>
@@ -47,6 +48,6 @@
       <li><code>packages/legacy-import/src/**</code> — the offline generator carried over from the prototype; its correctness is held by the parity specs against the dump, not by per-file coverage. Measured from M3, when it becomes the import path</li>
       <li><code>packages/domain/src/simulators/seed/legacySeed.generated.ts</code> — generated data, one constant; its content is held by the generator's freshness test against the dump</li>
     </ul>
-    <p><a href="https://github.com/bettersoftware-io/condo-ledger/actions/runs/40907570029">The run that built this report</a></p>
+    <p><a href="https://github.com/bettersoftware-io/condo-ledger/actions/runs/40916394692">The run that built this report</a></p>
   </body>
 </html>
