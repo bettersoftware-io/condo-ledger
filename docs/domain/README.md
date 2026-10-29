@@ -47,6 +47,6 @@ allocation replaced them in the app.
   tables, and owner/tenant role splits — tied out to the expense totals.
 
 Where the code lives: the offline generator that projects the dump into the app's data is in
-`apps/web/tools/gen/` (pure functions, fully tested); the running app seeds from the committed
-`apps/web/src/mock/data.generated.json`. See `apps/web/README.md` → "Dati reali" for
-regeneration.
+`packages/legacy-import/src/` (pure functions, fully tested); the running app seeds from the
+committed `packages/domain/src/simulators/seed/legacySeed.generated.ts`, written by
+`pnpm --filter @cl/legacy-import gen:data`.

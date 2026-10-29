@@ -2,9 +2,10 @@
 
 > **Scope:** This document explains the *domain mechanics* the app reproduces from the
 > legacy `it-jtime` data: double-entry bookkeeping, per-period **reconciliation**, and
-> the Italian **distribution (riparto)** engine that allocates shared expenses to units.
+> the Italian **distribution (riparto)** algorithm that allocates shared expenses to units.
 > It is grounded in what the generator actually computes
-> (`apps/web/tools/gen/`), verified against the real dump
+> (`packages/legacy-import/src/`) and by the domain's allocation
+> (`packages/domain/src/useCases/allocation/`), verified against the real dump
 > `old/db/it-jtime-condominium.all.sql`.
 >
 > For the table shapes referenced here, see [`database-schema.md`](./database-schema.md).
@@ -42,9 +43,9 @@ Key properties:
 - **Money is integer cents.** Every monetary value is `Money = { cents: number }`
   (`@cl/domain`). Legacy decimal strings like `"-44.20"` are parsed once via `eur()` →
   `{ cents: -4420 }`. No floating-point money flows through the app.
-- **Fixtures vs generated.** Tests run against the small curated `fixtures.ts` seed
-  (`MockStore()` default); only the running app uses the full generated seed
-  (`createGeneratedDataSource()`). This keeps test counts stable while the app shows real data.
+- **Seed vs fixtures.** The app and its simulators run on the committed generated seed
+  (`legacySeed.generated.ts`); tests that need a small, fixed world build their own data, so
+  test counts stay stable while the app shows real data.
 
 ---
 
@@ -154,14 +155,14 @@ flowchart TD
   P["accounting period"] --> Q1{"has ≥1 posted entry?"}
   Q1 -- no --> S["structure-only<br/>(units, residents, detail,<br/>anagrafiche, calendar)<br/>— empty accounting"]
   Q1 -- yes --> Q2{"Σ signed cents == 0<br/>(±1c)?"}
-  Q2 -- yes --> B["full books shown<br/>(ledger, riparto, installments)"]
+  Q2 -- yes --> B["full books shown<br/>(ledger, allocation, installments)"]
   Q2 -- no --> X["accounting OMITTED<br/>(never show wrong numbers)"]
 ```
 
-`assemble.ts` applies the gate: it **always** ships structure (the building tree, period
-detail, units/residents, suppliers, F24, anagrafiche, calendar), and ships accounting views
-(`ledgerAccountsByPeriod`, `ledgerTxnsByPeriod`, `distribution*`, `installments*`) **only**
-when `hasBooks && reconciles`. Everything else is emitted empty.
+`projectLegacySeed` (`packages/legacy-import/src/project/legacySeed.ts`) applies the gate: it
+keeps only the buildings and periods that have balanced books, and emits their accounts,
+entries, parties, tables and installments from those books. A period that has no books, or
+whose books do not net to zero, is left out of the app seed.
 
 ### 3.2 What this dataset contains
 
@@ -177,14 +178,14 @@ they exist."
 
 ---
 
-## 4. The distribution (riparto) engine
+## 4. The distribution (riparto) algorithm
 
 This is the most intricate part of the domain. Italian condominium accounting allocates each
 shared **expense** to units in proportion to a **distribution table** (the _millesimi_ /
-thousandths idea), with several real-world complications. The engine lives in
-`apps/web/tools/gen/project/riparto.ts` and feeds both the **Tabelle/Riparto** matrices
-(`distribution.ts`) and the **Unità** per-resident `preventivo`/`consuntivo`
-(`units.ts`).
+thousandths idea), with several real-world complications. The algorithm lives in
+`packages/domain/src/useCases/allocation/` (`allocationOf`, with `share.ts` for the
+per-link split and `tables.ts` for the coefficients); the Allocation screen and the budget
+allocation wizard both read it.
 
 ### 4.1 The data model
 
@@ -382,8 +383,8 @@ Proprietà charges U2 100% to its owner (Marco), so Paolo pays nothing there; he
 expenses. No euro is created or lost; this conservation is the tie-out gate of §4.4 applied to
 a single account.
 
-> In the engine (`riparto.ts`), this whole trace is `perResidentAmount()`: for each linked
-> table it computes `accountTotal × tablePct × coeff(unit)/tableTotal`, then splits that
+> In the allocation (`allocation/share.ts`), this whole trace is the per-link share: for each
+> linked table it computes `accountTotal × tablePct × coeff(unit)/tableTotal`, then splits that
 > per-unit amount across the unit's residents by the table's `expenseLA2Role` rule — with any
 > role share that has no matching resident falling back to the owner so the 100€ always lands
 > somewhere.
@@ -395,20 +396,15 @@ a single account.
 
 ### 4.4 Tie-out (the correctness gate)
 
-The engine is only trustworthy if the distributed amounts **sum back to the expense totals**.
-Verified on real data:
-
-| period | estimate: source → matrix | actual: source → matrix | Σ resident vs matrix |
-|---|---|---|---|
-| Saturno 2011 | €7,400.00 → €7,399.99 (−1¢) | €2,455.19 → €2,455.21 (+2¢) | €0.00 gap |
-| Pozzetto 2013 | €38,000.00 → €38,000.04 (+4¢ / 198 cells) | €34,398.65 → €34,398.62 (−3¢) | €0.00 gap |
-
-All gaps are sub-cent-per-cell rounding; the role split conserves totals exactly. The only
+The allocation is only trustworthy if the distributed amounts **sum back to the expense totals**.
+The cents lost to rounding are not dropped: the allocation emits them as a **Roundings** row,
+so it balances by construction, and the legacy specs hold it to the posted entries to the cent
+(Saturno 2011 `tx5`, Pozzetto 2013 `tx291`). The role split conserves totals exactly. The only
 amounts intentionally *outside* the table distribution are **directly-attributed individual
 expenses** (e.g. postal fees / _solleciti_ charged to one resident via `unitResidentId` on an
-unlinked account subtree) — those are added straight to that resident's consuntivo
-(`units.ts`), so a resident's consuntivo = table-distributed share + individual charges,
-which ties to the total actual expense (Pozzetto: €34,398.62 + €489.06 ≈ €34,887.71 total).
+unlinked account subtree) — those are charged straight to that resident,
+so a resident's consuntivo = table-distributed share + individual charges, which ties to
+the total actual expense.
 
 ---
 
@@ -420,8 +416,8 @@ owe money:
 | Column | Meaning | Source |
 |---|---|---|
 | **Saldo prec.** | opening balance carried in | `unitResident.startingBalance` |
-| **Preventivo** | budgeted share of the estimate | riparto **estimate** distribution (§4) |
-| **Consuntivo** | actual share of real expenses | riparto **current** distribution + individual charges |
+| **Preventivo** | budgeted share of the estimate | allocation, **budget** mode (§4) |
+| **Consuntivo** | actual share of real expenses | allocation, **actual** mode + individual charges |
 | **Tot. dovuto** | total owed | `saldoPrec + preventivo` |
 | **Versato** | paid in | `−Σ` `unitResidentTakings` ledger entries (a takings credit shown positive) |
 
@@ -437,7 +433,7 @@ column per linked expense account.
 ## 6. Quirks of this dataset (worth remembering)
 
 - **No `individualExpense` rows.** Despite the enum, no `ledgerEntry.type = 'individualExpense'`
-  exists. Per-unit charges are reconstructed via the riparto engine (§4) and the
+  exists. Per-unit charges are reconstructed via the allocation (§4) and the
   `estimateDistribution` / `closingBalance` transactions, not read off entries.
 - **Two periods have books.** Only Saturno 2011 and Pozzetto 2013 reconcile; the rest are
   structure-only by design.
