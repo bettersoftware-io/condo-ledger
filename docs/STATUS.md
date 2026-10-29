@@ -82,12 +82,6 @@ Work that waits on a release, a decision or other work.
   for the session, so a screen once visited keeps its data live off-screen:
   the allocation recomputes on every change of the books, and a live
   port's subscriptions behind them would stay open.
-- **Wizard CSS reaches into `FormField`'s box (left over):** `Wizards.css`
-  and `BudgetInstallmentsWizard.css` style `.form-field-box` with `:has()` on
-  what the box holds (the 160px amount, the 90px number, the dimmed locked
-  select). Removing it means giving `FormField` props for the width and the
-  dimmed state (and threading `disabled` from `ChoiceSelect`'s callers
-  through it): a decision about `FormField`'s API, which is the user's.
 
 ## Waiting on a person
 
@@ -95,6 +89,8 @@ A step or a decision an agent cannot take.
 
 ## Known limits
 
+- **`Wizards.css` and `BudgetInstallmentsWizard.css` style `FormField`'s box with `:has()`.**
+  A change to `FormField`'s markup must check them.
 - **The module tabs name no panel.** `ModuleTabs` is a named tab list with
   the keyboard of WAI-ARIA's tabs, but the main area below it is not marked
   as its `tabpanel` and named by the active tab: that needs an id shared
