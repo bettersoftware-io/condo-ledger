@@ -25,6 +25,12 @@ export interface TreeGridPage {
   doubleClickCaret: (label: string) => void;
   moveOverBoundary: (index: number, byPx: number) => void;
   dragBoundary: (index: number, byPx: number, startWidthPx?: number) => void;
+  /** Presses a boundary and moves it, and the browser cancels the pointer (a touch taken for a scroll, say). */
+  dragBoundaryAndCancel: (
+    index: number,
+    byPx: number,
+    startWidthPx?: number,
+  ) => void;
   emptyMessage: () => string | null;
   footerTexts: () => string[];
   cellTexts: (label: string) => string[];
@@ -52,6 +58,37 @@ export function mountTreeGrid(props: Partial<TreeGridProps>): TreeGridPage {
     }
 
     return row;
+  }
+
+  /** Presses a boundary, moves it, and lets go, or has the browser cancel the pointer. */
+  function dragBoundaryEndingIn(
+    end: "up" | "cancel",
+    index: number,
+    byPx: number,
+    startWidthPx: number,
+  ): void {
+    const handle = rendered.getAllByTestId(TESTIDS.treeGridResize)[index];
+
+    if (handle === undefined) {
+      throw new Error(`No boundary ${index}`);
+    }
+
+    const left = handle.parentElement?.previousElementSibling;
+
+    if (left instanceof HTMLElement) {
+      left.getBoundingClientRect = (): DOMRect => {
+        return { width: startWidthPx } as DOMRect;
+      };
+    }
+
+    fireEvent.pointerDown(handle, { clientX: 100, pointerId: 1 });
+    fireEvent.pointerMove(handle, { clientX: 100 + byPx, pointerId: 1 });
+
+    if (end === "up") {
+      fireEvent.pointerUp(handle, { clientX: 100 + byPx, pointerId: 1 });
+    } else {
+      fireEvent.pointerCancel(handle, { clientX: 100 + byPx, pointerId: 1 });
+    }
   }
 
   return {
@@ -118,23 +155,14 @@ export function mountTreeGrid(props: Partial<TreeGridProps>): TreeGridPage {
       fireEvent.pointerMove(handle, { clientX: 100 + byPx, pointerId: 1 });
     },
     dragBoundary: (index: number, byPx: number, startWidthPx = 0): void => {
-      const handle = rendered.getAllByTestId(TESTIDS.treeGridResize)[index];
-
-      if (handle === undefined) {
-        throw new Error(`No boundary ${index}`);
-      }
-
-      const left = handle.parentElement?.previousElementSibling;
-
-      if (left instanceof HTMLElement) {
-        left.getBoundingClientRect = (): DOMRect => {
-          return { width: startWidthPx } as DOMRect;
-        };
-      }
-
-      fireEvent.pointerDown(handle, { clientX: 100, pointerId: 1 });
-      fireEvent.pointerMove(handle, { clientX: 100 + byPx, pointerId: 1 });
-      fireEvent.pointerUp(handle, { clientX: 100 + byPx, pointerId: 1 });
+      dragBoundaryEndingIn("up", index, byPx, startWidthPx);
+    },
+    dragBoundaryAndCancel: (
+      index: number,
+      byPx: number,
+      startWidthPx = 0,
+    ): void => {
+      dragBoundaryEndingIn("cancel", index, byPx, startWidthPx);
     },
     emptyMessage: (): string | null => {
       return (

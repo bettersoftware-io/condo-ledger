@@ -163,6 +163,9 @@ describe("ScheduleGrid", () => {
     const cell = page.cell("Resident r1", "1 20/01/2013");
 
     await cell.click();
+
+    expect(cell.isEditorNamed("Installment 1 of Resident r1")).toBe(true);
+
     await cell.type("1,234.50");
     await cell.pressEnter();
 

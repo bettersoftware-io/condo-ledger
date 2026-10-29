@@ -23,6 +23,8 @@ export interface CoefficientsPanelPage extends PanelPage {
   editorOpen: () => boolean;
   /** The open editor's text. */
   editorText: () => string;
+  /** Whether the open editor is a text box by this name. */
+  isEditorNamed: (name: string) => boolean;
   /** Replaces the open editor's text. */
   typeCoefficient: (text: string) => Promise<void>;
   pressEnter: () => Promise<void>;
@@ -96,6 +98,9 @@ export function coefficientsPanelIn(
     },
     editorOpen: (): boolean => {
       return within(root()).queryByTestId(TESTIDS.inlineEditor) !== null;
+    },
+    isEditorNamed: (name: string): boolean => {
+      return within(root()).queryByRole("textbox", { name }) !== null;
     },
     editorText: (): string => {
       return editor().value;

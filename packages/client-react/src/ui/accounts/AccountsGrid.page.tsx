@@ -42,6 +42,8 @@ export interface AccountsGridPage {
   clickBudget: (label: string) => Promise<void>;
   /** The open budget editor's text. */
   budgetText: () => string;
+  /** Whether the open budget editor is a text box by this name. */
+  isBudgetEditorNamed: (name: string) => boolean;
   /** Replaces the open budget editor's text. */
   typeBudget: (text: string) => Promise<void>;
   pressEnter: () => Promise<void>;
@@ -190,6 +192,9 @@ export function mountAccountsGrid(): AccountsGridPage {
     budgetText: (): string => {
       return within(top()).getByTestId<HTMLInputElement>(TESTIDS.inlineEditor)
         .value;
+    },
+    isBudgetEditorNamed: (name: string): boolean => {
+      return within(top()).queryByRole("textbox", { name }) !== null;
     },
     typeBudget: async (text: string): Promise<void> => {
       const editor = within(top()).getByTestId(TESTIDS.inlineEditor);

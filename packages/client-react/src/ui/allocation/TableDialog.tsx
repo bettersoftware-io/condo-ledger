@@ -134,7 +134,12 @@ function TableDialogBody({
     >
       <div className="table-dialog">
         <FormField label="Name" required>
-          <input aria-label="Name" value={form.name} onChange={editName} />
+          <input
+            aria-required="true"
+            aria-label="Name"
+            value={form.name}
+            onChange={editName}
+          />
         </FormField>
         <FormField label="Order">
           <input aria-label="Order" value={form.order} onChange={editOrder} />

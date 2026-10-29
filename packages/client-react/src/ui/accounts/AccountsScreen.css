@@ -76,10 +76,18 @@
   cursor: text;
 }
 
-.accounts-budget:hover,
-.accounts-budget:focus-visible {
+.accounts-budget:hover {
   outline: 1px dashed var(--bd);
   outline-offset: 1px;
+}
+
+/* The focus ring of the whole client: 2px solid --acc, inset. A focus
+   indicator needs 3:1 against what is around it (WCAG 1.4.11); --bd, the
+   dashed hover hint above, reaches 1.3-1.5:1 in the six themes, --acc
+   4.2-6.6:1. */
+.accounts-budget:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: -2px;
 }
 
 /* An icon-only button here is as wide as its glyph, not a fixed square: the print menu's ▾ and the PDF and XLS marks sit beside or are wider than a 26px icon. */

@@ -13,6 +13,14 @@ export interface InlineEditorPage {
   blur: () => void;
   errorText: () => string | null;
   isFocused: () => boolean;
+  /** Whether assistive technology finds a text box by this name. */
+  isNamed: (name: string) => boolean;
+  /** Whether the text box says its text is wrong. */
+  isInvalid: () => boolean;
+  /** The text of the alert announced as it appears; null when there is none. */
+  alertText: () => string | null;
+  /** What assistive technology reads after the text box's name. */
+  description: () => string;
 }
 
 export function mountInlineEditor(
@@ -21,6 +29,7 @@ export function mountInlineEditor(
   const user = userEvent.setup();
   const rendered = render(
     <InlineEditor
+      label="Budget"
       value=""
       error={null}
       onCommit={vi.fn()}
@@ -54,6 +63,24 @@ export function mountInlineEditor(
     },
     isFocused: (): boolean => {
       return document.activeElement === input();
+    },
+    isNamed: (name: string): boolean => {
+      return rendered.queryByRole("textbox", { name }) !== null;
+    },
+    isInvalid: (): boolean => {
+      return input().getAttribute("aria-invalid") === "true";
+    },
+    alertText: (): string | null => {
+      return rendered.queryByRole("alert")?.textContent ?? null;
+    },
+    description: (): string => {
+      const ids = input().getAttribute("aria-describedby")?.split(" ") ?? [];
+
+      return ids
+        .map((id) => {
+          return document.getElementById(id)?.textContent ?? "";
+        })
+        .join(" ");
     },
   };
 }

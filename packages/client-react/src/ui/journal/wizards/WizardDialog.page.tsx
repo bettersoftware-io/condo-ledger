@@ -1,6 +1,7 @@
 import { type RenderResult, within } from "@testing-library/react";
 import type userEvent from "@testing-library/user-event";
 
+import { requiredFieldsUnannounced } from "#/ui/FormField.page.tsx";
 import { TESTIDS } from "#/ui/testids.ts";
 
 import { settlementTableIn } from "./SettlementTable.page.tsx";
@@ -16,6 +17,8 @@ type OpeningSide = "debit" | "credit";
 /** What a test can do with, and ask of, the wizard open over the Journal screen. */
 export interface WizardDialogPage {
   title: () => string;
+  /** The labels of the required fields not announced as required; empty when every one is. */
+  requiredUnannounced: () => string[];
   /** The first row: "Building / Period: {building} / {period}". */
   contextLine: () => string;
   /** Clears the form field with this label and types the text into it. */
@@ -237,6 +240,9 @@ export function wizardDialogPage(
       return (
         within(dialog()).getByTestId(TESTIDS.dialogTitle).textContent ?? ""
       );
+    },
+    requiredUnannounced: (): string[] => {
+      return requiredFieldsUnannounced(dialog());
     },
     contextLine: (): string => {
       const [first] = within(dialog()).getAllByTestId(TESTIDS.formField);

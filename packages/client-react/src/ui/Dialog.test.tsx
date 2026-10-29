@@ -1,6 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { mountDialog } from "./Dialog.page.tsx";
+import {
+  mountDialog,
+  mountOpenedDialog,
+  mountStackedDialogs,
+} from "./Dialog.page.tsx";
 
 describe("Dialog", () => {
   it("draws its title, its body and its footer", () => {
@@ -32,6 +36,15 @@ describe("Dialog", () => {
 
   it("has the focus once mounted", () => {
     expect(mountDialog({}).isCardFocused()).toBe(true);
+  });
+
+  it("keeps the focus on the card when it holds nothing Tab stops on", () => {
+    const page = mountDialog({});
+
+    page.press("Tab");
+
+    expect(page.lastKeyWasKept()).toBe(true);
+    expect(page.isCardFocused()).toBe(true);
   });
 
   it("closes on Escape", () => {
@@ -102,5 +115,99 @@ describe("Dialog", () => {
     await page.clickTitle();
 
     expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("keeps Tab inside the card, from the last stop round to the first", async () => {
+    const page = mountOpenedDialog();
+    await page.open();
+
+    await page.tab();
+
+    expect(page.focused()).toBe("Credit");
+
+    await page.tab();
+    await page.tab();
+    await page.tab();
+
+    expect(page.focused()).toBe("Save");
+
+    await page.tab();
+
+    expect(page.focused()).toBe("Done");
+
+    await page.tab();
+
+    expect(page.focused()).toBe("Credit");
+  });
+
+  it("keeps Shift+Tab inside the card, from the first stop round to the last", async () => {
+    const page = mountOpenedDialog();
+    await page.open();
+
+    await page.tab(true);
+
+    expect(page.focused()).toBe("Done");
+
+    await page.tab();
+
+    expect(page.focused()).toBe("Credit");
+
+    await page.tab(true);
+
+    expect(page.focused()).toBe("Done");
+  });
+
+  it("gives the focus back to what opened it when it is closed", async () => {
+    const page = mountOpenedDialog();
+    await page.open();
+    await page.tab();
+
+    await page.press("Escape");
+
+    expect(page.isOpen()).toBe(false);
+    expect(page.openerHasFocus()).toBe(true);
+  });
+
+  it("gives the focus back to what opened it when the scrim is clicked", async () => {
+    const page = mountOpenedDialog();
+    await page.open();
+
+    await page.clickScrim();
+
+    expect(page.isOpen()).toBe(false);
+    expect(page.openerHasFocus()).toBe(true);
+  });
+
+  it("gives the focus back to what opened it when it closes on its own", async () => {
+    const page = mountOpenedDialog();
+    await page.open();
+
+    await page.click("Save");
+
+    expect(page.isOpen()).toBe(false);
+    expect(page.openerHasFocus()).toBe(true);
+  });
+
+  it("leaves the focus where its owner put it as it closed, never passing it to its opener", async () => {
+    const page = mountOpenedDialog();
+    await page.open();
+    const focusesOnOpening = page.openerFocuses();
+
+    await page.click("Done");
+
+    expect(page.isOpen()).toBe(false);
+    expect(page.fieldAfterHasFocus()).toBe(true);
+    expect(page.openerFocuses()).toBe(focusesOnOpening);
+  });
+
+  it("closes only the top one of two stacked dialogs on Escape", () => {
+    const onCloseOuter = vi.fn();
+    const onCloseInner = vi.fn();
+    const page = mountStackedDialogs(onCloseOuter, onCloseInner);
+
+    page.pressOn("Inner", "Escape");
+
+    expect(onCloseInner).toHaveBeenCalledTimes(1);
+    expect(onCloseOuter).not.toHaveBeenCalled();
   });
 });

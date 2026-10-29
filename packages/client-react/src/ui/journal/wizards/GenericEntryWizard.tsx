@@ -103,6 +103,7 @@ function GenericEntryBody({
     >
       <FormField label="Description" required>
         <input
+          aria-required="true"
           className="wizard-input"
           value={form.description}
           onChange={editDescription}

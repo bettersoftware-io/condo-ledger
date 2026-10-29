@@ -107,6 +107,7 @@ export function AccountsGrid({
       return (
         <InlineEditor
           key="budget"
+          label={`Budget of ${node.label}`}
           value={before}
           error={budgetEdit.error}
           onCommit={committingBudgetOf(row.key, accountId, before)}

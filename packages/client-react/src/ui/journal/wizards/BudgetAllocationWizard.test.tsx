@@ -55,6 +55,7 @@ describe("BudgetAllocationWizard", () => {
   it("on p1 as seeded, says at once that the period already has an allocation, and Save waits", async () => {
     const wizard = await mountBudgetAllocationWizard({ periodId: "p1" });
 
+    expect(wizard.requiredUnannounced()).toEqual([]);
     expect(wizard.message()).toBe(
       "This period already has a budget allocation; delete it first",
     );

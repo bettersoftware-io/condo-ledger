@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
 import { createViewModel, ViewModelProvider } from "@cl/react-bindings";
 
+import { requiredFieldsUnannounced } from "../FormField.page.tsx";
 import { TESTIDS } from "../testids.ts";
 import { TableDialog } from "./TableDialog.tsx";
 
@@ -16,6 +17,8 @@ type TableField = "Name" | "Order" | "Notes";
 export interface TableDialogPage {
   isShown: () => boolean;
   title: () => string;
+  /** The labels of the required fields not announced as required; empty when every one is. */
+  requiredUnannounced: () => string[];
   fieldValue: (field: TableField) => string;
   /** Clears the field and types the text into it. */
   fill: (field: TableField, text: string) => Promise<void>;
@@ -114,6 +117,9 @@ export function tableDialogIn(
       return (
         within(dialog()).getByTestId(TESTIDS.dialogTitle).textContent ?? ""
       );
+    },
+    requiredUnannounced: (): string[] => {
+      return requiredFieldsUnannounced(dialog());
     },
     fieldValue: (name: TableField): string => {
       return field(name).value;

@@ -18,6 +18,7 @@ export interface BudgetAllocationWizardPage
   extends Pick<
     WizardDialogPage,
     | "title"
+    | "requiredUnannounced"
     | "contextLine"
     | "fill"
     | "fieldValue"
@@ -83,6 +84,7 @@ export async function mountBudgetAllocationWizard(
 
   return {
     title: wizard.title,
+    requiredUnannounced: wizard.requiredUnannounced,
     contextLine: wizard.contextLine,
     fill: wizard.fill,
     fieldValue: wizard.fieldValue,

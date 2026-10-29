@@ -15,10 +15,16 @@
   cursor: pointer;
 }
 
-.menu-item:hover,
-.menu-item:focus-visible {
+.menu-item:hover {
   background: var(--hover);
-  outline: none;
+}
+
+/* The keyboard's place in the menu: the client's focus ring, 2px solid --acc
+   inset. The hover tint is about 1.1:1 on the panel, and a focus indicator
+   needs 3:1. */
+.menu-item:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: -2px;
 }
 
 .menu-item-icon {

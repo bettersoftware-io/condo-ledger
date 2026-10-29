@@ -11,6 +11,8 @@ export interface SplitterPage {
   dragSplitterThrough: (steps: number[]) => void;
   /** Moves over the splitter by the given pixels without pressing first. */
   hoverSplitter: (by: number) => void;
+  /** Presses, moves by the given pixels, and the browser cancels the pointer (a touch taken over by a scroll, say). */
+  dragSplitterAndCancel: (by: number) => void;
   direction: () => string | null;
 }
 
@@ -28,6 +30,12 @@ export function mountSplitter(props: SplitterProps): SplitterPage {
     },
     dragSplitterThrough: (steps: number[]): void => {
       dragSplitterElement(splitter(), steps);
+    },
+    dragSplitterAndCancel: (by: number): void => {
+      const element = splitter();
+      fireEvent.pointerDown(element, pointerAt(element, START));
+      fireEvent.pointerMove(element, pointerAt(element, START + by));
+      fireEvent.pointerCancel(element, pointerAt(element, START + by));
     },
     hoverSplitter: (by: number): void => {
       fireEvent.pointerMove(splitter(), pointerAt(splitter(), START + by));

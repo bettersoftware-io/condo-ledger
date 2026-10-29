@@ -16,6 +16,7 @@ describe("BudgetInstallmentsWizard", () => {
     expect(wizard.title()).toBe(
       "Create Budget Installments — Step 1: Number and dates",
     );
+    expect(wizard.requiredUnannounced()).toEqual([]);
     expect(wizard.fieldValue("Number of installments")).toBe("3");
     expect(wizard.fieldValue("Due date of the first")).toBe("");
     expect(wizard.fieldValue("Months between installments")).toBe("4");

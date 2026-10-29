@@ -87,30 +87,17 @@ Work that waits on a release, a decision or other work.
   for the session, so a screen once visited keeps its data live off-screen:
   the allocation recomputes on every change of the books, and a live
   port's subscriptions behind them would stay open.
-- **Accessibility polish.** The tabbed panel lacks `aria-labelledby` and
-  arrow keys; the popover menus have no focus return and no arrow keys; the
-  inline editor's input has no label, `aria-invalid` or `role="alert"` on its
-  error; the disabled checkbox in Account Details has no accessible name; the
-  splitter has no `onPointerCancel`. From the Journal: `ConfirmAlert` is a
-  `dialog` with no `aria-describedby`, so its question may not be read (an
-  `alertdialog`); `Dialog` traps no focus and gives none back when a wizard
-  closes on its own; one Escape would close two stacked dialogs; a
-  `FormField` read-only row is a `<label>` naming nothing, and the required
-  star is not announced (`aria-required`); after a dialog closes, the focus
-  lands on the grid's wrapper, whose outline is removed, so nothing shows
-  where it is.
-- **Structural tidy-ups (left over):** held back so as not to collide with
-  the branches that work on the same files. `TopBar.tsx` has two
-  near-identical picker blocks (it wraps `Popover`, which the accessibility
-  work is changing); `Wizards.css` reaches into `FormField`'s class with
-  `:has()` (the same work changes `FormField`); `JournalScreen` restates the
-  grid machine's blank-search rule (a `searching` flag on the grid's state
-  would hold it in one place; the grid machines are no longer being
-  changed, so nothing holds this one back); the three wizard
-  machine tests copy one create-and-dispose harness, and the three wizard
-  readers repeat one skeleton; the `knip.jsonc` client-react workspace
-  repeats the `packages/*` settings (knip does not merge a named workspace
-  with the glob, so it stays in sync by hand).
+- **Structural tidy-ups (left over):** the branches that held these back
+  (the accessibility work on `Popover` and `FormField`, the per-grid
+  persistence on the grid machines) are done, so nothing holds any of them
+  now. `TopBar.tsx` has two near-identical picker blocks around `Popover`;
+  `Wizards.css` reaches into `FormField`'s class with `:has()`;
+  `JournalScreen` restates the grid machine's blank-search rule (a
+  `searching` flag on the grid's state would hold it in one place); the
+  three wizard machine tests copy one create-and-dispose harness, and the
+  three wizard readers repeat one skeleton; the `knip.jsonc` client-react
+  workspace repeats the `packages/*` settings (knip does not merge a named
+  workspace with the glob, so it stays in sync by hand).
 
 ## Waiting on a person
 
@@ -118,6 +105,10 @@ A step or a decision an agent cannot take.
 
 ## Known limits
 
+- **The module tabs name no panel.** `ModuleTabs` is a named tab list with
+  the keyboard of WAI-ARIA's tabs, but the main area below it is not marked
+  as its `tabpanel` and named by the active tab: that needs an id shared
+  between `ModuleTabs` and `AppRoot`.
 - **The Allocation's Days differ from the legacy screen in two cells.**
   Saturno A3 shows 147/365 where the legacy app showed 146/365 (it lost an
   hour to the March clock change before a floor), and A4 is blank where the

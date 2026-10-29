@@ -11,6 +11,7 @@ describe("InstallmentDialog", () => {
     const dialog = await openEdit(page, "Installment 3");
 
     expect(dialog.title()).toBe("Edit Installment");
+    expect(dialog.requiredUnannounced()).toEqual([]);
     expect(dialog.fieldValue("Name")).toBe("Installment 3");
     expect(dialog.fieldValue("Due date")).toBe("20/03/2013");
     expect(dialog.isLocked()).toBe(false);

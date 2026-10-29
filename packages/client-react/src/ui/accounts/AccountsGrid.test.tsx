@@ -214,6 +214,7 @@ describe("AccountsGrid", () => {
     await page.clickBudget("Ascensore");
 
     expect(page.budgetText()).toBe("1,000.00");
+    expect(page.isBudgetEditorNamed("Budget of Ascensore")).toBe(true);
 
     await page.typeBudget("1,200.00");
     await page.pressEnter();
