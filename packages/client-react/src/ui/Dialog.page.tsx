@@ -96,6 +96,8 @@ export interface OpenedDialogPage {
   focused: () => string | null;
   /** Clicks a button in the dialog's footer by its text. */
   click: (button: string) => Promise<void>;
+  /** Clicks the scrim around the card, which asks to close it. */
+  clickScrim: () => Promise<void>;
   /** Whether the button that opened the dialog has the focus. */
   openerHasFocus: () => boolean;
   /** Whether the field after the dialog, where Done puts the focus, has it. */
@@ -159,6 +161,9 @@ export function mountOpenedDialog(): OpenedDialogPage {
     },
     click: async (button: string): Promise<void> => {
       await user.click(rendered.getByRole("button", { name: button }));
+    },
+    clickScrim: async (): Promise<void> => {
+      await user.click(rendered.getByTestId(TESTIDS.dialogClose));
     },
     openerHasFocus: (): boolean => {
       return document.activeElement === opener();

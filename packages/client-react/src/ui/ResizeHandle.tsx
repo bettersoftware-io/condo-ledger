@@ -29,6 +29,7 @@ export function ResizeHandle({
     }
   }
 
+  /** On the pointer let go, or cancelled by the browser: the drag ends either way. */
   function up(event: PointerEvent<HTMLSpanElement>): void {
     event.currentTarget.releasePointerCapture(event.pointerId);
   }
@@ -40,6 +41,7 @@ export function ResizeHandle({
       onPointerDown={down}
       onPointerMove={move}
       onPointerUp={up}
+      onPointerCancel={up}
     />
   );
 }

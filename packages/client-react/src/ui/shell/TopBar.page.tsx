@@ -28,6 +28,12 @@ export interface TopBarPage {
   toasts: () => string[];
   activeTab: () => string;
   clickTab: (label: string) => Promise<void>;
+  /** The module tabs the Tab key stops on, by name. */
+  moduleTabStops: () => string[];
+  /** Puts the focus on the active module tab and presses a key there. */
+  pressOnActiveTab: (key: string) => Promise<void>;
+  /** The name of the module tab that has the keyboard's focus; null when none has it. */
+  focusedTab: () => string | null;
   rootMode: () => string | null;
   rootTheme: () => string | null;
   hasSidebar: () => boolean;
@@ -131,6 +137,29 @@ export function mountTopBar(): TopBarPage {
     },
     clickTab: async (label: string): Promise<void> => {
       await user.click(within(modules()).getByRole("tab", { name: label }));
+    },
+    moduleTabStops: (): string[] => {
+      return within(modules())
+        .getAllByRole("tab")
+        .filter((tab) => {
+          return tab.tabIndex === 0;
+        })
+        .map((tab) => {
+          return tab.textContent ?? "";
+        });
+    },
+    pressOnActiveTab: async (key: string): Promise<void> => {
+      within(modules()).getByRole("tab", { selected: true }).focus();
+      await user.keyboard(`{${key}}`);
+    },
+    focusedTab: (): string | null => {
+      const focused = within(modules())
+        .getAllByRole("tab")
+        .find((tab) => {
+          return tab === document.activeElement;
+        });
+
+      return focused?.textContent ?? null;
     },
     rootMode: (): string | null => {
       return root().getAttribute("data-mode");

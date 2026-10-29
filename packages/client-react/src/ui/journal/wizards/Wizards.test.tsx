@@ -756,6 +756,56 @@ describe("the Invoice payment wizard", () => {
   });
 });
 
+describe("the wizards' required fields", () => {
+  it.each([
+    "Direct purchase with cash",
+    "Direct purchase via bank",
+    "Withholding-tax payment",
+    "Generic entry",
+    "Opening balances",
+    "Direct payment to multiple cost accounts",
+  ])("%s announces each required field as required", async (item) => {
+    const page = mountJournalScreen();
+    const wizard = await page.openWizard(item);
+
+    expect(wizard.requiredUnannounced()).toEqual([]);
+  });
+
+  it("New invoice announces each required field as required, on both steps", async () => {
+    const page = mountJournalScreen({ invoices: true });
+    const wizard = await page.openWizard("New invoice");
+
+    expect(wizard.requiredUnannounced()).toEqual([]);
+
+    await wizard.choose("Supplier", "Beta S.p.A.");
+    await wizard.fill("Invoice number", "56");
+    await wizard.next();
+
+    expect(wizard.requiredUnannounced()).toEqual([]);
+  });
+
+  it("Invoice payment announces the amount and the description, drawn on its second step, as required", async () => {
+    const page = mountJournalScreen({ invoices: true });
+    const wizard = await page.openWizard("Invoice payment");
+
+    await wizard.pick("Invoice 101 — Alfa s.n.c.");
+    await wizard.next();
+
+    expect(wizard.requiredUnannounced()).toEqual([]);
+  });
+
+  it("Record collection announces the amount, drawn once an owner is chosen, as required", async () => {
+    const page = mountJournalScreen({ legacyPeriod: "p36" });
+    const wizard = await page.openWizard("Record collection");
+
+    await wizard.pickOwner(0);
+    await wizard.next();
+
+    expect(wizard.fieldValue("Amount collected")).toBe("539.92");
+    expect(wizard.requiredUnannounced()).toEqual([]);
+  });
+});
+
 describe("the wizards' keyboard", () => {
   it("each invoice step puts the focus on its first required empty field; Enter is Next only while Next is enabled", async () => {
     const page = mountJournalScreen({ invoices: true });

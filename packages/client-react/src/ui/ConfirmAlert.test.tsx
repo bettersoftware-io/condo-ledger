@@ -29,6 +29,10 @@ describe("ConfirmAlert", () => {
     ).toBe(true);
   });
 
+  it("opens with the focus on No, the answer that changes nothing", () => {
+    expect(mountConfirmAlert({}).focusedButton()).toBe("No");
+  });
+
   it("shows its text", () => {
     const page = mountConfirmAlert({ text: 'Delete the entry "Rent"?' });
 

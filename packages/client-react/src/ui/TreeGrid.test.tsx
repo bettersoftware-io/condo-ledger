@@ -110,6 +110,16 @@ describe("TreeGrid", () => {
     expect(onResize).toHaveBeenCalledWith(1, 150);
   });
 
+  it("a boundary reports nothing once the browser cancels the pointer", () => {
+    const onResize = vi.fn();
+    const page = mountTreeGrid({ onResize });
+
+    page.dragBoundaryAndCancel(1, 30, 120);
+    page.moveOverBoundary(1, 60);
+
+    expect(onResize).toHaveBeenCalledExactlyOnceWith(1, 150);
+  });
+
   it("a pointer moving over a boundary that was not pressed reports nothing", () => {
     const onResize = vi.fn();
     const page = mountTreeGrid({ onResize });

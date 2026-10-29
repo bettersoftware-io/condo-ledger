@@ -6,6 +6,7 @@ import {
 } from "react";
 
 import { Tab } from "./Tab.tsx";
+import { tabAfterKey } from "./tabKeys.ts";
 
 import "./TabbedPanel.css";
 
@@ -16,6 +17,7 @@ import "./TabbedPanel.css";
  * they reach (WAI-ARIA's tabs with automatic activation).
  */
 export function TabbedPanel({
+  label,
   tabs,
   active,
   onActivate,
@@ -26,7 +28,7 @@ export function TabbedPanel({
   const activeIndex = tabs.indexOf(active);
 
   function moveOnKey(event: KeyboardEvent<HTMLDivElement>): void {
-    const next = nextIndex(event.key, activeIndex, tabs.length);
+    const next = tabAfterKey(event.key, activeIndex, tabs.length);
     const tab = next === null ? null : (tabs[next] ?? null);
 
     if (next === null || tab === null) {
@@ -40,7 +42,12 @@ export function TabbedPanel({
 
   return (
     <div className="tabbed">
-      <div className="tabbed-tabs" role="tablist" onKeyDown={moveOnKey}>
+      <div
+        className="tabbed-tabs"
+        role="tablist"
+        aria-label={label}
+        onKeyDown={moveOnKey}
+      >
         {tabs.map((tab, index) => {
           return (
             <Tab
@@ -67,6 +74,8 @@ export function TabbedPanel({
 }
 
 export interface TabbedPanelProps {
+  /** The tab list's accessible name: what its tabs show views of. */
+  label: string;
   tabs: readonly string[];
   active: string;
   onActivate: (tab: string) => void;
@@ -75,20 +84,4 @@ export interface TabbedPanelProps {
 
 function tabIdOf(panelId: string, index: number): string {
   return `${panelId}-tab-${index}`;
-}
-
-/** The tab a key moves to from the active one, wrapping at the ends; null for a key that moves nothing. */
-function nextIndex(key: string, from: number, count: number): number | null {
-  switch (key) {
-    case "ArrowRight":
-      return (from + 1) % count;
-    case "ArrowLeft":
-      return (from - 1 + count) % count;
-    case "Home":
-      return 0;
-    case "End":
-      return count - 1;
-    default:
-      return null;
-  }
 }

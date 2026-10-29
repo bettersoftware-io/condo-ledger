@@ -125,6 +125,7 @@ function DirectPaymentBody({
       />
       <FormField label="Amount" required>
         <input
+          aria-required="true"
           className="wizard-input wizard-amount"
           inputMode="decimal"
           value={form.amount}

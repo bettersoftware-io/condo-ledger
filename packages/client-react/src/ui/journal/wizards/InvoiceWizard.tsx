@@ -187,6 +187,7 @@ function SupplierStep({
       <div className="wizard-field-with-note">
         <FormField label="Invoice number" required>
           <input
+            aria-required="true"
             className="wizard-input"
             value={form.number}
             onChange={editNumber}
@@ -203,6 +204,7 @@ function SupplierStep({
       </div>
       <FormField label="Invoice reason" required>
         <input
+          aria-required="true"
           className="wizard-input"
           value={form.reason}
           onChange={editReason}
@@ -210,6 +212,7 @@ function SupplierStep({
       </FormField>
       <FormField label="Cost account" required>
         <ChoiceSelect
+          required
           label="Cost account"
           choices={costAccounts}
           value={form.costAccountId}
@@ -290,6 +293,7 @@ function WithholdingStep({
       </div>
       <FormField label="Taxable amount" required>
         <input
+          aria-required="true"
           className="wizard-input wizard-amount"
           inputMode="decimal"
           value={form.taxable}
@@ -357,6 +361,7 @@ function WithholdingStep({
       />
       <FormField label="Description" required>
         <input
+          aria-required="true"
           className="wizard-input"
           value={form.description}
           onChange={editDescription}

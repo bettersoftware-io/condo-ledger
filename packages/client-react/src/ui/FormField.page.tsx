@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { render, within } from "@testing-library/react";
 
 import { FormField, type FormFieldProps } from "./FormField.tsx";
 import { TESTIDS } from "./testids.ts";
@@ -11,8 +11,6 @@ export interface FormFieldPage {
   isReadOnly: () => boolean;
   /** Whether a text box is found by this name, as a person's label names it. */
   hasTextBoxNamed: (name: string) => boolean;
-  /** Whether the text box of this name is announced as required. */
-  isTextBoxRequired: (name: string) => boolean;
   /** The text of the group of this name; null when assistive technology finds no such group. */
   groupText: (name: string) => string | null;
   /** Whether the row is a `<label>`: it should be only when it holds a field to name. */
@@ -43,13 +41,6 @@ export function mountFormField(props: Partial<FormFieldProps>): FormFieldPage {
     hasTextBoxNamed: (name: string): boolean => {
       return rendered.queryByRole("textbox", { name }) !== null;
     },
-    isTextBoxRequired: (name: string): boolean => {
-      return (
-        rendered
-          .getByRole("textbox", { name })
-          .getAttribute("aria-required") === "true"
-      );
-    },
     groupText: (name: string): string | null => {
       return rendered.queryByRole("group", { name })?.textContent ?? null;
     },
@@ -57,4 +48,27 @@ export function mountFormField(props: Partial<FormFieldProps>): FormFieldPage {
       return field() instanceof HTMLLabelElement;
     },
   };
+}
+
+/**
+ * The labels of the required rows in `container` whose field is not
+ * announced as required: a row says `required`, and its caller must mark the
+ * field it puts there with `aria-required`. Empty when every one is.
+ */
+export function requiredFieldsUnannounced(container: HTMLElement): string[] {
+  return within(container)
+    .queryAllByTestId(TESTIDS.formField)
+    .filter((row) => {
+      const field = row.querySelector("input, select, textarea");
+
+      return (
+        row.dataset.required === "true" &&
+        field?.getAttribute("aria-required") !== "true"
+      );
+    })
+    .map((row) => {
+      const label = within(row).getByTestId(TESTIDS.formFieldLabel);
+
+      return (label.textContent ?? "").replace(/ \*$/, "");
+    });
 }

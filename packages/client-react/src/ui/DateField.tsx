@@ -31,6 +31,7 @@ export function DateField({
       <input
         type="text"
         aria-label={label}
+        aria-required={required}
         aria-describedby={showParsed ? parsedId : undefined}
         value={value}
         disabled={disabled}

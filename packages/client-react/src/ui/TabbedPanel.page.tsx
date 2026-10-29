@@ -8,6 +8,8 @@ export interface TabbedPanelPage {
   activeTab: () => string;
   activate: (name: string) => Promise<void>;
   body: () => string;
+  /** Whether assistive technology finds a tab list by this name. */
+  isTabListNamed: (name: string) => boolean;
   /** The panel's accessible name: the tab that labels it. */
   panelName: () => string;
   /** The tabs the Tab key stops on, by name. */
@@ -35,6 +37,9 @@ export function mountTabbedPanel(props: TabbedPanelProps): TabbedPanelPage {
     },
     body: (): string => {
       return rendered.getByRole("tabpanel").textContent ?? "";
+    },
+    isTabListNamed: (name: string): boolean => {
+      return rendered.queryByRole("tablist", { name }) !== null;
     },
     panelName: (): string => {
       const panel = rendered.getByRole("tabpanel");

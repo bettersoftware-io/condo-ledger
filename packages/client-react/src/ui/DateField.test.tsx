@@ -37,6 +37,7 @@ describe("DateField", () => {
     const page = mountDateField({ required: true });
 
     expect(page.isRequired()).toBe(true);
+    expect(page.isAnnouncedRequired()).toBe(true);
   });
 
   it("is disabled when it says so", () => {

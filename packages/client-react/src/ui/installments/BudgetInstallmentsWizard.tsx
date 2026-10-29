@@ -153,6 +153,7 @@ function NumberAndDates({
     <>
       <FormField label="Number of installments" required>
         <input
+          aria-required="true"
           className="budget-number"
           inputMode="numeric"
           value={form.count}
@@ -168,6 +169,7 @@ function NumberAndDates({
       />
       <FormField label="Months between installments" required>
         <input
+          aria-required="true"
           className="budget-number"
           inputMode="numeric"
           value={form.months}

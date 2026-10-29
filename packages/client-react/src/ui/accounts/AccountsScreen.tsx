@@ -102,6 +102,7 @@ export function AccountsScreen({
       <Splitter direction="horizontal" onDrag={moveSplitBy} />
       <div className="accounts-bottom">
         <TabbedPanel
+          label="Selected account"
           tabs={BOTTOM_TABS}
           active={tabs.state.active}
           onActivate={tabs.activate}

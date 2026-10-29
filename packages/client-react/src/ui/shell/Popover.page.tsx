@@ -21,6 +21,8 @@ export interface PopoverPage {
   clickOutside: () => Promise<void>;
   /** Whether the button that opened the menu has the focus. */
   buttonHasFocus: () => boolean;
+  /** Whether the field after the button and its menu has the focus. */
+  fieldAfterHasFocus: () => boolean;
   /** The items picked, by name, in order. */
   picked: () => string[];
 }
@@ -70,6 +72,9 @@ export function mountPopover(items: readonly string[]): PopoverPage {
     buttonHasFocus: (): boolean => {
       return document.activeElement === button();
     },
+    fieldAfterHasFocus: (): boolean => {
+      return document.activeElement === rendered.getByLabelText(FIELD_AFTER);
+    },
     picked: (): string[] => {
       return [...picked];
     },
@@ -79,6 +84,8 @@ export function mountPopover(items: readonly string[]): PopoverPage {
 const BUTTON = "Add";
 
 const MENU = "Add transaction";
+
+const FIELD_AFTER = "After the menu";
 
 interface PopoverHostProps {
   items: readonly string[];
@@ -119,7 +126,7 @@ function PopoverHost({ items, onPick }: PopoverHostProps): ReactElement {
           return <MenuItem key={item} label={item} onClick={picking(item)} />;
         })}
       </Popover>
-      <input aria-label="After the menu" />
+      <input aria-label={FIELD_AFTER} />
     </div>
   );
 }

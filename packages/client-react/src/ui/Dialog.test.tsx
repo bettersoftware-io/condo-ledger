@@ -168,6 +168,16 @@ describe("Dialog", () => {
     expect(page.openerHasFocus()).toBe(true);
   });
 
+  it("gives the focus back to what opened it when the scrim is clicked", async () => {
+    const page = mountOpenedDialog();
+    await page.open();
+
+    await page.clickScrim();
+
+    expect(page.isOpen()).toBe(false);
+    expect(page.openerHasFocus()).toBe(true);
+  });
+
   it("gives the focus back to what opened it when it closes on its own", async () => {
     const page = mountOpenedDialog();
     await page.open();

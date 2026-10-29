@@ -1,6 +1,7 @@
 import { type RenderResult, within } from "@testing-library/react";
 import type userEvent from "@testing-library/user-event";
 
+import { requiredFieldsUnannounced } from "../FormField.page.tsx";
 import { TESTIDS } from "../testids.ts";
 
 type User = ReturnType<typeof userEvent.setup>;
@@ -9,6 +10,8 @@ type User = ReturnType<typeof userEvent.setup>;
 export interface InstallmentDialogPage {
   isShown: () => boolean;
   title: () => string;
+  /** The labels of the required fields not announced as required; empty when every one is. */
+  requiredUnannounced: () => string[];
   /** The text in the field with this label: "Name" or "Due date". */
   fieldValue: (label: string) => string;
   /** Clears the field with this label and types the text into it. */
@@ -54,6 +57,9 @@ export function installmentDialogIn(
       return (
         within(dialog()).getByTestId(TESTIDS.dialogTitle).textContent ?? ""
       );
+    },
+    requiredUnannounced: (): string[] => {
+      return requiredFieldsUnannounced(dialog());
     },
     fieldValue: (label: string): string => {
       return control(label).value;

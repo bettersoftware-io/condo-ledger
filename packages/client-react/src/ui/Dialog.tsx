@@ -32,10 +32,13 @@ export function Dialog({
   footer,
   children,
 }: DialogProps): ReactElement {
+  const layer = useRef<HTMLDivElement>(null);
   const card = useRef<HTMLDivElement>(null);
   const titleId = useId();
 
-  useFocusReturn(card, true);
+  // The whole layer, not the card: a click on the scrim puts the focus on
+  // the scrim, and the focus is still there when the dialog goes.
+  useFocusReturn(layer, true);
 
   useEffect(() => {
     card.current?.focus();
@@ -65,7 +68,7 @@ export function Dialog({
   }
 
   return (
-    <div className="dialog-layer" data-width={width}>
+    <div ref={layer} className="dialog-layer" data-width={width}>
       <button
         type="button"
         className="dialog-scrim"

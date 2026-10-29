@@ -14,6 +14,8 @@ export interface ConfirmAlertPage {
   yes: () => Promise<void>;
   no: () => Promise<void>;
   pressEscape: () => void;
+  /** The text of the button that has the keyboard's focus; null when no button has it. */
+  focusedButton: () => string | null;
   /** Whether assistive technology finds an alert dialog named Notice that reads this after its name. */
   isAlertDescribedAs: (description: string) => boolean;
 }
@@ -56,6 +58,13 @@ export function mountConfirmAlert(
         rendered.queryByRole("alertdialog", { name: "Notice", description }) !==
         null
       );
+    },
+    focusedButton: (): string | null => {
+      const active = document.activeElement;
+
+      return active instanceof HTMLButtonElement
+        ? (active.textContent ?? "")
+        : null;
     },
     pressEscape: (): void => {
       fireEvent.keyDown(rendered.getByTestId(TESTIDS.dialog), {

@@ -1,10 +1,4 @@
-import {
-  type ReactElement,
-  type ReactNode,
-  useEffect,
-  useId,
-  useRef,
-} from "react";
+import { type ReactElement, type ReactNode, useId } from "react";
 
 import { TESTIDS } from "./testids.ts";
 
@@ -13,8 +7,9 @@ import "./FormField.css";
 /**
  * A dialog's form row: the label column, then the box the field sits in. The
  * row is the field's `<label>`, so the field it holds takes the label as its
- * name; a required one is marked with a `*` that is drawn, not read, and the
- * field is announced as required instead. A read-only row holds a value, not
+ * name; a required one is marked with a `*` that is drawn, not read. The
+ * field is the caller's, and the caller announces it as required
+ * (`aria-required`) where the row says `required`. A read-only row holds a value, not
  * a field: it is a group (a `<fieldset>`) named by its label.
  */
 export function FormField({
@@ -23,18 +18,7 @@ export function FormField({
   readOnly = false,
   children,
 }: FormFieldProps): ReactElement {
-  const row = useRef<HTMLLabelElement>(null);
   const labelId = useId();
-
-  // The field is the caller's, drawn with the row: after each render, the
-  // row marks whatever its label names. A field that another one replaced
-  // on its own state, without the row redrawing, would go unmarked until the
-  // row draws again; no field in a row does that.
-  useEffect(() => {
-    if (row.current !== null) {
-      markRequired(row.current, required);
-    }
-  });
 
   const name = (
     <span
@@ -66,7 +50,6 @@ export function FormField({
   return (
     // biome-ignore lint/a11y/noLabelWithoutControl: the control is the caller's children, which Biome cannot see; this label is what names it
     <label
-      ref={row}
       className="form-field"
       data-testid={TESTIDS.formField}
       data-required={required}
@@ -84,13 +67,4 @@ export interface FormFieldProps {
   /** A computed value: the box is drawn on the zebra, dimmed, and names no field. */
   readOnly?: boolean;
   children: ReactNode;
-}
-
-/** Sets `aria-required` on the field a row's label names, or takes it off; a row that names no field marks nothing. */
-function markRequired(row: HTMLLabelElement, required: boolean): void {
-  if (required) {
-    row.control?.setAttribute("aria-required", "true");
-  } else {
-    row.control?.removeAttribute("aria-required");
-  }
 }

@@ -60,7 +60,9 @@
   background: var(--hover);
 }
 
-/* The keyboard's place in the menu: a ring, which shows on the checked option too. */
+/* The keyboard's place in the menu: the client's focus ring, 2px solid --acc
+   inset, which shows on the checked option too. A tint would not: --hover
+   is about 1.1:1 on the panel, and a focus indicator needs 3:1. */
 .popover-option:focus-visible {
   outline: 2px solid var(--acc);
   outline-offset: -2px;

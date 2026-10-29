@@ -40,18 +40,6 @@ describe("FormField", () => {
     expect(page.isReadOnly()).toBe(true);
   });
 
-  it("announces a required field as required", () => {
-    const page = mountFormField({ label: "Amount", required: true });
-
-    expect(page.isTextBoxRequired("Amount")).toBe(true);
-  });
-
-  it("does not announce a field that is not required as required", () => {
-    const page = mountFormField({ label: "Notes" });
-
-    expect(page.isTextBoxRequired("Notes")).toBe(false);
-  });
-
   it("is a label for the field it holds", () => {
     expect(mountFormField({}).isLabelElement()).toBe(true);
   });

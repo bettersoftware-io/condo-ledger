@@ -7,6 +7,7 @@ describe("TableDialog", () => {
     const { dialog, saved } = mountTableDialog(null);
 
     expect(dialog.title()).toBe("New Thousandth Table");
+    expect(dialog.requiredUnannounced()).toEqual([]);
     expect(dialog.fieldValue("Name")).toBe("");
     expect(dialog.fieldValue("Order")).toBe("6");
     expect(dialog.fieldValue("Notes")).toBe("");

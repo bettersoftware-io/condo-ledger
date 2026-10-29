@@ -26,6 +26,7 @@ export function SupplierSelect({
     <div className="supplier-select">
       <FormField label="Supplier" required>
         <ChoiceSelect
+          required
           label="Supplier"
           choices={choices}
           value={value}

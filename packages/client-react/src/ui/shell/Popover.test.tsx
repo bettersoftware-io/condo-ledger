@@ -83,13 +83,14 @@ describe("Popover", () => {
     expect(page.buttonHasFocus()).toBe(true);
   });
 
-  it("closes when the Tab key leaves it", async () => {
+  it("closes when the Tab key leaves it, the focus going on past its button", async () => {
     const page = mountPopover(ITEMS);
     await page.open();
 
     await page.press("Tab");
 
     expect(page.isOpen()).toBe(false);
+    expect(page.fieldAfterHasFocus()).toBe(true);
   });
 
   it("leaves the focus where it is on another key", async () => {

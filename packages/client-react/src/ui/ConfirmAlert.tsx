@@ -1,5 +1,5 @@
 import { TriangleAlert } from "lucide-react";
-import { type ReactElement, useId } from "react";
+import { type ReactElement, useEffect, useId, useRef } from "react";
 
 import { Dialog } from "./Dialog.tsx";
 import { TESTIDS } from "./testids.ts";
@@ -10,7 +10,8 @@ import "./ConfirmAlert.css";
  * The yes-or-no question before an act that cannot be undone: a notice with
  * the warning glyph, the question, and the reason it failed when it did.
  * An alert dialog, after WAI-ARIA's: named Notice, it reads the question and
- * the reason after its name. Escape and the scrim answer No.
+ * the reason after its name. It opens with the focus on No, the answer that
+ * changes nothing. Escape and the scrim answer No.
  */
 export function ConfirmAlert({
   text,
@@ -19,8 +20,14 @@ export function ConfirmAlert({
   onNo,
 }: ConfirmAlertProps): ReactElement {
   const id = useId();
+  const no = useRef<HTMLButtonElement>(null);
   const textId = `${id}-text`;
   const errorId = `${id}-error`;
+
+  // After the dialog's own effect, which puts the focus on its card.
+  useEffect(() => {
+    no.current?.focus();
+  }, []);
 
   return (
     <Dialog
@@ -41,6 +48,7 @@ export function ConfirmAlert({
             Yes
           </button>
           <button
+            ref={no}
             type="button"
             className="dialog-button"
             data-testid={TESTIDS.confirmNo}

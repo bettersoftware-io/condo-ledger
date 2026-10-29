@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 
 import { DateField, type DateFieldProps } from "./DateField.tsx";
+import { requiredFieldsUnannounced } from "./FormField.page.tsx";
 import { TESTIDS } from "./testids.ts";
 
 /** What a test can do with, and ask of, a date field. */
@@ -14,6 +15,8 @@ export interface DateFieldPage {
   /** The accessible description of the box, or null when it has none. */
   description: () => string | null;
   isRequired: () => boolean;
+  /** Whether assistive technology hears the field as required. */
+  isAnnouncedRequired: () => boolean;
   isDisabled: () => boolean;
   type: (text: string) => Promise<void>;
 }
@@ -49,6 +52,9 @@ export function mountDateField(props: Partial<DateFieldProps>): DateFieldPage {
       return id === null
         ? null
         : (document.getElementById(id)?.textContent ?? null);
+    },
+    isAnnouncedRequired: (): boolean => {
+      return requiredFieldsUnannounced(rendered.container).length === 0;
     },
     isRequired: (): boolean => {
       return (

@@ -5,6 +5,7 @@ import { mountTabbedPanel } from "./TabbedPanel.page.tsx";
 describe("TabbedPanel", () => {
   it("marks the active tab and shows the body it is given", () => {
     const page = mountTabbedPanel({
+      label: "Account",
       tabs: ["Accounts", "Journal"],
       active: "Journal",
       onActivate: vi.fn(),
@@ -18,6 +19,7 @@ describe("TabbedPanel", () => {
   it("asks to activate the tab that is clicked", async () => {
     const onActivate = vi.fn();
     const page = mountTabbedPanel({
+      label: "Account",
       tabs: ["Accounts", "Journal"],
       active: "Accounts",
       onActivate,
@@ -29,8 +31,21 @@ describe("TabbedPanel", () => {
     expect(onActivate).toHaveBeenCalledWith("Journal");
   });
 
+  it("is a tab list named by its label", () => {
+    const page = mountTabbedPanel({
+      label: "Account",
+      tabs: ["Accounts", "Journal"],
+      active: "Journal",
+      onActivate: vi.fn(),
+      children: "x",
+    });
+
+    expect(page.isTabListNamed("Account")).toBe(true);
+  });
+
   it("names its panel by the active tab", () => {
     const page = mountTabbedPanel({
+      label: "Account",
       tabs: ["Accounts", "Journal"],
       active: "Journal",
       onActivate: vi.fn(),
@@ -42,6 +57,7 @@ describe("TabbedPanel", () => {
 
   it("is one stop for the Tab key: the active tab", () => {
     const page = mountTabbedPanel({
+      label: "Account",
       tabs: ["Accounts", "Journal", "Ledger"],
       active: "Journal",
       onActivate: vi.fn(),
@@ -59,6 +75,7 @@ describe("TabbedPanel", () => {
   ])("%s moves the focus to %s and activates it", async (key, next) => {
     const onActivate = vi.fn();
     const page = mountTabbedPanel({
+      label: "Account",
       tabs: ["Accounts", "Journal", "Ledger"],
       active: "Journal",
       onActivate,
@@ -77,6 +94,7 @@ describe("TabbedPanel", () => {
   ])("%s from %s wraps around to %s", async (key, active, next) => {
     const onActivate = vi.fn();
     const page = mountTabbedPanel({
+      label: "Account",
       tabs: ["Accounts", "Journal", "Ledger"],
       active,
       onActivate,
@@ -92,6 +110,7 @@ describe("TabbedPanel", () => {
   it("does nothing on another key", async () => {
     const onActivate = vi.fn();
     const page = mountTabbedPanel({
+      label: "Account",
       tabs: ["Accounts", "Journal"],
       active: "Journal",
       onActivate,
