@@ -157,6 +157,23 @@ describe("the allocation mode", () => {
 });
 
 describe("the allocation grid", () => {
+  it("a period switch opens the rows a person closed: back on p1, its group is open again", () => {
+    const { app } = createAppHarness();
+
+    app.presenters.buildings.selectPeriod("p1");
+
+    const grid = app.screens.allocationGrid();
+
+    grid.intents.toggle("group:ug1");
+
+    expect(grid.state$.getValue().expanded).not.toContain("group:ug1");
+
+    app.presenters.buildings.selectPeriod("p36");
+    app.presenters.buildings.selectPeriod("p1");
+
+    expect(grid.state$.getValue().expanded).toContain("group:ug1");
+  });
+
   it("starts with every row open, Roundings last", () => {
     const { grid, stop } = createAllocationGrid();
     const { rows, expanded } = grid.state$.getValue();
@@ -244,6 +261,24 @@ describe("the allocation grid", () => {
 });
 
 describe("the coefficients grid", () => {
+  it("a period switch opens the rows a person closed: back on p1, its group is open again", () => {
+    const { app } = createAppHarness();
+
+    app.presenters.buildings.selectPeriod("p1");
+
+    const grid = app.screens.coefficientsGrid();
+
+    grid.intents.toggle("group:ug1");
+
+    expect(grid.state$.getValue().expanded).not.toContain("group:ug1");
+
+    app.presenters.buildings.selectPeriod("p36");
+    app.presenters.buildings.selectPeriod("p1");
+
+    expect(grid.state$.getValue().expanded).toContain("group:ug1");
+    expect(keysOf(grid.state$.getValue().rows)).toContain("unit:u1");
+  });
+
   it("shows the selected table's groups and units, all open, and collapses to the groups", () => {
     const { app } = createAppHarness();
 

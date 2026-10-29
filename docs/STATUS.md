@@ -69,15 +69,19 @@ Work that waits on a release, a decision or other work.
   awaited write, which a live adapter may need to flush; the allocation and
   tables streams and the table selection stay subscribed for the app's life;
   a period switch shows a loading state whose words ("No period is
-  selected.", "No table is selected.") are wrong for that moment and
-  remounts the Allocation grid, which resets dragged column widths; clicking
+  selected.", "No table is selected.") are wrong for that moment; clicking
   the edit or delete button while the selection is not yet listed would
   throw; Account Details now reads the tables and units ports, through
   `allocation.tables$` (`composition.ts`), so a failing live tables or
   units adapter would fail Account Details too, though only table names
   are at stake; and the Budget allocation wizard reads a null allocation
   as "There is no budget to allocate" when it means the tables are still
-  on their way, so a live adapter needs a "still loading" state there.
+  on their way, so a live adapter needs a "still loading" state there. The
+  screens' grids (`packages/client-core/src/screens.ts`) subscribe their
+  presenter streams when a screen first asks for them and stay subscribed
+  for the session, so a screen once visited keeps its data live off-screen:
+  the allocation recomputes on every change of the books, and a live
+  port's subscriptions behind them would stay open.
 - **Accessibility polish.** The tabbed panel lacks `aria-labelledby` and
   arrow keys; the popover menus have no focus return and no arrow keys; the
   inline editor's input has no label, `aria-invalid` or `role="alert"` on its
@@ -95,8 +99,9 @@ Work that waits on a release, a decision or other work.
   near-identical picker blocks (it wraps `Popover`, which the accessibility
   work is changing); `Wizards.css` reaches into `FormField`'s class with
   `:has()` (the same work changes `FormField`); `JournalScreen` restates the
-  grid machine's blank-search rule (a `searching` flag on the grid's state;
-  the per-grid persistence work changes those machines); the three wizard
+  grid machine's blank-search rule (a `searching` flag on the grid's state
+  would hold it in one place; the grid machines are no longer being
+  changed, so nothing holds this one back); the three wizard
   machine tests copy one create-and-dispose harness, and the three wizard
   readers repeat one skeleton; the `knip.jsonc` client-react workspace
   repeats the `packages/*` settings (knip does not merge a named workspace

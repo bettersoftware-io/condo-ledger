@@ -66,6 +66,8 @@ describe("the screens' state", () => {
     ).toEqual([null, 150, null, null]);
   });
 
+  // p36's coefficients are flat, with nothing to close: the coefficients
+  // grid's reset is held in allocationMachines.test.ts, on p1.
   it("a period switch opens each grid's rows as they start, and keeps the widths, the splits, the tab and the filters", () => {
     const { app } = createAppHarness();
     const { screens } = app;
@@ -75,7 +77,6 @@ describe("the screens' state", () => {
     const accounts = screens.accountsGrid();
     const journal = screens.journalGrid();
     const schedule = screens.scheduleGrid();
-    const coefficients = screens.coefficientsGrid();
     const allocation = screens.allocationGrid();
     const opening = accounts.state$.getValue().expanded;
     const firstEntry = firstEntryOf(journal.state$.getValue().rows);
@@ -87,7 +88,6 @@ describe("the screens' state", () => {
     journal.intents.setPageSize(25);
     journal.intents.setPage(2);
     schedule.intents.collapseAll();
-    coefficients.intents.collapseAll();
     allocation.intents.collapseAll();
     screens.columns("accounts", SPEC).intents.resize(1, 150);
     screens.split("accounts").intents.setRatio(0.3);
@@ -95,8 +95,12 @@ describe("the screens' state", () => {
 
     expect(accounts.state$.getValue().expanded).not.toContain("costs");
     expect(journal.state$.getValue().page).toBe(2);
+    expect(allOpen(schedule.state$.getValue().rows)).toBe(false);
+    expect(allOpen(allocation.state$.getValue().rows)).toBe(false);
 
+    // Away and back: the rows are p36's again, so what was closed would show.
     app.presenters.buildings.selectPeriod("p1");
+    app.presenters.buildings.selectPeriod("p36");
 
     expect(accounts.state$.getValue()).toMatchObject({
       expanded: opening,
@@ -109,7 +113,6 @@ describe("the screens' state", () => {
       pageSize: 25,
     });
     expect(allOpen(schedule.state$.getValue().rows)).toBe(true);
-    expect(allOpen(coefficients.state$.getValue().rows)).toBe(true);
     expect(allOpen(allocation.state$.getValue().rows)).toBe(true);
     expect(screens.columns("accounts", SPEC).state$.getValue().widths).toEqual([
       null,

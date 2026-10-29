@@ -1,4 +1,4 @@
-import { act, fireEvent, render } from "@testing-library/react";
+import { act, render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
@@ -6,7 +6,7 @@ import type { LegacySeed } from "@cl/domain";
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 import { createViewModel, ViewModelProvider } from "@cl/react-bindings";
 
-import { polyfillPointerCapture } from "../shell/Splitter.page.tsx";
+import { resizeColumnIn } from "../TreeGrid.page.tsx";
 import { TESTIDS } from "../testids.ts";
 import { LedgerTab } from "./LedgerTab.tsx";
 
@@ -94,16 +94,7 @@ export function mountLedgerTab(
         .style.getPropertyValue("--tree-grid-template");
     },
     resizeColumn: (index: number, toPx: number): void => {
-      const handle = rendered.getAllByTestId(TESTIDS.treeGridResize)[index];
-
-      if (handle === undefined) {
-        throw new Error(`No boundary ${index}`);
-      }
-
-      polyfillPointerCapture();
-      fireEvent.pointerDown(handle, { clientX: 0, pointerId: 1 });
-      fireEvent.pointerMove(handle, { clientX: toPx, pointerId: 1 });
-      fireEvent.pointerUp(handle, { clientX: toPx, pointerId: 1 });
+      resizeColumnIn(rendered.container, index, toPx);
     },
   };
 }

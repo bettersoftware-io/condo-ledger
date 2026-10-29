@@ -74,8 +74,9 @@ export type TabbedPanelName = "accounts";
 
 /**
  * What the screens show and how they are laid out, kept for the session: one
- * machine per grid, per grid's columns, per split and per tabbed panel, built
- * when first asked for and handed to every asker after, so leaving a screen
+ * machine per grid, per grid's columns, per split and per tabbed panel. Each
+ * is made lazily, once, on first use, and handed to every asker after, so
+ * leaving a screen
  * and coming back finds it as it was left. They live as long as the
  * application and are never disposed. A period switch opens each grid's rows
  * as they start again, since the rows are another period's; the widths, the

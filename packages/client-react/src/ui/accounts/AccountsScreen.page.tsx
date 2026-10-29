@@ -1,10 +1,4 @@
-import {
-  act,
-  fireEvent,
-  type RenderResult,
-  render,
-  within,
-} from "@testing-library/react";
+import { act, type RenderResult, render, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { type ReactElement, useEffect } from "react";
 
@@ -24,11 +18,9 @@ import {
 } from "@cl/react-bindings";
 
 import { AmountLocaleProvider } from "../AmountLocaleProvider.tsx";
-import {
-  dragSplitterElement,
-  polyfillPointerCapture,
-} from "../shell/Splitter.page.tsx";
+import { dragSplitterElement } from "../shell/Splitter.page.tsx";
 import { ToastHost } from "../shell/ToastHost.tsx";
+import { resizeColumnIn } from "../TreeGrid.page.tsx";
 import { TESTIDS } from "../testids.ts";
 import { AccountsScreen } from "./AccountsScreen.tsx";
 
@@ -145,19 +137,6 @@ export function accountsScreenIn({
       .style.getPropertyValue("--tree-grid-template");
   }
 
-  function resizeIn(panel: HTMLElement, index: number, toPx: number): void {
-    const handle = within(panel).getAllByTestId(TESTIDS.treeGridResize)[index];
-
-    if (handle === undefined) {
-      throw new Error(`No boundary ${index}`);
-    }
-
-    polyfillPointerCapture();
-    fireEvent.pointerDown(handle, { clientX: 0, pointerId: 1 });
-    fireEvent.pointerMove(handle, { clientX: toPx, pointerId: 1 });
-    fireEvent.pointerUp(handle, { clientX: toPx, pointerId: 1 });
-  }
-
   function dragThrough(steps: number[], screenHeight: number): void {
     screen().getBoundingClientRect = (): DOMRect => {
       return { height: screenHeight } as DOMRect;
@@ -252,13 +231,13 @@ export function accountsScreenIn({
       return templateIn(top());
     },
     resizeChartColumn: (index: number, toPx: number): void => {
-      resizeIn(top(), index, toPx);
+      resizeColumnIn(top(), index, toPx);
     },
     ledgerTemplate: (): string => {
       return templateIn(bottom());
     },
     resizeLedgerColumn: (index: number, toPx: number): void => {
-      resizeIn(bottom(), index, toPx);
+      resizeColumnIn(bottom(), index, toPx);
     },
   };
 }

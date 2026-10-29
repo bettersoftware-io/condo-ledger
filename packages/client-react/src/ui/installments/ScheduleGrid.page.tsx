@@ -1,10 +1,10 @@
-import { act, fireEvent, render, within } from "@testing-library/react";
+import { act, render, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 
 import type { Result } from "@cl/domain";
 
-import { polyfillPointerCapture } from "../shell/Splitter.page.tsx";
+import { resizeColumnIn } from "../TreeGrid.page.tsx";
 import { TESTIDS } from "../testids.ts";
 import {
   type InstallmentCellPage,
@@ -166,18 +166,7 @@ export function scheduleGridIn(
       return root().style.getPropertyValue("--tree-grid-template");
     },
     resizeColumn: (index: number, toPx: number): void => {
-      const handle = within(root()).getAllByTestId(TESTIDS.treeGridResize)[
-        index
-      ];
-
-      if (handle === undefined) {
-        throw new Error(`No boundary ${index}`);
-      }
-
-      polyfillPointerCapture();
-      fireEvent.pointerDown(handle, { clientX: 0, pointerId: 1 });
-      fireEvent.pointerMove(handle, { clientX: toPx, pointerId: 1 });
-      fireEvent.pointerUp(handle, { clientX: toPx, pointerId: 1 });
+      resizeColumnIn(root(), index, toPx);
     },
   };
 }
