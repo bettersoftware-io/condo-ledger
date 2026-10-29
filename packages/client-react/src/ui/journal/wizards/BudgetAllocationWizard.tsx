@@ -24,19 +24,14 @@ export function BudgetAllocationWizard({
   const { useBudgetAllocationWizard, useJournalContext } = useViewModel();
   const wizard = useBudgetAllocationWizard();
   const context = useJournalContext();
-  const saving = useWizardSave(wizard.save, onSaved);
-
-  function edit(patch: Partial<BudgetAllocationForm>): void {
-    saving.forget();
-    wizard.edit(patch);
-  }
+  const saving = useWizardSave(wizard, onSaved);
 
   return (
     <BudgetAllocationBody
       context={context}
       state={wizard.state}
       refusal={saving.refusal}
-      onEdit={edit}
+      onEdit={saving.edit}
       onNext={wizard.next}
       onBack={wizard.back}
       onSave={saving.save}

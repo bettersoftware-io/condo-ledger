@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
   type Cents,
@@ -14,6 +14,7 @@ import { createScheduleSeed } from "@cl/domain/testing/createScheduleSeed.ts";
 
 import { type AppHarness, createAppHarness } from "#/testing/appHarness.ts";
 import { createAmountTexts } from "#/testing/createAmountTexts.ts";
+import { disposeAfterEach } from "#/testing/disposeAfterEach.ts";
 import { currentBooks } from "#/testing/harnessBooks.ts";
 
 import {
@@ -24,12 +25,6 @@ import {
   type ReviewRow,
 } from "./budgetInstallmentsWizard.ts";
 import type { WizardMachine } from "./wizard.ts";
-
-afterEach(() => {
-  for (const machine of created.splice(0)) {
-    machine.dispose();
-  }
-});
 
 describe("the Create budget installments wizard", () => {
   it("starts on step 1 of 3: three installments four months apart, no date yet, to the cent, named and shared 34/33/33", () => {
@@ -775,17 +770,11 @@ function itemsOf(
   });
 }
 
-function track(machine: Wizard): Wizard {
-  created.push(machine);
-
-  return machine;
-}
-
 function neverWrite(): Promise<Result> {
   return Promise.resolve(rejected("never"));
 }
 
-const created: Wizard[] = [];
+const track = disposeAfterEach();
 
 type Wizard = WizardMachine<
   BudgetInstallmentsForm,

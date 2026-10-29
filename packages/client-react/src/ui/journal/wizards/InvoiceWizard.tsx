@@ -40,19 +40,14 @@ export function InvoiceWizard({
   const { useInvoiceWizard, useJournalContext } = useViewModel();
   const wizard = useInvoiceWizard(editing);
   const context = useJournalContext();
-  const saving = useWizardSave(wizard.save, onSaved);
-
-  function edit(patch: Partial<InvoiceForm>): void {
-    saving.forget();
-    wizard.edit(patch);
-  }
+  const saving = useWizardSave(wizard, onSaved);
 
   return (
     <InvoiceBody
       context={context}
       state={wizard.state}
       refusal={saving.refusal}
-      onEdit={edit}
+      onEdit={saving.edit}
       onNext={wizard.next}
       onBack={wizard.back}
       onSave={saving.save}

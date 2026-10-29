@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
   accepted,
@@ -16,6 +16,7 @@ import type { Books } from "#/presenters/booksPresenter.ts";
 import { type AppHarness, createAppHarness } from "#/testing/appHarness.ts";
 import { createAmountTexts } from "#/testing/createAmountTexts.ts";
 import { createAccountsWithTax, createBooks } from "#/testing/createBooks.ts";
+import { disposeAfterEach } from "#/testing/disposeAfterEach.ts";
 import { currentBooks, currentEntry } from "#/testing/harnessBooks.ts";
 
 import { judgedPayment } from "./choices.ts";
@@ -27,12 +28,6 @@ import {
   fitsDirectPayment,
 } from "./directPaymentWizard.ts";
 import type { WizardMachine } from "./wizard.ts";
-
-afterEach(() => {
-  for (const machine of created.splice(0)) {
-    machine.dispose();
-  }
-});
 
 describe("the direct-payment wizard", () => {
   it("offers the expense leaves for a cash purchase, prefilled with the design's description, paid from cash", () => {
@@ -252,7 +247,7 @@ describe("editing a direct payment", () => {
       "tx8",
     );
 
-    created.push(machine);
+    track(machine);
 
     expect(machine.state$.getValue()).toMatchObject({
       editing: "tx8",
@@ -275,7 +270,7 @@ describe("editing a direct payment", () => {
       "tx8",
     );
 
-    created.push(machine);
+    track(machine);
 
     expect(await machine.intents.save()).toEqual({
       ok: true,
@@ -296,7 +291,7 @@ describe("editing a direct payment", () => {
       "tx8",
     );
 
-    created.push(machine);
+    track(machine);
     machine.intents.edit({ amount: "25" });
     await machine.intents.save();
 
@@ -323,7 +318,7 @@ describe("editing a direct payment", () => {
       "the bank",
     );
 
-    created.push(machine);
+    track(machine);
 
     expect(machine.state$.getValue()).toMatchObject({
       verdict: { ok: true },
@@ -347,7 +342,7 @@ describe("editing a direct payment", () => {
     );
     const description = seededEntry(harness, "tx12").description;
 
-    created.push(machine);
+    track(machine);
 
     expect(machine.state$.getValue().form).toEqual({
       description,
@@ -367,7 +362,7 @@ describe("editing a direct payment", () => {
       "tx8",
     );
 
-    created.push(machine);
+    track(machine);
     await harness.app.presenters.journal.deleteEntry("tx8");
 
     expect(await machine.intents.save()).toEqual({
@@ -503,7 +498,7 @@ function createWizard(
     null,
   );
 
-  created.push(machine);
+  track(machine);
 
   return {
     machine,
@@ -545,4 +540,4 @@ function createBooksWithoutCash(): Books {
   );
 }
 
-const created: WizardMachine<DirectPaymentForm, DirectPaymentSummary>[] = [];
+const track = disposeAfterEach();
