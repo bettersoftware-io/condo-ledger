@@ -1,4 +1,4 @@
-import { BehaviorSubject, type Observable, throwError } from "rxjs";
+import { BehaviorSubject, type Observable } from "rxjs";
 
 import type { Account } from "#/entities/account.ts";
 import type { Invoice, WithholdingTax } from "#/entities/invoice.ts";
@@ -22,6 +22,7 @@ import {
   type PeriodSchedule,
   seededSchedule,
 } from "./installmentsSimulator.ts";
+import { missingPeriod } from "./missingPeriod.ts";
 import type { LegacySeed } from "./seed/legacySeed.ts";
 
 /** The port, and what the installments simulator reads of it: a period's entries as they stand now. */
@@ -273,14 +274,14 @@ export function createJournalSimulator(
       const journal = periods.get(periodId);
 
       return journal === undefined
-        ? missing(periodId)
+        ? missingPeriod(periodId)
         : journal.entries$.asObservable();
     },
     invoices: (periodId: string): Observable<Invoice[]> => {
       const journal = periods.get(periodId);
 
       return journal === undefined
-        ? missing(periodId)
+        ? missingPeriod(periodId)
         : journal.invoices$.asObservable();
     },
     addEntry: (
@@ -315,10 +316,4 @@ function nextNumber(entries: JournalEntry[]): number {
       return Math.max(max, entry.number);
     }, 0) + 1
   );
-}
-
-function missing<T>(periodId: string): Observable<T> {
-  return throwError(() => {
-    return new Error(`missing: the period ${periodId}`);
-  });
 }

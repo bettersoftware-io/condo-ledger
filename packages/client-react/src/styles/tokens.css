@@ -1,5 +1,4 @@
-/* CondoLedger design tokens — ported 1:1 from the prototype (Condomini.dc.html).
-   Drop-in replacement for apps/web/src/styles/tokens.css + theme-dark.css.
+/* CondoLedger design tokens, ported 1:1 from the prototype (Condomini.dc.html).
    Theme = data-theme attr ("slate" default | "carbon" | "sage"), mode = data-mode ("light" default | "dark"). */
 
 :root,

@@ -97,30 +97,17 @@ Work that waits on a release, a decision or other work.
   star is not announced (`aria-required`); after a dialog closes, the focus
   lands on the grid's wrapper, whose outline is removed, so nothing shows
   where it is.
-- **Structural tidy-ups:** `missing()` duplicated across the two simulators;
-  `TopBar.tsx` has two near-identical picker blocks; `LedgerTab` is a
-  view-model reader that builds every row itself (split it like
-  `AccountsGrid`); `.accounts-top .toolbar-button[data-icon-only]` reaches
-  wider than its comment; `createSeedWithASecondPeriod` duplicates half of
-  `createTwoPeriodSeed`; `twoBuildings()` is not named `create…`;
-  `Counterpart.kind` is never checked against the account's role;
-  `validateBudget` rejects only `grouping` as "not a leaf" (use
-  `type !== "regular"`); the `compilerTracked` rationale and `AccountsGrid`'s
-  doc comment are inaccurate; `Breadcrumb` keys rows by their text; a dead
-  `data-tone="muted"`; `tokens.css` still names the prototype's path in its
-  header; the `knip.jsonc` client-react workspace repeats the `packages/*`
-  settings (keep in sync). From the Journal: `judgedPayment` and `Debit`
-  live in `directPaymentWizard.ts`, though the multi-cost wizard uses them
-  too (beside `payingOf` in `choices.ts`); the three wizard machine tests
-  copy one create-and-dispose harness, and the three wizard readers repeat
-  one skeleton; `JournalScreen` restates the grid machine's blank-search rule
-  (a `searching` flag on the grid's state); `JournalPaging` and
-  `JournalToolbar` use classes from `JournalScreen.css` without importing it;
-  `Wizards.css` reaches into `FormField`'s class with `:has()`; posting keys
-  (`entryId/index`) assume an entry id holds no slash.
-- **AGENTS.md:** the oracle's path is written without backticks so the
-  `agent-docs` gate does not look for a file that is not in git; pointing at
-  the test and `DESIGN_ORACLE_DIR` instead would be cleaner.
+- **Structural tidy-ups (left over):** held back so as not to collide with
+  the branches that work on the same files. `TopBar.tsx` has two
+  near-identical picker blocks (it wraps `Popover`, which the accessibility
+  work is changing); `Wizards.css` reaches into `FormField`'s class with
+  `:has()` (the same work changes `FormField`); `JournalScreen` restates the
+  grid machine's blank-search rule (a `searching` flag on the grid's state;
+  the per-grid persistence work changes those machines); the three wizard
+  machine tests copy one create-and-dispose harness, and the three wizard
+  readers repeat one skeleton; the `knip.jsonc` client-react workspace
+  repeats the `packages/*` settings (knip does not merge a named workspace
+  with the glob, so it stays in sync by hand).
 
 ## Waiting on a person
 

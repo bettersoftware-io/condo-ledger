@@ -15,6 +15,8 @@ import { EntryIcon } from "./EntryIcon.tsx";
 import { JournalPaging } from "./JournalPaging.tsx";
 import { reasonText } from "./wizards/reasons.ts";
 
+import "./JournalScreen.css";
+
 /**
  * The design's Journal toolbar: search, the Add transaction menu, edit and
  * delete, expand and collapse all, print and export, and the paging group.
