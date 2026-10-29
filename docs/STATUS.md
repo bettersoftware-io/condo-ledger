@@ -12,7 +12,7 @@ One bullet for each entry: its name in bold, what is left, and a link to its
 plan when it has one. `AGENTS.md` says when an entry is added, moved and
 removed.
 
-**Last updated: 2026-10-27**
+**Last updated: 2026-10-29**
 
 ## In progress
 
@@ -56,13 +56,6 @@ Work that waits on a release, a decision or other work.
   ([2026-10-11-app-v2-design.md](superpowers/specs/2026-10-11-app-v2-design.md));
   Installments (M2d) and Tables & Allocation (M2e) are built. The entry
   above opens the first.
-- **Per-grid persistence.** The design says a column resize persists per
-  grid; today every per-component machine (grid expansion, columns, split,
-  bottom tab) is rebuilt when its component mounts, so leaving the Accounts
-  menu and coming back resets them, and the Ledger's column widths reset on
-  every tab switch. `useColumns(spec)` and `useBottomTab(tabs)` also take the
-  first render's argument only; document that in the `ViewModel` interface
-  until it changes.
 - **Presenter robustness before the live adapters (M3).** In
   `packages/client-core/src/presenters/accountsPresenter.ts`, a key the tree
   no longer has should fall back to Total rather than error the stream for
@@ -142,6 +135,14 @@ A step or a decision an agent cannot take.
   given 1 divided by the empty count, as the legacy code does, so the unit
   is over-allocated and the Roundings row goes negative. The seed has no
   explicit 0%; it matters once co-ownership percentages can be edited.
+- **Column widths that follow the data are kept per count of columns.**
+  The screens' state (`packages/client-core/src/screens.ts`) keeps a grid's
+  widths for each set of columns it is drawn with. The Installment
+  Schedule's columns follow its installments and the Allocation's its
+  accounts, so a period, a mode or a deleted installment that changes the
+  count starts that grid from its default widths, and the widths come back
+  with the count. Carrying a width across counts needs each column named,
+  not counted. The widths last the session only: nothing is stored.
 - **The Accounts grid's stripes are faint in the light themes.** It now
   follows the legacy screen: bold labels, regular-weight amounts, and rows
   striped by position. The stripe colour is the `--zebra` token, which is

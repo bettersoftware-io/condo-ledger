@@ -51,7 +51,7 @@ describe("the schedule grid machine", () => {
       ...loadLegacySeed(legacySeedData),
       buildings: [],
     });
-    const machine = app.machines.createScheduleGrid();
+    const machine = app.screens.scheduleGrid();
 
     machine.intents.collapseAll();
     machine.intents.toggle("root");
@@ -84,7 +84,7 @@ function createGrid(): Grid {
 
   app.presenters.buildings.selectPeriod("p36");
 
-  const machine = app.machines.createScheduleGrid();
+  const machine = app.screens.scheduleGrid();
 
   return {
     machine,
@@ -97,7 +97,7 @@ function createGrid(): Grid {
 
 interface Grid {
   machine: ReturnType<
-    ReturnType<typeof createAppHarness>["app"]["machines"]["createScheduleGrid"]
+    ReturnType<typeof createAppHarness>["app"]["screens"]["scheduleGrid"]
   >;
   stop: () => void;
 }

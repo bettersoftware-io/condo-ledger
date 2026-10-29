@@ -1,9 +1,10 @@
-import { act, render, within } from "@testing-library/react";
+import { act, fireEvent, render, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 
 import type { Result } from "@cl/domain";
 
+import { polyfillPointerCapture } from "../shell/Splitter.page.tsx";
 import { TESTIDS } from "../testids.ts";
 import {
   type InstallmentCellPage,
@@ -30,6 +31,10 @@ export interface ScheduleGridPage {
   /** The installment cell of the row under this header. */
   cell: (label: string, header: string) => InstallmentCellPage;
   emptyMessage: () => string | null;
+  /** The columns' layout, as written for the stylesheet. */
+  template: () => string;
+  /** Drags the boundary on the right of column `index` to the given width. */
+  resizeColumn: (index: number, toPx: number) => void;
 }
 
 /** Mounts the grid alone; each cell's `editable` says whether a click edits it. */
@@ -156,6 +161,23 @@ export function scheduleGridIn(
     },
     emptyMessage: (): string | null => {
       return root().querySelector(".tree-grid-empty")?.textContent ?? null;
+    },
+    template: (): string => {
+      return root().style.getPropertyValue("--tree-grid-template");
+    },
+    resizeColumn: (index: number, toPx: number): void => {
+      const handle = within(root()).getAllByTestId(TESTIDS.treeGridResize)[
+        index
+      ];
+
+      if (handle === undefined) {
+        throw new Error(`No boundary ${index}`);
+      }
+
+      polyfillPointerCapture();
+      fireEvent.pointerDown(handle, { clientX: 0, pointerId: 1 });
+      fireEvent.pointerMove(handle, { clientX: toPx, pointerId: 1 });
+      fireEvent.pointerUp(handle, { clientX: toPx, pointerId: 1 });
     },
   };
 }

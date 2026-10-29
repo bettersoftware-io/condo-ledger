@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { mountSidebar } from "../shell/Sidebar.page.tsx";
 import { mountAccountsScreen } from "./AccountsScreen.page.tsx";
 
 describe("AccountsScreen", () => {
@@ -101,5 +102,75 @@ describe("AccountsScreen", () => {
       "Export to PDF: not yet available",
       "Export to Excel: not yet available",
     ]);
+  });
+
+  it("the Ledger keeps its column widths when another tab is shown and it comes back", async () => {
+    const page = mountAccountsScreen();
+
+    await page.activateTab("Ledger");
+    page.resizeLedgerColumn(2, 9999);
+
+    expect(page.ledgerTemplate()).toBe(
+      "140px 48px 640px 180px 100px 100px 100px",
+    );
+
+    await page.activateTab("Account Details");
+    await page.activateTab("Ledger");
+
+    expect(page.ledgerTemplate()).toBe(
+      "140px 48px 640px 180px 100px 100px 100px",
+    );
+  });
+});
+
+describe("AccountsScreen, left for another screen and come back to", () => {
+  it("keeps its column widths, its open rows, its split and its tab", async () => {
+    const shell = mountSidebar();
+    const page = shell.accounts;
+
+    page.resizeChartColumn(1, 150);
+    await page.clickAccountCaret("Costs");
+    page.dragSplitter(-120, 600);
+    await page.activateTab("Ledger");
+    page.resizeLedgerColumn(2, 9999);
+    const labels = page.chartLabels();
+
+    expect(labels).not.toContain("Spese generali");
+
+    await shell.clickMenu("Journal & Daybook");
+    await shell.clickMenu("Accounts, Ledgers & Balance");
+
+    expect(page.chartTemplate()).toBe(
+      "minmax(360px,1fr) 150px 100px 100px 90px 130px 44px 170px 110px 44px 210px 56px 64px",
+    );
+    expect(page.chartLabels()).toEqual(labels);
+    expect(page.splitRatio()).toBeCloseTo(0.3);
+    expect(page.activeTab()).toBe("Ledger");
+    expect(page.ledgerTemplate()).toBe(
+      "140px 48px 640px 180px 100px 100px 100px",
+    );
+  });
+
+  it("a period switch opens the chart's rows as they start again, and keeps the widths, the split and the tab", async () => {
+    const shell = mountSidebar();
+    const page = shell.accounts;
+    const opening = page.chartLabels();
+
+    page.resizeChartColumn(1, 150);
+    await page.clickAccountCaret("Costs");
+    page.dragSplitter(-120, 600);
+    await page.activateTab("Ledger");
+
+    expect(page.chartLabels()).not.toEqual(opening);
+
+    await shell.clickPeriod("2014 (Ordinary)");
+    await shell.clickPeriod("2013 (Ordinary)");
+
+    expect(page.chartLabels()).toEqual(opening);
+    expect(page.chartTemplate()).toBe(
+      "minmax(360px,1fr) 150px 100px 100px 90px 130px 44px 170px 110px 44px 210px 56px 64px",
+    );
+    expect(page.splitRatio()).toBeCloseTo(0.3);
+    expect(page.activeTab()).toBe("Ledger");
   });
 });

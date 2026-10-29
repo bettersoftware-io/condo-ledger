@@ -18,7 +18,7 @@ import "./LedgerTab.css";
 export function LedgerTab(): ReactElement {
   const { useLedger, useColumns } = useViewModel();
   const ledger = useLedger();
-  const columns = useColumns(LEDGER_COLUMN_SPECS);
+  const columns = useColumns("ledger", LEDGER_COLUMN_SPECS);
 
   return (
     <TreeGrid

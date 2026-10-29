@@ -24,6 +24,7 @@ import type {
   DirectPaymentSummary,
   GenericEntryForm,
   GenericEntrySummary,
+  GridName,
   InstallmentDialogIntents,
   InstallmentDialogState,
   InvoiceForm,
@@ -50,7 +51,9 @@ import type {
   SidebarIntents,
   SidebarState,
   SplitIntents,
+  SplitName,
   SplitState,
+  TabbedPanelName,
   TableDialogIntents,
   TableDialogState,
   TableView,
@@ -153,6 +156,12 @@ export interface NoticesView {
  * the application: a component never sees a stream, a port or an adapter.
  * One hook per presenter stream and per machine: a hook never combines two
  * streams itself.
+ *
+ * The grids, their columns, the splits and the tabbed panels are the
+ * application's (`App.screens`), kept for the session: every mount of one
+ * reads and changes the same state, so leaving a screen and coming back
+ * finds it as it was left. A dialog, a wizard and the shell's own parts get
+ * a machine per mount.
  */
 export interface ViewModel {
   useSession: () => SessionView;
@@ -168,11 +177,20 @@ export interface ViewModel {
   useNavigation: () => MachineView<NavigationState, NavigationIntents>;
   useNotices: () => NoticesView;
   useAccountsGrid: () => MachineView<AccountsGridState, AccountsGridIntents>;
+  /**
+   * The widths of the named grid's columns, for the columns given on this
+   * render: a grid keeps widths for each set of columns it is drawn with, so
+   * a spec that changes between renders (another count of installments, say)
+   * reads the widths kept for it.
+   */
   useColumns: (
+    grid: GridName,
     spec: readonly ColumnSpec[],
   ) => MachineView<ColumnsState, ColumnsIntents>;
-  useSplit: () => MachineView<SplitState, SplitIntents>;
+  useSplit: (split: SplitName) => MachineView<SplitState, SplitIntents>;
+  /** The named panel's tab in front, for the tabs given on this render, as `useColumns` reads its spec. */
   useBottomTab: (
+    panel: TabbedPanelName,
     tabs: readonly string[],
   ) => MachineView<BottomTabState, BottomTabIntents>;
   useMaximize: () => MachineView<MaximizeState, MaximizeIntents>;
@@ -231,12 +249,12 @@ export interface ViewModel {
     editing: string | null,
   ) => MachineView<TableDialogState, TableDialogIntents>;
   useAllocation: () => AllocationView;
-  /** The selected table's coefficients tree: which of its groups are open, for this reader. */
+  /** The selected table's coefficients tree: which of its groups are open. */
   useCoefficientsGrid: () => MachineView<
     CoefficientsGridState,
     TreeGridIntents
   >;
-  /** The allocation in the chosen mode: which of its rows are open, for this reader. */
+  /** The allocation in the chosen mode: which of its rows are open. */
   useAllocationGrid: () => MachineView<AllocationGridState, TreeGridIntents>;
 }
 
@@ -244,12 +262,7 @@ export interface ViewModel {
 export function createViewModel(app: App): ViewModel {
   const { session, buildings, accounts, journal, schedule, allocation } =
     app.presenters;
-  // The screen's table selection and allocation mode belong to the
-  // application, not to one reader: every reader of useAllocation, and each
-  // reader's grids, follow the same ones. Like the presenters, they live as
-  // long as the application.
-  const tableSelection = app.machines.createTableSelection();
-  const allocationMode = app.machines.createAllocationMode();
+  const { screens } = app;
 
   return {
     useSession: (): SessionView => {
@@ -310,24 +323,22 @@ export function createViewModel(app: App): ViewModel {
       AccountsGridState,
       AccountsGridIntents
     > => {
-      return useMachine(app.machines.createAccountsGrid);
+      return useSharedMachine(screens.accountsGrid());
     },
     useColumns: (
+      grid: GridName,
       spec: readonly ColumnSpec[],
     ): MachineView<ColumnsState, ColumnsIntents> => {
-      return useMachine(() => {
-        return app.machines.createColumns(spec);
-      });
+      return useSharedMachine(screens.columns(grid, spec));
     },
-    useSplit: (): MachineView<SplitState, SplitIntents> => {
-      return useMachine(app.machines.createSplit);
+    useSplit: (split: SplitName): MachineView<SplitState, SplitIntents> => {
+      return useSharedMachine(screens.split(split));
     },
     useBottomTab: (
+      panel: TabbedPanelName,
       tabs: readonly string[],
     ): MachineView<BottomTabState, BottomTabIntents> => {
-      return useMachine(() => {
-        return app.machines.createBottomTab(tabs);
-      });
+      return useSharedMachine(screens.bottomTab(panel, tabs));
     },
     useMaximize: (): MachineView<MaximizeState, MaximizeIntents> => {
       return useMachine(app.machines.createMaximize);
@@ -345,7 +356,7 @@ export function createViewModel(app: App): ViewModel {
       return journal.deleteEntry;
     },
     useJournalGrid: (): MachineView<JournalGridState, JournalGridIntents> => {
-      return useMachine(app.machines.createJournalGrid);
+      return useSharedMachine(screens.journalGrid());
     },
     useJournalDialog: (): MachineView<
       JournalDialogState,
@@ -415,7 +426,7 @@ export function createViewModel(app: App): ViewModel {
       ScheduleGridState,
       ScheduleGridIntents
     > => {
-      return useMachine(app.machines.createScheduleGrid);
+      return useSharedMachine(screens.scheduleGrid());
     },
     useBudgetInstallmentsWizard: (): WizardView<
       BudgetInstallmentsForm,
@@ -445,6 +456,8 @@ export function createViewModel(app: App): ViewModel {
       });
     },
     useAllocation: (): AllocationView => {
+      const tableSelection = screens.tableSelection();
+      const allocationMode = screens.allocationMode();
       const { tableId } = useStateObservable(tableSelection.state$);
       const { mode } = useStateObservable(allocationMode.state$);
 
@@ -464,17 +477,13 @@ export function createViewModel(app: App): ViewModel {
       CoefficientsGridState,
       TreeGridIntents
     > => {
-      return useMachine(() => {
-        return app.machines.createCoefficientsGrid(tableSelection.state$);
-      });
+      return useSharedMachine(screens.coefficientsGrid());
     },
     useAllocationGrid: (): MachineView<
       AllocationGridState,
       TreeGridIntents
     > => {
-      return useMachine(() => {
-        return app.machines.createAllocationGrid(allocationMode.state$);
-      });
+      return useSharedMachine(screens.allocationGrid());
     },
   };
 }

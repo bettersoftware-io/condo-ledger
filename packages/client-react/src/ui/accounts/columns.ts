@@ -4,7 +4,7 @@ import type { TreeGridColumn } from "../TreeGrid.tsx";
 
 // The Accounts screen's two grids: their headers and their widths. Constants,
 // apart from the components that draw them: a component file exports
-// components only, and the columns machine reads its spec once.
+// components only, and a grid's widths are kept for the spec it is drawn with.
 
 /** The chart of accounts, in the README's order. */
 export const ACCOUNTS_COLUMNS: TreeGridColumn[] = [

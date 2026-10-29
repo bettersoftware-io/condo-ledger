@@ -63,25 +63,9 @@ describe("the application", () => {
     subscription.unsubscribe();
   });
 
-  it("each grid machine is its own", () => {
-    const { app } = createAppHarness(createSmallSeed());
-    const first = app.machines.createAccountsGrid();
-    const second = app.machines.createAccountsGrid();
-    const before = second.state$.getValue().expanded;
-
-    first.intents.toggle("la10");
-
-    expect(first.state$.getValue().expanded).toContain("la10");
-    expect(second.state$.getValue().expanded).toEqual(before);
-    expect(second.state$.getValue().expanded).not.toContain("la10");
-
-    first.dispose();
-    second.dispose();
-  });
-
   it("builds the journal grid over the selected period's entries, and a dialog machine per call", () => {
     const { app } = createAppHarness(createSmallSeed());
-    const grid = app.machines.createJournalGrid();
+    const grid = app.screens.journalGrid();
     const first = app.machines.createJournalDialog();
     const second = app.machines.createJournalDialog();
 
@@ -91,7 +75,6 @@ describe("the application", () => {
     expect(first.state$.getValue().open).toEqual({ kind: "delete" });
     expect(second.state$.getValue().open).toBeNull();
 
-    grid.dispose();
     first.dispose();
     second.dispose();
   });

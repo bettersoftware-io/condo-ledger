@@ -95,8 +95,8 @@ describe("the table selection", () => {
 
     app.presenters.buildings.selectPeriod("p1");
 
-    const selection = app.machines.createTableSelection();
-    const grid = app.machines.createCoefficientsGrid(selection.state$);
+    const selection = app.screens.tableSelection();
+    const grid = app.screens.coefficientsGrid();
 
     expect(selection.state$.getValue()).toEqual({ tableId: "dt1" });
     expect(keysOf(grid.state$.getValue().rows)).toContain("unit:u1");
@@ -126,7 +126,7 @@ describe("the table selection", () => {
 describe("the allocation mode", () => {
   it("starts on the budget and switches to the final balance", () => {
     const { app } = createAppHarness();
-    const mode = app.machines.createAllocationMode();
+    const mode = app.screens.allocationMode();
 
     expect(mode.state$.getValue()).toEqual({ mode: "budget" });
 
@@ -142,8 +142,8 @@ describe("the allocation mode", () => {
 
     app.presenters.buildings.selectPeriod("p1");
 
-    const mode = app.machines.createAllocationMode();
-    const grid = app.machines.createAllocationGrid(mode.state$);
+    const mode = app.screens.allocationMode();
+    const grid = app.screens.allocationGrid();
 
     expect(grid.state$.getValue().rows[0]?.node.total).toBe(740000);
 
@@ -219,10 +219,10 @@ describe("the allocation grid", () => {
       ...loadLegacySeed(legacySeedData),
       buildings: [],
     });
-    const mode = app.machines.createAllocationMode();
-    const grid = app.machines.createAllocationGrid(mode.state$);
-    const selection = app.machines.createTableSelection();
-    const coefficients = app.machines.createCoefficientsGrid(selection.state$);
+    const mode = app.screens.allocationMode();
+    const grid = app.screens.allocationGrid();
+    const selection = app.screens.tableSelection();
+    const coefficients = app.screens.coefficientsGrid();
 
     grid.intents.collapseAll();
     grid.intents.toggle("root");
@@ -249,8 +249,8 @@ describe("the coefficients grid", () => {
 
     app.presenters.buildings.selectPeriod("p1");
 
-    const selection = app.machines.createTableSelection();
-    const grid = app.machines.createCoefficientsGrid(selection.state$);
+    const selection = app.screens.tableSelection();
+    const grid = app.screens.coefficientsGrid();
 
     expect(keysOf(grid.state$.getValue().rows).slice(0, 2)).toEqual([
       "group:ug1",
@@ -294,8 +294,8 @@ function createAllocationGrid(): AllocationGridUnderTest {
 
   app.presenters.buildings.selectPeriod("p1");
 
-  const mode = app.machines.createAllocationMode();
-  const grid = app.machines.createAllocationGrid(mode.state$);
+  const mode = app.screens.allocationMode();
+  const grid = app.screens.allocationGrid();
 
   return {
     grid,
@@ -308,9 +308,7 @@ function createAllocationGrid(): AllocationGridUnderTest {
 
 interface AllocationGridUnderTest {
   grid: ReturnType<
-    ReturnType<
-      typeof createAppHarness
-    >["app"]["machines"]["createAllocationGrid"]
+    ReturnType<typeof createAppHarness>["app"]["screens"]["allocationGrid"]
   >;
   stop: () => void;
 }

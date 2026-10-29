@@ -34,7 +34,7 @@ export function JournalScreen({ maximize }: JournalScreenProps): ReactElement {
   const entries = useJournalEntries();
   const grid = useJournalGrid();
   const dialog = useJournalDialog();
-  const columns = useColumns(JOURNAL_COLUMN_SPECS);
+  const columns = useColumns("journal", JOURNAL_COLUMN_SPECS);
   const { stub } = useNotices();
   const deleteEntry = useDeleteEntry();
   const [deleteRefusal, setDeleteRefusal] = useState<string | null>(null);

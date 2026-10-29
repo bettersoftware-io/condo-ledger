@@ -1,4 +1,4 @@
-import { map, type Observable, switchMap } from "rxjs";
+import { distinctUntilChanged, map } from "rxjs";
 
 import {
   type AccountsPort,
@@ -32,35 +32,6 @@ import { must } from "@cl/domain/support/must.ts";
 
 import { amountTextsIn } from "./amounts.ts";
 import {
-  type AccountsGridIntents,
-  type AccountsGridState,
-  createAccountsGridMachine,
-} from "./machines/accountsGridMachine.ts";
-import {
-  type AllocationGridState,
-  type AllocationModeIntents,
-  type AllocationModeState,
-  type CoefficientsGridState,
-  createAllocationGridMachine,
-  createAllocationModeMachine,
-  createCoefficientsGridMachine,
-  createTableSelectionMachine,
-  type TableSelectionIntents,
-  type TableSelectionState,
-  type TreeGridIntents,
-} from "./machines/allocationMachines.ts";
-import {
-  type BottomTabIntents,
-  type BottomTabState,
-  createBottomTabMachine,
-} from "./machines/bottomTabMachine.ts";
-import {
-  type ColumnSpec,
-  type ColumnsIntents,
-  type ColumnsState,
-  createColumnsMachine,
-} from "./machines/columnsMachine.ts";
-import {
   createInstallmentDialog,
   type InstallmentDialogIntents,
   type InstallmentDialogState,
@@ -71,11 +42,6 @@ import {
   type JournalDialogState,
   type WizardName,
 } from "./machines/journalDialogMachine.ts";
-import {
-  createJournalGridMachine,
-  type JournalGridIntents,
-  type JournalGridState,
-} from "./machines/journalGridMachine.ts";
 import type { Machine } from "./machines/machine.ts";
 import {
   createMaximizeMachine,
@@ -88,20 +54,10 @@ import {
   type NavigationState,
 } from "./machines/navigationMachine.ts";
 import {
-  createScheduleGridMachine,
-  type ScheduleGridIntents,
-  type ScheduleGridState,
-} from "./machines/scheduleGridMachine.ts";
-import {
   createSidebarMachine,
   type SidebarIntents,
   type SidebarState,
 } from "./machines/sidebarMachine.ts";
-import {
-  createSplitMachine,
-  type SplitIntents,
-  type SplitState,
-} from "./machines/splitMachine.ts";
 import {
   createTableDialog,
   rewriting,
@@ -191,6 +147,7 @@ import {
   createSessionPresenter,
   type SessionPresenter,
 } from "./presenters/sessionPresenter.ts";
+import { type AppScreens, createScreens } from "./screens.ts";
 
 /** Everything the application needs from the outside world. The client's
  * composition root decides what stands behind each port. */
@@ -216,38 +173,10 @@ interface AppPresenters {
   allocation: AllocationPresenter;
 }
 
-/** Per-component state: each call builds a machine of its own. */
+/** Per-component state: each call builds a machine of its own, for a dialog, a wizard or the shell's parts, disposed when the component goes. */
 interface AppMachines {
-  createAccountsGrid: () => Machine<AccountsGridState, AccountsGridIntents>;
-  createColumns: (
-    spec: readonly ColumnSpec[],
-  ) => Machine<ColumnsState, ColumnsIntents>;
-  createSplit: () => Machine<SplitState, SplitIntents>;
-  createBottomTab: (
-    tabs: readonly string[],
-  ) => Machine<BottomTabState, BottomTabIntents>;
   createMaximize: () => Machine<MaximizeState, MaximizeIntents>;
   createSidebar: () => Machine<SidebarState, SidebarIntents>;
-  createJournalGrid: () => Machine<JournalGridState, JournalGridIntents>;
-  createScheduleGrid: () => Machine<ScheduleGridState, ScheduleGridIntents>;
-  /** Which of the selected period's tables the coefficients show: its first, until one is selected. */
-  createTableSelection: () => Machine<
-    TableSelectionState,
-    TableSelectionIntents
-  >;
-  /** Which allocation the panel shows: the budget's, until another is chosen. */
-  createAllocationMode: () => Machine<
-    AllocationModeState,
-    AllocationModeIntents
-  >;
-  /** The coefficients tree of the table a selection holds, as it changes. */
-  createCoefficientsGrid: (
-    selection$: Observable<TableSelectionState>,
-  ) => Machine<CoefficientsGridState, TreeGridIntents>;
-  /** The allocation in the mode a mode machine holds, as it changes. */
-  createAllocationGrid: (
-    mode$: Observable<AllocationModeState>,
-  ) => Machine<AllocationGridState, TreeGridIntents>;
   /** The dialog over the selected period's books as they stand when an intent asks: an edit opens only for an entry they hold. */
   createJournalDialog: () => Machine<JournalDialogState, JournalDialogIntents>;
   /**
@@ -306,13 +235,14 @@ interface AppMachines {
   ) => Machine<InstallmentDialogState, InstallmentDialogIntents>;
 }
 
-/** The application, built once at startup. Presenters, the navigation and
- * the notices are shared; machine factories build one machine per component
- * that asks. */
+/** The application, built once at startup. Presenters, the navigation, the
+ * notices and the screens' state are shared; machine factories build one
+ * machine per component that asks. */
 export interface App {
   presenters: AppPresenters;
   navigation: Machine<NavigationState, NavigationIntents>;
   notices: Notices;
+  screens: AppScreens;
   machines: AppMachines;
 }
 
@@ -442,56 +372,23 @@ export function createApp(ports: AppPorts): App {
     },
     navigation: createNavigationMachine(),
     notices: createNotices(),
+    screens: createScreens({
+      accountsTree$: accounts.tree$,
+      journalEntries$: journal.entries$,
+      schedule$: schedule.schedule$,
+      tables$: allocation.tables$,
+      coefficients$: allocation.coefficients$,
+      allocation$: allocation.allocation$,
+      period$: buildings.selected$.pipe(
+        map((selected) => {
+          return selected?.periodId ?? null;
+        }),
+        distinctUntilChanged(),
+      ),
+    }),
     machines: {
-      createAccountsGrid: (): Machine<
-        AccountsGridState,
-        AccountsGridIntents
-      > => {
-        return createAccountsGridMachine(accounts.tree$);
-      },
-      createColumns: createColumnsMachine,
-      createSplit: createSplitMachine,
-      createBottomTab: createBottomTabMachine,
       createMaximize: createMaximizeMachine,
       createSidebar: createSidebarMachine,
-      createJournalGrid: (): Machine<JournalGridState, JournalGridIntents> => {
-        return createJournalGridMachine(journal.entries$);
-      },
-      createScheduleGrid: (): Machine<
-        ScheduleGridState,
-        ScheduleGridIntents
-      > => {
-        return createScheduleGridMachine(schedule.schedule$);
-      },
-      createTableSelection: (): Machine<
-        TableSelectionState,
-        TableSelectionIntents
-      > => {
-        return createTableSelectionMachine(allocation.tables$);
-      },
-      createAllocationMode: createAllocationModeMachine,
-      createCoefficientsGrid: (
-        selection$: Observable<TableSelectionState>,
-      ): Machine<CoefficientsGridState, TreeGridIntents> => {
-        return createCoefficientsGridMachine(
-          selection$.pipe(
-            switchMap(({ tableId }) => {
-              return allocation.coefficients$(tableId);
-            }),
-          ),
-        );
-      },
-      createAllocationGrid: (
-        mode$: Observable<AllocationModeState>,
-      ): Machine<AllocationGridState, TreeGridIntents> => {
-        return createAllocationGridMachine(
-          mode$.pipe(
-            switchMap(({ mode }) => {
-              return allocation.allocation$(mode);
-            }),
-          ),
-        );
-      },
       createJournalDialog: (): Machine<
         JournalDialogState,
         JournalDialogIntents

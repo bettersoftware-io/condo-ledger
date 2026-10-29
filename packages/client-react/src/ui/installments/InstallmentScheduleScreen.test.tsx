@@ -134,6 +134,22 @@ describe("InstallmentScheduleScreen", () => {
     expect(page.grid.headers()).toContain("11 20/11/2013");
   });
 
+  it("lays its columns out for the installments it has, a resized width kept for that count only", async () => {
+    const page = mountInstallmentSchedule("p36");
+
+    page.grid.resizeColumn(2, 200);
+
+    expect(page.grid.template().split(" ")).toHaveLength(7 + 12 + 4);
+    expect(page.grid.template().split(" ")[2]).toBe("200px");
+
+    await page.toolbar.clickTool("Delete installments");
+    await page.toolbar.clickMenuItem('Delete "Installment 12"');
+    await page.confirmYes();
+
+    expect(page.grid.template().split(" ")).toHaveLength(7 + 11 + 4);
+    expect(page.grid.template().split(" ")[2]).toBe("170px");
+  });
+
   it("deleting a paid installment is refused with the reason, and No keeps it", async () => {
     const page = mountInstallmentSchedule("p36");
 
