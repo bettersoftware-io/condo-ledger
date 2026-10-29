@@ -8,6 +8,7 @@ import {
   allocationSourceOf,
   type LegacySeed,
   loadLegacySeed,
+  previousBalancesOf,
 } from "@cl/domain";
 
 import { projectAccounts, projectTransactions } from "#/project/accounting.ts";
@@ -32,6 +33,7 @@ import {
   entryCount,
   installmentItemTotalCents,
   rawTrialBalanceCents,
+  startingBalanceByResident,
 } from "./oracle.ts";
 import { resolvePeriod, type SpecWorld } from "./world.ts";
 
@@ -196,6 +198,54 @@ function residentTotals(allocation: Allocation): Map<string, number> {
 
   walk(allocation.root);
   return totals;
+}
+
+// --- previous balances parity ------------------------------------------------
+
+When(/^the new app computes the previous balances$/, (world) => {
+  const w = world as SpecWorld;
+  const source = allocationSourceOf(projectedSeed(w), `p${w.legacyPeriodId!}`);
+  w.previous = previousBalancesOf(
+    source.entries,
+    source.accounts,
+    source.parties,
+  );
+});
+
+Then(
+  /^each resident's previous balance equals the legacy unitResident startingBalance$/,
+  (world) => {
+    const w = world as SpecWorld;
+    const previous = w.previous as Map<string, number>;
+    const legacy = startingBalanceByResident(w.db, w.legacyPeriodId!);
+    expect(previous.size).toBeGreaterThan(0);
+
+    for (const [residentId, cents] of previous) {
+      expect(cents, residentId).toBe(
+        legacy.get(residentId.replace(/^r/, "")) ?? 0,
+      );
+    }
+  },
+);
+
+Then(
+  /^the total of the previous balances equals the sum of the legacy startingBalance$/,
+  (world) => {
+    const w = world as SpecWorld;
+    const previous = w.previous as Map<string, number>;
+    const legacy = startingBalanceByResident(w.db, w.legacyPeriodId!);
+    expect(sumOf(previous.values())).toBe(sumOf(legacy.values()));
+  },
+);
+
+function sumOf(values: Iterable<number>): number {
+  let total = 0;
+
+  for (const value of values) {
+    total += value;
+  }
+
+  return total;
 }
 
 // --- installments parity ----------------------------------------------------

@@ -56,7 +56,7 @@ rows through a different code path than the projections, keeping the comparison
 non-circular.
 
 Oracle strength, strongest first: (1) legacy-stored values (`estimateDistribution`
-postings, `installmentItem.amount`); (2) raw-row invariants computed
+postings, `startingBalance`, `installmentItem.amount`); (2) raw-row invariants computed
 in-step (Σ signed entries = 0); (3) a few clearly-labelled
 pinned constants (counts).
 
@@ -64,7 +64,7 @@ pinned constants (counts).
 
 | Path | Role |
 |---|---|
-| `features/*.feature` | The durable, tool-neutral specs (5 files — see below). Double as readable documentation. |
+| `features/*.feature` | The durable, tool-neutral specs (6 files — see below). Double as readable documentation. |
 | `gherkin/parse.ts` | Minimal Gherkin parser (Feature / Background / Scenario / Scenario Outline + Examples). |
 | `gherkin/run.ts` | Step registry + runner; emits one Vitest `it()` per scenario (`runFeatureFiles`). |
 | `world.ts` | Parses the 48 MB dump once (cached), builds the in-memory `Db`, resolves period labels → legacy ids. |
@@ -72,7 +72,7 @@ pinned constants (counts).
 | `steps.ts` | Step definitions binding the Gherkin to the generator projections + oracles. |
 | `specs.test.ts` | Entry point: imports the steps, discovers every `.feature`, runs them under Vitest. |
 
-### The five features
+### The six features
 
 - **reconciliation** — the two periods with books (Saturno 2011, Pozzetto 2013) net to
   €0.00 and the reconciliation gate marks them reconciled.
@@ -83,6 +83,10 @@ pinned constants (counts).
   Saturno 2011's ten residents against `tx5`, Pozzetto 2013's 25 against `tx291`, and
   A04's `r166` and `r167` against the legacy report's 898.64 and 46.63.
 - **installments** — the plan's group total equals Σ legacy `installmentItem.amount`.
+- **units-money** — the previous balance of each resident, computed by the domain's
+  `previousBalancesOf` on the generator's own projection of the dump, equals the legacy
+  `unitResident.startingBalance`; their total ties to the legacy sum (the new path has no
+  group rows).
 - **anagrafiche-structure** — the registry projects every categorised party; the building
   tree applies the real selection rules (Pozzetto's NULL code renders blank, super-condo
   Sole kept, junk "test" buildings excluded).

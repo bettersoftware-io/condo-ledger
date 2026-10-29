@@ -45,6 +45,45 @@ export function entryCount(db: Db, periodId: string): number {
   return n;
 }
 
+/** unitResident.startingBalance per resident (legacy stored), for residents in this period. */
+export function startingBalanceByResident(
+  db: Db,
+  periodId: string,
+): Map<string, number> {
+  const unitIds = new Set(
+    db
+      .rows("unit")
+      .filter((u) => {
+        return String(u.accountingPeriodId) === periodId;
+      })
+      .map((u) => {
+        return String(u.id);
+      }),
+  );
+
+  const upIds = new Set(
+    db
+      .rows("unitPeriod")
+      .filter((up) => {
+        return unitIds.has(String(up.unitId));
+      })
+      .map((up) => {
+        return String(up.id);
+      }),
+  );
+  const m = new Map<string, number>();
+
+  for (const r of db.rows("unitResident")) {
+    if (!upIds.has(String(r.unitPeriodId))) {
+      continue;
+    }
+
+    m.set(String(r.id), eur(str(r.startingBalance)).cents);
+  }
+
+  return m;
+}
+
 /** Σ installmentItem.amount cents for the period's installments. */
 export function installmentItemTotalCents(db: Db, periodId: string): number {
   const instIds = new Set(
