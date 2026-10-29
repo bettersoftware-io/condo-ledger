@@ -1,8 +1,8 @@
 {
-  "commit": "aa62a62cbe767be8c88e7c4958ac9666fd6c4a9a",
+  "commit": "644e00d0248b5c8adeb9dc5da4bb09203c752966",
   "uncommittedChanges": false,
   "ref": "main",
-  "builtAt": "2026-10-29T13:24:12.637Z",
+  "builtAt": "2026-10-29T13:43:17.398Z",
   "thresholds": {
     "lines": 95,
     "statements": 95,
@@ -26,8 +26,8 @@
     {
       "directory": "packages/client-core",
       "verdict": "PASS",
-      "reason": "39 files at or above the bar",
-      "measuredFiles": 39,
+      "reason": "40 files at or above the bar",
+      "measuredFiles": 40,
       "emptyFiles": 2,
       "underTheBar": [],
       "unexplainedIgnores": [],
