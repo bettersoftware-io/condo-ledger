@@ -1,4 +1,4 @@
-import { BehaviorSubject, type Observable, of, throwError } from "rxjs";
+import { BehaviorSubject, type Observable, of } from "rxjs";
 
 import type { Account } from "#/entities/account.ts";
 import type { Cents } from "#/entities/cents.ts";
@@ -9,6 +9,7 @@ import type { AccountsPort } from "#/ports/accountsPort.ts";
 import { must } from "#/support/must.ts";
 import { validateBudget } from "#/useCases/validateBudget.ts";
 
+import { missingPeriod } from "./missingPeriod.ts";
 import type { LegacySeed } from "./seed/legacySeed.ts";
 
 /** A period's accounts, kept in memory, its parties (the building's suppliers and the period's residents) and its withholding catalogue. */
@@ -52,21 +53,19 @@ export function createAccountsSimulator(seed: LegacySeed): AccountsSimulator {
       const books = periods.get(periodId);
 
       return books === undefined
-        ? missing(`the period ${periodId}`)
+        ? missingPeriod(periodId)
         : books.accounts$.asObservable();
     },
     parties: (periodId: string): Observable<Party[]> => {
       const books = periods.get(periodId);
 
-      return books === undefined
-        ? missing(`the period ${periodId}`)
-        : of(books.parties);
+      return books === undefined ? missingPeriod(periodId) : of(books.parties);
     },
     withholdingTaxes: (periodId: string): Observable<WithholdingTax[]> => {
       const books = periods.get(periodId);
 
       return books === undefined
-        ? missing(`the period ${periodId}`)
+        ? missingPeriod(periodId)
         : of(books.withholdingTaxes);
     },
     setBudget: (accountId: string, budget: Cents): Promise<Result> => {
@@ -117,10 +116,4 @@ function applyBudget(
   }
 
   return verdict;
-}
-
-function missing<T>(what: string): Observable<T> {
-  return throwError(() => {
-    return new Error(`missing: ${what}`);
-  });
 }

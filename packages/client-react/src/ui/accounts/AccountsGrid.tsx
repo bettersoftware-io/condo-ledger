@@ -18,7 +18,8 @@ import { ACCOUNTS_COLUMNS } from "./columns.ts";
  * the accounts carry them). An expense leaf's budget is edited in place; which
  * row is being edited, and what is wrong with the text, is this view's own
  * state. Amounts are shown and read in the session's locale. Takes only
- * props and the locale, so the compiler memoizes it.
+ * props and the locale, so the compiler memoizes it; `compilerTracked` in
+ * `architecture.config.mts` holds that.
  */
 export function AccountsGrid({
   rows,

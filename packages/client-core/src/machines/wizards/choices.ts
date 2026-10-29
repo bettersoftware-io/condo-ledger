@@ -2,19 +2,23 @@ import {
   type Account,
   type AccountNode,
   type AccountRole,
+  type Cents,
   type EntryContext,
+  type EntryDraft,
+  type EntryKind,
   NONE,
   PATH_SEPARATOR,
   type Posting,
   type PostingScope,
   pathOf,
   scopeOwns,
+  ZERO_CENTS,
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
 import type { Books } from "#/presenters/booksPresenter.ts";
 
-import type { WizardChoice } from "./wizard.ts";
+import { type Derived, judged, type WizardChoice } from "./wizard.ts";
 
 /** A row of the tree that owns postings, as a choice, with what a posting on it is. */
 interface PostingRow {
@@ -268,4 +272,59 @@ function isUnder(
   }
 
   return false;
+}
+
+/** A leaf a payment debits: the one chosen, and its amount. */
+export interface Debit {
+  choice: WizardChoice;
+  amount: Cents;
+}
+
+/**
+ * A payment's draft: each debit on its leaf, then the account paid from
+ * credited with the amount paid; previewed in that order, and judged with the
+ * entry it rewrites, if any, left out.
+ */
+export function judgedPayment(
+  kind: EntryKind,
+  description: string,
+  paying: Paying,
+  debits: Debit[],
+  paid: Cents,
+  replacing: string | null,
+): Derived {
+  const { books, paidFrom } = paying;
+  const draft: EntryDraft = {
+    kind,
+    description,
+    postings: [
+      ...debits.map((debit): Posting => {
+        return {
+          accountId: debit.choice.key,
+          debit: debit.amount,
+          credit: ZERO_CENTS,
+          counterpart: null,
+        };
+      }),
+      {
+        accountId: paidFrom.id,
+        debit: ZERO_CENTS,
+        credit: paid,
+        counterpart: null,
+      },
+    ],
+  };
+
+  const preview = [
+    ...debits.map((debit) => {
+      return {
+        path: debit.choice.label,
+        debit: debit.amount,
+        credit: ZERO_CENTS,
+      };
+    }),
+    { path: shortPath(books, paidFrom.id), debit: ZERO_CENTS, credit: paid },
+  ];
+
+  return judged(preview, draft, contextOf(books, replacing));
 }

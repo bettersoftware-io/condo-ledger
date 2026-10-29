@@ -1,8 +1,9 @@
-import { type Observable, of, throwError } from "rxjs";
+import { type Observable, of } from "rxjs";
 
 import type { Unit, UnitGroup } from "#/entities/unit.ts";
 import type { UnitsPort } from "#/ports/unitsPort.ts";
 
+import { missingPeriod } from "./missingPeriod.ts";
 import type { LegacySeed } from "./seed/legacySeed.ts";
 
 /** A period's units and groups. */
@@ -32,18 +33,12 @@ export function createUnitsSimulator(seed: LegacySeed): UnitsPort {
     units: (periodId: string): Observable<Unit[]> => {
       const held = periods.get(periodId);
 
-      return held === undefined ? missing(periodId) : of(held.units);
+      return held === undefined ? missingPeriod(periodId) : of(held.units);
     },
     groups: (periodId: string): Observable<UnitGroup[]> => {
       const held = periods.get(periodId);
 
-      return held === undefined ? missing(periodId) : of(held.groups);
+      return held === undefined ? missingPeriod(periodId) : of(held.groups);
     },
   };
-}
-
-function missing<T>(periodId: string): Observable<T> {
-  return throwError(() => {
-    return new Error(`missing: the period ${periodId}`);
-  });
 }
