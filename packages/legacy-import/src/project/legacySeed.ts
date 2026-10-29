@@ -544,7 +544,7 @@ function projectEntries(
 
           const posting: PostingData = {
             accountId,
-            debit: amount > 0 ? amount : 0,
+            debit: Math.max(amount, 0),
             credit: amount < 0 ? -amount : 0,
             counterpart: counterpartOf(line),
           };

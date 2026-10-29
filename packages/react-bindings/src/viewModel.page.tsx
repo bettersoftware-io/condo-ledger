@@ -353,7 +353,7 @@ function DialogReader({
   seen,
   index,
   installmentId,
-}: DialogReaderProps): ReactElement {
+}: DialogReaderProps): ReactElement | null {
   const { useInstallmentDialog } = useViewModel();
   const dialog = useInstallmentDialog(installmentId);
   const entry = seen[index];
@@ -362,5 +362,5 @@ function DialogReader({
     entry.installmentDialog = dialog;
   }
 
-  return <></>;
+  return null;
 }

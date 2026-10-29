@@ -1,0 +1,30 @@
+[
+  {
+    "name": "sim: deleting an entry removes nothing",
+    "file": "packages/domain/src/simulators/journalSimulator.ts",
+    "find": "        resolve(remove(heldOf(entryId)));",
+    "replace": "        resolve(accepted(undefined));",
+    "test": "pnpm e2e --mode sim"
+  },
+  {
+    "name": "sim: No deletes the entry too",
+    "file": "packages/client-react/src/ui/ConfirmAlert.tsx",
+    "find": "            data-testid={TESTIDS.confirmNo}\n            onClick={onNo}",
+    "replace": "            data-testid={TESTIDS.confirmNo}\n            onClick={onYes}",
+    "test": "pnpm e2e --mode sim"
+  },
+  {
+    "name": "sim: the mode toggle never leaves light",
+    "file": "packages/client-react/src/ui/shell/TopBar.tsx",
+    "find": "    save(setMode(dark ? \"light\" : \"dark\"));",
+    "replace": "    save(setMode(\"light\"));",
+    "test": "pnpm e2e --mode sim"
+  },
+  {
+    "name": "sim: picking a management does nothing",
+    "file": "packages/client-react/src/ui/shell/BuildingsTree.tsx",
+    "find": "      onSelectPeriod(periodId);",
+    "replace": "      void periodId;",
+    "test": "pnpm e2e --mode sim"
+  }
+]

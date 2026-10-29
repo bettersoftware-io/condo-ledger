@@ -87,7 +87,7 @@ export function projectAccounts(db: Db, periodId: string): LedgerAccountRow[] {
     const isGrouping = String(a.type) === "grouping" || childRows.length > 0;
 
     // Own-level dare/avere for leaf accounts
-    const ownDare = ownSigned > 0 ? ownSigned : 0;
+    const ownDare = Math.max(ownSigned, 0);
     const ownAvere = ownSigned < 0 ? -ownSigned : 0;
 
     // For grouping accounts: roll up children; for leaves: own amounts
@@ -181,7 +181,7 @@ export function projectTransactions(db: Db, periodId: string): LedgerTxnRow[] {
           account:
             acctName.get(String(e.postingAccountId)) ??
             String(e.postingAccountId),
-          dare: m(cents > 0 ? cents : 0),
+          dare: m(Math.max(cents, 0)),
           avere: m(cents < 0 ? -cents : 0),
         };
       });
