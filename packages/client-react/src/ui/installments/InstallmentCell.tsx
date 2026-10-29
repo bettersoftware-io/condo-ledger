@@ -17,6 +17,7 @@ import "./InstallmentCell.css";
  * compiler memoizes it.
  */
 export function InstallmentCell({
+  label,
   amount,
   status,
   emphasis,
@@ -34,6 +35,7 @@ export function InstallmentCell({
     return (
       <span className="installment-cell" data-testid={TESTIDS.installmentCell}>
         <InlineEditor
+          label={label}
           value={formatCents(amount ?? ZERO_CENTS, locale)}
           error={error}
           onCommit={onCommit}
@@ -72,6 +74,8 @@ export function InstallmentCell({
 }
 
 export interface InstallmentCellProps {
+  /** What the amount is, and whose: its editor's name. */
+  label: string;
   /** Null when the row has no item on the installment: blank. */
   amount: Cents | null;
   /** Null when nothing is owed: no colour. */

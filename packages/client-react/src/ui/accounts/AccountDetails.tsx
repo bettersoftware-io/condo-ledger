@@ -62,10 +62,11 @@ export function AccountDetails(): ReactElement {
               110% of budget (uses parent account settings)
             </Row>
           </Fieldset>
-          <Row label="Separate tables for budget & final balance" tone="muted">
+          <Row label={SEPARATE_TABLES} tone="muted">
             <span className="account-details-check">
               <input
                 type="checkbox"
+                aria-label={SEPARATE_TABLES}
                 checked={tables.separate}
                 disabled
                 readOnly
@@ -123,3 +124,6 @@ export function AccountDetails(): ReactElement {
 }
 
 const FROM_PARENT = "-None- (uses parent account settings)";
+
+/** The row's label, and the name of the checkbox in it, which has no label of its own. */
+const SEPARATE_TABLES = "Separate tables for budget & final balance";

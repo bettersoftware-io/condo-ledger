@@ -41,6 +41,16 @@ describe("Splitter", () => {
     expect(onDrag).not.toHaveBeenCalled();
   });
 
+  it("reports nothing once the browser cancels the pointer", () => {
+    const onDrag = vi.fn();
+    const page = mountSplitter({ direction: "vertical", onDrag });
+
+    page.dragSplitterAndCancel(10);
+    page.hoverSplitter(60);
+
+    expect(onDrag).toHaveBeenCalledExactlyOnceWith(10);
+  });
+
   it("reports nothing once the pointer is let go", () => {
     const onDrag = vi.fn();
     const page = mountSplitter({ direction: "vertical", onDrag });

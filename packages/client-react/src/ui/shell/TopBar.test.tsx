@@ -126,4 +126,44 @@ describe("TopBar", () => {
 
     expect(page.placeholderTitle()).toBe("Contacts");
   });
+
+  it("the module tabs are one stop for the Tab key: the active one", () => {
+    const page = mountTopBar();
+
+    expect(page.moduleTabStops()).toEqual(["Buildings"]);
+  });
+
+  it.each([
+    ["ArrowRight", "Contacts"],
+    ["ArrowLeft", "Calendar"],
+    ["Home", "Calendar"],
+    ["End", "Contacts"],
+  ])("%s on the module tabs moves to %s and opens it", async (key, next) => {
+    const page = mountTopBar();
+
+    await page.pressOnActiveTab(key);
+
+    expect(page.focusedTab()).toBe(next);
+    expect(page.activeTab()).toBe(next);
+    expect(page.placeholderTitle()).toBe(next);
+  });
+
+  it("the module tabs wrap: ArrowRight from the last opens the first", async () => {
+    const page = mountTopBar();
+    await page.clickTab("Contacts");
+
+    await page.pressOnActiveTab("ArrowRight");
+
+    expect(page.focusedTab()).toBe("Calendar");
+    expect(page.activeTab()).toBe("Calendar");
+  });
+
+  it("another key on the module tabs changes nothing", async () => {
+    const page = mountTopBar();
+
+    await page.pressOnActiveTab("ArrowDown");
+
+    expect(page.focusedTab()).toBe("Buildings");
+    expect(page.activeTab()).toBe("Buildings");
+  });
 });

@@ -26,6 +26,8 @@ export interface InstallmentCellPage {
   isEditing: () => boolean;
   /** The text the editor holds. */
   editorText: () => string;
+  /** Whether the open editor is a text box by this name. */
+  isEditorNamed: (name: string) => boolean;
   /** Replaces the editor's text. */
   type: (text: string) => Promise<void>;
   /** Presses Enter in the editor, and lets the verdict it waits for arrive. */
@@ -41,6 +43,7 @@ export function mountInstallmentCell(
   const user = userEvent.setup();
   const rendered = render(
     <InstallmentCell
+      label="Installment 1 of Resident r1"
       amount={cents(1000)}
       status="unsettled"
       emphasis={false}
@@ -97,6 +100,9 @@ export function installmentCellIn(
     },
     editorText: (): string => {
       return editor().value;
+    },
+    isEditorNamed: (name: string): boolean => {
+      return within(cell()).queryByRole("textbox", { name }) !== null;
     },
     type: async (text: string): Promise<void> => {
       await user.clear(editor());

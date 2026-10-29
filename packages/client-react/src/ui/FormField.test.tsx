@@ -39,4 +39,19 @@ describe("FormField", () => {
 
     expect(page.isReadOnly()).toBe(true);
   });
+
+  it("is a label for the field it holds", () => {
+    expect(mountFormField({}).isLabelElement()).toBe(true);
+  });
+
+  it("a read-only row is a group named by its label, holding the value, and no label", () => {
+    const page = mountFormField({
+      label: "Paid from",
+      readOnly: true,
+      children: <span>Cash on hand</span>,
+    });
+
+    expect(page.groupText("Paid from")).toBe("Paid fromCash on hand");
+    expect(page.isLabelElement()).toBe(false);
+  });
 });

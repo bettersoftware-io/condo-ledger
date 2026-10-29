@@ -120,6 +120,7 @@ function InstallmentDialogBody({
     >
       <FormField label="Name" required>
         <input
+          aria-required="true"
           aria-label="Name"
           value={form.name}
           disabled={form.locked}

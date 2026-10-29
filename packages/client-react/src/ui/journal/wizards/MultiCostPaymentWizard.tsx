@@ -117,6 +117,7 @@ function MultiCostPaymentBody({
       </FormField>
       <FormField label="Amount paid" required>
         <input
+          aria-required="true"
           className="wizard-input wizard-amount"
           inputMode="decimal"
           value={form.amount}

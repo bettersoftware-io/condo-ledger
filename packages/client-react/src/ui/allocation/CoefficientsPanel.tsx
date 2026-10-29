@@ -115,6 +115,7 @@ export function CoefficientsPanel({
       return (
         <InlineEditor
           key="coefficient"
+          label={`Coefficient of ${node.label}`}
           value={edit.before}
           error={edit.error}
           onCommit={committingOf(row.key, edit.before)}

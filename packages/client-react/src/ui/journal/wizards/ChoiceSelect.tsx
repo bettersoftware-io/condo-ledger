@@ -23,6 +23,7 @@ export function ChoiceSelect({
   value,
   onChoose,
   disabled = false,
+  required = false,
   placeholder = NO_ACCOUNT,
 }: ChoiceSelectProps): ReactElement {
   function choose(event: ChangeEvent<HTMLSelectElement>): void {
@@ -38,6 +39,7 @@ export function ChoiceSelect({
       <select
         className="wizard-input wizard-select"
         aria-label={label}
+        aria-required={required}
         value={value ?? ""}
         onChange={choose}
         disabled={disabled}
@@ -84,6 +86,8 @@ export interface ChoiceSelectProps {
   onChoose: (key: string | null) => void;
   /** The choice is fixed: the select is shown but cannot be changed. */
   disabled?: boolean;
+  /** Announced as required: set where the row it sits in says `required`. */
+  required?: boolean;
   /** What the empty first option and the cell say while nothing is chosen. */
   placeholder?: string;
 }

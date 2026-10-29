@@ -412,7 +412,7 @@ export const scenarios: Record<string, Scenario> = {
     },
   },
   // Entry 41 (`tx109`, a generic entry), selected on its page, and the
-  // question whether to delete it.
+  // question whether to delete it, open with the focus on No.
   "journal-delete-confirm": {
     width: 1280,
     height: 720,
@@ -783,7 +783,8 @@ export const scenarios: Record<string, Scenario> = {
     },
   },
   // The Journal's question before a delete, and the same question after Yes
-  // was refused, in the Journal's words.
+  // was refused, in the Journal's words. Each opens with the focus on No,
+  // which the page, never touched by a pointer, draws as the keyboard's.
   "confirm-alert-question": {
     level: "component",
     mount: "confirm-alert",
@@ -1002,9 +1003,11 @@ export const scenarios: Record<string, Scenario> = {
     budgetInstallments: { step: 3, firstDue: "31/03/2015" },
   },
   // The Journal toolbar's Add transaction menu, open under its button's
-  // place: the label, then one item per kind with its glyph. A menu hangs
-  // from its box out of the flow, over a fixed scrim, so it is pictured as a
-  // dialog is, in a viewport of its own size.
+  // place: the label, then one item per kind with its glyph. It opens with
+  // the focus on its first item, which the page, never touched by a pointer,
+  // draws as the keyboard's: New invoice wears the focus ring. A menu hangs from its box
+  // out of the flow, over a fixed scrim, so it is pictured as a dialog is, in
+  // a viewport of its own size.
   "popover-add-transaction": {
     level: "component",
     mount: "popover",

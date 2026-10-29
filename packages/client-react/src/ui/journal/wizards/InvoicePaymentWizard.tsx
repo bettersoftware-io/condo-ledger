@@ -134,6 +134,7 @@ function InvoicePaymentBody({
           </p>
           <FormField label="Amount to pay" required>
             <input
+              aria-required="true"
               className="wizard-input wizard-amount"
               inputMode="decimal"
               value={form.amount}
@@ -145,6 +146,7 @@ function InvoicePaymentBody({
       {state.step === 3 ? (
         <FormField label="Description" required>
           <input
+            aria-required="true"
             className="wizard-input"
             value={form.description}
             onChange={editDescription}

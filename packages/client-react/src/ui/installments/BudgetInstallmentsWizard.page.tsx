@@ -14,6 +14,7 @@ export interface BudgetInstallmentsWizardPage
   extends Pick<
     WizardDialogPage,
     | "title"
+    | "requiredUnannounced"
     | "fill"
     | "fieldValue"
     | "check"
@@ -94,6 +95,7 @@ export function budgetInstallmentsWizardIn(
 
   return {
     title: wizard.title,
+    requiredUnannounced: wizard.requiredUnannounced,
     fill: wizard.fill,
     fieldValue: wizard.fieldValue,
     check: wizard.check,

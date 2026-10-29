@@ -21,7 +21,7 @@ export interface AccountDetailsPage {
   toneOf: (label: string) => string | undefined;
   hasGroup: (legend: string) => boolean;
   textOf: (legend: string) => string;
-  /** Whether the row's checkbox is checked and can be changed. */
+  /** Whether the row's checkbox, named by the row's label, is checked and can be changed. */
   checkboxOf: (label: string) => CheckboxState;
   /** The ALLOCATION TABLES mini-grid, while the account has tables. */
   tables: AllocationTablesGridPage;
@@ -102,7 +102,9 @@ export function mountAccountDetails(
       return rendered.container;
     }),
     checkboxOf: (label: string): CheckboxState => {
-      const box = within(valueElement(label)).getByRole("checkbox");
+      const box = within(valueElement(label)).getByRole("checkbox", {
+        name: label,
+      });
 
       if (!(box instanceof HTMLInputElement)) {
         throw new Error(`no checkbox on ${label}`);
