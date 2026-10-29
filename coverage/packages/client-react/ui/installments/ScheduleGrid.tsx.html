@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>42/42</span>
+                <span class='fraction'>46/46</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">97.5% </span>
+                <span class="strong">97.61% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>39/40</span>
+                <span class='fraction'>41/42</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>16/16</span>
+                <span class='fraction'>18/18</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>42/42</span>
+                <span class='fraction'>46/46</span>
             </div>
         
             
@@ -350,7 +350,27 @@
 <a name='L285'></a><a href='#L285'>285</a>
 <a name='L286'></a><a href='#L286'>286</a>
 <a name='L287'></a><a href='#L287'>287</a>
-<a name='L288'></a><a href='#L288'>288</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L288'></a><a href='#L288'>288</a>
+<a name='L289'></a><a href='#L289'>289</a>
+<a name='L290'></a><a href='#L290'>290</a>
+<a name='L291'></a><a href='#L291'>291</a>
+<a name='L292'></a><a href='#L292'>292</a>
+<a name='L293'></a><a href='#L293'>293</a>
+<a name='L294'></a><a href='#L294'>294</a>
+<a name='L295'></a><a href='#L295'>295</a>
+<a name='L296'></a><a href='#L296'>296</a>
+<a name='L297'></a><a href='#L297'>297</a>
+<a name='L298'></a><a href='#L298'>298</a>
+<a name='L299'></a><a href='#L299'>299</a>
+<a name='L300'></a><a href='#L300'>300</a>
+<a name='L301'></a><a href='#L301'>301</a>
+<a name='L302'></a><a href='#L302'>302</a>
+<a name='L303'></a><a href='#L303'>303</a>
+<a name='L304'></a><a href='#L304'>304</a>
+<a name='L305'></a><a href='#L305'>305</a>
+<a name='L306'></a><a href='#L306'>306</a>
+<a name='L307'></a><a href='#L307'>307</a>
+<a name='L308'></a><a href='#L308'>308</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -461,6 +481,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">37648x</span>
+<span class="cline-any cline-yes">182743x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">37648x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">37648x</span>
 <span class="cline-any cline-yes">37648x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -482,10 +516,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">27421x</span>
 <span class="cline-any cline-yes">27421x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">27421x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -546,6 +582,10 @@
 <span class="cline-any cline-yes">866x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">866x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -747,14 +787,29 @@ export function ScheduleGrid({
     setEdit(NOT_EDITING);
   }
 &nbsp;
-  function installmentCellOf(cell: ScheduleCell, emphasis: boolean): ReactNode {
+  /** The editor's name: the installment's number, and the row it is on. */
+  function cellLabelOf(cell: ScheduleCell, owner: string): string {
+    const installment = installments.find((candidate) =&gt; {
+      return candidate.id === cell.installmentId;
+    });
+&nbsp;
+    return `Installment ${installment?.number ?? ""} of ${owner}`;
+  }
+&nbsp;
+  function installmentCellOf(
+    cell: ScheduleCell,
+    emphasis: boolean,
+    owner: string,
+  ): ReactNode {
     const { itemId } = cell;
+    const label = cellLabelOf(cell, owner);
 &nbsp;
     // A unit's, the root's, or a resident's without an item: nothing to edit.
     if (itemId === null) {
       return (
         &lt;InstallmentCell
           key={cell.installmentId}
+          label={label}
           amount={cell.amount}
           status={cell.status}
           emphasis={emphasis}
@@ -775,6 +830,7 @@ export function ScheduleGrid({
     return (
       &lt;InstallmentCell
         key={cell.installmentId}
+        label={label}
         amount={cell.amount}
         status={cell.status}
         emphasis={emphasis}
@@ -848,7 +904,11 @@ function installmentColumnOf(installment: Installment): TreeGridColumn {
 function rowDataOf(
   row: ScheduleGridRow,
   selected: string | null,
-  installmentCellOf: (cell: ScheduleCell, emphasis: boolean) =&gt; ReactNode,
+  installmentCellOf: (
+    cell: ScheduleCell,
+    emphasis: boolean,
+    owner: string,
+  ) =&gt; ReactNode,
 ): TreeGridRowData {
   const { node } = row;
   const aggregate = node.kind === "root" || node.kind === "unit";
@@ -882,7 +942,7 @@ function rowDataOf(
       &lt;Money key="budget" cents={node.budget} emphasis={aggregate} /&gt;,
       &lt;Money key="due" cents={node.due} emphasis={aggregate} /&gt;,
       ...node.cells.map((cell) =&gt; {
-        return installmentCellOf(cell, aggregate);
+        return installmentCellOf(cell, aggregate, node.label);
       }),
       &lt;Money
         key="total"
@@ -931,7 +991,7 @@ function reportUnsaved(error: unknown): void {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-29T13:42:57.208Z
+                at 2026-10-29T15:40:12.850Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
