@@ -63,7 +63,7 @@ export const PATTERNS: readonly Pattern[] = [
   // worded as the app's own collection wizard words a collection
   {
     pattern: new RegExp(
-      String.raw`^Incasso (Parziale )?Rate da (.+?): (${INSTALLMENT}(?:, ${INSTALLMENT})*)$`,
+      `^Incasso (Parziale )?Rate da (.+?): (${INSTALLMENT}(?:, ${INSTALLMENT})*)$`,
     ),
     english: ([partial, payer, installments = ""]) => {
       return `${partial === undefined ? "Collection" : "Partial collection"} of installments from ${payer}: ${installments.replaceAll(/Rata (\d+)/g, "Installment $1")}`;

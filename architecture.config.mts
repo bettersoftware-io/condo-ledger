@@ -67,6 +67,7 @@ const config: ArchitectureConfig = {
     // that imports React is listed under `reactWithoutPolicies`.
     // "packages/catalog": { role: "explicit", mayImport: ["packages/spec"], reactRules: "client" },
     // "packages/runtime": { role: "bindings", mayImport: ["packages/catalog"] },
+    "packages/e2e": { role: "e2e" },
   },
 
   adapters: [
@@ -78,6 +79,15 @@ const config: ArchitectureConfig = {
     react: ["packages/react-bindings", "packages/client-react"],
     "react-dom": ["packages/react-bindings", "packages/client-react"],
     ws: ["packages/server"],
+  },
+
+  // The end-to-end gate asks for a mode that starts each server and drives
+  // the client against it. Neither can have one yet.
+  serversWithoutEndToEnd: {
+    "packages/server":
+      "it greets a client and serves no port before M3, and the client refuses a server URL until then (buildPorts.ts)",
+    "packages/legacy-import":
+      "the offline generator of the simulator seed, run by hand: it serves nothing to the client",
   },
 
   // The typescript-only gate walks the whole repository. These are not code

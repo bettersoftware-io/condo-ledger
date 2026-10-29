@@ -25,6 +25,11 @@ Work that has started and is not finished.
   [2026-10-11-app-v2-design.md](superpowers/specs/2026-10-11-app-v2-design.md).
   No plan yet. Until M3, `pnpm dev:fs` throws by design
   (`packages/client-react/src/app/buildPorts.ts`).
+  M3 also brings the browser tests against the server: a `fullstack` mode in
+  `tools/e2e.config.mts`, specs in `packages/e2e/src/fullstack/`, and the
+  `packages/server` entry of `serversWithoutEndToEnd` in
+  `architecture.config.mts` deleted, which the kit's `end-to-end` gate then
+  asks for.
 
 ## Planned, and held by something
 

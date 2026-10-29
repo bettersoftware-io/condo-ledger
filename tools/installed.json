@@ -1,7 +1,7 @@
 {
   "kit": {
     "files": {
-      "tools/arch/README.md": "9bf99e45c5c1e76e66f2fa1044bc0e7dd752a09b9314417b3ec3e3d6b528785d",
+      "tools/arch/README.md": "edf5ae8d5b6d007aab6078a7dd3902cdf4bbf75af81ca702badca72bac041549",
       "tools/arch/check-compiler.mts": "855603968b48d5d0bfde07bf4d02120e785c245dea2f581e8de047b1244d5fb8",
       "tools/arch/check-react-policies.mts": "94f71013d6e759cc75656bef2a2cdd82ac7766507431d17e131e766f74279527",
       "tools/arch/ci/corepack/package-lock.json": "e832aaa8d3c5beb67be8887533a3eaaa327beebbc6a6ab447eae0c2da39bab35",
@@ -24,16 +24,17 @@
       "tools/arch/eslint-rules/no-render-functions.mts": "8a8fdd17c383f9b3bafb078b6103241dfdf30eea9f9146e4e4d214492cf604e9",
       "tools/arch/eslint-rules/one-import-per-module.mts": "2ff9d8a85fb9a7ed4e0044050782584371fa4cd4d974e90614cd873fed4e6ea8",
       "tools/arch/eslint-rules/page-objects-own-their-component.mts": "c149be0134a5839b50718ae4ee3cb4cb751094db376b9c1caf7e89f8c66836a3",
-      "tools/arch/eslint.config.mts": "50780717638d94afef5086adf69acfd67fb9bfdd18f1ec727d417251ae78bacc",
-      "tools/arch/gates/fails-on.json": "ea07aac5d70cd1ff28faf0b29e0db2409b019a85742ac8fc34d2019de66a01e6",
-      "tools/arch/gates/gates.json": "d220571b2c287a5b7beb50d058512e6f634e10ddcdd477a973b27c93cb9e52bb",
+      "tools/arch/eslint.config.mts": "6dc009fd3736867a8faced5152bffa0ff80280ccff66f23c6a912a2326c5ddb9",
+      "tools/arch/gates/fails-on.json": "b4f832ef684677610df962d154e15ae6bfe9c0d967844ea78593a9be61eaf0d4",
+      "tools/arch/gates/gates.json": "3cfd41efad12a6209173e8b49f75195cfd99ae3af1c32579beb54d6fab49e50a",
       "tools/arch/gates/lib/app-harness.mts": "eb5f70719281663aa6a414560d4cd3c907a346bc363ef6b75ddfce998ed1a42c",
-      "tools/arch/gates/lib/config.mts": "7990fa2a583539c35ccb610f21bb1ab9c6def9cddd2835e2156f7caa446fee60",
+      "tools/arch/gates/lib/config.mts": "e2420a61efc4925fc0f362ed16ab833225ca57740e04a4a47d23ee67d7f4d082",
       "tools/arch/gates/lib/contracts.mts": "cfafde8a785c341da8b07d594b6a75f0e7e64a76def3c919fcd1f2f50828f154",
       "tools/arch/gates/lib/depcruise.mts": "a81067d3c774f97610def9e2b1de3f9e96c391c25c2d7d459656b8d04c83b31e",
+      "tools/arch/gates/lib/end-to-end.mts": "71b8b228af352128c1524375d4ae5315cf150f5a7cda4ce301da87bb2457c304",
       "tools/arch/gates/lib/files.mts": "18fe405917d0785e9ed96e2cbeb29427f6a8014be3225d42fc6a4e989aa9654e",
       "tools/arch/gates/lib/instructions.mts": "c038d0c981033aaa976ee8d67ec0c01a04c62f4cb2601926eaf6c345fb65810f",
-      "tools/arch/gates/lib/language.mts": "f718fdddbc04a1058b78820a98e10fde2fcf1ae6ba338608319e06bfd8bcec32",
+      "tools/arch/gates/lib/language.mts": "db9e3b1069268c869f482f019ed4178ee15a86ed571745b137ed9c521436d760",
       "tools/arch/gates/lib/lockfile.mts": "f7b470847cfd5152d37ac6fc07cea9a142ba3424c683cdd3869ce04feb7899fb",
       "tools/arch/gates/lib/node-floor.mts": "1212a8a39e1e05370b57db297a6251cece4f21134a8779ef71c6df04214b2725",
       "tools/arch/gates/lib/package-manager.mts": "3a18d3589727b315f8200aefa1bd883bb333d0cd90a2c93114d1a016cfb80ec1",
@@ -45,18 +46,18 @@
       "tools/arch/gates/lib/types-only.mts": "fc3207813793f440ec3233e8183fba3f3e272dd296b570baa88244ebb8e5089f",
       "tools/arch/gates/lib/ui-bans.mts": "b8aea78943e779a05913db1f0db0840ddfe45979fe8e39c4b7568d859e960357",
       "tools/arch/gates/quiet.mts": "0b1bc587c460e39b831f21e0b78365d1ce914c4f828d651898e6e58561d3780a",
-      "tools/arch/gates/run.mts": "a889927e485e4e6dc4430803f2a21265c35e503fd3ca13172480cb0c2bd84811",
+      "tools/arch/gates/run.mts": "0606af958b4a3ed856aa3f33eda2dd57f6bb0734c4129d4573025d9ee5c4ebde",
       "tools/arch/hooks/after-edit.mts": "1de0ed2f2bc8d104a09d250bcf8efc3e883d936c0a58ad407e868a0eb4d416ea",
-      "tools/arch/hooks/before-stop.mts": "b0271a46b7cd19346f7327dc467b30ffb3f9722f75de5de781899b58f077393f",
+      "tools/arch/hooks/before-stop.mts": "71c782b671e1e23fefb1c68cb1ef4024d8a7771bc878ceb1b8fb19f223b5ebfa",
       "tools/arch/hooks/claude.settings.json": "6e11703439c3bb4265b5c0bea7bf94a1962414db2f5617d5924d7047bd3ed7ea",
       "tools/arch/hooks/codex.hooks.json": "14b3bc4e19d7ce1ef510a9e530dff00c25cbc9ddee830484bbba87c22e646545",
       "tools/arch/lint-dependencies.mts": "41675af6a8a05207d002f587c027518bb69d89d9d3af28bf791b0722d2269672",
       "tools/arch/templates/.github__workflows__ci.yml.txt": "336fa3a0537d2f0126ed631f1626b03c2c6c057f2a6d3a32781d675f37951e04",
       "tools/arch/templates/.gitignore.txt": "d09912b0a7ba2709ca533771ca4f91102e3ef0081769c8b57223506823fb3fc4",
       "tools/arch/templates/.nvmrc.txt": "20d2add851bf39edcc6b5e830930f962db7e19dffa2cab8610eed551eda6c302",
-      "tools/arch/templates/AGENTS.md.txt": "8458b6590c188a906a15a6829455c300ebbd7357fa583397f20236b36f7e3da8",
+      "tools/arch/templates/AGENTS.md.txt": "e6284c5ae43334f5024144bee3b0d471823f407234594ccb7f1090c657bb617f",
       "tools/arch/templates/CLAUDE.md.txt": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
-      "tools/arch/templates/architecture.config.mts.txt": "2bdc0294eb406baf9b0ccc88d27fbbe710c173da8f1ef61d9f75d4658e18fe5a",
+      "tools/arch/templates/architecture.config.mts.txt": "cfd58d4649a0915e110d3914565e9e21dd237f6101150ed55cb4bac4c6b3d43b",
       "tools/arch/templates/eslint.config.mts.txt": "2e36ca2344ae2d9e4a45741f170630d908a89ccbe6a1fd4294d8523f753c6ddf",
       "tools/arch/templates/package.json.txt": "0597b00c35e6bfd098892ed0faafbb15f9a2e7065a03c87eec04d75c4db65384",
       "tools/arch/templates/packages__client-core__package.json.txt": "5b782ba0e455ed0fb360943be38105fba0f818334c1e68e50a7458d6a78ce0b1",
@@ -77,7 +78,7 @@
       "tools/arch/templates/packages__react-bindings__tsconfig.json.txt": "f54bf0046c58b5cef852e7e3adff8c6e37632f8d27dd6f269af656223d38fdd2",
       "tools/arch/templates/packages__react-bindings__vitest.config.ts.txt": "9f1ec5ee73aad0c44ca41ee0871e7bdcce66ba69167e38f12dd075a211527b48",
       "tools/arch/templates/packages__react-bindings__vitest.setup.ts.txt": "50234d3b820588a4735cc60b7cd6dd9d48361fb47beaa8f31a7e11936599bea6",
-      "tools/arch/templates/packages__server__package.json.txt": "93ba433996996157dc690a2ce745d6a201fc17a2a49f8d14a923ca2c997758fb",
+      "tools/arch/templates/packages__server__package.json.txt": "cd49a79fe6a83656fb8f7e217b6b0594dfef2320c7d55f357035e175f35efb84",
       "tools/arch/templates/packages__server__tsconfig.json.txt": "0c4acb0145733c4650b93bfc2d1d9ce9af144212b06db483634fcb19d72b109f",
       "tools/arch/templates/packages__server__turbo.json.txt": "7b3a9cd37a036c6ec3bbc6f76d07ffb76f6b4e417e2ec6d65f66d67e6a00dc47",
       "tools/arch/templates/packages__server__vitest.config.ts.txt": "26d87f11ae2717b90eef570f98b960c26e218e5871f20407e38eeed3126c377b",
@@ -92,13 +93,17 @@
   },
   "format-lint": {
     "files": {
-      "tools/format-lint/biome.base.json": "0477f4392f093114ae01845b7a94640561c671fe531a9b6ffa455c9972da698b",
+      "tools/format-lint/biome.base.json": "acfdbc03aee8217963d770174f0a1c453ae78f216591ff3d95f8a7faa332b167",
       "tools/format-lint/fix.mts": "5c8418be9ea4890a8b11dafd6b935dc0b0ec1256553c7683515dea87d5cd7f94",
       "tools/templates/format-lint.AGENTS.section.md.txt": "95b094502db0c39d49f6c4ab01d5fccb0aa17e9dda2d34ea548312b002b14863",
       "tools/templates/format-lint.biome.json.txt": "837989065b90202735ec8a433beaeaab8610fe4bf2d3c4a6862282d0ea4dedbf"
     },
     "starting": [
       "biome.json"
+    ],
+    "releasesSeen": [
+      "0.23.1",
+      "0.24.1"
     ]
   },
   "strict-lint": {
@@ -108,7 +113,7 @@
       "tools/strict-lint/eslint.typed.base.mts": "eb9fdafbffdbc68d5ec932bba9205d60eda041d8fedc19767fb1f32bc75b46a0",
       "tools/strict-lint/lib/files.mts": "71fe26dc7e77dcef4c2217aae9d9891061edce27a2f124dbd96a53b2f2038d96",
       "tools/strict-lint/lib/run.mts": "70bba5152fc002adb1303a2d405beed8d1610337681e39cd4d4a221e892f1b2f",
-      "tools/templates/strict-lint.AGENTS.section.md.txt": "f37b8265fef329643e325fbced2eea93fce411578784ee35037ba6581e982066",
+      "tools/templates/strict-lint.AGENTS.section.md.txt": "2360ec83e8bad69dc1810d6bcbf6df7b8f9732e9111bdafde1144521038e6e73",
       "tools/templates/strict-lint.tools__strict-lint__eslint.config.mts.txt": "feb93ba515024fd0ba08a2f5b90157b3e56a825c25d770252c22e1959a17e8c1",
       "tools/templates/strict-lint.tools__strict-lint__knip.jsonc.txt": "d2c59e626ed7930d845ced2d540b12f3421dad28f27d793c91f65b97686ffd4b"
     },
@@ -266,7 +271,7 @@
       ".claude/commands/workflow/status.md": "2258289e1c54d3b794befe0de2096db431aed12c1565d9aa402bd3e186d23e49",
       ".claude/commands/workflow/visual-tolerance-audit.md": "ccb18c05854944717e993852d32a1c84238fba64545b8d3f2c1d64c68b0d6b7e",
       ".claude/commands/workflow/worktrees.md": "8270c4183281d8183ea31680b02b8606eb2a9022921ab5ec4e66025629d07e9d",
-      ".github/workflows/changelog-writer.yml": "27ce292f7d05e93136501561428c61e61d30340a0771f069d7e8c94b70ddaace",
+      ".github/workflows/changelog-writer.yml": "9da18d60e93042fd8e71fcc81b2f2cefab416c50176ad92e66850ae9bcf4ed6e",
       ".github/workflows/sync-releases.yml": "dfe04fbf16fe905fbefa99b6945ca4e5bc5a28617ee0a0ce1ecea55fe6939c54",
       ".github/workflows/weekly-tag.yml": "92ba0882807e85f3a259f4ea35f7253d33c2b442692b9c5d4a33c4ac867552bf",
       "tools/agent-workflow/audit-worktrees.mts": "3a9e6ebaf2039495b5f6067f3420c6cb3a8ae674a23e5751cd03fca615a8fb40",
@@ -283,7 +288,7 @@
       "tools/agent-workflow/lib/hook-registration.mts": "a88ee68abbdaa63b8d733a0b97fa5102948e05a09ab7b7b07fcbbf97a44aa199",
       "tools/agent-workflow/lib/host.mts": "9dfeff37093b5c1b9072a3a003bd03873e86e98c050fdab74c880ec1d9fb569e",
       "tools/agent-workflow/lib/main.mts": "b9510ffce92e72c31b519bffcd5b2d464d723a11e9d2755b065afb91bca5d54c",
-      "tools/agent-workflow/lib/outward.mts": "eb5121435894b36b1325af4a7c659d9e3a326ea98599a61c2ded7f71c4ea2dcd",
+      "tools/agent-workflow/lib/outward.mts": "f8d6f742e37f748fb0cf7ea2e21d1c135d8d280b1f06e873efdb0decf58eb573",
       "tools/agent-workflow/lib/releases.mts": "173d68726a1e5a6be758eb2dfbb426dd89d4139c7d78649598c2c21136326238",
       "tools/agent-workflow/lib/shell.mts": "2fd79e4949295c9a1adf306a7b8829b8eac399546b29a5c2e74a1c6a57db4419",
       "tools/agent-workflow/lib/shown.mts": "aa8f086b0a46c74ca04ef7e514f61ef95e4fc3cfac194e0c2687cdbd31bc6e8e",
@@ -330,6 +335,45 @@
     "starting": [
       "tools/repo-hygiene/stylelint.json",
       "tools/repo-hygiene/syncpack.json"
+    ]
+  },
+  "e2e": {
+    "files": {
+      ".github/workflows/e2e.yml": "d9fcba4d8b5c6e658e7034c7f1e3979755bd46ef96690ab3fe84363616cd6e14",
+      "packages/e2e/notStarted.setup.ts": "6cdd4a1e0a82009d569c424f92b6d972b4fe4ea54b1ec882514e335976e59b7d",
+      "packages/e2e/playwright.config.ts": "0f2048b875d8babfc7cacf8ad922c9e9879c18bc38480b5ebe8b90bbdec97913",
+      "packages/e2e/tsconfig.json": "4ece0153f0ce930a46a62b75fdb6d7be3828f873c0712ab67ab55848d1253db7",
+      "tools/e2e/lib/arguments.mts": "f8fd97b9caa6c62187cadb37dd1cb34641af307051845f26d2bcbcaa0ee5db01",
+      "tools/e2e/lib/config.mts": "0737e7f15554beb0cd7cd90bbabe18600ba015f7203db61cad401c08f615be90",
+      "tools/e2e/lib/counts.mts": "e985e512e6e6da1538f5afa71211c53d25f93ad88b6ae9d84a14667ff0cf5b6d",
+      "tools/e2e/lib/processes.mts": "f70dee4cca7e55c9bfecc867de8abfaa2c1a629f50378e63a5621b3f783e286d",
+      "tools/e2e/lib/stack.mts": "ed856a2c057588c635484b1322900cfb6f3b3f1dcda66afdd2a53c8bf9937fe9",
+      "tools/e2e/run.mts": "5776d04093cd28af6a0f42e4f303309b3a3c9a64b633572374cbc85ea42bd70f",
+      "tools/templates/e2e.AGENTS.section.md.txt": "bb13af200e4b629b41b03f092ef883e55e20de103b3eb480f5248cd7f00c2063",
+      "tools/templates/e2e.packages__e2e__package.json.txt": "a83662da8cc52239988baf348beea532fe7439018323c4a45363da60f15c03a3",
+      "tools/templates/e2e.packages__e2e__src__fullstack__serverPrices.spec.ts.txt": "c6cc6dcefa4c591da5c141bea08ca71541908a66f29e6ca41795fdb7642abd55",
+      "tools/templates/e2e.packages__e2e__src__pages__PriceList.page.ts.txt": "7f635215e8253162f64aadba0c883b3885d4eb037b1ae2d74160656385b810d5",
+      "tools/templates/e2e.packages__e2e__src__pages__ServerFeed.page.ts.txt": "5c2579f354e68bc3577af530c437f5503c3879226389fd7337ce43629927fa7e",
+      "tools/templates/e2e.packages__e2e__src__sim__priceList.spec.ts.txt": "2d6a3c6d29a4a440a21fd391b6b2847ef3e03e41d1974cd0f43308d903fbf0d5",
+      "tools/templates/e2e.packages__e2e__src__sim__selection.spec.ts.txt": "5da2200fc4d31431d8fbdd42ecc8f0a6979901420bcd90ef5f693e44085ae5b8",
+      "tools/templates/e2e.packages__e2e__src__testing__test.ts.txt": "c8d87f480e040b769262fcedc4ef18ef57078f7b4ce3a94ad1b53e13f687376c",
+      "tools/templates/e2e.tools__e2e.config.mts.txt": "ccaab6dfe31a5b3ecb7cd85bef969c07e8ccaeadd7a4f83f04b631e7cc137bc6"
+    },
+    "withoutActionRefs": {
+      ".github/workflows/e2e.yml": "5f21b99eb545c1debb27086889055c31949c1cb89a69671bfe523fbaa33c670b"
+    },
+    "starting": [
+      "packages/e2e/package.json",
+      "packages/e2e/src/fullstack/serverPrices.spec.ts",
+      "packages/e2e/src/pages/PriceList.page.ts",
+      "packages/e2e/src/pages/ServerFeed.page.ts",
+      "packages/e2e/src/sim/priceList.spec.ts",
+      "packages/e2e/src/sim/selection.spec.ts",
+      "packages/e2e/src/testing/test.ts",
+      "tools/e2e.config.mts"
+    ],
+    "releasesSeen": [
+      "0.24.2"
     ]
   }
 }

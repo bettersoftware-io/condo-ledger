@@ -52,10 +52,12 @@
     "check:status": "node tools/agent-workflow/check-status.mts",
     "visual:check:styles": "node tools/visual/check-styles.mts",
     "visual:coverage": "node tools/visual/coverage.mts",
-    "changelog:releases": "node tools/agent-workflow/sync-releases.mts"
+    "changelog:releases": "node tools/agent-workflow/sync-releases.mts",
+    "e2e": "node tools/e2e/run.mts",
+    "e2e:install": "pnpm --dir packages/e2e exec playwright install chromium"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.15",
+    "@biomejs/biome": "2.6.2",
     "@manypkg/cli": "^0.25.1",
     "@types/node": "^26.2.0",
     "@typescript-eslint/utils": "^8.70.1",
