@@ -87,6 +87,72 @@ three times, and the visual tier grew from pages to a pyramid of components.
 - **STATUS** shed its decided items [#30] [#32].
 - Dependency updates [#17] [#18].
 
+## 2026-W42 — 12 Oct – 18 Oct
+
+The week the app was rebuilt. The repository moved onto the
+bettersoftware-skills starter, with the legacy data pseudonymised. Then the
+first three screens followed on in-browser simulators: the Accounts,
+Ledgers & Balance screen and the Journal, with its first wizards, then
+invoices, payments and opening balances.
+
+### Added
+
+- **The rebuild's foundation** [#1]. A ports-and-adapters monorepo on the
+  starter, with its architecture gates. Every person and company in the
+  legacy dump gets a realistic, fixed fake identity before anything is
+  projected, and every amount and id stays as it was.
+- **Accounts, Ledgers & Balance** [#3]. The account tree in five levels, with
+  rows per supplier, person and residency under the control accounts. It
+  comes with the ledger and its running balance, account details and budget
+  editing, all inside the app's shell: top bar, module tabs, breadcrumb,
+  sidebar and splitter.
+- **The Journal & Daybook** [#9]. Entries by number, expandable into their
+  postings, searched and paged. An entry can be deleted where the legacy app
+  allowed it. Five wizards write entries: purchases paid in cash or by bank,
+  withholding-tax payments, payments to several cost accounts, and the
+  generic entry.
+- **Invoices, payments and opening balances** [#15]. A new invoice works out
+  its totals and withholding as the legacy app did, and is checked on all 49
+  seeded invoices. An invoice is paid in tranches. Opening balances are one
+  editable list. Any entry opens in place for editing, in its own wizard.
+
+### Decisions
+
+- **Pseudonymised data in a public repository** [#1]. The real dump stays on
+  one machine; the repository holds only fake identities. The plan is in
+  [the app v2 design](docs/superpowers/specs/2026-10-11-app-v2-design.md).
+- **Renovate in place of Dependabot** [#13]. Dependabot's updater runs an
+  older Node than the project's floor, so every one of its runs failed.
+- **Screenshots without Chromium's partial raster** [#10] [#11]. It shaded the
+  same rounded corner differently from frame to frame. Dialogs also sit on
+  whole pixels, and a native select's own text is drawn as plain text, so
+  the pictures hold still.
+
+### Under the hood
+
+- **The agent workflow and STATUS.md** [#4] [#5] [#6] [#7] [#12] [#16].
+  STATUS.md became the one page of what is left. The first code-scanning
+  findings, the repository's settings and a flaky server test were written
+  into it.
+- **Housekeeping between M1 and M2** [#8]. The kit and add-ons were updated,
+  the repo-hygiene checks added (versions, doc links, CSS from tokens), the
+  generator's silent fallbacks made to throw, and ten tests tightened.
+- **The kit and add-ons** from bettersoftware-skills 0.18.1 [#13].
+
+[#1]: https://github.com/bettersoftware-io/condo-ledger/pull/1
+[#3]: https://github.com/bettersoftware-io/condo-ledger/pull/3
+[#4]: https://github.com/bettersoftware-io/condo-ledger/pull/4
+[#5]: https://github.com/bettersoftware-io/condo-ledger/pull/5
+[#6]: https://github.com/bettersoftware-io/condo-ledger/pull/6
+[#7]: https://github.com/bettersoftware-io/condo-ledger/pull/7
+[#8]: https://github.com/bettersoftware-io/condo-ledger/pull/8
+[#9]: https://github.com/bettersoftware-io/condo-ledger/pull/9
+[#10]: https://github.com/bettersoftware-io/condo-ledger/pull/10
+[#11]: https://github.com/bettersoftware-io/condo-ledger/pull/11
+[#12]: https://github.com/bettersoftware-io/condo-ledger/pull/12
+[#13]: https://github.com/bettersoftware-io/condo-ledger/pull/13
+[#15]: https://github.com/bettersoftware-io/condo-ledger/pull/15
+[#16]: https://github.com/bettersoftware-io/condo-ledger/pull/16
 [#17]: https://github.com/bettersoftware-io/condo-ledger/pull/17
 [#18]: https://github.com/bettersoftware-io/condo-ledger/pull/18
 [#20]: https://github.com/bettersoftware-io/condo-ledger/pull/20
