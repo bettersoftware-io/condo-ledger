@@ -31,6 +31,11 @@ Three surveys, kept beside the worktree in `.superpowers/building-units/`
 - `bu-design.md`: the design (`docs/design/web/v1/README.md` screens 2 and
   3 and their dialogs, the prototype `Condomini.dc.html`, the exports).
 - `bu-codebase.md`: what this repository already has.
+- `bu-danea.md`: how Danea Domustudio, whose conventions the legacy app
+  follows (its headers Scaduto, Conguaglio, Disavanzo, Attivo, Passivo are
+  the Italian standard ones), defines the columns the legacy app never
+  computed; from Danea's online help (help.danea.it), corroborated by
+  Arcadia, Datos and KondoManager, and checked against both periods.
 
 What the surveys found that shapes the design:
 
@@ -44,7 +49,15 @@ What the surveys found that shapes the design:
 - **Overdue and Adjustment were never computed** on the legacy Units grid
   (`dataField="dummy"`), and every Building Data money column was `dummy`
   too. The prototype leaves Building Data's money blank and fills Overdue
-  and Adjustment with 0,00.
+  and Adjustment with 0,00. **Danea defines them** (`bu-danea.md`):
+  - Scaduto (Overdue) is the unpaid part of the installments already due
+    ("Totale scaduto"; a reminder's debt is "la somma di tutte le rate
+    scadute"), which the Installment Schedule already computes;
+  - Conguaglio (Adjustment) is, verbatim, "CONGUAGLIO = RIPARTO CONSUNTIVO
+    - TOTALE RATE EMESSE", counting the installments issued "e non quelle
+    realmente versate" (help.danea.it, "Rate a conguaglio"). The legacy
+    app meant the same: the column's header and the never-built
+    "conguaglio" installment type share one resource key.
 - **The tree folds a single-occupant unit into its row.** A unit with one
   resident shows "A01 - {name} (PR)" and no child; a unit with several shows
   them as children. Groups sit between the root and the units; the
@@ -119,9 +132,11 @@ What the surveys found that shapes the design:
   fieldset is not drawn.
 - **Group by** other than "By unit": the legacy control was disabled. The
   chip is drawn, as on the other screens.
+- **A conguaglio installment** (the Installments menu's "Create
+  final-balance installment"), which would ask for the Adjustment column's
+  amount. The column shows the figure; issuing it stays a notice.
 - **Bank coordinates, public and private files, F24s** of a building: the
   design dropped them.
-- **Overdue's and Adjustment's legacy meaning.** See "The Units grid".
 - Print, PDF, XLS, ⟳ and ⓘ Legend: drawn, with the "not yet available"
   notice, as on the other screens.
 
@@ -162,18 +177,40 @@ Restr. period is written as elsewhere ("19/01/2013 - end of FY",
 | Total due | Prev. bal. + Actual | sum | Actual's rounding |
 | Paid | the allocation's `paid` (collections on the owners account) | sum | blank |
 | Overdue | the Installment Schedule's `overdue`, as of today | sum | blank |
-| Adjustment | blank | blank | blank |
+| Adjustment | Total due − the installments issued to the resident | sum | Total due's rounding |
 
 The root therefore equals the books: Budget = the cost budgets' total,
 Actual = the costs' balance. Budget and Actual are the computed
 allocation, not the posted budget entry, as the legacy screen and report
 did (they differ for Pozzetto A04 by a few cents; M2e's finding).
 
-Overdue is the one column with no legacy formula that this design fills:
-the Installment Schedule already computes it for the same people
-(`scheduleOf`), and a blank column beside it would hide a number the app
-has. Adjustment has no definition in the legacy code, the design or the
-reports, so it is drawn blank. *Call made here; see "Calls to check".*
+**Overdue and Adjustment are Danea's definitions** (`bu-danea.md` §3):
+
+- **Overdue** (Scaduto): over the resident's installment items due before
+  today, the part not yet paid, each item at least 0; summed up the tree
+  without offsetting anyone's credit. It is the Installment Schedule's
+  `overdue` (`scheduleOf`), so the two screens never disagree. An item due
+  today is not yet overdue (the schedule's rule and KondoManager's; the
+  legacy app's colours counted it). Both periods are long past, so every
+  item is due: roots Pozzetto 11,765.90, Saturno 4,408.95.
+- **Adjustment** (Conguaglio): Total due − the sum of the installment
+  items issued to the resident, paid or not. Positive: a conguaglio
+  installment must ask for more; negative: the resident is owed a refund.
+  Danea's "riparto consuntivo" is read as including the previous balance,
+  since its installments issued include it too (Danea's plan spreads "le
+  quote di preventivo e quelle dei saldi dell'esercizio precedente").
+  Roots: Pozzetto −4,955.16 (28,636.72 − 33,591.88), Saturno −4,944.81
+  (2,744.11 − 7,688.92). It is not the legacy closing entry's "Conguaglio a
+  consuntivo" (Actual − Budget, −3,112.29 for Pozzetto): the two agree
+  only when the plan issued exactly Prev. bal. + Budget, which Saturno's
+  did and Pozzetto's did not.
+
+The three columns measure different things and can disagree for one
+person: Saturno A3 has 725.00 overdue on its installments while the
+actual costs left it in credit. Each header carries a tooltip with its
+formula. The two "Total due" of the app differ the same way Danea's do:
+here Prev. bal. + Actual (the final account), on the Installment
+Schedule Prev. bal. + Budget (the plan); their tooltips say which.
 
 **Selection.** A click selects any row. The selected row drives the bottom
 panel, and the breadcrumb gains "› {code}": the unit's code for a unit or a
@@ -298,18 +335,30 @@ Budget | Actual | Prev. bal. | Total due`
   On a period row:
   - Liquidity: the balance of the period's Liquidity account, as the
     Accounts screen shows it;
-  - Funds: the balance of its Funds account, likewise (Saturno 2011 shows
-    −1,750.00, as the export does);
+  - Liquidity is Danea's "disponibilità" of the resources: cash, banks,
+    post, deposit books, over all of the period's entries (the closing
+    entry is dated after the period's end);
+  - Funds: the balance of its Funds account, shown as the positive amount
+    set aside, as Danea and the legacy balance sheet print it (Saturno
+    1,750.00 under liabilities; the Accounts screen's ledger sign is
+    −1,750.00);
   - Budget, Actual, Prev. bal., Total due: the Units grid's root row for
     that period, so Total due = Prev. bal. + Actual.
 
   Building rows leave them blank. The expected figures, from the design's
-  exports (`bu-design.md` §3):
+  exports and `bu-danea.md` §4:
 
   | Period | Liquidity | Funds | Budget | Actual | Prev. bal. | Total due |
   |---|---|---|---|---|---|---|
-  | Saturno 2011 | 2,954.14 | −1,750.00 | 7,400.00 | 2,455.19 | 288.92 | 2,744.11 |
+  | Saturno 2011 | 2,954.14 | 1,750.00 | 7,400.00 | 2,455.19 | 288.92 | 2,744.11 |
   | Pozzetto 2013 | 1,078.26 | 0.00 | 38,000.00 | 34,887.71 | −6,250.99 | 28,636.72 |
+
+  The five columns the design dropped stay dropped: Paid and Overdue are
+  on the Units grid's root; Assets and Liabilities are Danea's balance
+  sheet totals, always equal, a report's figure rather than a grid's; and
+  Danea's "disavanzo" means three different things (the period's result,
+  a cash figure equal to Liquidity, and a balance-sheet imbalance that
+  must be 0). The imbalance is a test instead (below).
 
   The Liquidity and Funds accounts are found by a role the generator sets
   (`AccountRole` gains `liquidity` and `funds`): the top-level assets
@@ -507,7 +556,13 @@ module is regenerated, never edited.
   an end date and a newcomer a start date in a unit whose owner had no
   percentage, and in one whose owner had 100%: each pays the whole share
   for their days, and the unit is fully allocated); the Building Data
-  figures above for both periods; the schedule's group level; the
+  figures above for both periods; Overdue and Adjustment at the roots
+  (above) and for Saturno A3; the books agree with the Units grid: for
+  each period, the sum of Total due − Paid equals the owners' accounts in
+  the Accounts tree (Pozzetto 6,810.74, Saturno −535.86, as the legacy
+  balance sheet has them), and Funds + payables to third parties −
+  receivables from them − Liquidity gives the same figure; the
+  schedule's group level; the
   contracts of the three ports against their simulators, with the writes
   and their refusals; that a new unit appears in every table at 0, and a
   new resident in the allocation and the account tree.
@@ -543,7 +598,9 @@ module is regenerated, never edited.
 
 Made here, without the user; each is marked in the text:
 
-- Overdue filled from the Installment Schedule; Adjustment blank.
+- Overdue and Adjustment follow Danea's definitions (Danea's help
+  states both; reading "riparto consuntivo" as including the previous
+  balance is inferred). An item due today is not yet overdue.
 - A unit's code is required and unique in its period.
 - A period's end date is required.
 - The rounding row sits under the root (the legacy screen), not under the
@@ -553,8 +610,9 @@ Made here, without the user; each is marked in the text:
 - Unit type "Box" is translated Garage, not the design's "Box".
 - Edit Period checks its dates against the units' and residencies' own
   dates, not against entries or installment due dates.
-- Building Data's Funds keeps the Accounts screen's sign; building rows
-  stay blank.
+- Building Data's Funds is shown positive, as Danea and the legacy
+  balance sheet print it; building rows stay blank; Liquidity and Funds
+  read all of the period's entries, the closing entry included.
 
 Decided by the user, 2026-10-30:
 
