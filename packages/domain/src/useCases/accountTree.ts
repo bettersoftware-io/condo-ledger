@@ -488,10 +488,17 @@ function isControl(account: Account): boolean {
   return account.type === "control" || account.type === "controlUnitResident";
 }
 
-/** A role's own icon; the budget allocation's revenue has none and draws as any other account. */
+/** A role's own icon; the budget allocation's revenue, the liquidity and the funds have none and draw as any other account. */
 function iconOf(account: Account, hasChildren: boolean): NodeIcon {
-  if (account.role !== null && account.role !== "budgetAllocation") {
-    return account.role;
+  const role = account.role;
+
+  if (
+    role !== null &&
+    role !== "budgetAllocation" &&
+    role !== "liquidity" &&
+    role !== "funds"
+  ) {
+    return role;
   }
 
   return hasChildren ? "folder" : "document";

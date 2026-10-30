@@ -91,18 +91,23 @@ function twoBuildings(): Building[] {
     start: "2013-01-01",
     end: "2013-12-31",
     closed: false,
+    notes: null,
   };
 
-  return [
-    {
-      id: "c1",
-      name: "Pozzetto",
-      periods: [{ id: "p1", name: "2013", ...period }],
-    },
-    {
-      id: "c2",
-      name: "Saturno",
-      periods: [{ id: "p2", name: "2011", ...period }],
-    },
-  ];
+  return createSmallSeed().buildings.flatMap((building) => {
+    return [
+      {
+        ...building,
+        id: "c1",
+        name: "Pozzetto",
+        periods: [{ id: "p1", name: "2013", ...period }],
+      },
+      {
+        ...building,
+        id: "c2",
+        name: "Saturno",
+        periods: [{ id: "p2", name: "2011", ...period }],
+      },
+    ];
+  });
 }

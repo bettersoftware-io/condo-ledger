@@ -6,6 +6,20 @@ export const legacySeedData: LegacySeedData = {
     {
       "id": "c1",
       "name": "Saturno",
+      "code": "SAT",
+      "type": "building",
+      "status": "active",
+      "address": {
+        "street": "Piazza del Duomo, 39",
+        "postcode": "33033",
+        "city": "Codroipo"
+      },
+      "taxCode": "010027376",
+      "constructionDate": "1980-05-20",
+      "cadastralData": null,
+      "notes": null,
+      "createdOn": "2011-04-14 13:52:24",
+      "modifiedOn": "2012-12-18 15:41:01",
       "periods": [
         {
           "id": "p1",
@@ -13,13 +27,28 @@ export const legacySeedData: LegacySeedData = {
           "type": "ordinary",
           "start": "2011-01-01",
           "end": "2011-12-31",
-          "closed": false
+          "closed": false,
+          "notes": null
         }
       ]
     },
     {
       "id": "c19",
       "name": "Pozzetto",
+      "code": null,
+      "type": "building",
+      "status": "active",
+      "address": {
+        "street": "Piazza Libertà, 74",
+        "postcode": "33045",
+        "city": "Nimis"
+      },
+      "taxCode": "37505580326",
+      "constructionDate": null,
+      "cadastralData": null,
+      "notes": null,
+      "createdOn": "2011-11-03 14:55:57",
+      "modifiedOn": "2012-12-20 10:24:27",
       "periods": [
         {
           "id": "p36",
@@ -27,7 +56,8 @@ export const legacySeedData: LegacySeedData = {
           "type": "ordinary",
           "start": "2013-01-01",
           "end": "2013-12-31",
-          "closed": false
+          "closed": false,
+          "notes": null
         }
       ]
     }
@@ -41,7 +71,7 @@ export const legacySeedData: LegacySeedData = {
       "order": 1,
       "nature": "assets",
       "type": "grouping",
-      "role": null,
+      "role": "liquidity",
       "budget": null,
       "abbreviation": null,
       "links": []
@@ -171,7 +201,7 @@ export const legacySeedData: LegacySeedData = {
       "order": 11,
       "nature": "liabilities",
       "type": "grouping",
-      "role": null,
+      "role": "funds",
       "budget": null,
       "abbreviation": null,
       "links": []
@@ -940,7 +970,7 @@ export const legacySeedData: LegacySeedData = {
       "order": 1,
       "nature": "assets",
       "type": "grouping",
-      "role": null,
+      "role": "liquidity",
       "budget": null,
       "abbreviation": null,
       "links": []
@@ -1031,7 +1061,7 @@ export const legacySeedData: LegacySeedData = {
       "order": 1,
       "nature": "liabilities",
       "type": "grouping",
-      "role": null,
+      "role": "funds",
       "budget": null,
       "abbreviation": null,
       "links": []
@@ -12819,7 +12849,14 @@ export const legacySeedData: LegacySeedData = {
       "restriction": {
         "from": "2011-05-01",
         "to": "2011-05-31"
-      }
+      },
+      "name": null,
+      "floor": "1",
+      "interior": "1",
+      "subUnit": null,
+      "type": "shop",
+      "cadastralData": "Mapp. 195, Sup. 58-75",
+      "notes": "note note note2"
     },
     {
       "id": "u2",
@@ -12829,7 +12866,14 @@ export const legacySeedData: LegacySeedData = {
       "restriction": {
         "from": "2011-05-27",
         "to": null
-      }
+      },
+      "name": null,
+      "floor": "1",
+      "interior": "2",
+      "subUnit": "a",
+      "type": "shop",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u3",
@@ -12839,168 +12883,336 @@ export const legacySeedData: LegacySeedData = {
       "restriction": {
         "from": null,
         "to": "2011-05-27"
-      }
+      },
+      "name": null,
+      "floor": "1",
+      "interior": "3",
+      "subUnit": null,
+      "type": "apartment",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u4",
       "periodId": "p1",
       "code": "A4",
       "groupId": "ug1",
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": "1",
+      "interior": "4",
+      "subUnit": null,
+      "type": "apartment",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u5",
       "periodId": "p1",
       "code": "B1",
       "groupId": "ug2",
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": "-1",
+      "interior": "1",
+      "subUnit": null,
+      "type": "garage",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u6",
       "periodId": "p1",
       "code": "B2",
       "groupId": "ug2",
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": "-1",
+      "interior": "2",
+      "subUnit": null,
+      "type": "garage",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u7",
       "periodId": "p1",
       "code": "B3",
       "groupId": "ug2",
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": "-1",
+      "interior": "3",
+      "subUnit": null,
+      "type": "garage",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u8",
       "periodId": "p1",
       "code": "B4",
       "groupId": "ug2",
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": "-1",
+      "interior": "4",
+      "subUnit": null,
+      "type": "garage",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u133",
       "periodId": "p36",
       "code": "A01",
       "groupId": null,
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": null,
+      "interior": null,
+      "subUnit": null,
+      "type": "apartment",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u135",
       "periodId": "p36",
       "code": "A02",
       "groupId": null,
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": null,
+      "interior": null,
+      "subUnit": null,
+      "type": "apartment",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u136",
       "periodId": "p36",
       "code": "A03",
       "groupId": null,
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": null,
+      "interior": null,
+      "subUnit": null,
+      "type": "apartment",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u137",
       "periodId": "p36",
       "code": "A04",
       "groupId": null,
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": null,
+      "interior": null,
+      "subUnit": null,
+      "type": "apartment",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u138",
       "periodId": "p36",
       "code": "A05",
       "groupId": null,
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": null,
+      "interior": null,
+      "subUnit": null,
+      "type": "apartment",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u139",
       "periodId": "p36",
       "code": "A06",
       "groupId": null,
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": null,
+      "interior": null,
+      "subUnit": null,
+      "type": "apartment",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u140",
       "periodId": "p36",
       "code": "A07",
       "groupId": null,
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": null,
+      "interior": null,
+      "subUnit": null,
+      "type": "apartment",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u141",
       "periodId": "p36",
       "code": "A08",
       "groupId": null,
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": null,
+      "interior": null,
+      "subUnit": null,
+      "type": "apartment",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u142",
       "periodId": "p36",
       "code": "A09",
       "groupId": null,
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": null,
+      "interior": null,
+      "subUnit": null,
+      "type": "apartment",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u143",
       "periodId": "p36",
       "code": "A10",
       "groupId": null,
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": null,
+      "interior": null,
+      "subUnit": null,
+      "type": "apartment",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u144",
       "periodId": "p36",
       "code": "A11",
       "groupId": null,
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": null,
+      "interior": null,
+      "subUnit": null,
+      "type": "apartment",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u145",
       "periodId": "p36",
       "code": "A12",
       "groupId": null,
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": null,
+      "interior": null,
+      "subUnit": null,
+      "type": "apartment",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u146",
       "periodId": "p36",
       "code": "A13",
       "groupId": null,
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": null,
+      "interior": null,
+      "subUnit": null,
+      "type": "apartment",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u147",
       "periodId": "p36",
       "code": "A14",
       "groupId": null,
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": null,
+      "interior": null,
+      "subUnit": null,
+      "type": "apartment",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u148",
       "periodId": "p36",
       "code": "A15",
       "groupId": null,
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": null,
+      "interior": null,
+      "subUnit": null,
+      "type": "apartment",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u149",
       "periodId": "p36",
       "code": "A16",
       "groupId": null,
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": null,
+      "interior": null,
+      "subUnit": null,
+      "type": "apartment",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u150",
       "periodId": "p36",
       "code": "A17",
       "groupId": null,
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": null,
+      "interior": null,
+      "subUnit": null,
+      "type": "premises",
+      "cadastralData": null,
+      "notes": null
     },
     {
       "id": "u151",
       "periodId": "p36",
       "code": "A18",
       "groupId": null,
-      "restriction": null
+      "restriction": null,
+      "name": null,
+      "floor": null,
+      "interior": null,
+      "subUnit": null,
+      "type": "premises",
+      "cadastralData": null,
+      "notes": null
     }
   ],
   "unitGroups": [
@@ -13009,14 +13221,26 @@ export const legacySeedData: LegacySeedData = {
       "periodId": "p1",
       "code": "A",
       "name": "Stairwell A",
-      "parentId": null
+      "parentId": null,
+      "address": {
+        "street": "Piazza del Duomo, 39/a",
+        "postcode": "33033",
+        "city": "Codroipo"
+      },
+      "notes": null
     },
     {
       "id": "ug2",
       "periodId": "p1",
       "code": "B",
       "name": "Garages",
-      "parentId": null
+      "parentId": null,
+      "address": {
+        "street": "Piazza del Duomo, 39/b",
+        "postcode": "33033",
+        "city": "Codroipo"
+      },
+      "notes": null
     }
   ],
   "tables": [
@@ -14417,6 +14641,762 @@ export const legacySeedData: LegacySeedData = {
       "tableId": "dt27",
       "unitId": "u151",
       "value": 10000
+    }
+  ],
+  "contacts": [
+    {
+      "id": "md17",
+      "kind": "company",
+      "name": "Acque Arzino s.n.c.",
+      "status": "active",
+      "code": "ARZINO",
+      "category": "Water supply",
+      "companyName": "Acque Arzino s.n.c.",
+      "registeredOffice": {
+        "street": "Piazza XX Settembre, 84",
+        "postcode": "33019",
+        "city": "Tricesimo"
+      },
+      "taxDomicile": null,
+      "phone": "+39 0432 922972",
+      "email": null
+    },
+    {
+      "id": "md85",
+      "kind": "company",
+      "name": "Acque Fella s.r.l.",
+      "status": "active",
+      "code": "FELLA2",
+      "category": "Water supply",
+      "companyName": "Acque Fella s.r.l.",
+      "registeredOffice": {
+        "street": "Viale Ungheria, 116",
+        "postcode": "33019",
+        "city": "Tricesimo"
+      },
+      "taxDomicile": null,
+      "phone": "0432 487786",
+      "email": "info@acquefella.example"
+    },
+    {
+      "id": "md104",
+      "kind": "person",
+      "name": "Adami Pietro",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md76",
+      "kind": "person",
+      "name": "Adami Valerio",
+      "status": "active",
+      "code": null,
+      "category": "Condominium administration",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md86",
+      "kind": "company",
+      "name": "Antenne Sion s.a.s.",
+      "status": "active",
+      "code": "SION",
+      "category": "Antenna technician",
+      "companyName": "Antenne Sion s.a.s.",
+      "registeredOffice": {
+        "street": "Via Cividale, 148",
+        "postcode": "33013",
+        "city": "Gemona del Friuli"
+      },
+      "taxDomicile": null,
+      "phone": "+39 0432 233218",
+      "email": null
+    },
+    {
+      "id": "md9",
+      "kind": "company",
+      "name": "Ascensori Castellarin s.a.s.",
+      "status": "active",
+      "code": "CASTEL",
+      "category": "Elevator maintenance",
+      "companyName": "Ascensori Castellarin s.a.s.",
+      "registeredOffice": {
+        "street": "Via dei Gelsi, 101",
+        "postcode": "34121",
+        "city": "Trieste"
+      },
+      "taxDomicile": null,
+      "phone": "+39 0432 649418",
+      "email": "info@ascensoricastellarin.example"
+    },
+    {
+      "id": "md114",
+      "kind": "company",
+      "name": "Bearzi Servizi s.a.s.",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": "Bearzi Servizi s.a.s.",
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md107",
+      "kind": "person",
+      "name": "Bertossi Lidia",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md110",
+      "kind": "person",
+      "name": "Blasutig Livia",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md92",
+      "kind": "person",
+      "name": "Buttazzoni Laura",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md113",
+      "kind": "person",
+      "name": "Candotti Diego",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md78",
+      "kind": "company",
+      "name": "Cargnelutti Elevatori s.n.c.",
+      "status": "active",
+      "code": "CARGNE",
+      "category": "Elevator maintenance",
+      "companyName": "Cargnelutti Elevatori s.n.c.",
+      "registeredOffice": {
+        "street": "Via Nievo, 72",
+        "postcode": "34074",
+        "city": "Monfalcone"
+      },
+      "taxDomicile": null,
+      "phone": "+39 0432 957828",
+      "email": "amministrazione@cargneluttielevatori.example"
+    },
+    {
+      "id": "md3",
+      "kind": "person",
+      "name": "Cargnelutti Lidia",
+      "status": "active",
+      "code": "PRS231",
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md106",
+      "kind": "person",
+      "name": "Carlutti Zaira",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md84",
+      "kind": "company",
+      "name": "Cassin Certificazioni S.p.A.",
+      "status": "active",
+      "code": "CASSIN",
+      "category": "Certification bodies",
+      "companyName": "Cassin Certificazioni S.p.A.",
+      "registeredOffice": {
+        "street": "Viale Palmanova, 15",
+        "postcode": "33038",
+        "city": "San Daniele del Friuli"
+      },
+      "taxDomicile": null,
+      "phone": "+39 0432 232587",
+      "email": "amministrazione@cassincertificazioni.example"
+    },
+    {
+      "id": "md98",
+      "kind": "person",
+      "name": "Colautti Iolanda",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md109",
+      "kind": "person",
+      "name": "Cozzi Ivo",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md10",
+      "kind": "company",
+      "name": "Cragno Giardinaggio soc. coop.",
+      "status": "active",
+      "code": "CRAGNO",
+      "category": "Gardener",
+      "companyName": "Cragno Giardinaggio soc. coop.",
+      "registeredOffice": {
+        "street": "Piazza XX Settembre, 59",
+        "postcode": "33028",
+        "city": "Tolmezzo"
+      },
+      "taxDomicile": null,
+      "phone": "+39 0432 109834",
+      "email": "segreteria@cragnogiardinaggio.example"
+    },
+    {
+      "id": "md15",
+      "kind": "company",
+      "name": "Energie del Ledra S.p.A.",
+      "status": "active",
+      "code": "LEDRA",
+      "category": "Electricity supply",
+      "companyName": "Energie del Ledra S.p.A.",
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md83",
+      "kind": "company",
+      "name": "Estintori Toniutti & C. s.a.s.",
+      "status": "active",
+      "code": "TONIUT",
+      "category": "Fire protection",
+      "companyName": "Estintori Toniutti & C. s.a.s.",
+      "registeredOffice": {
+        "street": "Via Zorutti, 36",
+        "postcode": "33017",
+        "city": "Tarcento"
+      },
+      "taxDomicile": null,
+      "phone": "+39 0432 229069",
+      "email": "amministrazione@estintoritoniutti.example"
+    },
+    {
+      "id": "md94",
+      "kind": "person",
+      "name": "Fattori Gilda",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md81",
+      "kind": "company",
+      "name": "Ferramenta Cossio s.a.s.",
+      "status": "active",
+      "code": "COSSIO",
+      "category": "Hardware store",
+      "companyName": "Ferramenta Cossio s.a.s.",
+      "registeredOffice": {
+        "street": "Piazza XX Settembre, 98",
+        "postcode": "33170",
+        "city": "Pordenone"
+      },
+      "taxDomicile": null,
+      "phone": "+39 0432 606705",
+      "email": "segreteria@ferramentacossio.example"
+    },
+    {
+      "id": "md102",
+      "kind": "person",
+      "name": "Feruglio Silvano",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md103",
+      "kind": "person",
+      "name": "Flebus Beatrice",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md4",
+      "kind": "person",
+      "name": "Forgiarini Lino",
+      "status": "active",
+      "code": "PRS123",
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md95",
+      "kind": "person",
+      "name": "Fornasier Marco",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md93",
+      "kind": "person",
+      "name": "Iacuzzi Tullio",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md105",
+      "kind": "person",
+      "name": "Masotti Sabrina",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md7",
+      "kind": "person",
+      "name": "Minisini Ilaria",
+      "status": "active",
+      "code": "PRS236",
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md89",
+      "kind": "person",
+      "name": "Morandini Dina",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": "dina.morandini@posta.example"
+    },
+    {
+      "id": "md108",
+      "kind": "person",
+      "name": "Morandini Olga",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md13",
+      "kind": "company",
+      "name": "Mutua Assicuratrice del Livenza",
+      "status": "active",
+      "code": "LIVENZ",
+      "category": "Insurance",
+      "companyName": "Mutua Assicuratrice del Livenza",
+      "registeredOffice": {
+        "street": "Via San Rocco, 134",
+        "postcode": "33038",
+        "city": "San Daniele del Friuli"
+      },
+      "taxDomicile": null,
+      "phone": "+39 0432 680648",
+      "email": "segreteria@mutuaassicuratricedellivenza.example"
+    },
+    {
+      "id": "md79",
+      "kind": "company",
+      "name": "Natisone Gas S.p.A.",
+      "status": "active",
+      "code": "NATISO",
+      "category": "Gas supply",
+      "companyName": "Natisone Gas S.p.A.",
+      "registeredOffice": {
+        "street": "Via della Roggia, 107",
+        "postcode": "33013",
+        "city": "Gemona del Friuli"
+      },
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md111",
+      "kind": "person",
+      "name": "Petris Bruno",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md82",
+      "kind": "company",
+      "name": "Pontoni Servizi di Pulizia s.n.c.",
+      "status": "active",
+      "code": "PONTON",
+      "category": "Cleaning company",
+      "companyName": "Pontoni Servizi di Pulizia s.n.c.",
+      "registeredOffice": {
+        "street": "Piazza del Duomo, 137",
+        "postcode": "33043",
+        "city": "Cividale del Friuli"
+      },
+      "taxDomicile": null,
+      "phone": "+39 0432 160150",
+      "email": "info@pontoniservizidipulizia.example"
+    },
+    {
+      "id": "md119",
+      "kind": "person",
+      "name": "Puntel Claudio",
+      "status": "active",
+      "code": null,
+      "category": "Electrician",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md96",
+      "kind": "person",
+      "name": "Quaglia Selene",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md91",
+      "kind": "person",
+      "name": "Rosso Sergio",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md6",
+      "kind": "person",
+      "name": "Sarcinelli Albino",
+      "status": "active",
+      "code": "PRS653",
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md112",
+      "kind": "person",
+      "name": "Scarbolo Flavio",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md5",
+      "kind": "person",
+      "name": "Tavano Ornella",
+      "status": "active",
+      "code": "PRS423",
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md97",
+      "kind": "person",
+      "name": "Tondolo Rino",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md100",
+      "kind": "person",
+      "name": "Treppo",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md80",
+      "kind": "company",
+      "name": "Treppo Impianti Elettrici S.p.A.",
+      "status": "active",
+      "code": "TREPPO",
+      "category": "Electrician",
+      "companyName": "Treppo Impianti Elettrici S.p.A.",
+      "registeredOffice": {
+        "street": "Via Pordenone, 74",
+        "postcode": "33013",
+        "city": "Gemona del Friuli"
+      },
+      "taxDomicile": null,
+      "phone": "+39 0432 495518",
+      "email": null
+    },
+    {
+      "id": "md90",
+      "kind": "person",
+      "name": "Variola Dina",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md99",
+      "kind": "person",
+      "name": "Zanier Lidia",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    },
+    {
+      "id": "md11",
+      "kind": "company",
+      "name": "Zanon Servizi di Pulizia s.n.c.",
+      "status": "active",
+      "code": "ZANON",
+      "category": "Cleaning company",
+      "companyName": "Zanon Servizi di Pulizia s.n.c.",
+      "registeredOffice": {
+        "street": "Via Mazzini, 48",
+        "postcode": "33013",
+        "city": "Gemona del Friuli"
+      },
+      "taxDomicile": null,
+      "phone": "+39 0432 257192",
+      "email": "segreteria@zanonservizidipulizia.example"
+    },
+    {
+      "id": "md101",
+      "kind": "person",
+      "name": "Zuliani Selene",
+      "status": "active",
+      "code": null,
+      "category": "Owner",
+      "companyName": null,
+      "registeredOffice": null,
+      "taxDomicile": null,
+      "phone": null,
+      "email": null
+    }
+  ],
+  "supplierLinks": [
+    {
+      "buildingId": "c1",
+      "contactId": "md9"
+    },
+    {
+      "buildingId": "c1",
+      "contactId": "md10"
+    },
+    {
+      "buildingId": "c1",
+      "contactId": "md11"
+    },
+    {
+      "buildingId": "c1",
+      "contactId": "md13"
+    },
+    {
+      "buildingId": "c1",
+      "contactId": "md15"
+    },
+    {
+      "buildingId": "c1",
+      "contactId": "md17"
+    },
+    {
+      "buildingId": "c19",
+      "contactId": "md15"
+    },
+    {
+      "buildingId": "c19",
+      "contactId": "md76"
+    },
+    {
+      "buildingId": "c19",
+      "contactId": "md78"
+    },
+    {
+      "buildingId": "c19",
+      "contactId": "md79"
+    },
+    {
+      "buildingId": "c19",
+      "contactId": "md80"
+    },
+    {
+      "buildingId": "c19",
+      "contactId": "md81"
+    },
+    {
+      "buildingId": "c19",
+      "contactId": "md82"
+    },
+    {
+      "buildingId": "c19",
+      "contactId": "md83"
+    },
+    {
+      "buildingId": "c19",
+      "contactId": "md84"
+    },
+    {
+      "buildingId": "c19",
+      "contactId": "md85"
+    },
+    {
+      "buildingId": "c19",
+      "contactId": "md86"
+    },
+    {
+      "buildingId": "c19",
+      "contactId": "md119"
     }
   ]
 };

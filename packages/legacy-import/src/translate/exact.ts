@@ -1,3 +1,5 @@
+import type { UnitType } from "@cl/domain";
+
 /**
  * The English of each Italian string of the legacy seed that is not
  * templated, keyed by the string as the seed holds it after
@@ -191,6 +193,27 @@ const EXACT: Readonly<Record<string, string>> = {
   "Scala A": "Stairwell A",
   Box: "Garages",
 
+  // ---- Unit notes ----
+  // Saturno A1's test note, "note\nnote\nnote2" in the dump; the parser drops
+  // the backslashes, as in the table note above.
+  notennotennote2: "note note note2",
+
+  // ---- Contact categories ----
+  // "Assicurazione" (Insurance) is an account's name above too.
+  Antennista: "Antenna technician",
+  Antincendio: "Fire protection",
+  "Amministrazione condominiale": "Condominium administration",
+  Giardiniere: "Gardener",
+  "Impresa di pulizie": "Cleaning company",
+  Elettricista: "Electrician",
+  "Manutenzione ascensori": "Elevator maintenance",
+  "Fornitura acqua": "Water supply",
+  "Fornitura energia elettrica": "Electricity supply",
+  "Fornitura gas": "Gas supply",
+  Condòmino: "Owner",
+  Ferramenta: "Hardware store",
+  "Enti di certificazione": "Certification bodies",
+
   // ---- Withholding taxes ----
   "Amm. di condomìnio senza P.IVA":
     "Condominium administrators without VAT no.",
@@ -294,6 +317,22 @@ const EXACT: Readonly<Record<string, string>> = {
   "Pagamento in contanti al Comune Nimis per fotocopie":
     "Cash payment to Nimis municipality for photocopies",
 };
+
+/**
+ * The dump's unit type names (unitType.name) as the domain's unit types; the
+ * client words them (Box is a Garage, as the group "Box" reads "Garages").
+ */
+const UNIT_TYPES: Readonly<Record<string, UnitType>> = {
+  Appartamento: "apartment",
+  Negozio: "shop",
+  Box: "garage",
+  Locale: "premises",
+};
+
+/** The unit type a legacy unit type name stands for, or undefined. */
+export function unitTypeOf(italian: string): UnitType | undefined {
+  return Object.hasOwn(UNIT_TYPES, italian) ? UNIT_TYPES[italian] : undefined;
+}
 
 /** The English of a string the map holds, or undefined. */
 export function exactEnglish(italian: string): string | undefined {

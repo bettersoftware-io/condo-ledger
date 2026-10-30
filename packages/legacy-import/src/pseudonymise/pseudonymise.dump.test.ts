@@ -36,7 +36,7 @@ describe.skipIf(!legacyDumpAvailable())(
   () => {
     it("leaves no original name, code, contact or address anywhere in the seed or the registry", () => {
       const { tables, seed, anagrafiche } = load();
-      const json = JSON.stringify({ seed, anagrafiche });
+      const json = withoutFakeTowns(JSON.stringify({ seed, anagrafiche }));
       const leaks = originalValues(tables).filter((value) => {
         return wholeWord(value).test(json);
       });
@@ -234,6 +234,15 @@ interface Loaded {
 }
 
 let cached: Loaded | null = null;
+
+// The text with every town of the fake pool taken out: a fake address names
+// one ("San Daniele del Friuli"), and a real first name inside it is the
+// town's, not the person's.
+function withoutFakeTowns(text: string): string {
+  return TOWNS.reduce((rest, town) => {
+    return rest.replaceAll(town.name, "");
+  }, text);
+}
 
 // The value as a whole word, in any letter case: a name inside a longer word is not a leak.
 function wholeWord(value: string): RegExp {

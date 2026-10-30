@@ -20,7 +20,11 @@ export type AccountRole =
   | "roundings"
   | "tax"
   /** The revenue a budget allocation credits. */
-  | "budgetAllocation";
+  | "budgetAllocation"
+  /** The top-level assets account that groups the cash and the banks. */
+  | "liquidity"
+  /** The top-level liabilities account that groups the reserve funds. */
+  | "funds";
 
 /** One line of a period's chart of accounts. */
 export interface Account {

@@ -338,13 +338,16 @@ function createSeedWithEmptyPeriod(): LegacySeed {
     start: "2011-01-01",
     end: "2011-12-31",
     closed: false,
+    notes: null,
   };
 
   return {
     ...seed,
     buildings: [
       ...seed.buildings,
-      { id: "c2", name: "Saturno", periods: [period] },
+      ...seed.buildings.map((building) => {
+        return { ...building, id: "c2", name: "Saturno", periods: [period] };
+      }),
     ],
   };
 }
