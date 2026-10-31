@@ -232,7 +232,8 @@ function rowDataOf(
   ) => ReactNode,
 ): TreeGridRowData {
   const { node } = row;
-  const aggregate = node.kind === "root" || node.kind === "unit";
+  const aggregate =
+    node.kind === "root" || node.kind === "group" || node.kind === "unit";
   const amounts = node.kind !== "roundings";
 
   return {

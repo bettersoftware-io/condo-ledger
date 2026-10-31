@@ -1,4 +1,4 @@
-import type { Address } from "./address.ts";
+import { type Address, addressTextOf } from "./address.ts";
 
 export type PeriodType = "ordinary" | "extra" | "auxiliary";
 
@@ -35,4 +35,13 @@ export interface Building {
   /** When the building was last changed, as "YYYY-MM-DD HH:mm:ss" in Rome time. */
   modifiedOn: string;
   periods: Period[];
+}
+
+/** "{building} / {period} ({address})", without " ({address})" when the building has none. */
+export function periodLabelText(building: Building, period: Period): string {
+  const label = `${building.name} / ${period.name}`;
+
+  return building.address === null
+    ? label
+    : `${label} (${addressTextOf(building.address)})`;
 }

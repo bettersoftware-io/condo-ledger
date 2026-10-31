@@ -1,3 +1,4 @@
+import { periodLabelText } from "#/entities/building.ts";
 import type { LegacySeed } from "#/simulators/seed/legacySeed.ts";
 import { must } from "#/support/must.ts";
 
@@ -25,7 +26,7 @@ export function allocationSourceOf(
   );
 
   return {
-    periodLabel: `${building.name} ${period.name}`,
+    periodLabel: periodLabelText(building, period),
     period: { start: period.start, end: period.end },
     accounts: seed.accounts.filter((account) => {
       return account.periodId === periodId;

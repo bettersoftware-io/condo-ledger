@@ -509,7 +509,11 @@ const PLACEHOLDER_BOX: CSSProperties = {
 };
 
 /** The building and period the wizard dialog's props name. */
-const PICTURED_CONTEXT = { building: "Pozzetto", period: "2013" };
+const PICTURED_CONTEXT = {
+  building: "Pozzetto",
+  period: "2013",
+  address: "Piazza Libertà, 74, 33045 Nimis",
+};
 
 interface SurroundProps {
   children: ReactNode;

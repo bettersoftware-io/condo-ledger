@@ -60,7 +60,11 @@ describe("the journal presenter", () => {
   it("names the building and the period for the wizards", () => {
     const { latest } = createPresented(POZZETTO_2013);
 
-    expect(latest().context).toEqual({ building: "Pozzetto", period: "2013" });
+    expect(latest().context).toEqual({
+      building: "Pozzetto",
+      period: "2013",
+      address: "Via Roma, 1, 33100 Udine",
+    });
   });
 
   it("follows the selection to another period: its entries and its name", () => {
@@ -72,7 +76,11 @@ describe("the journal presenter", () => {
     selected$.next({ buildingId: "c1", periodId: "p2" });
 
     expect(latest().entries.map(idOf)).toEqual(["x-e1"]);
-    expect(latest().context).toEqual({ building: "Pozzetto", period: "2014" });
+    expect(latest().context).toEqual({
+      building: "Pozzetto",
+      period: "2014",
+      address: "Via Roma, 1, 33100 Udine",
+    });
   });
 
   it("answers nothing with no period selected, and refuses to add", async () => {

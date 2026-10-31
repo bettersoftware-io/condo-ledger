@@ -18,6 +18,8 @@ type User = ReturnType<typeof userEvent.setup>;
 export interface ScheduleGridPage {
   /** Each column's header, its lines joined by a space. */
   headers: () => string[];
+  /** The header's tooltip; null when it has none. */
+  headerTitle: (header: string) => string | null;
   rowLabels: () => string[];
   /** The row's cells as texts, its label first. */
   rowTexts: (label: string) => string[];
@@ -96,6 +98,20 @@ export function scheduleGridIn(
       });
   }
 
+  function headerElement(header: string): HTMLElement {
+    const head = within(root())
+      .getAllByRole("columnheader")
+      .find((candidate) => {
+        return candidate.textContent === header;
+      });
+
+    if (head === undefined) {
+      throw new Error(`No column header ${header}`);
+    }
+
+    return head;
+  }
+
   function cellElement(label: string, header: string): HTMLElement {
     const index = headerTexts().indexOf(header);
     const cell = rowOf(label).children[index]?.querySelector<HTMLElement>(
@@ -111,6 +127,9 @@ export function scheduleGridIn(
 
   return {
     headers: headerTexts,
+    headerTitle: (header: string): string | null => {
+      return headerElement(header).getAttribute("title");
+    },
     rowLabels: (): string[] => {
       return rows().map(labelOf);
     },

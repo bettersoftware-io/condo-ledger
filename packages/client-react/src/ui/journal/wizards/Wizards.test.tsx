@@ -11,7 +11,9 @@ describe("the journal wizards", () => {
     const wizard = await page.openWizard("Direct purchase with cash");
 
     expect(wizard.title()).toBe("Direct Purchase with Cash");
-    expect(wizard.contextLine()).toBe("Building / Period: Pozzetto / 2013");
+    expect(wizard.contextLine()).toBe(
+      "Building / Period: Pozzetto (Via Roma, 1, 33100 Udine) / 2013",
+    );
     expect(wizard.fieldValue("Description")).toBe("Direct cash purchase");
     expect(wizard.isSaveDisabled()).toBe(true);
     expect(wizard.message()).toBeNull();
@@ -1103,7 +1105,9 @@ describe("the Record owner collection wizard", () => {
     expect(wizard.title()).toBe(
       "Record Owner Collection — Step 1: Choose an owner",
     );
-    expect(wizard.contextLine()).toBe("Building / Period: Pozzetto / 2013");
+    expect(wizard.contextLine()).toBe(
+      "Building / Period: Pozzetto (Piazza Libertà, 74, 33045 Nimis) / 2013",
+    );
     expect(wizard.owners()).toHaveLength(19);
 
     const [first] = wizard.owners();

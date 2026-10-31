@@ -195,6 +195,7 @@ describe("the view model", () => {
     expect(page.read().journalContext).toEqual({
       building: "Pozzetto",
       period: "2013",
+      address: "Via Roma, 1, 33100 Udine",
     });
   });
 

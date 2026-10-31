@@ -302,6 +302,7 @@ export function createApp(ports: AppPorts): App {
     buildings.tree$,
     ports.installments,
     ports.clock,
+    ports.units,
   );
 
   let latestBooks: Books | null = null;

@@ -5,6 +5,7 @@ import type { OwnerParty, Party } from "#/entities/party.ts";
 import type { LegacySeed } from "#/simulators/seed/legacySeed.ts";
 import { must } from "#/support/must.ts";
 
+import { createUnit } from "./createAllocationInput.ts";
 import { createTwoPeriodSeed } from "./createTwoPeriodSeed.ts";
 
 /**
@@ -16,7 +17,7 @@ import { createTwoPeriodSeed } from "./createTwoPeriodSeed.ts";
  *
  * p3, 2015, has books and no installments: owners r31 (A01), r32 (A02) and
  * r33 (B01); an opening entry, tx31, where r31 owes 50.00 and r33 is 20.00 in
- * credit; a budget allocation entry, tx32, sharing 1,000.00 as 600.00 to r31,
+ * credit (units uA01, uA02 and uB01); a budget allocation entry, tx32, sharing 1,000.00 as 600.00 to r31,
  * 300.00 to r32, 99.99 to r33 and 0.01 to roundings. Two installments of 50%
  * each, to the cent, plan as r31 350.00 and 300.00, r32 150.00 and 150.00,
  * r33 30.00 and 50.00.
@@ -44,6 +45,12 @@ export function createScheduleSeed(): LegacySeed {
           },
         ],
       },
+    ],
+    units: [
+      ...seed.units,
+      ...["A01", "A02", "B01"].map((code) => {
+        return { ...createUnit(`u${code}`, code), periodId: "p3" };
+      }),
     ],
     accounts: [...seed.accounts, ...createEmptyPeriodAccounts(seed.accounts)],
     entries: [
@@ -174,6 +181,7 @@ function createOwner(
     personId: `md${id.slice(1)}`,
     name,
     unitCode,
+    unitId: `u${unitCode}`,
     startingBalance: cents(0),
   };
 }

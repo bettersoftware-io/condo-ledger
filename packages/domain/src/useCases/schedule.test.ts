@@ -8,6 +8,7 @@ import type { OwnerParty, Party, Restriction } from "../entities/party.ts";
 import { legacySeedData } from "../simulators/seed/legacySeed.generated.ts";
 import { loadLegacySeed } from "../simulators/seed/legacySeed.ts";
 import { must } from "../support/must.ts";
+import { createUnit } from "../testing/createAllocationInput.ts";
 import {
   type ScheduleCell,
   type ScheduleInput,
@@ -253,6 +254,35 @@ describe("scheduleOf on the seed", () => {
     expect(codes).toHaveLength(18);
   });
 
+  it("puts Saturno's groups A and B under the root, each summing its units", () => {
+    const { root } = scheduleOf(seedInput("p1"), "2026-10-14");
+    const groups = root.children.filter((child) => {
+      return child.kind === "group";
+    });
+
+    expect(groups.map(label)).toEqual([
+      expect.stringMatching(/^A - /),
+      expect.stringMatching(/^B - /),
+    ]);
+    expect(root.children.map(label).at(-1)).toBe("Roundings");
+
+    const [a] = groups;
+    const units = must(a, "group A").children;
+
+    expect(units.map(label)).toEqual([
+      expect.stringMatching(/^A1/),
+      expect.stringMatching(/^A2/),
+      expect.stringMatching(/^A3/),
+      expect.stringMatching(/^A4/),
+    ]);
+    expect(must(a, "group A").budget).toBe(
+      units.reduce((total, unit) => {
+        return total + unit.budget;
+      }, 0),
+    );
+    expect(must(a, "group A").key).toMatch(/^group:ug1$/);
+  });
+
   it("colours ii789 partial, and leaves a zero item uncoloured", () => {
     const { root } = scheduleOf(seedInput("p36"), "2026-10-14");
     const zero = must(
@@ -351,6 +381,12 @@ function seedInput(periodId: string): ScheduleInput {
       return account.periodId === periodId;
     }),
     parties: partiesOf(periodId),
+    units: seed.units.filter((unit) => {
+      return unit.periodId === periodId;
+    }),
+    groups: seed.unitGroups.filter((group) => {
+      return group.periodId === periodId;
+    }),
     entries: seed.entries.filter((entry) => {
       return entry.periodId === periodId;
     }),
@@ -480,6 +516,8 @@ function createInput(): ScheduleInput {
       createOwner("rA", "A1", "PR", { from: "2011-07-01", to: null }),
       createOwner("rB", "A1", "PR", { from: null, to: "2011-06-30" }),
     ],
+    units: [createUnit("uA1", "A1"), createUnit("uB1", "B1")],
+    groups: [],
     entries: [
       createEntry("tx1", "openingBalances", [
         createPosting("la5", 500, 0, "rA"),
@@ -543,7 +581,7 @@ function createOwner(
     role,
     share: null,
     restriction,
-    ownRestriction: null,
+    ownRestriction: restriction,
   };
 }
 

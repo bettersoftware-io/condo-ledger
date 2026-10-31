@@ -19,7 +19,7 @@ export interface WizardDialogPage {
   title: () => string;
   /** The labels of the required fields not announced as required; empty when every one is. */
   requiredUnannounced: () => string[];
-  /** The first row: "Building / Period: {building} / {period}". */
+  /** The first row: "Building / Period: {building} ({address}) / {period}". */
   contextLine: () => string;
   /** Clears the form field with this label and types the text into it. */
   fill: (label: string, text: string) => Promise<void>;

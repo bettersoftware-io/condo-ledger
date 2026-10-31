@@ -389,6 +389,8 @@ function createSmallBooks(): UnitsBooks {
       period: input.period,
       accounts: input.accounts,
       parties: input.residents,
+      units: input.units,
+      groups: [],
       entries: [],
       installments,
       installmentItems: items,

@@ -33,6 +33,15 @@ describe("ScheduleGrid", () => {
     ]);
   });
 
+  it("explains Total due in its header's tooltip", () => {
+    const page = mountScheduleGrid({ installments: createInstallments() });
+
+    expect(page.headerTitle("Total due")).toBe(
+      "Previous balance + budget share",
+    );
+    expect(page.headerTitle("Paid")).toBeNull();
+  });
+
   it("draws a resident's row: role, restriction, days, the amounts and one cell per installment", () => {
     const page = mountScheduleGrid({
       installments: createInstallments(),
