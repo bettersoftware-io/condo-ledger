@@ -108,13 +108,18 @@ A step or a decision an agent cannot take.
 
 ## Known limits
 
-- **Successive owners depart from the legacy rule.** M2f's ownership spans
-  for a unit's successive owners are not the legacy application's rule for
-  them; the two can differ for a unit that changed hands.
-- **Liquidity and Funds are found by the generator's account role.** The
-  seed generator picks those two accounts by their role, not by a name or a
-  code, so a chart whose roles are missing or doubled breaks the generator
-  for that period.
+- **Successive owners depart from the legacy rule.** The legacy application
+  split a unit's share among all the residents of the unit and role,
+  whatever their dates. M2f splits it only among the residents whose dates
+  overlap, so successive owners each pay the whole share for their own days.
+  Both seeded periods come out identical to the cent (A04 is the only dated
+  unit), so the difference shows only for new data. The Unit Owners tab's
+  Comb. coeff. follows the same rule.
+- **Liquidity and Funds are found by name.** The generator gives the
+  top-level assets account named Liquidità the role `liquidity` and the
+  top-level liabilities account named Fondi the role `funds`, and refuses a
+  period with none or two. A chart that names them differently cannot be
+  seeded.
 - **A row selected other than by a click is not scrolled into view.** After
   a period switch or a deep link the grids select a row but leave it where
   it is, possibly out of sight.

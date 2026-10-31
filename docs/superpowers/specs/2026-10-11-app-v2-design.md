@@ -104,8 +104,8 @@ Ports carry raw period state, not derived views.
 | Port | Reads | Commands |
 |---|---|---|
 | `SessionPort` | the signed-in principal, firm, preferences (theme, mode, language) | set preference |
-| `BuildingsPort` | buildings tree with periods, building profile, suppliers | edit building, edit period, add/remove supplier |
-| `UnitsPort` | groups, units, owners with ownership spans for a period | edit unit, edit group, add/edit owner (built in M2f) |
+| `BuildingsPort` | buildings tree with periods, building profile, suppliers | edit building, edit period (built in M2f), add/remove supplier |
+| `UnitsPort` | groups, units, owners with ownership spans for a period | edit unit, edit group, add/edit owner (built in M2f: the `residents(periodId)` read, and add, edit and delete of groups, units and owners) |
 | `TablesPort` | thousandth tables and coefficients | edit table, set coefficient |
 | `AccountsPort` | chart of accounts with budgets and flags, functional account roles | edit account, set budget, configure functional accounts |
 | `JournalPort` | entries with postings | the ten wizards as commands, delete entry |
