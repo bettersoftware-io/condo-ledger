@@ -45,17 +45,17 @@ Work that waits on a release, a decision or other work.
   "rounding" on the first resident (`budgetAllocationDraft.ts`). The draft
   must then refuse, or name the account, when a column's Roundings exceeds
   a rounding.
-- **Unit groups and the Units entity, in the Building Data & Units group.**
-  The entities and `UnitsPort` exist (M2e). The Installment Schedule does
-  not draw Saturno's unit groups (A and B) yet: its rows are units, then
-  residents
-  ([2026-10-25-m2d-installment-schedule-design.md](superpowers/specs/2026-10-25-m2d-installment-schedule-design.md),
-  "Scope").
 - **The rest of the Buildings module for M2.** The groups the parent design
-  names, one spec each: Building Data & Units, Contacts and Calendar
-  ([2026-10-11-app-v2-design.md](superpowers/specs/2026-10-11-app-v2-design.md));
-  Installments (M2d) and Tables & Allocation (M2e) are built. The entry
-  above opens the first.
+  names that are not built yet, one spec each: Contacts and Calendar
+  ([2026-10-11-app-v2-design.md](superpowers/specs/2026-10-11-app-v2-design.md)).
+  Installments (M2d), Tables & Allocation (M2e) and Building Data & Units
+  (M2f) are built.
+- **New and deleted buildings and periods.** Building Data & Units edits
+  what exists but cannot add or remove a building or a period. A new period
+  starts from the previous one: its chart, units, residents and balances are
+  carried over.
+- **Edit a building's suppliers.** Building Data shows the suppliers
+  read-only; editing them comes with Contacts.
 - **Presenter robustness before the live adapters (M3).** In
   `packages/client-core/src/presenters/accountsPresenter.ts`, a key the tree
   no longer has should fall back to Total rather than error the stream for
@@ -94,6 +94,13 @@ Work that waits on a release, a decision or other work.
   Period dialog judges against the units port's first answer, so it relies
   on a port that answers on subscribing, as the units presenter's dialogs
   do.
+  Building Data & Units (M2f), in two more places. One period's error (a
+  port error in M3, or a period without a Liquidity or Funds account) breaks
+  every building's Building Data rows until the page is reloaded; the fix in
+  M3 is a catch for each period that shows that period's figures as blank
+  and reports the error. And any change to the buildings tree, even renaming
+  an unrelated building, recomputes every period's allocation for the
+  Building Data screen.
 
 ## Waiting on a person
 
@@ -101,6 +108,20 @@ A step or a decision an agent cannot take.
 
 ## Known limits
 
+- **Successive owners depart from the legacy rule.** M2f's ownership spans
+  for a unit's successive owners are not the legacy application's rule for
+  them; the two can differ for a unit that changed hands.
+- **Liquidity and Funds are found by the generator's account role.** The
+  seed generator picks those two accounts by their role, not by a name or a
+  code, so a chart whose roles are missing or doubled breaks the generator
+  for that period.
+- **A row selected other than by a click is not scrolled into view.** After
+  a period switch or a deep link the grids select a row but leave it where
+  it is, possibly out of sight.
+- **The contact picker's box shows only typed text.** A contact set
+  programmatically (not by typing) is chosen but not shown in the box.
+- **The period label in the Allocation and Installment Schedule root rows
+  is cut off by its column**, and no tooltip shows the full text.
 - **`Wizards.css` and `BudgetInstallmentsWizard.css` style `FormField`'s box with `:has()`.**
   A change to `FormField`'s markup must check them.
 - **The module tabs name no panel.** `ModuleTabs` is a named tab list with
