@@ -22,16 +22,11 @@ import {
   type JournalEntry,
   type JournalPort,
   type Party,
+  type PeriodDates,
   type WithholdingTax,
 } from "@cl/domain";
 
 import type { PeriodSelection } from "./buildingsPresenter.ts";
-
-/** The first and last day of a period, "YYYY-MM-DD", as the building tree has them. */
-interface PeriodDates {
-  start: string;
-  end: string;
-}
 
 /** A period's raw books with the tree derived from them, read together so no screen sees a tree of one emission with the entries of another, nor an invoice whose registration the entries do not hold. */
 export interface Books {
@@ -80,55 +75,60 @@ export function createBooksPresenter(
     books$: state(
       dated$.pipe(
         switchMap((dated): Observable<Books | null> => {
-          if (dated === null) {
-            return of(null);
-          }
-
-          const { periodId, period } = dated;
-
-          return combineLatest([
-            ports.accounts.accounts(periodId),
-            ports.accounts.parties(periodId),
-            ports.accounts.withholdingTaxes(periodId),
-            ports.journal.entries(periodId),
-            ports.journal.invoices(periodId),
-            ports.installments.installments(periodId),
-            ports.installments.items(periodId),
-          ]).pipe(
-            // The port writes a registration and its invoice one stream after the other: the half-written combination is skipped.
-            filter(([, , , entries, invoices]) => {
-              return agree(entries, invoices);
-            }),
-            map(
-              ([
-                accounts,
-                parties,
-                withholdingTaxes,
-                entries,
-                invoices,
-                installments,
-                installmentItems,
-              ]) => {
-                return {
-                  periodId,
-                  period,
-                  tree: buildAccountTree(accounts, entries, parties),
-                  accounts,
-                  parties,
-                  entries,
-                  invoices,
-                  withholdingTaxes,
-                  installments,
-                  installmentItems,
-                };
-              },
-            ),
-          );
+          return dated === null
+            ? of(null)
+            : booksOf(ports, dated.periodId, dated.period);
         }),
       ),
       null,
     ),
   };
+}
+
+/** One period's books, with the dates the caller has for it: what the selected period's are made of, and what a screen over every period reads for each. */
+export function booksOf(
+  ports: BooksPresenterPorts,
+  periodId: string,
+  period: PeriodDates,
+): Observable<Books> {
+  return combineLatest([
+    ports.accounts.accounts(periodId),
+    ports.accounts.parties(periodId),
+    ports.accounts.withholdingTaxes(periodId),
+    ports.journal.entries(periodId),
+    ports.journal.invoices(periodId),
+    ports.installments.installments(periodId),
+    ports.installments.items(periodId),
+  ]).pipe(
+    // The port writes a registration and its invoice one stream after the other: the half-written combination is skipped.
+    filter(([, , , entries, invoices]) => {
+      return agree(entries, invoices);
+    }),
+    map(
+      ([
+        accounts,
+        parties,
+        withholdingTaxes,
+        entries,
+        invoices,
+        installments,
+        installmentItems,
+      ]) => {
+        return {
+          periodId,
+          period,
+          tree: buildAccountTree(accounts, entries, parties),
+          accounts,
+          parties,
+          entries,
+          invoices,
+          withholdingTaxes,
+          installments,
+          installmentItems,
+        };
+      },
+    ),
+  );
 }
 
 /** Every invoice's registration is among the entries, and every invoice an entry names is among the invoices. */

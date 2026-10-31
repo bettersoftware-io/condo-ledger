@@ -23,7 +23,7 @@ export type {
 export type { EntryAdded, JournalPort } from "./ports/journalPort.ts";
 export type { SessionPort } from "./ports/sessionPort.ts";
 export type { TableAdded, TablesPort } from "./ports/tablesPort.ts";
-export type { UnitsPort } from "./ports/unitsPort.ts";
+export type { Added, UnitsPort } from "./ports/unitsPort.ts";
 export {
   type AccountsSimulator,
   createAccountsSimulator,
@@ -81,7 +81,21 @@ export * from "./useCases/ledger.ts";
 export * from "./useCases/openInvoices.ts";
 export * from "./useCases/planInstallments.ts";
 export * from "./useCases/schedule.ts";
+export { type OwnersRow, unitOwnersOf } from "./useCases/units/unitOwners.ts";
+export {
+  type UnitsList,
+  type UnitsRow,
+  unitsListOf,
+} from "./useCases/units/unitsList.ts";
 export * from "./useCases/validateBudget.ts";
 export * from "./useCases/validateEntry.ts";
 export * from "./useCases/validateSchedule.ts";
 export * from "./useCases/validateTable.ts";
+export {
+  type GroupDraft,
+  type ResidencyDraft,
+  type UnitDraft,
+  validateGroup,
+  validateResidency,
+  validateUnit,
+} from "./useCases/validateUnits.ts";

@@ -74,6 +74,15 @@ import {
   type TableDialogState,
 } from "./machines/tableDialogMachine.ts";
 import {
+  createGroupDialog,
+  createOwnerDialog,
+  createUnitDialog,
+  type DialogIntents,
+  type GroupDialogState,
+  type OwnerDialogState,
+  type UnitDialogState,
+} from "./machines/unitDialogMachines.ts";
+import {
   type BudgetAllocationForm,
   type BudgetAllocationSummary,
   createBudgetAllocationWizard,
@@ -156,6 +165,11 @@ import {
   createSessionPresenter,
   type SessionPresenter,
 } from "./presenters/sessionPresenter.ts";
+import {
+  createUnitsPresenter,
+  type UnitsPresenter,
+  type UnitsSnapshot,
+} from "./presenters/unitsPresenter.ts";
 import { type AppScreens, createScreens } from "./screens.ts";
 
 /** Everything the application needs from the outside world. The client's
@@ -181,6 +195,7 @@ interface AppPresenters {
   journal: JournalPresenter;
   schedule: InstallmentSchedulePresenter;
   allocation: AllocationPresenter;
+  units: UnitsPresenter;
 }
 
 /** Per-component state: each call builds a machine of its own, for a dialog, a wizard or the shell's parts, disposed when the component goes. */
@@ -243,6 +258,23 @@ interface AppMachines {
   createInstallmentDialog: (
     installmentId: string,
   ) => Machine<InstallmentDialogState, InstallmentDialogIntents>;
+  /**
+   * The New Group dialog over the Units screen as it stands, under the
+   * selected group, or the selected unit's or resident's group, else at the
+   * top; with `editing` the Edit Group one on a group of the period. One the
+   * period does not hold, or no period, throws.
+   */
+  createGroupDialog: (
+    editing: string | null,
+  ) => Machine<GroupDialogState, DialogIntents<GroupDialogState["form"]>>;
+  /** The New Unit dialog, in the group a new group would go under; with `editing` the Edit Unit one. Throws as createGroupDialog does. */
+  createUnitDialog: (
+    editing: string | null,
+  ) => Machine<UnitDialogState, DialogIntents<UnitDialogState["form"]>>;
+  /** The Add Owner dialog on the selected unit, or the selected resident's; with `editing` the Edit Owner one on a resident. Its balance is read in the session's locale. Throws with no unit selected, and as createGroupDialog does. */
+  createOwnerDialog: (
+    editing: string | null,
+  ) => Machine<OwnerDialogState, DialogIntents<OwnerDialogState["form"]>>;
 }
 
 /** The application, built once at startup. Presenters, the navigation, the
@@ -274,6 +306,13 @@ export function createApp(ports: AppPorts): App {
     buildings.tree$,
     { tables: ports.tables, units: ports.units },
     session.amountLocale$,
+  );
+
+  const units = createUnitsPresenter(
+    books.books$,
+    buildings.tree$,
+    { units: ports.units, tables: ports.tables, contacts: ports.contacts },
+    ports.clock,
   );
 
   const periodTables$ = allocation.tables$.pipe(
@@ -364,6 +403,11 @@ export function createApp(ports: AppPorts): App {
     );
   }
 
+  /** The Units screen as it stands, for a dialog over it. */
+  function unitsNow(): UnitsSnapshot {
+    return must(units.snapshot(), "the units of the selected period");
+  }
+
   /** How a wizard writes: a new entry is added, an edited one replaced. */
   function writeOf(entry: JournalEntry | null): WriteEntry {
     return entry === null
@@ -380,6 +424,7 @@ export function createApp(ports: AppPorts): App {
       journal,
       schedule,
       allocation,
+      units,
     },
     navigation: createNavigationMachine(),
     notices: createNotices(),
@@ -390,6 +435,7 @@ export function createApp(ports: AppPorts): App {
       tables$: allocation.tables$,
       coefficients$: allocation.coefficients$,
       allocation$: allocation.allocation$,
+      units$: units.view$,
       period$: buildings.selected$.pipe(
         map((selected) => {
           return selected?.periodId ?? null;
@@ -577,6 +623,105 @@ export function createApp(ports: AppPorts): App {
             return schedule.updateInstallment(installmentId, patch);
           },
           scheduleContextOf(books),
+        );
+      },
+      createGroupDialog: (
+        editing: string | null,
+      ): Machine<GroupDialogState, DialogIntents<GroupDialogState["form"]>> => {
+        const { groups, selected } = unitsNow();
+
+        if (editing === null) {
+          const parentId = selected?.groupId ?? null;
+
+          return createGroupDialog(
+            { groups, parentId, editing: null },
+            (draft) => {
+              return units.addGroup(parentId, draft);
+            },
+          );
+        }
+
+        const group = must(
+          groups.find((candidate) => {
+            return candidate.id === editing;
+          }),
+          `the group ${editing}`,
+        );
+
+        return createGroupDialog(
+          { groups, parentId: group.parentId, editing: group },
+          (draft) => {
+            return units.editGroup(editing, draft);
+          },
+        );
+      },
+      createUnitDialog: (
+        editing: string | null,
+      ): Machine<UnitDialogState, DialogIntents<UnitDialogState["form"]>> => {
+        const snapshot = unitsNow();
+        const { period } = snapshot;
+
+        if (editing === null) {
+          const groupId = snapshot.selected?.groupId ?? null;
+
+          return createUnitDialog(
+            { units: snapshot.units, period, editing: null },
+            (draft) => {
+              return units.addUnit(groupId, draft);
+            },
+          );
+        }
+
+        const unit = must(
+          snapshot.units.find((candidate) => {
+            return candidate.id === editing;
+          }),
+          `the unit ${editing}`,
+        );
+
+        return createUnitDialog(
+          { units: snapshot.units, period, editing: unit },
+          (draft) => {
+            return units.editUnit(editing, draft);
+          },
+        );
+      },
+      createOwnerDialog: (
+        editing: string | null,
+      ): Machine<OwnerDialogState, DialogIntents<OwnerDialogState["form"]>> => {
+        const { residents, period, openingPosted, selected } = unitsNow();
+
+        if (editing === null) {
+          const unitId = must(selected?.unitId, "the unit of the new owner");
+
+          return createOwnerDialog(
+            texts,
+            { unitId, residents, period, openingPosted, editing: null },
+            (draft) => {
+              return units.addResident(unitId, draft);
+            },
+          );
+        }
+
+        const resident = must(
+          residents.find((candidate) => {
+            return candidate.id === editing;
+          }),
+          `the resident ${editing}`,
+        );
+
+        return createOwnerDialog(
+          texts,
+          {
+            unitId: resident.unitId,
+            residents,
+            period,
+            openingPosted,
+            editing: resident,
+          },
+          (draft) => {
+            return units.editResident(editing, draft);
+          },
         );
       },
     },

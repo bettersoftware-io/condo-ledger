@@ -167,7 +167,7 @@ export function createAllocationPresenter(
 }
 
 /** One period's books, its label, and its tables and units, as one value. */
-interface PeriodTables {
+export interface PeriodTables {
   books: Books;
   periodLabel: string;
   tables: ThousandthTable[];
@@ -192,7 +192,7 @@ interface PortTables {
  * the new period. Null too with no books, or while the tree does not hold
  * their period.
  */
-function periodOf(
+export function periodOf(
   books$: Observable<Books | null>,
   tree$: Observable<Building[]>,
   ports: AllocationPresenterPorts,
@@ -237,7 +237,8 @@ function portTablesOf(
   );
 }
 
-function sourceOf(period: PeriodTables): AllocationSource {
+/** The period as the allocation reads it. */
+export function sourceOf(period: PeriodTables): AllocationSource {
   const { books } = period;
 
   return {

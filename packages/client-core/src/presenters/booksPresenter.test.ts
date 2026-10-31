@@ -1,4 +1,4 @@
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, firstValueFrom } from "rxjs";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -22,6 +22,7 @@ import { createTwoPeriodSeed } from "@cl/domain/testing/createTwoPeriodSeed.ts";
 import {
   type Books,
   type BooksPresenterPorts,
+  booksOf,
   createBooksPresenter,
 } from "./booksPresenter.ts";
 import type { PeriodSelection } from "./buildingsPresenter.ts";
@@ -214,6 +215,17 @@ describe("the books presenter", () => {
 
     expect(latest()?.entries).toHaveLength(8);
     expect(latest()?.tree.debit).toBe(212618);
+  });
+
+  it("reads any one period's books with the dates it is given, whatever is selected", async () => {
+    const { ports } = createPresented({ buildingId: "c1", periodId: "p1" });
+    const books = await firstValueFrom(
+      booksOf(ports, "p2", { start: "2012-01-01", end: "2012-12-31" }),
+    );
+
+    expect(books.periodId).toBe("p2");
+    expect(books.period).toEqual({ start: "2012-01-01", end: "2012-12-31" });
+    expect(books.entries.map(idOf)).toEqual(["x-e1"]);
   });
 });
 
