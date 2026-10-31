@@ -58,6 +58,13 @@ describe("the Units grid of Saturno 2011 (p1)", () => {
     });
   });
 
+  it.each([
+    ["A2", "27/05/2011 - end of FY"],
+    ["A3", "start of FY - 27/05/2011"],
+  ])("writes %s's own restricted period, %s", (code, restriction) => {
+    expect(rowNamed("p1", code).restriction).toBe(restriction);
+  });
+
   it("shows A3 with 725.00 overdue on its installments while the actual costs left it in credit", () => {
     const a3 = rowNamed("p1", "A3");
 

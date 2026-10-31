@@ -212,7 +212,6 @@ function unitRow(unit: Unit, context: ListContext): UnitsRow {
     return {
       ...head,
       residentId: only.id,
-      restriction: restrictionTextOf(only.ownRestriction ?? unit.restriction),
       ...figuresOf(only, context),
       children: [],
     };

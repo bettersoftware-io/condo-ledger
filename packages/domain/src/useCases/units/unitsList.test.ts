@@ -221,6 +221,37 @@ describe("unitsListOf", () => {
     });
   });
 
+  it("shows the unit's own dates on the row of a unit with one resident, not the resident's", () => {
+    const books = createSmallBooks();
+    books.units = books.units.map((unit) => {
+      return unit.id === "u2"
+        ? { ...unit, restriction: { from: "2013-03-01", to: null } }
+        : unit;
+    });
+    books.allocation.input.units = books.units;
+    books.allocation.input.residents = books.allocation.input.residents
+      .filter((resident) => {
+        return resident.id !== "r4";
+      })
+      .map((resident) => {
+        return resident.id === "r3"
+          ? {
+              ...resident,
+              share: null,
+              ownRestriction: { from: "2013-04-01", to: "2013-09-30" },
+            }
+          : resident;
+      });
+    books.schedule.parties = books.allocation.input.residents;
+
+    expect(
+      rowWithKey(unitsListOf(books, "2013-06-30").root, "unit:u2"),
+    ).toMatchObject({
+      residentId: "r3",
+      restriction: "01/03/2013 - end of FY",
+    });
+  });
+
   it("lists a unit's owners before its tenants, whatever order they were added in", () => {
     const books = createSmallBooks();
     books.allocation.input.residents.reverse();
