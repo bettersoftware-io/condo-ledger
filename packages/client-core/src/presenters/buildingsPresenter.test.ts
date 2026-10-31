@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { type Building, createBuildingsSimulator } from "@cl/domain";
+import {
+  type Building,
+  createBuildingsSimulator,
+  fixedClock,
+} from "@cl/domain";
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 
 import {
@@ -57,7 +61,9 @@ interface Presented {
 
 function createPresented(buildings: Building[]): Presented {
   const seed = { ...createSmallSeed(), buildings };
-  const presenter = createBuildingsPresenter(createBuildingsSimulator(seed));
+  const presenter = createBuildingsPresenter(
+    createBuildingsSimulator(seed, fixedClock("2026-10-14T08:00:00Z")),
+  );
   let tree: Building[] = [];
   let selected: PeriodSelection | null = null;
   const errors: string[] = [];

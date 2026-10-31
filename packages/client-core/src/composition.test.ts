@@ -2,6 +2,7 @@ import { firstValueFrom } from "rxjs";
 import { describe, expect, it } from "vitest";
 
 import {
+  type BuildingsPort,
   type Cents,
   cents,
   type EntryDraft,
@@ -16,6 +17,7 @@ import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.
 import { must } from "@cl/domain/support/must.ts";
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 import { createTwoPeriodSeed } from "@cl/domain/testing/createTwoPeriodSeed.ts";
+import type { PeriodDraft } from "@cl/domain/useCases/validateBuilding.ts";
 import type {
   ResidencyDraft,
   UnitDraft,
@@ -334,12 +336,99 @@ describe("the simulator ports over the real seed", () => {
   });
 });
 
+describe("the simulator ports' buildings and contacts", () => {
+  it("refuses a period edit that would cut a restricted unit, naming it", async () => {
+    const { buildings } = createRealPorts();
+
+    expect(
+      await buildings.editPeriod("p1", {
+        ...(await draftOfPeriod(buildings, "p1")),
+        start: "2011-06-01",
+      }),
+    ).toEqual({ ok: false, reason: "period-excludes", detail: "A1" });
+  });
+
+  it("accepts a note on Pozzetto 2013 and emits the buildings with it", async () => {
+    const { buildings } = createRealPorts();
+    const draft = await draftOfPeriod(buildings, "p36");
+
+    expect(await buildings.editPeriod("p36", { ...draft, notes: "x" })).toEqual(
+      { ok: true },
+    );
+    expect(
+      (await firstValueFrom(buildings.buildings()))
+        .flatMap((building) => {
+          return building.periods;
+        })
+        .find((period) => {
+          return period.id === "p36";
+        })?.notes,
+    ).toBe("x");
+  });
+
+  it("makes the units port judge dates against the period as an accepted edit left it", async () => {
+    const { buildings, units } = createRealPorts();
+    const draft = await draftOfPeriod(buildings, "p36");
+    expect(
+      await buildings.editPeriod("p36", { ...draft, end: "2013-06-30" }),
+    ).toEqual({ ok: true });
+    expect(
+      await units.addUnit("p36", null, {
+        ...createUnitDraft("A19"),
+        restriction: { from: "2013-01-01", to: "2013-12-31" },
+      }),
+    ).toEqual({ ok: false, reason: "outside-period" });
+  });
+
+  it("lists the seed's contacts and a building's suppliers", async () => {
+    const { contacts, buildings } = createRealPorts();
+    const seed = loadLegacySeed(legacySeedData);
+
+    expect(await firstValueFrom(contacts.contacts())).toEqual(seed.contacts);
+    expect(await firstValueFrom(buildings.suppliers("c19"))).toEqual(
+      seed.supplierLinks
+        .filter((link) => {
+          return link.buildingId === "c19";
+        })
+        .map((link) => {
+          return link.contactId;
+        }),
+    );
+  });
+});
+
 /** The simulator ports over the real seed, each built afresh. */
 function createRealPorts(): AppPorts {
   return createSimulatorPorts(
     loadLegacySeed(legacySeedData),
     fixedClock("2026-10-14T08:00:00Z"),
   );
+}
+
+/** The period dialog's draft of a period as it stands: the dates and names it has. */
+async function draftOfPeriod(
+  buildings: BuildingsPort,
+  periodId: string,
+): Promise<PeriodDraft> {
+  const period = must(
+    (await firstValueFrom(buildings.buildings()))
+      .flatMap((building) => {
+        return building.periods;
+      })
+      .find((candidate) => {
+        return candidate.id === periodId;
+      }),
+    `the period ${periodId}`,
+  );
+
+  return {
+    name: period.name,
+    type: period.type,
+    closed: period.closed,
+    start: period.start,
+    end: period.end,
+    notes: period.notes,
+  };
 }
 
 /** A collection into Pozzetto 2013's bank (la156), credited to the owners account (la158) on one resident's item. */

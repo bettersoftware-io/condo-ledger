@@ -4,10 +4,14 @@ import {
   type AccountsPort,
   type AccountsSimulator,
   type Allocation,
+  type Building,
   type BuildingsPort,
+  type BuildingsSimulator,
   type ClockPort,
+  type ContactsPort,
   createAccountsSimulator,
   createBuildingsSimulator,
+  createContactsSimulator,
   createInstallmentsSimulator,
   createJournalSimulator,
   createSessionSimulator,
@@ -23,10 +27,13 @@ import {
   type JournalPort,
   type JournalSimulator,
   type LegacySeed,
+  type OwnerParty,
+  type PeriodDates,
   type Result,
   type SessionPort,
   type TablesPort,
   type ThousandthTable,
+  type Unit,
   type UnitsPort,
   type UnitsSimulator,
 } from "@cl/domain";
@@ -156,6 +163,7 @@ import { type AppScreens, createScreens } from "./screens.ts";
 export interface AppPorts {
   session: SessionPort;
   buildings: BuildingsPort;
+  contacts: ContactsPort;
   accounts: AccountsPort;
   journal: JournalPort;
   installments: InstallmentsPort;
@@ -575,7 +583,7 @@ export function createApp(ports: AppPorts): App {
 }
 
 /**
- * The seven simulators over one seed: what `pnpm dev` and the harness run on.
+ * The eight simulators over one seed: what `pnpm dev` and the harness run on.
  * The units simulator is the one source of each period's units and
  * residents: the accounts and the tables follow its streams, and the journal
  * and the installments read its residents when a write asks. It judges a
@@ -596,6 +604,18 @@ export function createSimulatorPorts(
     },
     itemsOf: (periodId: string): InstallmentItem[] => {
       return installments.current(periodId).items;
+    },
+    periodOf: (periodId: string): PeriodDates => {
+      return datesOfPeriod(buildings.currentBuildings(), periodId);
+    },
+  });
+
+  const buildings: BuildingsSimulator = createBuildingsSimulator(seed, clock, {
+    unitsOf: (periodId: string): Unit[] => {
+      return units.currentUnits(periodId);
+    },
+    residentsOf: (periodId: string): OwnerParty[] => {
+      return units.currentResidents(periodId);
     },
   });
 
@@ -632,7 +652,8 @@ export function createSimulatorPorts(
       principal: DESIGN_PRINCIPAL,
       firm: DESIGN_FIRM,
     }),
-    buildings: createBuildingsSimulator(seed),
+    buildings,
+    contacts: createContactsSimulator(seed),
     accounts,
     journal,
     installments,
@@ -648,4 +669,20 @@ export function createSimulatorPorts(
     units,
     clock,
   };
+}
+
+/** A period's dates as the buildings stand now; throws for a period they do not hold. */
+function datesOfPeriod(buildings: Building[], periodId: string): PeriodDates {
+  const period = must(
+    buildings
+      .flatMap((building) => {
+        return building.periods;
+      })
+      .find((candidate) => {
+        return candidate.id === periodId;
+      }),
+    `the period ${periodId}`,
+  );
+
+  return { start: period.start, end: period.end };
 }
