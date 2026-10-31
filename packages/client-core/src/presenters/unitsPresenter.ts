@@ -48,12 +48,18 @@ export interface UnitsView {
   selected: UnitsRow | null;
   /** The selected unit, or the selected resident's; null for the root, a group and the rounding row. */
   unit: Unit | null;
+  /** The selected group; null for every other row. */
+  group: UnitGroup | null;
+  /** The selected resident: on their own row, and on the row of a unit they live in alone; null otherwise. */
+  resident: OwnerParty | null;
   /** Where `unit` stands: its groups' names, root to leaf, joined by " » "; blank at the top of the building, and with no unit. */
   location: string;
   /** The Unit Owners tab of `unit`; null with no unit. */
   owners: OwnersRow | null;
   /** Whether the period's opening entry is posted: the previous balances are then the journal's. */
   openingPosted: boolean;
+  /** The period's dates, which a unit's and a resident's own dates must lie within. */
+  period: PeriodDates;
 }
 
 /** The selected period's units, groups and residents as the Units screen stands, with its selection: what a dialog is built over. */
@@ -301,31 +307,51 @@ function scopeOf(
     return entry.kind === "openingBalances";
   });
 
+  const residents = books.parties.filter((party): party is OwnerParty => {
+    return party.kind === "owner";
+  });
+
+  const group =
+    selected?.kind === "group"
+      ? must(
+          groups.find((candidate) => {
+            return candidate.id === selected.groupId;
+          }),
+          `the group ${String(selected.groupId)}`,
+        )
+      : null;
+  const residentId = selected?.residentId ?? null;
+  const resident =
+    residentId === null
+      ? null
+      : must(
+          residents.find((candidate) => {
+            return candidate.id === residentId;
+          }),
+          `the resident ${residentId}`,
+        );
+
   return {
     view: {
       list,
       selected,
       unit,
+      group,
+      resident,
       location: unit === null ? "" : locationOf(unit, groups),
       owners: unit === null ? null : unitOwnersOf(unit, allocation.input),
       openingPosted,
+      period: books.period,
     },
     snapshot: {
       period: books.period,
       units,
       groups,
-      residents: books.parties.filter((party): party is OwnerParty => {
-        return party.kind === "owner";
-      }),
+      residents,
       selected,
       openingPosted,
     },
-    crumb:
-      selected?.kind === "group"
-        ? (groups.find((group) => {
-            return group.id === selected.groupId;
-          })?.code ?? null)
-        : (unit?.code ?? null),
+    crumb: group?.code ?? unit?.code ?? null,
   };
 }
 

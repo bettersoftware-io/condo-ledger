@@ -24,6 +24,7 @@ import type {
   DirectPaymentSummary,
   GenericEntryForm,
   GenericEntrySummary,
+  GroupDialogState,
   InstallmentDialogIntents,
   InstallmentDialogState,
   InvoiceForm,
@@ -43,6 +44,7 @@ import type {
   NavigationState,
   OpeningForm,
   OpeningSummary,
+  OwnerDialogState,
   ScheduleGridIntents,
   ScheduleGridState,
   SidebarIntents,
@@ -62,6 +64,7 @@ import type {
   AccountNode,
   Building,
   Cents,
+  Contact,
   JournalEntryView,
   Ledger,
   LegacySeed,
@@ -165,6 +168,17 @@ export interface Seen {
     UnitDialogState,
     DialogIntents<UnitDialogState["form"]>
   > | null;
+  /** The New Group dialog; null unless the page was mounted with a unit to edit. */
+  groupDialog: MachineView<
+    GroupDialogState,
+    DialogIntents<GroupDialogState["form"]>
+  > | null;
+  /** The Add Owner dialog on the selected unit; null unless the page was mounted with a unit to edit. */
+  ownerDialog: MachineView<
+    OwnerDialogState,
+    DialogIntents<OwnerDialogState["form"]>
+  > | null;
+  contacts: Contact[];
 }
 
 export interface ViewModelPage {
@@ -261,7 +275,7 @@ interface ReaderProps {
   collectionEditing: string | null;
   /** The installment the reader's Edit Installment dialog opens on; none, no dialog. */
   installmentId: string | null;
-  /** The unit the reader's Edit Unit dialog opens on; none, no dialog. */
+  /** The unit the reader's Edit Unit dialog opens on, beside its New Group and Add Owner dialogs; none, no dialog. */
   unitId: string | null;
 }
 
@@ -314,6 +328,7 @@ function Reader({
     useUnits,
     useUnitsGrid,
     useUnitOwnersGrid,
+    useContacts,
   } = useViewModel();
 
   seen[index] = {
@@ -359,6 +374,9 @@ function Reader({
     unitsGrid: useUnitsGrid(),
     unitOwnersGrid: useUnitOwnersGrid(),
     unitDialog: null,
+    groupDialog: null,
+    ownerDialog: null,
+    contacts: useContacts(),
   };
 
   return (
@@ -367,7 +385,7 @@ function Reader({
         <DialogReader seen={seen} index={index} installmentId={installmentId} />
       )}
       {unitId === null ? null : (
-        <UnitDialogReader seen={seen} index={index} unitId={unitId} />
+        <UnitsDialogsReader seen={seen} index={index} unitId={unitId} />
       )}
     </output>
   );
@@ -396,24 +414,28 @@ function DialogReader({
   return null;
 }
 
-interface UnitDialogReaderProps {
+interface UnitsDialogsReaderProps {
   seen: (Seen | undefined)[];
   index: number;
   unitId: string;
 }
 
-/** Mounted apart, because the dialog hook needs a unit that exists. */
-function UnitDialogReader({
+/** Mounted apart, because the Units screen's dialog hooks need a unit that exists, and a period with a unit selected. */
+function UnitsDialogsReader({
   seen,
   index,
   unitId,
-}: UnitDialogReaderProps): ReactElement | null {
-  const { useUnitDialog } = useViewModel();
-  const dialog = useUnitDialog(unitId);
+}: UnitsDialogsReaderProps): ReactElement | null {
+  const { useUnitDialog, useGroupDialog, useOwnerDialog } = useViewModel();
+  const unitDialog = useUnitDialog(unitId);
+  const groupDialog = useGroupDialog(null);
+  const ownerDialog = useOwnerDialog(null);
   const entry = seen[index];
 
   if (entry !== undefined) {
-    entry.unitDialog = dialog;
+    entry.unitDialog = unitDialog;
+    entry.groupDialog = groupDialog;
+    entry.ownerDialog = ownerDialog;
   }
 
   return null;

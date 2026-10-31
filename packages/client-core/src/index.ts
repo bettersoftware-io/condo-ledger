@@ -80,7 +80,11 @@ export type {
   TableDialogIntents,
   TableDialogState,
 } from "./machines/tableDialogMachine.ts";
-export type { UnitDialogState } from "./machines/unitDialogMachines.ts";
+export type {
+  GroupDialogState,
+  OwnerDialogState,
+  UnitDialogState,
+} from "./machines/unitDialogMachines.ts";
 export type {
   BudgetAllocationForm,
   BudgetAllocationSummary,

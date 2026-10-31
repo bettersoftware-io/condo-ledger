@@ -326,55 +326,6 @@ describe("UnitsScreen", () => {
     ]);
   });
 
-  it("the add, edit and delete tools say so until their dialogs arrive", async () => {
-    const page = mountUnits("p1");
-
-    await page.units.clickTool("Add");
-    await page.chooseMenuItem("New group");
-    await page.units.clickTool("Add");
-    await page.chooseMenuItem("New unit");
-    await page.units.clickTool("Add");
-    await page.chooseMenuItem("New owner");
-    await page.units.clickTool("Edit");
-    await page.units.clickTool("Delete");
-
-    expect(page.tabs.toolLabels()).toEqual([
-      "Add owner",
-      "Edit unit",
-      "Delete unit",
-      "Print",
-      "Export to PDF",
-      "Export to Excel",
-    ]);
-
-    await page.tabs.clickTool("Add owner");
-    await page.tabs.clickTool("Edit unit");
-    await page.tabs.clickTool("Delete unit");
-    await page.activateTab("Unit Owners");
-
-    expect(page.tabs.toolLabels().slice(0, 3)).toEqual([
-      "Add owner",
-      "Edit owner",
-      "Remove owner",
-    ]);
-
-    await page.tabs.clickTool("Edit owner");
-    await page.tabs.clickTool("Remove owner");
-
-    expect(page.toasts()).toEqual([
-      "New group: not yet available",
-      "New unit: not yet available",
-      "New owner: not yet available",
-      "Edit: not yet available",
-      "Delete: not yet available",
-      "Add owner: not yet available",
-      "Edit unit: not yet available",
-      "Delete unit: not yet available",
-      "Edit owner: not yet available",
-      "Remove owner: not yet available",
-    ]);
-  });
-
   it("maximize fills the screen with the Units panel, and restores it", async () => {
     const page = mountUnits("p1");
 

@@ -26,6 +26,7 @@ import type {
   GenericEntryForm,
   GenericEntrySummary,
   GridName,
+  GroupDialogState,
   InstallmentDialogIntents,
   InstallmentDialogState,
   InvoiceForm,
@@ -46,6 +47,7 @@ import type {
   Notice,
   OpeningForm,
   OpeningSummary,
+  OwnerDialogState,
   PeriodSelection,
   ScheduleGridIntents,
   ScheduleGridState,
@@ -71,6 +73,7 @@ import type {
   AllocationMode,
   Building,
   Cents,
+  Contact,
   EntryAdded,
   EntryKind,
   Firm,
@@ -163,6 +166,9 @@ export interface UnitsScreenView {
   /** The selected unit's code (a resident's unit's), or the selected group's; null for the root and the rounding row. */
   crumb: string | null;
   select: (key: string) => void;
+  deleteGroup: (groupId: string) => Promise<Result>;
+  deleteUnit: (unitId: string) => Promise<Result>;
+  deleteResident: (residentId: string) => Promise<Result>;
 }
 
 export interface NoticesView {
@@ -288,6 +294,16 @@ export interface ViewModel {
   useUnitDialog: (
     editing: string | null,
   ) => MachineView<UnitDialogState, DialogIntents<UnitDialogState["form"]>>;
+  /** Reads its argument on the first render only: the New Group dialog (null), under the selected row's group, or the Edit Group one on the group it opened on. */
+  useGroupDialog: (
+    editing: string | null,
+  ) => MachineView<GroupDialogState, DialogIntents<GroupDialogState["form"]>>;
+  /** Reads its argument on the first render only: the Add Owner dialog (null) on the selected unit, or the Edit Owner one on the resident it opened on. */
+  useOwnerDialog: (
+    editing: string | null,
+  ) => MachineView<OwnerDialogState, DialogIntents<OwnerDialogState["form"]>>;
+  /** The contacts an owner can be linked to. */
+  useContacts: () => Contact[];
 }
 
 /** Built once at startup, in the composition root, from the application. */
@@ -522,6 +538,9 @@ export function createViewModel(app: App): ViewModel {
         view: useStateObservable(units.view$),
         crumb: useStateObservable(units.crumb$),
         select: units.select,
+        deleteGroup: units.deleteGroup,
+        deleteUnit: units.deleteUnit,
+        deleteResident: units.deleteResident,
       };
     },
     useUnitsGrid: (): MachineView<TreeGridState<UnitsRow>, TreeGridIntents> => {
@@ -539,6 +558,29 @@ export function createViewModel(app: App): ViewModel {
       return useMachine(() => {
         return app.machines.createUnitDialog(editing);
       });
+    },
+    useGroupDialog: (
+      editing: string | null,
+    ): MachineView<
+      GroupDialogState,
+      DialogIntents<GroupDialogState["form"]>
+    > => {
+      return useMachine(() => {
+        return app.machines.createGroupDialog(editing);
+      });
+    },
+    useOwnerDialog: (
+      editing: string | null,
+    ): MachineView<
+      OwnerDialogState,
+      DialogIntents<OwnerDialogState["form"]>
+    > => {
+      return useMachine(() => {
+        return app.machines.createOwnerDialog(editing);
+      });
+    },
+    useContacts: (): Contact[] => {
+      return useStateObservable(units.contacts$);
     },
   };
 }

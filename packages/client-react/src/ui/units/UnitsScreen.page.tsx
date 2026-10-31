@@ -2,13 +2,14 @@ import { render, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
-import type { LegacySeed, OwnersRow, UnitsRow } from "@cl/domain";
+import type { Contact, LegacySeed, OwnersRow, UnitsRow } from "@cl/domain";
 import { createViewModel, ViewModelProvider } from "@cl/react-bindings";
 
 import { type PanelPage, panelIn } from "../allocation/panelGrid.page.tsx";
 import { AppRoot } from "../shell/AppRoot.tsx";
 import { dragSplitterElement } from "../shell/Splitter.page.tsx";
 import { TESTIDS } from "../testids.ts";
+import { type UnitsDialogPage, unitsDialogIn } from "./UnitsDialog.page.tsx";
 
 /** What a test can do with, and ask of, the Units, Owners & Personal Balance screen. */
 export interface UnitsScreenPage {
@@ -26,6 +27,7 @@ export interface UnitsScreenPage {
   /** The items of the open Add menu; none while it is closed. */
   menuItems: () => string[];
   chooseMenuItem: (label: string) => Promise<void>;
+  isMenuItemDisabled: (label: string) => boolean;
   /** Closes the open Add menu with Escape, choosing nothing. */
   closeMenu: () => Promise<void>;
   /** The bottom panel's tools and its Unit Owners grid, when that tab is in front. */
@@ -60,6 +62,16 @@ export interface UnitsScreenPage {
   splitRatio: () => number;
   /** Drags the splitter between the panels on a screen of the given height. */
   dragSplitter: (by: number, screenHeight: number) => void;
+  /** The group, unit or owner dialog over the screen. */
+  dialog: UnitsDialogPage;
+  /** The question asked before a delete; null while none is asked. */
+  confirmText: () => string | null;
+  /** Why the delete did not go through, under the question; null when nothing failed. */
+  confirmError: () => string | null;
+  confirmYes: () => Promise<void>;
+  confirmNo: () => Promise<void>;
+  /** A contact's name, by its id: a test never spells a person's name. */
+  contactName: (contactId: string) => string;
 }
 
 /**
@@ -190,6 +202,11 @@ export function mountUnits(
         within(unitsPanel()).getByRole("menuitem", { name: label }),
       );
     },
+    isMenuItemDisabled: (label: string): boolean => {
+      return within(unitsPanel())
+        .getByRole<HTMLButtonElement>("menuitem", { name: label })
+        .hasAttribute("disabled");
+    },
     closeMenu: async (): Promise<void> => {
       await user.keyboard("{Escape}");
     },
@@ -280,6 +297,41 @@ export function mountUnits(
       };
 
       dragSplitterElement(within(screen()).getByTestId(TESTIDS.splitter), [by]);
+    },
+    dialog: unitsDialogIn(() => {
+      return rendered.container;
+    }, user),
+    confirmText: (): string | null => {
+      return rendered.queryByTestId(TESTIDS.confirmText)?.textContent ?? null;
+    },
+    confirmError: (): string | null => {
+      return rendered.queryByTestId(TESTIDS.confirmError)?.textContent ?? null;
+    },
+    confirmYes: async (): Promise<void> => {
+      await user.click(rendered.getByTestId(TESTIDS.confirmYes));
+    },
+    confirmNo: async (): Promise<void> => {
+      await user.click(rendered.getByTestId(TESTIDS.confirmNo));
+    },
+    contactName: (contactId: string): string => {
+      let contacts: Contact[] = [];
+
+      // The simulator answers at once, whether or not the screen reads the contacts yet.
+      app.presenters.units.contacts$
+        .subscribe((all) => {
+          contacts = all;
+        })
+        .unsubscribe();
+
+      const contact = contacts.find((candidate) => {
+        return candidate.id === contactId;
+      });
+
+      if (contact === undefined) {
+        throw new Error(`No contact ${contactId}`);
+      }
+
+      return contact.name;
     },
   };
 }

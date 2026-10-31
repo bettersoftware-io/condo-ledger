@@ -24,8 +24,9 @@ import "./UnitsPanel.css";
  * the residents of a unit with more than one, then Rounding error, with each
  * row's unit columns and money. A click selects any row. The toolbar groups
  * by unit only (drawn, as on the other screens), offers a new group, unit or
- * owner, edits and deletes the selected row, opens and closes the tree, and
- * draws print, export and refresh, which post their notice. Which menu is
+ * owner (an owner only with a unit selected), edits and deletes the selected
+ * row when it can, opens and closes the tree, and draws print, export and
+ * refresh, which post their notice. Which menu is
  * open is this view's own state. Takes only props, so the compiler memoizes
  * it.
  */
@@ -41,6 +42,10 @@ export function UnitsPanel({
   onCollapseAll,
   onResize,
   onToggleMaximize,
+  canAdd,
+  canAddOwner,
+  canEdit,
+  canDelete,
   onAdd,
   onEdit,
   onDelete,
@@ -89,6 +94,7 @@ export function UnitsPanel({
                 icon="+"
                 text="▾"
                 tone="ok"
+                disabled={!canAdd}
                 menuOpen={menuOpen}
                 onClick={openMenu}
               />
@@ -102,6 +108,7 @@ export function UnitsPanel({
                 <MenuItem
                   label="New owner"
                   icon="👤"
+                  disabled={!canAddOwner}
                   onClick={adding("owner")}
                 />
               </Popover>
@@ -111,6 +118,7 @@ export function UnitsPanel({
               icon="✎"
               tone="muted"
               iconOnly
+              disabled={!canEdit}
               onClick={onEdit}
             />
             <ToolbarButton
@@ -118,6 +126,7 @@ export function UnitsPanel({
               icon="−"
               tone="neg"
               iconOnly
+              disabled={!canDelete}
               onClick={onDelete}
             />
             <ToolbarDivider />
@@ -205,6 +214,14 @@ export interface UnitsPanelProps {
   onCollapseAll: () => void;
   onResize: (index: number, px: number) => void;
   onToggleMaximize: () => void;
+  /** There is a period to add a group or a unit to. */
+  canAdd: boolean;
+  /** There is a unit to add an owner to. */
+  canAddOwner: boolean;
+  /** The selected row can be edited: a group, a unit or a resident. */
+  canEdit: boolean;
+  /** The selected row can be deleted: a group with nothing in it, a unit or a resident. */
+  canDelete: boolean;
   onAdd: (what: UnitsAddition) => void;
   /** Edits the selected row. */
   onEdit: () => void;

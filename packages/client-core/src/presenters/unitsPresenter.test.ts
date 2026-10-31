@@ -42,6 +42,9 @@ describe("the units presenter", () => {
     expect(view().unit?.code).toBe("A1");
     expect(view().owners?.key).toBe("period:u1");
     expect(view().openingPosted).toBe(true);
+    expect(view().period).toEqual({ start: "2011-01-01", end: "2011-12-31" });
+    expect(view().resident?.id).toBe("r1");
+    expect(view().group).toBeNull();
     expect(crumb()).toBe("A1");
 
     stop();
@@ -52,6 +55,8 @@ describe("the units presenter", () => {
 
     units.select("group:ug2");
     expect(view().selected?.key).toBe("group:ug2");
+    expect(view().group).toMatchObject({ id: "ug2", code: "B" });
+    expect(view().resident).toBeNull();
     expect(view().unit).toBeNull();
     expect(view().owners).toBeNull();
     expect(crumb()).toBe("B");
@@ -100,6 +105,8 @@ describe("the units presenter", () => {
     units.select("resident:r166");
 
     expect(view().selected?.residentId).toBe("r166");
+    expect(view().resident?.id).toBe("r166");
+    expect(view().group).toBeNull();
     expect(view().unit?.id).toBe("u137");
     expect(view().owners?.key).toBe("period:u137");
     expect(crumb()).toBe("A04");

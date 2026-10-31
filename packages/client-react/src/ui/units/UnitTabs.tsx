@@ -21,8 +21,8 @@ import "./UnitTabs.css";
  * The Units screen's bottom panel: the Unit Profile and Unit Owners tabs of
  * the selected unit, or of the selected resident's, under one toolbar. `+`
  * adds an owner to the unit, ✎ and − act on the selected owner on Unit
- * Owners and on the unit on Unit Profile; print, export and the Legend post
- * their notice. With no unit (the root, a group, the rounding row) the tabs
+ * Owners and on the unit on Unit Profile, each only when there is one;
+ * print, export and the Legend post their notice. With no unit (the root, a group, the rounding row) the tabs
  * say "Select a unit.". Takes only props, so the compiler memoizes it.
  */
 export function UnitTabs({
@@ -36,6 +36,9 @@ export function UnitTabs({
   onSelectOwner,
   onToggleOwner,
   onResizeOwners,
+  canAddOwner,
+  canEdit,
+  canDelete,
   onAddOwner,
   onEdit,
   onDelete,
@@ -64,6 +67,7 @@ export function UnitTabs({
               icon="+"
               tone="ok"
               iconOnly
+              disabled={!canAddOwner}
               onClick={onAddOwner}
             />
             <ToolbarButton
@@ -71,6 +75,7 @@ export function UnitTabs({
               icon="✎"
               tone="muted"
               iconOnly
+              disabled={!canEdit}
               onClick={onEdit}
             />
             <ToolbarButton
@@ -78,6 +83,7 @@ export function UnitTabs({
               icon="−"
               tone="neg"
               iconOnly
+              disabled={!canDelete}
               onClick={onDelete}
             />
             <ToolbarDivider />
@@ -148,6 +154,12 @@ export interface UnitTabsProps {
   onSelectOwner: (key: string) => void;
   onToggleOwner: (key: string) => void;
   onResizeOwners: (index: number, px: number) => void;
+  /** There is a unit to add an owner to. */
+  canAddOwner: boolean;
+  /** There is an owner (Unit Owners) or a unit (Unit Profile) to edit. */
+  canEdit: boolean;
+  /** There is an owner (Unit Owners) or a unit (Unit Profile) to remove. */
+  canDelete: boolean;
   onAddOwner: () => void;
   /** Edits the selected owner on Unit Owners, the unit on Unit Profile. */
   onEdit: () => void;

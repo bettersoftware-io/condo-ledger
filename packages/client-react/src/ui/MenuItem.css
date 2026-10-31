@@ -19,6 +19,13 @@
   background: var(--hover);
 }
 
+/* After the hover, so a disabled item takes no tint. */
+.menu-item:disabled {
+  background: transparent;
+  opacity: 0.4;
+  cursor: default;
+}
+
 /* The keyboard's place in the menu: the client's focus ring, 2px solid --acc
    inset. The hover tint is about 1.1:1 on the panel, and a focus indicator
    needs 3:1. */

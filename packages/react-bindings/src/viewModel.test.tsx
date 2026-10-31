@@ -8,6 +8,7 @@ import {
   type Result,
 } from "@cl/domain";
 import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
+import { must } from "@cl/domain/support/must.ts";
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 import { createTwoPeriodSeed } from "@cl/domain/testing/createTwoPeriodSeed.ts";
 
@@ -494,6 +495,71 @@ describe("the view model", () => {
     expect(
       page.read().units.view?.list.root.children[0]?.children[0],
     ).toMatchObject({ key: "unit:u1", floor: "2" });
+  });
+
+  it("the group and owner dialog hooks add a group and an owner the Units grid shows; the screen's deletes reach it", async () => {
+    const page = mountUnderProvider(
+      loadLegacySeed(legacySeedData),
+      1,
+      null,
+      null,
+      null,
+      "u1",
+    );
+    const answers: Result[] = [];
+
+    expect(page.read().groupDialog?.state.editing).toBeNull();
+    expect(page.read().ownerDialog?.state.balanceLocked).toBe(true);
+
+    await page.send((seen) => {
+      seen.groupDialog?.edit({ code: "C", name: "Lift" });
+      seen.ownerDialog?.edit({ contactId: "md17" });
+    });
+    await page.send(async (seen) => {
+      answers.push(
+        ...(await Promise.all([
+          must(seen.groupDialog, "the group dialog").save(),
+          must(seen.ownerDialog, "the owner dialog").save(),
+        ])),
+      );
+    });
+
+    expect(answers).toEqual([
+      { ok: true, value: { id: "ug-new-1" } },
+      { ok: true, value: { id: "r-new-1" } },
+    ]);
+    const stairwellA = page.read().units.view?.list.root.children[0]?.children;
+
+    expect(
+      stairwellA?.map((row) => {
+        return [row.key, row.children.length];
+      }),
+    ).toContainEqual(["group:ug-new-1", 0]);
+    expect(
+      stairwellA?.map((row) => {
+        return [row.key, row.children.length];
+      }),
+    ).toContainEqual(["unit:u1", 2]);
+
+    await page.send(async (seen) => {
+      answers.push(
+        await seen.units.deleteResident("r-new-1"),
+        await seen.units.deleteGroup("ug-new-1"),
+        await seen.units.deleteUnit("u1"),
+      );
+    });
+
+    expect(answers.slice(2)).toMatchObject([
+      { ok: true },
+      { ok: true },
+      { ok: false, reason: "named-in-journal" },
+    ]);
+  });
+
+  it("lists the contacts an owner can be linked to", () => {
+    const page = mountUnderProvider(loadLegacySeed(legacySeedData));
+
+    expect(page.read().contacts).toHaveLength(48);
   });
 
   it("a wizard hook given an entry to edit shows that entry's form", () => {
