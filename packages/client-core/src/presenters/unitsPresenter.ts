@@ -36,12 +36,8 @@ import {
 import { must } from "@cl/domain/support/must.ts";
 
 import { todayOf } from "../today.ts";
-import {
-  type PeriodTables,
-  periodOf,
-  sourceOf,
-} from "./allocationPresenter.ts";
 import type { Books } from "./booksPresenter.ts";
+import { type PeriodTables, periodOf, sourceOf } from "./periodTables.ts";
 
 /** The Units screen: the grid, its selected row, and what the bottom tabs show of it. */
 export interface UnitsView {
@@ -131,9 +127,11 @@ export function createUnitsPresenter(
   );
   // The period the list last showed, and how many rows had been chosen when
   // it started showing it: a row chosen before then is another period's, or
-  // the same period's before another came between.
+  // the same period's before another came between. And the row last
+  // selected in it, for a selection whose row the list no longer holds.
   let shownPeriodId: string | null = null;
   let chosenBefore = 0;
+  let lastSelected: UnitsRow | null = null;
   const scope$ = state(
     combineLatest([listed$, chosen$]).pipe(
       map(([listed, chosen]) => {
@@ -146,9 +144,18 @@ export function createUnitsPresenter(
         if (periodId !== shownPeriodId) {
           shownPeriodId = periodId;
           chosenBefore = chosen.count;
+          lastSelected = null;
         }
 
-        return scopeOf(listed, chosen.count > chosenBefore ? chosen.key : null);
+        const scope = scopeOf(
+          listed,
+          chosen.count > chosenBefore ? chosen.key : null,
+          lastSelected,
+        );
+
+        lastSelected = scope.view.selected;
+
+        return scope;
       }),
     ),
     null,
@@ -181,7 +188,8 @@ export function createUnitsPresenter(
     snapshot: (): UnitsSnapshot | null => {
       let held: UnitsSnapshot | null = null;
 
-      // The ports answer at once, so a first value arrives on subscribing.
+      // It relies on ports that answer synchronously, so a first value arrives
+      // on subscribing; in the app the grid's subscription keeps them hot.
       scope$.pipe(take(1)).subscribe((scope) => {
         held = scope?.snapshot ?? null;
       });
@@ -288,14 +296,21 @@ function listOf(period: PeriodTables, today: string): Listed {
   };
 }
 
-/** With no row chosen, or one the list no longer holds, the first unit is selected. */
-function scopeOf(listed: Listed, key: string | null): Scope {
+/**
+ * The row chosen, while the list holds it. A resident's row folds into
+ * their unit's when the unit is left with them alone, so the row that carries
+ * the resident stands in for it. Failing that, the unit, then the group, of
+ * the row last selected; with nothing chosen, or none of those, the first
+ * unit.
+ */
+function scopeOf(
+  listed: Listed,
+  key: string | null,
+  last: UnitsRow | null,
+): Scope {
   const { period, allocation, list } = listed;
   const { books, units, groups } = period;
-  const selected =
-    (key === null ? undefined : findRow(list.root, key)) ??
-    firstUnitRow(list.root) ??
-    null;
+  const selected = selectedOf(list.root, key, last);
   const unitId = selected?.unitId ?? null;
   const unit =
     unitId === null
@@ -338,30 +353,71 @@ function scopeOf(listed: Listed, key: string | null): Scope {
   };
 }
 
-function findRow(row: UnitsRow, key: string): UnitsRow | undefined {
-  if (row.key === key) {
-    return row;
-  }
+function selectedOf(
+  root: UnitsRow,
+  key: string | null,
+  last: UnitsRow | null,
+): UnitsRow | null {
+  if (key !== null) {
+    const kept =
+      rowKeyed(root, key) ??
+      rowOfResident(root, key) ??
+      (last === null ? undefined : rowNear(root, last));
 
-  for (const child of row.children) {
-    const found = findRow(child, key);
-
-    if (found !== undefined) {
-      return found;
+    if (kept !== undefined) {
+      return kept;
     }
   }
 
-  return undefined;
+  return firstRow(root, isUnitRow) ?? null;
 }
 
-/** The first unit's row, in the order the grid shows the rows. */
-function firstUnitRow(row: UnitsRow): UnitsRow | undefined {
-  if (row.kind === "unit") {
+/** The unit's row of the row last selected, else its group's. */
+function rowNear(root: UnitsRow, last: UnitsRow): UnitsRow | undefined {
+  const { unitId, groupId } = last;
+
+  return (
+    (unitId === null ? undefined : rowKeyed(root, `unit:${unitId}`)) ??
+    (groupId === null ? undefined : rowKeyed(root, `group:${groupId}`))
+  );
+}
+
+/** For a resident's key, the row that carries the resident: theirs, or their unit's once they live there alone. */
+function rowOfResident(root: UnitsRow, key: string): UnitsRow | undefined {
+  if (!key.startsWith(RESIDENT)) {
+    return undefined;
+  }
+
+  const residentId = key.slice(RESIDENT.length);
+
+  return firstRow(root, (row) => {
+    return row.residentId === residentId;
+  });
+}
+
+const RESIDENT = "resident:";
+
+function rowKeyed(root: UnitsRow, key: string): UnitsRow | undefined {
+  return firstRow(root, (row) => {
+    return row.key === key;
+  });
+}
+
+function isUnitRow(row: UnitsRow): boolean {
+  return row.kind === "unit";
+}
+
+/** The first row that matches, in the order the grid shows the rows. */
+function firstRow(
+  row: UnitsRow,
+  matches: (row: UnitsRow) => boolean,
+): UnitsRow | undefined {
+  if (matches(row)) {
     return row;
   }
 
   for (const child of row.children) {
-    const found = firstUnitRow(child);
+    const found = firstRow(child, matches);
 
     if (found !== undefined) {
       return found;

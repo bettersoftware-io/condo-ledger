@@ -253,6 +253,54 @@ describe("the units presenter", () => {
     stop();
   });
 
+  it("keeps r165 selected when the other resident of A03 leaves and their row folds into A03's", async () => {
+    const { units, view, crumb, stop } = createPresented("p36");
+    const added = addedId(
+      await units.addResident("u136", createResidencyDraft("md104")),
+    );
+
+    units.select("resident:r165");
+    expect(view().selected?.key).toBe("resident:r165");
+
+    expect(await units.deleteResident(added)).toEqual({ ok: true });
+    expect(view().selected).toMatchObject({
+      key: "unit:u136",
+      residentId: "r165",
+    });
+    expect(view().unit?.code).toBe("A03");
+    expect(crumb()).toBe("A03");
+
+    stop();
+  });
+
+  it("selects A04 when its selected resident is deleted", async () => {
+    const { units, view, crumb, stop } = createPresented("p36");
+    const added = addedId(
+      await units.addResident("u137", createResidencyDraft("md104")),
+    );
+
+    units.select(`resident:${added}`);
+    expect(await units.deleteResident(added)).toEqual({ ok: true });
+
+    expect(view().selected?.key).toBe("unit:u137");
+    expect(crumb()).toBe("A04");
+
+    stop();
+  });
+
+  it("selects the group of a selected unit that is deleted", async () => {
+    const { units, view, crumb, stop } = createPresented("p1");
+    const unitId = addedId(await units.addUnit("ug2", createUnitDraft("B5")));
+
+    units.select(`unit:${unitId}`);
+    expect(await units.deleteUnit(unitId)).toEqual({ ok: true });
+
+    expect(view().selected?.key).toBe("group:ug2");
+    expect(crumb()).toBe("B");
+
+    stop();
+  });
+
   it("names a unit by one code in every emission while its code changes", async () => {
     const { units, view, stop } = createPresented("p1");
     const seen: UnitsView[] = [];
