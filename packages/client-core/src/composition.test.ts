@@ -9,10 +9,17 @@ import {
   type JournalEntryView,
   type LegacySeed,
   loadLegacySeed,
+  type ResultOf,
 } from "@cl/domain";
+import type { Added } from "@cl/domain/ports/unitsPort.ts";
 import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
+import { must } from "@cl/domain/support/must.ts";
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 import { createTwoPeriodSeed } from "@cl/domain/testing/createTwoPeriodSeed.ts";
+import type {
+  ResidencyDraft,
+  UnitDraft,
+} from "@cl/domain/useCases/validateUnits.ts";
 
 import { type AppPorts, createSimulatorPorts } from "./composition.ts";
 import { createAppHarness } from "./testing/appHarness.ts";
@@ -222,6 +229,109 @@ describe("the simulator ports over the real seed", () => {
     });
     expect((await firstValueFrom(units.units("p36"))).length).toBe(18);
   });
+
+  it("gives a unit added to Pozzetto 2013 a 0 coefficient in each of its 12 tables, and takes a coefficient for it", async () => {
+    const { tables, units } = createRealPorts();
+    const id = addedId(
+      await units.addUnit("p36", null, createUnitDraft("A19")),
+    );
+
+    const ofNew = (await firstValueFrom(tables.coefficients("p36"))).filter(
+      (coefficient) => {
+        return coefficient.unitId === id;
+      },
+    );
+
+    expect(ofNew).toHaveLength(12);
+    expect(
+      ofNew.every((coefficient) => {
+        return coefficient.value === 0;
+      }),
+    ).toBe(true);
+    expect(
+      await tables.setCoefficient(
+        must(ofNew[0], "a coefficient of A19").tableId,
+        id,
+        25000,
+      ),
+    ).toEqual({ ok: true });
+  });
+
+  it("a resident added to a new unit is among the parties, a new batch plans an item for it, and a collection on that item is accepted", async () => {
+    const { accounts, installments, journal, units } = createRealPorts();
+    const seen: string[][] = [];
+    const subscription = accounts.parties("p36").subscribe((parties) => {
+      seen.push(
+        parties.map((party) => {
+          return party.id;
+        }),
+      );
+    });
+
+    const unitId = addedId(
+      await units.addUnit("p36", null, createUnitDraft("A19")),
+    );
+
+    const residentId = addedId(
+      await units.addResident(unitId, createResidencyDraft("md104")),
+    );
+
+    subscription.unsubscribe();
+
+    expect(seen).toHaveLength(2);
+    expect(seen[0]?.includes(residentId)).toBe(false);
+    expect(seen[1]?.at(-1)).toBe(residentId);
+    expect(
+      await installments.createInstallments("p36", {
+        installments: [
+          { name: "Extra", dueDate: "2013-12-15", percentage: 10000 },
+        ],
+        wholeEuros: false,
+      }),
+    ).toEqual({ ok: true });
+
+    const item = must(
+      (await firstValueFrom(installments.items("p36"))).find((candidate) => {
+        return candidate.residentId === residentId;
+      }),
+      "the new resident's item",
+    );
+
+    expect(await installments.setItemAmount(item.id, cents(5000))).toEqual({
+      ok: true,
+    });
+    expect(
+      await journal.addEntry(
+        "p36",
+        createCollection(residentId, item.id, cents(5000)),
+      ),
+    ).toMatchObject({ ok: true });
+  });
+
+  it("refuses to delete r166, whom the journal names; a resident and a unit added go, the unit's coefficients with it", async () => {
+    const { tables, units } = createRealPorts();
+
+    expect(await units.deleteResident("r166")).toMatchObject({
+      ok: false,
+      reason: "named-in-journal",
+    });
+
+    const unitId = addedId(
+      await units.addUnit("p36", null, createUnitDraft("A19")),
+    );
+
+    const residentId = addedId(
+      await units.addResident(unitId, createResidencyDraft("md104")),
+    );
+
+    expect(await units.deleteResident(residentId)).toEqual({ ok: true });
+    expect(await units.deleteUnit(unitId)).toEqual({ ok: true });
+    expect(
+      (await firstValueFrom(tables.coefficients("p36"))).some((coefficient) => {
+        return coefficient.unitId === unitId;
+      }),
+    ).toBe(false);
+  });
 });
 
 /** The simulator ports over the real seed, each built afresh. */
@@ -262,4 +372,36 @@ function createCollection(
 /** The small seed's books with no building to hold them: nothing is selected. */
 function createSeedWithNoBuilding(): LegacySeed {
   return { ...createSmallSeed(), buildings: [] };
+}
+
+/** The id an accepted add answers; throws with the reason of a refused one. */
+function addedId(result: ResultOf<Added>): string {
+  if (!result.ok) {
+    throw new Error(`refused: ${result.reason}`);
+  }
+
+  return result.value.id;
+}
+
+function createUnitDraft(code: string): UnitDraft {
+  return {
+    code,
+    name: null,
+    floor: null,
+    interior: null,
+    subUnit: null,
+    restriction: null,
+    type: "apartment",
+    cadastralData: null,
+    notes: null,
+  };
+}
+
+function createResidencyDraft(contactId: string): ResidencyDraft {
+  return {
+    contactId,
+    role: "PR",
+    startingBalance: cents(0),
+    ownRestriction: null,
+  };
 }

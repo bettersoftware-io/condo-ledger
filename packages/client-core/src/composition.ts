@@ -16,6 +16,7 @@ import {
   DESIGN_FIRM,
   DESIGN_PRINCIPAL,
   type EntryKind,
+  type InstallmentItem,
   type InstallmentsPort,
   type InstallmentsSimulator,
   type JournalEntry,
@@ -27,6 +28,7 @@ import {
   type TablesPort,
   type ThousandthTable,
   type UnitsPort,
+  type UnitsSimulator,
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
@@ -574,21 +576,37 @@ export function createApp(ports: AppPorts): App {
 
 /**
  * The seven simulators over one seed: what `pnpm dev` and the harness run on.
- * The journal and the installments read each other's current state, so a
- * collection is judged against the schedule as it stands and an installment
- * a collection pays is not deleted. Each reads the other only when a write
- * asks, after both are built. A table is deleted only when no account, as
- * the accounts simulator holds it now, links to it.
+ * The units simulator is the one source of each period's units and
+ * residents: the accounts and the tables follow its streams, and the journal
+ * and the installments read its residents when a write asks. It judges a
+ * delete against the journal and the schedule as they stand. The journal and
+ * the installments read each other's current state, so a collection is judged
+ * against the schedule as it stands and an installment a collection pays is
+ * not deleted. Each reads another only when a write asks, after all are
+ * built. A table is deleted only when no account, as the accounts simulator
+ * holds it now, links to it.
  */
 export function createSimulatorPorts(
   seed: LegacySeed,
   clock: ClockPort,
 ): AppPorts {
+  const units: UnitsSimulator = createUnitsSimulator(seed, {
+    entriesOf: (periodId: string): JournalEntry[] => {
+      return journal.current(periodId);
+    },
+    itemsOf: (periodId: string): InstallmentItem[] => {
+      return installments.current(periodId).items;
+    },
+  });
+
   const journal: JournalSimulator = createJournalSimulator(
     seed,
     clock,
     (periodId) => {
       return installments.current(periodId);
+    },
+    (periodId) => {
+      return units.currentResidents(periodId);
     },
   );
 
@@ -597,9 +615,17 @@ export function createSimulatorPorts(
     (periodId) => {
       return journal.current(periodId);
     },
+    (periodId) => {
+      return units.currentResidents(periodId);
+    },
   );
 
-  const accounts: AccountsSimulator = createAccountsSimulator(seed);
+  const accounts: AccountsSimulator = createAccountsSimulator(
+    seed,
+    (periodId) => {
+      return units.residents(periodId);
+    },
+  );
 
   return {
     session: createSessionSimulator({
@@ -610,10 +636,16 @@ export function createSimulatorPorts(
     accounts,
     journal,
     installments,
-    tables: createTablesSimulator(seed, (periodId) => {
-      return accounts.current(periodId);
-    }),
-    units: createUnitsSimulator(seed),
+    tables: createTablesSimulator(
+      seed,
+      (periodId) => {
+        return accounts.current(periodId);
+      },
+      (periodId) => {
+        return units.units(periodId);
+      },
+    ),
+    units,
     clock,
   };
 }

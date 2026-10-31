@@ -392,6 +392,7 @@ function createLatePorts(
       },
     },
     units: {
+      ...ports.units,
       units: (periodId: string): Observable<Unit[]> => {
         return late(periodId, ports.units.units(periodId));
       },

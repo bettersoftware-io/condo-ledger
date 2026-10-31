@@ -1,5 +1,8 @@
-import { firstValueFrom } from "rxjs";
+import { BehaviorSubject, firstValueFrom } from "rxjs";
 import { describe, expect, it } from "vitest";
+
+import type { Unit } from "#/entities/unit.ts";
+import { must } from "#/support/must.ts";
 
 import { createTablesSeed } from "../testing/createTablesSeed.ts";
 import { legacySeedData } from "./seed/legacySeed.generated.ts";
@@ -48,7 +51,7 @@ describe("tables simulator", () => {
     expect(await tables.deleteTable("dt1")).toEqual({ ok: true });
   });
 
-  it("adds a coefficient the table lacks", async () => {
+  it("adds a coefficient the table lacks, the units still lacking one reading 0", async () => {
     const seed = createTablesSeed();
     const tables = createTablesSimulator({
       ...seed,
@@ -65,7 +68,73 @@ describe("tables simulator", () => {
           return coefficient.tableId === "dt2";
         },
       ),
-    ).toEqual([{ tableId: "dt2", unitId: "uA01", value: 7 }]);
+    ).toEqual([
+      { tableId: "dt2", unitId: "uA01", value: 7 },
+      { tableId: "dt2", unitId: "uA02", value: 0 },
+      { tableId: "dt2", unitId: "uB01", value: 0 },
+    ]);
+  });
+
+  it("reads the units from the reader: a new one reads 0 in every table and takes a coefficient, one no longer listed loses its own, and the coefficients emit again each time", async () => {
+    const seed = createTablesSeed();
+    const units$ = new BehaviorSubject<Unit[]>(seed.units);
+    const tables = createTablesSimulator(seed, undefined, () => {
+      return units$;
+    });
+    const seen: string[][] = [];
+    const subscription = tables.coefficients("p1").subscribe((coefficients) => {
+      seen.push(
+        coefficients.map((coefficient) => {
+          return `${coefficient.tableId} ${coefficient.unitId} ${coefficient.value}`;
+        }),
+      );
+    });
+    const first = must(seed.units[0], "the seed's first unit");
+
+    units$.next([...seed.units, { ...first, id: "u-new-1", code: "Z1" }]);
+    expect(await tables.setCoefficient("dt2", "u-new-1", 7)).toEqual({
+      ok: true,
+    });
+    units$.next(
+      units$.getValue().filter((unit) => {
+        return unit.id !== "uA01";
+      }),
+    );
+    subscription.unsubscribe();
+
+    expect(seen.slice(1)).toEqual([
+      [
+        "dt1 uA01 50000",
+        "dt1 uA02 30000",
+        "dt1 uB01 20000",
+        "dt2 uA01 0",
+        "dt2 uA02 60000",
+        "dt2 uB01 40000",
+        "dt1 u-new-1 0",
+        "dt2 u-new-1 0",
+      ],
+      [
+        "dt1 uA01 50000",
+        "dt1 uA02 30000",
+        "dt1 uB01 20000",
+        "dt2 uA01 0",
+        "dt2 uA02 60000",
+        "dt2 uB01 40000",
+        "dt2 u-new-1 7",
+        "dt1 u-new-1 0",
+      ],
+      [
+        "dt1 uA02 30000",
+        "dt1 uB01 20000",
+        "dt2 uA02 60000",
+        "dt2 uB01 40000",
+        "dt2 u-new-1 7",
+        "dt1 u-new-1 0",
+      ],
+    ]);
+    await expect(tables.setCoefficient("dt1", "uA01", 1)).rejects.toThrow(
+      "missing: the unit uA01",
+    );
   });
 
   it("over the real seed refuses to delete dt14, and gives a new table 18 zero coefficients in p36", async () => {

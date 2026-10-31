@@ -44,7 +44,10 @@ export {
   DESIGN_PRINCIPAL,
 } from "./simulators/sessionSimulator.ts";
 export { createTablesSimulator } from "./simulators/tablesSimulator.ts";
-export { createUnitsSimulator } from "./simulators/unitsSimulator.ts";
+export {
+  createUnitsSimulator,
+  type UnitsSimulator,
+} from "./simulators/unitsSimulator.ts";
 export * from "./support/romeTime.ts";
 export * from "./useCases/accountTree.ts";
 export {
