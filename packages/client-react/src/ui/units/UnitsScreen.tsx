@@ -18,6 +18,7 @@ import { type MachineView, useViewModel } from "@cl/react-bindings";
 import { ConfirmAlert } from "../ConfirmAlert.tsx";
 import { Splitter } from "../shell/Splitter.tsx";
 import { TESTIDS } from "../testids.ts";
+import { useDialogWrite } from "../useDialogWrite.ts";
 import { UNIT_OWNERS_COLUMN_SPECS, UNITS_COLUMN_SPECS } from "./columns.ts";
 import { GroupDialog } from "./GroupDialog.tsx";
 import { UNIT_TABS } from "./labels.ts";
@@ -26,7 +27,6 @@ import { UnitDialog } from "./UnitDialog.tsx";
 import { type UnitsAddition, UnitsPanel } from "./UnitsPanel.tsx";
 import { UnitTabs } from "./UnitTabs.tsx";
 import { unitsReasonText } from "./unitsReasons.ts";
-import { useUnitsWrite } from "./useUnitsWrite.ts";
 
 import "./UnitsScreen.css";
 
@@ -61,7 +61,7 @@ export function UnitsScreen({ maximize }: UnitsScreenProps): ReactElement {
   const tabs = useBottomTab("units", UNIT_TABS);
   const { stub } = useNotices();
   const [dialog, setDialog] = useState<UnitsDialog | null>(null);
-  const removing = useUnitsWrite(closeDialog, "the record was not deleted");
+  const removing = useDialogWrite(closeDialog, "the record was not deleted");
   const screen = useRef<HTMLDivElement>(null);
   const ratio = split.state.ratio;
   const maximized = maximize.state.maximized;

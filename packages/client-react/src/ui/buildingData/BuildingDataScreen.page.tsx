@@ -6,13 +6,10 @@ import type { BuildingRow, Contact, LegacySeed } from "@cl/domain";
 import { createViewModel, ViewModelProvider } from "@cl/react-bindings";
 
 import { type PanelPage, panelIn } from "../allocation/panelGrid.page.tsx";
+import { type FormDialogPage, formDialogIn } from "../FormDialog.page.tsx";
 import { AppRoot } from "../shell/AppRoot.tsx";
 import { dragSplitterElement } from "../shell/Splitter.page.tsx";
 import { TESTIDS } from "../testids.ts";
-import {
-  type UnitsDialogPage,
-  unitsDialogIn,
-} from "../units/UnitsDialog.page.tsx";
 
 /** What a test can do with, and ask of, the Building Data & Suppliers screen. */
 export interface BuildingDataScreenPage {
@@ -64,9 +61,9 @@ export interface BuildingDataScreenPage {
   /** Drags the splitter between the suppliers' list and the sheet, on a tab of the given width. */
   dragSuppliersSplitter: (by: number, width: number) => void;
   /** The Edit Building or Edit Management / Period dialog. */
-  dialog: UnitsDialogPage;
+  dialog: FormDialogPage;
   /** The Address dialog over it. */
-  addressDialog: UnitsDialogPage;
+  addressDialog: FormDialogPage;
 }
 
 /**
@@ -291,10 +288,10 @@ export function mountBuildingData(
         by,
       ]);
     },
-    dialog: unitsDialogIn(() => {
+    dialog: formDialogIn(() => {
       return rendered.container;
     }, user),
-    addressDialog: unitsDialogIn(
+    addressDialog: formDialogIn(
       () => {
         return rendered.container;
       },

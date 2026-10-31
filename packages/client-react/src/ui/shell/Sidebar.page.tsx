@@ -16,11 +16,8 @@ import {
   type AccountsScreenPage,
   accountsScreenIn,
 } from "../accounts/AccountsScreen.page.tsx";
+import { type FormDialogPage, formDialogIn } from "../FormDialog.page.tsx";
 import { TESTIDS } from "../testids.ts";
-import {
-  type UnitsDialogPage,
-  unitsDialogIn,
-} from "../units/UnitsDialog.page.tsx";
 import { AppRoot } from "./AppRoot.tsx";
 import { dragSplitterElement } from "./Splitter.page.tsx";
 
@@ -45,7 +42,7 @@ export interface SidebarPage {
   isToolDisabled: (label: string) => boolean;
   toasts: () => string[];
   /** The Edit Management / Period dialog the ✎ opens. */
-  dialog: UnitsDialogPage;
+  dialog: FormDialogPage;
   dragSplitter: (by: number) => void;
   /** Presses on the splitter, moves to each position in turn (each measured from the press), and lets go. */
   dragSplitterThrough: (steps: number[]) => void;
@@ -209,7 +206,7 @@ export function mountSidebar(options: SidebarOptions = {}): SidebarPage {
         .getByRole<HTMLButtonElement>("button", { name: label })
         .hasAttribute("disabled");
     },
-    dialog: unitsDialogIn(() => {
+    dialog: formDialogIn(() => {
       return rendered.container;
     }, user),
     toasts: (): string[] => {

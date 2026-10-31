@@ -6,10 +6,10 @@ import type { Contact, LegacySeed, OwnersRow, UnitsRow } from "@cl/domain";
 import { createViewModel, ViewModelProvider } from "@cl/react-bindings";
 
 import { type PanelPage, panelIn } from "../allocation/panelGrid.page.tsx";
+import { type FormDialogPage, formDialogIn } from "../FormDialog.page.tsx";
 import { AppRoot } from "../shell/AppRoot.tsx";
 import { dragSplitterElement } from "../shell/Splitter.page.tsx";
 import { TESTIDS } from "../testids.ts";
-import { type UnitsDialogPage, unitsDialogIn } from "./UnitsDialog.page.tsx";
 
 /** What a test can do with, and ask of, the Units, Owners & Personal Balance screen. */
 export interface UnitsScreenPage {
@@ -63,9 +63,9 @@ export interface UnitsScreenPage {
   /** Drags the splitter between the panels on a screen of the given height. */
   dragSplitter: (by: number, screenHeight: number) => void;
   /** The group, unit or owner dialog over the screen. */
-  dialog: UnitsDialogPage;
+  dialog: FormDialogPage;
   /** The Address dialog over the group dialog. */
-  addressDialog: UnitsDialogPage;
+  addressDialog: FormDialogPage;
   /** The question asked before a delete; null while none is asked. */
   confirmText: () => string | null;
   /** Why the delete did not go through, under the question; null when nothing failed. */
@@ -300,10 +300,10 @@ export function mountUnits(
 
       dragSplitterElement(within(screen()).getByTestId(TESTIDS.splitter), [by]);
     },
-    dialog: unitsDialogIn(() => {
+    dialog: formDialogIn(() => {
       return rendered.container;
     }, user),
-    addressDialog: unitsDialogIn(
+    addressDialog: formDialogIn(
       () => {
         return rendered.container;
       },

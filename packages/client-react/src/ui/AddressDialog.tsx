@@ -4,10 +4,10 @@ import type { AddressDialogState } from "@cl/client-core";
 import type { Address } from "@cl/domain";
 import { useViewModel } from "@cl/react-bindings";
 
-import { FormField } from "../FormField.tsx";
-import { UnitsDialogFrame } from "../units/UnitsDialogFrame.tsx";
-import { useUnitsWrite } from "../units/useUnitsWrite.ts";
-import { buildingReasonText } from "./buildingReasons.ts";
+import { FormDialogFrame } from "./FormDialogFrame.tsx";
+import { FormField } from "./FormField.tsx";
+import { reasonText } from "./journal/wizards/reasons.ts";
+import { useDialogWrite } from "./useDialogWrite.ts";
 
 /**
  * Reads the Address dialog, and hands its body plain props. It writes
@@ -21,7 +21,7 @@ export function AddressDialog({
 }: AddressDialogProps): ReactElement {
   const { useAddressDialog } = useViewModel();
   const dialog = useAddressDialog(address, onApply);
-  const write = useUnitsWrite(onClose, "the address was not handed over");
+  const write = useDialogWrite(onClose, "the address was not handed over");
 
   function save(): void {
     write.run(dialog.save);
@@ -49,6 +49,11 @@ export interface AddressDialogProps {
 
 type AddressForm = AddressDialogState["form"];
 
+/** The Address dialog's own reason; the wizards' common ones (`saving`) in their words. */
+const ADDRESS_REASONS: Readonly<Record<string, string>> = {
+  "blank-street": "Enter the street and number",
+};
+
 /**
  * "Address": Street and number, required, Postcode and City. Once the
  * person has edited something, why it cannot be saved yet. Takes only props.
@@ -71,12 +76,14 @@ function AddressDialogBody({
   }
 
   return (
-    <UnitsDialogFrame
+    <FormDialogFrame
       title="Address"
       adding={adding}
       canSave={state.canSave && verdict.ok}
       message={
-        !verdict.ok && state.touched ? buildingReasonText(verdict) : null
+        !verdict.ok && state.touched
+          ? reasonText(verdict.reason, ADDRESS_REASONS)
+          : null
       }
       onSave={onSave}
       onCancel={onCancel}
@@ -99,7 +106,7 @@ function AddressDialogBody({
       <FormField label="City">
         <input aria-label="City" value={form.city} onChange={editing("city")} />
       </FormField>
-    </UnitsDialogFrame>
+    </FormDialogFrame>
   );
 }
 

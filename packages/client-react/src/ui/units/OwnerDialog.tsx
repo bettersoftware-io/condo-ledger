@@ -12,15 +12,15 @@ import { useViewModel } from "@cl/react-bindings";
 import { useLocale } from "../amountLocale.ts";
 import { DateField } from "../DateField.tsx";
 import { Fieldset } from "../Fieldset.tsx";
+import { FormDialogFrame } from "../FormDialogFrame.tsx";
 import { FormField } from "../FormField.tsx";
 import { formatShare } from "../format.ts";
 import { TESTIDS } from "../testids.ts";
+import { useDialogWrite } from "../useDialogWrite.ts";
 import { type ValueOption, ValueSelect } from "../ValueSelect.tsx";
 import { ContactPicker } from "./ContactPicker.tsx";
 import { ROLE_LABELS } from "./labels.ts";
-import { UnitsDialogFrame } from "./UnitsDialogFrame.tsx";
 import { unitsReasonText } from "./unitsReasons.ts";
-import { useUnitsWrite } from "./useUnitsWrite.ts";
 
 /** Reads the Add or Edit Owner dialog and the contacts, and hands its body plain props. */
 export function OwnerDialog({
@@ -32,7 +32,7 @@ export function OwnerDialog({
   const { useOwnerDialog, useContacts } = useViewModel();
   const dialog = useOwnerDialog(editing);
   const contacts = useContacts();
-  const write = useUnitsWrite(onSaved, "the owner was not saved");
+  const write = useDialogWrite(onSaved, "the owner was not saved");
 
   function edit(patch: Partial<OwnerForm>): void {
     write.forget();
@@ -126,7 +126,7 @@ function OwnerDialogBody({
   }
 
   return (
-    <UnitsDialogFrame
+    <FormDialogFrame
       title={editing ? "Edit Owner" : "Add Owner"}
       adding={!editing}
       canSave={state.canSave && verdict.ok}
@@ -169,7 +169,7 @@ function OwnerDialogBody({
         />
       </FormField>
       {state.balanceLocked ? (
-        <p className="units-dialog-note" data-testid={TESTIDS.unitsDialogNote}>
+        <p className="form-dialog-note" data-testid={TESTIDS.formDialogNote}>
           Posted in the opening entry: change it through the journal.
         </p>
       ) : null}
@@ -190,7 +190,7 @@ function OwnerDialogBody({
           onChange={editEnd}
         />
       </Fieldset>
-    </UnitsDialogFrame>
+    </FormDialogFrame>
   );
 }
 

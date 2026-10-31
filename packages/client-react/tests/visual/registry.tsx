@@ -15,6 +15,7 @@ import {
 } from "@cl/domain";
 import { useViewModel } from "@cl/react-bindings";
 
+import { AddressDialog } from "#/ui/AddressDialog.tsx";
 import { AmountLocaleProvider } from "#/ui/AmountLocaleProvider.tsx";
 import { AccountDetails } from "#/ui/accounts/AccountDetails.tsx";
 import { AccountIcon } from "#/ui/accounts/AccountIcon.tsx";
@@ -33,7 +34,6 @@ import {
 } from "#/ui/allocation/columns.ts";
 import { TableDialog } from "#/ui/allocation/TableDialog.tsx";
 import { ThousandthTablesPanel } from "#/ui/allocation/ThousandthTablesPanel.tsx";
-import { AddressDialog } from "#/ui/buildingData/AddressDialog.tsx";
 import { BuildingDialog } from "#/ui/buildingData/BuildingDialog.tsx";
 import { BuildingTabs } from "#/ui/buildingData/BuildingTabs.tsx";
 import { SUPPLIERS_COLUMN_SPECS } from "#/ui/buildingData/columns.ts";

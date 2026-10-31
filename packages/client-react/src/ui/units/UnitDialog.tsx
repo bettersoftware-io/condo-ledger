@@ -6,12 +6,12 @@ import { useViewModel } from "@cl/react-bindings";
 
 import { DateField } from "../DateField.tsx";
 import { Fieldset } from "../Fieldset.tsx";
+import { FormDialogFrame } from "../FormDialogFrame.tsx";
 import { FormField } from "../FormField.tsx";
+import { useDialogWrite } from "../useDialogWrite.ts";
 import { type ValueOption, ValueSelect } from "../ValueSelect.tsx";
 import { UNIT_TYPE_LABELS } from "./labels.ts";
-import { UnitsDialogFrame } from "./UnitsDialogFrame.tsx";
 import { unitsReasonText } from "./unitsReasons.ts";
-import { useUnitsWrite } from "./useUnitsWrite.ts";
 
 /** Reads the New or Edit Unit dialog, and hands its body plain props. */
 export function UnitDialog({
@@ -22,7 +22,7 @@ export function UnitDialog({
 }: UnitDialogProps): ReactElement {
   const { useUnitDialog } = useViewModel();
   const dialog = useUnitDialog(editing);
-  const write = useUnitsWrite(onSaved, "the unit was not saved");
+  const write = useDialogWrite(onSaved, "the unit was not saved");
 
   function edit(patch: Partial<UnitForm>): void {
     write.forget();
@@ -107,7 +107,7 @@ function UnitDialogBody({
   }
 
   return (
-    <UnitsDialogFrame
+    <FormDialogFrame
       title={state.editing === null ? "New Unit" : "Edit Unit"}
       adding={state.editing === null}
       canSave={state.canSave && verdict.ok}
@@ -125,7 +125,7 @@ function UnitDialogBody({
       <Fieldset legend="IDENTIFICATION DATA">
         <FormField label="Code" required>
           <input
-            className="units-dialog-mono"
+            className="form-dialog-mono"
             aria-required="true"
             aria-label="Code"
             value={form.code}
@@ -188,13 +188,13 @@ function UnitDialogBody({
       </Fieldset>
       <Fieldset legend="NOTES">
         <textarea
-          className="units-dialog-notes"
+          className="form-dialog-notes"
           aria-label="Notes"
           value={form.notes}
           onChange={editNotes}
         />
       </Fieldset>
-    </UnitsDialogFrame>
+    </FormDialogFrame>
   );
 }
 

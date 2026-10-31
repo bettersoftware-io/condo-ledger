@@ -6,9 +6,9 @@ import { useViewModel } from "@cl/react-bindings";
 
 import { DateField } from "../DateField.tsx";
 import { Fieldset } from "../Fieldset.tsx";
+import { FormDialogFrame } from "../FormDialogFrame.tsx";
 import { FormField } from "../FormField.tsx";
-import { UnitsDialogFrame } from "../units/UnitsDialogFrame.tsx";
-import { useUnitsWrite } from "../units/useUnitsWrite.ts";
+import { useDialogWrite } from "../useDialogWrite.ts";
 import { type ValueOption, ValueSelect } from "../ValueSelect.tsx";
 import { buildingReasonText } from "./buildingReasons.ts";
 
@@ -20,7 +20,7 @@ export function PeriodDialog({
 }: PeriodDialogProps): ReactElement {
   const { usePeriodDialog } = useViewModel();
   const dialog = usePeriodDialog(periodId);
-  const write = useUnitsWrite(onSaved, "the period was not saved");
+  const write = useDialogWrite(onSaved, "the period was not saved");
 
   function edit(patch: Partial<PeriodForm>): void {
     write.forget();
@@ -108,7 +108,7 @@ function PeriodDialogBody({
   }
 
   return (
-    <UnitsDialogFrame
+    <FormDialogFrame
       title="Edit Management / Period"
       adding={false}
       canSave={state.canSave && verdict.ok}
@@ -160,13 +160,13 @@ function PeriodDialogBody({
       </Fieldset>
       <Fieldset legend="NOTES">
         <textarea
-          className="units-dialog-notes"
+          className="form-dialog-notes"
           aria-label="Notes"
           value={form.notes}
           onChange={editNotes}
         />
       </Fieldset>
-    </UnitsDialogFrame>
+    </FormDialogFrame>
   );
 }
 

@@ -1,35 +1,35 @@
-/* The group, unit and owner dialogs (bu-design.md §2): a label column of 160px, 148px for the owner, 145px and 132px inside the fieldsets; the reason in red under the fields. */
-.units-dialog {
+/* The form dialogs, group, unit, owner, building, period and address (bu-design.md §2): a label column of 160px, 148px for the owner, 145px and 132px inside the fieldsets; the reason in red under the fields. */
+.form-dialog {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.units-dialog .form-field {
+.form-dialog .form-field {
   grid-template-columns: 160px 1fr;
 }
 
-.units-dialog .scheda-fieldset .form-field {
+.form-dialog .scheda-fieldset .form-field {
   grid-template-columns: 145px 1fr;
 }
 
-.units-dialog[data-labels="owner"] .form-field {
+.form-dialog[data-labels="owner"] .form-field {
   grid-template-columns: 148px 1fr;
 }
 
-.units-dialog[data-labels="owner"] .scheda-fieldset .form-field {
+.form-dialog[data-labels="owner"] .scheda-fieldset .form-field {
   grid-template-columns: 132px 1fr;
 }
 
-.units-dialog .scheda-fieldset {
+.form-dialog .scheda-fieldset {
   max-width: none;
 }
 
-.units-dialog-mono {
+.form-dialog-mono {
   font-family: var(--font-mono);
 }
 
-.units-dialog-notes {
+.form-dialog-notes {
   display: block;
   box-sizing: border-box;
   width: 100%;
@@ -46,19 +46,19 @@
   color: var(--tx);
 }
 
-.units-dialog-notes:focus {
+.form-dialog-notes:focus {
   border-color: var(--acc);
 }
 
 /* The group's address: no box, the two tools then the text (bu-design.md §2). */
-.units-dialog-address .form-field-box {
+.form-dialog-address .form-field-box {
   gap: 6px;
   padding-left: 0;
   background: transparent;
   border-color: transparent;
 }
 
-.units-dialog-address-tool {
+.form-dialog-address-tool {
   padding: 0 2px;
   border: none;
   background: transparent;
@@ -67,40 +67,40 @@
   cursor: pointer;
 }
 
-.units-dialog-address-tool[data-tone="acc"] {
+.form-dialog-address-tool[data-tone="acc"] {
   color: var(--acc);
 }
 
-.units-dialog-address-tool[data-tone="neg"] {
+.form-dialog-address-tool[data-tone="neg"] {
   color: var(--neg);
 }
 
-.units-dialog-address-tool:disabled {
+.form-dialog-address-tool:disabled {
   opacity: 0.4;
   cursor: default;
 }
 
-.units-dialog-address-text[data-empty="true"] {
+.form-dialog-address-text[data-empty="true"] {
   color: var(--txd);
 }
 
 /* A line under a field, aligned with its box. */
-.units-dialog-note {
+.form-dialog-note {
   margin: -6px 0 0 158px;
   font-size: 11.5px;
   color: var(--txd);
 }
 
-.units-dialog-message {
+.form-dialog-message {
   font-size: 11.5px;
   color: var(--neg);
 }
 
-.units-dialog-footnote {
+.form-dialog-footnote {
   font-size: 11.5px;
   color: var(--txd);
 }
 
-.units-dialog-spacer {
+.form-dialog-spacer {
   flex: 1;
 }

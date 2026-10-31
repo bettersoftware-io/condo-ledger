@@ -1,13 +1,13 @@
 import { within } from "@testing-library/react";
 import type userEvent from "@testing-library/user-event";
 
-import { requiredFieldsUnannounced } from "../FormField.page.tsx";
-import { TESTIDS } from "../testids.ts";
+import { requiredFieldsUnannounced } from "./FormField.page.tsx";
+import { TESTIDS } from "./testids.ts";
 
 type User = ReturnType<typeof userEvent.setup>;
 
-/** What a test can do with, and ask of, the group, unit or owner dialog of the Units screen. */
-export interface UnitsDialogPage {
+/** What a test can do with, and ask of, a form dialog: group, unit, owner, building, period or address. */
+export interface FormDialogPage {
   isShown: () => boolean;
   title: () => string;
   /** The labels of the required fields not announced as required; empty when every one is. */
@@ -52,11 +52,11 @@ export interface UnitsDialogPage {
  * `stacked` the one opened over it (the Address dialog over the dialog whose
  * address it edits).
  */
-export function unitsDialogIn(
+export function formDialogIn(
   root: () => HTMLElement,
   user: User,
   layer: "first" | "stacked" = "first",
-): UnitsDialogPage {
+): FormDialogPage {
   function dialogs(): HTMLElement[] {
     return within(root()).queryAllByTestId(TESTIDS.dialog);
   }
@@ -148,10 +148,10 @@ export function unitsDialogIn(
       );
     },
     message: (): string | null => {
-      return optional(TESTIDS.unitsDialogMessage);
+      return optional(TESTIDS.formDialogMessage);
     },
     balanceNote: (): string | null => {
-      return optional(TESTIDS.unitsDialogNote);
+      return optional(TESTIDS.formDialogNote);
     },
     contactOptions: (): string[] => {
       const list = within(dialog()).queryByTestId(TESTIDS.contactPickerList);
@@ -187,7 +187,7 @@ export function unitsDialogIn(
     },
     address: (): string => {
       return (
-        within(dialog()).getByTestId(TESTIDS.unitsDialogAddress).textContent ??
+        within(dialog()).getByTestId(TESTIDS.formDialogAddress).textContent ??
         ""
       );
     },
@@ -202,16 +202,16 @@ export function unitsDialogIn(
       );
     },
     isSaveDisabled: (): boolean => {
-      return button(TESTIDS.unitsDialogSave).disabled;
+      return button(TESTIDS.formDialogSave).disabled;
     },
     saveLabel: (): string => {
-      return button(TESTIDS.unitsDialogSave).textContent ?? "";
+      return button(TESTIDS.formDialogSave).textContent ?? "";
     },
     save: async (): Promise<void> => {
-      await user.click(button(TESTIDS.unitsDialogSave));
+      await user.click(button(TESTIDS.formDialogSave));
     },
     cancel: async (): Promise<void> => {
-      await user.click(button(TESTIDS.unitsDialogCancel));
+      await user.click(button(TESTIDS.formDialogCancel));
     },
     pressEnter: async (): Promise<void> => {
       await user.keyboard("{Enter}");

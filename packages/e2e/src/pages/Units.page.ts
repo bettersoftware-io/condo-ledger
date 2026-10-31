@@ -43,7 +43,7 @@ export function createUnitsPage(page: Page): UnitsPage {
         .getByTestId(TESTIDS.contactPickerOption)
         .filter({ hasText: contact })
         .click();
-      await dialog.getByTestId(TESTIDS.unitsDialogSave).click();
+      await dialog.getByTestId(TESTIDS.formDialogSave).click();
       await dialog.waitFor({ state: "detached" });
     },
   };

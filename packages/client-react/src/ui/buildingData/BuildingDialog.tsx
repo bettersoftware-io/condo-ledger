@@ -10,14 +10,14 @@ import {
 } from "@cl/domain";
 import { useViewModel } from "@cl/react-bindings";
 
+import { AddressDialog } from "../AddressDialog.tsx";
 import { DateField } from "../DateField.tsx";
 import { Fieldset } from "../Fieldset.tsx";
+import { FormDialogFrame } from "../FormDialogFrame.tsx";
 import { FormField } from "../FormField.tsx";
 import { TESTIDS } from "../testids.ts";
-import { UnitsDialogFrame } from "../units/UnitsDialogFrame.tsx";
-import { useUnitsWrite } from "../units/useUnitsWrite.ts";
+import { useDialogWrite } from "../useDialogWrite.ts";
 import { type ValueOption, ValueSelect } from "../ValueSelect.tsx";
-import { AddressDialog } from "./AddressDialog.tsx";
 import { buildingReasonText } from "./buildingReasons.ts";
 import { BUILDING_TYPE_LABELS, STATUS_LABELS } from "./labels.ts";
 
@@ -34,7 +34,7 @@ export function BuildingDialog({
 }: BuildingDialogProps): ReactElement {
   const { useBuildingDialog } = useViewModel();
   const dialog = useBuildingDialog(buildingId);
-  const write = useUnitsWrite(onSaved, "the building was not saved");
+  const write = useDialogWrite(onSaved, "the building was not saved");
   const [editingAddress, setEditingAddress] = useState(false);
 
   function edit(patch: Partial<BuildingForm>): void {
@@ -150,7 +150,7 @@ function BuildingDialogBody({
   }
 
   return (
-    <UnitsDialogFrame
+    <FormDialogFrame
       title="Edit Building"
       adding={false}
       canSave={state.canSave && verdict.ok}
@@ -168,7 +168,7 @@ function BuildingDialogBody({
       </FormField>
       <FormField label="Building code">
         <input
-          className="units-dialog-mono"
+          className="form-dialog-mono"
           aria-label="Building code"
           value={form.code}
           onChange={editing("code")}
@@ -192,11 +192,11 @@ function BuildingDialogBody({
           onChange={editType}
         />
       </FormField>
-      <div className="units-dialog-address">
+      <div className="form-dialog-address">
         <FormField label="Address" readOnly>
           <button
             type="button"
-            className="units-dialog-address-tool"
+            className="form-dialog-address-tool"
             data-tone="acc"
             aria-label="Edit the address"
             onClick={onEditAddress}
@@ -205,7 +205,7 @@ function BuildingDialogBody({
           </button>
           <button
             type="button"
-            className="units-dialog-address-tool"
+            className="form-dialog-address-tool"
             data-tone="neg"
             aria-label="Remove the address"
             disabled={form.address === null}
@@ -214,9 +214,9 @@ function BuildingDialogBody({
             ⊖
           </button>
           <span
-            className="units-dialog-address-text"
+            className="form-dialog-address-text"
             data-empty={form.address === null}
-            data-testid={TESTIDS.unitsDialogAddress}
+            data-testid={TESTIDS.formDialogAddress}
           >
             {form.address === null ? "---" : addressTextOf(form.address)}
           </span>
@@ -246,13 +246,13 @@ function BuildingDialogBody({
       </Fieldset>
       <Fieldset legend="NOTES">
         <textarea
-          className="units-dialog-notes"
+          className="form-dialog-notes"
           aria-label="Notes"
           value={form.notes}
           onChange={editNotes}
         />
       </Fieldset>
-    </UnitsDialogFrame>
+    </FormDialogFrame>
   );
 }
 

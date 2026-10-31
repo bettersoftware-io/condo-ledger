@@ -4,13 +4,13 @@ import type { GroupDialogState } from "@cl/client-core";
 import { type Address, addressTextOf, type Rejected } from "@cl/domain";
 import { useViewModel } from "@cl/react-bindings";
 
-import { AddressDialog } from "../buildingData/AddressDialog.tsx";
+import { AddressDialog } from "../AddressDialog.tsx";
 import { Fieldset } from "../Fieldset.tsx";
+import { FormDialogFrame } from "../FormDialogFrame.tsx";
 import { FormField } from "../FormField.tsx";
 import { TESTIDS } from "../testids.ts";
-import { UnitsDialogFrame } from "./UnitsDialogFrame.tsx";
+import { useDialogWrite } from "../useDialogWrite.ts";
 import { unitsReasonText } from "./unitsReasons.ts";
-import { useUnitsWrite } from "./useUnitsWrite.ts";
 
 /**
  * Reads the New or Edit Group dialog, and hands its body plain props. Its
@@ -25,7 +25,7 @@ export function GroupDialog({
   const { useGroupDialog } = useViewModel();
   const dialog = useGroupDialog(editing);
   const [editingAddress, setEditingAddress] = useState(false);
-  const write = useUnitsWrite(onSaved, "the group was not saved");
+  const write = useDialogWrite(onSaved, "the group was not saved");
 
   function edit(patch: Partial<GroupForm>): void {
     write.forget();
@@ -113,7 +113,7 @@ function GroupDialogBody({
   }
 
   return (
-    <UnitsDialogFrame
+    <FormDialogFrame
       title={state.editing === null ? "New Group" : "Edit Group"}
       adding={state.editing === null}
       canSave={state.canSave && verdict.ok}
@@ -130,7 +130,7 @@ function GroupDialogBody({
     >
       <FormField label="Code" required>
         <input
-          className="units-dialog-mono"
+          className="form-dialog-mono"
           aria-required="true"
           aria-label="Code"
           value={form.code}
@@ -145,11 +145,11 @@ function GroupDialogBody({
           onChange={editName}
         />
       </FormField>
-      <div className="units-dialog-address">
+      <div className="form-dialog-address">
         <FormField label="Address" readOnly>
           <button
             type="button"
-            className="units-dialog-address-tool"
+            className="form-dialog-address-tool"
             data-tone="acc"
             aria-label="Edit the address"
             onClick={onEditAddress}
@@ -158,7 +158,7 @@ function GroupDialogBody({
           </button>
           <button
             type="button"
-            className="units-dialog-address-tool"
+            className="form-dialog-address-tool"
             data-tone="neg"
             aria-label="Remove the address"
             disabled={form.address === null}
@@ -167,9 +167,9 @@ function GroupDialogBody({
             ⊖
           </button>
           <span
-            className="units-dialog-address-text"
+            className="form-dialog-address-text"
             data-empty={form.address === null}
-            data-testid={TESTIDS.unitsDialogAddress}
+            data-testid={TESTIDS.formDialogAddress}
           >
             {form.address === null ? "---" : addressTextOf(form.address)}
           </span>
@@ -177,13 +177,13 @@ function GroupDialogBody({
       </div>
       <Fieldset legend="NOTES">
         <textarea
-          className="units-dialog-notes"
+          className="form-dialog-notes"
           aria-label="Notes"
           value={form.notes}
           onChange={editNotes}
         />
       </Fieldset>
-    </UnitsDialogFrame>
+    </FormDialogFrame>
   );
 }
 

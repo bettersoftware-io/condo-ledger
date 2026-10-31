@@ -1,18 +1,18 @@
 import type { ReactElement, ReactNode } from "react";
 
-import { Dialog } from "../Dialog.tsx";
-import { TESTIDS } from "../testids.ts";
+import { Dialog } from "./Dialog.tsx";
+import { TESTIDS } from "./testids.ts";
 
-import "./UnitsDialog.css";
+import "./FormDialog.css";
 
 /**
- * What the group, unit and owner dialogs share: the card at 560px, the
+ * What the form dialogs share (group, unit, owner, building, period, address): the card at 560px, the
  * fields in a label column of 160px (148px for the owner), the reason in red
  * under them, and the footer's note, "+ Add" for a new record or "✎ Save"
  * for an edit, and Cancel. Enter in a text field presses the primary button
  * while it can go on. Takes only props.
  */
-export function UnitsDialogFrame({
+export function FormDialogFrame({
   title,
   adding,
   canSave,
@@ -21,7 +21,7 @@ export function UnitsDialogFrame({
   onSave,
   onCancel,
   children,
-}: UnitsDialogFrameProps): ReactElement {
+}: FormDialogFrameProps): ReactElement {
   function pressPrimary(): void {
     if (canSave) {
       onSave();
@@ -35,15 +35,15 @@ export function UnitsDialogFrame({
       onEnter={pressPrimary}
       footer={
         <>
-          <span className="units-dialog-footnote">
+          <span className="form-dialog-footnote">
             Required fields are marked with *
           </span>
-          <span className="units-dialog-spacer" />
+          <span className="form-dialog-spacer" />
           <button
             type="button"
             className="dialog-button"
             data-primary="true"
-            data-testid={TESTIDS.unitsDialogSave}
+            data-testid={TESTIDS.formDialogSave}
             disabled={!canSave}
             onClick={onSave}
           >
@@ -52,7 +52,7 @@ export function UnitsDialogFrame({
           <button
             type="button"
             className="dialog-button"
-            data-testid={TESTIDS.unitsDialogCancel}
+            data-testid={TESTIDS.formDialogCancel}
             onClick={onCancel}
           >
             ✕ Cancel
@@ -60,12 +60,12 @@ export function UnitsDialogFrame({
         </>
       }
     >
-      <div className="units-dialog" data-labels={labels}>
+      <div className="form-dialog" data-labels={labels}>
         {children}
         {message === null ? null : (
           <div
-            className="units-dialog-message"
-            data-testid={TESTIDS.unitsDialogMessage}
+            className="form-dialog-message"
+            data-testid={TESTIDS.formDialogMessage}
           >
             {message}
           </div>
@@ -75,7 +75,7 @@ export function UnitsDialogFrame({
   );
 }
 
-export interface UnitsDialogFrameProps {
+export interface FormDialogFrameProps {
   title: string;
   /** A new record: the primary button adds. */
   adding: boolean;
