@@ -158,44 +158,44 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">306x</span>
-<span class="cline-any cline-yes">306x</span>
-<span class="cline-any cline-yes">306x</span>
+<span class="cline-any cline-yes">351x</span>
+<span class="cline-any cline-yes">351x</span>
+<span class="cline-any cline-yes">351x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">520x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">306x</span>
+<span class="cline-any cline-yes">607x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">214x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">351x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">252x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">520x</span>
-<span class="cline-any cline-yes">654x</span>
-<span class="cline-any cline-yes">732x</span>
-<span class="cline-any cline-yes">510x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">607x</span>
+<span class="cline-any cline-yes">757x</span>
+<span class="cline-any cline-yes">835x</span>
+<span class="cline-any cline-yes">595x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -203,10 +203,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">606x</span>
-<span class="cline-any cline-yes">810x</span>
-<span class="cline-any cline-yes">896x</span>
-<span class="cline-any cline-yes">604x</span>
+<span class="cline-any cline-yes">857x</span>
+<span class="cline-any cline-yes">1169x</span>
+<span class="cline-any cline-yes">1255x</span>
+<span class="cline-any cline-yes">855x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -216,7 +216,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { type DefaultedStateObservable, state } from "@rx-state/core";
 import { BehaviorSubject, combineLatest, map } from "rxjs";
 &nbsp;
-import type { Building, BuildingsPort } from "@cl/domain";
+import { type Building, type BuildingsPort, periodLabelText } from "@cl/domain";
 &nbsp;
 export interface PeriodSelection {
   buildingId: string;
@@ -273,7 +273,7 @@ function resolve(
   return null;
 }
 &nbsp;
-/** "{building} {period}" of the period, as the breadcrumb shows them; null when the tree does not hold it. */
+/** "{building} / {period} ({address})" of the period (see `periodLabelText`); null when the tree does not hold it. */
 export function periodLabelOf(
   tree: Building[],
   periodId: string,
@@ -281,7 +281,7 @@ export function periodLabelOf(
   for (const building of tree) {
     for (const period of building.periods) {
       if (period.id === periodId) {
-        return `${building.name} ${period.name}`;
+        return periodLabelText(building, period);
       }
     }
   }
@@ -295,7 +295,7 @@ export function periodLabelOf(
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-29T17:20:01.943Z
+                at 2026-10-31T04:46:53.332Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

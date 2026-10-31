@@ -30,9 +30,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">94.28% </span>
+                <span class="strong">97.05% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>33/35</span>
+                <span class='fraction'>33/34</span>
             </div>
         
             
@@ -382,7 +382,15 @@
 <a name='L317'></a><a href='#L317'>317</a>
 <a name='L318'></a><a href='#L318'>318</a>
 <a name='L319'></a><a href='#L319'>319</a>
-<a name='L320'></a><a href='#L320'>320</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L320'></a><a href='#L320'>320</a>
+<a name='L321'></a><a href='#L321'>321</a>
+<a name='L322'></a><a href='#L322'>322</a>
+<a name='L323'></a><a href='#L323'>323</a>
+<a name='L324'></a><a href='#L324'>324</a>
+<a name='L325'></a><a href='#L325'>325</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -453,6 +461,11 @@
 <span class="cline-any cline-yes">41x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">46x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">39x</span>
 <span class="cline-any cline-yes">39x</span>
 <span class="cline-any cline-yes">39x</span>
@@ -478,9 +491,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1260x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">126x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">81x</span>
@@ -706,7 +716,7 @@
 import type { Account } from "#/entities/account.ts";
 import type { Invoice, WithholdingTax } from "#/entities/invoice.ts";
 import type { EntryDraft, JournalEntry } from "#/entities/journal.ts";
-import type { Party } from "#/entities/party.ts";
+import type { OwnerParty, SupplierParty } from "#/entities/party.ts";
 import {
   accepted,
   type Result,
@@ -727,6 +737,7 @@ import {
 } from "./installmentsSimulator.ts";
 import { missingPeriod } from "./missingPeriod.ts";
 import type { LegacySeed } from "./seed/legacySeed.ts";
+import { seededResidents, seededSuppliers } from "./seededParties.ts";
 &nbsp;
 /** The port, and what the installments simulator reads of it: a period's entries as they stand now. */
 export interface JournalSimulator extends JournalPort {
@@ -736,15 +747,15 @@ export interface JournalSimulator extends JournalPort {
 &nbsp;
 /**
  * A period's journal and invoices, kept in memory (entries in number order),
- * and what a draft is checked against besides: the accounts, the parties and
- * the withholding catalogue.
+ * and what a draft is checked against besides: the accounts, the building's
+ * suppliers and the withholding catalogue.
  */
 interface PeriodJournal {
   periodId: string;
   entries$: BehaviorSubject&lt;JournalEntry[]&gt;;
   invoices$: BehaviorSubject&lt;Invoice[]&gt;;
   accounts: Account[];
-  parties: Party[];
+  suppliers: SupplierParty[];
   withholdingTaxes: WithholdingTax[];
 }
 &nbsp;
@@ -761,7 +772,9 @@ interface Held {
  * entry down one number. A registration writes its invoice with it, and a
  * delete of one removes it. A collection is judged against the period's
  * installment schedule as `scheduleOf` answers it now; left out, the seed's.
- * Throws on an unknown id: it never answers empty for a wrong key.
+ * A draft's parties are the seed's suppliers, then the period's residents as
+ * `residentsOf` answers them now; left out, the seed's residents. Throws on
+ * an unknown id: it never answers empty for a wrong key.
  */
 export function createJournalSimulator(
   seed: LegacySeed,
@@ -770,6 +783,11 @@ export function createJournalSimulator(
     periodId: string,
   ): PeriodSchedule =&gt; {
     return seededSchedule(seed, periodId);
+  },
+  residentsOf: (periodId: string) =&gt; OwnerParty[] = (
+    periodId: string,
+  ): OwnerParty[] =&gt; {
+    return seededResidents(seed, periodId);
   },
 ): JournalSimulator {
   const periods = new Map&lt;string, PeriodJournal&gt;();
@@ -797,10 +815,7 @@ export function createJournalSimulator(
         accounts: seed.accounts.filter((account) =&gt; {
           return account.periodId === period.id;
         }),
-        parties:
-          seed.parties.find((list) =&gt; {
-            return list.periodId === period.id;
-          })?.parties ?? <span class="branch-1 cbranch-no" title="branch not covered" >[],</span>
+        suppliers: seededSuppliers(seed, period.id),
         withholdingTaxes: seed.withholdingTaxes.filter((tax) =&gt; {
           return tax.periodId === period.id;
         }),
@@ -821,7 +836,7 @@ export function createJournalSimulator(
 &nbsp;
     return {
       accounts: journal.accounts,
-      parties: journal.parties,
+      parties: [...journal.suppliers, ...residentsOf(journal.periodId)],
       withholdingTaxes: journal.withholdingTaxes,
       invoices: journal.invoices$.getValue(),
       entries: journal.entries$.getValue(),
@@ -1027,7 +1042,7 @@ function nextNumber(entries: JournalEntry[]): number {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-29T17:20:55.751Z
+                at 2026-10-31T04:47:47.667Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
