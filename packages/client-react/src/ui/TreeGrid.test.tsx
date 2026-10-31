@@ -22,6 +22,39 @@ describe("TreeGrid", () => {
     expect(page.isSelected("Assets")).toBe(false);
   });
 
+  it("brings the selected row into view, once, and again when the selection moves", () => {
+    const rows = [createRow("Assets"), createRow("Cash", { selected: true })];
+    const page = mountTreeGrid({ rows });
+
+    expect(page.scrolledTo()).toEqual(["Cash"]);
+
+    page.rerender({ rows, template: "200px 100px 100px" });
+
+    expect(page.scrolledTo()).toEqual(["Cash"]);
+
+    page.rerender({
+      rows: [createRow("Assets", { selected: true }), createRow("Cash")],
+    });
+
+    expect(page.scrolledTo()).toEqual(["Cash", "Assets"]);
+  });
+
+  it("scrolls nothing when no row is selected", () => {
+    const page = mountTreeGrid({});
+
+    expect(page.scrolledTo()).toEqual([]);
+  });
+
+  it("gives a row's label its full text as a tooltip", () => {
+    const page = mountTreeGrid({
+      rows: [createRow("Pozzetto", { label: "Pozzetto / 2013 (Piazza)" })],
+    });
+
+    expect(page.labelTitle("Pozzetto / 2013 (Piazza)")).toBe(
+      "Pozzetto / 2013 (Piazza)",
+    );
+  });
+
   it("a click on the caret toggles, a click on the row selects", () => {
     const onToggle = vi.fn();
     const onSelect = vi.fn();

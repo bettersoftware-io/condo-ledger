@@ -336,7 +336,7 @@ describe("JournalScreen", () => {
     expect(page.confirmError()).toBeNull();
   });
 
-  it("a refusal with no words of its own is shown as the store gives it", async () => {
+  it("a refusal with no words of its own says the entry was not deleted, never the code", async () => {
     const page = mountJournalScreen();
 
     await page.clickRow("Arrotondamento");
@@ -344,7 +344,9 @@ describe("JournalScreen", () => {
     page.refuseNextDelete("store-offline");
     await page.confirmYes();
 
-    expect(page.confirmError()).toBe("store-offline");
+    expect(page.confirmError()).toBe(
+      "This entry could not be deleted. Try again, or reload the page.",
+    );
     expect(page.entryLabels()).toContain("Arrotondamento");
   });
 

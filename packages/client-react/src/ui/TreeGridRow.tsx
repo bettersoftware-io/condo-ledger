@@ -1,5 +1,11 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
-import type { KeyboardEvent, MouseEvent, ReactElement } from "react";
+import {
+  type KeyboardEvent,
+  type MouseEvent,
+  type ReactElement,
+  useEffect,
+  useRef,
+} from "react";
 
 import type { TreeGridColumn, TreeGridRowData } from "./TreeGrid.tsx";
 import { TESTIDS } from "./testids.ts";
@@ -15,6 +21,15 @@ export function TreeGridRow({
   onActivate,
 }: TreeGridRowProps): ReactElement {
   const leading = row.leading ?? [];
+  const element = useRef<HTMLDivElement>(null);
+
+  // However the row came to be selected: a click, a period switch, a row that
+  // went. A row already in view does not move.
+  useEffect(() => {
+    if (row.selected) {
+      element.current?.scrollIntoView({ block: "nearest" });
+    }
+  }, [row.selected]);
 
   function select(): void {
     onSelect(row.key);
@@ -50,6 +65,7 @@ export function TreeGridRow({
 
   return (
     <div
+      ref={element}
       className="tree-grid-row"
       role="row"
       data-testid={TESTIDS.treeGridRow}
@@ -95,7 +111,9 @@ export function TreeGridRow({
           <span className="tree-grid-caret" />
         )}
         <span className="tree-grid-icon">{row.icon}</span>
-        <span className="tree-grid-text">{row.label}</span>
+        <span className="tree-grid-text" title={row.label}>
+          {row.label}
+        </span>
       </div>
       {row.cells.map((cell, index) => {
         return (

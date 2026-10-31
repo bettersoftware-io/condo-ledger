@@ -1284,12 +1284,9 @@ export const scenarios: Record<string, Scenario> = {
     periodId: "p36",
     residentId: "r167",
   },
-  // Add Owner on Saturno's B3 (`u7`) refused because no contact is chosen:
-  // not the happy path. The picker's typed text is its own state and cannot
-  // be seeded, so the form is pictured without a contact. The period's
-  // opening entry (`tx1`) is deleted so the previous balance can be typed;
-  // Tenant chosen and a balance typed, the reason "Choose a contact" shows
-  // and + Add is disabled.
+  // Add Owner on Saturno's B3 (`u7`) ready to add: a contact linked, shown in
+  // the picker's box, Tenant chosen and a balance typed. The period's opening
+  // entry (`tx1`) is deleted so the previous balance can be typed.
   "owner-dialog-add": {
     level: "component",
     mount: "owner-dialog",
@@ -1300,7 +1297,7 @@ export const scenarios: Record<string, Scenario> = {
     periodId: "p1",
     deletedEntry: "tx1",
     unitKey: "unit:u7",
-    ownerForm: { role: "CO", previousBalance: "-12.50" },
+    ownerForm: { contactId: "md17", role: "CO", previousBalance: "-12.50" },
   },
   // Edit Building on Saturno as it opens: its profile in the fields, its
   // address as text after the tools.
