@@ -16,6 +16,17 @@ describe("MenuItem", () => {
     expect(page.isMenuItemNamed("New invoice")).toBe(true);
   });
 
+  it("is off while disabled: drawn, and clicking it does nothing", async () => {
+    const onClick = vi.fn();
+    const page = mountMenuItem({ onClick, disabled: true });
+
+    expect(page.isDisabled()).toBe(true);
+
+    await page.click();
+
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
   it("calls back when clicked", async () => {
     const onClick = vi.fn();
     const page = mountMenuItem({ onClick });

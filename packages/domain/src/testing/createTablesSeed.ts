@@ -1,3 +1,4 @@
+import type { UnitGroup } from "#/entities/unit.ts";
 import type { LegacySeed } from "#/simulators/seed/legacySeed.ts";
 
 import { createCoefficient, createLink } from "./createAllocationInput.ts";
@@ -23,10 +24,7 @@ export function createTablesSeed(): LegacySeed {
     units: seed.units.map((unit) => {
       return { ...unit, groupId: unit.code === "B01" ? "ugB" : "ugA" };
     }),
-    unitGroups: [
-      { id: "ugA", periodId: "p1", code: "A", name: "A", parentId: null },
-      { id: "ugB", periodId: "p1", code: "B", name: "B", parentId: null },
-    ],
+    unitGroups: [createGroup("ugA", "A"), createGroup("ugB", "B")],
     tables: [
       {
         id: "dt1",
@@ -53,5 +51,17 @@ export function createTablesSeed(): LegacySeed {
       createCoefficient("dt2", "uA02", 60000),
       createCoefficient("dt2", "uB01", 40000),
     ],
+  };
+}
+
+function createGroup(id: string, code: string): UnitGroup {
+  return {
+    id,
+    periodId: "p1",
+    code,
+    name: code,
+    parentId: null,
+    address: null,
+    notes: null,
   };
 }

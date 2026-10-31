@@ -9,6 +9,7 @@ import { must } from "#/support/must.ts";
 import {
   createAllocationInput,
   createCoefficient,
+  createUnit,
 } from "#/testing/createAllocationInput.ts";
 
 import {
@@ -100,13 +101,7 @@ describe("coefficientsTreeOf", () => {
       ...input.units.map((unit) => {
         return { ...unit, groupId: unit.id === "u3" ? null : "ug1" };
       }),
-      {
-        id: "u4",
-        periodId: "p1",
-        code: "A0",
-        groupId: "ug2",
-        restriction: null,
-      },
+      { ...createUnit("u4", "A0"), groupId: "ug2" },
     ].reverse();
 
     const tree = coefficientsTreeOf(
@@ -213,7 +208,15 @@ function createGroup(
   code: string,
   parentId: string | null,
 ): UnitGroup {
-  return { id, periodId: "p1", code, name: `Group ${code}`, parentId };
+  return {
+    id,
+    periodId: "p1",
+    code,
+    name: `Group ${code}`,
+    parentId,
+    address: null,
+    notes: null,
+  };
 }
 
 function shapeOf(node: CoefficientNode): unknown[] {

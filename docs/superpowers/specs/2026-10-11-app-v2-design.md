@@ -104,13 +104,13 @@ Ports carry raw period state, not derived views.
 | Port | Reads | Commands |
 |---|---|---|
 | `SessionPort` | the signed-in principal, firm, preferences (theme, mode, language) | set preference |
-| `BuildingsPort` | buildings tree with periods, building profile, suppliers | edit building, edit period, add/remove supplier |
-| `UnitsPort` | groups, units, owners with ownership spans for a period | edit unit, edit group, add/edit owner |
+| `BuildingsPort` | buildings tree with periods, building profile, suppliers | edit building, edit period (built in M2f), add/remove supplier |
+| `UnitsPort` | groups, units, owners with ownership spans for a period | edit unit, edit group, add/edit owner (built in M2f: the `residents(periodId)` read, and add, edit and delete of groups, units and owners) |
 | `TablesPort` | thousandth tables and coefficients | edit table, set coefficient |
 | `AccountsPort` | chart of accounts with budgets and flags, functional account roles | edit account, set budget, configure functional accounts |
 | `JournalPort` | entries with postings | the ten wizards as commands, delete entry |
 | `InstallmentsPort` | installment plans and payments | create installments, set amount |
-| `ContactsPort` | contacts, categories, connected contacts, linked accounts | edit person, edit company, edit contact row |
+| `ContactsPort` | contacts, categories, connected contacts, linked accounts (reads built in M2f; the Contacts screen is not built) | edit person, edit company, edit contact row |
 | `CalendarPort` | layers, events | add, edit, remove deadline |
 
 Ports are built once per session in the composition root for a
@@ -234,7 +234,7 @@ M3.
 |---|---|---|
 | M0 | Restructure | `gate:full` green on the merged starter, sample feature removed, `db` leaf, `legacy-import` emitting the seed, `apps/web` archived, add-ons in; merge log written |
 | M1 | First slice | Accounts screen reconciles to `acc.json`; goldens committed; budget edit round-trips |
-| M2 | Widen | Remaining screens in the handoff's order: Journal + ten wizards → Installments → Tables & Allocation → Building Data & Units → Contacts → Calendar; one spec per group; Saturno 2011 joins the seed at Tables & Allocation |
+| M2 | Widen | Remaining screens in the handoff's order: Journal + ten wizards → Installments → Tables & Allocation → Building Data & Units → Contacts → Calendar; one spec per group; Saturno 2011 joins the seed at Tables & Allocation. Built so far: Journal, Installments, Tables & Allocation, and Building Data & Units (M2f: `UnitsPort` writes, `ContactsPort` reads) |
 | M3 | Server | `packages/server` on Node + Postgres over `db`; nine ports as adapters against the ETL-seeded database; `shared` wire protocol; `integration` and `e2e` on. Deferred to that spec: legacy tables as-is vs domain-shaped tables fed from them |
 | M4 | Owners + React Native | Owner-scoped port implementations; `packages/client-native` as a second `client`-role package on the same bindings; permission model from the *Linked Accounts* grid |
 

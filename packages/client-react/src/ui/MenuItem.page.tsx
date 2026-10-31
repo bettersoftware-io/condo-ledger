@@ -11,6 +11,7 @@ export interface MenuItemPage {
   isMenuItemNamed: (name: string) => boolean;
   /** The item as drawn, the icon's text before the label. */
   text: () => string;
+  isDisabled: () => boolean;
   click: () => Promise<void>;
 }
 
@@ -26,6 +27,9 @@ export function mountMenuItem(props: Partial<MenuItemProps>): MenuItemPage {
     },
     text: (): string => {
       return rendered.getByTestId(TESTIDS.menuItem).textContent ?? "";
+    },
+    isDisabled: (): boolean => {
+      return rendered.getByTestId(TESTIDS.menuItem).hasAttribute("disabled");
     },
     click: async (): Promise<void> => {
       await user.click(rendered.getByTestId(TESTIDS.menuItem));

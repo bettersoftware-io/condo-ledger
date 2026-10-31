@@ -1,9 +1,12 @@
 import type {
   DirectPaymentKind,
   GenericLine,
+  GroupDialogState,
   InvoiceForm,
   MultiCostPaymentForm,
   OpeningAmount,
+  OwnerDialogState,
+  PeriodDialogState,
   SettlementRow,
 } from "@cl/client-core";
 import {
@@ -49,7 +52,13 @@ export interface Scenario extends Picture {
   /** Accounts given another name, by id: a label the seed does not have. */
   renamed?: Record<string, string>;
   /** The Buildings menu item on screen; Accounts when absent. */
-  menu?: "accounts" | "journal" | "installments" | "thousandths";
+  menu?:
+    | "data"
+    | "units"
+    | "accounts"
+    | "journal"
+    | "installments"
+    | "thousandths";
   /** The seed the app runs on: the generated one when absent; `schedule`, the test seed whose 2015 (`p3`) has books and no installments. */
   seed?: "schedule";
   /** The journal entries open, by id. */
@@ -100,6 +109,22 @@ export interface Scenario extends Picture {
   tableName?: string;
   /** A journal entry of the period deleted through the journal port before the part mounts (a wizard mounted alone over books without it). */
   deletedEntry?: string;
+  /** The Units grid's selected row, by key (`unit:u5`, `root`), as a click selects it; the period's first unit when absent. */
+  unitKey?: string;
+  /** The tab the Units screen's bottom panel shows, as a click on it chooses it; Unit Profile when absent. */
+  unitTab?: "Unit Profile" | "Unit Owners";
+  /** The tab the Building Data screen's bottom panel shows, as a click on it chooses it; Building Profile when absent. */
+  buildingTab?: "Building Profile" | "Building Suppliers";
+  /** The supplier selected in the Building Suppliers tab, by contact id; the building's first when absent. */
+  supplierId?: string;
+  /** The resident the Edit Owner dialog opens on (`mount: "owner-dialog"`); the Add Owner dialog on the selected unit when absent. */
+  residentId?: string;
+  /** What is typed in the New Group dialog (`mount: "group-dialog"`), one field at a time in the order written. */
+  groupForm?: Partial<GroupDialogState["form"]>;
+  /** What is typed in the owner dialog (`mount: "owner-dialog"`), one field at a time in the order written. */
+  ownerForm?: Partial<OwnerDialogState["form"]>;
+  /** What is typed in the Edit Management / Period dialog (`mount: "period-dialog"`), one field at a time in the order written. */
+  periodForm?: Partial<PeriodDialogState["form"]>;
 }
 
 /** The budget wizard on a step: the first due date typed on step 1, the other fields as they open, then moved on through its own Next. */
@@ -290,7 +315,9 @@ const CASH_ROW: AccountRowPicture = {
  * alone: the cells in each state, the Create Budget Installments wizard over
  * a period with no schedule, and the Edit Installment dialog. Saturno 2011's
  * Thousandth Tables & Allocation, its panels, the table dialog and the Budget
- * allocation wizard alone, and Account Details' tables mini-grid. Then the
+ * allocation wizard alone, and Account Details' tables mini-grid. Saturno's
+ * schedule panel alone, with its groups; the Units and Building Data screens,
+ * their panels and their dialogs alone. Then the
  * pyramid's base, the small components in each state that matters, from
  * their props or over the same period; and two sections of the Accounts
  * screen's bottom panel, each tab alone.
@@ -1123,6 +1150,190 @@ export const scenarios: Record<string, Scenario> = {
     mode: "light",
     periodId: "p36",
     selectedKey: "la173",
+  },
+
+  // Saturno 2011's Installment Schedule panel alone, at the width it has at
+  // the full layout: its two groups, A (Stairwell A) and B (Garages), each
+  // over its units, the one place a golden shows the schedule's group rows.
+  "installments-panel-saturno-groups": {
+    level: "component",
+    mount: "installment-schedule",
+    width: 1000,
+    mode: "light",
+    periodId: "p1",
+  },
+
+  // Units, Owners & Personal Balance and Building Data & Suppliers. Saturno
+  // 2011 (`p1`) has groups, A (`ug1`) and B (`ug2`), and A2 (`u2`) an owner
+  // and a tenant; Pozzetto 2013 (`p36`) has no groups, and A04 (`u137`) two
+  // owners one after the other (`r166`, `r167`).
+
+  // Saturno's units under their groups, A2 (`u2`) selected, in view at the
+  // top of the panel, its Unit Owners tab: the owner and the tenant under
+  // their roles.
+  "units-1280-light": {
+    width: 1280,
+    height: 720,
+    mode: "light",
+    periodId: "p1",
+    menu: "units",
+    unitKey: "unit:u2",
+    unitTab: "Unit Owners",
+  },
+  // Every building over its periods, Pozzetto 2013 selected as the sidebar
+  // holds it, its Building Profile under the grid.
+  "building-data-1280-light": {
+    width: 1280,
+    height: 720,
+    mode: "light",
+    periodId: "p36",
+    menu: "data",
+  },
+  // Pozzetto's Units panel alone, at the width it has at the full layout:
+  // its units at the top level, A04 and A09 over their residents, the first
+  // unit selected, and Rounding error last.
+  "units-panel-pozzetto": {
+    level: "component",
+    mount: "units-panel",
+    width: 1000,
+    mode: "light",
+    periodId: "p36",
+  },
+  // The Units screen's bottom panel, at the width it has at the full layout.
+  // Pozzetto's A04 on Unit Owners: its two owners, each for their own days of
+  // the year, and so each with a share of it.
+  "unit-owners-ownership-change": {
+    level: "section",
+    mount: "unit-tabs",
+    width: 1000,
+    mode: "light",
+    periodId: "p36",
+    unitKey: "unit:u137",
+    unitTab: "Unit Owners",
+  },
+  // Saturno's A1 on Unit Profile: a shop let for May 2011 only, its
+  // restricted period, cadastral data and notes filled.
+  "unit-profile-restricted": {
+    level: "section",
+    mount: "unit-tabs",
+    width: 1000,
+    mode: "light",
+    periodId: "p1",
+    unitKey: "unit:u1",
+    unitTab: "Unit Profile",
+  },
+  // The Building Data screen's bottom panel, at the width it has at the full
+  // layout. Saturno's Building Profile: its code, address, tax code and
+  // construction date filled.
+  "building-profile": {
+    level: "section",
+    mount: "building-tabs",
+    width: 1000,
+    mode: "light",
+    periodId: "p1",
+    buildingTab: "Building Profile",
+  },
+  // Pozzetto's suppliers, Acque Fella (`md85`) selected: its company data,
+  // phone and email in the sheet beside the list.
+  "building-suppliers": {
+    level: "section",
+    mount: "building-tabs",
+    width: 1000,
+    mode: "light",
+    periodId: "p36",
+    buildingTab: "Building Suppliers",
+    supplierId: "md85",
+  },
+  // The New Group dialog at Saturno's top level (the period's row selected),
+  // with the code of group A typed: the refusal, and + Add disabled.
+  "group-dialog-taken": {
+    level: "component",
+    mount: "group-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p1",
+    unitKey: "root",
+    groupForm: { code: "A", name: "Stairwell C" },
+  },
+  // The New Unit dialog as it opens over Saturno, B1 selected: every field
+  // blank, the required ones starred. Its viewport is 900 high so the dialog
+  // stays under its 90vh ceiling and NOTES does not scroll out of view.
+  "unit-dialog-new": {
+    level: "component",
+    mount: "unit-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 900,
+    mode: "light",
+    periodId: "p1",
+    unitKey: "unit:u5",
+  },
+  // Edit Owner on Pozzetto's first owner of A04 (`r167`, until 18/01/2013):
+  // the opening entry is posted, so the previous balance (2697.11, as the
+  // field writes it) is the journal's, locked, with the line that says where
+  // to change it.
+  "owner-dialog-locked-balance": {
+    level: "component",
+    mount: "owner-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p36",
+    residentId: "r167",
+  },
+  // Add Owner on Saturno's B3 (`u7`) refused because no contact is chosen:
+  // not the happy path. The picker's typed text is its own state and cannot
+  // be seeded, so the form is pictured without a contact. The period's
+  // opening entry (`tx1`) is deleted so the previous balance can be typed;
+  // Tenant chosen and a balance typed, the reason "Choose a contact" shows
+  // and + Add is disabled.
+  "owner-dialog-add": {
+    level: "component",
+    mount: "owner-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p1",
+    deletedEntry: "tx1",
+    unitKey: "unit:u7",
+    ownerForm: { role: "CO", previousBalance: "-12.50" },
+  },
+  // Edit Building on Saturno as it opens: its profile in the fields, its
+  // address as text after the tools.
+  "building-dialog": {
+    level: "component",
+    mount: "building-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p1",
+  },
+  // Edit Management / Period on Saturno 2011, its start moved to June: A1 is
+  // let for May only, so the dates are refused, naming it.
+  "period-dialog-refused": {
+    level: "component",
+    mount: "period-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p1",
+    periodForm: { start: "01/06/2011" },
+  },
+  // The Address dialog as Edit Building opens it on Saturno's address.
+  "address-dialog": {
+    level: "component",
+    mount: "address-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p1",
   },
 
   // Sections: where the way parts sit together is what is pictured. The

@@ -1,0 +1,58 @@
+/* A select in a form row's box: the box is the field, the select fills it, its own text is not drawn. */
+.value-select {
+  position: relative;
+  display: block;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+
+.value-select-control {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 24px;
+  padding: 0 22px 0 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.value-select-control:disabled {
+  cursor: default;
+}
+
+.value-select-control option {
+  color: var(--tx);
+}
+
+.value-select-text {
+  position: absolute;
+  inset: 0 22px 0 0;
+  overflow: hidden;
+  font-size: 12.5px;
+  line-height: 24px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.value-select-chevron {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  color: var(--txd);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* A fixed value: its box dimmed, as a disabled text field's. */
+.form-field-box:has(.value-select-control:disabled) {
+  background: var(--zebra);
+  border-color: var(--bd2);
+  color: var(--txd);
+}

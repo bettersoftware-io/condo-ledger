@@ -3,6 +3,7 @@ import { BehaviorSubject } from "rxjs";
 import { describe, expect, it } from "vitest";
 
 import {
+  addressTextOf,
   type Building,
   type ClockPort,
   cents,
@@ -13,6 +14,7 @@ import {
   type ScheduleCell,
 } from "@cl/domain";
 import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
+import { must } from "@cl/domain/support/must.ts";
 
 import { createAppHarness } from "../testing/appHarness.ts";
 import type { Books } from "./booksPresenter.ts";
@@ -41,6 +43,28 @@ describe("the installment schedule presenter", () => {
     expect(latest()?.root.previousBalance).toBe(28892);
     expect(latest()?.root.budget).toBe(740000);
     expect(latest()?.root.totalInstallments).toBe(768892);
+
+    stop();
+  });
+
+  it("shows Saturno's groups A and B under the root, and Pozzetto's label with its address", () => {
+    const { app, latest, stop } = createScheduled();
+
+    expect(latest()?.root.label).toBe(
+      "Pozzetto / 2013 (Piazza Libertà, 74, 33045 Nimis)",
+    );
+
+    app.presenters.buildings.selectPeriod("p1");
+
+    expect(
+      latest()?.root.children.map((child) => {
+        return [child.kind, child.key];
+      }),
+    ).toEqual([
+      ["group", "group:ug1"],
+      ["group", "group:ug2"],
+      ["roundings", "roundings"],
+    ]);
 
     stop();
   });
@@ -125,6 +149,7 @@ describe("the installment schedule presenter", () => {
       tree$,
       ports.installments,
       fixedClock("2026-10-14T08:00:00Z"),
+      ports.units,
     );
     const errors: unknown[] = [];
     const subscription = presenter.schedule$.subscribe({
@@ -286,7 +311,7 @@ function labelOfPeriod(seed: LegacySeed, periodId: string): string {
   for (const building of seed.buildings) {
     for (const period of building.periods) {
       if (period.id === periodId) {
-        return `${building.name} ${period.name}`;
+        return `${building.name} / ${period.name} (${addressTextOf(must(building.address, "an address"))})`;
       }
     }
   }

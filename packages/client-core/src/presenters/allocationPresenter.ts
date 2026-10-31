@@ -1,22 +1,13 @@
 import { type DefaultedStateObservable, state } from "@rx-state/core";
-import {
-  combineLatest,
-  distinctUntilChanged,
-  map,
-  type Observable,
-  of,
-  switchMap,
-} from "rxjs";
+import { map, type Observable } from "rxjs";
 
 import {
   type Allocation,
   type AllocationBooks,
   type AllocationMode,
-  type AllocationSource,
   allocationBooksOf,
   allocationOf,
   type Building,
-  type Coefficient,
   type CoefficientNode,
   coefficientsTreeOf,
   findNode,
@@ -29,15 +20,13 @@ import {
   type TablesPort,
   type ThousandthTable,
   tableTotalsOf,
-  type Unit,
-  type UnitGroup,
   type UnitsPort,
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
 import { type AmountLocaleSource, parseTenThousandths } from "../amounts.ts";
 import type { Books } from "./booksPresenter.ts";
-import { periodLabelOf } from "./buildingsPresenter.ts";
+import { type PeriodTables, periodOf, sourceOf } from "./periodTables.ts";
 
 /** A row of the Thousandth Tables panel. */
 export interface TableView {
@@ -163,93 +152,6 @@ export function createAllocationPresenter(
         ? Promise.resolve(rejected("not-a-coefficient"))
         : ports.tables.setCoefficient(tableId, unitId, value);
     },
-  };
-}
-
-/** One period's books, its label, and its tables and units, as one value. */
-interface PeriodTables {
-  books: Books;
-  periodLabel: string;
-  tables: ThousandthTable[];
-  coefficients: Coefficient[];
-  units: Unit[];
-  groups: UnitGroup[];
-}
-
-/** What the tables and units ports hold for a period. */
-interface PortTables {
-  periodId: string;
-  tables: ThousandthTable[];
-  coefficients: Coefficient[];
-  units: Unit[];
-  groups: UnitGroup[];
-}
-
-/**
- * The books with the same period's tables and units. Null while the ports
- * have not answered for the books' period (they may answer late, or still
- * hold the previous one), so no reader keeps the old period's values under
- * the new period. Null too with no books, or while the tree does not hold
- * their period.
- */
-function periodOf(
-  books$: Observable<Books | null>,
-  tree$: Observable<Building[]>,
-  ports: AllocationPresenterPorts,
-): Observable<PeriodTables | null> {
-  const portTables$ = books$.pipe(
-    map((books) => {
-      return books?.periodId ?? null;
-    }),
-    distinctUntilChanged(),
-    switchMap((periodId): Observable<PortTables | null> => {
-      return periodId === null ? of(null) : portTablesOf(periodId, ports);
-    }),
-  );
-
-  return combineLatest([books$, portTables$, tree$]).pipe(
-    map(([books, held, tree]) => {
-      // The ports still hold the previous period, or have not answered yet.
-      if (books === null || held?.periodId !== books.periodId) {
-        return null;
-      }
-
-      const periodLabel = periodLabelOf(tree, books.periodId);
-
-      return periodLabel === null ? null : { ...held, books, periodLabel };
-    }),
-  );
-}
-
-function portTablesOf(
-  periodId: string,
-  ports: AllocationPresenterPorts,
-): Observable<PortTables> {
-  return combineLatest([
-    ports.tables.tables(periodId),
-    ports.tables.coefficients(periodId),
-    ports.units.units(periodId),
-    ports.units.groups(periodId),
-  ]).pipe(
-    map(([tables, coefficients, units, groups]) => {
-      return { periodId, tables, coefficients, units, groups };
-    }),
-  );
-}
-
-function sourceOf(period: PeriodTables): AllocationSource {
-  const { books } = period;
-
-  return {
-    periodLabel: period.periodLabel,
-    period: books.period,
-    accounts: books.accounts,
-    parties: books.parties,
-    entries: books.entries,
-    tables: period.tables,
-    coefficients: period.coefficients,
-    units: period.units,
-    groups: period.groups,
   };
 }
 

@@ -11,6 +11,7 @@ import {
   createAllocationInput,
   createCoefficient,
   createLink,
+  createUnit,
 } from "#/testing/createAllocationInput.ts";
 
 import {
@@ -263,13 +264,7 @@ describe("allocationOf, the rows", () => {
     books.input.units = books.input.units.map((unit) => {
       return unit.id === "u2" ? { ...unit, groupId: "ug4" } : unit;
     });
-    books.input.units.push({
-      id: "u4",
-      periodId: "p1",
-      code: "Z1",
-      groupId: null,
-      restriction: null,
-    });
+    books.input.units.push(createUnit("u4", "Z1"));
 
     const allocation = allocationOf(books, "budget");
 
@@ -518,7 +513,15 @@ function createGroup(
   name: string,
   parentId: string | null,
 ): UnitGroup {
-  return { id, periodId: "p1", code, name, parentId };
+  return {
+    id,
+    periodId: "p1",
+    code,
+    name,
+    parentId,
+    address: null,
+    notes: null,
+  };
 }
 
 function createOwnersAccount(): Account {

@@ -5,6 +5,8 @@ export interface AddressFields {
   streetName?: string;
   streetNumber?: string;
   cityName?: string;
+  /** The id of the city in the dump's city table, when the blob names it by id. */
+  cityId?: string;
 }
 
 const WANTED_KEYS: ReadonlyArray<keyof AddressFields> = [
@@ -24,7 +26,9 @@ const WANTED_KEYS: ReadonlyArray<keyof AddressFields> = [
  *
  * This avoids the global-regex advancement mis-pairing that can occur when
  * a key's value is N (null) or i: (int) — a sequential regex would consume
- * a token that belongs to the next valid pair.
+ * a token that belongs to the next valid pair. The one int read is the
+ * city's id (`s:6:"cityId";i:41;`), which names the city the legacy app
+ * stored by reference.
  */
 export function parseAddressVO(blob: string | null): AddressFields {
   const out: AddressFields = {};
@@ -52,6 +56,12 @@ export function parseAddressVO(blob: string | null): AddressFields {
       (out as Record<string, string>)[key] = strMatch[1]!;
     }
     // N; or i:...; → leave undefined (do nothing)
+  }
+
+  const cityId = /s:6:"cityId";i:(\d+);/.exec(blob)?.[1];
+
+  if (cityId !== undefined) {
+    out.cityId = cityId;
   }
 
   return out;

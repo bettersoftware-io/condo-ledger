@@ -4,7 +4,7 @@ import type { Account } from "#/entities/account.ts";
 import type { Cents } from "#/entities/cents.ts";
 import type { Installment, InstallmentItem } from "#/entities/installment.ts";
 import type { JournalEntry } from "#/entities/journal.ts";
-import type { Party } from "#/entities/party.ts";
+import type { OwnerParty, SupplierParty } from "#/entities/party.ts";
 import { ok, type Result } from "#/entities/result.ts";
 import type {
   InstallmentsDraft,
@@ -27,6 +27,7 @@ import {
 
 import { missingPeriod } from "./missingPeriod.ts";
 import type { LegacySeed } from "./seed/legacySeed.ts";
+import { seededResidents, seededSuppliers } from "./seededParties.ts";
 
 /** A period's installments and the items of those installments. */
 export interface PeriodSchedule {
@@ -40,21 +41,23 @@ export interface InstallmentsSimulator extends InstallmentsPort {
   current(periodId: string): PeriodSchedule;
 }
 
-/** A period's schedule, kept in memory, and the books a batch is planned from. */
+/** A period's schedule, kept in memory, and the books a batch is planned from besides its residents. */
 interface PeriodState {
   periodId: string;
   installments$: BehaviorSubject<Installment[]>;
   items$: BehaviorSubject<InstallmentItem[]>;
   accounts: Account[];
-  parties: Party[];
+  suppliers: SupplierParty[];
 }
 
 /**
  * The seed's installment schedule, a period at a time, with what is written
  * kept in memory. A write is judged against the period's journal as
- * `entriesOf` answers it now; left out, the seed's entries. New installments
- * are `in-new-<n>` and new items `ii-new-<n>`. Throws on an unknown id: it
- * never answers empty for a wrong key.
+ * `entriesOf` answers it now; left out, the seed's entries. A batch is
+ * planned for the period's residents as `residentsOf` answers them now; left
+ * out, the seed's. New installments are `in-new-<n>` and new items
+ * `ii-new-<n>`. Throws on an unknown id: it never answers empty for a wrong
+ * key.
  */
 export function createInstallmentsSimulator(
   seed: LegacySeed,
@@ -64,6 +67,11 @@ export function createInstallmentsSimulator(
     return seed.entries.filter((entry) => {
       return entry.periodId === periodId;
     });
+  },
+  residentsOf: (periodId: string) => OwnerParty[] = (
+    periodId: string,
+  ): OwnerParty[] => {
+    return seededResidents(seed, periodId);
   },
 ): InstallmentsSimulator {
   const periods = new Map<string, PeriodState>();
@@ -81,10 +89,7 @@ export function createInstallmentsSimulator(
         accounts: seed.accounts.filter((account) => {
           return account.periodId === period.id;
         }),
-        parties:
-          seed.parties.find((list) => {
-            return list.periodId === period.id;
-          })?.parties ?? [],
+        suppliers: seededSuppliers(seed, period.id),
       });
     }
   }
@@ -156,7 +161,7 @@ export function createInstallmentsSimulator(
     const planned = planBudgetInstallments(
       planInputOf(draft, {
         accounts: state.accounts,
-        parties: state.parties,
+        parties: [...state.suppliers, ...residentsOf(state.periodId)],
         entries: context.entries,
         installmentItems: context.items,
       }),

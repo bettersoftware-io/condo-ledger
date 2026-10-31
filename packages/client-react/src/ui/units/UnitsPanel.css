@@ -1,0 +1,69 @@
+/* bu-design.md, Screen 3: the panel fills its half of the screen, and its grid scrolls under the toolbar. */
+.units-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.units-panel > .panel {
+  flex: 1;
+}
+
+.units-panel-body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.units-panel-grid {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* "Group by: By unit" before the tools, as static text, as the Installment Schedule draws it. */
+.units-group-by {
+  font-size: 11.5px;
+  color: var(--txd);
+  white-space: nowrap;
+  padding: 0 4px;
+}
+
+.units-group-by strong {
+  color: var(--tx);
+  font-weight: 600;
+}
+
+/* `+▾` and the menu that hangs from it. */
+.units-menu-anchor {
+  position: relative;
+}
+
+.units-menu-anchor > .popover[data-width] {
+  top: 28px;
+  right: auto;
+  left: 0;
+  width: 188px;
+}
+
+.units-toolbar-spacer {
+  flex: 1;
+}
+
+/* Floor, Int., Sub., Type and Restr. period: 11.5px, dim, on the amounts' line, cut with an ellipsis when narrowed. */
+.units-text {
+  display: block;
+  padding: 3px 0;
+  font-size: 11.5px;
+  color: var(--txd);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A row's icon, a little apart from its label. */
+.units-icon {
+  margin-right: 5px;
+}

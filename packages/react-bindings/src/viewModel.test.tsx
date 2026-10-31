@@ -8,10 +8,12 @@ import {
   type Result,
 } from "@cl/domain";
 import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
+import { must } from "@cl/domain/support/must.ts";
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 import { createTwoPeriodSeed } from "@cl/domain/testing/createTwoPeriodSeed.ts";
 
 import {
+  mountBuildingData,
   mountUnderProvider,
   mountWithoutProvider,
   type Seen,
@@ -195,6 +197,7 @@ describe("the view model", () => {
     expect(page.read().journalContext).toEqual({
       building: "Pozzetto",
       period: "2013",
+      address: "Via Roma, 1, 33100 Udine",
     });
   });
 
@@ -437,6 +440,197 @@ describe("the view model", () => {
 
     expect(answers).toEqual([{ ok: true, value: { id: "dt-new-1" } }]);
     expect(page.read().allocation.tables.at(-1)?.table.name).toBe("Test");
+  });
+
+  it("the units hooks mount over the selected period: p1's eight units, A1 selected with its crumb, and both grids' rows", () => {
+    const page = mountUnderProvider(loadLegacySeed(legacySeedData));
+    const { units, unitsGrid, unitOwnersGrid } = page.read();
+
+    expect(units.view?.list.unitCount).toBe(8);
+    expect(units.view?.selected?.key).toBe("unit:u1");
+    expect(units.view?.location).toBe("Stairwell A");
+    expect(units.crumb).toBe("A1");
+    expect(unitsGrid.state.rows[0]?.key).toBe("root");
+    expect(unitOwnersGrid.state.rows[0]?.key).toBe("period:u1");
+  });
+
+  it("a row selected reaches every reader, its crumb and the owners grid; every reader opens and closes the same rows", async () => {
+    const page = mountUnderProvider(loadLegacySeed(legacySeedData), 2);
+
+    await page.send((seen) => {
+      seen.units.select("unit:u5");
+      seen.unitsGrid.collapseAll();
+    });
+
+    for (const reader of [0, 1]) {
+      const { units, unitsGrid, unitOwnersGrid } = page.read(reader);
+
+      expect(units.view?.unit?.code).toBe("B1");
+      expect(units.crumb).toBe("B1");
+      expect(unitsGrid.state.rows).toHaveLength(1);
+      expect(unitOwnersGrid.state.rows[0]?.key).toBe("period:u5");
+    }
+  });
+
+  it("the unit dialog hook opens Edit Unit on its unit, and its save reaches the Units grid", async () => {
+    const page = mountUnderProvider(
+      loadLegacySeed(legacySeedData),
+      1,
+      null,
+      null,
+      null,
+      "u1",
+    );
+    let answer: Result | null = null;
+
+    expect(page.read().unitDialog?.state.form.code).toBe("A1");
+
+    await page.send((seen) => {
+      seen.unitDialog?.edit({ floor: "2" });
+    });
+    await page.send(async (seen) => {
+      answer = (await seen.unitDialog?.save()) ?? null;
+    });
+
+    expect(answer).toEqual({ ok: true });
+    expect(
+      page.read().units.view?.list.root.children[0]?.children[0],
+    ).toMatchObject({ key: "unit:u1", floor: "2" });
+  });
+
+  it("the group and owner dialog hooks add a group and an owner the Units grid shows; the screen's deletes reach it", async () => {
+    const page = mountUnderProvider(
+      loadLegacySeed(legacySeedData),
+      1,
+      null,
+      null,
+      null,
+      "u1",
+    );
+    const answers: Result[] = [];
+
+    expect(page.read().groupDialog?.state.editing).toBeNull();
+    expect(page.read().ownerDialog?.state.balanceLocked).toBe(true);
+
+    await page.send((seen) => {
+      seen.groupDialog?.edit({ code: "C", name: "Lift" });
+      seen.ownerDialog?.edit({ contactId: "md17" });
+    });
+    await page.send(async (seen) => {
+      answers.push(
+        ...(await Promise.all([
+          must(seen.groupDialog, "the group dialog").save(),
+          must(seen.ownerDialog, "the owner dialog").save(),
+        ])),
+      );
+    });
+
+    expect(answers).toEqual([
+      { ok: true, value: { id: "ug-new-1" } },
+      { ok: true, value: { id: "r-new-1" } },
+    ]);
+    const stairwellA = page.read().units.view?.list.root.children[0]?.children;
+
+    expect(
+      stairwellA?.map((row) => {
+        return [row.key, row.children.length];
+      }),
+    ).toContainEqual(["group:ug-new-1", 0]);
+    expect(
+      stairwellA?.map((row) => {
+        return [row.key, row.children.length];
+      }),
+    ).toContainEqual(["unit:u1", 2]);
+
+    await page.send(async (seen) => {
+      answers.push(
+        await seen.units.deleteResident("r-new-1"),
+        await seen.units.deleteGroup("ug-new-1"),
+        await seen.units.deleteUnit("u1"),
+      );
+    });
+
+    expect(answers.slice(2)).toMatchObject([
+      { ok: true },
+      { ok: true },
+      { ok: false, reason: "named-in-journal" },
+    ]);
+  });
+
+  it("lists the contacts an owner can be linked to", () => {
+    const page = mountUnderProvider(loadLegacySeed(legacySeedData));
+
+    expect(page.read().contacts).toHaveLength(48);
+  });
+
+  it("the building data hooks mount on the real seed: both buildings' rows, p1's selected with Saturno's suppliers, and a period row clicked becomes the app's", async () => {
+    const page = mountBuildingData();
+    const { data, grid } = page.read();
+
+    expect(
+      grid.state.rows.map((row) => {
+        return row.key;
+      }),
+    ).toEqual(["c19", "p36", "c1", "p1"]);
+    expect(data.view.selected?.key).toBe("p1");
+    expect(data.view.building?.code).toBe("SAT");
+    expect(data.view.suppliers).toHaveLength(6);
+
+    await page.send((seen) => {
+      seen.data.select("p36");
+    });
+
+    expect(page.read().period.selected?.periodId).toBe("p36");
+    expect(page.read().data.view.suppliers).toHaveLength(12);
+
+    const second = must(
+      page.read().data.view.suppliers[1],
+      "a second supplier",
+    );
+
+    await page.send((seen) => {
+      seen.data.selectSupplier(second.id);
+    });
+
+    expect(page.read().data.view.supplier?.id).toBe(second.id);
+  });
+
+  it("the building, period and address dialog hooks: the address handed back, the building and the period saved where the grid shows them", async () => {
+    const page = mountBuildingData();
+    const answers: Result[] = [];
+
+    expect(page.read().buildingDialog.state.form.code).toBe("SAT");
+    expect(page.read().periodDialog.state.form.start).toBe("01/01/2011");
+
+    await page.send((seen) => {
+      seen.addressDialog.edit({ street: "Via Roma, 1" });
+    });
+    await page.send(async (seen) => {
+      answers.push(await seen.addressDialog.save());
+    });
+
+    expect(page.read().applied).toEqual([
+      { street: "Via Roma, 1", postcode: null, city: null },
+    ]);
+
+    await page.send((seen) => {
+      seen.buildingDialog.edit({ code: "STN" });
+      seen.periodDialog.edit({ name: "2011 bis" });
+    });
+    await page.send(async (seen) => {
+      answers.push(
+        await seen.buildingDialog.save(),
+        await seen.periodDialog.save(),
+      );
+    });
+
+    expect(answers).toEqual([{ ok: true }, { ok: true }, { ok: true }]);
+    expect(
+      page.read().grid.state.rows.map((row) => {
+        return [row.node.code, row.node.label];
+      }),
+    ).toContainEqual(["", "2011 bis (Ordinary)"]);
+    expect(page.read().data.view.building?.code).toBe("STN");
   });
 
   it("a wizard hook given an entry to edit shows that entry's form", () => {

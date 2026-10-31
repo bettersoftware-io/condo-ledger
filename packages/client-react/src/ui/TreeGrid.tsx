@@ -44,6 +44,7 @@ export function TreeGrid({
               className="tree-grid-head"
               role="columnheader"
               data-align={column.align ?? "left"}
+              title={column.title}
             >
               {column.content ?? column.header}
               {index > 0 ? (
@@ -97,6 +98,8 @@ export interface TreeGridColumn {
   /** Drawn in the header in place of `header` (two lines, say); `header` stays its key. */
   content?: ReactNode;
   align?: "left" | "right" | "center";
+  /** The header's tooltip. */
+  title?: string;
 }
 
 export interface TreeGridRowData {

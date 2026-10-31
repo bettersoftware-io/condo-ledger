@@ -1,6 +1,7 @@
 import type { Account } from "#/entities/account.ts";
 import type { Building } from "#/entities/building.ts";
 import { cents } from "#/entities/cents.ts";
+import type { Contact, SupplierLink } from "#/entities/contact.ts";
 import type { Installment, InstallmentItem } from "#/entities/installment.ts";
 import { type Invoice, rate, type WithholdingTax } from "#/entities/invoice.ts";
 import type { Counterpart, JournalEntry } from "#/entities/journal.ts";
@@ -26,6 +27,10 @@ export interface LegacySeed {
   tables: ThousandthTable[];
   /** Each table's coefficient for each unit; a coefficient's period is its table's. */
   coefficients: Coefficient[];
+  /** The contact of every resident and supplier of the seeded periods, by name. */
+  contacts: Contact[];
+  /** Each seeded building's suppliers. */
+  supplierLinks: SupplierLink[];
 }
 
 /** A period's parties: the building's suppliers and the residencies that overlap the period. */
@@ -94,6 +99,8 @@ export interface LegacySeedData {
   unitGroups: UnitGroup[];
   tables: ThousandthTable[];
   coefficients: Coefficient[];
+  contacts: Contact[];
+  supplierLinks: SupplierLink[];
 }
 
 /** Brands every amount. A fraction in the generated file fails here, once, instead of somewhere in a sum. */
@@ -141,6 +148,8 @@ export function loadLegacySeed(data: LegacySeedData): LegacySeed {
     unitGroups: data.unitGroups,
     tables: data.tables,
     coefficients: data.coefficients,
+    contacts: data.contacts,
+    supplierLinks: data.supplierLinks,
   };
 }
 

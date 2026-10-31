@@ -8,11 +8,13 @@ import type {
   BudgetInstallmentsSummary,
   CollectionForm,
   CollectionSummary,
+  DialogIntents,
   DirectPaymentForm,
   DirectPaymentKind,
   DirectPaymentSummary,
   GenericEntryForm,
   GenericEntrySummary,
+  GroupDialogState,
   InvoiceForm,
   InvoicePaymentForm,
   InvoicePaymentSummary,
@@ -24,6 +26,8 @@ import type {
   MultiCostPaymentSummary,
   OpeningForm,
   OpeningSummary,
+  OwnerDialogState,
+  PeriodDialogState,
   SidebarIntents,
   SidebarState,
   TableDialogIntents,
@@ -43,6 +47,9 @@ import {
 } from "@cl/domain";
 import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
 import { createScheduleSeed } from "@cl/domain/testing/createScheduleSeed.ts";
+
+import { BUILDING_TABS } from "#/ui/buildingData/labels.ts";
+import { UNIT_TABS } from "#/ui/units/labels.ts";
 
 import type { HostClock, Seeded } from "./host/seeded.ts";
 import { Mount } from "./registry.tsx";
@@ -300,6 +307,39 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
 
         return wizard;
       },
+      // The New Group dialog holds the scenario's fields, typed.
+      createGroupDialog: (
+        editing: string | null,
+      ): Machine<GroupDialogState, DialogIntents<GroupDialogState["form"]>> => {
+        const dialog = machines.createGroupDialog(editing);
+
+        typeInto(dialog, scenario.groupForm);
+
+        return dialog;
+      },
+      // The owner dialog holds the scenario's fields, typed.
+      createOwnerDialog: (
+        editing: string | null,
+      ): Machine<OwnerDialogState, DialogIntents<OwnerDialogState["form"]>> => {
+        const dialog = machines.createOwnerDialog(editing);
+
+        typeInto(dialog, scenario.ownerForm);
+
+        return dialog;
+      },
+      // The period dialog holds the scenario's fields, typed.
+      createPeriodDialog: (
+        periodId: string,
+      ): Machine<
+        PeriodDialogState,
+        DialogIntents<PeriodDialogState["form"]>
+      > => {
+        const dialog = machines.createPeriodDialog(periodId);
+
+        typeInto(dialog, scenario.periodForm);
+
+        return dialog;
+      },
       // The table dialog holds the scenario's name, typed.
       createTableDialog: (
         editing: string | null,
@@ -389,6 +429,50 @@ function seedScreens(harness: AppHarness, scenario: Scenario): void {
 
   if (scenario.allocationMode !== undefined) {
     screens.allocationMode().intents.choose(scenario.allocationMode);
+  }
+
+  if (scenario.unitKey !== undefined) {
+    selectUnitRow(harness, scenario.unitKey);
+  }
+
+  if (scenario.unitTab !== undefined) {
+    screens.bottomTab("units", UNIT_TABS).intents.activate(scenario.unitTab);
+  }
+
+  if (scenario.buildingTab !== undefined) {
+    screens
+      .bottomTab("buildingData", BUILDING_TABS)
+      .intents.activate(scenario.buildingTab);
+  }
+
+  if (scenario.supplierId !== undefined) {
+    harness.app.presenters.buildingData.selectSupplier(scenario.supplierId);
+  }
+}
+
+/**
+ * A row of the Units grid selected, as a click selects it. The presenter
+ * counts a click from the moment it first shows the period, so that a click
+ * in another period is not carried over; it is shown the period first,
+ * through a snapshot, which the simulators answer at once.
+ */
+function selectUnitRow(harness: AppHarness, key: string): void {
+  const { units } = harness.app.presenters;
+
+  if (units.snapshot() === null) {
+    throw new Error(`no period's units to select ${key} in`);
+  }
+
+  units.select(key);
+}
+
+/** A dialog's fields typed, one at a time in the order written. */
+function typeInto<TState, TForm>(
+  dialog: Machine<TState, DialogIntents<TForm>>,
+  form: Partial<TForm> | undefined,
+): void {
+  for (const [field, value] of Object.entries(form ?? {})) {
+    dialog.intents.edit({ [field]: value } as Partial<TForm>);
   }
 }
 

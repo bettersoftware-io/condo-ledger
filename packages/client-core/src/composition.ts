@@ -3,11 +3,16 @@ import { distinctUntilChanged, map } from "rxjs";
 import {
   type AccountsPort,
   type AccountsSimulator,
+  type Address,
   type Allocation,
+  type Building,
   type BuildingsPort,
+  type BuildingsSimulator,
   type ClockPort,
+  type ContactsPort,
   createAccountsSimulator,
   createBuildingsSimulator,
+  createContactsSimulator,
   createInstallmentsSimulator,
   createJournalSimulator,
   createSessionSimulator,
@@ -16,21 +21,36 @@ import {
   DESIGN_FIRM,
   DESIGN_PRINCIPAL,
   type EntryKind,
+  type InstallmentItem,
   type InstallmentsPort,
   type InstallmentsSimulator,
   type JournalEntry,
   type JournalPort,
   type JournalSimulator,
   type LegacySeed,
+  type OwnerParty,
+  ok,
+  type PeriodDates,
   type Result,
   type SessionPort,
   type TablesPort,
   type ThousandthTable,
+  type Unit,
   type UnitsPort,
+  type UnitsSimulator,
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
 import { amountTextsIn } from "./amounts.ts";
+import {
+  type AddressDialogState,
+  type BuildingDialogState,
+  createAddressDialog,
+  createBuildingDialog,
+  createPeriodDialog,
+  type PeriodDialogState,
+} from "./machines/buildingDialogMachines.ts";
+import type { DialogIntents } from "./machines/formDialog.ts";
 import {
   createInstallmentDialog,
   type InstallmentDialogIntents,
@@ -64,6 +84,14 @@ import {
   type TableDialogIntents,
   type TableDialogState,
 } from "./machines/tableDialogMachine.ts";
+import {
+  createGroupDialog,
+  createOwnerDialog,
+  createUnitDialog,
+  type GroupDialogState,
+  type OwnerDialogState,
+  type UnitDialogState,
+} from "./machines/unitDialogMachines.ts";
 import {
   type BudgetAllocationForm,
   type BudgetAllocationSummary,
@@ -131,6 +159,10 @@ import {
   createBooksPresenter,
 } from "./presenters/booksPresenter.ts";
 import {
+  type BuildingDataPresenter,
+  createBuildingDataPresenter,
+} from "./presenters/buildingDataPresenter.ts";
+import {
   type BuildingsPresenter,
   createBuildingsPresenter,
 } from "./presenters/buildingsPresenter.ts";
@@ -147,13 +179,20 @@ import {
   createSessionPresenter,
   type SessionPresenter,
 } from "./presenters/sessionPresenter.ts";
+import {
+  createUnitsPresenter,
+  type UnitsPresenter,
+  type UnitsSnapshot,
+} from "./presenters/unitsPresenter.ts";
 import { type AppScreens, createScreens } from "./screens.ts";
+import { todayOf } from "./today.ts";
 
 /** Everything the application needs from the outside world. The client's
  * composition root decides what stands behind each port. */
 export interface AppPorts {
   session: SessionPort;
   buildings: BuildingsPort;
+  contacts: ContactsPort;
   accounts: AccountsPort;
   journal: JournalPort;
   installments: InstallmentsPort;
@@ -171,6 +210,8 @@ interface AppPresenters {
   journal: JournalPresenter;
   schedule: InstallmentSchedulePresenter;
   allocation: AllocationPresenter;
+  units: UnitsPresenter;
+  buildingData: BuildingDataPresenter;
 }
 
 /** Per-component state: each call builds a machine of its own, for a dialog, a wizard or the shell's parts, disposed when the component goes. */
@@ -233,6 +274,36 @@ interface AppMachines {
   createInstallmentDialog: (
     installmentId: string,
   ) => Machine<InstallmentDialogState, InstallmentDialogIntents>;
+  /**
+   * The New Group dialog over the Units screen as it stands, under the
+   * selected group, or the selected unit's or resident's group, else at the
+   * top; with `editing` the Edit Group one on a group of the period. One the
+   * period does not hold, or no period, throws.
+   */
+  createGroupDialog: (
+    editing: string | null,
+  ) => Machine<GroupDialogState, DialogIntents<GroupDialogState["form"]>>;
+  /** The New Unit dialog, in the group a new group would go under; with `editing` the Edit Unit one. Throws as createGroupDialog does. */
+  createUnitDialog: (
+    editing: string | null,
+  ) => Machine<UnitDialogState, DialogIntents<UnitDialogState["form"]>>;
+  /** The Add Owner dialog on the selected unit, or the selected resident's; with `editing` the Edit Owner one on a resident. Its balance is read in the session's locale. Throws with no unit selected, and as createGroupDialog does. */
+  createOwnerDialog: (
+    editing: string | null,
+  ) => Machine<OwnerDialogState, DialogIntents<OwnerDialogState["form"]>>;
+  /** The Edit Building dialog on a building of the tree as it stands; one it does not hold throws. A construction date typed without a year is in the clock's. */
+  createBuildingDialog: (
+    buildingId: string,
+  ) => Machine<BuildingDialogState, DialogIntents<BuildingDialogState["form"]>>;
+  /** The Edit Management / Period dialog on a period of the tree, judged against its units and residents as they stand; one the tree does not hold throws. */
+  createPeriodDialog: (
+    periodId: string,
+  ) => Machine<PeriodDialogState, DialogIntents<PeriodDialogState["form"]>>;
+  /** The Address dialog on `address`; its save hands the address to `apply`. */
+  createAddressDialog: (
+    address: Address | null,
+    apply: (address: Address) => void,
+  ) => Machine<AddressDialogState, DialogIntents<AddressDialogState["form"]>>;
 }
 
 /** The application, built once at startup. Presenters, the navigation, the
@@ -266,6 +337,27 @@ export function createApp(ports: AppPorts): App {
     session.amountLocale$,
   );
 
+  const units = createUnitsPresenter(
+    books.books$,
+    buildings.tree$,
+    { units: ports.units, tables: ports.tables, contacts: ports.contacts },
+    ports.clock,
+  );
+
+  const buildingData = createBuildingDataPresenter(
+    {
+      accounts: ports.accounts,
+      journal: ports.journal,
+      installments: ports.installments,
+      tables: ports.tables,
+      units: ports.units,
+      buildings: ports.buildings,
+      contacts: ports.contacts,
+    },
+    buildings,
+    ports.clock,
+  );
+
   const periodTables$ = allocation.tables$.pipe(
     map((views) => {
       return views.map((view) => {
@@ -292,6 +384,7 @@ export function createApp(ports: AppPorts): App {
     buildings.tree$,
     ports.installments,
     ports.clock,
+    ports.units,
   );
 
   let latestBooks: Books | null = null;
@@ -353,6 +446,11 @@ export function createApp(ports: AppPorts): App {
     );
   }
 
+  /** The Units screen as it stands, for a dialog over it. */
+  function unitsNow(): UnitsSnapshot {
+    return must(units.snapshot(), "the units of the selected period");
+  }
+
   /** How a wizard writes: a new entry is added, an edited one replaced. */
   function writeOf(entry: JournalEntry | null): WriteEntry {
     return entry === null
@@ -369,6 +467,8 @@ export function createApp(ports: AppPorts): App {
       journal,
       schedule,
       allocation,
+      units,
+      buildingData,
     },
     navigation: createNavigationMachine(),
     notices: createNotices(),
@@ -379,6 +479,8 @@ export function createApp(ports: AppPorts): App {
       tables$: allocation.tables$,
       coefficients$: allocation.coefficients$,
       allocation$: allocation.allocation$,
+      units$: units.view$,
+      buildingData$: buildingData.view$,
       period$: buildings.selected$.pipe(
         map((selected) => {
           return selected?.periodId ?? null;
@@ -568,27 +670,231 @@ export function createApp(ports: AppPorts): App {
           scheduleContextOf(books),
         );
       },
+      createGroupDialog: (
+        editing: string | null,
+      ): Machine<GroupDialogState, DialogIntents<GroupDialogState["form"]>> => {
+        const { groups, selected } = unitsNow();
+
+        if (editing === null) {
+          const parentId = selected?.groupId ?? null;
+
+          return createGroupDialog(
+            { groups, parentId, editing: null },
+            (draft) => {
+              return units.addGroup(parentId, draft);
+            },
+          );
+        }
+
+        const group = must(
+          groups.find((candidate) => {
+            return candidate.id === editing;
+          }),
+          `the group ${editing}`,
+        );
+
+        return createGroupDialog(
+          { groups, parentId: group.parentId, editing: group },
+          (draft) => {
+            return units.editGroup(editing, draft);
+          },
+        );
+      },
+      createUnitDialog: (
+        editing: string | null,
+      ): Machine<UnitDialogState, DialogIntents<UnitDialogState["form"]>> => {
+        const snapshot = unitsNow();
+        const { period } = snapshot;
+
+        if (editing === null) {
+          const groupId = snapshot.selected?.groupId ?? null;
+
+          return createUnitDialog(
+            {
+              units: snapshot.units,
+              residents: snapshot.residents,
+              period,
+              editing: null,
+            },
+            (draft) => {
+              return units.addUnit(groupId, draft);
+            },
+          );
+        }
+
+        const unit = must(
+          snapshot.units.find((candidate) => {
+            return candidate.id === editing;
+          }),
+          `the unit ${editing}`,
+        );
+
+        return createUnitDialog(
+          {
+            units: snapshot.units,
+            residents: snapshot.residents,
+            period,
+            editing: unit,
+          },
+          (draft) => {
+            return units.editUnit(editing, draft);
+          },
+        );
+      },
+      createOwnerDialog: (
+        editing: string | null,
+      ): Machine<OwnerDialogState, DialogIntents<OwnerDialogState["form"]>> => {
+        const snapshot = unitsNow();
+        const { residents, period, openingPosted, selected } = snapshot;
+
+        function unitOf(unitId: string): Unit {
+          return must(
+            snapshot.units.find((candidate) => {
+              return candidate.id === unitId;
+            }),
+            `the unit ${unitId}`,
+          );
+        }
+
+        if (editing === null) {
+          const unitId = must(selected?.unitId, "the unit of the new owner");
+
+          return createOwnerDialog(
+            texts,
+            {
+              unit: unitOf(unitId),
+              residents,
+              period,
+              openingPosted,
+              editing: null,
+            },
+            (draft) => {
+              return units.addResident(unitId, draft);
+            },
+          );
+        }
+
+        const resident = must(
+          residents.find((candidate) => {
+            return candidate.id === editing;
+          }),
+          `the resident ${editing}`,
+        );
+
+        return createOwnerDialog(
+          texts,
+          {
+            unit: unitOf(resident.unitId),
+            residents,
+            period,
+            openingPosted,
+            editing: resident,
+          },
+          (draft) => {
+            return units.editResident(editing, draft);
+          },
+        );
+      },
+      createBuildingDialog: (
+        buildingId: string,
+      ): Machine<
+        BuildingDialogState,
+        DialogIntents<BuildingDialogState["form"]>
+      > => {
+        const tree = buildings.tree$.getValue();
+        const building = must(
+          tree.find((candidate) => {
+            return candidate.id === buildingId;
+          }),
+          `the building ${buildingId}`,
+        );
+
+        return createBuildingDialog(
+          {
+            buildings: tree,
+            editing: building,
+            year: Number(todayOf(ports.clock).slice(0, 4)),
+          },
+          (draft) => {
+            return buildingData.editBuilding(buildingId, draft);
+          },
+        );
+      },
+      createPeriodDialog: (
+        periodId: string,
+      ): Machine<
+        PeriodDialogState,
+        DialogIntents<PeriodDialogState["form"]>
+      > => {
+        return createPeriodDialog(
+          buildingData.periodContext(periodId),
+          (draft) => {
+            return buildingData.editPeriod(periodId, draft);
+          },
+        );
+      },
+      createAddressDialog: (
+        address: Address | null,
+        apply: (address: Address) => void,
+      ): Machine<
+        AddressDialogState,
+        DialogIntents<AddressDialogState["form"]>
+      > => {
+        return createAddressDialog(address, (saved) => {
+          apply(saved);
+
+          return Promise.resolve(ok());
+        });
+      },
     },
   };
 }
 
 /**
- * The seven simulators over one seed: what `pnpm dev` and the harness run on.
- * The journal and the installments read each other's current state, so a
- * collection is judged against the schedule as it stands and an installment
- * a collection pays is not deleted. Each reads the other only when a write
- * asks, after both are built. A table is deleted only when no account, as
- * the accounts simulator holds it now, links to it.
+ * The eight simulators over one seed: what `pnpm dev` and the harness run on.
+ * The units simulator is the one source of each period's units and
+ * residents: the accounts and the tables follow its streams, and the journal
+ * and the installments read its residents when a write asks. It judges a
+ * delete against the journal and the schedule as they stand. The journal and
+ * the installments read each other's current state, so a collection is judged
+ * against the schedule as it stands and an installment a collection pays is
+ * not deleted. Each reads another only when a write asks, after all are
+ * built. A table is deleted only when no account, as the accounts simulator
+ * holds it now, links to it.
  */
 export function createSimulatorPorts(
   seed: LegacySeed,
   clock: ClockPort,
 ): AppPorts {
+  const units: UnitsSimulator = createUnitsSimulator(seed, {
+    entriesOf: (periodId: string): JournalEntry[] => {
+      return journal.current(periodId);
+    },
+    itemsOf: (periodId: string): InstallmentItem[] => {
+      return installments.current(periodId).items;
+    },
+    periodOf: (periodId: string): PeriodDates => {
+      return datesOfPeriod(buildings.currentBuildings(), periodId);
+    },
+  });
+
+  const buildings: BuildingsSimulator = createBuildingsSimulator(seed, clock, {
+    unitsOf: (periodId: string): Unit[] => {
+      return units.currentUnits(periodId);
+    },
+    residentsOf: (periodId: string): OwnerParty[] => {
+      return units.currentResidents(periodId);
+    },
+  });
+
   const journal: JournalSimulator = createJournalSimulator(
     seed,
     clock,
     (periodId) => {
       return installments.current(periodId);
+    },
+    (periodId) => {
+      return units.currentResidents(periodId);
     },
   );
 
@@ -597,23 +903,54 @@ export function createSimulatorPorts(
     (periodId) => {
       return journal.current(periodId);
     },
+    (periodId) => {
+      return units.currentResidents(periodId);
+    },
   );
 
-  const accounts: AccountsSimulator = createAccountsSimulator(seed);
+  const accounts: AccountsSimulator = createAccountsSimulator(
+    seed,
+    (periodId) => {
+      return units.residents(periodId);
+    },
+  );
 
   return {
     session: createSessionSimulator({
       principal: DESIGN_PRINCIPAL,
       firm: DESIGN_FIRM,
     }),
-    buildings: createBuildingsSimulator(seed),
+    buildings,
+    contacts: createContactsSimulator(seed),
     accounts,
     journal,
     installments,
-    tables: createTablesSimulator(seed, (periodId) => {
-      return accounts.current(periodId);
-    }),
-    units: createUnitsSimulator(seed),
+    tables: createTablesSimulator(
+      seed,
+      (periodId) => {
+        return accounts.current(periodId);
+      },
+      (periodId) => {
+        return units.units(periodId);
+      },
+    ),
+    units,
     clock,
   };
+}
+
+/** A period's dates as the buildings stand now; throws for a period they do not hold. */
+function datesOfPeriod(buildings: Building[], periodId: string): PeriodDates {
+  const period = must(
+    buildings
+      .flatMap((building) => {
+        return building.periods;
+      })
+      .find((candidate) => {
+        return candidate.id === periodId;
+      }),
+    `the period ${periodId}`,
+  );
+
+  return { start: period.start, end: period.end };
 }

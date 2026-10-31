@@ -52,7 +52,7 @@ export interface TreeGridRow<TNode> {
   expanded: boolean;
 }
 
-interface TreeGridState<TNode> {
+export interface TreeGridState<TNode> {
   /** The visible nodes, in order, each with its depth. */
   rows: TreeGridRow<TNode>[];
   /** The keys of the open nodes. */
@@ -205,7 +205,7 @@ function idsOf(tables: TableView[]): string[] {
  * later tree too: the machine keeps what was closed, until `restart$` opens
  * everything again.
  */
-function createTreeGridMachine<TNode extends TreeNode<TNode>>(
+export function createTreeGridMachine<TNode extends TreeNode<TNode>>(
   roots$: Observable<TNode[]>,
   restart$: Observable<unknown>,
 ): Machine<TreeGridState<TNode>, TreeGridIntents> {

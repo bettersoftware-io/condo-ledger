@@ -1,7 +1,7 @@
 import { type DefaultedStateObservable, state } from "@rx-state/core";
 import { BehaviorSubject, combineLatest, map } from "rxjs";
 
-import type { Building, BuildingsPort } from "@cl/domain";
+import { type Building, type BuildingsPort, periodLabelText } from "@cl/domain";
 
 export interface PeriodSelection {
   buildingId: string;
@@ -58,7 +58,7 @@ function resolve(
   return null;
 }
 
-/** "{building} {period}" of the period, as the breadcrumb shows them; null when the tree does not hold it. */
+/** "{building} / {period} ({address})" of the period (see `periodLabelText`); null when the tree does not hold it. */
 export function periodLabelOf(
   tree: Building[],
   periodId: string,
@@ -66,7 +66,7 @@ export function periodLabelOf(
   for (const building of tree) {
     for (const period of building.periods) {
       if (period.id === periodId) {
-        return `${building.name} ${period.name}`;
+        return periodLabelText(building, period);
       }
     }
   }

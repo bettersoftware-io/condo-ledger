@@ -15,6 +15,7 @@ import {
 } from "@cl/domain";
 import { useViewModel } from "@cl/react-bindings";
 
+import { AddressDialog } from "#/ui/AddressDialog.tsx";
 import { AmountLocaleProvider } from "#/ui/AmountLocaleProvider.tsx";
 import { AccountDetails } from "#/ui/accounts/AccountDetails.tsx";
 import { AccountIcon } from "#/ui/accounts/AccountIcon.tsx";
@@ -33,12 +34,18 @@ import {
 } from "#/ui/allocation/columns.ts";
 import { TableDialog } from "#/ui/allocation/TableDialog.tsx";
 import { ThousandthTablesPanel } from "#/ui/allocation/ThousandthTablesPanel.tsx";
+import { BuildingDialog } from "#/ui/buildingData/BuildingDialog.tsx";
+import { BuildingTabs } from "#/ui/buildingData/BuildingTabs.tsx";
+import { SUPPLIERS_COLUMN_SPECS } from "#/ui/buildingData/columns.ts";
+import { BUILDING_TABS } from "#/ui/buildingData/labels.ts";
+import { PeriodDialog } from "#/ui/buildingData/PeriodDialog.tsx";
 import { ConfirmAlert } from "#/ui/ConfirmAlert.tsx";
 import { FormField } from "#/ui/FormField.tsx";
 import { InlineEditor } from "#/ui/InlineEditor.tsx";
 import { BudgetInstallmentsWizard } from "#/ui/installments/BudgetInstallmentsWizard.tsx";
 import { InstallmentCell } from "#/ui/installments/InstallmentCell.tsx";
 import { InstallmentDialog } from "#/ui/installments/InstallmentDialog.tsx";
+import { InstallmentScheduleScreen } from "#/ui/installments/InstallmentScheduleScreen.tsx";
 import { EntryIcon } from "#/ui/journal/EntryIcon.tsx";
 import { BudgetAllocationWizard } from "#/ui/journal/wizards/BudgetAllocationWizard.tsx";
 import { CollectionWizard } from "#/ui/journal/wizards/CollectionWizard.tsx";
@@ -58,6 +65,16 @@ import { ToastHost } from "#/ui/shell/ToastHost.tsx";
 import { TabbedPanel } from "#/ui/TabbedPanel.tsx";
 import { TreeGrid, type TreeGridRowData } from "#/ui/TreeGrid.tsx";
 import { TreeGridRow } from "#/ui/TreeGridRow.tsx";
+import {
+  UNIT_OWNERS_COLUMN_SPECS,
+  UNITS_COLUMN_SPECS,
+} from "#/ui/units/columns.ts";
+import { GroupDialog } from "#/ui/units/GroupDialog.tsx";
+import { UNIT_TABS } from "#/ui/units/labels.ts";
+import { OwnerDialog } from "#/ui/units/OwnerDialog.tsx";
+import { UnitDialog } from "#/ui/units/UnitDialog.tsx";
+import { UnitsPanel } from "#/ui/units/UnitsPanel.tsx";
+import { UnitTabs } from "#/ui/units/UnitTabs.tsx";
 
 import type { AccountRowPicture, CellPicture, Scenario } from "./scenarios.ts";
 
@@ -384,7 +401,230 @@ const registry: Record<string, Entry> = {
   "account-allocation-tables": (): ReactElement => {
     return <AccountTablesPart />;
   },
+  // The Installment Schedule's one panel, as the screen draws it, over the
+  // period the sidebar holds; the shell's maximize machine is the app's.
+  "installment-schedule": (): ReactElement => {
+    return <SchedulePart />;
+  },
+  // The Units screen's panels, each read from the view model as the screen
+  // reads it, over the period the sidebar holds: the row the seeding selects
+  // and the tab it chooses, through their own intents.
+  "units-panel": (): ReactElement => {
+    return <UnitsPanelPart />;
+  },
+  "unit-tabs": (): ReactElement => {
+    return <UnitTabsPart />;
+  },
+  // The Building Data screen's bottom panel, over the selected period's
+  // building, on the tab and the supplier the seeding chooses.
+  "building-tabs": (): ReactElement => {
+    return <BuildingTabsPart />;
+  },
+  // The Units screen's dialogs read their machines, which the seeding fills
+  // from the scenario, over the row it selects.
+  "group-dialog": (): ReactElement => {
+    return (
+      <GroupDialog
+        editing={null}
+        onSaved={ignoreClose}
+        onCancel={ignoreClose}
+      />
+    );
+  },
+  "unit-dialog": (): ReactElement => {
+    return <UnitDialogPart />;
+  },
+  "owner-dialog": (scenario: Scenario): ReactElement => {
+    return <OwnerDialogPart editing={scenario.residentId ?? null} />;
+  },
+  // The Building Data screen's dialogs, on the selected period's building
+  // and on the period itself.
+  "building-dialog": (): ReactElement => {
+    return <BuildingDialogPart />;
+  },
+  "period-dialog": (scenario: Scenario): ReactElement => {
+    return (
+      <PeriodDialog
+        periodId={required(scenario, "periodId", scenario.periodId)}
+        onSaved={ignoreClose}
+        onCancel={ignoreClose}
+      />
+    );
+  },
+  "address-dialog": (): ReactElement => {
+    return <AddressDialogPart />;
+  },
 };
+
+/** The Installment Schedule screen alone, with the shell's maximize machine. */
+function SchedulePart(): ReactElement {
+  const { useMaximize } = useViewModel();
+  const maximize = useMaximize();
+
+  return <InstallmentScheduleScreen maximize={maximize} />;
+}
+
+/** The Units panel as the Units screen hands it its props: ✎ on a unit, a resident or a group, − on a unit, a resident or an empty group. */
+function UnitsPanelPart(): ReactElement {
+  const { useUnits, useUnitsGrid, useColumns } = useViewModel();
+  const { view } = useUnits();
+  const grid = useUnitsGrid();
+  const columns = useColumns("units", UNITS_COLUMN_SPECS);
+
+  return (
+    <UnitsPanel
+      rows={grid.state.rows}
+      selectedKey={view?.selected?.key ?? null}
+      unitCount={view?.list.unitCount ?? null}
+      template={columns.state.template}
+      maximized={false}
+      onSelect={ignoreClose}
+      onToggle={ignoreClose}
+      onExpandAll={ignoreClose}
+      onCollapseAll={ignoreClose}
+      onResize={ignoreClose}
+      onToggleMaximize={ignoreClose}
+      canAdd={view !== null}
+      canAddOwner={view?.unit != null}
+      canEdit={view?.unit != null || view?.group != null}
+      canDelete={
+        view?.unit != null ||
+        (view?.group != null && view.selected?.children.length === 0)
+      }
+      onAdd={ignoreClose}
+      onEdit={ignoreClose}
+      onDelete={ignoreClose}
+      onStub={ignoreClose}
+    />
+  );
+}
+
+/** The Units screen's bottom panel as the screen hands it its props: ✎ and − on the selected owner on Unit Owners, on the unit on Unit Profile. */
+function UnitTabsPart(): ReactElement {
+  const { useUnits, useUnitOwnersGrid, useColumns, useBottomTab } =
+    useViewModel();
+  const { view } = useUnits();
+  const ownersGrid = useUnitOwnersGrid();
+  const ownersColumns = useColumns("unitOwners", UNIT_OWNERS_COLUMN_SPECS);
+  const tabs = useBottomTab("units", UNIT_TABS);
+  const target =
+    tabs.state.active === "Unit Owners" ? view?.resident : view?.unit;
+
+  return (
+    <UnitTabs
+      active={tabs.state.active}
+      unit={view?.unit ?? null}
+      location={view?.location ?? ""}
+      ownerRows={ownersGrid.state.rows}
+      ownersTemplate={ownersColumns.state.template}
+      selectedResidentId={view?.selected?.residentId ?? null}
+      onActivate={ignoreClose}
+      onSelectOwner={ignoreClose}
+      onToggleOwner={ignoreClose}
+      onResizeOwners={ignoreClose}
+      canAddOwner={view?.unit != null}
+      canEdit={target != null}
+      canDelete={target != null}
+      onAddOwner={ignoreClose}
+      onEdit={ignoreClose}
+      onDelete={ignoreClose}
+      onStub={ignoreClose}
+    />
+  );
+}
+
+/** The Building Data screen's bottom panel as the screen hands it its props. */
+function BuildingTabsPart(): ReactElement {
+  const { useBuildingData, useColumns, useSplit, useBottomTab } =
+    useViewModel();
+  const { view } = useBuildingData();
+  const suppliersColumns = useColumns("suppliers", SUPPLIERS_COLUMN_SPECS);
+  const suppliersSplit = useSplit("suppliers");
+  const tabs = useBottomTab("buildingData", BUILDING_TABS);
+
+  return (
+    <BuildingTabs
+      active={tabs.state.active}
+      building={view.building}
+      suppliers={view.suppliers}
+      supplier={view.supplier}
+      suppliersTemplate={suppliersColumns.state.template}
+      suppliersRatio={suppliersSplit.state.ratio}
+      onActivate={ignoreClose}
+      onSelectSupplier={ignoreClose}
+      onResizeSuppliers={ignoreClose}
+      onSetSuppliersRatio={ignoreClose}
+      onEditBuilding={ignoreClose}
+      onStub={ignoreClose}
+      onSay={ignoreClose}
+    />
+  );
+}
+
+/** The New Unit dialog over the period the Units screen shows; nothing until it shows one. */
+function UnitDialogPart(): ReactElement | null {
+  const { useUnits } = useViewModel();
+  const { view } = useUnits();
+
+  return view === null ? null : (
+    <UnitDialog
+      editing={null}
+      period={view.period}
+      onSaved={ignoreClose}
+      onCancel={ignoreClose}
+    />
+  );
+}
+
+interface OwnerDialogPartProps {
+  /** The resident Edit Owner opens on; null for Add Owner on the selected unit. */
+  editing: string | null;
+}
+
+/** The owner dialog over the period the Units screen shows; nothing until it shows one. */
+function OwnerDialogPart({
+  editing,
+}: OwnerDialogPartProps): ReactElement | null {
+  const { useUnits } = useViewModel();
+  const { view } = useUnits();
+
+  return view === null ? null : (
+    <OwnerDialog
+      editing={editing}
+      period={view.period}
+      onSaved={ignoreClose}
+      onCancel={ignoreClose}
+    />
+  );
+}
+
+/** Edit Building on the selected period's building; nothing until there is one. */
+function BuildingDialogPart(): ReactElement | null {
+  const { useBuildingData } = useViewModel();
+  const { building } = useBuildingData().view;
+
+  return building === null ? null : (
+    <BuildingDialog
+      buildingId={building.id}
+      onSaved={ignoreClose}
+      onCancel={ignoreClose}
+    />
+  );
+}
+
+/** The Address dialog as Edit Building opens it, on the selected period's building's address; nothing until there is one. */
+function AddressDialogPart(): ReactElement | null {
+  const { useBuildingData } = useViewModel();
+  const { building } = useBuildingData().view;
+
+  return building === null ? null : (
+    <AddressDialog
+      address={building.address}
+      onApply={ignoreClose}
+      onClose={ignoreClose}
+    />
+  );
+}
 
 /** The Thousandth Tables panel as the screen hands it its props. */
 function TablesPanelPart(): ReactElement {
@@ -509,7 +749,11 @@ const PLACEHOLDER_BOX: CSSProperties = {
 };
 
 /** The building and period the wizard dialog's props name. */
-const PICTURED_CONTEXT = { building: "Pozzetto", period: "2013" };
+const PICTURED_CONTEXT = {
+  building: "Pozzetto",
+  period: "2013",
+  address: "Piazza Libertà, 74, 33045 Nimis",
+};
 
 interface SurroundProps {
   children: ReactNode;

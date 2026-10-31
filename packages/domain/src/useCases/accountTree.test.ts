@@ -174,6 +174,23 @@ describe("buildAccountTree", () => {
     ).toBe("document");
   });
 
+  it.each([["liquidity" as const], ["funds" as const]])(
+    "draws a %s account as any other account: a folder for a node with children",
+    (role) => {
+      const books = createSmallBooks();
+      const accounts = books.accounts.map((account) => {
+        return account.id === "la10" ? { ...account, role } : account;
+      });
+
+      expect(
+        findNode(
+          buildAccountTree(accounts, books.entries, books.parties),
+          "la10",
+        )?.icon,
+      ).toBe("folder");
+    },
+  );
+
   it("gives a plain leaf an account scope and a node with children none", () => {
     expect(must("la21").scope).toEqual({ kind: "account", accountId: "la21" });
     expect(must("la20").scope).toBeNull();

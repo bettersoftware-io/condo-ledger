@@ -2,6 +2,7 @@ import { type DefaultedStateObservable, state } from "@rx-state/core";
 import { combineLatest, map, type Observable } from "rxjs";
 
 import {
+  addressTextOf,
   type Building,
   type EntryAdded,
   type EntryDraft,
@@ -23,6 +24,8 @@ import type { PeriodSelection } from "./buildingsPresenter.ts";
 export interface JournalContext {
   building: string;
   period: string;
+  /** The building's address on one line; null when it has none. */
+  address: string | null;
 }
 
 export interface JournalPresenter {
@@ -115,7 +118,12 @@ function contextOf(
   for (const building of buildings) {
     for (const period of building.periods) {
       if (period.id === selection.periodId) {
-        return { building: building.name, period: period.name };
+        return {
+          building: building.name,
+          period: period.name,
+          address:
+            building.address === null ? null : addressTextOf(building.address),
+        };
       }
     }
   }

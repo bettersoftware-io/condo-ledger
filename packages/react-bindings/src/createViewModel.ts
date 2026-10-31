@@ -4,6 +4,7 @@ import type {
   AccountDetails,
   AccountsGridIntents,
   AccountsGridState,
+  AddressDialogState,
   AllocationGridState,
   AmountLocale,
   App,
@@ -13,18 +14,22 @@ import type {
   BudgetAllocationSummary,
   BudgetInstallmentsForm,
   BudgetInstallmentsSummary,
+  BuildingDataView,
+  BuildingDialogState,
   CoefficientsGridState,
   CollectionForm,
   CollectionSummary,
   ColumnSpec,
   ColumnsIntents,
   ColumnsState,
+  DialogIntents,
   DirectPaymentForm,
   DirectPaymentKind,
   DirectPaymentSummary,
   GenericEntryForm,
   GenericEntrySummary,
   GridName,
+  GroupDialogState,
   InstallmentDialogIntents,
   InstallmentDialogState,
   InvoiceForm,
@@ -45,6 +50,8 @@ import type {
   Notice,
   OpeningForm,
   OpeningSummary,
+  OwnerDialogState,
+  PeriodDialogState,
   PeriodSelection,
   ScheduleGridIntents,
   ScheduleGridState,
@@ -58,15 +65,21 @@ import type {
   TableDialogState,
   TableView,
   TreeGridIntents,
+  TreeGridState,
+  UnitDialogState,
+  UnitsView,
   WizardIntents,
   WizardState,
 } from "@cl/client-core";
 import type {
   AccountNode,
+  Address,
   Allocation,
   AllocationMode,
   Building,
+  BuildingRow,
   Cents,
+  Contact,
   EntryAdded,
   EntryKind,
   Firm,
@@ -74,12 +87,14 @@ import type {
   Language,
   Ledger,
   Mode,
+  OwnersRow,
   Preferences,
   Principal,
   Result,
   ResultOf,
   Schedule,
   Theme,
+  UnitsRow,
 } from "@cl/domain";
 
 import { type MachineView, useMachine } from "./useMachine.ts";
@@ -145,9 +160,39 @@ export interface AllocationView {
   ) => Promise<Result>;
 }
 
+/**
+ * The Units, Owners & Personal Balance screen: the grid with its selected
+ * row and what the bottom tabs show of it, the breadcrumb's last crumb, and
+ * the selection. The selection is the application's, so the grid, the tabs
+ * and the breadcrumb follow the same one.
+ */
+export interface UnitsScreenView {
+  /** Null while there is no period, or while its units are on their way. */
+  view: UnitsView | null;
+  /** The selected unit's code (a resident's unit's), or the selected group's; null for the root and the rounding row. */
+  crumb: string | null;
+  select: (key: string) => void;
+  deleteGroup: (groupId: string) => Promise<Result>;
+  deleteUnit: (unitId: string) => Promise<Result>;
+  deleteResident: (residentId: string) => Promise<Result>;
+}
+
+/**
+ * The Building Data & Suppliers screen: every building over its periods,
+ * the row selected and its building, and that building's suppliers. A
+ * period's row selected is the application's period too.
+ */
+export interface BuildingDataScreenView {
+  view: BuildingDataView;
+  select: (key: string) => void;
+  selectSupplier: (contactId: string) => void;
+}
+
 export interface NoticesView {
   notices: Notice[];
   stub: (label: string) => void;
+  /** A notice in its own words. */
+  say: (text: string) => void;
   clear: (id: number) => void;
 }
 
@@ -256,12 +301,67 @@ export interface ViewModel {
   >;
   /** The allocation in the chosen mode: which of its rows are open. */
   useAllocationGrid: () => MachineView<AllocationGridState, TreeGridIntents>;
+  useUnits: () => UnitsScreenView;
+  /** The Units grid: which of its rows are open. */
+  useUnitsGrid: () => MachineView<TreeGridState<UnitsRow>, TreeGridIntents>;
+  /** The Unit Owners tab of the selected unit: which of its rows are open. */
+  useUnitOwnersGrid: () => MachineView<
+    TreeGridState<OwnersRow>,
+    TreeGridIntents
+  >;
+  /** Reads its argument on the first render only: the New Unit dialog (null) or the Edit Unit one on the unit it opened on. */
+  useUnitDialog: (
+    editing: string | null,
+  ) => MachineView<UnitDialogState, DialogIntents<UnitDialogState["form"]>>;
+  /** Reads its argument on the first render only: the New Group dialog (null), under the selected row's group, or the Edit Group one on the group it opened on. */
+  useGroupDialog: (
+    editing: string | null,
+  ) => MachineView<GroupDialogState, DialogIntents<GroupDialogState["form"]>>;
+  /** Reads its argument on the first render only: the Add Owner dialog (null) on the selected unit, or the Edit Owner one on the resident it opened on. */
+  useOwnerDialog: (
+    editing: string | null,
+  ) => MachineView<OwnerDialogState, DialogIntents<OwnerDialogState["form"]>>;
+  /** The contacts an owner can be linked to. */
+  useContacts: () => Contact[];
+  useBuildingData: () => BuildingDataScreenView;
+  /** The Building Data grid: which buildings are open. */
+  useBuildingDataGrid: () => MachineView<
+    TreeGridState<BuildingRow>,
+    TreeGridIntents
+  >;
+  /** Reads its argument on the first render only: the Edit Building dialog on the building it opened on. */
+  useBuildingDialog: (
+    buildingId: string,
+  ) => MachineView<
+    BuildingDialogState,
+    DialogIntents<BuildingDialogState["form"]>
+  >;
+  /** Reads its argument on the first render only: the Edit Management / Period dialog on the period it opened on. */
+  usePeriodDialog: (
+    periodId: string,
+  ) => MachineView<PeriodDialogState, DialogIntents<PeriodDialogState["form"]>>;
+  /** Reads its arguments on the first render only: the Address dialog on `address`, whose save hands the address to `apply`. */
+  useAddressDialog: (
+    address: Address | null,
+    apply: (address: Address) => void,
+  ) => MachineView<
+    AddressDialogState,
+    DialogIntents<AddressDialogState["form"]>
+  >;
 }
 
 /** Built once at startup, in the composition root, from the application. */
 export function createViewModel(app: App): ViewModel {
-  const { session, buildings, accounts, journal, schedule, allocation } =
-    app.presenters;
+  const {
+    session,
+    buildings,
+    accounts,
+    journal,
+    schedule,
+    allocation,
+    units,
+    buildingData,
+  } = app.presenters;
   const { screens } = app;
 
   return {
@@ -316,6 +416,7 @@ export function createViewModel(app: App): ViewModel {
       return {
         notices: useStateObservable(app.notices.notices$),
         stub: app.notices.stub,
+        say: app.notices.say,
         clear: app.notices.clear,
       };
     },
@@ -484,6 +585,99 @@ export function createViewModel(app: App): ViewModel {
       TreeGridIntents
     > => {
       return useSharedMachine(screens.allocationGrid());
+    },
+    useUnits: (): UnitsScreenView => {
+      return {
+        view: useStateObservable(units.view$),
+        crumb: useStateObservable(units.crumb$),
+        select: units.select,
+        deleteGroup: units.deleteGroup,
+        deleteUnit: units.deleteUnit,
+        deleteResident: units.deleteResident,
+      };
+    },
+    useUnitsGrid: (): MachineView<TreeGridState<UnitsRow>, TreeGridIntents> => {
+      return useSharedMachine(screens.unitsGrid());
+    },
+    useUnitOwnersGrid: (): MachineView<
+      TreeGridState<OwnersRow>,
+      TreeGridIntents
+    > => {
+      return useSharedMachine(screens.unitOwnersGrid());
+    },
+    useUnitDialog: (
+      editing: string | null,
+    ): MachineView<UnitDialogState, DialogIntents<UnitDialogState["form"]>> => {
+      return useMachine(() => {
+        return app.machines.createUnitDialog(editing);
+      });
+    },
+    useGroupDialog: (
+      editing: string | null,
+    ): MachineView<
+      GroupDialogState,
+      DialogIntents<GroupDialogState["form"]>
+    > => {
+      return useMachine(() => {
+        return app.machines.createGroupDialog(editing);
+      });
+    },
+    useOwnerDialog: (
+      editing: string | null,
+    ): MachineView<
+      OwnerDialogState,
+      DialogIntents<OwnerDialogState["form"]>
+    > => {
+      return useMachine(() => {
+        return app.machines.createOwnerDialog(editing);
+      });
+    },
+    useContacts: (): Contact[] => {
+      return useStateObservable(units.contacts$);
+    },
+    useBuildingData: (): BuildingDataScreenView => {
+      return {
+        view: useStateObservable(buildingData.view$),
+        select: buildingData.select,
+        selectSupplier: buildingData.selectSupplier,
+      };
+    },
+    useBuildingDataGrid: (): MachineView<
+      TreeGridState<BuildingRow>,
+      TreeGridIntents
+    > => {
+      return useSharedMachine(screens.buildingDataGrid());
+    },
+    useBuildingDialog: (
+      buildingId: string,
+    ): MachineView<
+      BuildingDialogState,
+      DialogIntents<BuildingDialogState["form"]>
+    > => {
+      return useMachine(() => {
+        return app.machines.createBuildingDialog(buildingId);
+      });
+    },
+    usePeriodDialog: (
+      periodId: string,
+    ): MachineView<
+      PeriodDialogState,
+      DialogIntents<PeriodDialogState["form"]>
+    > => {
+      return useMachine(() => {
+        return app.machines.createPeriodDialog(periodId);
+      });
+    },
+    useAddressDialog: (
+      address: Address | null,
+      apply: (address: Address) => void,
+    ): MachineView<
+      AddressDialogState,
+      DialogIntents<AddressDialogState["form"]>
+    > => {
+      return useMachine(() => {
+        return app.machines.createAddressDialog(address, apply);
+      });
     },
   };
 }

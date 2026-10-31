@@ -1,8 +1,16 @@
-import { BehaviorSubject, type Observable } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  firstValueFrom,
+  map,
+  type Observable,
+  of,
+} from "rxjs";
 
 import type { Account } from "#/entities/account.ts";
 import { accepted, ok, type Result, type ResultOf } from "#/entities/result.ts";
 import type { Coefficient, ThousandthTable } from "#/entities/table.ts";
+import type { Unit } from "#/entities/unit.ts";
 import type { TableAdded, TablesPort } from "#/ports/tablesPort.ts";
 import { must } from "#/support/must.ts";
 import {
@@ -15,18 +23,20 @@ import {
 import { missingPeriod } from "./missingPeriod.ts";
 import type { LegacySeed } from "./seed/legacySeed.ts";
 
-/** A period's tables and coefficients, kept in memory, and the ids of its units. */
+/** A period's tables and the coefficients written for them, kept in memory. */
 interface PeriodTables {
   periodId: string;
   tables$: BehaviorSubject<ThousandthTable[]>;
   coefficients$: BehaviorSubject<Coefficient[]>;
-  unitIds: string[];
 }
 
 /**
  * The seed's thousandth tables, a period at a time, with what is written kept
  * in memory. A delete is judged against the accounts as `accountsOf` answers
- * them now; left out, the seed's accounts. New tables are `dt-new-<n>`.
+ * them now; left out, the seed's accounts. A period's units are those
+ * `unitsOf` streams; left out, the seed's. A unit with no coefficient in a
+ * table reads 0 there, a unit no longer listed loses its coefficients, and the
+ * coefficients emit again whenever the units do. New tables are `dt-new-<n>`.
  * Throws on an unknown id: it never answers empty for a wrong key.
  */
 export function createTablesSimulator(
@@ -37,6 +47,15 @@ export function createTablesSimulator(
     return seed.accounts.filter((account) => {
       return account.periodId === periodId;
     });
+  },
+  unitsOf: (periodId: string) => Observable<Unit[]> = (
+    periodId: string,
+  ): Observable<Unit[]> => {
+    return of(
+      seed.units.filter((unit) => {
+        return unit.periodId === periodId;
+      }),
+    );
   },
 ): TablesPort {
   const periods = new Map<string, PeriodTables>();
@@ -62,13 +81,6 @@ export function createTablesSimulator(
             return ids.has(coefficient.tableId);
           }),
         ),
-        unitIds: seed.units
-          .filter((unit) => {
-            return unit.periodId === period.id;
-          })
-          .map((unit) => {
-            return unit.id;
-          }),
       });
     }
   }
@@ -91,7 +103,11 @@ export function createTablesSimulator(
     throw new Error(`missing: the table ${tableId}`);
   }
 
-  function add(state: PeriodTables, draft: TableDraft): ResultOf<TableAdded> {
+  function add(
+    state: PeriodTables,
+    draft: TableDraft,
+    units: Unit[],
+  ): ResultOf<TableAdded> {
     const verdict = validateTable(state.tables$.getValue(), draft, null);
 
     if (!verdict.ok) {
@@ -105,8 +121,8 @@ export function createTablesSimulator(
     // The coefficients land before their table, so no reader ever sees a table without coefficients. A reader may briefly see coefficients whose table is not there yet; that is harmless, since totals filter by table.
     state.coefficients$.next([
       ...state.coefficients$.getValue(),
-      ...state.unitIds.map((unitId): Coefficient => {
-        return { tableId: id, unitId, value: 0 };
+      ...units.map((unit): Coefficient => {
+        return { tableId: id, unitId: unit.id, value: 0 };
       }),
     ]);
     state.tables$.next(
@@ -188,8 +204,13 @@ export function createTablesSimulator(
     tableId: string,
     unitId: string,
     value: number,
+    units: Unit[],
   ): Result {
-    if (!state.unitIds.includes(unitId)) {
+    if (
+      !units.some((unit) => {
+        return unit.id === unitId;
+      })
+    ) {
       throw new Error(`missing: the unit ${unitId}`);
     }
 
@@ -231,15 +252,21 @@ export function createTablesSimulator(
 
       return state === undefined
         ? missingPeriod(periodId)
-        : state.coefficients$.asObservable();
+        : combineLatest([state.coefficients$, unitsOf(periodId)]).pipe(
+            map(([written, units]) => {
+              return filled(state.tables$.getValue(), written, units);
+            }),
+          );
     },
     addTable: (
       periodId: string,
       draft: TableDraft,
     ): Promise<ResultOf<TableAdded>> => {
       // A throw inside the executor is a rejection, as the port promises.
-      return new Promise((resolve) => {
-        resolve(add(stateOf(periodId), draft));
+      return new Promise<PeriodTables>((resolve) => {
+        resolve(stateOf(periodId));
+      }).then(async (state) => {
+        return add(state, draft, await firstValueFrom(unitsOf(periodId)));
       });
     },
     editTable: (tableId: string, draft: TableDraft): Promise<Result> => {
@@ -257,11 +284,50 @@ export function createTablesSimulator(
       unitId: string,
       value: number,
     ): Promise<Result> => {
-      return new Promise((resolve) => {
-        resolve(set(holderOfTable(tableId), tableId, unitId, value));
+      return new Promise<PeriodTables>((resolve) => {
+        resolve(holderOfTable(tableId));
+      }).then(async (state) => {
+        const units = await firstValueFrom(unitsOf(state.periodId));
+
+        return set(state, tableId, unitId, value, units);
       });
     },
   };
+}
+
+/** What a period's coefficients read as: those written, for units still listed, then a 0 for each listed unit a table has none for. */
+function filled(
+  tables: ThousandthTable[],
+  written: Coefficient[],
+  units: Unit[],
+): Coefficient[] {
+  const listed = new Set(
+    units.map((unit) => {
+      return unit.id;
+    }),
+  );
+
+  const held = written.filter((coefficient) => {
+    return listed.has(coefficient.unitId);
+  });
+
+  const keys = new Set(
+    held.map((coefficient) => {
+      return `${coefficient.tableId} ${coefficient.unitId}`;
+    }),
+  );
+
+  const zeros = tables.flatMap((table) => {
+    return units
+      .filter((unit) => {
+        return !keys.has(`${table.id} ${unit.id}`);
+      })
+      .map((unit): Coefficient => {
+        return { tableId: table.id, unitId: unit.id, value: 0 };
+      });
+  });
+
+  return [...held, ...zeros];
 }
 
 /** In order, then by id. */

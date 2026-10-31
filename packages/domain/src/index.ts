@@ -1,6 +1,8 @@
 export * from "./entities/account.ts";
+export * from "./entities/address.ts";
 export * from "./entities/building.ts";
 export * from "./entities/cents.ts";
+export * from "./entities/contact.ts";
 export * from "./entities/installment.ts";
 export * from "./entities/invoice.ts";
 export * from "./entities/journal.ts";
@@ -13,6 +15,7 @@ export * from "./entities/unit.ts";
 export type { AccountsPort } from "./ports/accountsPort.ts";
 export type { BuildingsPort } from "./ports/buildingsPort.ts";
 export type { ClockPort } from "./ports/clockPort.ts";
+export type { ContactsPort } from "./ports/contactsPort.ts";
 export type {
   InstallmentsDraft,
   InstallmentsPort,
@@ -20,12 +23,16 @@ export type {
 export type { EntryAdded, JournalPort } from "./ports/journalPort.ts";
 export type { SessionPort } from "./ports/sessionPort.ts";
 export type { TableAdded, TablesPort } from "./ports/tablesPort.ts";
-export type { UnitsPort } from "./ports/unitsPort.ts";
+export type { Added, UnitsPort } from "./ports/unitsPort.ts";
 export {
   type AccountsSimulator,
   createAccountsSimulator,
 } from "./simulators/accountsSimulator.ts";
-export { createBuildingsSimulator } from "./simulators/buildingsSimulator.ts";
+export {
+  type BuildingsSimulator,
+  createBuildingsSimulator,
+} from "./simulators/buildingsSimulator.ts";
+export { createContactsSimulator } from "./simulators/contactsSimulator.ts";
 export { fixedClock } from "./simulators/fixedClock.ts";
 export {
   createInstallmentsSimulator,
@@ -42,7 +49,10 @@ export {
   DESIGN_PRINCIPAL,
 } from "./simulators/sessionSimulator.ts";
 export { createTablesSimulator } from "./simulators/tablesSimulator.ts";
-export { createUnitsSimulator } from "./simulators/unitsSimulator.ts";
+export {
+  createUnitsSimulator,
+  type UnitsSimulator,
+} from "./simulators/unitsSimulator.ts";
 export * from "./support/romeTime.ts";
 export * from "./useCases/accountTree.ts";
 export {
@@ -63,6 +73,13 @@ export {
   tableTotalsOf,
 } from "./useCases/allocation/tables.ts";
 export * from "./useCases/budgetShares.ts";
+export {
+  type BuildingRow,
+  buildingRowsOf,
+  PERIOD_TYPE_WORDS,
+  type PeriodFigures,
+  periodFiguresOf,
+} from "./useCases/buildingRows.ts";
 export * from "./useCases/collection.ts";
 export * from "./useCases/installments.ts";
 export * from "./useCases/invoice.ts";
@@ -71,7 +88,29 @@ export * from "./useCases/ledger.ts";
 export * from "./useCases/openInvoices.ts";
 export * from "./useCases/planInstallments.ts";
 export * from "./useCases/schedule.ts";
+export { type OwnersRow, unitOwnersOf } from "./useCases/units/unitOwners.ts";
+export {
+  type UnitsList,
+  type UnitsRow,
+  unitsListOf,
+} from "./useCases/units/unitsList.ts";
 export * from "./useCases/validateBudget.ts";
+export {
+  type BuildingDraft,
+  type PeriodDraft,
+  validateAddress,
+  validateBuilding,
+  validatePeriod,
+} from "./useCases/validateBuilding.ts";
 export * from "./useCases/validateEntry.ts";
 export * from "./useCases/validateSchedule.ts";
 export * from "./useCases/validateTable.ts";
+export {
+  type GroupDraft,
+  type ResidencyDraft,
+  type UnitDraft,
+  validateGroup,
+  validateGroupDelete,
+  validateResidency,
+  validateUnit,
+} from "./useCases/validateUnits.ts";

@@ -17,6 +17,8 @@ describe("the screens' state", () => {
     expect(screens.allocationMode()).toBe(screens.allocationMode());
     expect(screens.coefficientsGrid()).toBe(screens.coefficientsGrid());
     expect(screens.allocationGrid()).toBe(screens.allocationGrid());
+    expect(screens.unitsGrid()).toBe(screens.unitsGrid());
+    expect(screens.unitOwnersGrid()).toBe(screens.unitOwnersGrid());
     expect(screens.columns("accounts", SPEC)).toBe(
       screens.columns("accounts", createSpec(3)),
     );
@@ -125,6 +127,54 @@ describe("the screens' state", () => {
     );
   });
 
+  it("shows the Units grid from the period's root, and the owners of the unit selected", () => {
+    const { app } = createAppHarness();
+    const { screens } = app;
+    const units = screens.unitsGrid();
+    const owners = screens.unitOwnersGrid();
+
+    app.presenters.buildings.selectPeriod("p1");
+
+    expect(keysOf(units.state$.getValue().rows).slice(0, 3)).toEqual([
+      "root",
+      "group:ug1",
+      "unit:u1",
+    ]);
+    expect(keysOf(owners.state$.getValue().rows)).toEqual([
+      "period:u1",
+      "role:PR",
+      "resident:r1",
+    ]);
+
+    units.intents.collapseAll();
+    app.presenters.units.select("root");
+
+    expect(keysOf(units.state$.getValue().rows)).toEqual(["root"]);
+    expect(owners.state$.getValue().rows).toEqual([]);
+
+    // Another period opens the Units grid's rows again.
+    app.presenters.buildings.selectPeriod("p36");
+    expect(allOpen(units.state$.getValue().rows)).toBe(true);
+  });
+
+  it("shows the Building Data grid's buildings over their periods, and keeps them as left on a period switch", () => {
+    const { app } = createAppHarness();
+    const grid = app.screens.buildingDataGrid();
+
+    expect(app.screens.buildingDataGrid()).toBe(grid);
+    expect(keysOf(grid.state$.getValue().rows)).toEqual([
+      "c19",
+      "p36",
+      "c1",
+      "p1",
+    ]);
+
+    grid.intents.toggle("c19");
+    app.presenters.buildings.selectPeriod("p36");
+
+    expect(keysOf(grid.state$.getValue().rows)).toEqual(["c19", "c1", "p1"]);
+  });
+
   it("choosing the period already chosen starts nothing again, nor does the period a grid is first asked for on", () => {
     const { app } = createAppHarness();
 
@@ -168,6 +218,16 @@ function allOpen(rows: readonly OpenableRow[]): boolean {
       return !row.hasChildren || row.expanded;
     })
   );
+}
+
+function keysOf(rows: readonly KeyedRow[]): string[] {
+  return rows.map((row) => {
+    return row.key;
+  });
+}
+
+interface KeyedRow {
+  key: string;
 }
 
 function firstEntryOf(rows: readonly JournalGridRow[]): string {

@@ -18,6 +18,26 @@ describe("the notices", () => {
     subscription.unsubscribe();
   });
 
+  it("posts a notice in its own words, numbered with the stubs", () => {
+    const notices = createNotices();
+    const subscription = notices.notices$.subscribe();
+
+    notices.stub("Export");
+    notices.say(
+      "Suppliers are edited in Contacts, which is not yet available.",
+    );
+
+    expect(notices.notices$.getValue()).toEqual([
+      { id: 1, text: "Export: not yet available" },
+      {
+        id: 2,
+        text: "Suppliers are edited in Contacts, which is not yet available.",
+      },
+    ]);
+
+    subscription.unsubscribe();
+  });
+
   it("clears one notice and leaves the other", () => {
     const notices = createNotices();
     const subscription = notices.notices$.subscribe();

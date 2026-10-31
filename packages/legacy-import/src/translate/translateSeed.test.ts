@@ -2,11 +2,14 @@ import { describe, expect, it } from "vitest";
 
 import type {
   AccountData,
+  Building,
+  Contact,
   Installment,
   InvoiceData,
   JournalEntryData,
   LegacySeedData,
   ThousandthTable,
+  Unit,
   UnitGroup,
   WithholdingTaxData,
 } from "@cl/domain";
@@ -167,6 +170,41 @@ describe("translateLegacySeed", () => {
     });
   });
 
+  it("translates the notes of a building, a period, a unit and a group, and a contact's category, and keeps an empty one empty", () => {
+    const seed = translateLegacySeed(
+      createSeed({
+        buildings: [createBuilding("Impresa di pulizie", "Giardiniere")],
+        units: [createUnit("notennotennote2")],
+        unitGroups: [
+          createUnitGroup({ id: "ug1", notes: "Ferramenta" }),
+          createUnitGroup({ id: "ug2", name: "Box", notes: null }),
+        ],
+        contacts: [
+          createContact({ id: "md1", category: "Condòmino" }),
+          createContact({ id: "md2", category: null }),
+        ],
+      }),
+    );
+
+    expect([
+      seed.buildings[0]?.notes,
+      seed.buildings[0]?.periods[0]?.notes,
+      seed.units[0]?.notes,
+      seed.unitGroups.map((group) => {
+        return group.notes;
+      }),
+      seed.contacts.map((contact) => {
+        return contact.category;
+      }),
+    ]).toEqual([
+      "Cleaning company",
+      "Gardener",
+      "note note note2",
+      ["Hardware store", null],
+      ["Owner", null],
+    ]);
+  });
+
   it("refuses two sibling accounts whose different Italian names would read the same in English", () => {
     expect(() => {
       return translateLegacySeed(
@@ -212,7 +250,71 @@ function createSeed(records: Partial<LegacySeedData>): LegacySeedData {
     unitGroups: [],
     tables: [],
     coefficients: [],
+    contacts: [],
+    supplierLinks: [],
     ...records,
+  };
+}
+
+function createBuilding(notes: string, periodNotes: string): Building {
+  return {
+    id: "c1",
+    name: "Saturno",
+    code: "SAT",
+    type: "building",
+    status: "active",
+    address: null,
+    taxCode: null,
+    constructionDate: null,
+    cadastralData: null,
+    notes,
+    createdOn: "2011-04-14 13:52:24",
+    modifiedOn: "2012-12-18 15:41:01",
+    periods: [
+      {
+        id: "p1",
+        name: "2011",
+        type: "ordinary",
+        start: "2011-01-01",
+        end: "2011-12-31",
+        closed: false,
+        notes: periodNotes,
+      },
+    ],
+  };
+}
+
+function createUnit(notes: string): Unit {
+  return {
+    id: "u1",
+    periodId: "p1",
+    code: "A1",
+    groupId: null,
+    restriction: null,
+    name: null,
+    floor: null,
+    interior: null,
+    subUnit: null,
+    type: "apartment",
+    cadastralData: null,
+    notes,
+  };
+}
+
+function createContact(fields: Partial<Contact>): Contact {
+  return {
+    id: "md1",
+    kind: "person",
+    name: "Rossi Anna",
+    status: "active",
+    code: null,
+    category: null,
+    companyName: null,
+    registeredOffice: null,
+    taxDomicile: null,
+    phone: null,
+    email: null,
+    ...fields,
   };
 }
 
@@ -307,6 +409,8 @@ function createUnitGroup(fields: Partial<UnitGroup>): UnitGroup {
     code: "A",
     name: "Scala A",
     parentId: null,
+    address: null,
+    notes: null,
     ...fields,
   };
 }

@@ -53,7 +53,9 @@ describe("the allocation presenter", () => {
     const finalBalance = app.presenters.allocation.allocation$("finalBalance");
     const subscription = finalBalance.subscribe();
 
-    expect(allocation()?.root.label).toBe(labelOfPeriod(seedOf(), "p1"));
+    expect(allocation()?.root.label).toBe(
+      "Saturno / 2011 (Piazza del Duomo, 39, 33033 Codroipo)",
+    );
     expect(allocation()?.root.total).toBe(740000);
     expect(finalBalance.getValue()?.root.total).toBe(245519);
 
@@ -237,7 +239,9 @@ describe("the allocation presenter", () => {
     app.presenters.buildings.selectPeriod("p36");
 
     expect(tables()[0]?.table.id).toBe("dt14");
-    expect(allocation()?.root.label).toBe(labelOfPeriod(seedOf(), "p36"));
+    expect(allocation()?.root.label).toBe(
+      "Pozzetto / 2013 (Piazza Libertà, 74, 33045 Nimis)",
+    );
     expect(
       seen.flat().every((periodId) => {
         return periodId === "p36";
@@ -351,7 +355,7 @@ describe("the allocation presenter", () => {
     expect(presenter.tables$.getValue()[0]?.table.id).toBe("dt14");
     expect(selection.state$.getValue()).toEqual({ tableId: "dt14" });
     expect(presenter.allocation$("budget").getValue()?.root.label).toBe(
-      labelOfPeriod(seedOf(), "p36"),
+      "Pozzetto / 2013 (Piazza Libertà, 74, 33045 Nimis)",
     );
     expect(nodes.at(-1)?.[0]?.key).toBe("unit:u133");
 
@@ -392,6 +396,7 @@ function createLatePorts(
       },
     },
     units: {
+      ...ports.units,
       units: (periodId: string): Observable<Unit[]> => {
         return late(periodId, ports.units.units(periodId));
       },
@@ -516,16 +521,4 @@ function changedColumns(before: AllocationRow, after: AllocationRow): number[] {
 
 function seedOf(): LegacySeed {
   return loadLegacySeed(legacySeedData);
-}
-
-function labelOfPeriod(seed: LegacySeed, periodId: string): string {
-  for (const building of seed.buildings) {
-    for (const period of building.periods) {
-      if (period.id === periodId) {
-        return `${building.name} ${period.name}`;
-      }
-    }
-  }
-
-  throw new Error(`missing: the period ${periodId}`);
 }

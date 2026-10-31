@@ -1,0 +1,28 @@
+/* bu-design.md, Screen 2: the suppliers' list beside the selected one's sheet, sharing the tab by the ratio its splitter holds. */
+.building-suppliers {
+  --suppliers-split: 0.5;
+
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.building-suppliers-list {
+  flex: calc(var(--suppliers-split) * 100) 1 0;
+  min-width: 0;
+  overflow: auto;
+}
+
+.building-suppliers-sheet {
+  flex: calc((1 - var(--suppliers-split)) * 100) 1 0;
+  min-width: 0;
+  overflow: auto;
+}
+
+.building-suppliers-category {
+  display: block;
+  color: var(--txd);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

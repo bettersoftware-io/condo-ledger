@@ -148,8 +148,22 @@ export function createCoefficient(
   return { tableId, unitId, value };
 }
 
-function createUnit(id: string, code: string): Unit {
-  return { id, periodId: "p1", code, groupId: null, restriction: null };
+/** A whole-period apartment of p1, in no group. */
+export function createUnit(id: string, code: string): Unit {
+  return {
+    id,
+    periodId: "p1",
+    code,
+    groupId: null,
+    restriction: null,
+    name: null,
+    floor: null,
+    interior: null,
+    subUnit: null,
+    type: "apartment",
+    cadastralData: null,
+    notes: null,
+  };
 }
 
 function createResident(

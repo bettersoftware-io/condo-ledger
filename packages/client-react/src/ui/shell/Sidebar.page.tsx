@@ -16,6 +16,7 @@ import {
   type AccountsScreenPage,
   accountsScreenIn,
 } from "../accounts/AccountsScreen.page.tsx";
+import { type FormDialogPage, formDialogIn } from "../FormDialog.page.tsx";
 import { TESTIDS } from "../testids.ts";
 import { AppRoot } from "./AppRoot.tsx";
 import { dragSplitterElement } from "./Splitter.page.tsx";
@@ -33,10 +34,15 @@ export interface SidebarPage {
   menuLabels: () => string[];
   activeMenu: () => string | null;
   clickMenu: (label: string) => Promise<void>;
+  /** Clicks the top bar's module tab with this label. */
+  clickModule: (label: string) => Promise<void>;
   /** The menu item the whole app is on, read back through the view model. */
   appMenu: () => string;
   clickTool: (label: string) => Promise<void>;
+  isToolDisabled: (label: string) => boolean;
   toasts: () => string[];
+  /** The Edit Management / Period dialog the ✎ opens. */
+  dialog: FormDialogPage;
   dragSplitter: (by: number) => void;
   /** Presses on the splitter, moves to each position in turn (each measured from the press), and lets go. */
   dragSplitterThrough: (steps: number[]) => void;
@@ -186,12 +192,23 @@ export function mountSidebar(options: SidebarOptions = {}): SidebarPage {
     clickMenu: async (label: string): Promise<void> => {
       await user.click(within(sidebar()).getByRole("button", { name: label }));
     },
+    clickModule: async (label: string): Promise<void> => {
+      await user.click(rendered.getByRole("tab", { name: label }));
+    },
     appMenu: (): string => {
       return read().menu;
     },
     clickTool: async (label: string): Promise<void> => {
       await user.click(within(sidebar()).getByRole("button", { name: label }));
     },
+    isToolDisabled: (label: string): boolean => {
+      return within(sidebar())
+        .getByRole<HTMLButtonElement>("button", { name: label })
+        .hasAttribute("disabled");
+    },
+    dialog: formDialogIn(() => {
+      return rendered.container;
+    }, user),
     toasts: (): string[] => {
       return rendered.queryAllByTestId(TESTIDS.toast).map((toast) => {
         return toast.querySelector(".toast-text")?.textContent ?? "";

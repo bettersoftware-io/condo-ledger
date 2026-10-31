@@ -1,0 +1,29 @@
+/* Scenario, Restr. period and Days: 11.5px on the amounts' line, cut with an ellipsis when narrowed. */
+.unit-owners-text {
+  display: block;
+  padding: 3px 0;
+  font-size: 11.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* README "Unit Owners": Out is a tick in the accent colour. */
+.unit-owners-out {
+  display: block;
+  padding: 3px 0;
+  color: var(--acc);
+  font-weight: 700;
+}
+
+.unit-owners-coefficient {
+  display: block;
+  padding: 3px 0;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The head's and the sub-heads' icons, a little apart from their labels. */
+.unit-owners-icon {
+  margin-right: 5px;
+}

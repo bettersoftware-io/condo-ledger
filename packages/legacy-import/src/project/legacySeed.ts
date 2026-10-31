@@ -5,6 +5,7 @@ import {
   type AccountType,
   type Building,
   type Coefficient,
+  type Contact,
   type Counterpart,
   type EntryKind,
   type Installment,
@@ -14,15 +15,18 @@ import {
   type LegacySeedData,
   type LinkUse,
   type PartyData,
+  type Period,
   type PostingData,
   type Restriction,
   type RolePresence,
   type RoleShares,
   romeTime,
+  type SupplierLink,
   type TableLink,
   type ThousandthTable,
   type Unit,
   type UnitGroup,
+  type UnitType,
   type WithholdingTaxData,
 } from "@cl/domain";
 
@@ -30,8 +34,9 @@ import { eur } from "../amounts.ts";
 import type { Db } from "../db.ts";
 import type { Row } from "../loadRows.ts";
 import { reconcilePeriods } from "../reconcile.ts";
-import { masterDataName } from "./masterData.ts";
-import { projectTree } from "./structure.ts";
+import { unitTypeOf } from "../translate/exact.ts";
+import { masterDataName, projectContact } from "./masterData.ts";
+import { addressOf, buildingProfileOf, projectTree } from "./structure.ts";
 
 const ROLE_COLUMNS: Record<string, AccountRole> = {
   paymentInCashLedgerAccountId: "cash",
@@ -40,6 +45,18 @@ const ROLE_COLUMNS: Record<string, AccountRole> = {
   flatResidentAccountsReceivableLedgerAccountId: "owners",
   flatResidentRoundingOffLedgerAccountId: "roundings",
 };
+
+/** A role held by the one top-level account of a nature with a name, which the legacy period names in no column. */
+interface NamedRole {
+  name: string;
+  nature: AccountNature;
+  role: AccountRole;
+}
+
+const NAMED_ROLES: readonly NamedRole[] = [
+  { name: "Liquidità", nature: "assets", role: "liquidity" },
+  { name: "Fondi", nature: "liabilities", role: "funds" },
+];
 
 // Every nature and type the domain knows, so a value the dump has and the
 // domain does not is refused here rather than cast through.
@@ -85,11 +102,11 @@ export const ENTRY_KIND_OF_TYPE: Record<string, EntryKind> = {
 /** The periods with balanced books, as the simulators read them. */
 export function projectLegacySeed(db: Db): LegacySeedData {
   const status = reconcilePeriods(db);
+  const periodRows = db.by("accountingPeriod", "id");
   const buildings: Building[] = projectTree(db)
     .map((node) => {
       return {
-        id: node.id,
-        name: node.name,
+        node,
         periods: node.periods
           .filter((period) => {
             const legacyId = period.id.slice(1);
@@ -98,7 +115,7 @@ export function projectLegacySeed(db: Db): LegacySeedData {
               status[legacyId]?.reconciles === true
             );
           })
-          .map((period) => {
+          .map((period): Period => {
             return {
               id: period.id,
               name: period.name.replace(/ \(.*\)$/, ""),
@@ -106,12 +123,21 @@ export function projectLegacySeed(db: Db): LegacySeedData {
               start: period.start,
               end: period.end,
               closed: period.closed,
+              notes: text(periodRows.get(period.id.slice(1))?.notes) ?? null,
             };
           }),
       };
     })
     .filter((building) => {
       return building.periods.length > 0;
+    })
+    .map(({ node, periods }) => {
+      return {
+        id: node.id,
+        name: node.name,
+        ...buildingProfileOf(db, node.id.slice(1)),
+        periods,
+      };
     });
 
   const periodIds = buildings.flatMap((building) => {
@@ -140,16 +166,18 @@ export function projectLegacySeed(db: Db): LegacySeedData {
     );
   });
 
+  const parties = periodIds.map((periodId) => {
+    return {
+      periodId: `p${periodId}`,
+      parties: projectParties(db, periodId),
+    };
+  });
+
   return {
     buildings,
     accounts,
     entries,
-    parties: periodIds.map((periodId) => {
-      return {
-        periodId: `p${periodId}`,
-        parties: projectParties(db, periodId),
-      };
-    }),
+    parties,
     invoices: periodIds.flatMap((periodId) => {
       return projectInvoices(db, periodId, entries);
     }),
@@ -174,7 +202,49 @@ export function projectLegacySeed(db: Db): LegacySeedData {
     coefficients: periodIds.flatMap((periodId) => {
       return projectCoefficients(db, periodId);
     }),
+    contacts: projectContacts(
+      db,
+      parties.flatMap((list) => {
+        return list.parties;
+      }),
+    ),
+    supplierLinks: buildings.flatMap((building) => {
+      return projectSupplierLinks(db, building.id);
+    }),
   };
+}
+
+/** The contact of every party, each once, by name. */
+function projectContacts(db: Db, parties: PartyData[]): Contact[] {
+  const ids = new Set(
+    parties.map((party) => {
+      return (party.kind === "owner" ? party.personId : party.id).slice(2);
+    }),
+  );
+
+  return [...ids]
+    .map((id) => {
+      return projectContact(db, id);
+    })
+    .sort((a, b) => {
+      return a.name.localeCompare(b.name, "it") || a.id.localeCompare(b.id);
+    });
+}
+
+/** The building's suppliers, by contact id. */
+function projectSupplierLinks(db: Db, buildingId: string): SupplierLink[] {
+  return db
+    .rows("condominiumSupplier")
+    .filter((row) => {
+      return `c${String(row.condominiumId)}` === buildingId;
+    })
+    .map((row) => {
+      return String(row.masterDataId);
+    })
+    .sort(byNumber)
+    .map((id) => {
+      return { buildingId, contactId: `md${id}` };
+    });
 }
 
 /** The TypeScript module the domain's simulators import. */
@@ -211,6 +281,24 @@ function projectAccounts(db: Db, periodId: string): AccountData[] {
     if (id !== undefined) {
       assignRole(roles, id, role);
     }
+  }
+
+  for (const { name, nature, role } of NAMED_ROLES) {
+    const named = rows.filter((row) => {
+      return (
+        text(row.parentLedgerAccountId) === undefined &&
+        String(row.kind) === nature &&
+        text(row.name) === name
+      );
+    });
+
+    if (named.length !== 1) {
+      throw new Error(
+        `the period ${periodId} has ${named.length} top-level ${nature} accounts named ${name}; it needs one`,
+      );
+    }
+
+    assignRole(roles, String(named[0]?.id), role);
   }
 
   for (const link of db.rows("withholdingTax2LA")) {
@@ -387,6 +475,13 @@ function projectUnits(db: Db, periodId: string): Unit[] {
         code: must(text(row.code), `the code of the unit ${id}`),
         groupId: group === undefined ? null : `ug${group}`,
         restriction: restrictionOf(row),
+        name: text(row.name) ?? null,
+        floor: text(row.floor) ?? null,
+        interior: text(row.innerNumber) ?? null,
+        subUnit: text(row.subordinateNumber) ?? null,
+        type: unitTypeOfRow(db, row),
+        cadastralData: text(row.landRegistry) ?? null,
+        notes: text(row.notes) ?? null,
       };
     });
 }
@@ -408,8 +503,33 @@ function projectUnitGroups(db: Db, periodId: string): UnitGroup[] {
         code: String(row.code),
         name: String(row.name),
         parentId: parent === undefined ? null : `ug${parent}`,
+        address: addressOf(db, row.address),
+        notes: text(row.notes) ?? null,
       };
     });
+}
+
+/** A unit's type, by the name of its row in the dump's unitType table. */
+function unitTypeOfRow(db: Db, unit: Row): UnitType {
+  const id = String(unit.id);
+  const typeId = text(unit.unitTypeId);
+  const name = must(
+    text(
+      typeId === undefined
+        ? undefined
+        : db.by("unitType", "id").get(typeId)?.name,
+    ),
+    `the type of the unit ${id}`,
+  );
+  const type = unitTypeOf(name);
+
+  if (type === undefined) {
+    throw new Error(
+      `the unit ${id} has the type ${name}, which the domain does not know`,
+    );
+  }
+
+  return type;
 }
 
 /** The period's thousandth tables by their order, then id. */

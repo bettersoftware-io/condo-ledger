@@ -3,14 +3,14 @@ import { describe, expect, it } from "vitest";
 import { formatAddress, parseAddressVO } from "./addressVO.ts";
 
 describe("parseAddressVO", () => {
-  it("extracts string fields and ignores N (null) / i: (int)", () => {
+  it("extracts string fields and the city's id, and ignores N (null)", () => {
     const a = parseAddressVO(SATURNO);
-    expect(a).toMatchObject({
+    expect(a).toEqual({
       postCode: "33017",
       street: "via dei Glicini, 4",
       countryIso3166_1_a2: "IT",
+      cityId: "41",
     });
-    expect(a.cityName).toBeUndefined();
   });
   it("composes streetName + streetNumber when street is null", () => {
     expect(formatAddress(parseAddressVO(POZZETTO))).toBe(

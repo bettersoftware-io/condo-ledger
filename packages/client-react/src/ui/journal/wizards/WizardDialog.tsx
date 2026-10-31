@@ -125,7 +125,7 @@ export function WizardDialog({
       }
     >
       <FormField label="Building / Period" readOnly>
-        {context === null ? "" : `${context.building} / ${context.period}`}
+        {context === null ? "" : headerOf(context)}
       </FormField>
       <div ref={body} className="wizard-body">
         {children}
@@ -295,4 +295,14 @@ function radiosOf(root: HTMLElement, name: string): HTMLInputElement[] {
 /** A side of a preview line: a zero side is an empty cell. */
 function sideOf(amount: Cents): Cents | null {
   return amount === ZERO_CENTS ? null : amount;
+}
+
+/** "{building} ({address}) / {period}", without " ({address})" when the building has none. */
+function headerOf(context: JournalContext): string {
+  const building =
+    context.address === null
+      ? context.building
+      : `${context.building} (${context.address})`;
+
+  return `${building} / ${context.period}`;
 }

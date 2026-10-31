@@ -13,7 +13,11 @@ export const LEADING_COLUMNS: TreeGridColumn[] = [
   { header: "Days", align: "center" },
   { header: "Prev. bal.", align: "right" },
   { header: "Total budget", align: "right" },
-  { header: "Total due", align: "right" },
+  {
+    header: "Total due",
+    align: "right",
+    title: "Previous balance + budget share",
+  },
 ];
 
 export const TRAILING_COLUMNS: TreeGridColumn[] = [

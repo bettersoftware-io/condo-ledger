@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { buildDb } from "../db.ts";
 import type { Tables } from "../loadRows.ts";
-import { projectTree } from "./structure.ts";
+import { buildingProfileOf, projectTree } from "./structure.ts";
 
 const tables: Tables = {
   condominium: [
@@ -336,6 +336,13 @@ describe("structure projection — condominium type + period label regressions",
     const p = sole.periods[0]!;
     expect(p.type).toBe("extra");
     expect(p.name).toMatch(/\(Straordinario\)$/);
+  });
+
+  it.each([
+    ["10", "residence"],
+    ["13", "superBuilding"],
+  ])("gives the building %s the type %s", (id, type) => {
+    expect(buildingProfileOf(db, id).type).toBe(type);
   });
 
   const db = buildDb(extraTables);

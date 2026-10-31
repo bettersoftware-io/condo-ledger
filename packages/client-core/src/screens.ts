@@ -1,12 +1,15 @@
-import { type Observable, switchMap } from "rxjs";
+import { map, NEVER, type Observable, switchMap } from "rxjs";
 
 import type {
   AccountNode,
   Allocation,
   AllocationMode,
+  BuildingRow,
   CoefficientNode,
   JournalEntryView,
+  OwnersRow,
   Schedule,
+  UnitsRow,
 } from "@cl/domain";
 
 import {
@@ -23,9 +26,11 @@ import {
   createAllocationModeMachine,
   createCoefficientsGridMachine,
   createTableSelectionMachine,
+  createTreeGridMachine,
   type TableSelectionIntents,
   type TableSelectionState,
   type TreeGridIntents,
+  type TreeGridState,
 } from "./machines/allocationMachines.ts";
 import {
   type BottomTabIntents,
@@ -55,6 +60,8 @@ import {
   type SplitState,
 } from "./machines/splitMachine.ts";
 import type { TableView } from "./presenters/allocationPresenter.ts";
+import type { BuildingDataView } from "./presenters/buildingDataPresenter.ts";
+import type { UnitsView } from "./presenters/unitsPresenter.ts";
 
 /** The grids whose columns a person resizes. */
 export type GridName =
@@ -64,13 +71,23 @@ export type GridName =
   | "schedule"
   | "tables"
   | "coefficients"
-  | "allocation";
+  | "allocation"
+  | "units"
+  | "unitOwners"
+  | "buildingData"
+  | "suppliers";
 
-/** The splitters between two panels: the Accounts screen's, and the Tables & Allocation screen's two. */
-export type SplitName = "accounts" | "allocationRows" | "allocationColumns";
+/** The splitters between two panels: the Accounts screen's, the Tables & Allocation screen's two, the Units screen's, the Building Data screen's, and the Building Suppliers tab's. */
+export type SplitName =
+  | "accounts"
+  | "allocationRows"
+  | "allocationColumns"
+  | "units"
+  | "buildingData"
+  | "suppliers";
 
 /** The panels with tabs. */
-export type TabbedPanelName = "accounts";
+export type TabbedPanelName = "accounts" | "units" | "buildingData";
 
 /**
  * What the screens show and how they are laid out, kept for the session: one
@@ -94,6 +111,12 @@ export interface AppScreens {
   coefficientsGrid: () => Machine<CoefficientsGridState, TreeGridIntents>;
   /** The allocation in the mode chosen, as it changes. */
   allocationGrid: () => Machine<AllocationGridState, TreeGridIntents>;
+  /** The Units grid's rows, from the period's root. */
+  unitsGrid: () => Machine<TreeGridState<UnitsRow>, TreeGridIntents>;
+  /** The Unit Owners tab's rows, of the unit the Units screen selects. */
+  unitOwnersGrid: () => Machine<TreeGridState<OwnersRow>, TreeGridIntents>;
+  /** The Building Data grid's rows: every building over its periods. A period switch leaves them as they are, since they are every period's. */
+  buildingDataGrid: () => Machine<TreeGridState<BuildingRow>, TreeGridIntents>;
   /**
    * The widths of a grid's columns. A grid keeps widths for each set of
    * columns it is drawn with, told apart by value: one drawn with another
@@ -120,6 +143,8 @@ export interface ScreenSources {
   tables$: Observable<TableView[]>;
   coefficients$: (tableId: string | null) => Observable<CoefficientNode[]>;
   allocation$: (mode: AllocationMode) => Observable<Allocation | null>;
+  units$: Observable<UnitsView | null>;
+  buildingData$: Observable<BuildingDataView>;
   /**
    * The selected period, once each time it changes to another. Each emission
    * opens every grid's rows as they start; the one a grid finds when it is
@@ -171,6 +196,40 @@ export function createScreens(sources: ScreenSources): AppScreens {
         period$,
       );
     }),
+    unitsGrid: once((): Machine<TreeGridState<UnitsRow>, TreeGridIntents> => {
+      return createTreeGridMachine(
+        sources.units$.pipe(
+          map((view) => {
+            return view === null ? [] : [view.list.root];
+          }),
+        ),
+        period$,
+      );
+    }),
+    unitOwnersGrid: once(
+      (): Machine<TreeGridState<OwnersRow>, TreeGridIntents> => {
+        return createTreeGridMachine(
+          sources.units$.pipe(
+            map((view) => {
+              return view === null || view.owners === null ? [] : [view.owners];
+            }),
+          ),
+          period$,
+        );
+      },
+    ),
+    buildingDataGrid: once(
+      (): Machine<TreeGridState<BuildingRow>, TreeGridIntents> => {
+        return createTreeGridMachine(
+          sources.buildingData$.pipe(
+            map((view) => {
+              return view.rows;
+            }),
+          ),
+          NEVER,
+        );
+      },
+    ),
     columns: keyedByValue(
       (
         _grid: GridName,

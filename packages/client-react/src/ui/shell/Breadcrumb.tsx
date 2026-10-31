@@ -9,14 +9,47 @@ import { menuLabel, moduleLabel, periodLabel } from "./labels.tsx";
 
 import "./Breadcrumb.css";
 
-/** Where the person is: the module, and in Buildings the building, the period and the screen. The last crumb is the current place. */
+/**
+ * Where the person is: the module, and in Buildings the building, the period
+ * and the screen; on the Units screen, the selected unit's or group's code
+ * after them. The last crumb is the current place.
+ */
 export function Breadcrumb(): ReactElement {
   const { useNavigation, useBuildingsTree, useSelectedPeriod } = useViewModel();
   const navigation = useNavigation();
   const buildings = useBuildingsTree();
   const { selected } = useSelectedPeriod();
   const crumbs = crumbsOf(navigation.state, buildings, selected);
+  const { module, menu } = navigation.state;
 
+  // Only the Units screen reads its selection: elsewhere nothing works out
+  // the units for a crumb no one sees.
+  return module === "buildings" && menu === "units" ? (
+    <UnitsTrail crumbs={crumbs} />
+  ) : (
+    <Trail crumbs={crumbs} />
+  );
+}
+
+interface TrailProps {
+  crumbs: Crumb[];
+}
+
+/** The trail with the Units screen's selection at its end, when it names a unit or a group. */
+function UnitsTrail({ crumbs }: TrailProps): ReactElement {
+  const { useUnits } = useViewModel();
+  const { crumb } = useUnits();
+
+  return (
+    <Trail
+      crumbs={
+        crumb === null ? crumbs : [...crumbs, { part: "unit", text: crumb }]
+      }
+    />
+  );
+}
+
+function Trail({ crumbs }: TrailProps): ReactElement {
   return (
     <nav
       className="breadcrumb"
@@ -82,6 +115,6 @@ function crumbsOf(
 
 /** One crumb: the part of the path it names, which keys it (two parts can read the same), and its text. */
 interface Crumb {
-  part: "module" | "building" | "period" | "menu";
+  part: "module" | "building" | "period" | "menu" | "unit";
   text: string;
 }

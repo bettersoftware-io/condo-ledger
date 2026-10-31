@@ -1,0 +1,84 @@
+/* bu-design.md, Screen 2: the panel fills its part of the screen, and its grid scrolls under the toolbar. */
+.building-data-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.building-data-panel > .panel {
+  flex: 1;
+}
+
+.building-data-body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.building-data-grid {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* `+▾` and the menu that hangs from it. */
+.building-data-menu-anchor {
+  position: relative;
+}
+
+.building-data-menu-anchor > .popover[data-width] {
+  top: 28px;
+  right: auto;
+  left: 0;
+  width: 188px;
+}
+
+.building-data-spacer {
+  flex: 1;
+}
+
+/* A building's code: mono, dim, bold on its row, on the label's line. */
+.building-data-code {
+  display: block;
+  padding: 3px 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--txd);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.building-data-code[data-emphasis="true"] {
+  font-weight: 700;
+}
+
+.building-data-type {
+  font-size: 13px;
+}
+
+/* The read-only Closed box, at full strength: it shows a state, not a control that is off. */
+.building-data-closed input {
+  margin: 0;
+  vertical-align: middle;
+  opacity: 1;
+}
+
+/* The period's dates: 11.5px, dim, on the amounts' line. */
+.building-data-dates {
+  display: block;
+  padding: 3px 0;
+  font-size: 11.5px;
+  color: var(--txd);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A row's icon, a little apart from its label. */
+.building-data-icon {
+  margin-right: 5px;
+}

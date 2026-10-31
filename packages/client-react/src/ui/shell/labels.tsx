@@ -9,7 +9,7 @@ import {
 import type { ReactNode } from "react";
 
 import type { NavigationState } from "@cl/client-core";
-import type { Building } from "@cl/domain";
+import { type Building, PERIOD_TYPE_WORDS } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
 // What the shell calls the places it leads to. Its own module, apart from the
@@ -71,12 +71,6 @@ export const MENU_ITEMS: readonly MenuItem[] = [
   },
 ];
 
-const PERIOD_TYPES: Record<Period["type"], string> = {
-  ordinary: "Ordinary",
-  extra: "Extraordinary",
-  auxiliary: "Auxiliary",
-};
-
 /** What a module is called on its tab, in the breadcrumb and on its placeholder. */
 export function moduleLabel(module: Module): string {
   return must(
@@ -99,5 +93,5 @@ export function menuLabel(menu: Menu): string {
 
 /** How a period is named in the sidebar and the breadcrumb: "2013 (Ordinary)". */
 export function periodLabel(period: Period): string {
-  return `${period.name} (${PERIOD_TYPES[period.type]})`;
+  return `${period.name} (${PERIOD_TYPE_WORDS[period.type]})`;
 }

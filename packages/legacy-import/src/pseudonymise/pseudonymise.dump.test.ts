@@ -37,8 +37,13 @@ describe.skipIf(!legacyDumpAvailable())(
     it("leaves no original name, code, contact or address anywhere in the seed or the registry", () => {
       const { tables, seed, anagrafiche } = load();
       const json = JSON.stringify({ seed, anagrafiche });
+      // A person's name is looked for outside the fake towns (a real
+      // "Daniele" inside the fake "San Daniele del Friuli" is the town's);
+      // every other value (a street, a firm, a code) in the whole text.
+      const townless = withoutFakeTowns(json);
+      const others = new Set(otherOriginalValues(tables));
       const leaks = originalValues(tables).filter((value) => {
-        return wholeWord(value).test(json);
+        return wholeWord(value).test(others.has(value) ? json : townless);
       });
 
       expect(originalValues(tables).length).toBeGreaterThan(250);
@@ -97,7 +102,29 @@ function load(): Loaded {
   return cached;
 }
 
+// Every original value the seed must not hold: the people's names and the rest.
 function originalValues(tables: Tables): string[] {
+  return [...new Set([...personNames(tables), ...otherOriginalValues(tables)])];
+}
+
+// The people's first and last names.
+function personNames(tables: Tables): string[] {
+  const out = new Set<string>();
+
+  for (const p of tables.person ?? []) {
+    for (const name of [p.firstName, p.lastName]) {
+      if (typeof name === "string" && name.trim().length >= 3) {
+        out.add(name.trim());
+      }
+    }
+  }
+
+  return [...out];
+}
+
+// The original values other than the people's names: firms, codes, contacts,
+// streets and addresses, the buildings' real towns.
+function otherOriginalValues(tables: Tables): string[] {
   const out = new Set<string>();
   const buildingFirms = buildingFirmIds(tables);
 
@@ -105,11 +132,6 @@ function originalValues(tables: Tables): string[] {
     if (typeof value === "string" && value.trim().length >= minLength) {
       out.add(value.trim());
     }
-  }
-
-  for (const p of tables.person ?? []) {
-    add(p.firstName);
-    add(p.lastName);
   }
 
   for (const c of tables.company ?? []) {
@@ -234,6 +256,15 @@ interface Loaded {
 }
 
 let cached: Loaded | null = null;
+
+// The text with every town of the fake pool taken out: a fake address names
+// one ("San Daniele del Friuli"), and a real first name inside it is the
+// town's, not the person's. Only people's names are looked for in it.
+function withoutFakeTowns(text: string): string {
+  return TOWNS.reduce((rest, town) => {
+    return rest.replaceAll(town.name, "");
+  }, text);
+}
 
 // The value as a whole word, in any letter case: a name inside a longer word is not a leak.
 function wholeWord(value: string): RegExp {

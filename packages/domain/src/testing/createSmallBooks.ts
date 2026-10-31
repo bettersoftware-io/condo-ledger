@@ -5,6 +5,7 @@ import type {
   AccountType,
 } from "../entities/account.ts";
 import { cents } from "../entities/cents.ts";
+import type { Contact } from "../entities/contact.ts";
 import type {
   Counterpart,
   EntryKind,
@@ -214,7 +215,11 @@ export function createSmallBooks(): SmallBooks {
   };
 }
 
-/** The small books as a seed: one building, Pozzetto, whose one period, 2013, holds them. */
+/**
+ * The small books as a seed: one building, Pozzetto, whose one period, 2013,
+ * holds them; its three units are apartments, its two suppliers are linked to
+ * it, and every party has a contact.
+ */
 export function createSmallSeed(): LegacySeed {
   const books = createSmallBooks();
 
@@ -223,6 +228,16 @@ export function createSmallSeed(): LegacySeed {
       {
         id: "c1",
         name: "Pozzetto",
+        code: "POZ",
+        type: "building",
+        status: "active",
+        address: { street: "Via Roma, 1", postcode: "33100", city: "Udine" },
+        taxCode: null,
+        constructionDate: null,
+        cadastralData: null,
+        notes: null,
+        createdOn: "2012-12-20 09:00:00",
+        modifiedOn: "2012-12-20 09:00:00",
         periods: [
           {
             id: books.periodId,
@@ -231,6 +246,7 @@ export function createSmallSeed(): LegacySeed {
             start: "2013-01-01",
             end: "2013-12-31",
             closed: false,
+            notes: null,
           },
         ],
       },
@@ -249,11 +265,48 @@ export function createSmallSeed(): LegacySeed {
         code,
         groupId: null,
         restriction: null,
+        name: null,
+        floor: null,
+        interior: null,
+        subUnit: null,
+        type: "apartment",
+        cadastralData: null,
+        notes: null,
       };
     }),
     unitGroups: [],
     tables: [],
     coefficients: [],
+    contacts: [
+      createContact("md1", "company", "Alfa s.n.c."),
+      createContact("md11", "person", "Bianchi Anna"),
+      createContact("md2", "company", "Beta S.p.A."),
+      createContact("md10", "person", "Rossi Mario"),
+    ],
+    supplierLinks: [
+      { buildingId: "c1", contactId: "md1" },
+      { buildingId: "c1", contactId: "md2" },
+    ],
+  };
+}
+
+function createContact(
+  id: string,
+  kind: Contact["kind"],
+  name: string,
+): Contact {
+  return {
+    id,
+    kind,
+    name,
+    status: "active",
+    code: null,
+    category: null,
+    companyName: kind === "company" ? name : null,
+    registeredOffice: null,
+    taxDomicile: null,
+    phone: null,
+    email: null,
   };
 }
 

@@ -1,0 +1,10 @@
+/* The notes as written, their line breaks kept; none reads `---`, dim. */
+.units-notes {
+  margin: 0;
+  font-size: 12.5px;
+  white-space: pre-wrap;
+}
+
+.units-notes[data-blank="true"] {
+  color: var(--txd);
+}

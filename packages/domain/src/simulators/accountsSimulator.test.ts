@@ -1,9 +1,13 @@
-import { firstValueFrom } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 import { describe, expect, it } from "vitest";
 
 import { cents } from "#/entities/cents.ts";
+import type { OwnerParty } from "#/entities/party.ts";
 
-import { createSmallSeed } from "../testing/createSmallBooks.ts";
+import {
+  createSmallBooks,
+  createSmallSeed,
+} from "../testing/createSmallBooks.ts";
 import { createTwoPeriodSeed } from "../testing/createTwoPeriodSeed.ts";
 import { createAccountsSimulator } from "./accountsSimulator.ts";
 
@@ -23,7 +27,7 @@ describe("accounts simulator", () => {
     }).toThrow("missing: the period p99");
   });
 
-  it("answers the period's parties, whether or not a posting names them", async () => {
+  it("answers the period's parties, whether or not a posting names them: the suppliers first, then the residents", async () => {
     const seed = createSmallSeed();
     const port = createAccountsSimulator({
       ...seed,
@@ -46,10 +50,38 @@ describe("accounts simulator", () => {
     ).toEqual([
       "supplier:md1",
       "supplier:md2",
+      "supplier:md9",
       "owner:r1",
       "owner:r2",
       "owner:r3",
-      "supplier:md9",
+    ]);
+  });
+
+  it("reads the residents from the reader, emitting the parties again whenever it does", () => {
+    const residents$ = new BehaviorSubject<OwnerParty[]>([]);
+    const port = createAccountsSimulator(createSmallSeed(), (periodId) => {
+      return periodId === "p1" ? residents$ : of([]);
+    });
+    const seen: string[][] = [];
+    const subscription = port.parties("p1").subscribe((parties) => {
+      seen.push(
+        parties.map((party) => {
+          return party.id;
+        }),
+      );
+    });
+    const resident = createSmallBooks().parties[2];
+
+    if (resident?.kind !== "owner") {
+      throw new Error("missing: the small books' first owner");
+    }
+
+    residents$.next([{ ...resident, id: "r-new-1" }]);
+    subscription.unsubscribe();
+
+    expect(seen).toEqual([
+      ["md1", "md2"],
+      ["md1", "md2", "r-new-1"],
     ]);
   });
 

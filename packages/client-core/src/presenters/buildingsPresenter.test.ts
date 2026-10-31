@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { type Building, createBuildingsSimulator } from "@cl/domain";
+import {
+  type Building,
+  createBuildingsSimulator,
+  fixedClock,
+} from "@cl/domain";
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 
 import {
@@ -57,7 +61,9 @@ interface Presented {
 
 function createPresented(buildings: Building[]): Presented {
   const seed = { ...createSmallSeed(), buildings };
-  const presenter = createBuildingsPresenter(createBuildingsSimulator(seed));
+  const presenter = createBuildingsPresenter(
+    createBuildingsSimulator(seed, fixedClock("2026-10-14T08:00:00Z")),
+  );
   let tree: Building[] = [];
   let selected: PeriodSelection | null = null;
   const errors: string[] = [];
@@ -91,18 +97,23 @@ function twoBuildings(): Building[] {
     start: "2013-01-01",
     end: "2013-12-31",
     closed: false,
+    notes: null,
   };
 
-  return [
-    {
-      id: "c1",
-      name: "Pozzetto",
-      periods: [{ id: "p1", name: "2013", ...period }],
-    },
-    {
-      id: "c2",
-      name: "Saturno",
-      periods: [{ id: "p2", name: "2011", ...period }],
-    },
-  ];
+  return createSmallSeed().buildings.flatMap((building) => {
+    return [
+      {
+        ...building,
+        id: "c1",
+        name: "Pozzetto",
+        periods: [{ id: "p1", name: "2013", ...period }],
+      },
+      {
+        ...building,
+        id: "c2",
+        name: "Saturno",
+        periods: [{ id: "p2", name: "2011", ...period }],
+      },
+    ];
+  });
 }

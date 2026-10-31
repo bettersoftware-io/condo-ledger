@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { type Cents, cents } from "#/entities/cents.ts";
 import type { EntryDraft } from "#/entities/journal.ts";
+import type { OwnerParty } from "#/entities/party.ts";
 import type { InstallmentsDraft } from "#/ports/installmentsPort.ts";
 import type { LegacySeed } from "#/simulators/seed/legacySeed.ts";
 
@@ -42,6 +43,32 @@ describe("installments simulator", () => {
       "ii-new-5 in-new-1 r33",
       "ii-new-6 in-new-2 r33",
     ]);
+  });
+
+  it("plans a batch for the residents as the reader answers them now", async () => {
+    const seed = createScheduleSeed();
+    let extra: OwnerParty[] = [];
+    const installments = createInstallmentsSimulator(
+      seed,
+      (periodId) => {
+        return seed.entries.filter((entry) => {
+          return entry.periodId === periodId;
+        });
+      },
+      (periodId) => {
+        return [...seededResidentsOf(seed, periodId), ...extra];
+      },
+    );
+    const r33 = seededResidentsOf(seed, "p3").at(-1);
+
+    extra = r33 === undefined ? [] : [{ ...r33, id: "r-new-1" }];
+    await installments.createInstallments("p3", createDraft(["A", "B"]));
+
+    expect(
+      (await firstValueFrom(installments.items("p3"))).map((item) => {
+        return item.residentId;
+      }),
+    ).toEqual(["r31", "r31", "r32", "r32", "r33", "r33", "r-new-1", "r-new-1"]);
   });
 
   it("numbers a second batch among the installments it joins, by due date", async () => {
@@ -219,4 +246,15 @@ function createCollection(itemId: string, amount: number): EntryDraft {
       },
     ],
   };
+}
+
+/** The seed's residents of a period, as the simulator defaults them. */
+function seededResidentsOf(seed: LegacySeed, periodId: string): OwnerParty[] {
+  return (
+    seed.parties.find((list) => {
+      return list.periodId === periodId;
+    })?.parties ?? []
+  ).filter((party) => {
+    return party.kind === "owner";
+  });
 }

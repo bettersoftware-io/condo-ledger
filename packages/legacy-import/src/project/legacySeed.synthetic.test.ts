@@ -20,6 +20,16 @@ describe("projectLegacySeed on a small synthetic dump", () => {
         {
           id: "c1",
           name: "Alfa",
+          code: "A",
+          type: "building",
+          status: "active",
+          address: null,
+          taxCode: null,
+          constructionDate: null,
+          cadastralData: null,
+          notes: null,
+          createdOn: "2011-04-14 13:52:24",
+          modifiedOn: "2012-12-18 15:41:01",
           periods: [
             {
               id: "p10",
@@ -28,6 +38,7 @@ describe("projectLegacySeed on a small synthetic dump", () => {
               start: "2013-01-01",
               end: "2013-12-31",
               closed: false,
+              notes: null,
             },
           ],
         },
@@ -104,6 +115,24 @@ describe("projectLegacySeed on a small synthetic dump", () => {
             },
           ],
         },
+        seedAccount(
+          "la110",
+          null,
+          "Liquidità",
+          3,
+          "assets",
+          "grouping",
+          "liquidity",
+        ),
+        seedAccount(
+          "la111",
+          null,
+          "Fondi",
+          4,
+          "liabilities",
+          "grouping",
+          "funds",
+        ),
       ],
       entries: [
         {
@@ -232,6 +261,13 @@ describe("projectLegacySeed on a small synthetic dump", () => {
           code: "A01",
           groupId: "ug5",
           restriction: null,
+          name: null,
+          floor: "T",
+          interior: "1",
+          subUnit: null,
+          type: "apartment",
+          cadastralData: null,
+          notes: null,
         },
       ],
       unitGroups: [
@@ -241,6 +277,8 @@ describe("projectLegacySeed on a small synthetic dump", () => {
           code: "A",
           name: "Scala A",
           parentId: null,
+          address: null,
+          notes: null,
         },
       ],
       tables: [
@@ -254,6 +292,48 @@ describe("projectLegacySeed on a small synthetic dump", () => {
         },
       ],
       coefficients: [{ tableId: "dt20", unitId: "u50", value: 380000 }],
+      contacts: [
+        {
+          id: "md81",
+          kind: "company",
+          name: "Acqua Srl",
+          status: "active",
+          code: "ACQUA",
+          category: "Fornitura acqua",
+          companyName: "Acqua Srl",
+          registeredOffice: null,
+          taxDomicile: null,
+          phone: null,
+          email: null,
+        },
+        {
+          id: "md80",
+          kind: "person",
+          name: "Rossi Anna",
+          status: "active",
+          code: "PRS1",
+          category: "Condòmino",
+          companyName: null,
+          registeredOffice: null,
+          taxDomicile: null,
+          phone: null,
+          email: null,
+        },
+        {
+          id: "md82",
+          kind: "person",
+          name: "Verdi Luca",
+          status: "archived",
+          code: null,
+          category: null,
+          companyName: null,
+          registeredOffice: null,
+          taxDomicile: null,
+          phone: null,
+          email: null,
+        },
+      ],
+      supplierLinks: [{ buildingId: "c1", contactId: "md81" }],
     });
   });
 
@@ -417,6 +497,8 @@ describe("projectLegacySeed on a small synthetic dump", () => {
       unitGroups: [],
       tables: [],
       coefficients: [],
+      contacts: [],
+      supplierLinks: [],
     });
   });
 
@@ -587,13 +669,243 @@ describe("projectLegacySeed's allocation data", () => {
       ["la104", "owners"],
       ["la107", "tax"],
       ["la106", "tax"],
+      ["la110", "liquidity"],
+      ["la111", "funds"],
       ["la108", "budgetAllocation"],
       ["la109", "roundings"],
     ]);
   });
 });
 
+describe("projectLegacySeed's profiles, contacts and account roles", () => {
+  it("projects a building's code, type, address, tax code, construction date, cadastral data and notes, and a period's notes", () => {
+    const tables = edit(createSmallDump(), "condominium", "1", {
+      code: "ALF",
+      type: "super",
+      address: SATURNO_ADDRESS,
+      taxCode: "01234567890",
+      manufacturedDate: "1980-05-20",
+      landRegistry: "Foglio 3, Mapp. 12",
+      notes: "Ristrutturato",
+    });
+
+    edit(tables, "accountingPeriod", "10", { notes: "Gestione ordinaria" });
+
+    const building = projectLegacySeed(buildDb(tables)).buildings[0];
+
+    expect([
+      building?.code,
+      building?.type,
+      building?.address,
+      building?.taxCode,
+      building?.constructionDate,
+      building?.cadastralData,
+      building?.notes,
+      building?.periods[0]?.notes,
+    ]).toEqual([
+      "ALF",
+      "superBuilding",
+      { street: "via dei Glicini, 4", postcode: "33017", city: "Tarcento" },
+      "01234567890",
+      "1980-05-20",
+      "Foglio 3, Mapp. 12",
+      "Ristrutturato",
+      "Gestione ordinaria",
+    ]);
+  });
+
+  it("projects a unit's name, sub-unit, cadastral data, notes and type, unit type 3 as a garage, and a group's address and notes", () => {
+    const tables = edit(createSmallDump(), "unit", "50", {
+      unitTypeId: "3",
+      name: "Box nord",
+      subordinateNumber: "a",
+      landRegistry: "Mapp. 195",
+      notes: "Lato nord",
+    });
+
+    edit(tables, "unitGroup", "5", {
+      address: POZZETTO_ADDRESS,
+      notes: "Scala principale",
+    });
+
+    const seed = projectLegacySeed(buildDb(tables));
+
+    expect([seed.units[0], seed.unitGroups[0]]).toMatchObject([
+      {
+        name: "Box nord",
+        floor: "T",
+        interior: "1",
+        subUnit: "a",
+        type: "garage",
+        cadastralData: "Mapp. 195",
+        notes: "Lato nord",
+      },
+      {
+        address: {
+          street: "Viale delle Querce, 8",
+          postcode: "33045",
+          city: "Nimis",
+        },
+        notes: "Scala principale",
+      },
+    ]);
+  });
+
+  it("projects a company contact's two addresses and its first phone and email, leaving out a variation's", () => {
+    const tables = createSmallDump();
+
+    tables.company = [
+      {
+        masterDataId: "81",
+        name: "Acqua Srl",
+        registeredOfficeAddress: SATURNO_ADDRESS,
+        taxPurposeAddress: POZZETTO_ADDRESS,
+      },
+      { masterDataId: "84", name: "Gas Spa" },
+    ];
+    tables.masterDataContact = [
+      createContactRow("1", "web", "www.acqua.example", "1"),
+      createContactRow("2", "tel", "0432 111", "3"),
+      createContactRow("3", "tel", "0432 222", "2"),
+      createContactRow("4", "mail", "info@acqua.example", "4"),
+      createContactRow("5", "mail", "uffici@acqua.example", "5"),
+      {
+        ...createContactRow("6", "mail", "old@acqua.example", "0"),
+        masterDataVariationId: "9",
+      },
+    ];
+
+    const contact = projectLegacySeed(buildDb(tables)).contacts[0];
+
+    expect(contact).toMatchObject({
+      id: "md81",
+      registeredOffice: {
+        street: "via dei Glicini, 4",
+        postcode: "33017",
+        city: "Tarcento",
+      },
+      taxDomicile: {
+        street: "Viale delle Querce, 8",
+        postcode: "33045",
+        city: "Nimis",
+      },
+      phone: "0432 222",
+      email: "info@acqua.example",
+    });
+  });
+
+  it("reads an address with no street as none", () => {
+    const tables = edit(createSmallDump(), "condominium", "1", {
+      address: `C:9:"AddressVO":1:{a:2:{s:8:"postCode";s:5:"33017";s:6:"street";N;}}`,
+    });
+
+    expect(projectLegacySeed(buildDb(tables)).buildings[0]?.address).toBe(null);
+  });
+});
+
 describe("projectLegacySeed refuses what it cannot project, naming the id", () => {
+  it("refuses a period with no top-level Liquidità account among its assets", () => {
+    const tables = edit(createSmallDump(), "ledgerAccount", "110", {
+      kind: "liabilities",
+    });
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow(
+      "the period 10 has 0 top-level assets accounts named Liquidità; it needs one",
+    );
+  });
+
+  it("refuses a period with two top-level Fondi accounts among its liabilities", () => {
+    const tables = createSmallDump();
+
+    tables.ledgerAccount?.push(
+      account("112", null, "Fondi", "grouping", "liabilities", "5"),
+    );
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow(
+      "the period 10 has 2 top-level liabilities accounts named Fondi; it needs one",
+    );
+  });
+
+  it.each([
+    [
+      "type",
+      "villa",
+      "the building 1 has the type villa, which the domain does not know",
+    ],
+    [
+      "status",
+      "deleted",
+      "the building 1 has the status deleted, which the domain does not know",
+    ],
+    ["created", null, "missing: the creation time of the building 1"],
+  ])("refuses a building whose %s is %j", (column, value, message) => {
+    const tables = edit(createSmallDump(), "condominium", "1", {
+      [column]: value,
+    });
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow(message);
+  });
+
+  it("refuses a unit with no type", () => {
+    const tables = edit(createSmallDump(), "unit", "50", { unitTypeId: null });
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow("missing: the type of the unit 50");
+  });
+
+  it("refuses a unit type the domain does not know", () => {
+    const tables = edit(createSmallDump(), "unitType", "1", {
+      name: "Cantina",
+    });
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow(
+      "the unit 50 has the type Cantina, which the domain does not know",
+    );
+  });
+
+  it("refuses a contact status the domain does not know", () => {
+    const tables = edit(createSmallDump(), "masterData", "80", {
+      status: "deleted",
+    });
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow(
+      "the contact 80 has the status deleted, which the domain does not know",
+    );
+  });
+
+  it("refuses a contact with no master data", () => {
+    const tables = createSmallDump();
+
+    tables.masterData = (tables.masterData ?? []).filter((row) => {
+      return row.id !== "80";
+    });
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow("missing: the master data of the contact 80");
+  });
+
+  it("refuses a contact that is neither a person nor a company", () => {
+    const tables = createSmallDump();
+
+    tables.company = [];
+
+    expect(() => {
+      return projectLegacySeed(buildDb(tables));
+    }).toThrow("the contact 81 is neither a person nor a company");
+  });
+
   it("refuses a unit with two unit periods in a seeded period", () => {
     const tables = createSmallDump();
 
@@ -903,11 +1215,29 @@ describe("projectLegacySeed refuses what it cannot project, naming the id", () =
  * another period. For the allocation: A01 in group A, the owner's 100%
  * share, one table (A01 at 38) and the cost account's link to it, 100% on the
  * tenants' role (priority 3); and a group, a unit and a table of another
- * period.
+ * period. For the profiles: the building's status and timestamps, A01 an
+ * apartment on the ground floor, the four legacy unit types, the
+ * master data of every contact (the tenant archived, with no code or
+ * category), and the top-level Liquidità (assets) and Fondi (liabilities).
  */
 function createSmallDump(): Tables {
   return {
-    condominium: [{ id: "1", name: "Alfa", code: "A", type: "regular" }],
+    condominium: [
+      {
+        id: "1",
+        name: "Alfa",
+        code: "A",
+        type: "regular",
+        status: "active",
+        address: null,
+        taxCode: null,
+        manufacturedDate: null,
+        landRegistry: null,
+        notes: null,
+        created: "2011-04-14 11:52:24",
+        lastModified: "2012-12-18 14:41:01",
+      },
+    ],
     accountingPeriod: [
       {
         id: "10",
@@ -922,6 +1252,7 @@ function createSmallDump(): Tables {
         supplierAccountsPayableLedgerAccountId: "103",
         flatResidentAccountsReceivableLedgerAccountId: "104",
         flatResidentRoundingOffLedgerAccountId: null,
+        notes: null,
       },
     ],
     unitGroup: [
@@ -941,8 +1272,22 @@ function createSmallDump(): Tables {
       },
     ],
     unit: [
-      { id: "50", accountingPeriodId: "10", code: "A01", unitGroupId: "5" },
+      {
+        id: "50",
+        accountingPeriodId: "10",
+        code: "A01",
+        unitGroupId: "5",
+        unitTypeId: "1",
+        floor: "T",
+        innerNumber: "1",
+      },
       { id: "51", accountingPeriodId: "11", code: "A01", unitGroupId: "6" },
+    ],
+    unitType: [
+      { id: "1", name: "Appartamento" },
+      { id: "2", name: "Negozio" },
+      { id: "3", name: "Box" },
+      { id: "4", name: "Locale" },
     ],
     unitPeriod: [{ id: "60", unitId: "50", unitOwnershipScenarioId: "1" }],
     unitResidentRole: [
@@ -980,6 +1325,20 @@ function createSmallDump(): Tables {
       { masterDataId: "81", name: "Acqua Srl" },
       { masterDataId: "84", name: "Gas Spa" },
     ],
+    masterData: [
+      createContact("80", "active", "PRS1", "29"),
+      createContact("81", "active", "ACQUA", "17"),
+      createContact("82", "archived", null, null),
+      createContact("83", "active", "PRS3", "29"),
+      createContact("84", "active", "GAS", "19"),
+    ],
+    masterDataCategory: [
+      { id: "17", name: "Fornitura acqua" },
+      { id: "19", name: "Fornitura gas" },
+      { id: "29", name: "Condòmino" },
+    ],
+    masterDataContact: [],
+    city: [{ id: "41", name: "Tarcento" }],
     condominiumSupplier: [
       { condominiumId: "2", masterDataId: "84" },
       { condominiumId: "1", masterDataId: "81" },
@@ -996,6 +1355,8 @@ function createSmallDump(): Tables {
         ...account("105", null, "Acqua", "regular", "expenses", "2"),
         abbreviation: "Acqua CO",
       },
+      account("110", null, "Liquidità", "grouping", "assets", "3"),
+      account("111", null, "Fondi", "grouping", "liabilities", "4"),
     ],
     expenseLedgerAccount: [{ ledgerAccountId: "105", estimate: "300.00" }],
     distributionTable: [
@@ -1197,6 +1558,44 @@ function account(
     type,
     kind,
     order,
+  };
+}
+
+// A street-form address resolving its city through the city table, and a
+// street-name-and-number one carrying its city's name.
+const SATURNO_ADDRESS = `C:9:"AddressVO":1:{a:4:{s:19:"countryIso3166_1_a2";s:2:"IT";s:8:"postCode";s:5:"33017";s:6:"street";s:18:"via dei Glicini, 4";s:8:"cityName";N;s:6:"cityId";i:41;}}`;
+
+const POZZETTO_ADDRESS = `C:9:"AddressVO":1:{a:5:{s:8:"postCode";s:5:"33045";s:6:"street";N;s:12:"streetNumber";s:1:"8";s:10:"streetName";s:18:"Viale delle Querce";s:8:"cityName";s:5:"Nimis";}}`;
+
+function createContactRow(
+  id: string,
+  type: string,
+  value: string,
+  order: string,
+): Row {
+  return {
+    id,
+    masterDataId: "81",
+    masterDataVariationId: null,
+    type,
+    label: type,
+    value,
+    order,
+  };
+}
+
+function createContact(
+  id: string,
+  status: string,
+  code: string | null,
+  category: string | null,
+): Row {
+  return {
+    id,
+    status,
+    code,
+    masterDataCategoryId: category,
+    notes: null,
   };
 }
 

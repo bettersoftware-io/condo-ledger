@@ -4,10 +4,11 @@ import { TESTIDS } from "./testids.ts";
 
 import "./MenuItem.css";
 
-/** A row of a popover menu: the icon in its slot, then the label. */
+/** A row of a popover menu: the icon in its slot, then the label. A disabled one is drawn dimmed and does nothing. */
 export function MenuItem({
   label,
   icon,
+  disabled = false,
   onClick,
 }: MenuItemProps): ReactElement {
   return (
@@ -16,6 +17,7 @@ export function MenuItem({
       className="menu-item"
       data-testid={TESTIDS.menuItem}
       role="menuitem"
+      disabled={disabled}
       onClick={onClick}
     >
       <span className="menu-item-icon" aria-hidden="true">
@@ -30,5 +32,6 @@ export interface MenuItemProps {
   label: string;
   /** Drawn in the 16px slot before the label, out of the item's name. */
   icon?: ReactNode;
+  disabled?: boolean;
   onClick: () => void;
 }

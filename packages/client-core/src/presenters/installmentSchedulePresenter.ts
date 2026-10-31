@@ -1,5 +1,12 @@
 import { type DefaultedStateObservable, state } from "@rx-state/core";
-import { combineLatest, map, type Observable } from "rxjs";
+import {
+  combineLatest,
+  distinctUntilChanged,
+  map,
+  type Observable,
+  of,
+  switchMap,
+} from "rxjs";
 
 import {
   type Building,
@@ -13,6 +20,9 @@ import {
   type Schedule,
   type ScheduleContext,
   scheduleOf,
+  type Unit,
+  type UnitGroup,
+  type UnitsPort,
 } from "@cl/domain";
 
 import { todayOf } from "../today.ts";
@@ -34,7 +44,7 @@ export interface InstallmentSchedulePresenter {
 /**
  * The Installment Schedule screen: the tree of the selected period's books
  * with today's date from the clock, and the writes. The root row is labelled
- * with the building's and the period's names, as the breadcrumb shows them.
+ * with the building's and the period's names and the building's address.
  * `books$` is the application's shared books, subscribed for its lifetime.
  */
 export function createInstallmentSchedulePresenter(
@@ -42,17 +52,22 @@ export function createInstallmentSchedulePresenter(
   tree$: Observable<Building[]>,
   port: InstallmentsPort,
   clock: ClockPort,
+  units: UnitsPort,
 ): InstallmentSchedulePresenter {
   return {
     schedule$: state(
-      combineLatest([books$, tree$]).pipe(
-        map(([books, tree]) => {
+      combineLatest([books$, tree$, unitsOf(books$, units)]).pipe(
+        map(([books, tree, held]) => {
           // books$ derives from tree$, so for a moment the tree can lack the
-          // books' period: no schedule then, as books$ is about to say.
-          const periodLabel =
-            books === null ? null : periodLabelOf(tree, books.periodId);
+          // books' period; the units port may still hold the previous period
+          // or not have answered: no schedule then, as books$ is about to say.
+          if (books === null || held?.periodId !== books.periodId) {
+            return null;
+          }
 
-          return books === null || periodLabel === null
+          const periodLabel = periodLabelOf(tree, books.periodId);
+
+          return periodLabel === null
             ? null
             : scheduleOf(
                 {
@@ -60,6 +75,8 @@ export function createInstallmentSchedulePresenter(
                   period: books.period,
                   accounts: books.accounts,
                   parties: books.parties,
+                  units: held.units,
+                  groups: held.groups,
                   entries: books.entries,
                   installments: books.installments,
                   installmentItems: books.installmentItems,
@@ -89,6 +106,35 @@ export function createInstallmentSchedulePresenter(
       return port.setItemAmount(itemId, amount);
     },
   };
+}
+
+/** The units and groups a period holds, with the period they are of. */
+interface PeriodUnits {
+  periodId: string;
+  units: Unit[];
+  groups: UnitGroup[];
+}
+
+/** The units port's answer for the books' period; null with no books. */
+function unitsOf(
+  books$: Observable<Books | null>,
+  port: UnitsPort,
+): Observable<PeriodUnits | null> {
+  return books$.pipe(
+    map((books) => {
+      return books?.periodId ?? null;
+    }),
+    distinctUntilChanged(),
+    switchMap((periodId): Observable<PeriodUnits | null> => {
+      return periodId === null
+        ? of(null)
+        : combineLatest([port.units(periodId), port.groups(periodId)]).pipe(
+            map(([units, groups]) => {
+              return { periodId, units, groups };
+            }),
+          );
+    }),
+  );
 }
 
 /** What a schedule write in the books' period is judged against. */

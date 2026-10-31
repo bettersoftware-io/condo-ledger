@@ -1,8 +1,8 @@
-import type { Money } from "@cl/domain";
+import type { Money, PeriodType } from "@cl/domain";
 
 type Id = string;
 
-export type AccountingPeriodType = "ordinary" | "extra" | "auxiliary";
+export type AccountingPeriodType = PeriodType;
 
 export interface AccountingPeriodNode {
   id: Id;

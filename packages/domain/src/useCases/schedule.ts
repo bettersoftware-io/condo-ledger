@@ -4,7 +4,9 @@ import type { Installment, InstallmentItem } from "../entities/installment.ts";
 import type { JournalEntry } from "../entities/journal.ts";
 import type { OwnerParty, Party, Restriction } from "../entities/party.ts";
 import { type Result, rejected } from "../entities/result.ts";
+import type { Unit, UnitGroup } from "../entities/unit.ts";
 import { must } from "../support/must.ts";
+import { groupLabelOf, levelOf, residentsOf } from "./allocation/layout.ts";
 import {
   type BudgetShares,
   budgetSharesOf,
@@ -34,7 +36,7 @@ export interface ScheduleCell {
   editable: Result;
 }
 
-type ScheduleNodeKind = "root" | "unit" | "resident" | "roundings";
+type ScheduleNodeKind = "root" | "group" | "unit" | "resident" | "roundings";
 
 /** One row of the schedule. A unit and the root sum their children, column by column. */
 export interface ScheduleNode {
@@ -74,6 +76,8 @@ export interface ScheduleInput {
   period: PeriodDates;
   accounts: Account[];
   parties: Party[];
+  units: Unit[];
+  groups: UnitGroup[];
   entries: JournalEntry[];
   installments: Installment[];
   installmentItems: InstallmentItem[];
@@ -90,7 +94,7 @@ const DAY = 24 * 60 * 60 * 1000;
 /** A cell with no item under it: a unit's, the root's, Roundings', a blank one. */
 const NO_ITEM: Result = rejected("no-item");
 
-/** The Installment Schedule's tree: the root, the units in code order, then Roundings when the allocation posted any. */
+/** The Installment Schedule's tree: the root, the groups by code (nested), the units, then Roundings when the allocation posted any. */
 export function scheduleOf(input: ScheduleInput, today: string): Schedule {
   const installments = [...input.installments].sort((a, b) => {
     return a.number - b.number;
@@ -104,7 +108,7 @@ export function scheduleOf(input: ScheduleInput, today: string): Schedule {
     previous: previousBalancesOf(input.entries, input.accounts, input.parties),
     balances: itemBalances(input.installmentItems, installments, input.entries),
   };
-  const rows = unitRows(input.parties, context);
+  const rows = levelRows(null, input, context);
 
   if (shares.roundings !== 0) {
     rows.push(roundingsRow(shares.roundings, installments));
@@ -137,52 +141,53 @@ interface RowHead {
   label: string;
 }
 
-function unitRows(parties: Party[], context: ScheduleContext): ScheduleNode[] {
-  const byUnit = new Map<string, OwnerParty[]>();
+/** What sits under a group, or at the top of the building when `groupId` is null: its subgroups, then its units, each by code. */
+function levelRows(
+  groupId: string | null,
+  input: ScheduleInput,
+  context: ScheduleContext,
+): ScheduleNode[] {
+  const level = levelOf(groupId, input.groups, input.units);
 
-  for (const party of parties) {
-    if (party.kind === "owner") {
-      byUnit.set(party.unitCode, [
-        ...(byUnit.get(party.unitCode) ?? []),
-        party,
-      ]);
-    }
-  }
-
-  return [...byUnit.keys()].sort().map((unitCode) => {
-    const residents = must(byUnit.get(unitCode), unitCode).sort(byResidency);
-
-    if (residents.length === 1) {
-      const only = must(residents[0], `the resident of ${unitCode}`);
-
-      return residentRow(only, `${unitCode} ${only.name}`, context);
-    }
-
-    return sumRow(
-      { key: `unit:${unitCode}`, kind: "unit", label: unitCode },
-      residents.map((resident) => {
-        return residentRow(resident, resident.name, context);
-      }),
-      context.installments,
-    );
-  });
+  return [
+    ...level.groups.map((group) => {
+      return sumRow(
+        { key: `group:${group.id}`, kind: "group", label: groupLabelOf(group) },
+        levelRows(group.id, input, context),
+        context.installments,
+      );
+    }),
+    ...level.units.map((unit) => {
+      return unitRow(unit, input.parties, context);
+    }),
+  ];
 }
 
-/** Residency order: by the restriction's start, an open or absent start first. */
-function byResidency(a: OwnerParty, b: OwnerParty): number {
-  const first = startOf(a);
-  const second = startOf(b);
+/** A unit with one resident is that resident's row; with several, a row over theirs in residency order. */
+function unitRow(
+  unit: Unit,
+  parties: Party[],
+  context: ScheduleContext,
+): ScheduleNode {
+  const residents = residentsOf(
+    parties.filter((party) => {
+      return party.kind === "owner";
+    }),
+    unit.id,
+  );
+  const only = residents.length === 1 ? residents[0] : undefined;
 
-  if (first === second) {
-    return 0;
+  if (only !== undefined) {
+    return residentRow(only, `${unit.code} ${only.name}`, context);
   }
 
-  return first < second ? -1 : 1;
-}
-
-/** "" for an open or absent start, which sorts before every date. */
-function startOf(resident: OwnerParty): string {
-  return resident.restriction?.from ?? "";
+  return sumRow(
+    { key: `unit:${unit.code}`, kind: "unit", label: unit.code },
+    residents.map((resident) => {
+      return residentRow(resident, resident.name, context);
+    }),
+    context.installments,
+  );
 }
 
 function residentRow(
@@ -399,6 +404,17 @@ export function daysOf(
   );
 
   return `${covered}/${daysFromTo(period.start, period.end)}`;
+}
+
+/** The dates a restriction covers within `outer`: an open end, or none at all, runs to the outer's. */
+export function spanOf(
+  restriction: Restriction | null,
+  outer: PeriodDates,
+): PeriodDates {
+  return {
+    start: restriction?.from ?? outer.start,
+    end: restriction?.to ?? outer.end,
+  };
 }
 
 /** The days from one "YYYY-MM-DD" date to another, both counted. */

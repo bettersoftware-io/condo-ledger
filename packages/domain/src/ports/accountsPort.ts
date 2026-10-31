@@ -13,7 +13,7 @@ import type { Result } from "#/entities/result.ts";
 export interface AccountsPort {
   /** Errors with "missing: the period <id>" for a period the port does not have. */
   accounts(periodId: string): Observable<Account[]>;
-  /** The building's suppliers and the period's residents, whether or not a posting names them. Errors as accounts() does. */
+  /** The building's suppliers, then the period's residents, whether or not a posting names them; emits again when the residents change. Errors as accounts() does. */
   parties(periodId: string): Observable<Party[]>;
   /** The tribute codes the building withholds on in the period, each with its account. Errors as accounts() does. */
   withholdingTaxes(periodId: string): Observable<WithholdingTax[]>;

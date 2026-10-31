@@ -10,7 +10,7 @@ import type {
 import type { Unit } from "#/entities/unit.ts";
 import { must } from "#/support/must.ts";
 
-import { daysFromTo, type PeriodDates } from "../schedule.ts";
+import { daysFromTo, type PeriodDates, spanOf } from "../schedule.ts";
 import { appliedLinksOf } from "./links.ts";
 
 /** Which allocation is worked out: the budget's, or the final balance's. */
@@ -195,7 +195,8 @@ function tableItemCoefficientOf(
   return item === undefined || total <= 0 ? 0 : item.value / 10000 / total;
 }
 
-function priorityOf(role: string): Priority {
+/** The role's column: the lower, the earlier it pays. */
+export function priorityOf(role: string): Priority {
   const priority = PRIORITY_OF_ROLE.get(role);
 
   if (priority === undefined) {
@@ -232,23 +233,30 @@ function isElected(
 }
 
 /** The co-ownership factor times the residency factor (`UnitResidentVO.compoundCoefficient`). */
-function compoundCoefficientOf(
+export function compoundCoefficientOf(
   input: AllocationInput,
   resident: OwnerParty,
 ): number {
-  return (
-    coOwnershipOf(input.residents, resident) * residencyOf(input, resident)
-  );
+  return coOwnershipOf(input, resident) * residencyOf(input, resident);
 }
 
 /**
- * Over the residents of the unit with the same role: the resident's
+ * Over the co-owners (the residents of the unit with the same role whose
+ * dates overlap the resident's; owners who do not overlap succeed each other
+ * and each pays the whole share for their own days): the resident's
  * percentage when theirs do not sum to 0, and 0 for one without; otherwise
  * an equal part among those without one, or among all when every one has 0.
  */
-function coOwnershipOf(residents: OwnerParty[], resident: OwnerParty): number {
-  const group = residents.filter((other) => {
-    return other.unitId === resident.unitId && other.role === resident.role;
+function coOwnershipOf(input: AllocationInput, resident: OwnerParty): number {
+  const mine = datesOf(input, resident);
+  const group = input.residents.filter((other) => {
+    if (other.unitId !== resident.unitId || other.role !== resident.role) {
+      return false;
+    }
+
+    const theirs = datesOf(input, other);
+
+    return theirs.from <= mine.to && mine.from <= theirs.to;
   });
   let total = 0;
   let empty = 0;
@@ -271,23 +279,54 @@ function coOwnershipOf(residents: OwnerParty[], resident: OwnerParty): number {
 /**
  * The resident's days over the unit's, only for a resident with dates of
  * their own. An open end runs to the unit's, then to the period's. A unit's
- * own dates prorate nobody.
+ * own dates prorate nobody. Own dates outside the unit's are a gap in the
+ * validation, and fail here rather than as wrong money.
  */
 function residencyOf(input: AllocationInput, resident: OwnerParty): number {
-  const own = resident.ownRestriction;
-
-  if (own === null) {
+  if (resident.ownRestriction === null) {
     return 1;
   }
 
-  const unit = must(
+  const unit = unitOf(input, resident);
+  const span = spanOf(unit.restriction, input.period);
+  const mine = datesOf(input, resident);
+  const factor =
+    daysFromTo(mine.from, mine.to) / daysFromTo(span.start, span.end);
+
+  if (
+    mine.from < span.start ||
+    mine.to > span.end ||
+    !(factor >= 0 && factor <= 1)
+  ) {
+    throw new Error(
+      `must: the dates of resident ${resident.id} lie within unit ${unit.code}'s`,
+    );
+  }
+
+  return factor;
+}
+
+/** The days a resident covers: their own, else their unit's, else the period's; an open end runs to the unit's end, else the period's. */
+function datesOf(input: AllocationInput, resident: OwnerParty): DateSpan {
+  const span = spanOf(unitOf(input, resident).restriction, input.period);
+
+  return {
+    from: resident.ownRestriction?.from ?? span.start,
+    to: resident.ownRestriction?.to ?? span.end,
+  };
+}
+
+function unitOf(input: AllocationInput, resident: OwnerParty): Unit {
+  return must(
     input.units.find((candidate) => {
       return candidate.id === resident.unitId;
     }),
     `unit ${resident.unitId}`,
   );
-  const start = unit.restriction?.from ?? input.period.start;
-  const end = unit.restriction?.to ?? input.period.end;
+}
 
-  return daysFromTo(own.from ?? start, own.to ?? end) / daysFromTo(start, end);
+/** Two "YYYY-MM-DD" dates, both counted. */
+interface DateSpan {
+  from: string;
+  to: string;
 }

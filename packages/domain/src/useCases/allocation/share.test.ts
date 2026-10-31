@@ -1,12 +1,15 @@
 import { describe, expect, it } from "vitest";
 
 import { type Cents, cents } from "#/entities/cents.ts";
-import type { Restriction } from "#/entities/party.ts";
+import type { OwnerParty, Restriction } from "#/entities/party.ts";
 import type { TableLink } from "#/entities/table.ts";
 import {
+  createAccount,
   createAllocationInput,
+  createCoefficient,
   createGeneralLink,
   createLink,
+  createUnit,
 } from "#/testing/createAllocationInput.ts";
 
 import { type AllocationInput, legacyRound, shareOf } from "./share.ts";
@@ -293,6 +296,20 @@ describe("shareOf, residency", () => {
     expect(shareOf(input, "budget", "la11", "r5")).toBe(7933 + 3400);
     expect(shareOf(input, "budget", "la11", "r6")).toBe(6067 + 2600);
   });
+
+  it("fails, naming the resident and the unit, for own dates outside the unit's", () => {
+    const input = createAllocationInput();
+    input.units = input.units.map((unit) => {
+      return unit.id === "u3"
+        ? { ...unit, restriction: { from: "2013-02-01", to: null } }
+        : unit;
+    });
+
+    // r5's own dates end on 18 January, before the unit's begin.
+    expect(() => {
+      return shareOf(input, "budget", "la11", "r5");
+    }).toThrow("the dates of resident r5 lie within unit A3's");
+  });
 });
 
 describe("shareOf, the other kinds of account", () => {
@@ -324,6 +341,78 @@ describe("shareOf, the other kinds of account", () => {
 
     expect(shareOf(input, "budget", "la11", "r1")).toBe(0);
     expect(shareOf(input, "finalBalance", "la11", "r1")).toBe(0);
+  });
+});
+
+describe("shareOf with successive owners", () => {
+  it("splits a unit between two owners without a percentage, both for the whole period", () => {
+    const input = createOneUnit([
+      createOwner("a", null, null),
+      createOwner("b", null, null),
+    ]);
+
+    expect(shareOf(input, "budget", "la1", "a")).toBe(50000);
+    expect(shareOf(input, "budget", "la1", "b")).toBe(50000);
+  });
+
+  it("gives each of two owners whose dates do not overlap the whole share for their own days", () => {
+    const input = createOneUnit([
+      createOwner("out", null, { from: null, to: "2013-06-30" }),
+      createOwner("in", null, { from: "2013-07-01", to: null }),
+    ]);
+
+    expect(shareOf(input, "budget", "la1", "out")).toBe(49589);
+    expect(shareOf(input, "budget", "la1", "in")).toBe(50411);
+  });
+
+  it("does the same when the outgoing owner carries 100% and the incoming one none", () => {
+    const input = createOneUnit([
+      createOwner("out", 1000000, { from: null, to: "2013-06-30" }),
+      createOwner("in", null, { from: "2013-07-01", to: null }),
+    ]);
+
+    expect(shareOf(input, "budget", "la1", "out")).toBe(49589);
+    expect(shareOf(input, "budget", "la1", "in")).toBe(50411);
+  });
+
+  it("applies the legacy rule to owners whose dates overlap by one day", () => {
+    const input = createOneUnit([
+      createOwner("out", null, { from: null, to: "2013-07-01" }),
+      createOwner("in", null, { from: "2013-07-01", to: null }),
+    ]);
+
+    // Half each of their days: 182 and 184 of 365.
+    expect(shareOf(input, "budget", "la1", "out")).toBe(24932);
+    expect(shareOf(input, "budget", "la1", "in")).toBe(25205);
+  });
+
+  it("gives each of two owners of a restricted unit whose dates do not overlap the whole share for their own days of the unit's", () => {
+    const input = createOneUnit([
+      createOwner("out", null, { from: null, to: "2013-04-30" }),
+      createOwner("in", null, { from: "2013-05-01", to: null }),
+    ]);
+    input.units = input.units.map((unit) => {
+      return { ...unit, restriction: { from: "2013-03-01", to: "2013-08-31" } };
+    });
+
+    // 61 and 123 of the unit's 184 days, March to August.
+    expect(shareOf(input, "budget", "la1", "out")).toBe(33152);
+    expect(shareOf(input, "budget", "la1", "in")).toBe(66848);
+  });
+
+  it("reads an owner without dates as the unit's, else the period's", () => {
+    const input = createOneUnit([
+      createOwner("whole", null, null),
+      createOwner("late", null, { from: "2013-07-01", to: null }),
+    ]);
+    input.units = input.units.map((unit) => {
+      return { ...unit, restriction: { from: "2013-03-01", to: null } };
+    });
+
+    // The first runs 1 March to 31 December, so they overlap: half each, the
+    // newcomer for 184 of the unit's 306 days.
+    expect(shareOf(input, "budget", "la1", "whole")).toBe(50000);
+    expect(shareOf(input, "budget", "la1", "late")).toBe(30065);
   });
 });
 
@@ -365,5 +454,41 @@ function withShares(
 
       return resident.id === "r4" ? { ...resident, share: r4 } : resident;
     }),
+  };
+}
+
+function createOneUnit(residents: OwnerParty[]): AllocationInput {
+  const base = createAllocationInput();
+
+  return {
+    ...base,
+    accounts: [
+      createAccount("la1", null, "regular", 100000, [
+        createLink("el1", "la1", "dt1", "budget"),
+      ]),
+    ],
+    coefficients: [createCoefficient("dt1", "u1", 1000)],
+    units: [createUnit("u1", "A1")],
+    residents,
+  };
+}
+
+function createOwner(
+  id: string,
+  share: number | null,
+  ownRestriction: Restriction | null,
+): OwnerParty {
+  return {
+    kind: "owner",
+    id,
+    personId: `person-${id}`,
+    name: id,
+    unitCode: "A1",
+    unitId: "u1",
+    startingBalance: cents(0),
+    role: "PR",
+    share,
+    restriction: ownRestriction,
+    ownRestriction,
   };
 }
