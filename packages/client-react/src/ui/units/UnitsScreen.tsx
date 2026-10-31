@@ -287,7 +287,7 @@ function topEditOf(view: UnitsView | null): EditTarget | null {
 /** The top −: an empty group, the selected resident, else the selected unit; nothing on the root, the rounding row and a group with something in it. */
 function topDeleteOf(view: UnitsView | null): DeleteTarget | null {
   if (view?.group != null) {
-    return view.selected?.children.length === 0 ? groupOf(view) : null;
+    return view.groupDeletable ? groupOf(view) : null;
   }
 
   return view?.selected?.kind === "resident" ? residentOf(view) : unitOf(view);

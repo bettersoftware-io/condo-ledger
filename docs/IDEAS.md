@@ -74,8 +74,8 @@ be worth doing. Not how.
 - **A table's restriction group made editable.** M2e shows the "Restriction
   on" column and keeps it as seeded.
 - **Issue a conguaglio installment from the Adjustment column.** The
-  Building Data screen shows each unit's adjustment; the installment that
-  settles it could be created from there.
+  Units screen shows each unit's adjustment; the installment that settles
+  it could be created from there.
 - **Edit co-ownership percentages.** M2f shows them as seeded.
 - **Ownership scenarios and a second unit period.** Bare ownership and
   usufruct, leasing, and a unit that is held differently in a second period.

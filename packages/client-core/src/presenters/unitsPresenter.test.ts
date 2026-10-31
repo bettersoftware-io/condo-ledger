@@ -189,7 +189,14 @@ describe("the units presenter", () => {
     ).toEqual({ ok: true });
     expect(rowOf(view(), `group:${id}`).label).toBe("C - Lift shaft");
 
+    units.select("group:ug1");
+    expect(view().groupDeletable).toBe(false);
+
+    units.select("unit:u1");
+    expect(view().groupDeletable).toBe(false);
+
     units.select(`group:${id}`);
+    expect(view().groupDeletable).toBe(true);
     expect(await units.deleteGroup(id)).toEqual({ ok: true });
     expect(findRow(view().list.root, `group:${id}`)).toBeUndefined();
     // The deleted row's selection falls back on the first unit.

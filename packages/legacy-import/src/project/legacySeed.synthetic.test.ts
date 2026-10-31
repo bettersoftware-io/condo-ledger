@@ -764,13 +764,13 @@ describe("projectLegacySeed's profiles, contacts and account roles", () => {
       { masterDataId: "84", name: "Gas Spa" },
     ];
     tables.masterDataContact = [
-      contactRow("1", "web", "www.acqua.example", "1"),
-      contactRow("2", "tel", "0432 111", "3"),
-      contactRow("3", "tel", "0432 222", "2"),
-      contactRow("4", "mail", "info@acqua.example", "4"),
-      contactRow("5", "mail", "uffici@acqua.example", "5"),
+      createContactRow("1", "web", "www.acqua.example", "1"),
+      createContactRow("2", "tel", "0432 111", "3"),
+      createContactRow("3", "tel", "0432 222", "2"),
+      createContactRow("4", "mail", "info@acqua.example", "4"),
+      createContactRow("5", "mail", "uffici@acqua.example", "5"),
       {
-        ...contactRow("6", "mail", "old@acqua.example", "0"),
+        ...createContactRow("6", "mail", "old@acqua.example", "0"),
         masterDataVariationId: "9",
       },
     ];
@@ -1326,11 +1326,11 @@ function createSmallDump(): Tables {
       { masterDataId: "84", name: "Gas Spa" },
     ],
     masterData: [
-      contact("80", "active", "PRS1", "29"),
-      contact("81", "active", "ACQUA", "17"),
-      contact("82", "archived", null, null),
-      contact("83", "active", "PRS3", "29"),
-      contact("84", "active", "GAS", "19"),
+      createContact("80", "active", "PRS1", "29"),
+      createContact("81", "active", "ACQUA", "17"),
+      createContact("82", "archived", null, null),
+      createContact("83", "active", "PRS3", "29"),
+      createContact("84", "active", "GAS", "19"),
     ],
     masterDataCategory: [
       { id: "17", name: "Fornitura acqua" },
@@ -1567,7 +1567,7 @@ const SATURNO_ADDRESS = `C:9:"AddressVO":1:{a:4:{s:19:"countryIso3166_1_a2";s:2:
 
 const POZZETTO_ADDRESS = `C:9:"AddressVO":1:{a:5:{s:8:"postCode";s:5:"33045";s:6:"street";N;s:12:"streetNumber";s:1:"8";s:10:"streetName";s:18:"Viale delle Querce";s:8:"cityName";s:5:"Nimis";}}`;
 
-function contactRow(
+function createContactRow(
   id: string,
   type: string,
   value: string,
@@ -1584,7 +1584,7 @@ function contactRow(
   };
 }
 
-function contact(
+function createContact(
   id: string,
   status: string,
   code: string | null,

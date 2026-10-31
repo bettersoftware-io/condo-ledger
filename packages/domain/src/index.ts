@@ -110,6 +110,7 @@ export {
   type ResidencyDraft,
   type UnitDraft,
   validateGroup,
+  validateGroupDelete,
   validateResidency,
   validateUnit,
 } from "./useCases/validateUnits.ts";

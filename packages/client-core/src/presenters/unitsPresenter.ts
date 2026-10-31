@@ -29,6 +29,7 @@ import {
   type UnitsPort,
   type UnitsRow,
   unitOwnersOf,
+  validateGroupDelete,
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
@@ -50,6 +51,8 @@ export interface UnitsView {
   unit: Unit | null;
   /** The selected group; null for every other row. */
   group: UnitGroup | null;
+  /** Whether the selected group may be deleted (validateGroupDelete): it holds no unit and no group. False for every other row. */
+  groupDeletable: boolean;
   /** The selected resident: on their own row, and on the row of a unit they live in alone; null otherwise. */
   resident: OwnerParty | null;
   /** Where `unit` stands: its groups' names, root to leaf, joined by " » "; blank at the top of the building, and with no unit. */
@@ -337,6 +340,8 @@ function scopeOf(
       selected,
       unit,
       group,
+      groupDeletable:
+        group !== null && validateGroupDelete(group.id, groups, units).ok,
       resident,
       location: unit === null ? "" : locationOf(unit, groups),
       owners: unit === null ? null : unitOwnersOf(unit, allocation.input),

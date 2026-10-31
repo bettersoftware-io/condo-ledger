@@ -94,7 +94,7 @@ Work that waits on a release, a decision or other work.
   Period dialog judges against the units port's first answer, so it relies
   on a port that answers on subscribing, as the units presenter's dialogs
   do.
-  Building Data & Units (M2f), in two more places. One period's error (a
+  The Building Data screen (M2f) has two more limits. One period's error (a
   port error in M3, or a period without a Liquidity or Funds account) breaks
   every building's Building Data rows until the page is reloaded; the fix in
   M3 is a catch for each period that shows that period's figures as blank
