@@ -14,6 +14,10 @@ export interface TreeGridPage {
   depthOf: (label: string) => number;
   isExpanded: (label: string) => boolean;
   isSelected: (label: string) => boolean;
+  /** The label's tooltip, for a label its column cuts off. */
+  labelTitle: (label: string) => string | null;
+  /** The rows brought into view so far, oldest first. */
+  scrolledTo: () => string[];
   indentCountOf: (label: string) => number;
   pressKeyOnCaret: (label: string, key: string) => void;
   pressKeyOnRow: (label: string, key: string) => void;
@@ -105,6 +109,21 @@ export function mountTreeGrid(props: Partial<TreeGridProps>): TreeGridPage {
     },
     isSelected: (label: string): boolean => {
       return rowOf(label).getAttribute("aria-selected") === "true";
+    },
+    labelTitle: (label: string): string | null => {
+      return (
+        rowOf(label).querySelector(".tree-grid-text")?.getAttribute("title") ??
+        null
+      );
+    },
+    scrolledTo: (): string[] => {
+      return vi
+        .mocked(Element.prototype.scrollIntoView)
+        .mock.contexts.map((row) => {
+          return (
+            (row as Element).querySelector(".tree-grid-text")?.textContent ?? ""
+          );
+        });
     },
     indentCountOf: (label: string): number => {
       return within(rowOf(label)).queryAllByTestId(TESTIDS.treeGridIndent)

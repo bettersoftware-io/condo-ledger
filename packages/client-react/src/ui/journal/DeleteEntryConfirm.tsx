@@ -28,7 +28,7 @@ export interface DeleteEntryConfirmProps {
   onNo: () => void;
 }
 
-/** The domain's reasons as the person reads them; a reason not listed here is shown as it is. */
+/** The domain's reasons as the person reads them. */
 const DELETE_REASONS: Readonly<Record<string, string>> = {
   "kind-not-deletable":
     "This kind of entry is removed through its own flow, which is not built yet.",
@@ -36,5 +36,8 @@ const DELETE_REASONS: Readonly<Record<string, string>> = {
 };
 
 function reasonText(reason: string): string {
-  return DELETE_REASONS[reason] ?? reason;
+  return (
+    DELETE_REASONS[reason] ??
+    "This entry could not be deleted. Try again, or reload the page."
+  );
 }

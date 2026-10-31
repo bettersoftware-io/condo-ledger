@@ -2,19 +2,19 @@ import { type ChangeEvent, type ReactElement, useId, useState } from "react";
 
 import type { Contact } from "@cl/domain";
 
+import { CONTACT_KIND_LABELS } from "../contactLabels.ts";
 import { FormField } from "../FormField.tsx";
 import { TESTIDS } from "../testids.ts";
-import { CONTACT_KIND_LABELS } from "./labels.ts";
 
 import "./ContactPicker.css";
 
 /**
  * The owner's Linked contact: a name typed into the box, and under it the
  * contacts whose name holds what is typed, people and companies, each a
- * button that links that contact and writes its name into the box. Typing
- * again unlinks it and looks anew. A fixed contact (an owner being edited) is
- * shown in the box, which cannot change. What is typed is this view's own
- * state. Takes only props.
+ * button that links that contact. The box shows the linked contact's name,
+ * however it came to be linked. Typing again unlinks it and looks anew. A
+ * fixed contact (an owner being edited) cannot change. What is typed is this
+ * view's own state. Takes only props.
  */
 export function ContactPicker({
   contacts,
@@ -47,7 +47,6 @@ export function ContactPicker({
 
   function choosing(contact: Contact): () => void {
     return (): void => {
-      setTyped(contact.name);
       onChange(contact.id);
     };
   }
@@ -61,7 +60,7 @@ export function ContactPicker({
           aria-required="true"
           aria-controls={open ? listId : undefined}
           placeholder="Type a name…"
-          value={fixed ? (chosen?.name ?? "") : typed}
+          value={chosen?.name ?? typed}
           disabled={fixed}
           onChange={type}
         />

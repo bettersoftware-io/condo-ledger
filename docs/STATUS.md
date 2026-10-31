@@ -57,8 +57,7 @@ Work that waits on a release, a decision or other work.
 - **Edit a building's suppliers.** Building Data shows the suppliers
   read-only; editing them comes with Contacts.
 - **Tidy-ups left by the M2f reviews.** None changes what a person sees.
-  `BuildingSuppliers.tsx` still imports `CONTACT_KIND_LABELS` from the Units
-  folder. `daysOf` could use `spanOf`. `same()` is repeated in
+  `daysOf` could use `spanOf`. `same()` is repeated in
   `validateUnits.ts` and `validateBuilding.ts`, and the parse of a blank or
   a date in `formDialog.ts` and `invoiceWizard.ts`. `ValueSelect` repeats the wizards'
   select, and `createFormDialog` parallels `tableDialogMachine.ts`. A few
@@ -131,13 +130,6 @@ A step or a decision an agent cannot take.
   top-level liabilities account named Fondi the role `funds`, and refuses a
   period with none or two. A chart that names them differently cannot be
   seeded.
-- **A row selected other than by a click is not scrolled into view.** After
-  a period switch or a deep link the grids select a row but leave it where
-  it is, possibly out of sight.
-- **The contact picker's box shows only typed text.** A contact set
-  programmatically (not by typing) is chosen but not shown in the box.
-- **The period label in the Allocation and Installment Schedule root rows
-  is cut off by its column**, and no tooltip shows the full text.
 - **`Wizards.css`, `BudgetInstallmentsWizard.css` and `ValueSelect.css` style `FormField`'s box with `:has()`.**
   A change to `FormField`'s markup must check them.
 - **The module tabs name no panel.** `ModuleTabs` is a named tab list with
@@ -225,19 +217,16 @@ A step or a decision an agent cannot take.
   so it shows once co-ownership percentages can be edited.
 - **The Installment Schedule drops an owner whose unit is not listed**,
   without a word. Real data cannot do this today.
-- **The Journal's small gaps.** A delete refused for a reason no sentence
-  words shows the reason's code; the multi-cost wizard's footer shows the
+- **The Journal's small gaps.** The multi-cost wizard's footer shows the
   lines' total alone, not against the amount paid; `validateEntry` judges an
   entry line by line, so the reason shown is the first faulty line's, not
   the weightiest across the lines.
-- **A wizard can be left on the old period's accounts.** The dialog traps
-  no focus, so the keyboard can leave an open wizard (Tab to the sidebar),
-  switch the period and come back: the wizard still offers the old period's
-  accounts while `addEntry` posts to the new period, and the port refuses
-  the entry as `unknown-account`, which the wizard words as "The period
-  changed while this was open: cancel and open it again". This holds until
-  the dialog traps focus. With asynchronous adapters (M3) a wizard opened
-  between a period switch and the new period's books arriving does the same.
+- **A wizard can open on the old period's accounts (M3).** With asynchronous
+  adapters, a wizard opened between a period switch and the new period's
+  books arriving offers the old period's accounts while `addEntry` posts to
+  the new period. The port refuses the entry as `unknown-account`, which the
+  wizard words as "The period changed while this was open: cancel and open it
+  again".
 - **Create Budget Installments can save amounts its review did not show
   once the live store (M3) has other writers.** The wizard reviews over the
   books as they stood when it opened

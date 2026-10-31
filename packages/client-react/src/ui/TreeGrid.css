@@ -30,8 +30,10 @@
   position: relative;
 }
 
+/* The margins keep a row brought into view clear of the sticky header (two lines at most) and footer. */
 .tree-grid-row {
   border-bottom: 1px solid var(--bd2);
+  scroll-margin-block: 44px 28px;
 }
 
 .tree-grid-row > [role="gridcell"],

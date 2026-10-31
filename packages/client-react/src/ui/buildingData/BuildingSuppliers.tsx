@@ -3,13 +3,13 @@ import { type ReactElement, useEffect, useRef } from "react";
 import { addressTextOf, type Contact } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
+import { CONTACT_KIND_LABELS } from "../contactLabels.ts";
 import { Fieldset } from "../Fieldset.tsx";
 import { Scheda } from "../Scheda.tsx";
 import { SheetField } from "../SheetField.tsx";
 import { Splitter } from "../shell/Splitter.tsx";
 import { TreeGrid, type TreeGridRowData } from "../TreeGrid.tsx";
 import { TESTIDS } from "../testids.ts";
-import { CONTACT_KIND_LABELS } from "../units/labels.ts";
 import { SUPPLIERS_COLUMNS } from "./columns.ts";
 import { STATUS_LABELS } from "./labels.ts";
 
