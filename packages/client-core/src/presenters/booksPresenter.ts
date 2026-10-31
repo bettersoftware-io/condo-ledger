@@ -64,25 +64,43 @@ export function createBooksPresenter(
   selected$: Observable<PeriodSelection | null>,
   tree$: Observable<Building[]>,
 ): BooksPresenter {
-  const dated$ = combineLatest([selected$, tree$]).pipe(
-    map(([selection, tree]) => {
-      return selection === null ? null : datedOf(tree, selection.periodId);
-    }),
-    distinctUntilChanged(sameDatedPeriod),
-  );
-
   return {
     books$: state(
-      dated$.pipe(
-        switchMap((dated): Observable<Books | null> => {
-          return dated === null
-            ? of(null)
-            : booksOf(ports, dated.periodId, dated.period);
-        }),
+      datedBooksOf(
+        ports,
+        selected$.pipe(
+          map((selection) => {
+            return selection?.periodId ?? null;
+          }),
+        ),
+        tree$,
       ),
       null,
     ),
   };
+}
+
+/**
+ * The books of the period `periodId$` names, with its dates as the tree has
+ * them, read again when the period or its dates change; null while it names
+ * none, or the tree does not hold it.
+ */
+export function datedBooksOf(
+  ports: BooksPresenterPorts,
+  periodId$: Observable<string | null>,
+  tree$: Observable<Building[]>,
+): Observable<Books | null> {
+  return combineLatest([periodId$, tree$]).pipe(
+    map(([periodId, tree]) => {
+      return periodId === null ? null : datedOf(tree, periodId);
+    }),
+    distinctUntilChanged(sameDatedPeriod),
+    switchMap((dated): Observable<Books | null> => {
+      return dated === null
+        ? of(null)
+        : booksOf(ports, dated.periodId, dated.period);
+    }),
+  );
 }
 
 /** One period's books, with the dates the caller has for it: what the selected period's are made of, and what a screen over every period reads for each. */

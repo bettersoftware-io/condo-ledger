@@ -12,7 +12,7 @@ One bullet for each entry: its name in bold, what is left, and a link to its
 plan when it has one. `AGENTS.md` says when an entry is added, moved and
 removed.
 
-**Last updated: 2026-10-29**
+**Last updated: 2026-10-31**
 
 ## In progress
 
@@ -86,7 +86,14 @@ Work that waits on a release, a decision or other work.
   presenter streams when a screen first asks for them and stay subscribed
   for the session, so a screen once visited keeps its data live off-screen:
   the allocation recomputes on every change of the books, and a live
-  port's subscriptions behind them would stay open.
+  port's subscriptions behind them would stay open. The Building Data
+  grid is one of them, and it reads every period's books, tables and units,
+  not only the selected one's (`buildingDataPresenter.ts`): once the screen
+  has been visited, one set of those streams per period stays subscribed,
+  and each period's allocation recomputes on every change of its books. Its
+  Period dialog judges against the units port's first answer, so it relies
+  on a port that answers on subscribing, as the units presenter's dialogs
+  do.
 
 ## Waiting on a person
 

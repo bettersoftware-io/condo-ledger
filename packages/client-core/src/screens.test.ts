@@ -157,6 +157,24 @@ describe("the screens' state", () => {
     expect(allOpen(units.state$.getValue().rows)).toBe(true);
   });
 
+  it("shows the Building Data grid's buildings over their periods, and keeps them as left on a period switch", () => {
+    const { app } = createAppHarness();
+    const grid = app.screens.buildingDataGrid();
+
+    expect(app.screens.buildingDataGrid()).toBe(grid);
+    expect(keysOf(grid.state$.getValue().rows)).toEqual([
+      "c19",
+      "p36",
+      "c1",
+      "p1",
+    ]);
+
+    grid.intents.toggle("c19");
+    app.presenters.buildings.selectPeriod("p36");
+
+    expect(keysOf(grid.state$.getValue().rows)).toEqual(["c19", "c1", "p1"]);
+  });
+
   it("choosing the period already chosen starts nothing again, nor does the period a grid is first asked for on", () => {
     const { app } = createAppHarness();
 

@@ -1,9 +1,10 @@
-import { map, type Observable, switchMap } from "rxjs";
+import { map, NEVER, type Observable, switchMap } from "rxjs";
 
 import type {
   AccountNode,
   Allocation,
   AllocationMode,
+  BuildingRow,
   CoefficientNode,
   JournalEntryView,
   OwnersRow,
@@ -59,6 +60,7 @@ import {
   type SplitState,
 } from "./machines/splitMachine.ts";
 import type { TableView } from "./presenters/allocationPresenter.ts";
+import type { BuildingDataView } from "./presenters/buildingDataPresenter.ts";
 import type { UnitsView } from "./presenters/unitsPresenter.ts";
 
 /** The grids whose columns a person resizes. */
@@ -71,17 +73,21 @@ export type GridName =
   | "coefficients"
   | "allocation"
   | "units"
-  | "unitOwners";
+  | "unitOwners"
+  | "buildingData"
+  | "suppliers";
 
-/** The splitters between two panels: the Accounts screen's, the Tables & Allocation screen's two, and the Units screen's. */
+/** The splitters between two panels: the Accounts screen's, the Tables & Allocation screen's two, the Units screen's, the Building Data screen's, and the Building Suppliers tab's. */
 export type SplitName =
   | "accounts"
   | "allocationRows"
   | "allocationColumns"
-  | "units";
+  | "units"
+  | "buildingData"
+  | "suppliers";
 
 /** The panels with tabs. */
-export type TabbedPanelName = "accounts" | "units";
+export type TabbedPanelName = "accounts" | "units" | "buildingData";
 
 /**
  * What the screens show and how they are laid out, kept for the session: one
@@ -109,6 +115,8 @@ export interface AppScreens {
   unitsGrid: () => Machine<TreeGridState<UnitsRow>, TreeGridIntents>;
   /** The Unit Owners tab's rows, of the unit the Units screen selects. */
   unitOwnersGrid: () => Machine<TreeGridState<OwnersRow>, TreeGridIntents>;
+  /** The Building Data grid's rows: every building over its periods. A period switch leaves them as they are, since they are every period's. */
+  buildingDataGrid: () => Machine<TreeGridState<BuildingRow>, TreeGridIntents>;
   /**
    * The widths of a grid's columns. A grid keeps widths for each set of
    * columns it is drawn with, told apart by value: one drawn with another
@@ -136,6 +144,7 @@ export interface ScreenSources {
   coefficients$: (tableId: string | null) => Observable<CoefficientNode[]>;
   allocation$: (mode: AllocationMode) => Observable<Allocation | null>;
   units$: Observable<UnitsView | null>;
+  buildingData$: Observable<BuildingDataView>;
   /**
    * The selected period, once each time it changes to another. Each emission
    * opens every grid's rows as they start; the one a grid finds when it is
@@ -206,6 +215,18 @@ export function createScreens(sources: ScreenSources): AppScreens {
             }),
           ),
           period$,
+        );
+      },
+    ),
+    buildingDataGrid: once(
+      (): Machine<TreeGridState<BuildingRow>, TreeGridIntents> => {
+        return createTreeGridMachine(
+          sources.buildingData$.pipe(
+            map((view) => {
+              return view.rows;
+            }),
+          ),
+          NEVER,
         );
       },
     ),

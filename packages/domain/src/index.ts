@@ -73,6 +73,12 @@ export {
   tableTotalsOf,
 } from "./useCases/allocation/tables.ts";
 export * from "./useCases/budgetShares.ts";
+export {
+  type BuildingRow,
+  buildingRowsOf,
+  type PeriodFigures,
+  periodFiguresOf,
+} from "./useCases/buildingRows.ts";
 export * from "./useCases/collection.ts";
 export * from "./useCases/installments.ts";
 export * from "./useCases/invoice.ts";
@@ -88,6 +94,13 @@ export {
   unitsListOf,
 } from "./useCases/units/unitsList.ts";
 export * from "./useCases/validateBudget.ts";
+export {
+  type BuildingDraft,
+  type PeriodDraft,
+  validateAddress,
+  validateBuilding,
+  validatePeriod,
+} from "./useCases/validateBuilding.ts";
 export * from "./useCases/validateEntry.ts";
 export * from "./useCases/validateSchedule.ts";
 export * from "./useCases/validateTable.ts";

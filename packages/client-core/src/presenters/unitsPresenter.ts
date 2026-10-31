@@ -10,8 +10,6 @@ import {
 
 import {
   type Added,
-  type AllocationBooks,
-  allocationBooksOf,
   type Building,
   type ClockPort,
   type Contact,
@@ -31,13 +29,17 @@ import {
   type UnitsPort,
   type UnitsRow,
   unitOwnersOf,
-  unitsListOf,
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
 import { todayOf } from "../today.ts";
 import type { Books } from "./booksPresenter.ts";
-import { type PeriodTables, periodOf, sourceOf } from "./periodTables.ts";
+import {
+  type PeriodTables,
+  type PeriodUnits,
+  periodOf,
+  periodUnitsOf,
+} from "./periodTables.ts";
 
 /** The Units screen: the grid, its selected row, and what the bottom tabs show of it. */
 export interface UnitsView {
@@ -251,11 +253,9 @@ interface Chosen {
   count: number;
 }
 
-/** A period's Units grid, with the allocation it was worked out from. */
-interface Listed {
+/** A period's Units grid, with the period it was worked out from. */
+interface Listed extends PeriodUnits {
   period: PeriodTables;
-  allocation: AllocationBooks;
-  list: UnitsList;
 }
 
 /** What the screen shows, what a dialog is built over, and the crumb, from one emission. */
@@ -265,35 +265,8 @@ interface Scope {
   crumb: string | null;
 }
 
-/** The allocation and the schedule both read the books' parties: one snapshot of the residents. */
 function listOf(period: PeriodTables, today: string): Listed {
-  const { books, units, groups, periodLabel } = period;
-  const allocation = allocationBooksOf(sourceOf(period));
-
-  return {
-    period,
-    allocation,
-    list: unitsListOf(
-      {
-        allocation,
-        schedule: {
-          periodLabel,
-          period: books.period,
-          accounts: books.accounts,
-          parties: books.parties,
-          units,
-          groups,
-          entries: books.entries,
-          installments: books.installments,
-          installmentItems: books.installmentItems,
-        },
-        units,
-        groups,
-        buildingLabel: periodLabel,
-      },
-      today,
-    ),
-  };
+  return { period, ...periodUnitsOf(period, today) };
 }
 
 /**

@@ -3,6 +3,7 @@ import { distinctUntilChanged, map } from "rxjs";
 import {
   type AccountsPort,
   type AccountsSimulator,
+  type Address,
   type Allocation,
   type Building,
   type BuildingsPort,
@@ -28,6 +29,7 @@ import {
   type JournalSimulator,
   type LegacySeed,
   type OwnerParty,
+  ok,
   type PeriodDates,
   type Result,
   type SessionPort,
@@ -40,6 +42,15 @@ import {
 import { must } from "@cl/domain/support/must.ts";
 
 import { amountTextsIn } from "./amounts.ts";
+import {
+  type AddressDialogState,
+  type BuildingDialogState,
+  createAddressDialog,
+  createBuildingDialog,
+  createPeriodDialog,
+  type PeriodDialogState,
+} from "./machines/buildingDialogMachines.ts";
+import type { DialogIntents } from "./machines/formDialog.ts";
 import {
   createInstallmentDialog,
   type InstallmentDialogIntents,
@@ -77,7 +88,6 @@ import {
   createGroupDialog,
   createOwnerDialog,
   createUnitDialog,
-  type DialogIntents,
   type GroupDialogState,
   type OwnerDialogState,
   type UnitDialogState,
@@ -149,6 +159,10 @@ import {
   createBooksPresenter,
 } from "./presenters/booksPresenter.ts";
 import {
+  type BuildingDataPresenter,
+  createBuildingDataPresenter,
+} from "./presenters/buildingDataPresenter.ts";
+import {
   type BuildingsPresenter,
   createBuildingsPresenter,
 } from "./presenters/buildingsPresenter.ts";
@@ -171,6 +185,7 @@ import {
   type UnitsSnapshot,
 } from "./presenters/unitsPresenter.ts";
 import { type AppScreens, createScreens } from "./screens.ts";
+import { todayOf } from "./today.ts";
 
 /** Everything the application needs from the outside world. The client's
  * composition root decides what stands behind each port. */
@@ -196,6 +211,7 @@ interface AppPresenters {
   schedule: InstallmentSchedulePresenter;
   allocation: AllocationPresenter;
   units: UnitsPresenter;
+  buildingData: BuildingDataPresenter;
 }
 
 /** Per-component state: each call builds a machine of its own, for a dialog, a wizard or the shell's parts, disposed when the component goes. */
@@ -275,6 +291,19 @@ interface AppMachines {
   createOwnerDialog: (
     editing: string | null,
   ) => Machine<OwnerDialogState, DialogIntents<OwnerDialogState["form"]>>;
+  /** The Edit Building dialog on a building of the tree as it stands; one it does not hold throws. A construction date typed without a year is in the clock's. */
+  createBuildingDialog: (
+    buildingId: string,
+  ) => Machine<BuildingDialogState, DialogIntents<BuildingDialogState["form"]>>;
+  /** The Edit Management / Period dialog on a period of the tree, judged against its units and residents as they stand; one the tree does not hold throws. */
+  createPeriodDialog: (
+    periodId: string,
+  ) => Machine<PeriodDialogState, DialogIntents<PeriodDialogState["form"]>>;
+  /** The Address dialog on `address`; its save hands the address to `apply`. */
+  createAddressDialog: (
+    address: Address | null,
+    apply: (address: Address) => void,
+  ) => Machine<AddressDialogState, DialogIntents<AddressDialogState["form"]>>;
 }
 
 /** The application, built once at startup. Presenters, the navigation, the
@@ -312,6 +341,20 @@ export function createApp(ports: AppPorts): App {
     books.books$,
     buildings.tree$,
     { units: ports.units, tables: ports.tables, contacts: ports.contacts },
+    ports.clock,
+  );
+
+  const buildingData = createBuildingDataPresenter(
+    {
+      accounts: ports.accounts,
+      journal: ports.journal,
+      installments: ports.installments,
+      tables: ports.tables,
+      units: ports.units,
+      buildings: ports.buildings,
+      contacts: ports.contacts,
+    },
+    buildings,
     ports.clock,
   );
 
@@ -425,6 +468,7 @@ export function createApp(ports: AppPorts): App {
       schedule,
       allocation,
       units,
+      buildingData,
     },
     navigation: createNavigationMachine(),
     notices: createNotices(),
@@ -436,6 +480,7 @@ export function createApp(ports: AppPorts): App {
       coefficients$: allocation.coefficients$,
       allocation$: allocation.allocation$,
       units$: units.view$,
+      buildingData$: buildingData.view$,
       period$: buildings.selected$.pipe(
         map((selected) => {
           return selected?.periodId ?? null;
@@ -723,6 +768,57 @@ export function createApp(ports: AppPorts): App {
             return units.editResident(editing, draft);
           },
         );
+      },
+      createBuildingDialog: (
+        buildingId: string,
+      ): Machine<
+        BuildingDialogState,
+        DialogIntents<BuildingDialogState["form"]>
+      > => {
+        const tree = buildings.tree$.getValue();
+        const building = must(
+          tree.find((candidate) => {
+            return candidate.id === buildingId;
+          }),
+          `the building ${buildingId}`,
+        );
+
+        return createBuildingDialog(
+          {
+            buildings: tree,
+            editing: building,
+            year: Number(todayOf(ports.clock).slice(0, 4)),
+          },
+          (draft) => {
+            return buildingData.editBuilding(buildingId, draft);
+          },
+        );
+      },
+      createPeriodDialog: (
+        periodId: string,
+      ): Machine<
+        PeriodDialogState,
+        DialogIntents<PeriodDialogState["form"]>
+      > => {
+        return createPeriodDialog(
+          buildingData.periodContext(periodId),
+          (draft) => {
+            return buildingData.editPeriod(periodId, draft);
+          },
+        );
+      },
+      createAddressDialog: (
+        address: Address | null,
+        apply: (address: Address) => void,
+      ): Machine<
+        AddressDialogState,
+        DialogIntents<AddressDialogState["form"]>
+      > => {
+        return createAddressDialog(address, (saved) => {
+          apply(saved);
+
+          return Promise.resolve(ok());
+        });
       },
     },
   };
