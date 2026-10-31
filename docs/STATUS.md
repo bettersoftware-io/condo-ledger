@@ -56,6 +56,13 @@ Work that waits on a release, a decision or other work.
   carried over.
 - **Edit a building's suppliers.** Building Data shows the suppliers
   read-only; editing them comes with Contacts.
+- **Tidy-ups left by the M2f reviews.** None changes what a person sees.
+  `BuildingSuppliers.tsx` still imports `CONTACT_KIND_LABELS` from the Units
+  folder. `daysOf` could use `spanOf`. `same()` is repeated in
+  `validateUnits.ts` and `validateBuilding.ts`, and the parse of a blank or
+  a date in `formDialog.ts` and `invoiceWizard.ts`. `ValueSelect` repeats the wizards'
+  select, and `createFormDialog` parallels `tableDialogMachine.ts`. A few
+  test helpers are copied (`rowLabels`, `rowWithKey`, `flatten`, `watch`).
 - **Presenter robustness before the live adapters (M3).** In
   `packages/client-core/src/presenters/accountsPresenter.ts`, a key the tree
   no longer has should fall back to Total rather than error the stream for
@@ -100,7 +107,11 @@ Work that waits on a release, a decision or other work.
   M3 is a catch for each period that shows that period's figures as blank
   and reports the error. And any change to the buildings tree, even renaming
   an unrelated building, recomputes every period's allocation for the
-  Building Data screen.
+  Building Data screen. Its `scope$` also reads the tree twice, so a new
+  building's row could arrive before its tree and throw, once buildings can
+  be added. The units presenter resets its selection when the listed period
+  changes, so a quick switch away and back, before the other period's ports
+  answer, keeps the old selection.
 
 ## Waiting on a person
 
@@ -127,7 +138,7 @@ A step or a decision an agent cannot take.
   programmatically (not by typing) is chosen but not shown in the box.
 - **The period label in the Allocation and Installment Schedule root rows
   is cut off by its column**, and no tooltip shows the full text.
-- **`Wizards.css` and `BudgetInstallmentsWizard.css` style `FormField`'s box with `:has()`.**
+- **`Wizards.css`, `BudgetInstallmentsWizard.css` and `ValueSelect.css` style `FormField`'s box with `:has()`.**
   A change to `FormField`'s markup must check them.
 - **The module tabs name no panel.** `ModuleTabs` is a named tab list with
   the keyboard of WAI-ARIA's tabs, but the main area below it is not marked
@@ -205,6 +216,15 @@ A step or a decision an agent cannot take.
   runs of `main` after that date; a runner-image failure is not the change
   that merged. The plugin's own workflows passed on `ubuntu-26.04` on
   2026-10-16 (skills #40, skills-demo #13).
+- **A write that fails shows nothing in the Units and Building Data
+  dialogs.** A refusal is worded, but a rejected port call only reaches the
+  console and the dialog stays open (`useDialogWrite.ts`). The simulators
+  never reject; M3's adapters can.
+- **A co-owner's percentage in a Units grid label is always written with a
+  dot** (`unitsList.ts`), whatever the language. Every seeded share is whole,
+  so it shows once co-ownership percentages can be edited.
+- **The Installment Schedule drops an owner whose unit is not listed**,
+  without a word. Real data cannot do this today.
 - **The Journal's small gaps.** A delete refused for a reason no sentence
   words shows the reason's code; the multi-cost wizard's footer shows the
   lines' total alone, not against the amount paid; `validateEntry` judges an

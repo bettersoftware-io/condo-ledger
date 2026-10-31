@@ -160,7 +160,7 @@ Prev. bal. | Budget | Actual | Total due | Paid | Overdue | Adjustment`
   names, comma-separated}", then " ({role})" when it has exactly one
   resident. Floor, Int., Sub., Type and its own Restr. period.
 - **Residents**, only under a unit with more than one, by role priority
-  then the order they were added: 👤 "{name} ({role}[ {share}%])", their
+  then by start date, the order the allocation and the schedule use: 👤 "{name} ({role}[ {share}%])", their
   own Restr. period.
 - **Rounding**, last child of the root: "Rounding error", money only.
 
@@ -276,7 +276,8 @@ DATA: Type\* (Apartment, Shop, Garage, Premises), Cadastral data; NOTES).
 New unit's group is the selected group, or the selected unit's group, else
 the top; it cannot change later. A new unit opens blank, type Apartment.
 Refused: an empty code; a code another unit of the period has; an end date
-before the start date; dates outside the period. A new unit gets a
+before the start date; dates outside the period; dates that would cut a
+resident's own ("{name} has dates outside these: change them first"). A new unit gets a
 coefficient of 0 in every table of the period (legacy); the Thousandth
 Tables screen lists it at once. **Delete**: refused while any of its
 residents could not be deleted (below); otherwise the unit, its residents
@@ -302,7 +303,8 @@ label and wizard. *Call made here.*
 - RESTRICTED PERIOD: Start date, End date.
 
 Refused: no contact; the contact already a resident of this unit; an end
-before the start; dates outside the period. A change of owner is recorded
+before the start; dates outside the period, or outside the unit's own dates
+when it has them. A change of owner is recorded
 the legacy way: give the outgoing owner an end date, add the new one with
 a start date. The two then pay one after the other, each the whole share
 for their own days (see "Successive owners" under Domain), with no
