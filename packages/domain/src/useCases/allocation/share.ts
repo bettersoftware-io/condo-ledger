@@ -236,19 +236,26 @@ function compoundCoefficientOf(
   input: AllocationInput,
   resident: OwnerParty,
 ): number {
-  return (
-    coOwnershipOf(input.residents, resident) * residencyOf(input, resident)
-  );
+  return coOwnershipOf(input, resident) * residencyOf(input, resident);
 }
 
 /**
- * Over the residents of the unit with the same role: the resident's
+ * Over the co-owners (the residents of the unit with the same role whose
+ * dates overlap the resident's; owners who do not overlap succeed each other
+ * and each pays the whole share for their own days): the resident's
  * percentage when theirs do not sum to 0, and 0 for one without; otherwise
  * an equal part among those without one, or among all when every one has 0.
  */
-function coOwnershipOf(residents: OwnerParty[], resident: OwnerParty): number {
-  const group = residents.filter((other) => {
-    return other.unitId === resident.unitId && other.role === resident.role;
+function coOwnershipOf(input: AllocationInput, resident: OwnerParty): number {
+  const mine = datesOf(input, resident);
+  const group = input.residents.filter((other) => {
+    if (other.unitId !== resident.unitId || other.role !== resident.role) {
+      return false;
+    }
+
+    const theirs = datesOf(input, other);
+
+    return theirs.from <= mine.to && mine.from <= theirs.to;
   });
   let total = 0;
   let empty = 0;
@@ -290,4 +297,27 @@ function residencyOf(input: AllocationInput, resident: OwnerParty): number {
   const end = unit.restriction?.to ?? input.period.end;
 
   return daysFromTo(own.from ?? start, own.to ?? end) / daysFromTo(start, end);
+}
+
+/** The days a resident covers: their own, else their unit's, else the period's; an open end runs to the next one's. */
+function datesOf(input: AllocationInput, resident: OwnerParty): DateSpan {
+  const unit = must(
+    input.units.find((candidate) => {
+      return candidate.id === resident.unitId;
+    }),
+    `unit ${resident.unitId}`,
+  );
+  const start = unit.restriction?.from ?? input.period.start;
+  const end = unit.restriction?.to ?? input.period.end;
+
+  return {
+    from: resident.ownRestriction?.from ?? start,
+    to: resident.ownRestriction?.to ?? end,
+  };
+}
+
+/** Two "YYYY-MM-DD" dates, both counted. */
+interface DateSpan {
+  from: string;
+  to: string;
 }
