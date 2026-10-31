@@ -22,6 +22,7 @@ export type {
   AllocationGridState,
   CoefficientsGridState,
   TreeGridIntents,
+  TreeGridState,
 } from "./machines/allocationMachines.ts";
 export type {
   BottomTabIntents,
@@ -33,6 +34,7 @@ export {
   type ColumnsState,
   columnSpecsFrom,
 } from "./machines/columnsMachine.ts";
+export type { DialogIntents } from "./machines/formDialog.ts";
 export type {
   InstallmentDialogForm,
   InstallmentDialogIntents,
@@ -78,6 +80,7 @@ export type {
   TableDialogIntents,
   TableDialogState,
 } from "./machines/tableDialogMachine.ts";
+export type { UnitDialogState } from "./machines/unitDialogMachines.ts";
 export type {
   BudgetAllocationForm,
   BudgetAllocationSummary,
@@ -138,4 +141,5 @@ export type {
 export type { TableView } from "./presenters/allocationPresenter.ts";
 export type { PeriodSelection } from "./presenters/buildingsPresenter.ts";
 export type { JournalContext } from "./presenters/journalPresenter.ts";
+export type { UnitsView } from "./presenters/unitsPresenter.ts";
 export type { GridName, SplitName, TabbedPanelName } from "./screens.ts";

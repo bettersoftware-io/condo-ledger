@@ -68,6 +68,32 @@ describe("the units presenter", () => {
     stop();
   });
 
+  it("places the selected unit by its groups' names, root to leaf; blank at the top and with no unit", async () => {
+    const { units, view, stop } = createPresented("p1");
+
+    expect(view().location).toBe("Stairwell A");
+
+    const groupId = addedId(
+      await units.addGroup("ug1", createGroupDraft("C", "Lift")),
+    );
+    const unitId = addedId(await units.addUnit(groupId, createUnitDraft("C1")));
+
+    units.select(`unit:${unitId}`);
+    expect(view().location).toBe("Stairwell A » Lift");
+
+    units.select("group:ug2");
+    expect(view().location).toBe("");
+
+    stop();
+
+    const pozzetto = createPresented("p36");
+
+    expect(pozzetto.view().unit?.code).toBe("A01");
+    expect(pozzetto.view().location).toBe("");
+
+    pozzetto.stop();
+  });
+
   it("names the unit of a selected resident: r166 is A04, its owners A04's", () => {
     const { units, view, crumb, stop } = createPresented("p36");
 

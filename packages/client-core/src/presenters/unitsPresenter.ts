@@ -48,6 +48,8 @@ export interface UnitsView {
   selected: UnitsRow | null;
   /** The selected unit, or the selected resident's; null for the root, a group and the rounding row. */
   unit: Unit | null;
+  /** Where `unit` stands: its groups' names, root to leaf, joined by " » "; blank at the top of the building, and with no unit. */
+  location: string;
   /** The Unit Owners tab of `unit`; null with no unit. */
   owners: OwnersRow | null;
   /** Whether the period's opening entry is posted: the previous balances are then the journal's. */
@@ -304,6 +306,7 @@ function scopeOf(
       list,
       selected,
       unit,
+      location: unit === null ? "" : locationOf(unit, groups),
       owners: unit === null ? null : unitOwnersOf(unit, allocation.input),
       openingPosted,
     },
@@ -324,6 +327,27 @@ function scopeOf(
           })?.code ?? null)
         : (unit?.code ?? null),
   };
+}
+
+/** The unit's groups' names, from the top of the building down to its own. */
+function locationOf(unit: Unit, groups: UnitGroup[]): string {
+  const names: string[] = [];
+  let groupId = unit.groupId;
+
+  while (groupId !== null) {
+    const id = groupId;
+    const group = must(
+      groups.find((candidate) => {
+        return candidate.id === id;
+      }),
+      `the group ${id}`,
+    );
+
+    names.unshift(group.name);
+    groupId = group.parentId;
+  }
+
+  return names.join(" » ");
 }
 
 function selectedOf(

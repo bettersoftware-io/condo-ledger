@@ -4,6 +4,10 @@ import type { Cents } from "@cl/domain";
 /** One formatter per locale, made the first time the locale is shown. */
 const MONEY = new Map<AmountLocale, Intl.NumberFormat>();
 
+const COEFFICIENTS = new Map<AmountLocale, Intl.NumberFormat>();
+
+const SHARES = new Map<AmountLocale, Intl.NumberFormat>();
+
 /**
  * Money with two decimals in the locale: `1,234.56` in en-US, `1.234,56` in
  * it-IT, de-DE and es-ES, `1 234,56` (narrow no-break spaces) in fr-FR. Every
@@ -11,6 +15,19 @@ const MONEY = new Map<AmountLocale, Intl.NumberFormat>();
  */
 export function formatCents(amount: Cents, locale: AmountLocale): string {
   return moneyIn(locale).format(amount / 100);
+}
+
+/** A combined coefficient (a co-ownership factor times a residency factor) with six decimals in the locale: `0.049315`, `0,049315` in it-IT. */
+export function formatCoefficient(value: number, locale: AmountLocale): string {
+  return formatterIn(COEFFICIENTS, locale, {
+    minimumFractionDigits: 6,
+    maximumFractionDigits: 6,
+  }).format(value);
+}
+
+/** A co-ownership share, held in ten-thousandths of a percent, as a percentage with up to four decimals: 1000000 is `100%`, 125000 `12,5%` in it-IT. */
+export function formatShare(share: number, locale: AmountLocale): string {
+  return `${formatterIn(SHARES, locale, { maximumFractionDigits: 4 }).format(share / 10000)}%`;
 }
 
 /** `2013-01-10T15:59:00` as `10/01/2013`. Sliced, never parsed: a timezone must not move it. */
@@ -24,19 +41,28 @@ export function formatDateTime(iso: string): string {
 }
 
 function moneyIn(locale: AmountLocale): Intl.NumberFormat {
-  const known = MONEY.get(locale);
+  return formatterIn(MONEY, locale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+    useGrouping: "always",
+  });
+}
+
+/** The locale's formatter of one kind, made the first time it is asked for. */
+function formatterIn(
+  made: Map<AmountLocale, Intl.NumberFormat>,
+  locale: AmountLocale,
+  options: Intl.NumberFormatOptions,
+): Intl.NumberFormat {
+  const known = made.get(locale);
 
   if (known !== undefined) {
     return known;
   }
 
-  const made = new Intl.NumberFormat(locale, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-    useGrouping: "always",
-  });
+  const formatter = new Intl.NumberFormat(locale, options);
 
-  MONEY.set(locale, made);
+  made.set(locale, formatter);
 
-  return made;
+  return formatter;
 }

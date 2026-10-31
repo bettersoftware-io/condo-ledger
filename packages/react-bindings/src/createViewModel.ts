@@ -19,6 +19,7 @@ import type {
   ColumnSpec,
   ColumnsIntents,
   ColumnsState,
+  DialogIntents,
   DirectPaymentForm,
   DirectPaymentKind,
   DirectPaymentSummary,
@@ -58,6 +59,9 @@ import type {
   TableDialogState,
   TableView,
   TreeGridIntents,
+  TreeGridState,
+  UnitDialogState,
+  UnitsView,
   WizardIntents,
   WizardState,
 } from "@cl/client-core";
@@ -74,12 +78,14 @@ import type {
   Language,
   Ledger,
   Mode,
+  OwnersRow,
   Preferences,
   Principal,
   Result,
   ResultOf,
   Schedule,
   Theme,
+  UnitsRow,
 } from "@cl/domain";
 
 import { type MachineView, useMachine } from "./useMachine.ts";
@@ -143,6 +149,20 @@ export interface AllocationView {
     unitId: string,
     text: string,
   ) => Promise<Result>;
+}
+
+/**
+ * The Units, Owners & Personal Balance screen: the grid with its selected
+ * row and what the bottom tabs show of it, the breadcrumb's last crumb, and
+ * the selection. The selection is the application's, so the grid, the tabs
+ * and the breadcrumb follow the same one.
+ */
+export interface UnitsScreenView {
+  /** Null while there is no period, or while its units are on their way. */
+  view: UnitsView | null;
+  /** The selected unit's code (a resident's unit's), or the selected group's; null for the root and the rounding row. */
+  crumb: string | null;
+  select: (key: string) => void;
 }
 
 export interface NoticesView {
@@ -256,11 +276,23 @@ export interface ViewModel {
   >;
   /** The allocation in the chosen mode: which of its rows are open. */
   useAllocationGrid: () => MachineView<AllocationGridState, TreeGridIntents>;
+  useUnits: () => UnitsScreenView;
+  /** The Units grid: which of its rows are open. */
+  useUnitsGrid: () => MachineView<TreeGridState<UnitsRow>, TreeGridIntents>;
+  /** The Unit Owners tab of the selected unit: which of its rows are open. */
+  useUnitOwnersGrid: () => MachineView<
+    TreeGridState<OwnersRow>,
+    TreeGridIntents
+  >;
+  /** Reads its argument on the first render only: the New Unit dialog (null) or the Edit Unit one on the unit it opened on. */
+  useUnitDialog: (
+    editing: string | null,
+  ) => MachineView<UnitDialogState, DialogIntents<UnitDialogState["form"]>>;
 }
 
 /** Built once at startup, in the composition root, from the application. */
 export function createViewModel(app: App): ViewModel {
-  const { session, buildings, accounts, journal, schedule, allocation } =
+  const { session, buildings, accounts, journal, schedule, allocation, units } =
     app.presenters;
   const { screens } = app;
 
@@ -484,6 +516,29 @@ export function createViewModel(app: App): ViewModel {
       TreeGridIntents
     > => {
       return useSharedMachine(screens.allocationGrid());
+    },
+    useUnits: (): UnitsScreenView => {
+      return {
+        view: useStateObservable(units.view$),
+        crumb: useStateObservable(units.crumb$),
+        select: units.select,
+      };
+    },
+    useUnitsGrid: (): MachineView<TreeGridState<UnitsRow>, TreeGridIntents> => {
+      return useSharedMachine(screens.unitsGrid());
+    },
+    useUnitOwnersGrid: (): MachineView<
+      TreeGridState<OwnersRow>,
+      TreeGridIntents
+    > => {
+      return useSharedMachine(screens.unitOwnersGrid());
+    },
+    useUnitDialog: (
+      editing: string | null,
+    ): MachineView<UnitDialogState, DialogIntents<UnitDialogState["form"]>> => {
+      return useMachine(() => {
+        return app.machines.createUnitDialog(editing);
+      });
     },
   };
 }

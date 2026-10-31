@@ -440,6 +440,62 @@ describe("the view model", () => {
     expect(page.read().allocation.tables.at(-1)?.table.name).toBe("Test");
   });
 
+  it("the units hooks mount over the selected period: p1's eight units, A1 selected with its crumb, and both grids' rows", () => {
+    const page = mountUnderProvider(loadLegacySeed(legacySeedData));
+    const { units, unitsGrid, unitOwnersGrid } = page.read();
+
+    expect(units.view?.list.unitCount).toBe(8);
+    expect(units.view?.selected?.key).toBe("unit:u1");
+    expect(units.view?.location).toBe("Stairwell A");
+    expect(units.crumb).toBe("A1");
+    expect(unitsGrid.state.rows[0]?.key).toBe("root");
+    expect(unitOwnersGrid.state.rows[0]?.key).toBe("period:u1");
+  });
+
+  it("a row selected reaches every reader, its crumb and the owners grid; every reader opens and closes the same rows", async () => {
+    const page = mountUnderProvider(loadLegacySeed(legacySeedData), 2);
+
+    await page.send((seen) => {
+      seen.units.select("unit:u5");
+      seen.unitsGrid.collapseAll();
+    });
+
+    for (const reader of [0, 1]) {
+      const { units, unitsGrid, unitOwnersGrid } = page.read(reader);
+
+      expect(units.view?.unit?.code).toBe("B1");
+      expect(units.crumb).toBe("B1");
+      expect(unitsGrid.state.rows).toHaveLength(1);
+      expect(unitOwnersGrid.state.rows[0]?.key).toBe("period:u5");
+    }
+  });
+
+  it("the unit dialog hook opens Edit Unit on its unit, and its save reaches the Units grid", async () => {
+    const page = mountUnderProvider(
+      loadLegacySeed(legacySeedData),
+      1,
+      null,
+      null,
+      null,
+      "u1",
+    );
+    let answer: Result | null = null;
+
+    expect(page.read().unitDialog?.state.form.code).toBe("A1");
+
+    await page.send((seen) => {
+      seen.unitDialog?.edit({ floor: "2" });
+    });
+    await page.send(async (seen) => {
+      answer = (await seen.unitDialog?.save()) ?? null;
+    });
+
+    expect(answer).toEqual({ ok: true });
+    expect(
+      page.read().units.view?.list.root.children[0]?.children[0],
+    ).toMatchObject({ key: "unit:u1", floor: "2" });
+  });
+
   it("a wizard hook given an entry to edit shows that entry's form", () => {
     const page = mountUnderProvider(createSmallSeed(), 1, "e6");
 

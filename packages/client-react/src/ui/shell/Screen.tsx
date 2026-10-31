@@ -11,11 +11,16 @@ import { AccountsScreen } from "../accounts/AccountsScreen.tsx";
 import { TablesAllocationScreen } from "../allocation/TablesAllocationScreen.tsx";
 import { InstallmentScheduleScreen } from "../installments/InstallmentScheduleScreen.tsx";
 import { JournalScreen } from "../journal/JournalScreen.tsx";
+import { UnitsScreen } from "../units/UnitsScreen.tsx";
 import { menuLabel, moduleLabel } from "./labels.tsx";
 import { Placeholder } from "./Placeholder.tsx";
 
-/** The main area's content for where the person is: the Thousandth Tables & Allocation, Accounts, Journal and Installment Schedule screens on their menu items, a placeholder for every screen not built yet. */
+/** The main area's content for where the person is: the Units, Thousandth Tables & Allocation, Accounts, Journal and Installment Schedule screens on their menu items, a placeholder for every screen not built yet. */
 export function Screen({ module, menu, maximize }: ScreenProps): ReactElement {
+  if (module === "buildings" && menu === "units") {
+    return <UnitsScreen maximize={maximize} />;
+  }
+
   if (module === "buildings" && menu === "thousandths") {
     return <TablesAllocationScreen maximize={maximize} />;
   }

@@ -33,6 +33,8 @@ export interface SidebarPage {
   menuLabels: () => string[];
   activeMenu: () => string | null;
   clickMenu: (label: string) => Promise<void>;
+  /** Clicks the top bar's module tab with this label. */
+  clickModule: (label: string) => Promise<void>;
   /** The menu item the whole app is on, read back through the view model. */
   appMenu: () => string;
   clickTool: (label: string) => Promise<void>;
@@ -185,6 +187,9 @@ export function mountSidebar(options: SidebarOptions = {}): SidebarPage {
     },
     clickMenu: async (label: string): Promise<void> => {
       await user.click(within(sidebar()).getByRole("button", { name: label }));
+    },
+    clickModule: async (label: string): Promise<void> => {
+      await user.click(rendered.getByRole("tab", { name: label }));
     },
     appMenu: (): string => {
       return read().menu;

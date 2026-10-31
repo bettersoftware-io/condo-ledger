@@ -147,9 +147,9 @@ describe("Sidebar", () => {
     expect(page.screenTitle()).toBe("Installment Schedule");
     expect(page.showsPlaceholder()).toBe(false);
 
-    await page.clickMenu("Building Data & Suppliers");
+    await page.clickModule("Contacts");
 
-    expect(page.screenTitle()).toBe("Building Data & Suppliers");
+    expect(page.screenTitle()).toBe("Contacts");
     expect(page.showsPlaceholder()).toBe(true);
   });
 

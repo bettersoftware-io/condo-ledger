@@ -19,6 +19,7 @@ import type {
   ColumnSpec,
   ColumnsIntents,
   ColumnsState,
+  DialogIntents,
   DirectPaymentForm,
   DirectPaymentSummary,
   GenericEntryForm,
@@ -51,6 +52,8 @@ import type {
   TableDialogIntents,
   TableDialogState,
   TreeGridIntents,
+  TreeGridState,
+  UnitDialogState,
   WizardIntents,
   WizardState,
 } from "@cl/client-core";
@@ -62,7 +65,9 @@ import type {
   JournalEntryView,
   Ledger,
   LegacySeed,
+  OwnersRow,
   Result,
+  UnitsRow,
 } from "@cl/domain";
 
 import {
@@ -73,6 +78,7 @@ import {
   type SelectedAccountView,
   type SelectedPeriodView,
   type SessionView,
+  type UnitsScreenView,
 } from "./createViewModel.ts";
 import type { MachineView } from "./useMachine.ts";
 import { useViewModel } from "./useViewModel.ts";
@@ -151,6 +157,14 @@ export interface Seen {
     InstallmentDialogState,
     InstallmentDialogIntents
   > | null;
+  units: UnitsScreenView;
+  unitsGrid: MachineView<TreeGridState<UnitsRow>, TreeGridIntents>;
+  unitOwnersGrid: MachineView<TreeGridState<OwnersRow>, TreeGridIntents>;
+  /** Null unless the page was mounted with a unit to edit. */
+  unitDialog: MachineView<
+    UnitDialogState,
+    DialogIntents<UnitDialogState["form"]>
+  > | null;
 }
 
 export interface ViewModelPage {
@@ -176,6 +190,7 @@ export function mountUnderProvider(
   editing: string | null = null,
   collectionEditing: string | null = null,
   installmentId: string | null = null,
+  unitId: string | null = null,
 ): ViewModelPage {
   const viewModel = createViewModel(createAppHarness(seed).app);
   const seen: (Seen | undefined)[] = [];
@@ -188,6 +203,7 @@ export function mountUnderProvider(
         editing={editing}
         collectionEditing={collectionEditing}
         installmentId={installmentId}
+        unitId={unitId}
       />
       {readers === 2 ? (
         <Reader
@@ -196,6 +212,7 @@ export function mountUnderProvider(
           editing={editing}
           collectionEditing={collectionEditing}
           installmentId={installmentId}
+          unitId={unitId}
         />
       ) : null}
     </ViewModelProvider>,
@@ -230,6 +247,7 @@ export function mountWithoutProvider(): void {
       editing={null}
       collectionEditing={null}
       installmentId={null}
+      unitId={null}
     />,
   );
 }
@@ -243,6 +261,8 @@ interface ReaderProps {
   collectionEditing: string | null;
   /** The installment the reader's Edit Installment dialog opens on; none, no dialog. */
   installmentId: string | null;
+  /** The unit the reader's Edit Unit dialog opens on; none, no dialog. */
+  unitId: string | null;
 }
 
 function Reader({
@@ -251,6 +271,7 @@ function Reader({
   editing,
   collectionEditing,
   installmentId,
+  unitId,
 }: ReaderProps): ReactElement {
   const {
     useSession,
@@ -290,6 +311,9 @@ function Reader({
     useAllocationGrid,
     useBudgetAllocationWizard,
     useTableDialog,
+    useUnits,
+    useUnitsGrid,
+    useUnitOwnersGrid,
   } = useViewModel();
 
   seen[index] = {
@@ -331,12 +355,19 @@ function Reader({
     budgetAllocation: useBudgetAllocationWizard(),
     tableDialog: useTableDialog(null),
     installmentDialog: null,
+    units: useUnits(),
+    unitsGrid: useUnitsGrid(),
+    unitOwnersGrid: useUnitOwnersGrid(),
+    unitDialog: null,
   };
 
   return (
     <output>
       {installmentId === null ? null : (
         <DialogReader seen={seen} index={index} installmentId={installmentId} />
+      )}
+      {unitId === null ? null : (
+        <UnitDialogReader seen={seen} index={index} unitId={unitId} />
       )}
     </output>
   );
@@ -360,6 +391,29 @@ function DialogReader({
 
   if (entry !== undefined) {
     entry.installmentDialog = dialog;
+  }
+
+  return null;
+}
+
+interface UnitDialogReaderProps {
+  seen: (Seen | undefined)[];
+  index: number;
+  unitId: string;
+}
+
+/** Mounted apart, because the dialog hook needs a unit that exists. */
+function UnitDialogReader({
+  seen,
+  index,
+  unitId,
+}: UnitDialogReaderProps): ReactElement | null {
+  const { useUnitDialog } = useViewModel();
+  const dialog = useUnitDialog(unitId);
+  const entry = seen[index];
+
+  if (entry !== undefined) {
+    entry.unitDialog = dialog;
   }
 
   return null;

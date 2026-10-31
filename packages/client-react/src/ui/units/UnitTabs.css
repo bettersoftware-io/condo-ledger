@@ -1,0 +1,36 @@
+/* bu-design.md, Screen 3: the bottom panel fills its half of the screen; its toolbar stays, and the tab's content scrolls under it. */
+.unit-tabs {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.unit-tabs > .tabbed {
+  flex: 1;
+}
+
+.unit-tabs-body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.unit-tabs-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.unit-tabs-spacer {
+  flex: 1;
+}
+
+/* The root, a group or the rounding row: one dim line in place of a unit. */
+.unit-tabs-hint {
+  margin: 0;
+  padding: 18px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--txd);
+}

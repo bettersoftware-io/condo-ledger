@@ -1,0 +1,30 @@
+/* README "Unit Owners": % Share as a bar, the track --bd2 and the fill --acc, the percentage centred over it. */
+.share-bar {
+  --share-fill: 0%;
+
+  position: relative;
+  display: block;
+  height: 16px;
+  margin: 1px 0;
+  border-radius: 3px;
+  background: var(--bd2);
+  overflow: hidden;
+}
+
+.share-bar-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--share-fill);
+  background: var(--acc);
+  opacity: 0.35;
+}
+
+.share-bar-text {
+  position: relative;
+  display: block;
+  font-size: 10.5px;
+  line-height: 16px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--tx);
+}

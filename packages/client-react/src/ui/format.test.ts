@@ -2,7 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import { cents } from "@cl/domain";
 
-import { formatCents, formatDate, formatDateTime } from "./format.ts";
+import {
+  formatCents,
+  formatCoefficient,
+  formatDate,
+  formatDateTime,
+  formatShare,
+} from "./format.ts";
 
 describe("formatCents", () => {
   it("writes en-US style with two decimals", () => {
@@ -40,5 +46,23 @@ describe("dates", () => {
   it("writes dd/mm/yyyy and dd/mm/yyyy hh:mm", () => {
     expect(formatDate("2013-01-10T15:59:00")).toBe("10/01/2013");
     expect(formatDateTime("2013-01-10T15:59:00")).toBe("10/01/2013 15:59");
+  });
+});
+
+describe("formatCoefficient", () => {
+  it("writes six decimals in the locale", () => {
+    expect(formatCoefficient(0.0493150684, "en-US")).toBe("0.049315");
+    expect(formatCoefficient(0.950685, "it-IT")).toBe("0,950685");
+    expect(formatCoefficient(1, "en-US")).toBe("1.000000");
+    expect(formatCoefficient(0, "fr-FR")).toBe("0,000000");
+  });
+});
+
+describe("formatShare", () => {
+  it("writes a share held in ten-thousandths of a percent as a percentage, up to four decimals", () => {
+    expect(formatShare(1000000, "en-US")).toBe("100%");
+    expect(formatShare(500000, "en-US")).toBe("50%");
+    expect(formatShare(333333, "en-US")).toBe("33.3333%");
+    expect(formatShare(125000, "it-IT")).toBe("12,5%");
   });
 });

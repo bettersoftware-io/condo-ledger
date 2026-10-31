@@ -106,4 +106,10 @@ export const TESTIDS = {
   allocationTablesGrid: "allocation-tables-grid",
   allocationTablesHead: "allocation-tables-head",
   allocationTablesRow: "allocation-tables-row",
+  unitsScreen: "units-screen",
+  unitsPanel: "units-panel",
+  unitsGroupBy: "units-group-by",
+  unitTabs: "unit-tabs",
+  unitsSelectHint: "units-select-hint",
+  shareBar: "share-bar",
 } as const;
