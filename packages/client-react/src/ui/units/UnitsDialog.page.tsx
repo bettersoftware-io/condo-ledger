@@ -47,13 +47,28 @@ export interface UnitsDialogPage {
   pressEnter: () => Promise<void>;
 }
 
-/** The dialog wherever it is drawn under `root`. */
+/**
+ * The dialog wherever it is drawn under `root`: the first one, or with
+ * `stacked` the one opened over it (the Address dialog over the dialog whose
+ * address it edits).
+ */
 export function unitsDialogIn(
   root: () => HTMLElement,
   user: User,
+  layer: "first" | "stacked" = "first",
 ): UnitsDialogPage {
+  function dialogs(): HTMLElement[] {
+    return within(root()).queryAllByTestId(TESTIDS.dialog);
+  }
+
   function dialog(): HTMLElement {
-    return within(root()).getByTestId(TESTIDS.dialog);
+    const found = dialogs()[layer === "stacked" ? 1 : 0];
+
+    if (found === undefined) {
+      throw new Error(`missing: the ${layer} dialog`);
+    }
+
+    return found;
   }
 
   function textBox(label: string): HTMLInputElement | HTMLTextAreaElement {
@@ -89,7 +104,7 @@ export function unitsDialogIn(
 
   return {
     isShown: (): boolean => {
-      return within(root()).queryByTestId(TESTIDS.dialog) !== null;
+      return dialogs().length > (layer === "stacked" ? 1 : 0);
     },
     title: (): string => {
       return (

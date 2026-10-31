@@ -13,6 +13,7 @@ import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 import { createTwoPeriodSeed } from "@cl/domain/testing/createTwoPeriodSeed.ts";
 
 import {
+  mountBuildingData,
   mountUnderProvider,
   mountWithoutProvider,
   type Seen,
@@ -560,6 +561,76 @@ describe("the view model", () => {
     const page = mountUnderProvider(loadLegacySeed(legacySeedData));
 
     expect(page.read().contacts).toHaveLength(48);
+  });
+
+  it("the building data hooks mount on the real seed: both buildings' rows, p1's selected with Saturno's suppliers, and a period row clicked becomes the app's", async () => {
+    const page = mountBuildingData();
+    const { data, grid } = page.read();
+
+    expect(
+      grid.state.rows.map((row) => {
+        return row.key;
+      }),
+    ).toEqual(["c19", "p36", "c1", "p1"]);
+    expect(data.view.selected?.key).toBe("p1");
+    expect(data.view.building?.code).toBe("SAT");
+    expect(data.view.suppliers).toHaveLength(6);
+
+    await page.send((seen) => {
+      seen.data.select("p36");
+    });
+
+    expect(page.read().period.selected?.periodId).toBe("p36");
+    expect(page.read().data.view.suppliers).toHaveLength(12);
+
+    const second = must(
+      page.read().data.view.suppliers[1],
+      "a second supplier",
+    );
+
+    await page.send((seen) => {
+      seen.data.selectSupplier(second.id);
+    });
+
+    expect(page.read().data.view.supplier?.id).toBe(second.id);
+  });
+
+  it("the building, period and address dialog hooks: the address handed back, the building and the period saved where the grid shows them", async () => {
+    const page = mountBuildingData();
+    const answers: Result[] = [];
+
+    expect(page.read().buildingDialog.state.form.code).toBe("SAT");
+    expect(page.read().periodDialog.state.form.start).toBe("01/01/2011");
+
+    await page.send((seen) => {
+      seen.addressDialog.edit({ street: "Via Roma, 1" });
+    });
+    await page.send(async (seen) => {
+      answers.push(await seen.addressDialog.save());
+    });
+
+    expect(page.read().applied).toEqual([
+      { street: "Via Roma, 1", postcode: null, city: null },
+    ]);
+
+    await page.send((seen) => {
+      seen.buildingDialog.edit({ code: "STN" });
+      seen.periodDialog.edit({ name: "2011 bis" });
+    });
+    await page.send(async (seen) => {
+      answers.push(
+        await seen.buildingDialog.save(),
+        await seen.periodDialog.save(),
+      );
+    });
+
+    expect(answers).toEqual([{ ok: true }, { ok: true }, { ok: true }]);
+    expect(
+      page.read().grid.state.rows.map((row) => {
+        return [row.node.code, row.node.label];
+      }),
+    ).toContainEqual(["", "2011 bis (Ordinary)"]);
+    expect(page.read().data.view.building?.code).toBe("STN");
   });
 
   it("a wizard hook given an entry to edit shows that entry's form", () => {

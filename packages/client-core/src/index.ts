@@ -28,6 +28,11 @@ export type {
   BottomTabIntents,
   BottomTabState,
 } from "./machines/bottomTabMachine.ts";
+export type {
+  AddressDialogState,
+  BuildingDialogState,
+  PeriodDialogState,
+} from "./machines/buildingDialogMachines.ts";
 export {
   type ColumnSpec,
   type ColumnsIntents,
@@ -143,6 +148,7 @@ export type {
   AllocationTableRow,
 } from "./presenters/accountsPresenter.ts";
 export type { TableView } from "./presenters/allocationPresenter.ts";
+export type { BuildingDataView } from "./presenters/buildingDataPresenter.ts";
 export type { PeriodSelection } from "./presenters/buildingsPresenter.ts";
 export type { JournalContext } from "./presenters/journalPresenter.ts";
 export type { UnitsView } from "./presenters/unitsPresenter.ts";

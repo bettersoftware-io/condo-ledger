@@ -49,6 +49,10 @@ const config: ArchitectureConfig = {
         },
         { file: "src/ui/units/UnitsPanel.tsx", fn: "UnitsPanel" },
         { file: "src/ui/units/UnitOwnersGrid.tsx", fn: "UnitOwnersGrid" },
+        {
+          file: "src/ui/buildingData/BuildingDataPanel.tsx",
+          fn: "BuildingDataPanel",
+        },
       ],
     },
     "packages/server": { role: "server" },

@@ -135,7 +135,8 @@ function periodRow(
   };
 }
 
-const PERIOD_TYPE_WORDS: Record<PeriodType, string> = {
+/** A period's type in words (the spec's words for values): the one copy the client's labels read too. */
+export const PERIOD_TYPE_WORDS: Record<PeriodType, string> = {
   ordinary: "Ordinary",
   extra: "Extraordinary",
   auxiliary: "Auxiliary",

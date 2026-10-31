@@ -1,7 +1,8 @@
-import { type ReactElement, useEffect, useRef } from "react";
+import { type ReactElement, useEffect, useRef, useState } from "react";
 
 import { useViewModel } from "@cl/react-bindings";
 
+import { PeriodDialog } from "../buildingData/PeriodDialog.tsx";
 import { TESTIDS } from "../testids.ts";
 import { BuildingsTree } from "./BuildingsTree.tsx";
 import { ManagementMenu } from "./ManagementMenu.tsx";
@@ -14,7 +15,9 @@ import "./Sidebar.css";
  * The Buildings module's sidebar: the buildings and their periods, the
  * management menu, the splitter that sizes it, and the rail that stands in
  * for it when folded. Reads the tree, the selection, the navigation and the
- * notices; its size and fold come from the shell, which keeps them while the
+ * notices; its ✎ opens Edit Management / Period on the selected period, a
+ * dialog whose being open is this view's own state. Its size and fold come
+ * from the shell, which keeps them while the
  * person visits another module. Below 1180px the stylesheet makes it a drawer
  * over the main area and shows the rail; nothing here measures the window.
  */
@@ -34,6 +37,7 @@ export function Sidebar({
   const navigation = useNavigation();
   const { stub } = useNotices();
   const aside = useRef<HTMLElement>(null);
+  const [editingPeriod, setEditingPeriod] = useState<string | null>(null);
 
   useEffect(() => {
     aside.current?.style.setProperty("--sidebar-width", `${width}px`);
@@ -47,8 +51,13 @@ export function Sidebar({
     stub("Add management");
   }
 
-  function stubEditManagement(): void {
-    stub("Edit management");
+  /** The ✎ is enabled only with a period selected. */
+  function editManagement(): void {
+    setEditingPeriod(selected?.periodId ?? null);
+  }
+
+  function closePeriodDialog(): void {
+    setEditingPeriod(null);
   }
 
   function stubDeleteManagement(): void {
@@ -84,7 +93,8 @@ export function Sidebar({
               type="button"
               className="sidebar-tool"
               aria-label="Edit management"
-              onClick={stubEditManagement}
+              disabled={selected === null}
+              onClick={editManagement}
             >
               ✎
             </button>
@@ -133,6 +143,13 @@ export function Sidebar({
         tabIndex={-1}
         onClick={onClose}
       />
+      {editingPeriod === null ? null : (
+        <PeriodDialog
+          periodId={editingPeriod}
+          onSaved={closePeriodDialog}
+          onCancel={closePeriodDialog}
+        />
+      )}
     </>
   );
 }

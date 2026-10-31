@@ -119,4 +119,10 @@ export const TESTIDS = {
   unitsDialogCancel: "units-dialog-cancel",
   contactPickerList: "contact-picker-list",
   contactPickerOption: "contact-picker-option",
+  buildingDataScreen: "building-data-screen",
+  buildingDataPanel: "building-data-panel",
+  buildingTypeIcon: "building-type-icon",
+  buildingTabs: "building-tabs",
+  buildingSelectHint: "building-select-hint",
+  buildingSuppliers: "building-suppliers",
 } as const;

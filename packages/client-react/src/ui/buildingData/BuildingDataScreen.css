@@ -1,0 +1,51 @@
+/* README "Building Data & Suppliers" and "Splitters": the Building Data panel over the building's tabs, sharing the column by the split ratio, as the Units screen does. */
+.building-data-screen {
+  --split-ratio: 0.5;
+
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+
+.building-data-top,
+.building-data-bottom {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: 3000px;
+  transition:
+    max-height 0.26s ease,
+    flex-basis 0.26s ease;
+}
+
+.building-data-top {
+  flex: calc(var(--split-ratio) * 100) 1 0;
+}
+
+.building-data-bottom {
+  flex: calc((1 - var(--split-ratio)) * 100) 1 0;
+}
+
+.building-data-top > .building-data-panel,
+.building-data-bottom > .building-tabs {
+  flex: 1;
+}
+
+/* The maximized Building Data panel leaves the tabs their strip. */
+.building-data-screen[data-maximized="top"] .building-data-bottom {
+  flex: 0 0 auto;
+  max-height: 34px;
+}
+
+.building-data-screen[data-maximized]:not([data-maximized="none"]) > .splitter {
+  display: none;
+}
+
+/* Compact (README "Compact mode", Sidebar.css's breakpoint): the panels keep their split, and the splitters are hidden. */
+@media (width <= 1179px) {
+  .building-data-screen .splitter {
+    display: none;
+  }
+}

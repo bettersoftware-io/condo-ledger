@@ -1,9 +1,10 @@
-import type { ChangeEvent, ReactElement } from "react";
+import { type ChangeEvent, type ReactElement, useState } from "react";
 
 import type { GroupDialogState } from "@cl/client-core";
-import { addressTextOf, type Rejected } from "@cl/domain";
+import { type Address, addressTextOf, type Rejected } from "@cl/domain";
 import { useViewModel } from "@cl/react-bindings";
 
+import { AddressDialog } from "../buildingData/AddressDialog.tsx";
 import { Fieldset } from "../Fieldset.tsx";
 import { FormField } from "../FormField.tsx";
 import { TESTIDS } from "../testids.ts";
@@ -11,15 +12,19 @@ import { UnitsDialogFrame } from "./UnitsDialogFrame.tsx";
 import { unitsReasonText } from "./unitsReasons.ts";
 import { useUnitsWrite } from "./useUnitsWrite.ts";
 
-/** Reads the New or Edit Group dialog, and hands its body plain props. */
+/**
+ * Reads the New or Edit Group dialog, and hands its body plain props. Its
+ * address's ✎ opens the Address dialog over it, whose save sets the address
+ * in this form; whether that dialog is open is this one's own state.
+ */
 export function GroupDialog({
   editing,
   onSaved,
   onCancel,
 }: GroupDialogProps): ReactElement {
-  const { useGroupDialog, useNotices } = useViewModel();
+  const { useGroupDialog } = useViewModel();
   const dialog = useGroupDialog(editing);
-  const { stub } = useNotices();
+  const [editingAddress, setEditingAddress] = useState(false);
   const write = useUnitsWrite(onSaved, "the group was not saved");
 
   function edit(patch: Partial<GroupForm>): void {
@@ -31,19 +36,36 @@ export function GroupDialog({
     write.run(dialog.save);
   }
 
-  function editAddress(): void {
-    stub("Address");
+  function openAddress(): void {
+    setEditingAddress(true);
+  }
+
+  function closeAddress(): void {
+    setEditingAddress(false);
+  }
+
+  function applyAddress(address: Address): void {
+    edit({ address });
   }
 
   return (
-    <GroupDialogBody
-      state={dialog.state}
-      refusal={write.refusal}
-      onEdit={edit}
-      onEditAddress={editAddress}
-      onSave={save}
-      onCancel={onCancel}
-    />
+    <>
+      <GroupDialogBody
+        state={dialog.state}
+        refusal={write.refusal}
+        onEdit={edit}
+        onEditAddress={openAddress}
+        onSave={save}
+        onCancel={onCancel}
+      />
+      {editingAddress ? (
+        <AddressDialog
+          address={dialog.state.form.address}
+          onApply={applyAddress}
+          onClose={closeAddress}
+        />
+      ) : null}
+    </>
   );
 }
 

@@ -156,7 +156,7 @@ describe("the Units screen's dialogs", () => {
     expect(page.labelOf("group:ug-new-1")).toBe("C - Lift");
   });
 
-  it("✎ on group B opens Edit Group with its address, which ⊖ removes and ✎ says is not yet editable", async () => {
+  it("✎ on group B opens Edit Group with its address, which the Address dialog edits and ⊖ removes", async () => {
     const page = mountUnits("p1");
 
     await page.units.grid.clickRow(page.labelOf("group:ug2"));
@@ -171,8 +171,23 @@ describe("the Units screen's dialogs", () => {
 
     await page.dialog.editAddress();
 
-    expect(page.toasts()).toEqual(["Address: not yet available"]);
+    expect(page.addressDialog.title()).toBe("Address");
+    expect(page.addressDialog.fieldValue("Street and number")).toBe(
+      "Piazza del Duomo, 39/b",
+    );
 
+    await page.addressDialog.fill("Street and number", "Via Roma, 2");
+    await page.addressDialog.fill("City", "");
+    await page.addressDialog.save();
+
+    expect(page.addressDialog.isShown()).toBe(false);
+    expect(page.dialog.address()).toBe("Via Roma, 2, 33033");
+
+    await page.dialog.save();
+
+    expect(page.labelOf("group:ug2")).toBe("B - Garages (Via Roma, 2, 33033)");
+
+    await page.units.clickTool("Edit");
     await page.dialog.removeAddress();
 
     expect(page.dialog.address()).toBe("---");

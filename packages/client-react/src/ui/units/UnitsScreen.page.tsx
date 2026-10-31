@@ -64,6 +64,8 @@ export interface UnitsScreenPage {
   dragSplitter: (by: number, screenHeight: number) => void;
   /** The group, unit or owner dialog over the screen. */
   dialog: UnitsDialogPage;
+  /** The Address dialog over the group dialog. */
+  addressDialog: UnitsDialogPage;
   /** The question asked before a delete; null while none is asked. */
   confirmText: () => string | null;
   /** Why the delete did not go through, under the question; null when nothing failed. */
@@ -301,6 +303,13 @@ export function mountUnits(
     dialog: unitsDialogIn(() => {
       return rendered.container;
     }, user),
+    addressDialog: unitsDialogIn(
+      () => {
+        return rendered.container;
+      },
+      user,
+      "stacked",
+    ),
     confirmText: (): string | null => {
       return rendered.queryByTestId(TESTIDS.confirmText)?.textContent ?? null;
     },

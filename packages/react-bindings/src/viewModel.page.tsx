@@ -5,6 +5,7 @@ import type {
   AccountDetails,
   AccountsGridIntents,
   AccountsGridState,
+  AddressDialogState,
   AllocationGridState,
   AmountLocale,
   BottomTabIntents,
@@ -13,6 +14,7 @@ import type {
   BudgetAllocationSummary,
   BudgetInstallmentsForm,
   BudgetInstallmentsSummary,
+  BuildingDialogState,
   CoefficientsGridState,
   CollectionForm,
   CollectionSummary,
@@ -45,6 +47,7 @@ import type {
   OpeningForm,
   OpeningSummary,
   OwnerDialogState,
+  PeriodDialogState,
   ScheduleGridIntents,
   ScheduleGridState,
   SidebarIntents,
@@ -62,7 +65,9 @@ import type {
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
 import type {
   AccountNode,
+  Address,
   Building,
+  BuildingRow,
   Cents,
   Contact,
   JournalEntryView,
@@ -75,6 +80,7 @@ import type {
 
 import {
   type AllocationView,
+  type BuildingDataScreenView,
   createViewModel,
   type NoticesView,
   type ScheduleView,
@@ -247,6 +253,71 @@ export function mountUnderProvider(
     send: async (use: (seen: Seen) => unknown, reader = 0): Promise<void> => {
       await act(async () => {
         await use(read(reader));
+      });
+    },
+  };
+}
+
+/** What the Building Data reader got from its hooks on its latest render. */
+interface BuildingDataSeen {
+  data: BuildingDataScreenView;
+  grid: MachineView<TreeGridState<BuildingRow>, TreeGridIntents>;
+  period: SelectedPeriodView;
+  /** Edit Building on Saturno (c1). */
+  buildingDialog: MachineView<
+    BuildingDialogState,
+    DialogIntents<BuildingDialogState["form"]>
+  >;
+  /** Edit Management / Period on Saturno 2011 (p1). */
+  periodDialog: MachineView<
+    PeriodDialogState,
+    DialogIntents<PeriodDialogState["form"]>
+  >;
+  /** The Address dialog on no address. */
+  addressDialog: MachineView<
+    AddressDialogState,
+    DialogIntents<AddressDialogState["form"]>
+  >;
+  /** What the Address dialog handed back, in order. */
+  applied: Address[];
+}
+
+export interface BuildingDataPage {
+  read: () => BuildingDataSeen;
+  send: (use: (seen: BuildingDataSeen) => unknown) => Promise<void>;
+}
+
+/**
+ * Mounts a reader of the Building Data hooks on the real application over
+ * the real seed: the screen's view reads every period's books, which the
+ * small seed cannot give (it has no Liquidity or Funds account).
+ */
+export function mountBuildingData(): BuildingDataPage {
+  const viewModel = createViewModel(createAppHarness().app);
+  const seen: BuildingDataSeen[] = [];
+  const applied: Address[] = [];
+
+  render(
+    <ViewModelProvider viewModel={viewModel}>
+      <BuildingDataReader seen={seen} applied={applied} />
+    </ViewModelProvider>,
+  );
+
+  function read(): BuildingDataSeen {
+    const entry = seen[0];
+
+    if (entry === undefined) {
+      throw new Error("missing: what the Building Data reader saw");
+    }
+
+    return entry;
+  }
+
+  return {
+    read,
+    send: async (use: (seen: BuildingDataSeen) => unknown): Promise<void> => {
+      await act(async () => {
+        await use(read());
       });
     },
   };
@@ -437,6 +508,38 @@ function UnitsDialogsReader({
     entry.groupDialog = groupDialog;
     entry.ownerDialog = ownerDialog;
   }
+
+  return null;
+}
+
+interface BuildingDataReaderProps {
+  seen: BuildingDataSeen[];
+  applied: Address[];
+}
+
+function BuildingDataReader({ seen, applied }: BuildingDataReaderProps): null {
+  const {
+    useBuildingData,
+    useBuildingDataGrid,
+    useSelectedPeriod,
+    useBuildingDialog,
+    usePeriodDialog,
+    useAddressDialog,
+  } = useViewModel();
+
+  function apply(address: Address): void {
+    applied.push(address);
+  }
+
+  seen[0] = {
+    data: useBuildingData(),
+    grid: useBuildingDataGrid(),
+    period: useSelectedPeriod(),
+    buildingDialog: useBuildingDialog("c1"),
+    periodDialog: usePeriodDialog("p1"),
+    addressDialog: useAddressDialog(null, apply),
+    applied,
+  };
 
   return null;
 }

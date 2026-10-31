@@ -76,6 +76,7 @@ export * from "./useCases/budgetShares.ts";
 export {
   type BuildingRow,
   buildingRowsOf,
+  PERIOD_TYPE_WORDS,
   type PeriodFigures,
   periodFiguresOf,
 } from "./useCases/buildingRows.ts";

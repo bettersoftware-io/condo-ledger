@@ -66,20 +66,44 @@ describe("Sidebar", () => {
     expect(page.activeMenu()).toBe("Journal & Daybook");
   });
 
-  it("says the management tools are not yet available", async () => {
+  it("says the management tools but ✎ are not yet available", async () => {
     const page = mountSidebar();
 
     await page.clickTool("Add management");
-    await page.clickTool("Edit management");
     await page.clickTool("Delete management");
     await page.clickTool("Refresh");
 
     expect(page.toasts()).toEqual([
       "Add management: not yet available",
-      "Edit management: not yet available",
       "Delete management: not yet available",
       "Refresh: not yet available",
     ]);
+  });
+
+  it("✎ opens Edit Management / Period on the selected period, whose new name the tree then shows", async () => {
+    const page = mountSidebar();
+
+    await page.clickPeriod("2014 (Ordinary)");
+    await page.clickTool("Edit management");
+
+    expect(page.dialog.title()).toBe("Edit Management / Period");
+    expect(page.dialog.fieldValue("Management name")).toBe("2014");
+
+    await page.dialog.fill("Management name", "2014 bis");
+    await page.dialog.save();
+
+    expect(page.dialog.isShown()).toBe(false);
+    expect(page.periodLabels()).toEqual([
+      "2013 (Ordinary)",
+      "2014 bis (Ordinary)",
+    ]);
+    expect(page.selectedPeriod()).toBe("2014 bis (Ordinary)");
+  });
+
+  it("✎ is off with no period to edit", () => {
+    const page = mountSidebar({ seed: createSeedWithoutBuildings() });
+
+    expect(page.isToolDisabled("Edit management")).toBe(true);
   });
 
   it("dragging the splitter changes the width within 180–440", () => {
