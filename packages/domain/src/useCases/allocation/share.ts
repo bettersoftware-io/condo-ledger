@@ -195,7 +195,8 @@ function tableItemCoefficientOf(
   return item === undefined || total <= 0 ? 0 : item.value / 10000 / total;
 }
 
-function priorityOf(role: string): Priority {
+/** The role's column: the lower, the earlier it pays. */
+export function priorityOf(role: string): Priority {
   const priority = PRIORITY_OF_ROLE.get(role);
 
   if (priority === undefined) {
@@ -232,7 +233,7 @@ function isElected(
 }
 
 /** The co-ownership factor times the residency factor (`UnitResidentVO.compoundCoefficient`). */
-function compoundCoefficientOf(
+export function compoundCoefficientOf(
   input: AllocationInput,
   resident: OwnerParty,
 ): number {

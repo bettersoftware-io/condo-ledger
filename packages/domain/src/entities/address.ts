@@ -4,3 +4,14 @@ export interface Address {
   postcode: string | null;
   city: string | null;
 }
+
+/** One line: "{street}, {postcode} {city}", leaving out what is null. */
+export function addressTextOf(address: Address): string {
+  const place = [address.postcode, address.city]
+    .filter((part) => {
+      return part !== null;
+    })
+    .join(" ");
+
+  return place === "" ? address.street : `${address.street}, ${place}`;
+}
