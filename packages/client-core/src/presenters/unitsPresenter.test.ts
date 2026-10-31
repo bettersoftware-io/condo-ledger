@@ -286,6 +286,62 @@ describe("the units presenter", () => {
     stop();
   });
 
+  it("refuses A04 from 1 February, which cuts its residents' dates, and goes on emitting, the Allocation too", async () => {
+    const { harness, units, view, stop } = createPresented("p36");
+    const errors: unknown[] = [];
+    const watched = [
+      units.view$.subscribe({ error: record }),
+      harness.app.presenters.allocation
+        .allocation$("budget")
+        .subscribe({ error: record }),
+    ];
+
+    units.select("resident:r166");
+
+    // Both of A04's residents are cut: r166 from 19 January, r167 to the 18th. The first is named.
+    const name = must(view().resident, "r166").name;
+    const a04 = draftOf(must(view().unit, "A04"));
+
+    expect(
+      await units.editUnit("u137", {
+        ...a04,
+        restriction: { from: "2013-02-01", to: null },
+      }),
+    ).toEqual({ ok: false, reason: "period-excludes", detail: name });
+    expect(await units.editUnit("u137", { ...a04, floor: "9" })).toEqual({
+      ok: true,
+    });
+    expect(rowOf(view(), "unit:u137").floor).toBe("9");
+    expect(errors).toEqual([]);
+
+    for (const subscription of watched) {
+      subscription.unsubscribe();
+    }
+
+    stop();
+
+    function record(error: unknown): void {
+      errors.push(error);
+    }
+  });
+
+  it("refuses an owner of A1 (May 2011) dated June to December, and A1's Budget and the rounding stay", async () => {
+    const { units, view, stop } = createPresented("p1");
+    const a1 = rowOf(view(), "unit:u1").budget;
+    const rounding = view().list.root.children.at(-1)?.budget;
+
+    expect(
+      await units.addResident("u1", {
+        ...createResidencyDraft("md6"),
+        ownRestriction: { from: "2011-06-01", to: "2011-12-31" },
+      }),
+    ).toEqual({ ok: false, reason: "outside-unit", detail: "A1" });
+    expect(rowOf(view(), "unit:u1").budget).toBe(a1);
+    expect(view().list.root.children.at(-1)?.budget).toBe(rounding);
+
+    stop();
+  });
+
   it("keeps r165 selected when the other resident of A03 leaves and their row folds into A03's", async () => {
     const { units, view, crumb, stop } = createPresented("p36");
     const added = addedId(
@@ -512,6 +568,20 @@ function addedId(
   }
 
   return result.value.id;
+}
+
+function draftOf(unit: Unit): UnitDraft {
+  return {
+    code: unit.code,
+    name: unit.name,
+    floor: unit.floor,
+    interior: unit.interior,
+    subUnit: unit.subUnit,
+    restriction: unit.restriction,
+    type: unit.type,
+    cadastralData: unit.cadastralData,
+    notes: unit.notes,
+  };
 }
 
 function createGroupDraft(code: string, name: string): GroupDraft {

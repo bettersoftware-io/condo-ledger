@@ -569,6 +569,65 @@ export function describeUnitsPortContract(
       }
     });
 
+    it("refuses a unit's dates that cut a resident's own, naming the resident, and a resident's dates outside the unit's, naming the unit, emitting nothing", async () => {
+      const {
+        port,
+        periodId,
+        unitId,
+        contactId,
+        contactName,
+        periodStart,
+        periodEnd,
+        teardown,
+      } = createHarness();
+
+      try {
+        const firstDay = { from: periodStart, to: periodStart };
+
+        expect(
+          await port.addResident(
+            unitId,
+            createResidencyDraft(contactId, firstDay),
+          ),
+        ).toMatchObject({ ok: true });
+
+        const added = await port.addUnit(
+          periodId,
+          null,
+          createUnitDraft("Z1", firstDay),
+        );
+        const units = watch(port.units(periodId));
+        const residents = watch(port.residents(periodId));
+        const code =
+          (units.values[0] ?? []).find((unit) => {
+            return unit.id === unitId;
+          })?.code ?? "";
+
+        expect(
+          await port.editUnit(
+            unitId,
+            createUnitDraft(code, { from: periodEnd, to: null }),
+          ),
+        ).toEqual({
+          ok: false,
+          reason: "period-excludes",
+          detail: contactName,
+        });
+        expect(
+          await port.addResident(
+            added.ok ? added.value.id : "",
+            createResidencyDraft(contactId, { from: periodEnd, to: null }),
+          ),
+        ).toEqual({ ok: false, reason: "outside-unit", detail: "Z1" });
+        expect(units.values).toHaveLength(1);
+        expect(residents.values).toHaveLength(1);
+        units.stop();
+        residents.stop();
+      } finally {
+        teardown();
+      }
+    });
+
     it("edits a resident, emitting the residents once more: a new contact renames it", async () => {
       const {
         port,

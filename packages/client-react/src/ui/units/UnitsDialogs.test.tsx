@@ -353,6 +353,13 @@ describe("the Units screen's dialogs", () => {
 
     await page.dialog.fill("Start date", "1/3");
     await page.dialog.fill("End date", "31/12/2011");
+
+    // A3 is there only until 27 May.
+    expect(page.dialog.message()).toBe(
+      "The dates must lie within the unit's (01/01/2011 - 27/05/2011)",
+    );
+
+    await page.dialog.fill("End date", "27/5");
     await page.dialog.save();
 
     expect(page.dialog.isShown()).toBe(false);

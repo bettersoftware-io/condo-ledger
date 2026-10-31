@@ -710,7 +710,12 @@ export function createApp(ports: AppPorts): App {
           const groupId = snapshot.selected?.groupId ?? null;
 
           return createUnitDialog(
-            { units: snapshot.units, period, editing: null },
+            {
+              units: snapshot.units,
+              residents: snapshot.residents,
+              period,
+              editing: null,
+            },
             (draft) => {
               return units.addUnit(groupId, draft);
             },
@@ -725,7 +730,12 @@ export function createApp(ports: AppPorts): App {
         );
 
         return createUnitDialog(
-          { units: snapshot.units, period, editing: unit },
+          {
+            units: snapshot.units,
+            residents: snapshot.residents,
+            period,
+            editing: unit,
+          },
           (draft) => {
             return units.editUnit(editing, draft);
           },
@@ -734,14 +744,30 @@ export function createApp(ports: AppPorts): App {
       createOwnerDialog: (
         editing: string | null,
       ): Machine<OwnerDialogState, DialogIntents<OwnerDialogState["form"]>> => {
-        const { residents, period, openingPosted, selected } = unitsNow();
+        const snapshot = unitsNow();
+        const { residents, period, openingPosted, selected } = snapshot;
+
+        function unitOf(unitId: string): Unit {
+          return must(
+            snapshot.units.find((candidate) => {
+              return candidate.id === unitId;
+            }),
+            `the unit ${unitId}`,
+          );
+        }
 
         if (editing === null) {
           const unitId = must(selected?.unitId, "the unit of the new owner");
 
           return createOwnerDialog(
             texts,
-            { unitId, residents, period, openingPosted, editing: null },
+            {
+              unit: unitOf(unitId),
+              residents,
+              period,
+              openingPosted,
+              editing: null,
+            },
             (draft) => {
               return units.addResident(unitId, draft);
             },
@@ -758,7 +784,7 @@ export function createApp(ports: AppPorts): App {
         return createOwnerDialog(
           texts,
           {
-            unitId: resident.unitId,
+            unit: unitOf(resident.unitId),
             residents,
             period,
             openingPosted,

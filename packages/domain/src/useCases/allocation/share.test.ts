@@ -296,6 +296,20 @@ describe("shareOf, residency", () => {
     expect(shareOf(input, "budget", "la11", "r5")).toBe(7933 + 3400);
     expect(shareOf(input, "budget", "la11", "r6")).toBe(6067 + 2600);
   });
+
+  it("fails, naming the resident and the unit, for own dates outside the unit's", () => {
+    const input = createAllocationInput();
+    input.units = input.units.map((unit) => {
+      return unit.id === "u3"
+        ? { ...unit, restriction: { from: "2013-02-01", to: null } }
+        : unit;
+    });
+
+    // r5's own dates end on 18 January, before the unit's begin.
+    expect(() => {
+      return shareOf(input, "budget", "la11", "r5");
+    }).toThrow("the dates of resident r5 lie within unit A3's");
+  });
 });
 
 describe("shareOf, the other kinds of account", () => {
@@ -370,6 +384,20 @@ describe("shareOf with successive owners", () => {
     // Half each of their days: 182 and 184 of 365.
     expect(shareOf(input, "budget", "la1", "out")).toBe(24932);
     expect(shareOf(input, "budget", "la1", "in")).toBe(25205);
+  });
+
+  it("gives each of two owners of a restricted unit whose dates do not overlap the whole share for their own days of the unit's", () => {
+    const input = createOneUnit([
+      createOwner("out", null, { from: null, to: "2013-04-30" }),
+      createOwner("in", null, { from: "2013-05-01", to: null }),
+    ]);
+    input.units = input.units.map((unit) => {
+      return { ...unit, restriction: { from: "2013-03-01", to: "2013-08-31" } };
+    });
+
+    // 61 and 123 of the unit's 184 days, March to August.
+    expect(shareOf(input, "budget", "la1", "out")).toBe(33152);
+    expect(shareOf(input, "budget", "la1", "in")).toBe(66848);
   });
 
   it("reads an owner without dates as the unit's, else the period's", () => {

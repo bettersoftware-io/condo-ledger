@@ -11,6 +11,8 @@ export interface UnitsReasonSubject {
   name?: string;
   /** The period a unit's or a resident's dates must lie within. */
   period?: PeriodDates;
+  /** The unit's dates, else the period's, that a resident's own must lie within. */
+  unit?: PeriodDates;
   /** A contact's name by its id: `already-resident` carries the id. */
   contactName?: (contactId: string) => string;
 }
@@ -29,7 +31,8 @@ const FIXED: Readonly<Record<string, string>> = {
  * A refusal of the group, unit and owner dialogs, or of a delete on the Units
  * screen, as the person reads it. A taken group is named by the code and the
  * name typed, the domain's detail standing in for either when they are not
- * given; the rest by their detail. The wizards' common reasons
+ * given; dates outside the period's or the unit's by those dates when they
+ * are given; the rest by their detail. The wizards' common reasons
  * (`not-an-amount`, `saving`) in their words, and a reason no one words as
  * it is.
  */
@@ -45,9 +48,11 @@ export function unitsReasonText(
     case "unit-code-taken":
       return `Another unit of this period has the code ${detail}`;
     case "outside-period":
-      return subject.period === undefined
-        ? "The dates must lie within the period"
-        : `The dates must lie within the period (${formatDate(subject.period.start)} - ${formatDate(subject.period.end)})`;
+      return `The dates must lie within the period${datesText(subject.period)}`;
+    case "outside-unit":
+      return `The dates must lie within the unit's${datesText(subject.unit)}`;
+    case "period-excludes":
+      return `${detail} has dates outside these: change them first`;
     case "already-resident":
       return `${subject.contactName?.(detail) ?? detail} already lives in this unit`;
     case "named-in-journal":
@@ -57,4 +62,11 @@ export function unitsReasonText(
     default:
       return reasonText(refusal.reason, FIXED);
   }
+}
+
+/** " ({start} - {end})" as dd/mm/yyyy; nothing without dates. */
+function datesText(dates: PeriodDates | undefined): string {
+  return dates === undefined
+    ? ""
+    : ` (${formatDate(dates.start)} - ${formatDate(dates.end)})`;
 }

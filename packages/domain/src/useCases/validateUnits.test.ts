@@ -3,9 +3,11 @@ import { describe, expect, it } from "vitest";
 import { cents } from "../entities/cents.ts";
 import type { JournalEntry } from "../entities/journal.ts";
 import type { OwnerParty } from "../entities/party.ts";
+import type { Unit } from "../entities/unit.ts";
 import { legacySeedData } from "../simulators/seed/legacySeed.generated.ts";
 import { loadLegacySeed } from "../simulators/seed/legacySeed.ts";
 import { must } from "../support/must.ts";
+import type { PeriodDates } from "./schedule.ts";
 import {
   type GroupDraft,
   type ResidencyDraft,
@@ -86,23 +88,31 @@ describe("validateGroupDelete", () => {
 
 describe("validateUnit", () => {
   it("accepts a new code, and an edited unit keeping its own", () => {
-    expect(validateUnit(createUnit({}), saturnoUnits, SATURNO, null)).toEqual({
+    expect(
+      validateUnit(createUnit({}), saturnoUnits, [], SATURNO, null),
+    ).toEqual({
       ok: true,
     });
     expect(
-      validateUnit(createUnit({ code: "A1" }), saturnoUnits, SATURNO, "u1"),
+      validateUnit(createUnit({ code: "A1" }), saturnoUnits, [], SATURNO, "u1"),
     ).toEqual({ ok: true });
   });
 
   it("refuses a blank code", () => {
     expect(
-      validateUnit(createUnit({ code: " " }), saturnoUnits, SATURNO, null),
+      validateUnit(createUnit({ code: " " }), saturnoUnits, [], SATURNO, null),
     ).toEqual({ ok: false, reason: "blank-code" });
   });
 
   it("refuses the code of another unit, by case", () => {
     expect(
-      validateUnit(createUnit({ code: " a1" }), saturnoUnits, SATURNO, null),
+      validateUnit(
+        createUnit({ code: " a1" }),
+        saturnoUnits,
+        [],
+        SATURNO,
+        null,
+      ),
     ).toEqual({ ok: false, reason: "unit-code-taken", detail: "a1" });
   });
 
@@ -111,6 +121,7 @@ describe("validateUnit", () => {
       validateUnit(
         createUnit({ restriction: { from: "2011-06-01", to: "2011-05-01" } }),
         saturnoUnits,
+        [],
         SATURNO,
         null,
       ),
@@ -122,6 +133,7 @@ describe("validateUnit", () => {
       validateUnit(
         createUnit({ restriction: { from: "2011-12-01", to: "2012-01-31" } }),
         saturnoUnits,
+        [],
         SATURNO,
         null,
       ),
@@ -130,10 +142,74 @@ describe("validateUnit", () => {
       validateUnit(
         createUnit({ restriction: { from: "2010-12-31", to: null } }),
         saturnoUnits,
+        [],
         SATURNO,
         null,
       ),
     ).toEqual({ ok: false, reason: "outside-period" });
+  });
+  it("refuses dates that cut a resident's own, naming the first: A04 from 1 February cuts r166's and r167's, from 19 January r167's", () => {
+    const a04 = draftOfUnit(unitOf(pozzettoUnits, "u137"));
+
+    expect(
+      validateUnit(
+        { ...a04, restriction: { from: "2013-02-01", to: null } },
+        pozzettoUnits,
+        pozzettoOwners,
+        POZZETTO,
+        "u137",
+      ),
+    ).toEqual({
+      ok: false,
+      reason: "period-excludes",
+      detail: ownerOf(pozzettoOwners, "r166").name,
+    });
+    expect(
+      validateUnit(
+        { ...a04, restriction: { from: "2013-01-19", to: null } },
+        pozzettoUnits,
+        pozzettoOwners,
+        POZZETTO,
+        "u137",
+      ),
+    ).toEqual({
+      ok: false,
+      reason: "period-excludes",
+      detail: ownerOf(pozzettoOwners, "r167").name,
+    });
+  });
+
+  it("judges only the edited unit's residents, and none for a new unit", () => {
+    const restriction = { from: "2013-02-01", to: null };
+
+    expect(
+      validateUnit(
+        { ...draftOfUnit(unitOf(pozzettoUnits, "u136")), restriction },
+        pozzettoUnits,
+        pozzettoOwners,
+        POZZETTO,
+        "u136",
+      ),
+    ).toEqual({ ok: true });
+    expect(
+      validateUnit(
+        createUnit({ restriction }),
+        pozzettoUnits,
+        pozzettoOwners,
+        POZZETTO,
+        null,
+      ),
+    ).toEqual({ ok: true });
+  });
+
+  it("accepts every seeded unit of both periods as it stands", () => {
+    for (const [units, owners, period] of SEEDED) {
+      for (const unit of units) {
+        expect(
+          validateUnit(draftOfUnit(unit), units, owners, period, unit.id),
+        ).toEqual({ ok: true });
+      }
+    }
   });
 });
 
@@ -142,7 +218,7 @@ describe("validateResidency", () => {
     expect(
       validateResidency(
         createResidency({ contactId: "md9" }),
-        "u1",
+        a1,
         residents,
         SATURNO,
         null,
@@ -151,7 +227,7 @@ describe("validateResidency", () => {
     expect(
       validateResidency(
         createResidency({ contactId: "md4" }),
-        "u1",
+        a1,
         residents,
         SATURNO,
         null,
@@ -163,7 +239,7 @@ describe("validateResidency", () => {
     expect(
       validateResidency(
         createResidency({ contactId: null }),
-        "u1",
+        a1,
         residents,
         SATURNO,
         null,
@@ -175,7 +251,7 @@ describe("validateResidency", () => {
     expect(
       validateResidency(
         createResidency({ contactId: "md3" }),
-        "u1",
+        a1,
         residents,
         SATURNO,
         null,
@@ -184,7 +260,7 @@ describe("validateResidency", () => {
     expect(
       validateResidency(
         createResidency({ contactId: "md3" }),
-        "u1",
+        a1,
         residents,
         SATURNO,
         "r1",
@@ -198,7 +274,7 @@ describe("validateResidency", () => {
         createResidency({
           ownRestriction: { from: "2011-06-01", to: "2011-05-01" },
         }),
-        "u1",
+        a1,
         residents,
         SATURNO,
         null,
@@ -209,13 +285,59 @@ describe("validateResidency", () => {
         createResidency({
           ownRestriction: { from: "2011-12-01", to: "2012-01-31" },
         }),
-        "u1",
+        a1,
         residents,
         SATURNO,
         null,
       ),
     ).toEqual({ ok: false, reason: "outside-period" });
   });
+
+  it("refuses own dates outside the unit's, naming it: an owner of A1 (May 2011) from June", () => {
+    expect(
+      validateResidency(
+        createResidency({
+          ownRestriction: { from: "2011-06-01", to: "2011-12-31" },
+        }),
+        a1,
+        residents,
+        SATURNO,
+        null,
+      ),
+    ).toEqual({ ok: false, reason: "outside-unit", detail: "A1" });
+    expect(
+      validateResidency(
+        createResidency({
+          ownRestriction: { from: "2011-05-02", to: "2011-05-30" },
+        }),
+        a1,
+        residents,
+        SATURNO,
+        null,
+      ),
+    ).toEqual({ ok: true });
+  });
+
+  it("accepts every seeded resident of both periods as they stand", () => {
+    for (const [units, owners, period] of SEEDED) {
+      for (const owner of owners) {
+        expect(
+          validateResidency(
+            createResidency({
+              contactId: owner.personId,
+              ownRestriction: owner.ownRestriction,
+            }),
+            unitOf(units, owner.unitId),
+            owners,
+            period,
+            owner.id,
+          ),
+        ).toEqual({ ok: true });
+      }
+    }
+  });
+
+  const a1 = unitOf(saturnoUnits, "u1");
 
   const residents = [
     createOwner({ id: "r1", personId: "md3", unitId: "u1" }),
@@ -314,6 +436,49 @@ const saturnoGroups = seed.unitGroups.filter((group) => {
 const saturnoUnits = seed.units.filter((unit) => {
   return unit.periodId === "p1";
 });
+
+const POZZETTO = { start: "2013-01-01", end: "2013-12-31" };
+const pozzettoUnits = seed.units.filter((unit) => {
+  return unit.periodId === "p36";
+});
+
+const pozzettoOwners = seedOwners("p36");
+const SEEDED: [Unit[], OwnerParty[], PeriodDates][] = [
+  [saturnoUnits, seedOwners("p1"), SATURNO],
+  [pozzettoUnits, pozzettoOwners, POZZETTO],
+];
+
+function unitOf(units: Unit[], id: string): Unit {
+  return must(
+    units.find((unit) => {
+      return unit.id === id;
+    }),
+    `unit ${id}`,
+  );
+}
+
+function ownerOf(owners: OwnerParty[], id: string): OwnerParty {
+  return must(
+    owners.find((owner) => {
+      return owner.id === id;
+    }),
+    `owner ${id}`,
+  );
+}
+
+function draftOfUnit(unit: Unit): UnitDraft {
+  return {
+    code: unit.code,
+    name: unit.name,
+    floor: unit.floor,
+    interior: unit.interior,
+    subUnit: unit.subUnit,
+    restriction: unit.restriction,
+    type: unit.type,
+    cadastralData: unit.cadastralData,
+    notes: unit.notes,
+  };
+}
 
 function seedOwners(periodId: string): OwnerParty[] {
   const parties = must(

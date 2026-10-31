@@ -11,6 +11,7 @@ import {
   type Restriction,
   type Result,
   rejected,
+  spanOf,
   type Unit,
   type UnitDraft,
   type UnitGroup,
@@ -80,9 +81,11 @@ export interface UnitDialogState extends FormDialogState<UnitDialogForm> {
   editing: string | null;
 }
 
-/** What a unit dialog is judged against: the period's units and dates. */
+/** What a unit dialog is judged against: the period's units, residents and dates. */
 interface UnitDialogContext {
   units: Unit[];
+  /** The period's residents: the edited unit's dates may not cut theirs. */
+  residents: OwnerParty[];
   period: PeriodDates;
   editing: Unit | null;
 }
@@ -100,6 +103,8 @@ interface OwnerDialogForm {
 export interface OwnerDialogState extends FormDialogState<OwnerDialogForm> {
   from: string | null;
   to: string | null;
+  /** The unit's dates, else the period's: the residency's own must lie within them. */
+  unitDates: PeriodDates;
   /** The stored co-ownership percentage, in ten-thousandths of a percent; null when empty, and on a new owner. */
   share: number | null;
   /** True once the period's opening entry is posted: the balance is the journal's, 0 on a new owner. */
@@ -110,7 +115,7 @@ export interface OwnerDialogState extends FormDialogState<OwnerDialogForm> {
 
 /** What an owner dialog is judged against: the unit, the period's residents and dates, and whether the opening entry is posted. */
 interface OwnerDialogContext {
-  unitId: string;
+  unit: Unit;
   residents: OwnerParty[];
   period: PeriodDates;
   openingPosted: boolean;
@@ -174,7 +179,7 @@ export function createUnitDialog(
   context: UnitDialogContext,
   write: (draft: UnitDraft) => Promise<Result>,
 ): Machine<UnitDialogState, DialogIntents<UnitDialogForm>> {
-  const { units, period, editing } = context;
+  const { units, residents, period, editing } = context;
   const editingId = editing?.id ?? null;
   const year = yearOf(period);
 
@@ -199,7 +204,7 @@ export function createUnitDialog(
     };
 
     return {
-      verdict: validateUnit(draft, units, period, editingId),
+      verdict: validateUnit(draft, units, residents, period, editingId),
       draft,
       filled,
     };
@@ -236,7 +241,7 @@ export function createOwnerDialog(
   context: OwnerDialogContext,
   write: (draft: ResidencyDraft) => Promise<Result>,
 ): Machine<OwnerDialogState, DialogIntents<OwnerDialogForm>> {
-  const { unitId, residents, period, openingPosted, editing } = context;
+  const { unit, residents, period, openingPosted, editing } = context;
   const editingId = editing?.id ?? null;
   const year = yearOf(period);
   const lockedBalance = editing?.startingBalance ?? cents(0);
@@ -268,7 +273,7 @@ export function createOwnerDialog(
     };
 
     return {
-      verdict: validateResidency(draft, unitId, residents, period, editingId),
+      verdict: validateResidency(draft, unit, residents, period, editingId),
       draft,
       filled,
     };
@@ -293,6 +298,7 @@ export function createOwnerDialog(
         ...base,
         from: dateOrNull(base.form.start, year),
         to: dateOrNull(base.form.end, year),
+        unitDates: spanOf(unit.restriction, period),
         share: editing?.share ?? null,
         balanceLocked: openingPosted,
         editing: editingId,

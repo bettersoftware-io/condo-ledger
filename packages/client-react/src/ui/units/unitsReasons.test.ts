@@ -41,6 +41,20 @@ describe("unitsReasonText", () => {
     ).toBe("The dates must lie within the period (01/01/2011 - 31/12/2011)");
   });
 
+  it("names the unit's dates for a resident's dates outside them", () => {
+    expect(
+      unitsReasonText(rejected("outside-unit", "A1"), {
+        unit: { start: "2011-05-01", end: "2011-05-31" },
+      }),
+    ).toBe("The dates must lie within the unit's (01/05/2011 - 31/05/2011)");
+  });
+
+  it("names the resident whose dates a unit's would cut", () => {
+    expect(unitsReasonText(rejected("period-excludes", "Resident"))).toBe(
+      "Resident has dates outside these: change them first",
+    );
+  });
+
   it("names the contact already living in the unit by their name", () => {
     expect(
       unitsReasonText(rejected("already-resident", "md7"), {
@@ -69,6 +83,9 @@ describe("unitsReasonText", () => {
     );
     expect(unitsReasonText(rejected("outside-period"))).toBe(
       "The dates must lie within the period",
+    );
+    expect(unitsReasonText(rejected("outside-unit", "A1"))).toBe(
+      "The dates must lie within the unit's",
     );
     expect(unitsReasonText(rejected("unit-code-taken"))).toBe(
       "Another unit of this period has the code ",

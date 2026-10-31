@@ -133,7 +133,11 @@ function OwnerDialogBody({
       message={
         reason === null
           ? null
-          : unitsReasonText(reason, { period, contactName })
+          : unitsReasonText(reason, {
+              period,
+              unit: state.unitDates,
+              contactName,
+            })
       }
       labels="owner"
       onSave={onSave}

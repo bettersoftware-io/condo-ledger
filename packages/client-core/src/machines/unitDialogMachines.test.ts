@@ -162,7 +162,7 @@ describe("the unit dialog", () => {
   it("opens blank as an apartment, and saves once the code is typed", () => {
     const machine = track(
       createUnitDialog(
-        { units: UNITS, period: PERIOD, editing: null },
+        { units: UNITS, residents: [OWNER], period: PERIOD, editing: null },
         acceptAll,
       ),
     );
@@ -206,7 +206,7 @@ describe("the unit dialog", () => {
   ])("judges %j as %s", (patch, reason) => {
     const machine = track(
       createUnitDialog(
-        { units: UNITS, period: PERIOD, editing: null },
+        { units: UNITS, residents: [OWNER], period: PERIOD, editing: null },
         acceptAll,
       ),
     );
@@ -222,7 +222,7 @@ describe("the unit dialog", () => {
     const writes: UnitDraft[] = [];
     const machine = track(
       createUnitDialog(
-        { units: UNITS, period: PERIOD, editing: null },
+        { units: UNITS, residents: [OWNER], period: PERIOD, editing: null },
         recording(writes),
       ),
     );
@@ -254,11 +254,53 @@ describe("the unit dialog", () => {
     ]);
   });
 
+  it("refuses dates that cut a resident's own, naming them; another unit's resident is none of its business", () => {
+    const resident = {
+      ...OWNER,
+      ownRestriction: { from: "2011-05-10", to: null },
+    };
+
+    const elsewhere = {
+      ...OWNER,
+      id: "r2",
+      unitId: "u2",
+      name: "Owner Two",
+      ownRestriction: { from: "2011-01-10", to: null },
+    };
+
+    const machine = track(
+      createUnitDialog(
+        {
+          units: UNITS,
+          residents: [elsewhere, resident],
+          period: PERIOD,
+          editing: must(UNITS[0], "A1"),
+        },
+        acceptAll,
+      ),
+    );
+
+    machine.intents.edit({ start: "20/5" });
+    expect(machine.state$.getValue().verdict).toEqual({
+      ok: false,
+      reason: "period-excludes",
+      detail: "Owner One",
+    });
+
+    machine.intents.edit({ start: "10/5" });
+    expect(machine.state$.getValue().verdict).toEqual({ ok: true });
+  });
+
   it("edits a unit as it stands, its dates as day/month/year, and refuses an unreadable one without writing", async () => {
     const writes: UnitDraft[] = [];
     const machine = track(
       createUnitDialog(
-        { units: UNITS, period: PERIOD, editing: must(UNITS[0], "A1") },
+        {
+          units: UNITS,
+          residents: [OWNER],
+          period: PERIOD,
+          editing: must(UNITS[0], "A1"),
+        },
         recording(writes),
       ),
     );
@@ -309,6 +351,7 @@ describe("the owner dialog", () => {
       },
       from: null,
       to: null,
+      unitDates: { start: "2011-05-01", end: "2011-05-31" },
       share: null,
       balanceLocked: false,
       canSave: false,
@@ -324,12 +367,12 @@ describe("the owner dialog", () => {
     machine.intents.edit({
       previousBalance: "-12.50",
       role: "CO",
-      end: "30/6",
+      end: "30/5",
     });
     expect(machine.state$.getValue()).toMatchObject({
       canSave: true,
       verdict: { ok: true },
-      to: "2011-06-30",
+      to: "2011-05-30",
     });
     expect(await machine.intents.save()).toEqual({ ok: true });
     expect(writes).toEqual([
@@ -337,7 +380,7 @@ describe("the owner dialog", () => {
         contactId: "md6",
         role: "CO",
         startingBalance: cents(-1250),
-        ownRestriction: { from: null, to: "2011-06-30" },
+        ownRestriction: { from: null, to: "2011-05-30" },
       },
     ]);
   });
@@ -349,6 +392,7 @@ describe("the owner dialog", () => {
     [{ start: "40/1" }, "not-a-date"],
     [{ start: "1/7", end: "1/6" }, "bad-dates"],
     [{ end: "1/1/2012" }, "outside-period"],
+    [{ start: "1/6", end: "31/12" }, "outside-unit"],
   ])("judges %j as %s", (patch, reason) => {
     const machine = track(
       createOwnerDialog(
@@ -550,6 +594,47 @@ describe("the dialogs the application builds", () => {
     }).toThrow("missing: the unit of the new owner");
   });
 
+  it("refuses A04 from 19 January on p36, naming r167, and an owner of A1 on p1 from June, naming A1", async () => {
+    const { app } = createAppHarness();
+    const { units } = app.presenters;
+    const subscription = units.view$.subscribe();
+
+    app.presenters.buildings.selectPeriod("p36");
+    units.select("resident:r167");
+
+    const name = must(units.view$.getValue()?.resident, "r167").name;
+    const unit = track(app.machines.createUnitDialog("u137"));
+
+    unit.intents.edit({ start: "19/1" });
+    expect(unit.state$.getValue().verdict).toEqual({
+      ok: false,
+      reason: "period-excludes",
+      detail: name,
+    });
+    expect(await unit.intents.save()).toEqual({
+      ok: false,
+      reason: "period-excludes",
+      detail: name,
+    });
+
+    app.presenters.buildings.selectPeriod("p1");
+
+    const owner = track(app.machines.createOwnerDialog(null));
+
+    expect(owner.state$.getValue().unitDates).toEqual({
+      start: "2011-05-01",
+      end: "2011-05-31",
+    });
+    owner.intents.edit({ contactId: "md6", start: "1/6", end: "31/12" });
+    expect(owner.state$.getValue().verdict).toEqual({
+      ok: false,
+      reason: "outside-unit",
+      detail: "A1",
+    });
+
+    subscription.unsubscribe();
+  });
+
   it("throws for a group, a unit or an owner the period does not hold", () => {
     const { app } = createAppHarness();
 
@@ -611,7 +696,7 @@ function createOwnerContext({
   editing,
 }: OwnerContextOptions): Parameters<typeof createOwnerDialog>[1] {
   return {
-    unitId: "u1",
+    unit: must(UNITS[0], "A1"),
     residents: [OWNER],
     period: PERIOD,
     openingPosted,

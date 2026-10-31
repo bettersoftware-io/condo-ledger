@@ -10,7 +10,7 @@ import type {
 import type { Unit } from "#/entities/unit.ts";
 import { must } from "#/support/must.ts";
 
-import { daysFromTo, type PeriodDates } from "../schedule.ts";
+import { daysFromTo, type PeriodDates, spanOf } from "../schedule.ts";
 import { appliedLinksOf } from "./links.ts";
 
 /** Which allocation is worked out: the budget's, or the final balance's. */
@@ -279,42 +279,50 @@ function coOwnershipOf(input: AllocationInput, resident: OwnerParty): number {
 /**
  * The resident's days over the unit's, only for a resident with dates of
  * their own. An open end runs to the unit's, then to the period's. A unit's
- * own dates prorate nobody.
+ * own dates prorate nobody. Own dates outside the unit's are a gap in the
+ * validation, and fail here rather than as wrong money.
  */
 function residencyOf(input: AllocationInput, resident: OwnerParty): number {
-  const own = resident.ownRestriction;
-
-  if (own === null) {
+  if (resident.ownRestriction === null) {
     return 1;
   }
 
-  const unit = must(
-    input.units.find((candidate) => {
-      return candidate.id === resident.unitId;
-    }),
-    `unit ${resident.unitId}`,
-  );
-  const start = unit.restriction?.from ?? input.period.start;
-  const end = unit.restriction?.to ?? input.period.end;
+  const unit = unitOf(input, resident);
+  const span = spanOf(unit.restriction, input.period);
+  const mine = datesOf(input, resident);
+  const factor =
+    daysFromTo(mine.from, mine.to) / daysFromTo(span.start, span.end);
 
-  return daysFromTo(own.from ?? start, own.to ?? end) / daysFromTo(start, end);
+  if (
+    mine.from < span.start ||
+    mine.to > span.end ||
+    !(factor >= 0 && factor <= 1)
+  ) {
+    throw new Error(
+      `must: the dates of resident ${resident.id} lie within unit ${unit.code}'s`,
+    );
+  }
+
+  return factor;
 }
 
-/** The days a resident covers: their own, else their unit's, else the period's; an open end runs to the next one's. */
+/** The days a resident covers: their own, else their unit's, else the period's; an open end runs to the unit's end, else the period's. */
 function datesOf(input: AllocationInput, resident: OwnerParty): DateSpan {
-  const unit = must(
+  const span = spanOf(unitOf(input, resident).restriction, input.period);
+
+  return {
+    from: resident.ownRestriction?.from ?? span.start,
+    to: resident.ownRestriction?.to ?? span.end,
+  };
+}
+
+function unitOf(input: AllocationInput, resident: OwnerParty): Unit {
+  return must(
     input.units.find((candidate) => {
       return candidate.id === resident.unitId;
     }),
     `unit ${resident.unitId}`,
   );
-  const start = unit.restriction?.from ?? input.period.start;
-  const end = unit.restriction?.to ?? input.period.end;
-
-  return {
-    from: resident.ownRestriction?.from ?? start,
-    to: resident.ownRestriction?.to ?? end,
-  };
 }
 
 /** Two "YYYY-MM-DD" dates, both counted. */

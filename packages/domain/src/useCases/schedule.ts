@@ -406,6 +406,17 @@ export function daysOf(
   return `${covered}/${daysFromTo(period.start, period.end)}`;
 }
 
+/** The dates a restriction covers within `outer`: an open end, or none at all, runs to the outer's. */
+export function spanOf(
+  restriction: Restriction | null,
+  outer: PeriodDates,
+): PeriodDates {
+  return {
+    start: restriction?.from ?? outer.start,
+    end: restriction?.to ?? outer.end,
+  };
+}
+
 /** The days from one "YYYY-MM-DD" date to another, both counted. */
 export function daysFromTo(from: string, to: string): number {
   return Math.round((Date.parse(to) - Date.parse(from)) / DAY) + 1;

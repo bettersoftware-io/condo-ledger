@@ -5,7 +5,7 @@ import type { JournalEntry } from "../entities/journal.ts";
 import type { OwnerParty, Restriction } from "../entities/party.ts";
 import { ok, type Result, rejected } from "../entities/result.ts";
 import type { Unit, UnitGroup, UnitType } from "../entities/unit.ts";
-import type { PeriodDates } from "./schedule.ts";
+import { type PeriodDates, spanOf } from "./schedule.ts";
 
 /** What the group dialog hands the port. */
 export interface GroupDraft {
@@ -97,12 +97,16 @@ export function validateGroupDelete(
 
 /**
  * Whether a unit may be saved in a period with these dates: `editing` is the
- * edited unit's id. The reasons are checked in this order: a blank code, a
- * code another unit has, an end before the start, dates outside the period.
+ * edited unit's id, and `residents` the period's (only the edited unit's are
+ * judged). The reasons are checked in this order: a blank code, a code
+ * another unit has, an end before the start, dates outside the period, and
+ * dates that would cut a resident's own (`period-excludes`, the detail their
+ * name).
  */
 export function validateUnit(
   draft: UnitDraft,
   units: Unit[],
+  residents: OwnerParty[],
   period: PeriodDates,
   editing: string | null,
 ): Result {
@@ -120,18 +124,32 @@ export function validateUnit(
     return rejected("unit-code-taken", code);
   }
 
-  return checkDates(draft.restriction, period);
+  const dates = checkDates(draft.restriction, period);
+
+  if (!dates.ok) {
+    return dates;
+  }
+
+  const span = spanOf(draft.restriction, period);
+  const cut = residents.find((resident) => {
+    return (
+      resident.unitId === editing && outside(resident.ownRestriction, span)
+    );
+  });
+
+  return cut === undefined ? ok() : rejected("period-excludes", cut.name);
 }
 
 /**
- * Whether a residency may be saved on a unit: `editing` is the edited
+ * Whether a residency may be saved on `unit`: `editing` is the edited
  * residency's id. The reasons are checked in this order: no contact, a
  * contact already living in the unit (the detail is the contact's id), an
- * end before the start, dates outside the period.
+ * end before the start, dates outside the period, and dates outside the
+ * unit's own (`outside-unit`, the detail its code).
  */
 export function validateResidency(
   draft: ResidencyDraft,
-  unitId: string,
+  unit: Unit,
   residents: OwnerParty[],
   period: PeriodDates,
   editing: string | null,
@@ -142,7 +160,7 @@ export function validateResidency(
 
   const living = residents.some((resident) => {
     return (
-      resident.unitId === unitId &&
+      resident.unitId === unit.id &&
       resident.id !== editing &&
       resident.personId === draft.contactId
     );
@@ -152,7 +170,15 @@ export function validateResidency(
     return rejected("already-resident", draft.contactId);
   }
 
-  return checkDates(draft.ownRestriction, period);
+  const dates = checkDates(draft.ownRestriction, period);
+
+  if (!dates.ok) {
+    return dates;
+  }
+
+  return outside(draft.ownRestriction, spanOf(unit.restriction, period))
+    ? rejected("outside-unit", unit.code)
+    : ok();
 }
 
 /**
@@ -222,9 +248,19 @@ function checkDates(
     return rejected("bad-dates");
   }
 
-  const outside =
-    (from !== null && (from < period.start || from > period.end)) ||
-    (to !== null && (to < period.start || to > period.end));
+  return outside(restriction, period) ? rejected("outside-period") : ok();
+}
 
-  return outside ? rejected("outside-period") : ok();
+/** Whether a restriction has an end of its own outside `dates`. */
+function outside(restriction: Restriction | null, dates: PeriodDates): boolean {
+  if (restriction === null) {
+    return false;
+  }
+
+  const { from, to } = restriction;
+
+  return (
+    (from !== null && (from < dates.start || from > dates.end)) ||
+    (to !== null && (to < dates.start || to > dates.end))
+  );
 }

@@ -229,6 +229,7 @@ export function createUnitsSimulator(
     const verdict = validateUnit(
       draft,
       units,
+      state.residents$.getValue(),
       readers.periodOf(state.periodId),
       null,
     );
@@ -258,6 +259,7 @@ export function createUnitsSimulator(
     const verdict = validateUnit(
       draft,
       units,
+      state.residents$.getValue(),
       readers.periodOf(state.periodId),
       unitId,
     );
@@ -325,7 +327,7 @@ export function createUnitsSimulator(
     const residents = state.residents$.getValue();
     const verdict = validateResidency(
       draft,
-      unitId,
+      unit,
       residents,
       readers.periodOf(state.periodId),
       null,
@@ -366,7 +368,7 @@ export function createUnitsSimulator(
     const unit = unitIn(state.units$.getValue(), resident.unitId);
     const verdict = validateResidency(
       draft,
-      resident.unitId,
+      unit,
       residents,
       readers.periodOf(state.periodId),
       residentId,
