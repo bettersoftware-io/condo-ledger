@@ -35,9 +35,13 @@ export const UNITS_COLUMNS: TreeGridColumn[] = [
   },
 ];
 
-/** `minmax(280px,1.6fr) 50px 40px 40px 110px 152px 92px 90px 90px 96px 80px 86px 92px`. */
+/**
+ * `minmax(280px,1.6fr) 50px 40px 40px 110px 164px 92px 90px 90px 96px 80px 86px 92px`:
+ * the design's, but Restr. period is 164px, not 152px, so a range of dates
+ * ("01/05/2011 - 31/05/2011") shows whole, as Building Data's Period does.
+ */
 export const UNITS_COLUMN_SPECS: ColumnSpec[] = columnSpecsFrom(
-  [320, 50, 40, 40, 110, 152, 92, 90, 90, 96, 80, 86, 92],
+  [320, 50, 40, 40, 110, 164, 92, 90, 90, 96, 80, 86, 92],
   0,
   280,
   560,
@@ -53,9 +57,9 @@ export const UNIT_OWNERS_COLUMNS: TreeGridColumn[] = [
   { header: "Comb. coeff.", align: "right" },
 ];
 
-/** `260px 220px 50px 152px 76px 88px 96px`. */
+/** `260px 220px 50px 164px 76px 88px 96px`: Restr. period widened as the Units grid's is. */
 export const UNIT_OWNERS_COLUMN_SPECS: ColumnSpec[] = columnSpecsFrom(
-  [260, 220, 50, 152, 76, 88, 96],
+  [260, 220, 50, 164, 76, 88, 96],
   0,
   200,
   480,

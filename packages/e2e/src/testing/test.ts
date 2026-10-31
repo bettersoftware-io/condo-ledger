@@ -4,13 +4,20 @@ import {
   type AccountsPage,
   createAccountsPage,
 } from "../pages/Accounts.page.ts";
+import {
+  createInstallmentSchedulePage,
+  type InstallmentSchedulePage,
+} from "../pages/InstallmentSchedule.page.ts";
 import { createJournalPage, type JournalPage } from "../pages/Journal.page.ts";
 import { createShellPage, type ShellPage } from "../pages/Shell.page.ts";
+import { createUnitsPage, type UnitsPage } from "../pages/Units.page.ts";
 
 interface PageObjects {
   shell: ShellPage;
   accounts: AccountsPage;
   journal: JournalPage;
+  units: UnitsPage;
+  schedule: InstallmentSchedulePage;
   /** Fails a test whose page threw. Every test has it, asked for or not. */
   crashes: string[];
 }
@@ -33,6 +40,17 @@ export const test = base.extend<PageObjects>({
 
   journal: async ({ page }: WithPage, use: Use<JournalPage>): Promise<void> => {
     await use(createJournalPage(page));
+  },
+
+  units: async ({ page }: WithPage, use: Use<UnitsPage>): Promise<void> => {
+    await use(createUnitsPage(page));
+  },
+
+  schedule: async (
+    { page }: WithPage,
+    use: Use<InstallmentSchedulePage>,
+  ): Promise<void> => {
+    await use(createInstallmentSchedulePage(page));
   },
 
   crashes: [
