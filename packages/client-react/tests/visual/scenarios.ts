@@ -1164,19 +1164,20 @@ export const scenarios: Record<string, Scenario> = {
   },
 
   // Units, Owners & Personal Balance and Building Data & Suppliers. Saturno
-  // 2011 (`p1`) has groups, A (`ug1`) and B (`ug2`), and B1 (`u5`) an owner
+  // 2011 (`p1`) has groups, A (`ug1`) and B (`ug2`), and A2 (`u2`) an owner
   // and a tenant; Pozzetto 2013 (`p36`) has no groups, and A04 (`u137`) two
   // owners one after the other (`r166`, `r167`).
 
-  // Saturno's units under their groups, B1 selected, its Unit Owners tab:
-  // the owner and the tenant under their roles.
+  // Saturno's units under their groups, A2 (`u2`) selected, in view at the
+  // top of the panel, its Unit Owners tab: the owner and the tenant under
+  // their roles.
   "units-1280-light": {
     width: 1280,
     height: 720,
     mode: "light",
     periodId: "p1",
     menu: "units",
-    unitKey: "unit:u5",
+    unitKey: "unit:u2",
     unitTab: "Unit Owners",
   },
   // Every building over its periods, Pozzetto 2013 selected as the sidebar
@@ -1283,9 +1284,12 @@ export const scenarios: Record<string, Scenario> = {
     periodId: "p36",
     residentId: "r167",
   },
-  // Add Owner on Saturno's B3 (`u7`), the period's opening entry (`tx1`)
-  // deleted so the previous balance can be typed: Tenant chosen and a
-  // balance typed, no contact yet, so the reason asks for one.
+  // Add Owner on Saturno's B3 (`u7`) refused because no contact is chosen:
+  // not the happy path. The picker's typed text is its own state and cannot
+  // be seeded, so the form is pictured without a contact. The period's
+  // opening entry (`tx1`) is deleted so the previous balance can be typed;
+  // Tenant chosen and a balance typed, the reason "Choose a contact" shows
+  // and + Add is disabled.
   "owner-dialog-add": {
     level: "component",
     mount: "owner-dialog",
