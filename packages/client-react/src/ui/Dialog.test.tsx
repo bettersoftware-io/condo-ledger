@@ -34,6 +34,10 @@ describe("Dialog", () => {
     expect(mountDialog({ width: "wizard" }).width()).toBe("wizard");
   });
 
+  it("carries the nested width", () => {
+    expect(mountDialog({ width: "nested" }).width()).toBe("nested");
+  });
+
   it("has the focus once mounted", () => {
     expect(mountDialog({}).isCardFocused()).toBe(true);
   });

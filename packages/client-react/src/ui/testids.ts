@@ -128,6 +128,8 @@ export const TESTIDS = {
   connectedContacts: "connected-contacts",
   contactPickerList: "contact-picker-list",
   contactPickerOption: "contact-picker-option",
+  contactFormRow: "contact-form-row",
+  contactFormRowValue: "contact-form-row-value",
   buildingDataScreen: "building-data-screen",
   buildingDataPanel: "building-data-panel",
   buildingTypeIcon: "building-type-icon",

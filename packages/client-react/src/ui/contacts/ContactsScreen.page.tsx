@@ -10,6 +10,7 @@ import { type FormDialogPage, formDialogIn } from "../FormDialog.page.tsx";
 import { AppRoot } from "../shell/AppRoot.tsx";
 import { dragSplitterElement } from "../shell/Splitter.page.tsx";
 import { TESTIDS } from "../testids.ts";
+import { type ContactFormPage, contactFormIn } from "./ContactForm.page.tsx";
 
 /** The flag drawn for a language, and the language's name as its tooltip. */
 interface LanguageShown {
@@ -126,6 +127,12 @@ export interface ContactsScreenPage {
   contactName: (contactId: string) => string;
   /** The dialog over the screen: the category or connection dialog. */
   dialog: FormDialogPage;
+  /** What the person or company dialog adds to a form dialog: its birth date read, rows and addresses. */
+  form: ContactFormPage;
+  /** The dialog opened over the first: the Address dialog or the Add or Edit Contact one. */
+  stacked: FormDialogPage;
+  /** The accessible name of what has the focus; null when it has none. */
+  focusedLabel: () => string | null;
   /** The question before a delete, and why it was refused. */
   confirmText: () => string | null;
   confirmError: () => string | null;
@@ -610,6 +617,19 @@ export function mountContacts(seed?: LegacySeed): ContactsScreenPage {
     dialog: formDialogIn(() => {
       return rendered.container;
     }, user),
+    form: contactFormIn(() => {
+      return rendered.container;
+    }, user),
+    stacked: formDialogIn(
+      () => {
+        return rendered.container;
+      },
+      user,
+      "stacked",
+    ),
+    focusedLabel: (): string | null => {
+      return document.activeElement?.getAttribute("aria-label") ?? null;
+    },
     confirmText: (): string | null => {
       return rendered.queryByTestId(TESTIDS.confirmText)?.textContent ?? null;
     },

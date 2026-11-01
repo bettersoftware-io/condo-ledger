@@ -33,6 +33,7 @@ import {
   createFormDialog,
   type DialogIntents,
   dateOf,
+  dateOrNull,
   dateText,
   type FormDialogState,
   type Judgement,
@@ -77,6 +78,8 @@ export interface ContactDialogState extends FormDialogState<ContactDialogForm> {
   salutations: string[];
   /** The order of a row added now: the highest held plus one, 1 for none. */
   nextOrder: number;
+  /** The ISO date the birth date reads as; null while blank or unreadable. */
+  bornOn: string | null;
 }
 
 export interface ContactDialogIntents extends DialogIntents<ContactDialogForm> {
@@ -207,6 +210,7 @@ export function createContactDialog(
         editing: editingId,
         salutations: salutations.get(),
         nextOrder: nextOrderOf(base.form.rows),
+        bornOn: dateOrNull(base.form.birthDate, context.year),
       };
     },
     write: async (draft: ContactDraft): Promise<Result> => {

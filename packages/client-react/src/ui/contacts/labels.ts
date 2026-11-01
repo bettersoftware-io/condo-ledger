@@ -1,4 +1,4 @@
-import type { Contact } from "@cl/domain";
+import type { Contact, ContactRowType } from "@cl/domain";
 
 // What the Contacts screen calls its values and its tabs, and the glyphs it
 // draws them with. Its own module, apart from the components that draw them:
@@ -35,3 +35,15 @@ export const NO_BUILDINGS = "- None -";
 
 /** What the list and the bottom panel say when the filters let no contact through. */
 export const NO_CONTACT_MATCHES = "No contact matches.";
+
+/** A contact row's type in words; also the label a new row of that type starts with. */
+export const ROW_TYPE_LABELS: Record<ContactRowType, string> = {
+  phone: "Phone",
+  email: "Email",
+  web: "Website",
+  im: "Instant messaging",
+  pec: "Certified email",
+};
+
+/** What a select of an optional choice (a salutation, a category, a language) says for none. */
+export const NO_CHOICE = "- None -";

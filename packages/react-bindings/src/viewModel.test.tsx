@@ -687,6 +687,39 @@ describe("the view model", () => {
     expect(page.read().screen.view?.connections).toHaveLength(1);
   });
 
+  it("the contacts hooks: a person added with a row, then deleted", async () => {
+    const page = mountContactsHooks();
+
+    expect(page.read().contactRowDialog.state.form.order).toBe("4");
+
+    await page.send((seen) => {
+      seen.contactRowDialog.edit({ value: "0432 000 000" });
+    });
+    await page.send(async (seen) => {
+      expect((await seen.contactRowDialog.save()).ok).toBe(true);
+    });
+
+    expect(page.read().applied).toMatchObject([
+      { type: "phone", value: "0432 000 000", order: 4 },
+    ]);
+
+    await page.send((seen) => {
+      seen.contactDialog.edit({ lastName: "Zzyzx" });
+      seen.contactDialog.applyRow(null, must(page.read().applied[0], "a row"));
+    });
+    await page.send(async (seen) => {
+      expect((await seen.contactDialog.save()).ok).toBe(true);
+    });
+
+    const [id] = page.read().added;
+
+    expect(id).toBeDefined();
+
+    await page.send(async (seen) => {
+      expect((await seen.screen.deleteContact(id ?? "")).ok).toBe(true);
+    });
+  });
+
   it("a wizard hook given an entry to edit shows that entry's form", () => {
     const page = mountUnderProvider(createSmallSeed(), 1, "e6");
 

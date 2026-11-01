@@ -24,10 +24,10 @@ import "./ContactTabs.css";
  * The Contacts screen's bottom panel: the Contact Details and Connected
  * Contacts tabs of the selected contact under one toolbar. On Contact Details
  * `+ ▾` offers a new person or company, and ✎ and − act on the contact; on
- * Connected Contacts `+`, ✎ and − act on its connections. Each, with print,
- * export and the Legend, posts its notice for now. With no contact the tabs
- * say "No contact matches.". Which menu is open is this view's own state.
- * Takes only props, so the compiler memoizes it.
+ * Connected Contacts `+`, ✎ and − act on its connections. Print, export and
+ * the Legend post their notice for now. With no contact the tabs say "No
+ * contact matches.". Which menu is open is this view's own state. Takes only
+ * props, so the compiler memoizes it.
  */
 export function ContactTabs({
   active,
@@ -37,6 +37,9 @@ export function ContactTabs({
   selectedConnectionId,
   connectionsTemplate,
   onActivate,
+  onNewContact,
+  onEditContact,
+  onDeleteContact,
   onSelectConnection,
   onAddConnection,
   onEditConnection,
@@ -54,10 +57,10 @@ export function ContactTabs({
     };
   }
 
-  function stubbingFromMenu(label: string): () => void {
+  function newFromMenu(kind: "person" | "company"): () => void {
     return (): void => {
       setMenuOpen(false);
-      onStub(label);
+      onNewContact(kind);
     };
   }
 
@@ -125,12 +128,12 @@ export function ContactTabs({
                     <MenuItem
                       label="New person"
                       icon={CONTACT_KIND_ICONS.person}
-                      onClick={stubbingFromMenu("New person")}
+                      onClick={newFromMenu("person")}
                     />
                     <MenuItem
                       label="New company"
                       icon={CONTACT_KIND_ICONS.company}
-                      onClick={stubbingFromMenu("New company")}
+                      onClick={newFromMenu("company")}
                     />
                   </Popover>
                 </div>
@@ -140,7 +143,7 @@ export function ContactTabs({
                   tone="muted"
                   iconOnly
                   disabled={noContact}
-                  onClick={stubbing("Edit contact")}
+                  onClick={onEditContact}
                 />
                 <ToolbarButton
                   label="Delete contact"
@@ -148,7 +151,7 @@ export function ContactTabs({
                   tone="neg"
                   iconOnly
                   disabled={noContact}
-                  onClick={stubbing("Delete contact")}
+                  onClick={onDeleteContact}
                 />
               </>
             )}
@@ -210,6 +213,10 @@ export interface ContactTabsProps {
   /** The connections' grid-template-columns, from its columns machine. */
   connectionsTemplate: string;
   onActivate: (tab: string) => void;
+  /** Asks for the New Person or New Company dialog. */
+  onNewContact: (kind: "person" | "company") => void;
+  onEditContact: () => void;
+  onDeleteContact: () => void;
   onSelectConnection: (connectionId: string) => void;
   onAddConnection: () => void;
   onEditConnection: () => void;

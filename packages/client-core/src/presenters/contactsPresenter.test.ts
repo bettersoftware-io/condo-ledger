@@ -659,6 +659,32 @@ describe("the contacts presenter", () => {
     stop();
   });
 
+  it("deletes an unused contact, refuses a used one, and selects the first row when the selected one goes", async () => {
+    const { contacts, harness, view, stop } = createPresented();
+    const used = must(
+      view().rows.find((row) => {
+        return contactsUsed(harness, row.id);
+      }),
+      "a used contact",
+    );
+
+    const unused = must(
+      view().rows.find((row) => {
+        return !contactsUsed(harness, row.id);
+      }),
+      "an unused contact",
+    );
+
+    expect((await contacts.deleteContact(used.id)).ok).toBe(false);
+
+    contacts.select(unused.id);
+    expect(await contacts.deleteContact(unused.id)).toEqual({ ok: true });
+    expect(view().total).toBe(112);
+    expect(view().selected?.id).toBe(view().rows[0]?.id);
+
+    stop();
+  });
+
   it("gives a contact used nowhere empty lists", () => {
     const { contacts, harness, view, stop } = createPresented();
     const unused = must(

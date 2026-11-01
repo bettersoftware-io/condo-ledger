@@ -1,11 +1,18 @@
 import { type ReactElement, useEffect, useRef, useState } from "react";
 
 import type {
+  ContactDialogSpec,
   ContactsView,
   MaximizeIntents,
   MaximizeState,
 } from "@cl/client-core";
-import type { ContactConnection } from "@cl/domain";
+import {
+  type Contact,
+  type ContactConnection,
+  nameOf,
+  type Rejected,
+} from "@cl/domain";
+import { must } from "@cl/domain/support/must.ts";
 import { type MachineView, useViewModel } from "@cl/react-bindings";
 
 import { ConfirmAlert } from "../ConfirmAlert.tsx";
@@ -13,6 +20,7 @@ import { Splitter } from "../shell/Splitter.tsx";
 import { TESTIDS } from "../testids.ts";
 import { useDialogWrite } from "../useDialogWrite.ts";
 import { ConnectionDialog } from "./ConnectionDialog.tsx";
+import { ContactDialog } from "./ContactDialog.tsx";
 import { ContactsPanel } from "./ContactsPanel.tsx";
 import { ContactTabs } from "./ContactTabs.tsx";
 import { CONNECTIONS_COLUMN_SPECS, CONTACTS_COLUMN_SPECS } from "./columns.ts";
@@ -39,8 +47,10 @@ export function ContactsScreen({
     select,
     setPage,
     setPageSize,
+    reveal,
     selectConnection,
     deleteConnection,
+    deleteContact,
   } = useContactsScreen();
   const columns = useColumns("contacts", CONTACTS_COLUMN_SPECS);
   const connectionsColumns = useColumns(
@@ -52,6 +62,15 @@ export function ContactsScreen({
   const { stub } = useNotices();
   const [connectionDialog, setConnectionDialog] =
     useState<ConnectionDialogOpen | null>(null);
+
+  const [contactDialog, setContactDialog] = useState<ContactDialogOpen | null>(
+    null,
+  );
+
+  const deleting = useDialogWrite(
+    closeContactDialog,
+    "the contact was not deleted",
+  );
 
   const removing = useDialogWrite(
     closeConnectionDialog,
@@ -79,6 +98,50 @@ export function ContactsScreen({
 
   function closeConnectionDialog(): void {
     setConnectionDialog(null);
+  }
+
+  function closeContactDialog(): void {
+    setContactDialog(null);
+  }
+
+  function openNewContact(kind: "person" | "company"): void {
+    setContactDialog({ kind: "edit", spec: { kind, editing: null } });
+  }
+
+  // The tools are off with no contact selected: there is one when they are pressed.
+  function selectedContact(): Contact {
+    return must(view?.selected?.contact, "the selected contact");
+  }
+
+  function openEditContact(): void {
+    const contact = selectedContact();
+
+    setContactDialog({
+      kind: "edit",
+      spec: { kind: contact.kind, editing: contact },
+    });
+  }
+
+  function openDeleteContact(): void {
+    deleting.forget();
+    setContactDialog({ kind: "delete", contact: selectedContact() });
+  }
+
+  function confirmDeleteContact(contact: Contact): void {
+    deleting.run(() => {
+      return deleteContact(contact.id);
+    });
+  }
+
+  // A rename can move the row to another page: the contact saved is selected wherever it lands.
+  function revealSavedOf(spec: ContactDialogSpec): () => void {
+    return (): void => {
+      if (spec.editing !== null) {
+        reveal(spec.editing.id);
+      }
+
+      closeContactDialog();
+    };
   }
 
   function openAddConnection(): void {
@@ -145,6 +208,9 @@ export function ContactsScreen({
           selectedConnectionId={view?.selectedConnection?.connection.id ?? null}
           connectionsTemplate={connectionsColumns.state.template}
           onActivate={tabs.activate}
+          onNewContact={openNewContact}
+          onEditContact={openEditContact}
+          onDeleteContact={openDeleteContact}
           onSelectConnection={selectConnection}
           onAddConnection={openAddConnection}
           onEditConnection={openEditConnection}
@@ -153,6 +219,22 @@ export function ContactsScreen({
           onStub={stub}
         />
       </div>
+      {contactDialog?.kind === "edit" ? (
+        <ContactDialog
+          spec={contactDialog.spec}
+          onAdded={reveal}
+          onSaved={revealSavedOf(contactDialog.spec)}
+          onCancel={closeContactDialog}
+        />
+      ) : null}
+      {contactDialog?.kind === "delete" ? (
+        <DeleteContactAlert
+          contact={contactDialog.contact}
+          refusal={deleting.refusal}
+          onYes={confirmDeleteContact}
+          onNo={closeContactDialog}
+        />
+      ) : null}
       {connectionDialog?.kind === "edit" && view?.selected ? (
         <ConnectionDialog
           contactId={view.selected.id}
@@ -189,6 +271,18 @@ interface ConnectionDialogOpen {
   connection: ContactConnection | null;
 }
 
+/** The person or company dialog over the screen: the New or Edit one, or the question before a delete. */
+type ContactDialogOpen =
+  | {
+      kind: "edit";
+      /** The kind of a new contact, or the contact it edits. */
+      spec: ContactDialogSpec;
+    }
+  | {
+      kind: "delete";
+      contact: Contact;
+    };
+
 /** The name of the contact a connection names, as the screen lists it. */
 function connectedNameOf(
   connection: ContactConnection | null,
@@ -198,5 +292,36 @@ function connectedNameOf(
     view?.connections.find((entry) => {
       return entry.connection.id === connection?.id;
     })?.connected.name ?? ""
+  );
+}
+
+interface DeleteContactAlertProps {
+  contact: Contact;
+  /** Why the contacts port refused the delete; null when it did not. */
+  refusal: Rejected | null;
+  onYes: (contact: Contact) => void;
+  onNo: () => void;
+}
+
+/** "Delete {name}? This cannot be undone.", and why it was refused. */
+function DeleteContactAlert({
+  contact,
+  refusal,
+  onYes,
+  onNo,
+}: DeleteContactAlertProps): ReactElement {
+  const name = nameOf(contact);
+
+  function yes(): void {
+    onYes(contact);
+  }
+
+  return (
+    <ConfirmAlert
+      text={`Delete ${name}? This cannot be undone.`}
+      error={refusal === null ? null : contactReasonText(refusal, name)}
+      onYes={yes}
+      onNo={onNo}
+    />
   );
 }

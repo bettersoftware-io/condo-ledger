@@ -100,6 +100,8 @@ export interface ContactsPresenter {
   selectConnection: (id: string) => void;
   /** Deletes the connection; the selection falls to the first row when it was the selected one. */
   deleteConnection: (id: string) => Promise<Result>;
+  /** Deletes the contact with its rows and connections; refused while it is used, with the building in the detail. The selection falls to the first row by itself. */
+  deleteContact: (id: string) => Promise<Result>;
   /** Deletes the category; refused while a contact is in it. Deleting the one the list is filtered to takes the filter back to every category. */
   deleteCategory: (id: string) => Promise<Result>;
 }
@@ -300,6 +302,9 @@ export function createContactsPresenter(
     },
     deleteConnection: (id: string): Promise<Result> => {
       return ports.contacts.deleteConnection(id);
+    },
+    deleteContact: (id: string): Promise<Result> => {
+      return ports.contacts.deleteContact(id);
     },
     deleteCategory: async (id: string): Promise<Result> => {
       const result = await ports.contacts.deleteCategory(id);

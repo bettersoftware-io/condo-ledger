@@ -9,6 +9,10 @@
   grid-template-columns: 160px 1fr;
 }
 
+.form-dialog[data-labels="nested"] .form-field {
+  grid-template-columns: 130px 1fr;
+}
+
 .form-dialog .scheda-fieldset .form-field {
   grid-template-columns: 145px 1fr;
 }

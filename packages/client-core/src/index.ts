@@ -42,6 +42,10 @@ export {
 export type {
   CategoryDialogState,
   ConnectionDialogState,
+  ContactDialogIntents,
+  ContactDialogSpec,
+  ContactDialogState,
+  ContactRowDialogState,
 } from "./machines/contactDialogMachines.ts";
 export type { DialogIntents } from "./machines/formDialog.ts";
 export type {

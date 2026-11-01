@@ -24,6 +24,10 @@ import type {
   ColumnsIntents,
   ColumnsState,
   ConnectionDialogState,
+  ContactDialogIntents,
+  ContactDialogSpec,
+  ContactDialogState,
+  ContactRowDialogState,
   ContactsPresenter,
   ContactsView,
   DialogIntents,
@@ -85,6 +89,7 @@ import type {
   Cents,
   ContactCategory,
   ContactConnection,
+  ContactRowDraft,
   ContactView,
   EntryAdded,
   EntryKind,
@@ -355,6 +360,20 @@ export interface ViewModel {
   ) => MachineView<
     ConnectionDialogState,
     DialogIntents<ConnectionDialogState["form"]>
+  >;
+  /** Reads its arguments on the first render only: the New Person or Company dialog, or the Edit one on the contact it opened on. A new contact's id goes to `onAdded` before the save answers. */
+  useContactDialog: (
+    spec: ContactDialogSpec,
+    onAdded: (id: string) => void,
+  ) => MachineView<ContactDialogState, ContactDialogIntents>;
+  /** Reads its arguments on the first render only: the Add Contact dialog (null) or the Edit one on the row it opened on; its save hands the row to `apply` and writes nothing. */
+  useContactRowDialog: (
+    row: ContactRowDraft | null,
+    nextOrder: number,
+    apply: (row: ContactRowDraft) => void,
+  ) => MachineView<
+    ContactRowDialogState,
+    DialogIntents<ContactRowDialogState["form"]>
   >;
   useBuildingData: () => BuildingDataScreenView;
   /** The Building Data grid: which buildings are open. */
@@ -682,8 +701,29 @@ export function createViewModel(app: App): ViewModel {
         reveal: contacts.reveal,
         selectConnection: contacts.selectConnection,
         deleteConnection: contacts.deleteConnection,
+        deleteContact: contacts.deleteContact,
         deleteCategory: contacts.deleteCategory,
       };
+    },
+    useContactDialog: (
+      spec: ContactDialogSpec,
+      onAdded: (id: string) => void,
+    ): MachineView<ContactDialogState, ContactDialogIntents> => {
+      return useMachine(() => {
+        return app.machines.createContactDialog(spec, onAdded);
+      });
+    },
+    useContactRowDialog: (
+      row: ContactRowDraft | null,
+      nextOrder: number,
+      apply: (row: ContactRowDraft) => void,
+    ): MachineView<
+      ContactRowDialogState,
+      DialogIntents<ContactRowDialogState["form"]>
+    > => {
+      return useMachine(() => {
+        return app.machines.createContactRowDialog(row, nextOrder, apply);
+      });
     },
     useCategoryDialog: (
       editing: ContactCategory | null,

@@ -213,6 +213,24 @@ describe("the contact dialog", () => {
     expect(machine.state$.getValue().verdict).toEqual({ ok: true });
   });
 
+  it("tells the date the birth date reads as, and none while it is blank or does not read", () => {
+    const { app } = createAppHarness(createContactsSeed());
+    const machine = track(
+      app.machines.createContactDialog(
+        { kind: "person", editing: null },
+        ignoreAdded,
+      ),
+    );
+
+    expect(machine.state$.getValue().bornOn).toBeNull();
+
+    machine.intents.edit({ birthDate: "1/2" });
+    expect(machine.state$.getValue().bornOn).toBe("2026-02-01");
+
+    machine.intents.edit({ birthDate: "31/02/1980" });
+    expect(machine.state$.getValue().bornOn).toBeNull();
+  });
+
   it("types a stored birth date back as dd/mm/yyyy, and saves it as an ISO date", async () => {
     const { app, ports } = createAppHarness(createContactsSeed());
     const person = contactOf(createContactsSeed(), "md10");

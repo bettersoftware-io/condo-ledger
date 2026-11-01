@@ -533,7 +533,7 @@ describe("Contacts screen", () => {
     ]);
   });
 
-  it("offers New person and New company on +, and says they are not yet available for now", async () => {
+  it("offers New person and New company on +, and Escape closes the menu choosing none", async () => {
     const page = mountContacts();
 
     expect(page.tabs.toolLabels()).toEqual([
@@ -553,16 +553,7 @@ describe("Contacts screen", () => {
 
     expect(page.tabs.addMenuItems()).toEqual([]);
 
-    await page.tabs.openAddMenu();
-    await page.tabs.clickMenuItem("New company");
-    await page.tabs.clickTool("Edit contact");
-    await page.tabs.clickTool("Delete contact");
-
-    expect(page.toasts()).toEqual([
-      "New company: not yet available",
-      "Edit contact: not yet available",
-      "Delete contact: not yet available",
-    ]);
+    expect(page.dialog.isShown()).toBe(false);
   });
 
   it("shows No connected contacts. for a contact with none, and the seeded contact's one row", async () => {

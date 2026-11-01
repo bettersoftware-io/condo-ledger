@@ -18,6 +18,7 @@ export function FormDialogFrame({
   canSave,
   message,
   labels = "wide",
+  width = "default",
   onSave,
   onCancel,
   children,
@@ -31,6 +32,7 @@ export function FormDialogFrame({
   return (
     <Dialog
       title={title}
+      width={width}
       onClose={onCancel}
       onEnter={pressPrimary}
       footer={
@@ -82,8 +84,10 @@ export interface FormDialogFrameProps {
   canSave: boolean;
   /** Why the dialog cannot save, in words; null when nothing stops it. */
   message: string | null;
-  /** The label column: 160px (`wide`) or the owner dialog's 148px (`owner`). */
-  labels?: "wide" | "owner";
+  /** The label column: 160px (`wide`), the owner dialog's 148px (`owner`) or the nested dialog's 130px (`nested`). */
+  labels?: "wide" | "owner" | "nested";
+  /** The card: 560px (`default`) or the nested dialog's 460px (`nested`). */
+  width?: "default" | "nested";
   onSave: () => void;
   onCancel: () => void;
   children: ReactNode;

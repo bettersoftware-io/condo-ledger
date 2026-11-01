@@ -23,6 +23,9 @@ import type {
   ColumnsIntents,
   ColumnsState,
   ConnectionDialogState,
+  ContactDialogIntents,
+  ContactDialogState,
+  ContactRowDialogState,
   DialogIntents,
   DirectPaymentForm,
   DirectPaymentSummary,
@@ -71,6 +74,7 @@ import type {
   Building,
   BuildingRow,
   Cents,
+  ContactRowDraft,
   ContactView,
   JournalEntryView,
   Ledger,
@@ -339,6 +343,15 @@ interface ContactsSeen {
     ConnectionDialogState,
     DialogIntents<ConnectionDialogState["form"]>
   >;
+  /** The New Person dialog; the ids of the contacts it added are in `added`. */
+  contactDialog: MachineView<ContactDialogState, ContactDialogIntents>;
+  added: string[];
+  /** The Add Contact dialog on a row starting on order 4; the rows it applied are in `applied`. */
+  contactRowDialog: MachineView<
+    ContactRowDialogState,
+    DialogIntents<ContactRowDialogState["form"]>
+  >;
+  applied: ContactRowDraft[];
 }
 
 export interface ContactsPage {
@@ -350,10 +363,12 @@ export interface ContactsPage {
 export function mountContactsHooks(): ContactsPage {
   const viewModel = createViewModel(createAppHarness().app);
   const seen: ContactsSeen[] = [];
+  const added: string[] = [];
+  const applied: ContactRowDraft[] = [];
 
   render(
     <ViewModelProvider viewModel={viewModel}>
-      <ContactsReader seen={seen} />
+      <ContactsReader seen={seen} added={added} applied={applied} />
     </ViewModelProvider>,
   );
 
@@ -379,20 +394,42 @@ export function mountContactsHooks(): ContactsPage {
 
 interface ContactsReaderProps {
   seen: ContactsSeen[];
+  added: string[];
+  applied: ContactRowDraft[];
 }
 
-function ContactsReader({ seen }: ContactsReaderProps): null {
-  const { useContactsScreen, useCategoryDialog, useConnectionDialog } =
-    useViewModel();
+function ContactsReader({ seen, added, applied }: ContactsReaderProps): null {
+  const {
+    useContactsScreen,
+    useCategoryDialog,
+    useConnectionDialog,
+    useContactDialog,
+    useContactRowDialog,
+  } = useViewModel();
 
   function ignore(): void {
     // The id of a category added is not what this reader looks at.
+  }
+
+  function noteAdded(id: string): void {
+    added.push(id);
+  }
+
+  function noteApplied(row: ContactRowDraft): void {
+    applied.push(row);
   }
 
   seen[0] = {
     screen: useContactsScreen(),
     categoryDialog: useCategoryDialog(null, ignore),
     connectionDialog: useConnectionDialog("md12", null),
+    contactDialog: useContactDialog(
+      { kind: "person", editing: null },
+      noteAdded,
+    ),
+    added,
+    contactRowDialog: useContactRowDialog(null, 4, noteApplied),
+    applied,
   };
 
   return null;
