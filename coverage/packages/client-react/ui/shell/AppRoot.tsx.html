@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>7/7</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>7/7</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
@@ -127,7 +127,12 @@
 <a name='L62'></a><a href='#L62'>62</a>
 <a name='L63'></a><a href='#L63'>63</a>
 <a name='L64'></a><a href='#L64'>64</a>
-<a name='L65'></a><a href='#L65'>65</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -149,19 +154,24 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">519x</span>
-<span class="cline-any cline-yes">519x</span>
-<span class="cline-any cline-yes">519x</span>
-<span class="cline-any cline-yes">519x</span>
-<span class="cline-any cline-yes">519x</span>
-<span class="cline-any cline-yes">519x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">519x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">689x</span>
+<span class="cline-any cline-yes">689x</span>
+<span class="cline-any cline-yes">689x</span>
+<span class="cline-any cline-yes">689x</span>
+<span class="cline-any cline-yes">689x</span>
+<span class="cline-any cline-yes">689x</span>
+<span class="cline-any cline-yes">689x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">689x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -196,6 +206,7 @@
 import { useViewModel } from "@cl/react-bindings";
 &nbsp;
 import { AmountLocaleProvider } from "../AmountLocaleProvider.tsx";
+import { FiltersSidebar } from "../contacts/FiltersSidebar.tsx";
 import { TESTIDS } from "../testids.ts";
 import { Breadcrumb } from "./Breadcrumb.tsx";
 import { Screen } from "./Screen.tsx";
@@ -219,6 +230,15 @@ export function AppRoot(): ReactElement {
   const sidebar = useSidebar();
   const maximize = useMaximize();
   const maximized = maximize.state.maximized !== null;
+  const frame = {
+    width: sidebar.state.width,
+    open: sidebar.state.open,
+    maximized,
+    onResize: sidebar.resize,
+    onOpen: sidebar.open,
+    onClose: sidebar.close,
+    onRestore: maximize.restore,
+  };
 &nbsp;
   return (
     &lt;AmountLocaleProvider&gt;
@@ -232,15 +252,10 @@ export function AppRoot(): ReactElement {
         &lt;Breadcrumb /&gt;
         &lt;div className="app-body" data-maximized={maximized}&gt;
           {navigation.state.module === "buildings" ? (
-            &lt;Sidebar
-              width={sidebar.state.width}
-              open={sidebar.state.open}
-              maximized={maximized}
-              onResize={sidebar.resize}
-              onOpen={sidebar.open}
-              onClose={sidebar.close}
-              onRestore={maximize.restore}
-            /&gt;
+            &lt;Sidebar {...frame} /&gt;
+          ) : null}
+          {navigation.state.module === "contacts" ? (
+            &lt;FiltersSidebar {...frame} /&gt;
           ) : null}
           &lt;main className="app-main" data-testid={TESTIDS.appMain}&gt;
             &lt;Screen
@@ -262,7 +277,7 @@ export function AppRoot(): ReactElement {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-31T16:55:39.789Z
+                at 2026-11-01T17:42:07.465Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

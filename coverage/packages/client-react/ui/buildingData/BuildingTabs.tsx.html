@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>5/5</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
@@ -39,14 +39,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/4</span>
+                <span class='fraction'>3/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>5/5</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
@@ -249,7 +249,12 @@
 <a name='L184'></a><a href='#L184'>184</a>
 <a name='L185'></a><a href='#L185'>185</a>
 <a name='L186'></a><a href='#L186'>186</a>
-<a name='L187'></a><a href='#L187'>187</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L187'></a><a href='#L187'>187</a>
+<a name='L188'></a><a href='#L188'>188</a>
+<a name='L189'></a><a href='#L189'>189</a>
+<a name='L190'></a><a href='#L190'>190</a>
+<a name='L191'></a><a href='#L191'>191</a>
+<a name='L192'></a><a href='#L192'>192</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -290,19 +295,24 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">101x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">483x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">147x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">657x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">147x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">101x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -438,7 +448,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Printer } from "lucide-react";
 import type { ReactElement } from "react";
 &nbsp;
-import type { Building, Contact } from "@cl/domain";
+import type { Building, ContactView } from "@cl/domain";
 &nbsp;
 import { LegendButton } from "../allocation/LegendButton.tsx";
 import { PDF_GLYPH, XLS_GLYPH } from "../shell/icons.tsx";
@@ -449,7 +459,7 @@ import { ToolbarDivider } from "../ToolbarDivider.tsx";
 import { TESTIDS } from "../testids.ts";
 import { BuildingProfile } from "./BuildingProfile.tsx";
 import { BuildingSuppliers } from "./BuildingSuppliers.tsx";
-import { BUILDING_TABS, SUPPLIERS_NOTICE } from "./labels.ts";
+import { BUILDING_TABS } from "./labels.ts";
 &nbsp;
 import "./BuildingTabs.css";
 &nbsp;
@@ -457,7 +467,8 @@ import "./BuildingTabs.css";
  * The Building Data screen's bottom panel: the selected row's building, its
  * Building Profile and Building Suppliers tabs under one toolbar. On the
  * profile ✎ edits the building, and `+` and − post their notice; on the
- * suppliers `+`, ✎ and − say that suppliers are edited in Contacts. Print,
+ * suppliers `+` adds one, ✎ edits the selected one and − removes it, the last
+ * two waiting for a supplier. Print,
  * export and the Legend post their notice. With no building the tabs say
  * "Select a building.". Takes only props, so the compiler memoizes it.
  */
@@ -473,8 +484,10 @@ export function BuildingTabs({
   onResizeSuppliers,
   onSetSuppliersRatio,
   onEditBuilding,
+  onAddSupplier,
+  onEditSupplier,
+  onRemoveSupplier,
   onStub,
-  onSay,
 }: BuildingTabsProps): ReactElement {
   const onSuppliers = active === "Building Suppliers";
 &nbsp;
@@ -482,10 +495,6 @@ export function BuildingTabs({
     return (): void =&gt; {
       onStub(label);
     };
-  }
-&nbsp;
-  function sayingSuppliers(): void {
-    onSay(SUPPLIERS_NOTICE);
   }
 &nbsp;
   return (
@@ -505,21 +514,23 @@ export function BuildingTabs({
                   icon="+"
                   tone="ok"
                   iconOnly
-                  onClick={sayingSuppliers}
+                  onClick={onAddSupplier}
                 /&gt;
                 &lt;ToolbarButton
                   label="Edit supplier"
                   icon="✎"
                   tone="muted"
                   iconOnly
-                  onClick={sayingSuppliers}
+                  disabled={supplier === null}
+                  onClick={onEditSupplier}
                 /&gt;
                 &lt;ToolbarButton
                   label="Remove supplier"
                   icon="−"
                   tone="neg"
                   iconOnly
-                  onClick={sayingSuppliers}
+                  disabled={supplier === null}
+                  onClick={onRemoveSupplier}
                 /&gt;
               &lt;/&gt;
             ) : (
@@ -604,8 +615,8 @@ export interface BuildingTabsProps {
   active: string;
   /** The selected row's building; null with none. */
   building: Building | null;
-  suppliers: Contact[];
-  supplier: Contact | null;
+  suppliers: ContactView[];
+  supplier: ContactView | null;
   /** The suppliers' list's grid-template-columns, from its columns machine. */
   suppliersTemplate: string;
   /** The suppliers' list's share of the tab's width. */
@@ -616,10 +627,14 @@ export interface BuildingTabsProps {
   onSetSuppliersRatio: (ratio: number) =&gt; void;
   /** Opens Edit Building on the building shown. */
   onEditBuilding: () =&gt; void;
+  /** Opens Add Supplier on the building shown. */
+  onAddSupplier: () =&gt; void;
+  /** Opens Edit Person or Company on the selected supplier. */
+  onEditSupplier: () =&gt; void;
+  /** Asks before the selected supplier is removed. */
+  onRemoveSupplier: () =&gt; void;
   /** A tool that is not built yet, by name. */
   onStub: (label: string) =&gt; void;
-  /** A notice in its own words. */
-  onSay: (text: string) =&gt; void;
 }
 &nbsp;</pre></td></tr></table></pre>
 
@@ -628,7 +643,7 @@ export interface BuildingTabsProps {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-31T16:55:39.789Z
+                at 2026-11-01T17:42:07.465Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

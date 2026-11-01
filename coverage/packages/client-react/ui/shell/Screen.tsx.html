@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>13/13</span>
+                <span class='fraction'>15/15</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">96.15% </span>
+                <span class="strong">96.42% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>25/26</span>
+                <span class='fraction'>27/28</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>13/13</span>
+                <span class='fraction'>15/15</span>
             </div>
         
             
@@ -120,7 +120,12 @@
 <a name='L55'></a><a href='#L55'>55</a>
 <a name='L56'></a><a href='#L56'>56</a>
 <a name='L57'></a><a href='#L57'>57</a>
-<a name='L58'></a><a href='#L58'>58</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -140,31 +145,36 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">519x</span>
-<span class="cline-any cline-yes">56x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">689x</span>
+<span class="cline-any cline-yes">74x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">463x</span>
-<span class="cline-any cline-yes">66x</span>
+<span class="cline-any cline-yes">615x</span>
+<span class="cline-any cline-yes">82x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">397x</span>
+<span class="cline-any cline-yes">533x</span>
 <span class="cline-any cline-yes">54x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">343x</span>
-<span class="cline-any cline-yes">94x</span>
+<span class="cline-any cline-yes">479x</span>
+<span class="cline-any cline-yes">95x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">249x</span>
+<span class="cline-any cline-yes">384x</span>
 <span class="cline-any cline-yes">180x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">69x</span>
+<span class="cline-any cline-yes">204x</span>
 <span class="cline-any cline-yes">60x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">144x</span>
+<span class="cline-any cline-yes">139x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -189,13 +199,14 @@ import type { MachineView } from "@cl/react-bindings";
 import { AccountsScreen } from "../accounts/AccountsScreen.tsx";
 import { TablesAllocationScreen } from "../allocation/TablesAllocationScreen.tsx";
 import { BuildingDataScreen } from "../buildingData/BuildingDataScreen.tsx";
+import { ContactsScreen } from "../contacts/ContactsScreen.tsx";
 import { InstallmentScheduleScreen } from "../installments/InstallmentScheduleScreen.tsx";
 import { JournalScreen } from "../journal/JournalScreen.tsx";
 import { UnitsScreen } from "../units/UnitsScreen.tsx";
 import { menuLabel, moduleLabel } from "./labels.tsx";
 import { Placeholder } from "./Placeholder.tsx";
 &nbsp;
-/** The main area's content for where the person is: the Building Data &amp; Suppliers, Units, Thousandth Tables &amp; Allocation, Accounts, Journal and Installment Schedule screens on their menu items, a placeholder for every screen not built yet. */
+/** The main area's content for where the person is: the Building Data &amp; Suppliers, Units, Thousandth Tables &amp; Allocation, Accounts, Journal and Installment Schedule screens on their menu items, the Contacts screen in its module, a placeholder for every screen not built yet. */
 export function Screen({ module, menu, maximize }: ScreenProps): ReactElement {
   if (module === "buildings" &amp;&amp; menu === "data") {
     return &lt;BuildingDataScreen maximize={maximize} /&gt;;
@@ -221,6 +232,10 @@ export function Screen({ module, menu, maximize }: ScreenProps): ReactElement {
     return &lt;InstallmentScheduleScreen maximize={maximize} /&gt;;
   }
 &nbsp;
+  if (module === "contacts") {
+    return &lt;ContactsScreen maximize={maximize} /&gt;;
+  }
+&nbsp;
   return (
     &lt;Placeholder
       title={module === "buildings" ? <span class="branch-0 cbranch-no" title="branch not covered" >menuLabel(menu) : m</span>oduleLabel(module)}
@@ -241,7 +256,7 @@ export interface ScreenProps {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-31T16:55:39.789Z
+                at 2026-11-01T17:42:07.465Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

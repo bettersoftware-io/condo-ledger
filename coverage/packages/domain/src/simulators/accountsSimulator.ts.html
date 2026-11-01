@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>29/29</span>
+                <span class='fraction'>30/30</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>11/11</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>16/16</span>
+                <span class='fraction'>17/17</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>29/29</span>
+                <span class='fraction'>30/30</span>
             </div>
         
             
@@ -198,8 +198,10 @@
 <a name='L133'></a><a href='#L133'>133</a>
 <a name='L134'></a><a href='#L134'>134</a>
 <a name='L135'></a><a href='#L135'>135</a>
-<a name='L136'></a><a href='#L136'>136</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -240,15 +242,19 @@
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-yes">13x</span>
-<span class="cline-any cline-yes">21x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">300x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">312x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -258,7 +264,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -267,13 +273,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -333,7 +339,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { BehaviorSubject, map, type Observable, of } from "rxjs";
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { BehaviorSubject, combineLatest, map, type Observable, of } from "rxjs";
 &nbsp;
 import type { Account } from "#/entities/account.ts";
 import type { Cents } from "#/entities/cents.ts";
@@ -348,10 +354,9 @@ import { missingPeriod } from "./missingPeriod.ts";
 import type { LegacySeed } from "./seed/legacySeed.ts";
 import { seededResidents, seededSuppliers } from "./seededParties.ts";
 &nbsp;
-/** A period's accounts, kept in memory, the building's suppliers and the period's withholding catalogue. */
+/** A period's accounts, kept in memory, and the period's withholding catalogue. */
 interface PeriodBooks {
   accounts$: BehaviorSubject&lt;Account[]&gt;;
-  suppliers: SupplierParty[];
   withholdingTaxes: WithholdingTax[];
 }
 &nbsp;
@@ -363,9 +368,9 @@ export interface AccountsSimulator extends AccountsPort {
 &nbsp;
 /**
  * The chart of accounts of every seeded period, with the budget edit kept in
- * memory. A period's parties are the seed's suppliers, then its residents as
- * `residentsOf` streams them; left out, the seed's residents. Throws on an
- * unknown id: it never answers empty for a wrong key.
+ * memory. A period's parties are its suppliers as `suppliersOf` streams them,
+ * then its residents as `residentsOf` streams them; each left out, the seed's.
+ * Throws on an unknown id: it never answers empty for a wrong key.
  */
 export function createAccountsSimulator(
   seed: LegacySeed,
@@ -373,6 +378,11 @@ export function createAccountsSimulator(
     periodId: string,
   ): Observable&lt;OwnerParty[]&gt; =&gt; {
     return of(seededResidents(seed, periodId));
+  },
+  suppliersOf: (periodId: string) =&gt; Observable&lt;SupplierParty[]&gt; = (
+    periodId: string,
+  ): Observable&lt;SupplierParty[]&gt; =&gt; {
+    return of(seededSuppliers(seed, periodId));
   },
 ): AccountsSimulator {
   const periods = new Map&lt;string, PeriodBooks&gt;();
@@ -385,7 +395,6 @@ export function createAccountsSimulator(
             return account.periodId === period.id;
           }),
         ),
-        suppliers: seededSuppliers(seed, period.id),
         withholdingTaxes: seed.withholdingTaxes.filter((tax) =&gt; {
           return tax.periodId === period.id;
         }),
@@ -406,9 +415,9 @@ export function createAccountsSimulator(
 &nbsp;
       return books === undefined
         ? missingPeriod(periodId)
-        : residentsOf(periodId).pipe(
-            map((residents) =&gt; {
-              return [...books.suppliers, ...residents];
+        : combineLatest([suppliersOf(periodId), residentsOf(periodId)]).pipe(
+            map(([suppliers, residents]) =&gt; {
+              return [...suppliers, ...residents];
             }),
           );
     },
@@ -475,7 +484,7 @@ function applyBudget(
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-10-31T16:55:52.135Z
+                at 2026-11-01T17:42:18.212Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
