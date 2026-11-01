@@ -1,10 +1,12 @@
-import { render, within } from "@testing-library/react";
+import { act, render, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
 import { type LegacySeed, nameOf } from "@cl/domain";
+import { must } from "@cl/domain/support/must.ts";
 import { createViewModel, ViewModelProvider } from "@cl/react-bindings";
 
+import { type FormDialogPage, formDialogIn } from "../FormDialog.page.tsx";
 import { AppRoot } from "../shell/AppRoot.tsx";
 import { dragSplitterElement } from "../shell/Splitter.page.tsx";
 import { TESTIDS } from "../testids.ts";
@@ -120,6 +122,15 @@ export interface ContactsScreenPage {
   tabs: TabsPage;
   /** A contact's name, by its id: a test never spells a person's name. */
   contactName: (contactId: string) => string;
+  /** The dialog over the screen: the category dialog. */
+  dialog: FormDialogPage;
+  /** The question before a delete, and why it was refused. */
+  confirmText: () => string | null;
+  confirmError: () => string | null;
+  confirmYes: () => Promise<void>;
+  confirmNo: () => Promise<void>;
+  /** Edits the only contact of this category into none, through the port, as the screen's own edit will. */
+  moveLastContactOut: (categoryName: string) => Promise<void>;
   /** Which panel fills the screen: top or none. */
   maximized: () => string | null;
   clickMaximize: () => Promise<void>;
@@ -583,6 +594,47 @@ export function mountContacts(seed?: LegacySeed): ContactsScreenPage {
       clickLegend: async (): Promise<void> => {
         await user.click(within(tabsPanel()).getByTestId(TESTIDS.panelLegend));
       },
+    },
+    dialog: formDialogIn(() => {
+      return rendered.container;
+    }, user),
+    confirmText: (): string | null => {
+      return rendered.queryByTestId(TESTIDS.confirmText)?.textContent ?? null;
+    },
+    confirmError: (): string | null => {
+      return rendered.queryByTestId(TESTIDS.confirmError)?.textContent ?? null;
+    },
+    confirmYes: async (): Promise<void> => {
+      await user.click(rendered.getByTestId(TESTIDS.confirmYes));
+    },
+    confirmNo: async (): Promise<void> => {
+      await user.click(rendered.getByTestId(TESTIDS.confirmNo));
+    },
+    moveLastContactOut: async (categoryName: string): Promise<void> => {
+      const category = must(
+        harness.seed.contactCategories.find((candidate) => {
+          return candidate.name === categoryName;
+        }),
+        `the category ${categoryName}`,
+      );
+
+      const [only, ...others] = harness.seed.contacts.filter((contact) => {
+        return contact.categoryId === category.id;
+      });
+
+      if (only === undefined || others.length > 0) {
+        throw new Error(`${categoryName} does not hold exactly one contact`);
+      }
+
+      await act(async () => {
+        await harness.ports.contacts.editContact(only.id, {
+          ...only,
+          categoryId: null,
+          rows: only.rows.map((row) => {
+            return { ...row };
+          }),
+        });
+      });
     },
     contactName: (contactId: string): string => {
       const found = harness.seed.contacts.find((contact) => {

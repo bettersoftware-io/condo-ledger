@@ -16,6 +16,7 @@ import type {
   BudgetInstallmentsSummary,
   BuildingDataView,
   BuildingDialogState,
+  CategoryDialogState,
   CoefficientsGridState,
   CollectionForm,
   CollectionSummary,
@@ -81,6 +82,7 @@ import type {
   Building,
   BuildingRow,
   Cents,
+  ContactCategory,
   ContactView,
   EntryAdded,
   EntryKind,
@@ -336,6 +338,14 @@ export interface ViewModel {
   /** The contacts an owner can be linked to. */
   useContacts: () => ContactView[];
   useContactsScreen: () => ContactsScreenView;
+  /** Reads its arguments on the first render only: the New Category dialog (null) or the Edit one on the category it opened on. A new category's id goes to `onAdded` before the save answers. */
+  useCategoryDialog: (
+    editing: ContactCategory | null,
+    onAdded: (id: string) => void,
+  ) => MachineView<
+    CategoryDialogState,
+    DialogIntents<CategoryDialogState["form"]>
+  >;
   useBuildingData: () => BuildingDataScreenView;
   /** The Building Data grid: which buildings are open. */
   useBuildingDataGrid: () => MachineView<
@@ -660,7 +670,19 @@ export function createViewModel(app: App): ViewModel {
         setPageSize: contacts.setPageSize,
         select: contacts.select,
         reveal: contacts.reveal,
+        deleteCategory: contacts.deleteCategory,
       };
+    },
+    useCategoryDialog: (
+      editing: ContactCategory | null,
+      onAdded: (id: string) => void,
+    ): MachineView<
+      CategoryDialogState,
+      DialogIntents<CategoryDialogState["form"]>
+    > => {
+      return useMachine(() => {
+        return app.machines.createCategoryDialog(editing, onAdded);
+      });
     },
     useBuildingData: (): BuildingDataScreenView => {
       return {

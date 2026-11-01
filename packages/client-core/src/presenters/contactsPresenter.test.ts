@@ -319,6 +319,51 @@ describe("the contacts presenter", () => {
     stop();
   });
 
+  it("takes the filter back to every category when the filtered category is deleted, and keeps it when the delete is refused or another category goes", async () => {
+    const { contacts, view, stop } = createPresented();
+    const empty = must(
+      view().categories.find((candidate) => {
+        return candidate.count === 0;
+      }),
+      "an empty category",
+    ).category;
+
+    const other = must(
+      view().categories.find((candidate) => {
+        return candidate.count === 0 && candidate.category.id !== empty.id;
+      }),
+      "another empty category",
+    ).category;
+
+    const full = must(
+      view().categories.find((candidate) => {
+        return candidate.count > 0;
+      }),
+      "a category with contacts",
+    ).category;
+
+    contacts.setFilter({ companies: false, categoryId: full.id });
+
+    expect(await contacts.deleteCategory(full.id)).toEqual({
+      ok: false,
+      reason: "category-not-empty",
+      detail: expect.any(String),
+    });
+    expect(view().filter.categoryId).toBe(full.id);
+
+    contacts.setFilter({ categoryId: empty.id });
+
+    expect(await contacts.deleteCategory(other.id)).toEqual({ ok: true });
+    expect(view().filter.categoryId).toBe(empty.id);
+
+    expect(await contacts.deleteCategory(empty.id)).toEqual({ ok: true });
+    expect(view().filter.categoryId).toBeNull();
+    expect(view().filter.companies).toBe(false);
+    expect(view().categories).toHaveLength(32);
+
+    stop();
+  });
+
   it("lists, for the building Pozzetto, its residents, suppliers and those on its invoices or entries", async () => {
     const { contacts, harness, view, stop } = createPresented();
     const uses = await firstValueFrom(harness.ports.contacts.uses());

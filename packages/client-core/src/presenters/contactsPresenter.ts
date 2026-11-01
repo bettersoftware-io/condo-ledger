@@ -24,6 +24,7 @@ import {
   type ContactView,
   contactViewsOf,
   filterContacts,
+  type Result,
 } from "@cl/domain";
 
 import {
@@ -92,6 +93,8 @@ export interface ContactsPresenter {
   select: (id: string) => void;
   /** The page that holds the contact, selected: what a saved contact gets, since a rename moves it. A filter that hides it is reset first; unknown ids change nothing. */
   reveal: (id: string) => void;
+  /** Deletes the category; refused while a contact is in it. Deleting the one the list is filtered to takes the filter back to every category. */
+  deleteCategory: (id: string) => Promise<Result>;
 }
 
 export interface ContactsPresenterPorts {
@@ -270,6 +273,16 @@ export function createContactsPresenter(
     },
     reveal: (id: string): void => {
       update({ pendingReveal: id });
+    },
+    deleteCategory: async (id: string): Promise<Result> => {
+      const result = await ports.contacts.deleteCategory(id);
+      const { filter } = preferences$.getValue();
+
+      if (result.ok && filter.categoryId === id) {
+        filterTo({ ...filter, categoryId: null });
+      }
+
+      return result;
     },
   };
 }

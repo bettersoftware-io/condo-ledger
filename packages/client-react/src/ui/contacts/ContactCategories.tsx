@@ -9,8 +9,8 @@ import "./ContactCategories.css";
 /**
  * The Contact Categories card: its tools, then "- All -" with the total and
  * each category by name with its count. A row filters the list at once. ✎ and
- * − act on the selected category, so they are off on "- All -"; the tools and
- * the refresh post their notice for now. Takes only props, so the compiler
+ * − act on the selected category, so they are off on "- All -"; the refresh
+ * posts its notice for now. Takes only props, so the compiler
  * memoizes it.
  */
 export function ContactCategories({
@@ -18,6 +18,9 @@ export function ContactCategories({
   allCount,
   selectedId,
   onSelect,
+  onAdd,
+  onEdit,
+  onDelete,
   onStub,
 }: ContactCategoriesProps): ReactElement {
   function stubbing(label: string): () => void {
@@ -44,7 +47,7 @@ export function ContactCategories({
           className="sidebar-tool"
           data-tone="ok"
           aria-label="Add category"
-          onClick={stubbing("Add category")}
+          onClick={onAdd}
         >
           +
         </button>
@@ -53,7 +56,7 @@ export function ContactCategories({
           className="sidebar-tool"
           aria-label="Edit category"
           disabled={selectedId === null}
-          onClick={stubbing("Edit category")}
+          onClick={onEdit}
         >
           ✎
         </button>
@@ -63,7 +66,7 @@ export function ContactCategories({
           data-tone="neg"
           aria-label="Delete category"
           disabled={selectedId === null}
-          onClick={stubbing("Delete category")}
+          onClick={onDelete}
         >
           −
         </button>
@@ -109,6 +112,12 @@ export interface ContactCategoriesProps {
   selectedId: string | null;
   /** A category's id; null for "- All -". */
   onSelect: (categoryId: string | null) => void;
+  /** + : asks for a new category. */
+  onAdd: () => void;
+  /** ✎ : asks to edit the selected category. */
+  onEdit: () => void;
+  /** − : asks to delete the selected category. */
+  onDelete: () => void;
   /** A tool that is not built yet, by name. */
   onStub: (label: string) => void;
 }

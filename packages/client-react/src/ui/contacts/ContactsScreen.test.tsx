@@ -362,21 +362,152 @@ describe("Contacts screen", () => {
     expect(page.categories.isToolDisabled("Delete category")).toBe(false);
   });
 
-  it("says the category tools and the refresh are not yet available", async () => {
+  it("says the categories' refresh is not yet available", async () => {
+    const page = mountContacts();
+
+    await page.categories.clickTool("Refresh");
+
+    expect(page.toasts()).toEqual(["Refresh: not yet available"]);
+  });
+
+  it("adds a category through + and selects it, once the name is free", async () => {
+    const page = mountContacts();
+
+    await page.categories.clickTool("Add category");
+
+    expect(page.dialog.title()).toBe("New Category");
+    expect(page.dialog.requiredUnannounced()).toEqual([]);
+    expect(page.dialog.fieldValue("Name")).toBe("");
+    expect(page.dialog.saveLabel()).toBe("+ Add");
+    expect(page.dialog.isSaveDisabled()).toBe(true);
+
+    await page.dialog.fill("Name", "taxes");
+
+    expect(page.dialog.message()).toBe("Another category is named taxes");
+    expect(page.dialog.isSaveDisabled()).toBe(true);
+
+    await page.dialog.fill("Name", "Chimney sweep");
+
+    expect(page.dialog.message()).toBeNull();
+
+    await page.dialog.save();
+
+    expect(page.dialog.isShown()).toBe(false);
+    expect(page.categories.rows()).toContainEqual(["Chimney sweep", "0"]);
+    expect(page.categories.selected()).toEqual(["Chimney sweep"]);
+    expect(page.list.emptyMessage()).toBe("No contact matches.");
+  });
+
+  it("refuses a blank name and a name of more than 63 characters", async () => {
+    const page = mountContacts();
+
+    await page.categories.clickTool("Add category");
+    await page.dialog.fill("Name", "x");
+    await page.dialog.fill("Name", "");
+
+    expect(page.dialog.message()).toBe("Enter a name");
+    expect(page.dialog.isSaveDisabled()).toBe(true);
+
+    await page.dialog.fill("Name", "x".repeat(64));
+
+    expect(page.dialog.message()).toBe("A name has at most 63 characters");
+    expect(page.dialog.isSaveDisabled()).toBe(true);
+  });
+
+  it("cancels the dialog without adding anything", async () => {
+    const page = mountContacts();
+
+    await page.categories.clickTool("Add category");
+    await page.dialog.fill("Name", "Chimney sweep");
+    await page.dialog.cancel();
+
+    expect(page.dialog.isShown()).toBe(false);
+    expect(page.categories.rows()).toHaveLength(35);
+  });
+
+  it("edits the selected category's name through ✎ and keeps it selected", async () => {
+    const page = mountContacts();
+
+    await page.categories.click("Taxes");
+    await page.categories.clickTool("Edit category");
+
+    expect(page.dialog.title()).toBe("Edit Category");
+    expect(page.dialog.fieldValue("Name")).toBe("Taxes");
+    expect(page.dialog.saveLabel()).toBe("✎ Save");
+
+    await page.dialog.fill("Name", "Duties");
+    await page.dialog.save();
+
+    expect(page.dialog.isShown()).toBe(false);
+    expect(page.categories.rows()).toContainEqual(["Duties", "0"]);
+    expect(page.categories.selected()).toEqual(["Duties"]);
+  });
+
+  it("asks before deleting a category, and a category with contacts is refused in the question", async () => {
     const page = mountContacts();
 
     await page.categories.click("Owner");
-    await page.categories.clickTool("Add category");
-    await page.categories.clickTool("Edit category");
     await page.categories.clickTool("Delete category");
-    await page.categories.clickTool("Refresh");
 
-    expect(page.toasts()).toEqual([
-      "Add category: not yet available",
-      "Edit category: not yet available",
-      "Delete category: not yet available",
-      "Refresh: not yet available",
-    ]);
+    expect(page.confirmText()).toBe("Delete the category Owner?");
+    expect(page.confirmError()).toBeNull();
+
+    await page.confirmYes();
+
+    expect(page.confirmText()).toBe("Delete the category Owner?");
+    expect(page.confirmError()).toBe(
+      "Move its 78 contacts to another category first.",
+    );
+
+    await page.confirmNo();
+
+    expect(page.confirmText()).toBeNull();
+    expect(page.categories.rows()).toContainEqual(["Owner", "78"]);
+    expect(page.categories.selected()).toEqual(["Owner"]);
+  });
+
+  it("words the refusal for one contact in the singular", async () => {
+    const page = mountContacts();
+
+    await page.categories.click("Gardener");
+    await page.categories.clickTool("Delete category");
+    await page.confirmYes();
+
+    expect(page.confirmError()).toBe(
+      "Move its contact to another category first.",
+    );
+  });
+
+  it("deletes a category once its last contact has moved out, and goes back to - All -", async () => {
+    const page = mountContacts();
+
+    await page.categories.click("Gardener");
+    await page.moveLastContactOut("Gardener");
+
+    expect(page.categories.rows()).toContainEqual(["Gardener", "0"]);
+
+    await page.categories.clickTool("Delete category");
+    await page.confirmYes();
+
+    expect(page.confirmText()).toBeNull();
+    expect(
+      page.categories.rows().map((row) => {
+        return row[0];
+      }),
+    ).not.toContain("Gardener");
+    expect(page.categories.selected()).toEqual(["- All -"]);
+    expect(page.list.pageText()).toBe("Page 1 of 12 · 113 contacts total");
+  });
+
+  it("answers No to the question on Escape, and keeps the selection", async () => {
+    const page = mountContacts();
+
+    await page.categories.click("Gardener");
+    await page.categories.clickTool("Delete category");
+    await page.pressEscape();
+
+    expect(page.confirmText()).toBeNull();
+    expect(page.categories.selected()).toEqual(["Gardener"]);
   });
 
   it("says Print, PDF, Excel, Refresh and the Legend are not yet available", async () => {
