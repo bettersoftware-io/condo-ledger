@@ -1,12 +1,13 @@
-import { firstValueFrom, of, Subject } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of, Subject } from "rxjs";
 import { describe, expect, it } from "vitest";
 
-import type {
-  Contact,
-  ContactCategory,
-  ContactsPort,
-  ContactUsesById,
-  ContactView,
+import {
+  type Contact,
+  type ContactCategory,
+  type ContactsPort,
+  type ContactUsesById,
+  type ContactView,
+  contactViewsOf,
 } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 import type { ContactDraft } from "@cl/domain/useCases/contacts/validateContact.ts";
@@ -44,26 +45,117 @@ describe("the contacts presenter", () => {
     subscription.unsubscribe();
   });
 
-  it("ignores a reveal before the registry has answered", () => {
-    const { ports } = createAppHarness();
-    const uses$ = new Subject<ContactUsesById>();
+  it("applies a reveal made with no subscriber when the view is subscribed to", () => {
+    const harness = createAppHarness();
     const presenter = createContactsPresenter({
-      contacts: {
-        ...ports.contacts,
-        uses: () => {
-          return uses$;
-        },
-      },
-      buildings: ports.buildings,
+      contacts: harness.ports.contacts,
+      buildings: harness.ports.buildings,
     });
+    const target = lastContactIn(harness);
+
+    presenter.reveal(target);
+
     const views: Array<ContactsView | null> = [];
     const subscription = presenter.view$.subscribe((view) => {
       views.push(view);
     });
 
-    presenter.reveal("md1");
-    uses$.next(new Map());
-    expect(views.at(-1)?.page).toBe(1);
+    expect(views.at(-1)?.page).toBe(12);
+    expect(views.at(-1)?.selected?.id).toBe(target);
+
+    subscription.unsubscribe();
+  });
+
+  it("applies a reveal when the contact reaches the registry, and drops it for a choice of the person", async () => {
+    const harness = createAppHarness();
+    const all = await firstValueFrom(harness.ports.contacts.contacts());
+    const last = must(all.at(-1), "a contact");
+    const arriving$ = new BehaviorSubject<Contact[]>(
+      all.filter((contact) => {
+        return contact.id !== last.id;
+      }),
+    );
+
+    const presenter = createContactsPresenter({
+      contacts: {
+        ...harness.ports.contacts,
+        contacts: () => {
+          return arriving$;
+        },
+      },
+      buildings: harness.ports.buildings,
+    });
+    const seen: Array<ContactsView | null> = [];
+    const subscription = presenter.view$.subscribe((view) => {
+      seen.push(view);
+    });
+
+    function latest(): ContactsView {
+      return must(seen.at(-1), "the view");
+    }
+
+    presenter.reveal(last.id);
+    expect(latest().page).toBe(1);
+
+    arriving$.next(all);
+    expect(latest().selected?.id).toBe(last.id);
+
+    presenter.reveal("md-not-yet");
+    presenter.setPage(2);
+    arriving$.next([...all, createStoredContact("md-not-yet")]);
+    expect(latest().page).toBe(2);
+
+    subscription.unsubscribe();
+  });
+
+  it("lands a rename made while unsubscribed on the right page", async () => {
+    const { contacts, harness, view, stop } = createPresented();
+    const target = must(view().rows[0], "the first row");
+    const contact = must(
+      harness.seed.contacts.find((candidate) => {
+        return candidate.id === target.id;
+      }),
+      "the seed's contact",
+    );
+
+    stop();
+    await harness.ports.contacts.editContact(
+      target.id,
+      createDraftRenamed(contact, "Zzzzz"),
+    );
+    contacts.reveal(target.id);
+
+    const views: Array<ContactsView | null> = [];
+    const subscription = contacts.view$.subscribe((next) => {
+      views.push(next);
+    });
+
+    expect(views.at(-1)?.page).toBe(12);
+    expect(views.at(-1)?.selected?.id).toBe(target.id);
+
+    subscription.unsubscribe();
+  });
+
+  it("asks for a contact's connections once while the selection stays, whatever else changes", () => {
+    const harness = createAppHarness();
+    const asked: string[] = [];
+    const contacts = createContactsPresenter({
+      contacts: {
+        ...harness.ports.contacts,
+        connections: (contactId: string) => {
+          asked.push(contactId);
+
+          return harness.ports.contacts.connections(contactId);
+        },
+      },
+      buildings: harness.ports.buildings,
+    });
+    const subscription = contacts.view$.subscribe();
+
+    contacts.typeKeyword("a");
+    contacts.setFilter({});
+    contacts.setFilter({ status: null });
+    expect(asked).toHaveLength(1);
 
     subscription.unsubscribe();
   });
@@ -571,6 +663,19 @@ function createPresented(): Presented {
       subscription.unsubscribe();
     },
   };
+}
+
+function lastContactIn(harness: AppHarness): string {
+  return must(
+    contactViewsOf(harness.seed.contacts, harness.seed.contactCategories).at(
+      -1,
+    ),
+    "the last contact",
+  ).id;
+}
+
+function createStoredContact(id: string): Contact {
+  return { ...createPersonDraft("Newcomer"), id, rows: [] } as Contact;
 }
 
 function contactsUsed(harness: AppHarness, id: string): boolean {

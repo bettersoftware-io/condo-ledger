@@ -2,9 +2,13 @@ import { type DefaultedStateObservable, state } from "@rx-state/core";
 import {
   BehaviorSubject,
   combineLatest,
+  distinctUntilChanged,
+  filter,
   map,
   type Observable,
   of,
+  shareReplay,
+  startWith,
   switchMap,
 } from "rxjs";
 
@@ -100,6 +104,20 @@ interface Preferences {
   selectedId: string | null;
   page: number;
   pageSize: PageSize;
+  /** A contact to show as soon as the registry holds it; any other choice of the person drops it. */
+  pendingReveal: string | null;
+}
+
+/** The preferences once a reveal is applied, and whether the filter had to go for it. */
+interface Revealed {
+  preferences: Preferences;
+  hidden: boolean;
+}
+
+/** The connections asked of one contact, with the contact they were asked of. */
+interface Asked {
+  contactId: string | null;
+  connections: ContactConnection[];
 }
 
 interface Data {
@@ -120,6 +138,7 @@ const INITIAL: Preferences = {
   selectedId: null,
   page: 1,
   pageSize: 10,
+  pendingReveal: null,
 };
 
 /**
@@ -127,14 +146,13 @@ const INITIAL: Preferences = {
  * The selection is held by id and read against the page: one the filter or
  * the page no longer lists falls to the page's first row. A page past the end
  * becomes the last. The page does not follow a contact that a rename moves;
- * `reveal` does, after a save.
+ * `reveal` does, after a save: it waits, if need be, for the contact to reach the registry.
  */
 export function createContactsPresenter(
   ports: ContactsPresenterPorts,
 ): ContactsPresenter {
   const preferences$ = new BehaviorSubject<Preferences>(INITIAL);
   const typed$ = new BehaviorSubject<string>("");
-  let latest: Data | null = null;
   const data$: Observable<Data> = combineLatest([
     ports.contacts.contacts(),
     ports.contacts.categories(),
@@ -142,43 +160,65 @@ export function createContactsPresenter(
     ports.buildings.buildings(),
   ]).pipe(
     map(([contacts, categories, uses, buildings]): Data => {
-      const data = {
+      return {
         views: contactViewsOf(contacts, categories),
         categories,
         uses,
         buildings,
       };
-
-      latest = data;
-
-      return data;
     }),
   );
 
   const stage$ = combineLatest([data$, preferences$]).pipe(
     map(([data, preferences]) => {
-      return stageOf(data, preferences);
-    }),
-  );
+      const revealed = revealedBy(data, preferences);
 
-  const withConnections$ = stage$.pipe(
-    switchMap((stage) => {
-      const { selected } = stage.view;
-
-      if (selected === null) {
-        return of({ stage, connections: [] });
+      if (revealed === null) {
+        return stageOf(data, preferences);
       }
 
-      return ports.contacts.connections(selected.id).pipe(
+      // The reveal is settled into the preferences, which emit again with it
+      // applied; this emission is the stale one.
+      if (revealed.hidden) {
+        typed$.next("");
+      }
+
+      preferences$.next(revealed.preferences);
+
+      return null;
+    }),
+    filter((stage): stage is Stage => {
+      return stage !== null;
+    }),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  // Keyed on the selected contact: a filter or a page that keeps it asks again of nothing.
+  const asked$: Observable<Asked> = stage$.pipe(
+    map((stage) => {
+      return stage.view.selected?.id ?? null;
+    }),
+    distinctUntilChanged(),
+    switchMap((contactId): Observable<Asked> => {
+      if (contactId === null) {
+        return of({ contactId, connections: [] });
+      }
+
+      return ports.contacts.connections(contactId).pipe(
         map((connections) => {
-          return { stage, connections };
+          return { contactId, connections };
         }),
       );
     }),
+    startWith({ contactId: null, connections: [] } satisfies Asked),
   );
 
   function update(change: Partial<Preferences>): void {
-    preferences$.next({ ...preferences$.getValue(), ...change });
+    preferences$.next({
+      ...preferences$.getValue(),
+      pendingReveal: null,
+      ...change,
+    });
   }
 
   function filterTo(filter: ContactFilter): void {
@@ -187,8 +227,13 @@ export function createContactsPresenter(
 
   return {
     view$: state(
-      combineLatest([withConnections$, typed$]).pipe(
-        map(([{ stage, connections }, typedKeyword]): ContactsView => {
+      combineLatest([stage$, asked$, typed$]).pipe(
+        map(([stage, asked, typedKeyword]): ContactsView => {
+          const connections =
+            asked.contactId === stage.view.selected?.id
+              ? asked.connections
+              : [];
+
           return {
             ...stage.view,
             typedKeyword,
@@ -224,31 +269,36 @@ export function createContactsPresenter(
       update({ selectedId: id });
     },
     reveal: (id: string): void => {
-      if (latest === null) {
-        return;
-      }
+      update({ pendingReveal: id });
+    },
+  };
+}
 
-      const { views, uses } = latest;
+/**
+ * The preferences with the pending reveal applied, once the registry holds the
+ * contact: the filter back to every contact when it hides it, the page that
+ * holds it, and it selected. Null with nothing pending or the contact not yet
+ * here.
+ */
+function revealedBy(data: Data, preferences: Preferences): Revealed | null {
+  const id = preferences.pendingReveal;
 
-      if (!views.some(isContact(id))) {
-        return;
-      }
+  if (id === null || !data.views.some(isContact(id))) {
+    return null;
+  }
 
-      const { filter, pageSize } = preferences$.getValue();
-      const listed = filterViews(views, filter, uses);
-      const hidden = !listed.some(isContact(id));
+  const listed = filterViews(data.views, preferences.filter, data.uses);
+  const hidden = !listed.some(isContact(id));
+  const shown = hidden ? data.views : listed;
 
-      if (hidden) {
-        typed$.next("");
-      }
-
-      const shown = hidden ? views : listed;
-
-      update({
-        filter: hidden ? ALL_CONTACTS : filter,
-        selectedId: id,
-        page: pageOfIndex(shown.findIndex(isContact(id)), pageSize),
-      });
+  return {
+    hidden,
+    preferences: {
+      ...preferences,
+      filter: hidden ? ALL_CONTACTS : preferences.filter,
+      selectedId: id,
+      page: pageOfIndex(shown.findIndex(isContact(id)), preferences.pageSize),
+      pendingReveal: null,
     },
   };
 }
