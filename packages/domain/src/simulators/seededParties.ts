@@ -18,7 +18,9 @@ export interface SuppliersInput {
 /**
  * The one rule for a period's suppliers: the building's links, plus any
  * contact with an invoice or a supplier posting in the period, so what is
- * posted keeps its name once its link is gone. Each once, in the order of the
+ * posted keeps its name once its link is gone. A link to an archived contact
+ * does not make it a supplier; an invoice or a posting does, archived or not.
+ * Each once, in the order of the
  * contact id's number, as the seed's parties are, named by the contact. A
  * contact the contacts lack is a defect, and throws.
  */
@@ -32,7 +34,10 @@ export function periodSuppliers(period: SuppliersInput): SupplierParty[] {
   const ids = new Set([
     ...period.links
       .filter((link) => {
-        return link.buildingId === period.buildingId;
+        return (
+          link.buildingId === period.buildingId &&
+          contacts.get(link.contactId)?.status !== "archived"
+        );
       })
       .map((link) => {
         return link.contactId;

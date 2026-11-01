@@ -245,7 +245,10 @@ limit.
 
 Archiving is an edit of Status. An archived contact stays where it is used and
 shows the archive icon in the list. The pickers offer active contacts only; the
-contact already on an owner or a supplier stays shown. *(My call: the legacy
+contact already on an owner or a supplier stays shown. A link to an archived contact does not
+make it a period's supplier, so a new invoice does not offer it; a contact with
+an invoice or a supplier posting in the period stays one, archived or not, so
+an existing invoice can still be edited. *(My call: the legacy
 picker offered archived contacts too.)*
 
 ## Building Suppliers
@@ -264,7 +267,7 @@ The supplier sheet shows every contact row, as the legacy one did, not only
 the first phone and email.
 
 A new invoice's Supplier list is the period's suppliers, as M2b built it: the
-building's suppliers, plus anyone with an invoice or a posting in the period.
+building's active suppliers, plus anyone with an invoice or a posting in the period.
 So a company has to be a supplier of the building before it can be invoiced
 there, and Add Supplier is one step away. The legacy field searched every
 contact, owners included. *(My call: nobody in the data is both an owner and a

@@ -41,6 +41,33 @@ describe("periodSuppliers", () => {
     ).toEqual([]);
   });
 
+  it("leaves out an archived contact that is only linked", () => {
+    expect(
+      periodSuppliers({
+        buildingId: "c1",
+        links: [createLink("c1", "md2"), createLink("c1", "md4")],
+        invoices: [],
+        entries: [],
+        contacts,
+      }),
+    ).toEqual([{ kind: "supplier", id: "md2", name: "Beta S.p.A." }]);
+  });
+
+  it("keeps an archived contact that has an invoice or a posting in the period", () => {
+    expect(
+      periodSuppliers({
+        buildingId: "c1",
+        links: [createLink("c1", "md4")],
+        invoices: [createInvoice("md4")],
+        entries: [createEntry([{ kind: "supplier", id: "md5" }])],
+        contacts,
+      }),
+    ).toEqual([
+      { kind: "supplier", id: "md4", name: "Old s.a.s." },
+      { kind: "supplier", id: "md5", name: "Older s.a.s." },
+    ]);
+  });
+
   it("adds a contact with an invoice in the period", () => {
     expect(
       periodSuppliers({
@@ -121,6 +148,8 @@ describe("periodSuppliers", () => {
     createCompanyContact("md10", "Decima s.r.l."),
     createPersonContact("md9", "Rossi", "Mario"),
     createCompanyContact("md3", "Unused s.n.c."),
+    createCompanyContact("md4", "Old s.a.s.", { status: "archived" }),
+    createCompanyContact("md5", "Older s.a.s.", { status: "archived" }),
   ];
 });
 
