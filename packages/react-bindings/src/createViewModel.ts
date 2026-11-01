@@ -68,6 +68,7 @@ import type {
   SplitIntents,
   SplitName,
   SplitState,
+  SupplierDialogState,
   TabbedPanelName,
   TableDialogIntents,
   TableDialogState,
@@ -197,6 +198,8 @@ export interface BuildingDataScreenView {
   view: BuildingDataView;
   select: (key: string) => void;
   selectSupplier: (contactId: string) => void;
+  /** Unlinks a supplier from the building; the contact stays. */
+  removeSupplier: (buildingId: string, contactId: string) => Promise<Result>;
 }
 
 /**
@@ -374,6 +377,13 @@ export interface ViewModel {
   ) => MachineView<
     ContactRowDialogState,
     DialogIntents<ContactRowDialogState["form"]>
+  >;
+  /** Reads its argument on the first render only: the Add Supplier dialog on this building. */
+  useSupplierDialog: (
+    buildingId: string,
+  ) => MachineView<
+    SupplierDialogState,
+    DialogIntents<SupplierDialogState["form"]>
   >;
   useBuildingData: () => BuildingDataScreenView;
   /** The Building Data grid: which buildings are open. */
@@ -747,11 +757,22 @@ export function createViewModel(app: App): ViewModel {
         return app.machines.createConnectionDialog(contactId, editing);
       });
     },
+    useSupplierDialog: (
+      buildingId: string,
+    ): MachineView<
+      SupplierDialogState,
+      DialogIntents<SupplierDialogState["form"]>
+    > => {
+      return useMachine(() => {
+        return app.machines.createSupplierDialog(buildingId);
+      });
+    },
     useBuildingData: (): BuildingDataScreenView => {
       return {
         view: useStateObservable(buildingData.view$),
         select: buildingData.select,
         selectSupplier: buildingData.selectSupplier,
+        removeSupplier: buildingData.removeSupplier,
       };
     },
     useBuildingDataGrid: (): MachineView<

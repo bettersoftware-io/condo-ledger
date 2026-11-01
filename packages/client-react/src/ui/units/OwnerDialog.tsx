@@ -2,6 +2,7 @@ import type { ChangeEvent, ReactElement } from "react";
 
 import type { OwnerDialogState } from "@cl/client-core";
 import type {
+  Contact,
   ContactView,
   PeriodDates,
   Rejected,
@@ -10,7 +11,9 @@ import type {
 import { useViewModel } from "@cl/react-bindings";
 
 import { useLocale } from "../amountLocale.ts";
+import { ContactDialog } from "../contacts/ContactDialog.tsx";
 import { ContactPicker } from "../contacts/ContactPicker.tsx";
+import { useContactDialogSpec } from "../contacts/useContactDialogSpec.ts";
 import { DateField } from "../DateField.tsx";
 import { Fieldset } from "../Fieldset.tsx";
 import { FormDialogFrame } from "../FormDialogFrame.tsx";
@@ -22,7 +25,12 @@ import { type ValueOption, ValueSelect } from "../ValueSelect.tsx";
 import { ROLE_LABELS } from "./labels.ts";
 import { unitsReasonText } from "./unitsReasons.ts";
 
-/** Reads the Add or Edit Owner dialog and the contacts, and hands its body plain props. */
+/**
+ * Reads the Add or Edit Owner dialog and the contacts, and hands its body
+ * plain props. The picker's New and Edit buttons open the person or company
+ * dialog beside the owner's card, not in it; which one is open is the
+ * `useContactDialogSpec` state, and a contact it adds is the one chosen.
+ */
 export function OwnerDialog({
   editing,
   period,
@@ -33,6 +41,10 @@ export function OwnerDialog({
   const dialog = useOwnerDialog(editing);
   const contacts = useContacts();
   const write = useDialogWrite(onSaved, "the owner was not saved");
+  const contactDialog = useContactDialogSpec(
+    contacts,
+    dialog.state.form.contactId,
+  );
 
   function edit(patch: Partial<OwnerForm>): void {
     write.forget();
@@ -43,16 +55,32 @@ export function OwnerDialog({
     write.run(dialog.save);
   }
 
+  function chooseAdded(contactId: string): void {
+    edit({ contactId });
+  }
+
   return (
-    <OwnerDialogBody
-      state={dialog.state}
-      contacts={contacts}
-      period={period}
-      refusal={write.refusal}
-      onEdit={edit}
-      onSave={save}
-      onCancel={onCancel}
-    />
+    <>
+      <OwnerDialogBody
+        state={dialog.state}
+        contacts={contacts}
+        period={period}
+        refusal={write.refusal}
+        onEdit={edit}
+        onNewContact={contactDialog.openNew}
+        onEditContact={contactDialog.openChosen}
+        onSave={save}
+        onCancel={onCancel}
+      />
+      {contactDialog.spec === null ? null : (
+        <ContactDialog
+          spec={contactDialog.spec}
+          onAdded={chooseAdded}
+          onSaved={contactDialog.close}
+          onCancel={contactDialog.close}
+        />
+      )}
+    </>
   );
 }
 
@@ -89,6 +117,8 @@ function OwnerDialogBody({
   period,
   refusal,
   onEdit,
+  onNewContact,
+  onEditContact,
   onSave,
   onCancel,
 }: OwnerDialogBodyProps): ReactElement {
@@ -147,7 +177,10 @@ function OwnerDialogBody({
         contacts={contacts}
         value={form.contactId}
         fixed={editing}
+        creating
         onChange={editContact}
+        onNew={onNewContact}
+        onEdit={onEditContact}
       />
       <FormField label="Role">
         <ValueSelect
@@ -201,6 +234,10 @@ interface OwnerDialogBodyProps {
   /** Why the units port refused the last save; null when it did not. */
   refusal: Rejected | null;
   onEdit: (patch: Partial<OwnerForm>) => void;
+  /** New company or New person: opens that dialog. */
+  onNewContact: (kind: Contact["kind"]) => void;
+  /** Edit contact: opens the dialog on the contact chosen. */
+  onEditContact: () => void;
   onSave: () => void;
   onCancel: () => void;
 }

@@ -56,3 +56,38 @@
   font-size: 12px;
   color: var(--txd);
 }
+
+/* The buttons of a picker that creates, under the box and aligned with it. */
+.contact-picker-tools {
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+  margin: 0 0 0 158px;
+  padding: 0;
+  border: none;
+}
+
+.contact-picker-tool {
+  padding: 1px 6px;
+  border: 1px solid var(--bd);
+  border-radius: var(--r-field);
+  background: var(--panel);
+  font: inherit;
+  font-size: 13px;
+  color: var(--tx);
+  cursor: pointer;
+}
+
+.contact-picker-tool:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.contact-picker-tool:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: -2px;
+}
+
+.contact-picker-tool:hover:not(:disabled) {
+  background: var(--hover);
+}

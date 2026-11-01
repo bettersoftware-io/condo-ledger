@@ -138,6 +138,32 @@ describe("the building data presenter", () => {
     stop();
   });
 
+  it("removes a supplier link and keeps the contact; the sheet moves to the first supplier left", async () => {
+    const { buildingData, view, harness, stop } = createPresented();
+
+    buildingData.select("c19");
+    buildingData.selectSupplier("md80");
+
+    expect(await buildingData.removeSupplier("c19", "md80")).toEqual({
+      ok: true,
+    });
+
+    expect(
+      view().suppliers.some((supplier) => {
+        return supplier.id === "md80";
+      }),
+    ).toBe(false);
+    expect(view().suppliers).toHaveLength(11);
+    expect(view().supplier?.id).toBe("md86");
+    expect(
+      harness.seed.contacts.some((contact) => {
+        return contact.id === "md80";
+      }),
+    ).toBe(true);
+
+    stop();
+  });
+
   it("follows a period's edit in its row and in the sidebar's tree; its figures, wholly allocated, stay", async () => {
     const { harness, buildingData, view, stop } = createPresented();
     const { figures } = rowOf(view(), "p36");

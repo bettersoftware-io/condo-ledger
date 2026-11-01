@@ -555,8 +555,10 @@ function BuildingTabsPart(): ReactElement {
       onResizeSuppliers={ignoreClose}
       onSetSuppliersRatio={ignoreClose}
       onEditBuilding={ignoreClose}
+      onAddSupplier={ignoreClose}
+      onEditSupplier={ignoreClose}
+      onRemoveSupplier={ignoreClose}
       onStub={ignoreClose}
-      onSay={ignoreClose}
     />
   );
 }

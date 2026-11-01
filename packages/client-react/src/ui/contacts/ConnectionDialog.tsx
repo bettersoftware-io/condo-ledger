@@ -108,6 +108,7 @@ function ConnectionDialogBody({
         contacts={contacts}
         value={form.connectedId}
         fixed={false}
+        creating={false}
         onChange={editContact}
       />
       <FormField label="Relationship" required>

@@ -69,6 +69,8 @@ export interface BuildingDataPresenter {
   /** Selects a row by its key; a period's row also makes it the app's period. */
   select: (key: string) => void;
   selectSupplier: (contactId: string) => void;
+  /** Unlinks a supplier from the building; the contact stays. */
+  removeSupplier: (buildingId: string, contactId: string) => Promise<Result>;
   editBuilding: (buildingId: string, draft: BuildingDraft) => Promise<Result>;
   editPeriod: (periodId: string, draft: PeriodDraft) => Promise<Result>;
   /** The period with its building, units and residents as they stand; throws for a period the tree does not hold. */
@@ -175,6 +177,12 @@ export function createBuildingDataPresenter(
     },
     selectSupplier: (contactId: string): void => {
       chosenSupplier$.next(contactId);
+    },
+    removeSupplier: (
+      buildingId: string,
+      contactId: string,
+    ): Promise<Result> => {
+      return ports.buildings.removeSupplier(buildingId, contactId);
     },
     editBuilding: (
       buildingId: string,

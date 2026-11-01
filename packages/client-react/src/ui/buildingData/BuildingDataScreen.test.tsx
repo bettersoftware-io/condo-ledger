@@ -1,9 +1,17 @@
 import { describe, expect, it } from "vitest";
 
-import { type ContactView, type LegacySeed, loadLegacySeed } from "@cl/domain";
+import {
+  type ContactRow,
+  type ContactView,
+  type LegacySeed,
+  loadLegacySeed,
+} from "@cl/domain";
 import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
 
-import { mountBuildingData } from "./BuildingDataScreen.page.tsx";
+import {
+  type BuildingDataScreenPage,
+  mountBuildingData,
+} from "./BuildingDataScreen.page.tsx";
 
 describe("BuildingDataScreen", () => {
   it("draws the panel with its count of buildings and the design's headers", () => {
@@ -164,8 +172,8 @@ describe("BuildingDataScreen", () => {
     );
     expect(page.sheetValue("Contact type")).toBe("👤 Person");
     expect(page.sheetValue("Company name")).toBe("---");
-    expect(page.sheetValue("Phone")).toBe("---");
-    expect(page.sheetValue("Email")).toBe("---");
+    expect(page.sheetLabels()).not.toContain("Phone");
+    expect(page.sheetLabels()).not.toContain("Email");
   });
 
   it("an archived supplier reads Archived, and its tax domicile shows", async () => {
@@ -188,19 +196,135 @@ describe("BuildingDataScreen", () => {
     expect(page.sheetGroups()).toEqual([]);
   });
 
-  it("the suppliers' tools say that suppliers are edited in Contacts", async () => {
+  it("the suppliers' tools no longer say that suppliers are edited in Contacts", async () => {
     const page = mountBuildingData("p36");
 
     await page.activateTab("Building Suppliers");
     await page.tabs.clickTool("Add supplier");
+    await page.dialog.cancel();
     await page.tabs.clickTool("Edit supplier");
+    await page.dialog.cancel();
+
+    expect(page.toasts()).toEqual([]);
+  });
+
+  it("+ adds a chosen contact to the suppliers, and the contact picker offers its New and Edit buttons", async () => {
+    const page = mountBuildingData("p36");
+    const added = firstContactOutsideSuppliers(page);
+
+    await page.activateTab("Building Suppliers");
+    await page.tabs.clickTool("Add supplier");
+
+    expect(page.dialog.title()).toBe("Add Supplier");
+    expect(page.dialog.saveLabel()).toBe("+ Add");
+    expect(page.dialog.requiredUnannounced()).toEqual([]);
+    expect(page.dialog.pickerTools()).toEqual([
+      "New company",
+      "New person",
+      "Edit contact",
+      "Clear",
+    ]);
+    expect(page.dialog.isSaveDisabled()).toBe(true);
+
+    await page.dialog.fill("Contact", added);
+    await page.dialog.chooseContact(added);
+    await page.dialog.save();
+
+    expect(page.dialog.isShown()).toBe(false);
+    expect(page.supplierNames()).toContain(added);
+    expect(page.tabs.grid.rowLabels()).toContain(added);
+  });
+
+  it("a contact that is already a supplier is refused by name", async () => {
+    const page = mountBuildingData("p36");
+    const supplier = page.supplierAt(0).name;
+
+    await page.activateTab("Building Suppliers");
+    await page.tabs.clickTool("Add supplier");
+    await page.dialog.fill("Contact", supplier);
+    await page.dialog.chooseContact(supplier);
+
+    expect(page.dialog.message()).toBe(
+      `${supplier} is already a supplier of this building`,
+    );
+    expect(page.dialog.isSaveDisabled()).toBe(true);
+  });
+
+  it("a company made from Add Supplier is chosen, and added as a supplier", async () => {
+    const page = mountBuildingData("p36");
+
+    await page.activateTab("Building Suppliers");
+    await page.tabs.clickTool("Add supplier");
+    await page.dialog.clickPickerTool("New company");
+    await page.contactDialog.fill("Company name", "Zzyzx Srl");
+    await page.contactDialog.save();
+
+    expect(page.dialog.fieldValue("Contact")).toBe("Zzyzx Srl");
+
+    await page.dialog.save();
+
+    expect(page.supplierNames()).toContain("Zzyzx Srl");
+  });
+
+  it("✎ opens Edit Company on the selected supplier, and a rename is in the list", async () => {
+    const page = mountBuildingData("p36");
+    const company = page.supplierAt(0);
+
+    expect(company.kind).toBe("company");
+
+    await page.activateTab("Building Suppliers");
+    await page.tabs.grid.clickRow(company.name);
+    await page.tabs.clickTool("Edit supplier");
+
+    expect(page.dialog.title()).toBe("Edit Company");
+
+    await page.dialog.fill("Company name", "Zzyzx Srl");
+    await page.dialog.save();
+
+    expect(page.dialog.isShown()).toBe(false);
+    expect(page.supplierNames()).toContain("Zzyzx Srl");
+    expect(page.tabs.grid.rowLabels()).toContain("Zzyzx Srl");
+  });
+
+  it("✎ and − wait for a supplier to be selected", async () => {
+    const page = mountBuildingData("p1", createSeedWithoutSaturnoSuppliers());
+
+    await page.activateTab("Building Suppliers");
+
+    expect(page.tabs.isToolDisabled("Edit supplier")).toBe(true);
+    expect(page.tabs.isToolDisabled("Remove supplier")).toBe(true);
+    expect(page.tabs.isToolDisabled("Add supplier")).toBe(false);
+  });
+
+  it("− asks, then removes the link and leaves the contact in Contacts", async () => {
+    const page = mountBuildingData("p36");
+    const { name } = page.supplierAt(0);
+
+    await page.activateTab("Building Suppliers");
+    await page.tabs.grid.clickRow(name);
     await page.tabs.clickTool("Remove supplier");
 
-    expect(page.toasts()).toEqual([
-      "Suppliers are edited in Contacts, which is not yet available.",
-      "Suppliers are edited in Contacts, which is not yet available.",
-      "Suppliers are edited in Contacts, which is not yet available.",
-    ]);
+    expect(page.confirmText()).toBe(
+      `Remove ${name} from this building's suppliers?`,
+    );
+
+    await page.confirmYes();
+
+    expect(page.confirmText()).toBeNull();
+    expect(page.supplierNames()).not.toContain(name);
+    expect(page.tabs.grid.rowLabels()).not.toContain(name);
+    expect(page.hasContactNamed(name)).toBe(true);
+  });
+
+  it("the supplier's sheet shows every contact row, in order, a Fax among them, the email in the accent", async () => {
+    const page = mountBuildingData("p36", createSeedWithSupplierRows());
+
+    await page.activateTab("Building Suppliers");
+
+    expect(page.sheetLabels().slice(-3)).toEqual(["Office", "Fax", "Email"]);
+    expect(page.sheetValue("Office")).toBe("0432 000001");
+    expect(page.sheetValue("Fax")).toBe("0432 000002");
+    expect(page.sheetValue("Email")).toBe("zzyzx@example.test");
   });
 
   it("+▾ offers New building and New period, which say so, as − does", async () => {
@@ -325,6 +449,51 @@ function createSeedWithoutSaturnoSuppliers(): LegacySeed {
       return link.buildingId !== "c1";
     }),
   };
+}
+
+/** The real seed, Pozzetto's first supplier given a fax between its phone and its email, listed out of order. */
+function createSeedWithSupplierRows(): LegacySeed {
+  const seed = loadLegacySeed(legacySeedData);
+
+  return {
+    ...seed,
+    contacts: seed.contacts.map((contact) => {
+      return contact.id === "md86"
+        ? {
+            ...contact,
+            rows: [
+              createRow("mr-t3", "email", "Email", "zzyzx@example.test", 3),
+              createRow("mr-t2", "phone", "Fax", "0432 000002", 2),
+              createRow("mr-t1", "phone", "Office", "0432 000001", 1),
+            ],
+          }
+        : contact;
+    }),
+  };
+}
+
+function createRow(
+  id: string,
+  type: ContactRow["type"],
+  label: string,
+  value: string,
+  order: number,
+): ContactRow {
+  return { id, type, label, value, order };
+}
+
+/** The name of an active contact that is not a supplier of the building shown. */
+function firstContactOutsideSuppliers(page: BuildingDataScreenPage): string {
+  const suppliers = page.supplierNames();
+  const name = page.contactNames().find((candidate) => {
+    return !suppliers.includes(candidate);
+  });
+
+  if (name === undefined) {
+    throw new Error("missing: a contact that is not a supplier");
+  }
+
+  return name;
 }
 
 function firstPhoneOf(supplier: ContactView): string | null {

@@ -66,6 +66,12 @@ export interface UnitsScreenPage {
   dialog: FormDialogPage;
   /** The Address dialog over the group dialog. */
   addressDialog: FormDialogPage;
+  /** The New or Edit Person or Company dialog over the owner dialog. */
+  contactDialog: FormDialogPage;
+  /** The Add Contact dialog over the person or company one. */
+  rowDialog: FormDialogPage;
+  /** Whether the contacts hold one with this name, as the picker offers them. */
+  hasContactNamed: (name: string) => boolean;
   /** The question asked before a delete; null while none is asked. */
   confirmText: () => string | null;
   /** Why the delete did not go through, under the question; null when nothing failed. */
@@ -310,6 +316,33 @@ export function mountUnits(
       user,
       "stacked",
     ),
+    contactDialog: formDialogIn(
+      () => {
+        return rendered.container;
+      },
+      user,
+      "stacked",
+    ),
+    rowDialog: formDialogIn(
+      () => {
+        return rendered.container;
+      },
+      user,
+      "third",
+    ),
+    hasContactNamed: (name: string): boolean => {
+      let found = false;
+
+      app.presenters.units.contacts$
+        .subscribe((all) => {
+          found = all.some((contact) => {
+            return contact.name === name;
+          });
+        })
+        .unsubscribe();
+
+      return found;
+    },
     confirmText: (): string | null => {
       return rendered.queryByTestId(TESTIDS.confirmText)?.textContent ?? null;
     },

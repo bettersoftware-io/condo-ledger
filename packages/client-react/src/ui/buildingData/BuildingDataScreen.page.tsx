@@ -64,6 +64,19 @@ export interface BuildingDataScreenPage {
   dialog: FormDialogPage;
   /** The Address dialog over it. */
   addressDialog: FormDialogPage;
+  /** The person or company dialog over the Add Supplier dialog, or opened by ✎ on the screen. */
+  contactDialog: FormDialogPage;
+  /** The labels of the sheet's rows, in the order drawn. */
+  sheetLabels: () => string[];
+  /** The names of the building's suppliers, as listed. */
+  supplierNames: () => string[];
+  /** The names of the active contacts, the ones a picker offers. */
+  contactNames: () => string[];
+  /** Whether the contacts hold one with this name. */
+  hasContactNamed: (name: string) => boolean;
+  /** The question asked before a supplier is removed; null while none is. */
+  confirmText: () => string | null;
+  confirmYes: () => Promise<void>;
 }
 
 /**
@@ -128,6 +141,19 @@ export function mountBuildingData(
     }
 
     return row;
+  }
+
+  // The simulator answers at once, whether or not the screen reads the contacts yet.
+  function contactsNow(): ContactView[] {
+    let contacts: ContactView[] = [];
+
+    app.presenters.units.contacts$
+      .subscribe((all) => {
+        contacts = all;
+      })
+      .unsubscribe();
+
+    return contacts;
   }
 
   function suppliers(): HTMLElement {
@@ -298,6 +324,47 @@ export function mountBuildingData(
       user,
       "stacked",
     ),
+    contactDialog: formDialogIn(
+      () => {
+        return rendered.container;
+      },
+      user,
+      "stacked",
+    ),
+    sheetLabels: (): string[] => {
+      return Array.from(tabs().querySelectorAll(".scheda-label")).map(
+        (label) => {
+          return label.textContent ?? "";
+        },
+      );
+    },
+    supplierNames: (): string[] => {
+      return app.presenters.buildingData.view$
+        .getValue()
+        .suppliers.map((supplier) => {
+          return supplier.name;
+        });
+    },
+    contactNames: (): string[] => {
+      return contactsNow()
+        .filter((contact) => {
+          return contact.status === "active";
+        })
+        .map((contact) => {
+          return contact.name;
+        });
+    },
+    hasContactNamed: (name: string): boolean => {
+      return contactsNow().some((contact) => {
+        return contact.name === name;
+      });
+    },
+    confirmText: (): string | null => {
+      return rendered.queryByTestId(TESTIDS.confirmText)?.textContent ?? null;
+    },
+    confirmYes: async (): Promise<void> => {
+      await user.click(rendered.getByTestId(TESTIDS.confirmYes));
+    },
   };
 }
 

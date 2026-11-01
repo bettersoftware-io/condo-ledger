@@ -369,6 +369,162 @@ describe("the Units screen's dialogs", () => {
     expect(page.labelOf("resident:r-new-1")).toContain(name);
   });
 
+  it("Add Owner draws New company, New person, Edit contact and Clear; Edit and Clear wait for a contact", async () => {
+    const page = mountUnits("p1");
+    const name = page.contactName("md17");
+
+    await page.units.grid.clickRow(page.labelOf("unit:u3"));
+    await page.tabs.clickTool("Add owner");
+
+    expect(page.dialog.pickerTools()).toEqual([
+      "New company",
+      "New person",
+      "Edit contact",
+      "Clear",
+    ]);
+    expect(page.dialog.isPickerToolDisabled("New company")).toBe(false);
+    expect(page.dialog.isPickerToolDisabled("New person")).toBe(false);
+    expect(page.dialog.isPickerToolDisabled("Edit contact")).toBe(true);
+    expect(page.dialog.isPickerToolDisabled("Clear")).toBe(true);
+
+    await page.dialog.fill("Linked contact", name);
+    await page.dialog.chooseContact(name);
+
+    expect(page.dialog.isPickerToolDisabled("Edit contact")).toBe(false);
+    expect(page.dialog.isPickerToolDisabled("Clear")).toBe(false);
+
+    await page.dialog.clickPickerTool("Clear");
+
+    expect(page.dialog.fieldValue("Linked contact")).toBe("");
+    expect(page.dialog.isPickerToolDisabled("Clear")).toBe(true);
+  });
+
+  it("Edit Owner offers Edit contact and not New", async () => {
+    const page = mountUnits("p36");
+
+    await page.units.grid.clickRow(page.labelOf("resident:r166"));
+    await page.activateTab("Unit Owners");
+    await page.tabs.clickTool("Edit owner");
+
+    expect(page.dialog.pickerTools()).toEqual(["Edit contact"]);
+    expect(page.dialog.isPickerToolDisabled("Edit contact")).toBe(false);
+  });
+
+  it("New person, saved from Add Owner, is the contact chosen in the field", async () => {
+    const page = mountUnits("p1");
+
+    await page.units.grid.clickRow(page.labelOf("unit:u3"));
+    await page.tabs.clickTool("Add owner");
+    await page.dialog.clickPickerTool("New person");
+
+    expect(page.contactDialog.title()).toBe("New Person");
+
+    await page.contactDialog.fill("Last name", "Zzyzx");
+    await page.contactDialog.fill("First name", "Zeno");
+    await page.contactDialog.save();
+
+    expect(page.contactDialog.isShown()).toBe(false);
+    expect(page.dialog.title()).toBe("Add Owner");
+    expect(page.dialog.fieldValue("Linked contact")).toBe("Zzyzx Zeno");
+    expect(page.dialog.focused()).toBe("New person");
+  });
+
+  it("New company, saved from Add Owner, is chosen too", async () => {
+    const page = mountUnits("p1");
+
+    await page.units.grid.clickRow(page.labelOf("unit:u3"));
+    await page.tabs.clickTool("Add owner");
+    await page.dialog.clickPickerTool("New company");
+
+    expect(page.contactDialog.title()).toBe("New Company");
+
+    await page.contactDialog.fill("Company name", "Zzyzx Srl");
+    await page.contactDialog.save();
+
+    expect(page.dialog.fieldValue("Linked contact")).toBe("Zzyzx Srl");
+  });
+
+  it("Cancel on the New Person dialog changes nothing", async () => {
+    const page = mountUnits("p1");
+
+    await page.units.grid.clickRow(page.labelOf("unit:u3"));
+    await page.tabs.clickTool("Add owner");
+    await page.dialog.clickPickerTool("New person");
+    await page.contactDialog.fill("Last name", "Zzyzx");
+    await page.contactDialog.cancel();
+
+    expect(page.contactDialog.isShown()).toBe(false);
+    expect(page.dialog.fieldValue("Linked contact")).toBe("");
+    expect(page.hasContactNamed("Zzyzx")).toBe(false);
+  });
+
+  it("a person saved from Add Owner stays a contact when the owner is cancelled, and no owner is added", async () => {
+    const page = mountUnits("p1");
+
+    await page.units.grid.clickRow(page.labelOf("unit:u3"));
+
+    const before = page.units.grid.rowLabels();
+
+    await page.tabs.clickTool("Add owner");
+    await page.dialog.clickPickerTool("New person");
+    await page.contactDialog.fill("Last name", "Zzyzx");
+    await page.contactDialog.save();
+    await page.dialog.cancel();
+
+    expect(page.dialog.isShown()).toBe(false);
+    expect(page.hasContactNamed("Zzyzx")).toBe(true);
+    expect(page.units.grid.rowLabels()).toEqual(before);
+    expect(page.dialog.focused()).toBe("Add owner");
+  });
+
+  it("Edit contact opens on the chosen contact, and a rename shows in the field", async () => {
+    const page = mountUnits("p1");
+    const name = page.contactName("md59");
+
+    await page.units.grid.clickRow(page.labelOf("unit:u3"));
+    await page.tabs.clickTool("Add owner");
+    await page.dialog.fill("Linked contact", name);
+    await page.dialog.chooseContact(name);
+    await page.dialog.clickPickerTool("Edit contact");
+
+    expect(page.contactDialog.title()).toBe("Edit Person");
+
+    await page.contactDialog.fill("Last name", "Zzyzx");
+    await page.contactDialog.save();
+
+    expect(page.contactDialog.isShown()).toBe(false);
+    expect(page.dialog.fieldValue("Linked contact")).toContain("Zzyzx");
+    expect(page.dialog.fieldValue("Linked contact")).not.toBe(name);
+  });
+
+  it("Escape closes only the dialog on top, and the focus goes back to the button that opened it, down the whole chain", async () => {
+    const page = mountUnits("p1");
+
+    await page.units.grid.clickRow(page.labelOf("unit:u3"));
+    await page.tabs.clickTool("Add owner");
+    await page.dialog.clickPickerTool("New person");
+    await page.contactDialog.clickButton("Add contact row");
+
+    expect(page.rowDialog.title()).toBe("Add Contact");
+
+    await page.dialog.pressEscape();
+
+    expect(page.rowDialog.isShown()).toBe(false);
+    expect(page.contactDialog.isShown()).toBe(true);
+    expect(page.dialog.focused()).toBe("Add contact row");
+
+    await page.dialog.pressEscape();
+
+    expect(page.contactDialog.isShown()).toBe(false);
+    expect(page.dialog.isShown()).toBe(true);
+    expect(page.dialog.focused()).toBe("New person");
+
+    await page.dialog.pressEscape();
+
+    expect(page.dialog.isShown()).toBe(false);
+    expect(page.dialog.focused()).toBe("Add owner");
+  });
+
   it("says when no contact matches, and refuses a contact who already lives in the unit until another is typed", async () => {
     const page = mountUnits("p1");
     const name = page.contactName("md7");

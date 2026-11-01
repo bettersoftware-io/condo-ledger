@@ -46,6 +46,7 @@ export type {
   ContactDialogSpec,
   ContactDialogState,
   ContactRowDialogState,
+  SupplierDialogState,
 } from "./machines/contactDialogMachines.ts";
 export type { DialogIntents } from "./machines/formDialog.ts";
 export type {

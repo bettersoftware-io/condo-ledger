@@ -18,10 +18,10 @@ import "./BuildingSuppliers.css";
 /**
  * The Building Suppliers tab: the building's suppliers, `Name / Company |
  * Contact category`, beside the selected one's sheet (its kind, status and
- * code; COMPANY DATA; CONTACTS, the email in the accent), split by a
- * splitter whose ratio reaches the stylesheet as `--suppliers-split`,
- * written in an effect. A click selects a supplier. Read only: suppliers are
- * edited in Contacts. Takes only props, so the compiler memoizes it.
+ * code; COMPANY DATA; CONTACTS, every row of the contact by its order, the
+ * email in the accent), split by a splitter whose ratio reaches the
+ * stylesheet as `--suppliers-split`, written in an effect. A click selects a
+ * supplier. Takes only props, so the compiler memoizes it.
  */
 export function BuildingSuppliers({
   suppliers,
@@ -136,27 +136,26 @@ function SupplierSheet({ supplier }: SupplierSheetProps): ReactElement {
         />
       </Fieldset>
       <Fieldset legend="CONTACTS">
-        <SheetField label="Phone" value={firstRowOf(contact.rows, "phone")} />
-        <SheetField
-          label="Email"
-          value={firstRowOf(contact.rows, "email")}
-          tone="accent"
-        />
+        {byOrder(contact.rows).map((row) => {
+          return (
+            <SheetField
+              key={row.id}
+              label={row.label}
+              value={row.value}
+              tone={row.type === "email" ? "accent" : undefined}
+            />
+          );
+        })}
       </Fieldset>
     </Scheda>
   );
 }
 
-/** The value of the contact's first row of the type; null when it has none. */
-function firstRowOf(
-  rows: ContactRow[],
-  type: ContactRow["type"],
-): string | null {
-  return (
-    rows.find((row) => {
-      return row.type === type;
-    })?.value ?? null
-  );
+/** The contact's rows by their order, the list itself left as it is. */
+function byOrder(rows: ContactRow[]): ContactRow[] {
+  return [...rows].sort((a, b) => {
+    return a.order - b.order;
+  });
 }
 
 function rowDataOf(

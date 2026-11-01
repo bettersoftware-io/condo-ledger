@@ -1,12 +1,19 @@
 import { type ReactElement, useEffect, useRef, useState } from "react";
 
-import type { MaximizeIntents, MaximizeState } from "@cl/client-core";
-import type { BuildingRow } from "@cl/domain";
+import type {
+  ContactDialogSpec,
+  MaximizeIntents,
+  MaximizeState,
+} from "@cl/client-core";
+import type { BuildingRow, ContactView } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 import { type MachineView, useViewModel } from "@cl/react-bindings";
 
+import { ConfirmAlert } from "../ConfirmAlert.tsx";
+import { ContactDialog } from "../contacts/ContactDialog.tsx";
 import { Splitter } from "../shell/Splitter.tsx";
 import { TESTIDS } from "../testids.ts";
+import { useDialogWrite } from "../useDialogWrite.ts";
 import { BuildingDataPanel } from "./BuildingDataPanel.tsx";
 import { BuildingDialog } from "./BuildingDialog.tsx";
 import { BuildingTabs } from "./BuildingTabs.tsx";
@@ -16,6 +23,7 @@ import {
 } from "./columns.ts";
 import { BUILDING_TABS } from "./labels.ts";
 import { PeriodDialog } from "./PeriodDialog.tsx";
+import { SupplierDialog } from "./SupplierDialog.tsx";
 
 import "./BuildingDataScreen.css";
 
@@ -28,7 +36,8 @@ import "./BuildingDataScreen.css";
  * the stylesheet as `--split-ratio`, written in an effect. Which dialog is
  * open is this screen's own state: the top ✎ edits the selected building or
  * period, the profile's ✎ its building; each closes when its write is
- * accepted.
+ * accepted. On the suppliers tab `+` opens Add Supplier, ✎ the selected
+ * supplier's own dialog and − asks before it unlinks the supplier.
  */
 export function BuildingDataScreen({
   maximize,
@@ -41,19 +50,20 @@ export function BuildingDataScreen({
     useBottomTab,
     useNotices,
   } = useViewModel();
-  const { view, select, selectSupplier } = useBuildingData();
+  const { view, select, selectSupplier, removeSupplier } = useBuildingData();
   const grid = useBuildingDataGrid();
   const columns = useColumns("buildingData", BUILDING_DATA_COLUMN_SPECS);
   const suppliersColumns = useColumns("suppliers", SUPPLIERS_COLUMN_SPECS);
   const split = useSplit("buildingData");
   const suppliersSplit = useSplit("suppliers");
   const tabs = useBottomTab("buildingData", BUILDING_TABS);
-  const { stub, say } = useNotices();
+  const { stub } = useNotices();
   const [dialog, setDialog] = useState<BuildingDataDialog | null>(null);
+  const removing = useDialogWrite(closeDialog, "the supplier was not removed");
   const screen = useRef<HTMLDivElement>(null);
   const ratio = split.state.ratio;
   const maximized = maximize.state.maximized;
-  const { selected, building } = view;
+  const { selected, building, supplier } = view;
 
   useEffect(() => {
     screen.current?.style.setProperty("--split-ratio", String(ratio));
@@ -86,6 +96,35 @@ export function BuildingDataScreen({
       kind: "building",
       id: must(building, "the building to edit").id,
     });
+  }
+
+  function addSupplier(): void {
+    setDialog({ kind: "addSupplier", id: must(building, "the building").id });
+  }
+
+  /** The tab's ✎: it is enabled only with a supplier shown. */
+  function editSupplier(): void {
+    const { kind, contact } = must(supplier, "the supplier to edit");
+
+    setDialog({ kind: "editSupplier", spec: { kind, editing: contact } });
+  }
+
+  /** The tab's −: it is enabled only with a supplier shown. */
+  function askRemoveSupplier(): void {
+    setDialog({
+      kind: "removeSupplier",
+      buildingId: must(building, "the building").id,
+      supplier: must(supplier, "the supplier to remove"),
+    });
+  }
+
+  // The port refuses no removal: only a link it does not have makes it reject.
+  function removalOf(buildingId: string, contactId: string): () => void {
+    return (): void => {
+      removing.run(() => {
+        return removeSupplier(buildingId, contactId);
+      });
+    };
   }
 
   return (
@@ -127,8 +166,10 @@ export function BuildingDataScreen({
           onResizeSuppliers={suppliersColumns.resize}
           onSetSuppliersRatio={suppliersSplit.setRatio}
           onEditBuilding={editBuilding}
+          onAddSupplier={addSupplier}
+          onEditSupplier={editSupplier}
+          onRemoveSupplier={askRemoveSupplier}
           onStub={stub}
-          onSay={say}
         />
       </div>
       {dialog?.kind === "building" ? (
@@ -145,6 +186,30 @@ export function BuildingDataScreen({
           onCancel={closeDialog}
         />
       ) : null}
+      {dialog?.kind === "addSupplier" ? (
+        <SupplierDialog
+          buildingId={dialog.id}
+          onSaved={closeDialog}
+          onCancel={closeDialog}
+        />
+      ) : null}
+      {dialog?.kind === "editSupplier" ? (
+        <ContactDialog
+          spec={dialog.spec}
+          // Editing adds no contact: the id of one added would be a supplier to select.
+          onAdded={selectSupplier}
+          onSaved={closeDialog}
+          onCancel={closeDialog}
+        />
+      ) : null}
+      {dialog?.kind === "removeSupplier" ? (
+        <ConfirmAlert
+          text={`Remove ${dialog.supplier.name} from this building's suppliers?`}
+          error={null}
+          onYes={removalOf(dialog.buildingId, dialog.supplier.id)}
+          onNo={closeDialog}
+        />
+      ) : null}
     </div>
   );
 }
@@ -154,11 +219,11 @@ export interface BuildingDataScreenProps {
   maximize: MachineView<MaximizeState, MaximizeIntents>;
 }
 
-/** The dialog over the screen: Edit Building or Edit Management / Period, on the record's id. */
-interface BuildingDataDialog {
-  kind: "building" | "period";
-  id: string;
-}
+/** The dialog over the screen: Edit Building or Edit Management / Period on the record's id, Add Supplier on the building's, a supplier's own, or the question before one is removed. */
+type BuildingDataDialog =
+  | { kind: "building" | "period" | "addSupplier"; id: string }
+  | { kind: "editSupplier"; spec: ContactDialogSpec }
+  | { kind: "removeSupplier"; buildingId: string; supplier: ContactView };
 
 /** What the top ✎ opens on a row: its building, or its period. */
 function dialogOf(row: BuildingRow): BuildingDataDialog {

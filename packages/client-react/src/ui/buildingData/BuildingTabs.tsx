@@ -12,7 +12,7 @@ import { ToolbarDivider } from "../ToolbarDivider.tsx";
 import { TESTIDS } from "../testids.ts";
 import { BuildingProfile } from "./BuildingProfile.tsx";
 import { BuildingSuppliers } from "./BuildingSuppliers.tsx";
-import { BUILDING_TABS, SUPPLIERS_NOTICE } from "./labels.ts";
+import { BUILDING_TABS } from "./labels.ts";
 
 import "./BuildingTabs.css";
 
@@ -20,7 +20,8 @@ import "./BuildingTabs.css";
  * The Building Data screen's bottom panel: the selected row's building, its
  * Building Profile and Building Suppliers tabs under one toolbar. On the
  * profile ✎ edits the building, and `+` and − post their notice; on the
- * suppliers `+`, ✎ and − say that suppliers are edited in Contacts. Print,
+ * suppliers `+` adds one, ✎ edits the selected one and − removes it, the last
+ * two waiting for a supplier. Print,
  * export and the Legend post their notice. With no building the tabs say
  * "Select a building.". Takes only props, so the compiler memoizes it.
  */
@@ -36,8 +37,10 @@ export function BuildingTabs({
   onResizeSuppliers,
   onSetSuppliersRatio,
   onEditBuilding,
+  onAddSupplier,
+  onEditSupplier,
+  onRemoveSupplier,
   onStub,
-  onSay,
 }: BuildingTabsProps): ReactElement {
   const onSuppliers = active === "Building Suppliers";
 
@@ -45,10 +48,6 @@ export function BuildingTabs({
     return (): void => {
       onStub(label);
     };
-  }
-
-  function sayingSuppliers(): void {
-    onSay(SUPPLIERS_NOTICE);
   }
 
   return (
@@ -68,21 +67,23 @@ export function BuildingTabs({
                   icon="+"
                   tone="ok"
                   iconOnly
-                  onClick={sayingSuppliers}
+                  onClick={onAddSupplier}
                 />
                 <ToolbarButton
                   label="Edit supplier"
                   icon="✎"
                   tone="muted"
                   iconOnly
-                  onClick={sayingSuppliers}
+                  disabled={supplier === null}
+                  onClick={onEditSupplier}
                 />
                 <ToolbarButton
                   label="Remove supplier"
                   icon="−"
                   tone="neg"
                   iconOnly
-                  onClick={sayingSuppliers}
+                  disabled={supplier === null}
+                  onClick={onRemoveSupplier}
                 />
               </>
             ) : (
@@ -179,8 +180,12 @@ export interface BuildingTabsProps {
   onSetSuppliersRatio: (ratio: number) => void;
   /** Opens Edit Building on the building shown. */
   onEditBuilding: () => void;
+  /** Opens Add Supplier on the building shown. */
+  onAddSupplier: () => void;
+  /** Opens Edit Person or Company on the selected supplier. */
+  onEditSupplier: () => void;
+  /** Asks before the selected supplier is removed. */
+  onRemoveSupplier: () => void;
   /** A tool that is not built yet, by name. */
   onStub: (label: string) => void;
-  /** A notice in its own words. */
-  onSay: (text: string) => void;
 }

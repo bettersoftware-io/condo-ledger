@@ -17,6 +17,10 @@ export interface ContactPickerPage {
   type: (text: string) => Promise<void>;
   /** The names the picker offers under the box. */
   offered: () => string[];
+  /** The buttons drawn beside the field, in order; none when it does not create. */
+  tools: () => string[];
+  isToolDisabled: (name: string) => boolean;
+  clickTool: (name: string) => Promise<void>;
   /** Draws the picker again with these props, as its dialog does. */
   rerender: (next: Partial<ContactPickerProps>) => void;
 }
@@ -45,6 +49,22 @@ export function mountContactPicker(
             option.querySelector(".contact-picker-name")?.textContent ?? ""
           );
         });
+    },
+    tools: (): string[] => {
+      return screen
+        .queryAllByRole("button")
+        .filter((button) => {
+          return button.closest(".contact-picker-tools") !== null;
+        })
+        .map((button) => {
+          return button.getAttribute("aria-label") ?? "";
+        });
+    },
+    isToolDisabled: (name: string): boolean => {
+      return screen.getByRole<HTMLButtonElement>("button", { name }).disabled;
+    },
+    clickTool: async (name: string): Promise<void> => {
+      await user.click(screen.getByRole("button", { name }));
     },
     rerender: (next: Partial<ContactPickerProps>): void => {
       rendered.rerender(
@@ -76,6 +96,7 @@ function withDefaults(props: Partial<ContactPickerProps>): ContactPickerProps {
     contacts: [],
     value: null,
     fixed: false,
+    creating: false,
     onChange: vi.fn(),
     ...props,
   };
