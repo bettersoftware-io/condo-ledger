@@ -88,6 +88,33 @@ describe("the seed's contacts", () => {
     expect(new Set(seed.salutations).size).toBe(9);
   });
 
+  it("lists the salutations most used first", () => {
+    const held = new Map<string, number>();
+
+    for (const contact of seed.contacts) {
+      if (contact.salutation !== null) {
+        held.set(contact.salutation, (held.get(contact.salutation) ?? 0) + 1);
+      }
+    }
+
+    const most = Math.max(...held.values());
+
+    expect(held.get(seed.salutations[0] ?? "")).toBe(most);
+    expect(
+      seed.salutations.map((salutation) => {
+        return held.get(salutation) ?? 0;
+      }),
+    ).toEqual(
+      seed.salutations
+        .map((salutation) => {
+          return held.get(salutation) ?? 0;
+        })
+        .sort((a, b) => {
+          return b - a;
+        }),
+    );
+  });
+
   it("gives every person a last name", () => {
     for (const contact of seed.contacts) {
       if (contact.kind === "person") {

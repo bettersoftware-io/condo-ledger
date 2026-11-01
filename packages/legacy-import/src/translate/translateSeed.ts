@@ -7,8 +7,8 @@ import { PATTERNS } from "./patterns.ts";
  * The seed with the legacy data's own words in English: account names and
  * abbreviations, entry descriptions, invoice reasons, installment, table,
  * unit group and withholding names, the notes of tables, buildings, periods,
- * units and groups, contact categories, salutations, row labels and relationships. Ids, amounts, cadastral data and
- * the names of people, firms, buildings and periods are left as they are. A
+ * units and groups, contact notes, categories, salutations, row labels and
+ * relationships. Ids, amounts, cadastral data and the names of people, firms, buildings and periods are left as they are. A
  * string with no exact entry and no pattern stops the generator, naming the
  * field and the record, so new legacy data is translated before it is
  * imported.
@@ -50,6 +50,7 @@ export function translateLegacySeed(data: LegacySeedData): LegacySeedData {
     contacts: data.contacts.map((contact) => {
       return {
         ...contact,
+        notes: englishOrNull(contact.notes, "contacts.notes", contact.id),
         salutation: englishOrNull(
           contact.salutation,
           "contacts.salutation",

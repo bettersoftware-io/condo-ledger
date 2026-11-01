@@ -241,6 +241,31 @@ describe("translateLegacySeed", () => {
     expect(seed.salutations).toEqual(["Dear Sir", "Dear Sir or Madam"]);
   });
 
+  it("translates a contact's note, keeps an empty one empty, and stops on an unknown one naming the record", () => {
+    const seed = translateLegacySeed(
+      createSeed({
+        contacts: [
+          createContact({ id: "md1", notes: "cvd" }),
+          createContact({ id: "md2", notes: "" }),
+          createContact({ id: "md3", notes: null }),
+        ],
+      }),
+    );
+
+    expect(
+      seed.contacts.map((contact) => {
+        return contact.notes;
+      }),
+    ).toEqual(["cvd", "", null]);
+    expect(() => {
+      return translateLegacySeed(
+        createSeed({
+          contacts: [createContact({ id: "md9", notes: "Chiamare lunedì" })],
+        }),
+      );
+    }).toThrow(/contacts\.notes of md9.*Chiamare lunedì/);
+  });
+
   it("stops on a row label it has no English for, naming the row", () => {
     expect(() => {
       return translateLegacySeed(

@@ -15787,7 +15787,7 @@ export const legacySeedData: LegacySeedData = {
       "vatNumber": "60523300329",
       "postalAddress": null,
       "language": null,
-      "notes": "Descrizione:nnLa nostra organizzazione offre i servizi di verifica e manutenzione di impianti di sicurezza; vendita, manutenzione e noleggio di apparecchiature antincendio, a norma DPR. 27.04.55 n. 547 a norma UNI 9994/92; consulenza e prevenzione incendi; vendita di materiale antinfortunistico, cartelli segnalatori e segnaletica aziendale; servizio di vigilanza antincendio; servizi di guardiania, biglietteria e cassa, portineria; servizi di pulizia.nnCategorie Merceologiche:nnEstintori - commercionnProdotti:nnestintorinestintori per la casanidrantinestintori per autonestintori per ufficionimpianti antincendionestintori per imbarcazioninestintori portatilinindumenti ignifughi",
+      "notes": "Description: Our organisation offers inspection and maintenance of safety systems; sale, maintenance and rental of fire-fighting equipment, in accordance with DPR 27.04.55 no. 547 and UNI 9994/92; fire prevention consulting; sale of workplace safety supplies, warning signs and company signage; fire watch service; concierge, ticket office and cashier services; cleaning services. Product categories: Fire extinguishers - trade. Products: fire extinguishers, home fire extinguishers, hydrants, car fire extinguishers, office fire extinguishers, fire-fighting systems, boat fire extinguishers, portable fire extinguishers, fireproof clothing.",
       "rows": [
         {
           "id": "mr35",
