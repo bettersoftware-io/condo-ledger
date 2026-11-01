@@ -1,4 +1,11 @@
-import { BehaviorSubject, type Observable } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  distinctUntilChanged,
+  map,
+  type Observable,
+  of,
+} from "rxjs";
 
 import { type Contact, nameOf } from "#/entities/contact.ts";
 import type { InstallmentItem } from "#/entities/installment.ts";
@@ -44,6 +51,8 @@ export interface UnitsReaders {
   entriesOf(periodId: string): JournalEntry[];
   itemsOf(periodId: string): InstallmentItem[];
   contactsOf(): Contact[];
+  /** The contacts as they change: a resident is read under its contact's name. */
+  contacts$(): Observable<Contact[]>;
   periodOf(periodId: string): PeriodDates;
 }
 
@@ -435,7 +444,12 @@ export function createUnitsSimulator(
 
       return state === undefined
         ? missingPeriod(periodId)
-        : state.residents$.asObservable();
+        : combineLatest([state.residents$, readers.contacts$()]).pipe(
+            map(([residents, contacts]) => {
+              return named(residents, contacts);
+            }),
+            distinctUntilChanged(sameResidents),
+          );
     },
     addGroup: (
       periodId: string,
@@ -501,9 +515,48 @@ export function createUnitsSimulator(
       return stateOf(periodId).units$.getValue();
     },
     currentResidents: (periodId: string): OwnerParty[] => {
-      return stateOf(periodId).residents$.getValue();
+      return named(
+        stateOf(periodId).residents$.getValue(),
+        readers.contactsOf(),
+      );
     },
   };
+}
+
+/** The residents under their contacts' names; one whose contact is missing keeps the name it was held under. */
+function named(residents: OwnerParty[], contacts: Contact[]): OwnerParty[] {
+  const byId = new Map(
+    contacts.map((contact) => {
+      return [contact.id, contact];
+    }),
+  );
+
+  return residents.map((resident) => {
+    const contact = byId.get(resident.personId);
+
+    return contact === undefined || nameOf(contact) === resident.name
+      ? resident
+      : { ...resident, name: nameOf(contact) };
+  });
+}
+
+/** Whether two answers hold the same residents field for field: a write that changes no resident emits nothing more. */
+function sameResidents(before: OwnerParty[], after: OwnerParty[]): boolean {
+  return (
+    before.length === after.length &&
+    before.every((resident, index) => {
+      return sameFields(resident, after[index]);
+    })
+  );
+}
+
+function sameFields(left: OwnerParty, right: OwnerParty | undefined): boolean {
+  return (
+    right !== undefined &&
+    Object.entries(left).every(([key, value]) => {
+      return Object.is(value, Reflect.get(right, key));
+    })
+  );
 }
 
 /** The seed's journal, items, contacts and period dates: what the simulator judges against when nothing else is wired in. */
@@ -519,6 +572,9 @@ function seededReaders(seed: LegacySeed): UnitsReaders {
     },
     contactsOf: (): Contact[] => {
       return seed.contacts;
+    },
+    contacts$: (): Observable<Contact[]> => {
+      return of(seed.contacts);
     },
     periodOf: (periodId: string): PeriodDates => {
       const period = must(

@@ -887,6 +887,9 @@ export function createSimulatorPorts(
     contactsOf: (): Contact[] => {
       return contacts.currentContacts();
     },
+    contacts$: (): Observable<Contact[]> => {
+      return contacts.contacts();
+    },
     periodOf: (periodId: string): PeriodDates => {
       return datesOfPeriod(buildings.currentBuildings(), periodId);
     },
