@@ -27,6 +27,8 @@ export interface FormDialogPage {
   readOnlyValue: (label: string) => string;
   /** The reason the dialog shows in red, or null when it shows none. */
   message: () => string | null;
+  /** Whether the reason is in the footer, by the buttons, and not at the end of the fields. */
+  isMessageInFooter: () => boolean;
   /** The line under the previous balance, or null when there is none. */
   balanceNote: () => string | null;
   /** The contacts the picker offers for what was typed, by name. */
@@ -164,6 +166,13 @@ export function formDialogIn(
     },
     message: (): string | null => {
       return optional(TESTIDS.formDialogMessage);
+    },
+    isMessageInFooter: (): boolean => {
+      return (
+        dialog().querySelector(
+          `.dialog-footer [data-testid="${TESTIDS.formDialogMessage}"]`,
+        ) !== null
+      );
     },
     balanceNote: (): string | null => {
       return optional(TESTIDS.formDialogNote);

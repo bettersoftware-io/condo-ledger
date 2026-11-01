@@ -9,6 +9,8 @@ export interface ShellPage {
   breadcrumb: () => Promise<string[]>;
   /** Picks a management (a building's year) in the sidebar's tree. */
   selectManagement: (name: string) => Promise<void>;
+  /** Opens a module from the tabs over the screens: Calendar, Buildings or Contacts. */
+  openModule: (name: string) => Promise<void>;
   /** Opens a screen from the management menu. */
   openScreen: (name: string) => Promise<void>;
   toggleMode: () => Promise<void>;
@@ -42,6 +44,12 @@ export function createShellPage(page: Page): ShellPage {
       await page
         .getByRole("tree", { name: "Buildings" })
         .getByRole("treeitem", { name, exact: true })
+        .click();
+    },
+    openModule: async (name: string): Promise<void> => {
+      await page
+        .getByRole("tablist", { name: "Modules" })
+        .getByRole("tab", { name, exact: true })
         .click();
     },
     openScreen: async (name: string): Promise<void> => {

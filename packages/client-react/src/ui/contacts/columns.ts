@@ -38,9 +38,9 @@ export const CONNECTIONS_COLUMNS: TreeGridColumn[] = [
   { header: "VAT no." },
 ];
 
-/** The design's `50px 156px minmax(150px,1.3fr) 64px 40px 36px minmax(170px,1.5fr) 130px 104px`; the name is the flexible one. */
+/** The design's `50px 156px minmax(150px,1.3fr) 64px 40px 36px minmax(170px,1.5fr) 130px 104px`; the name is the flexible one, and the address takes the design's least width so that it has the room. */
 export const CONNECTIONS_COLUMN_SPECS: ColumnSpec[] = columnSpecsFrom(
-  [50, 156, 220, 92, 44, 44, 220, 130, 104],
+  [50, 156, 220, 92, 44, 44, 170, 130, 104],
   2,
   150,
   480,

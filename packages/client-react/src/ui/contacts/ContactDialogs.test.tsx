@@ -46,6 +46,8 @@ describe("the person and company dialogs", () => {
     await page.dialog.fill("Code", "ABCDEFGHIJKLMNOP");
 
     expect(page.dialog.message()).toBe("A code has at most 15 characters");
+    // The form is taller than the screen, so the reason is by the buttons.
+    expect(page.dialog.isMessageInFooter()).toBe(true);
     expect(page.dialog.isSaveDisabled()).toBe(true);
 
     const taken = page.list.rowTexts(page.list.rowLabels()[0] ?? "")[1] ?? "";

@@ -231,6 +231,7 @@ function ContactDialogBody({
       adding={adding}
       canSave={state.canSave && verdict.ok}
       message={reason === null ? null : contactReasonText(reason, "")}
+      messageInFooter
       onSave={onSave}
       onCancel={onCancel}
     >
