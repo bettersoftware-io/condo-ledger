@@ -13,6 +13,7 @@ import {
   rate,
   type ScheduleNode,
 } from "@cl/domain";
+import { must } from "@cl/domain/support/must.ts";
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 import type { ContactDraft } from "@cl/domain/useCases/contacts/validateContact.ts";
 import type { JournalEntryView } from "@cl/domain/useCases/journal.ts";
@@ -167,6 +168,7 @@ describe("a building's suppliers", () => {
       seed.invoices.find((invoice) => {
         return invoice.periodId === "p36";
       }),
+      "an invoice of p36",
     );
     const name = nameOfContact(seed.contacts, supplierId);
 
@@ -324,14 +326,6 @@ describe("a building's suppliers", () => {
   });
 });
 
-function must<T>(value: T | undefined): T {
-  if (value === undefined) {
-    throw new Error("the test's value is missing");
-  }
-
-  return value;
-}
-
 function booksOf(app: App): Books {
   const books = app.presenters.books.books$.getValue();
 
@@ -373,6 +367,7 @@ function contactLinkedNowhere(
     contacts.find((contact) => {
       return contact.kind === "company" && !linked.has(contact.id);
     }),
+    "a company linked nowhere",
   ).id;
 }
 
@@ -385,6 +380,7 @@ function nameOfContact(
       contacts.find((contact) => {
         return contact.id === contactId;
       }),
+      `the contact ${contactId}`,
     ),
   );
 }

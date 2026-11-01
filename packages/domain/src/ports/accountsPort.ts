@@ -13,7 +13,20 @@ import type { Result } from "#/entities/result.ts";
 export interface AccountsPort {
   /** Errors with "missing: the period <id>" for a period the port does not have. */
   accounts(periodId: string): Observable<Account[]>;
-  /** The building's suppliers, then the period's residents, whether or not a posting names them; emits again when the residents change. Errors as accounts() does. */
+  /**
+   * The period's suppliers, then its residents, whether or not a posting names
+   * them. The suppliers are the building's supplier links plus every contact
+   * with an invoice or a supplier posting in the period, each once, in the
+   * order of the contact id's number, named by the contact.
+   *
+   * The guarantee: every supplier an invoice or a posting of the period names
+   * is among the parties, whatever became of its link. A reader of the books
+   * skips a state that breaks it, so an answer of the links alone freezes the
+   * books with no error.
+   *
+   * Emits again when a link, an invoice, an entry, a contact's name or the
+   * residents change. Errors as accounts() does.
+   */
   parties(periodId: string): Observable<Party[]>;
   /** The tribute codes the building withholds on in the period, each with its account. Errors as accounts() does. */
   withholdingTaxes(periodId: string): Observable<WithholdingTax[]>;

@@ -69,7 +69,10 @@ Work that waits on a release, a decision or other work.
   a date in `formDialog.ts` and `invoiceWizard.ts`. `ValueSelect` repeats the wizards'
   select, and `createFormDialog` parallels `tableDialogMachine.ts`. A few
   test helpers are copied (`rowLabels`, `rowWithKey`, `flatten`, `watch`).
-- **Presenter robustness before the live adapters (M3).** In
+- **Presenter robustness before the live adapters (M3).** `booksOf` skips a
+  state whose postings name a supplier the parties lack, so a live adapter
+  that breaks the `parties()` guarantee freezes the books with no error: M3's
+  integration test must hold it. In
   `packages/client-core/src/presenters/accountsPresenter.ts`, a key the tree
   no longer has should fall back to Total rather than error the stream for
   good (today unreachable, since no port changes the tree's structure);

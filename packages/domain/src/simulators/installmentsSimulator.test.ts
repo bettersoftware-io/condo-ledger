@@ -71,7 +71,7 @@ describe("installments simulator", () => {
     ).toEqual(["r31", "r31", "r32", "r32", "r33", "r33", "r-new-1", "r-new-1"]);
   });
 
-  it("plans a batch over the suppliers as the reader answers them now", async () => {
+  it("asks the suppliers reader for the period when a batch is planned", async () => {
     const seed = createScheduleSeed();
     const asked: string[] = [];
     const installments = createInstallmentsSimulator(
