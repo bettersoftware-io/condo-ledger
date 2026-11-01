@@ -1,0 +1,32 @@
+/* The paging group of a toolbar: the arrows, "Page n of m" and the page-size chip. */
+.paging {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* The design's paging arrows at an end. */
+.paging .toolbar-button:disabled {
+  opacity: 0.4;
+}
+
+.page-text {
+  font-size: 11.5px;
+  color: var(--txd);
+  white-space: nowrap;
+}
+
+.page-text b {
+  color: var(--tx);
+}
+
+/* The page-size chip and the menu that hangs from it, opening to the left. */
+.paging-menu-anchor {
+  position: relative;
+}
+
+.paging-menu-anchor > .popover {
+  top: 28px;
+  right: 0;
+  left: auto;
+}

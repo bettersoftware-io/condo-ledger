@@ -1,25 +1,22 @@
-import { type ReactElement, useEffect, useRef, useState } from "react";
+import { type ReactElement, useState } from "react";
 
+import { must } from "@cl/domain/support/must.ts";
 import { useViewModel } from "@cl/react-bindings";
 
 import { PeriodDialog } from "../buildingData/PeriodDialog.tsx";
-import { TESTIDS } from "../testids.ts";
 import { BuildingsTree } from "./BuildingsTree.tsx";
 import { ManagementMenu } from "./ManagementMenu.tsx";
-import { Rail } from "./Rail.tsx";
-import { Splitter } from "./Splitter.tsx";
+import { SidebarFrame } from "./SidebarFrame.tsx";
 
 import "./Sidebar.css";
 
 /**
- * The Buildings module's sidebar: the buildings and their periods, the
- * management menu, the splitter that sizes it, and the rail that stands in
- * for it when folded. Reads the tree, the selection, the navigation and the
- * notices; its ✎ opens Edit Management / Period on the selected period, a
- * dialog whose being open is this view's own state. Its size and fold come
- * from the shell, which keeps them while the
- * person visits another module. Below 1180px the stylesheet makes it a drawer
- * over the main area and shows the rail; nothing here measures the window.
+ * The Buildings module's sidebar, in the shell's frame: the buildings and
+ * their periods, and the management menu. Reads the tree, the selection, the
+ * navigation and the notices; its ✎ opens Edit Management / Period on the
+ * selected period, a dialog whose being open is this view's own state. Its
+ * size and fold come from the shell, which keeps them while the person visits
+ * another module.
  */
 export function Sidebar({
   width,
@@ -36,16 +33,7 @@ export function Sidebar({
   const { selected, selectPeriod } = useSelectedPeriod();
   const navigation = useNavigation();
   const { stub } = useNotices();
-  const aside = useRef<HTMLElement>(null);
   const [editingPeriod, setEditingPeriod] = useState<string | null>(null);
-
-  useEffect(() => {
-    aside.current?.style.setProperty("--sidebar-width", `${width}px`);
-  }, [width]);
-
-  function resizeBy(deltaPx: number): void {
-    onResize(width + deltaPx);
-  }
 
   function stubAddManagement(): void {
     stub("Add management");
@@ -53,7 +41,7 @@ export function Sidebar({
 
   /** The ✎ is enabled only with a period selected. */
   function editManagement(): void {
-    setEditingPeriod(selected?.periodId ?? null);
+    setEditingPeriod(must(selected, "the period to edit").periodId);
   }
 
   function closePeriodDialog(): void {
@@ -70,12 +58,16 @@ export function Sidebar({
 
   return (
     <>
-      <Rail onOpen={maximized ? onRestore : onOpen} />
-      <aside
-        ref={aside}
-        className="sidebar"
-        data-open={open}
-        data-testid={TESTIDS.sidebar}
+      <SidebarFrame
+        width={width}
+        open={open}
+        maximized={maximized}
+        railLabel="MANAGEMENT"
+        railTitle="Open management"
+        onResize={onResize}
+        onOpen={onOpen}
+        onClose={onClose}
+        onRestore={onRestore}
       >
         <section className="sidebar-card sidebar-card-grow">
           <header className="sidebar-card-header">Select Management</header>
@@ -132,17 +124,7 @@ export function Sidebar({
             onSelect={navigation.selectMenu}
           />
         </section>
-      </aside>
-      <Splitter direction="vertical" onDrag={resizeBy} />
-      <button
-        type="button"
-        className="drawer-scrim"
-        data-open={open}
-        data-testid={TESTIDS.drawerScrim}
-        aria-label="Close management"
-        tabIndex={-1}
-        onClick={onClose}
-      />
+      </SidebarFrame>
       {editingPeriod === null ? null : (
         <PeriodDialog
           periodId={editingPeriod}

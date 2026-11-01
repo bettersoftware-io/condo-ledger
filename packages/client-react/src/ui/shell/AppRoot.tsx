@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 import { useViewModel } from "@cl/react-bindings";
 
 import { AmountLocaleProvider } from "../AmountLocaleProvider.tsx";
+import { FiltersSidebar } from "../contacts/FiltersSidebar.tsx";
 import { TESTIDS } from "../testids.ts";
 import { Breadcrumb } from "./Breadcrumb.tsx";
 import { Screen } from "./Screen.tsx";
@@ -26,6 +27,15 @@ export function AppRoot(): ReactElement {
   const sidebar = useSidebar();
   const maximize = useMaximize();
   const maximized = maximize.state.maximized !== null;
+  const frame = {
+    width: sidebar.state.width,
+    open: sidebar.state.open,
+    maximized,
+    onResize: sidebar.resize,
+    onOpen: sidebar.open,
+    onClose: sidebar.close,
+    onRestore: maximize.restore,
+  };
 
   return (
     <AmountLocaleProvider>
@@ -39,15 +49,10 @@ export function AppRoot(): ReactElement {
         <Breadcrumb />
         <div className="app-body" data-maximized={maximized}>
           {navigation.state.module === "buildings" ? (
-            <Sidebar
-              width={sidebar.state.width}
-              open={sidebar.state.open}
-              maximized={maximized}
-              onResize={sidebar.resize}
-              onOpen={sidebar.open}
-              onClose={sidebar.close}
-              onRestore={maximize.restore}
-            />
+            <Sidebar {...frame} />
+          ) : null}
+          {navigation.state.module === "contacts" ? (
+            <FiltersSidebar {...frame} />
           ) : null}
           <main className="app-main" data-testid={TESTIDS.appMain}>
             <Screen

@@ -1,0 +1,106 @@
+/* README "Sidebar": the Filter Contacts card under the Management card's header; checkboxes, a 78px label column, and 26px buttons of radius 6. */
+.contact-filters {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-filters-body {
+  background: var(--panel);
+  border: 1px solid var(--bd);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.contact-filters-check {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.contact-filters-check input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--acc);
+}
+
+.contact-filters-grid {
+  display: grid;
+  grid-template-columns: 78px 1fr;
+  gap: 6px;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.contact-filters-label {
+  font-size: 12px;
+  color: var(--txd);
+}
+
+.contact-filters-box {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 27px;
+  padding: 0 8px;
+  background: var(--ctrl);
+  border: 1px solid var(--bd);
+  border-radius: 5px;
+  font-size: 12px;
+}
+
+.contact-filters-box:focus-within {
+  border-color: var(--acc);
+}
+
+.contact-filters-box > input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.contact-filters-buttons {
+  display: flex;
+  gap: 7px;
+  justify-content: flex-end;
+  margin-top: 2px;
+}
+
+.contact-filters-button {
+  height: 26px;
+  padding: 0 12px;
+  border-radius: 6px;
+  border: 1px solid var(--bd);
+  background: var(--ctrl);
+  color: var(--tx);
+  font: inherit;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.contact-filters-button:hover {
+  background: var(--hover);
+}
+
+.contact-filters-button[data-tone="primary"] {
+  font-weight: 600;
+}
+
+.contact-filters-button[data-tone="primary"] svg {
+  color: var(--acc);
+}

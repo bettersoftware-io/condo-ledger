@@ -3,7 +3,7 @@ import { type ReactElement, useEffect, useRef } from "react";
 import { addressTextOf, type ContactRow, type ContactView } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
-import { CONTACT_KIND_LABELS } from "../contactLabels.ts";
+import { CONTACT_KIND_ICONS, CONTACT_KIND_LABELS } from "../contactLabels.ts";
 import { Fieldset } from "../Fieldset.tsx";
 import { Scheda } from "../Scheda.tsx";
 import { SheetField } from "../SheetField.tsx";
@@ -109,7 +109,7 @@ function SupplierSheet({ supplier }: SupplierSheetProps): ReactElement {
     <Scheda>
       <SheetField
         label="Contact type"
-        value={`${supplier.kind === "company" ? "🏢" : "👤"} ${CONTACT_KIND_LABELS[supplier.kind]}`}
+        value={`${CONTACT_KIND_ICONS[supplier.kind]} ${CONTACT_KIND_LABELS[supplier.kind]}`}
       />
       <SheetField
         label="Status"

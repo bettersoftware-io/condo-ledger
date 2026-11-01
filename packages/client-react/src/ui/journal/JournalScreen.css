@@ -39,32 +39,6 @@
   left: 0;
 }
 
-.journal-menu-anchor[data-align="right"] > .popover {
-  right: 0;
-  left: auto;
-}
-
 .journal-toolbar-spacer {
   flex: 1;
-}
-
-.journal-paging {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-/* The design's paging arrows at an end. */
-.journal-paging .toolbar-button:disabled {
-  opacity: 0.4;
-}
-
-.journal-page-text {
-  font-size: 11.5px;
-  color: var(--txd);
-  white-space: nowrap;
-}
-
-.journal-page-text b {
-  color: var(--tx);
 }

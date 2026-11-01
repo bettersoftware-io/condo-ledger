@@ -22,6 +22,8 @@ import type {
   ColumnSpec,
   ColumnsIntents,
   ColumnsState,
+  ContactsPresenter,
+  ContactsView,
   DialogIntents,
   DirectPaymentForm,
   DirectPaymentKind,
@@ -188,6 +190,16 @@ export interface BuildingDataScreenView {
   selectSupplier: (contactId: string) => void;
 }
 
+/**
+ * The Contacts screen: the filters, the categories, the page of the list and
+ * the selected contact, and the intents that change them. Null while the
+ * contacts are on their way. A keyword typed applies on `search`; any other
+ * filter applies at once.
+ */
+interface ContactsScreenView extends Omit<ContactsPresenter, "view$"> {
+  view: ContactsView | null;
+}
+
 export interface NoticesView {
   notices: Notice[];
   stub: (label: string) => void;
@@ -323,6 +335,7 @@ export interface ViewModel {
   ) => MachineView<OwnerDialogState, DialogIntents<OwnerDialogState["form"]>>;
   /** The contacts an owner can be linked to. */
   useContacts: () => ContactView[];
+  useContactsScreen: () => ContactsScreenView;
   useBuildingData: () => BuildingDataScreenView;
   /** The Building Data grid: which buildings are open. */
   useBuildingDataGrid: () => MachineView<
@@ -361,6 +374,7 @@ export function createViewModel(app: App): ViewModel {
     allocation,
     units,
     buildingData,
+    contacts,
   } = app.presenters;
   const { screens } = app;
 
@@ -634,6 +648,19 @@ export function createViewModel(app: App): ViewModel {
     },
     useContacts: (): ContactView[] => {
       return useStateObservable(units.contacts$);
+    },
+    useContactsScreen: (): ContactsScreenView => {
+      return {
+        view: useStateObservable(contacts.view$),
+        typeKeyword: contacts.typeKeyword,
+        search: contacts.search,
+        setFilter: contacts.setFilter,
+        reset: contacts.reset,
+        setPage: contacts.setPage,
+        setPageSize: contacts.setPageSize,
+        select: contacts.select,
+        reveal: contacts.reveal,
+      };
     },
     useBuildingData: (): BuildingDataScreenView => {
       return {

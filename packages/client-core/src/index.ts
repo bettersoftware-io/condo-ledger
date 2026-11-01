@@ -149,6 +149,10 @@ export type {
 export type { TableView } from "./presenters/allocationPresenter.ts";
 export type { BuildingDataView } from "./presenters/buildingDataPresenter.ts";
 export type { PeriodSelection } from "./presenters/buildingsPresenter.ts";
+export type {
+  ContactsPresenter,
+  ContactsView,
+} from "./presenters/contactsPresenter.ts";
 export type { JournalContext } from "./presenters/journalPresenter.ts";
 export type { UnitsView } from "./presenters/unitsPresenter.ts";
 export type { GridName, SplitName, TabbedPanelName } from "./screens.ts";

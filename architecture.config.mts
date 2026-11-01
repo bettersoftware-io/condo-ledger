@@ -53,6 +53,7 @@ const config: ArchitectureConfig = {
           file: "src/ui/buildingData/BuildingDataPanel.tsx",
           fn: "BuildingDataPanel",
         },
+        { file: "src/ui/contacts/ContactsPanel.tsx", fn: "ContactsPanel" },
       ],
     },
     "packages/server": { role: "server" },

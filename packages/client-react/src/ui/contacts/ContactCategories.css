@@ -1,0 +1,62 @@
+/* README "Sidebar": the header and tools of the Management card, then a list of categories with a right-aligned count; the selected row is --sel with a left bar. */
+.contact-categories {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.contact-categories-list {
+  background: var(--panel);
+  border: 1px solid var(--bd);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 3px 0;
+}
+
+.contact-category-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 4px 10px;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--tx);
+  text-align: left;
+  cursor: pointer;
+}
+
+.contact-category-row:hover {
+  background: var(--hover);
+}
+
+.contact-category-row[aria-pressed="true"] {
+  background: var(--sel);
+  box-shadow: inset 2px 0 0 var(--acc);
+  color: var(--acc);
+  font-weight: 600;
+}
+
+.contact-category-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contact-category-count {
+  flex: none;
+  font-size: 11.5px;
+  color: var(--txd);
+  font-variant-numeric: tabular-nums;
+}
+
+.contact-category-row[aria-pressed="true"] .contact-category-count {
+  color: inherit;
+}
