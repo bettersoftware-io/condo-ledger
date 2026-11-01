@@ -256,8 +256,9 @@ The tab's `+ ✎ −` stop showing their notice:
   Refused: no contact; already a supplier of this building.
 - `✎` opens Edit Person or Edit Company for the selected supplier.
 - `−` asks to confirm, then removes the link, not the contact. A supplier with
-  invoices in the building can be removed: it stops being offered for a new
-  invoice, and its existing invoices and postings stay and keep its name.
+  invoices in the building can be removed: its existing invoices and postings
+  stay and keep its name. It stops being offered for a new invoice in any
+  period where it has nothing, and stays offered in a period that holds one.
 
 The supplier sheet shows every contact row, as the legacy one did, not only
 the first phone and email.
