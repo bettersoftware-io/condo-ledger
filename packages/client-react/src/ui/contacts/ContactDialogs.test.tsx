@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { mountContactDialogAlone } from "./ContactForm.page.tsx";
 import { mountContacts } from "./ContactsScreen.page.tsx";
 
 describe("the person and company dialogs", () => {
@@ -82,11 +83,11 @@ describe("the person and company dialogs", () => {
     expect(page.dialog.title()).toBe("Edit Person");
     expect(page.dialog.saveLabel()).toBe("✎ Save");
     expect(page.dialog.isSaveDisabled()).toBe(false);
-    expect(page.dialog.chosen("Gender")).toBe("Male");
+    expect(page.form.gender()).toBe("Male");
     expect(page.dialog.chosen("Language")).toBe("- None -");
 
     await page.dialog.fill("Last name", "Zzyzx");
-    await page.dialog.choose("Gender", "Female");
+    await page.form.chooseGender("Female");
     await page.dialog.choose("Language", "Italian");
     await page.dialog.save();
 
@@ -95,6 +96,33 @@ describe("the person and company dialogs", () => {
     expect(page.tabs.value("Last name")).toBe("Zzyzx");
     expect(page.tabs.value("Gender")).toBe("Female");
     expect(page.tabs.value("Language")).toBe("Italian");
+  });
+
+  it("every gender can be chosen with the radios, and Unspecified saves as none", async () => {
+    const page = mountContacts();
+    const name = page.contactName("md59");
+
+    await page.list.clickRow(name);
+    await page.tabs.clickTool("Edit contact");
+
+    for (const gender of ["Female", "Unspecified", "Male"]) {
+      await page.form.chooseGender(gender);
+
+      expect(page.form.gender()).toBe(gender);
+    }
+
+    await page.form.chooseGender("Unspecified");
+    await page.dialog.save();
+
+    expect(page.tabs.value("Gender")).toBe("Unspecified");
+  });
+
+  it("Edit Person shows the contact's category with no Contacts screen under it", () => {
+    const page = mountContactDialogAlone(CONTACT_WITH_CATEGORY);
+
+    expect(page.dialog.chosen("Contact category")).toBe(
+      page.categoryNameOf(page.categoryIdOf() ?? ""),
+    );
   });
 
   it("Edit Company shows Company name, Registered office and Tax domicile, and no Gender", async () => {
@@ -171,7 +199,9 @@ describe("the person and company dialogs", () => {
     await page.tabs.clickTool("Edit contact");
     await page.form.removeAddress("Postal address");
     await page.dialog.choose("Salutation", "Dear Sir");
-    await page.dialog.choose("Gender", "Unspecified");
+    await page.form.chooseGender("Unspecified");
+
+    expect(page.form.gender()).toBe("Unspecified");
     await page.dialog.choose("Language", "- None -");
     await page.dialog.choose("Contact category", "- None -");
     await page.dialog.save();
@@ -407,3 +437,6 @@ describe("deleting a contact", () => {
 function startsWithZzyzx(label: string): boolean {
   return label.startsWith("Zzyzx");
 }
+
+// A person of the real seed that has a category.
+const CONTACT_WITH_CATEGORY = "md104";

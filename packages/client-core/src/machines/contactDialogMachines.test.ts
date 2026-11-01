@@ -47,6 +47,21 @@ describe("the contact dialog", () => {
     });
   });
 
+  it("holds the categories the port gives, to choose from", () => {
+    const { app } = createAppHarness(createContactsSeed());
+    const machine = track(
+      app.machines.createContactDialog(
+        { kind: "person", editing: null },
+        ignoreAdded,
+      ),
+    );
+
+    expect(machine.state$.getValue().categories).toEqual([
+      { id: "mc1", name: "Gardener" },
+      { id: "mc2", name: "Electrician" },
+    ]);
+  });
+
   it("opens a new company blank until the company name is filled", () => {
     const { app } = createAppHarness(createContactsSeed());
     const machine = track(

@@ -1,0 +1,40 @@
+/* README "Form field": a radio is 14px; checked, `border: 4px solid --acc`. */
+.radio-field-options {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 12px;
+}
+
+.radio-field-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--txd);
+  cursor: pointer;
+}
+
+.radio-field-option:has(:checked) {
+  color: var(--tx);
+}
+
+.radio-field-input {
+  appearance: none;
+  box-sizing: border-box;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  background: var(--ctrl);
+  border: 1.5px solid var(--bd);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.radio-field-input:checked {
+  border: 4px solid var(--acc);
+}
+
+.radio-field-input:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}

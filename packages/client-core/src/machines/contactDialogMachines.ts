@@ -76,6 +76,8 @@ export interface ContactDialogState extends FormDialogState<ContactDialogForm> {
   editing: string | null;
   /** The salutations to choose from, the most used first. */
   salutations: string[];
+  /** The categories to choose from, as the port gives them. */
+  categories: ContactCategory[];
   /** The order of a row added now: the highest held plus one, 1 for none. */
   nextOrder: number;
   /** The ISO date the birth date reads as; null while blank or unreadable. */
@@ -182,6 +184,7 @@ export function createContactDialog(
   const editingId = editing?.id ?? null;
   const contacts = hold(port.contacts(), []);
   const salutations = hold(port.salutations(), []);
+  const categories = hold<ContactCategory[]>(port.categories(), []);
 
   function judge(form: ContactDialogForm): Judgement<ContactDraft> {
     const draft = draftOf(kind, form, context.year);
@@ -209,6 +212,7 @@ export function createContactDialog(
         kind,
         editing: editingId,
         salutations: salutations.get(),
+        categories: categories.get(),
         nextOrder: nextOrderOf(base.form.rows),
         bornOn: dateOrNull(base.form.birthDate, context.year),
       };
@@ -228,7 +232,7 @@ export function createContactDialog(
 
       return ok();
     },
-    rejudge$: contacts.changed$,
+    rejudge$: merge(contacts.changed$, categories.changed$),
   });
 
   function setRows(rows: ContactRowDraft[]): void {
@@ -264,7 +268,7 @@ export function createContactDialog(
         },
       },
     },
-    [contacts, salutations],
+    [contacts, salutations, categories],
   );
 }
 

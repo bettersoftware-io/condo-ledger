@@ -5,7 +5,8 @@ import type { ContactDialogState } from "@cl/client-core";
 import { DateField } from "../DateField.tsx";
 import { Fieldset } from "../Fieldset.tsx";
 import { FormField } from "../FormField.tsx";
-import { type ValueOption, ValueSelect } from "../ValueSelect.tsx";
+import { RadioField } from "../RadioField.tsx";
+import type { ValueOption } from "../ValueSelect.tsx";
 import { AddressField } from "./AddressField.tsx";
 import { GENDER_LABELS, GENDER_UNSPECIFIED } from "./labels.ts";
 
@@ -75,14 +76,12 @@ export function PersonFields({
           onChange={editing("lastName")}
         />
       </FormField>
-      <FormField label="Gender">
-        <ValueSelect
-          label="Gender"
-          options={GENDERS}
-          value={form.gender ?? ""}
-          onChange={editGender}
-        />
-      </FormField>
+      <RadioField
+        label="Gender"
+        options={GENDERS}
+        value={form.gender ?? ""}
+        onChange={editGender}
+      />
       <DateField
         label="Birth date"
         value={form.birthDate}

@@ -3,7 +3,6 @@ import { type ChangeEvent, type ReactElement, useState } from "react";
 import type { ContactDialogSpec, ContactDialogState } from "@cl/client-core";
 import type {
   Address,
-  ContactCategory,
   ContactRowDraft,
   RecordStatus,
   Rejected,
@@ -42,9 +41,8 @@ export function ContactDialog({
   onSaved,
   onCancel,
 }: ContactDialogProps): ReactElement {
-  const { useContactDialog, useContactsScreen } = useViewModel();
+  const { useContactDialog } = useViewModel();
   const dialog = useContactDialog(spec, onAdded);
-  const { view } = useContactsScreen();
   const write = useDialogWrite(onSaved, "the contact was not saved");
   const [addressField, setAddressField] = useState<AddressKey | null>(null);
   const [rowDialog, setRowDialog] = useState<RowDialogOpen | null>(null);
@@ -95,11 +93,6 @@ export function ContactDialog({
     <>
       <ContactDialogBody
         state={dialog.state}
-        categories={
-          view?.categories.map((entry) => {
-            return entry.category;
-          }) ?? []
-        }
         refusal={write.refusal}
         onEdit={edit}
         onEditAddress={setAddressField}
@@ -168,7 +161,6 @@ type LanguageChoice = "" | "it" | "en";
  */
 function ContactDialogBody({
   state,
-  categories,
   refusal,
   onEdit,
   onEditAddress,
@@ -192,7 +184,7 @@ function ContactDialogBody({
 
   const categoryOptions: ValueOption<string>[] = [
     { value: "", label: NO_CHOICE },
-    ...categories.map((category) => {
+    ...state.categories.map((category) => {
       return { value: category.id, label: category.name };
     }),
   ];
@@ -339,8 +331,6 @@ function ContactDialogBody({
 
 interface ContactDialogBodyProps {
   state: ContactDialogState;
-  /** The categories to choose from. */
-  categories: ContactCategory[];
   /** Why the contacts port refused the last save; null when it did not. */
   refusal: Rejected | null;
   onEdit: (patch: Partial<ContactForm>) => void;
