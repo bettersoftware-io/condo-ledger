@@ -134,6 +134,11 @@ export function createUnitsSimulator(
     throw new Error(`missing: the unit ${unitId}`);
   }
 
+  /** The period's residents as a reader sees them: a verdict names a person by the contact's name. */
+  function readResidents(state: PeriodUnits): OwnerParty[] {
+    return named(state.residents$.getValue(), readers.contactsOf());
+  }
+
   function holderOfResident(residentId: string): PeriodUnits {
     for (const state of periods.values()) {
       if (
@@ -243,7 +248,7 @@ export function createUnitsSimulator(
     const verdict = validateUnit(
       draft,
       units,
-      state.residents$.getValue(),
+      readResidents(state),
       readers.periodOf(state.periodId),
       null,
     );
@@ -273,7 +278,7 @@ export function createUnitsSimulator(
     const verdict = validateUnit(
       draft,
       units,
-      state.residents$.getValue(),
+      readResidents(state),
       readers.periodOf(state.periodId),
       unitId,
     );
@@ -308,7 +313,7 @@ export function createUnitsSimulator(
     const residents = state.residents$.getValue();
     const verdict = validateUnitDelete(
       unitId,
-      residents,
+      readResidents(state),
       readers.entriesOf(state.periodId),
       readers.itemsOf(state.periodId),
     );
@@ -408,7 +413,7 @@ export function createUnitsSimulator(
   function deleteResident(state: PeriodUnits, residentId: string): Result {
     const residents = state.residents$.getValue();
     const verdict = validateResidencyDelete(
-      residentIn(residents, residentId),
+      residentIn(readResidents(state), residentId),
       readers.entriesOf(state.periodId),
       readers.itemsOf(state.periodId),
     );
@@ -515,10 +520,7 @@ export function createUnitsSimulator(
       return stateOf(periodId).units$.getValue();
     },
     currentResidents: (periodId: string): OwnerParty[] => {
-      return named(
-        stateOf(periodId).residents$.getValue(),
-        readers.contactsOf(),
-      );
+      return readResidents(stateOf(periodId));
     },
   };
 }

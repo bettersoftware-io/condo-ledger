@@ -174,6 +174,30 @@ describe("units simulator", () => {
     subscription.unsubscribe();
   });
 
+  it("names a renamed resident by its contact's name when a delete is refused, for the resident and for its unit", async () => {
+    const seed = createUnitsSeed();
+    const units = createUnitsSimulator(seed, {
+      contactsOf: (): Contact[] => {
+        return seed.contacts.map((contact) => {
+          return contact.id === "md10"
+            ? createPersonContact("md10", "Verdi", "Luca")
+            : contact;
+        });
+      },
+    });
+
+    expect(await units.deleteResident("r1")).toEqual({
+      ok: false,
+      reason: "named-in-journal",
+      detail: "Verdi Luca",
+    });
+    expect(await units.deleteUnit("uA01")).toEqual({
+      ok: false,
+      reason: "named-in-journal",
+      detail: "Verdi Luca",
+    });
+  });
+
   it("judges dates against the period as the reader answers it, and names a resident from the reader's contacts", async () => {
     const seed = createUnitsSeed();
     const units = createUnitsSimulator(seed, {
