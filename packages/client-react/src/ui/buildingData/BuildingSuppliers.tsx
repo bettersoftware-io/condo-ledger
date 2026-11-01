@@ -1,6 +1,6 @@
 import { type ReactElement, useEffect, useRef } from "react";
 
-import { addressTextOf, type Contact } from "@cl/domain";
+import { addressTextOf, type ContactRow, type ContactView } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
 import { CONTACT_KIND_LABELS } from "../contactLabels.ts";
@@ -81,9 +81,9 @@ export function BuildingSuppliers({
 
 export interface BuildingSuppliersProps {
   /** The building's suppliers, by category, then name. */
-  suppliers: Contact[];
+  suppliers: ContactView[];
   /** The one whose sheet is shown; null with none. */
-  supplier: Contact | null;
+  supplier: ContactView | null;
   /** The list's grid-template-columns, from its columns machine. */
   template: string;
   /** The list's share of the width. */
@@ -95,11 +95,15 @@ export interface BuildingSuppliersProps {
 }
 
 interface SupplierSheetProps {
-  supplier: Contact;
+  supplier: ContactView;
 }
 
 function SupplierSheet({ supplier }: SupplierSheetProps): ReactElement {
   const active = supplier.status === "active";
+  const { contact } = supplier;
+  const registeredOffice =
+    contact.kind === "company" ? contact.registeredOffice : null;
+  const taxDomicile = contact.kind === "company" ? contact.taxDomicile : null;
 
   return (
     <Scheda>
@@ -116,34 +120,47 @@ function SupplierSheet({ supplier }: SupplierSheetProps): ReactElement {
       />
       <SheetField label="Code" value={supplier.code} tone="mono" />
       <Fieldset legend="COMPANY DATA">
-        <SheetField label="Company name" value={supplier.companyName} />
+        <SheetField
+          label="Company name"
+          value={contact.kind === "company" ? contact.companyName : null}
+        />
         <SheetField
           label="Registered office"
           value={
-            supplier.registeredOffice === null
-              ? null
-              : addressTextOf(supplier.registeredOffice)
+            registeredOffice === null ? null : addressTextOf(registeredOffice)
           }
         />
         <SheetField
           label="Tax domicile"
-          value={
-            supplier.taxDomicile === null
-              ? null
-              : addressTextOf(supplier.taxDomicile)
-          }
+          value={taxDomicile === null ? null : addressTextOf(taxDomicile)}
         />
       </Fieldset>
       <Fieldset legend="CONTACTS">
-        <SheetField label="Phone" value={supplier.phone} />
-        <SheetField label="Email" value={supplier.email} tone="accent" />
+        <SheetField label="Phone" value={firstRowOf(contact.rows, "phone")} />
+        <SheetField
+          label="Email"
+          value={firstRowOf(contact.rows, "email")}
+          tone="accent"
+        />
       </Fieldset>
     </Scheda>
   );
 }
 
+/** The value of the contact's first row of the type; null when it has none. */
+function firstRowOf(
+  rows: ContactRow[],
+  type: ContactRow["type"],
+): string | null {
+  return (
+    rows.find((row) => {
+      return row.type === type;
+    })?.value ?? null
+  );
+}
+
 function rowDataOf(
-  contact: Contact,
+  contact: ContactView,
   selectedId: string | null,
 ): TreeGridRowData {
   return {

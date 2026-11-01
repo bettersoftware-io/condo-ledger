@@ -2,7 +2,7 @@ import { render, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
-import type { BuildingRow, Contact, LegacySeed } from "@cl/domain";
+import type { BuildingRow, ContactView, LegacySeed } from "@cl/domain";
 import { createViewModel, ViewModelProvider } from "@cl/react-bindings";
 
 import { type PanelPage, panelIn } from "../allocation/panelGrid.page.tsx";
@@ -47,7 +47,7 @@ export interface BuildingDataScreenPage {
   /** The label of the grid's row with this key (a building or a period id). */
   labelOf: (key: string) => string;
   /** The selected building's supplier at this place in the list: a test never spells a name. */
-  supplierAt: (index: number) => Contact;
+  supplierAt: (index: number) => ContactView;
   toasts: () => string[];
   /** Which panel fills the screen: top or none. */
   maximized: () => string | null;
@@ -233,7 +233,7 @@ export function mountBuildingData(
 
       return found.label;
     },
-    supplierAt: (index: number): Contact => {
+    supplierAt: (index: number): ContactView => {
       const supplier =
         app.presenters.buildingData.view$.getValue().suppliers[index];
 

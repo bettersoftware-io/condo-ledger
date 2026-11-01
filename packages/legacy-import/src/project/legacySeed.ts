@@ -35,7 +35,13 @@ import type { Db } from "../db.ts";
 import type { Row } from "../loadRows.ts";
 import { reconcilePeriods } from "../reconcile.ts";
 import { unitTypeOf } from "../translate/exact.ts";
-import { masterDataName, projectContact } from "./masterData.ts";
+import {
+  masterDataName,
+  projectContactCategories,
+  projectContactConnections,
+  projectContacts,
+  projectSalutations,
+} from "./masterData.ts";
 import { addressOf, buildingProfileOf, projectTree } from "./structure.ts";
 
 const ROLE_COLUMNS: Record<string, AccountRole> = {
@@ -173,6 +179,15 @@ export function projectLegacySeed(db: Db): LegacySeedData {
     };
   });
 
+  const contacts = projectContacts(db);
+
+  assertContactsOfParties(
+    contacts,
+    parties.flatMap((list) => {
+      return list.parties;
+    }),
+  );
+
   return {
     buildings,
     accounts,
@@ -202,33 +217,34 @@ export function projectLegacySeed(db: Db): LegacySeedData {
     coefficients: periodIds.flatMap((periodId) => {
       return projectCoefficients(db, periodId);
     }),
-    contacts: projectContacts(
-      db,
-      parties.flatMap((list) => {
-        return list.parties;
-      }),
-    ),
+    contacts,
+    contactCategories: projectContactCategories(db),
+    contactConnections: projectContactConnections(db),
+    salutations: projectSalutations(db),
     supplierLinks: buildings.flatMap((building) => {
       return projectSupplierLinks(db, building.id);
     }),
   };
 }
 
-/** The contact of every party, each once, by name. */
-function projectContacts(db: Db, parties: PartyData[]): Contact[] {
+/** Every party names a contact the seed holds: a supplier is one, an owner's person is. */
+function assertContactsOfParties(
+  contacts: readonly Contact[],
+  parties: PartyData[],
+): void {
   const ids = new Set(
-    parties.map((party) => {
-      return (party.kind === "owner" ? party.personId : party.id).slice(2);
+    contacts.map((contact) => {
+      return contact.id;
     }),
   );
 
-  return [...ids]
-    .map((id) => {
-      return projectContact(db, id);
-    })
-    .sort((a, b) => {
-      return a.name.localeCompare(b.name, "it") || a.id.localeCompare(b.id);
-    });
+  for (const party of parties) {
+    const id = party.kind === "owner" ? party.personId : party.id;
+
+    if (!ids.has(id)) {
+      throw new Error(`missing: the master data of the contact ${id.slice(2)}`);
+    }
+  }
 }
 
 /** The building's suppliers, by contact id. */

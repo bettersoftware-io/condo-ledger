@@ -2,7 +2,7 @@ import { render, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
-import type { Contact, LegacySeed, OwnersRow, UnitsRow } from "@cl/domain";
+import type { ContactView, LegacySeed, OwnersRow, UnitsRow } from "@cl/domain";
 import { createViewModel, ViewModelProvider } from "@cl/react-bindings";
 
 import { type PanelPage, panelIn } from "../allocation/panelGrid.page.tsx";
@@ -323,7 +323,7 @@ export function mountUnits(
       await user.click(rendered.getByTestId(TESTIDS.confirmNo));
     },
     contactName: (contactId: string): string => {
-      let contacts: Contact[] = [];
+      let contacts: ContactView[] = [];
 
       // The simulator answers at once, whether or not the screen reads the contacts yet.
       app.presenters.units.contacts$

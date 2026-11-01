@@ -1,7 +1,7 @@
 import { Printer } from "lucide-react";
 import type { ReactElement } from "react";
 
-import type { Building, Contact } from "@cl/domain";
+import type { Building, ContactView } from "@cl/domain";
 
 import { LegendButton } from "../allocation/LegendButton.tsx";
 import { PDF_GLYPH, XLS_GLYPH } from "../shell/icons.tsx";
@@ -167,8 +167,8 @@ export interface BuildingTabsProps {
   active: string;
   /** The selected row's building; null with none. */
   building: Building | null;
-  suppliers: Contact[];
-  supplier: Contact | null;
+  suppliers: ContactView[];
+  supplier: ContactView | null;
   /** The suppliers' list's grid-template-columns, from its columns machine. */
   suppliersTemplate: string;
   /** The suppliers' list's share of the tab's width. */

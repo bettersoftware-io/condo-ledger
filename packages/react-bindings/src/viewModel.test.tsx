@@ -560,7 +560,7 @@ describe("the view model", () => {
   it("lists the contacts an owner can be linked to", () => {
     const page = mountUnderProvider(loadLegacySeed(legacySeedData));
 
-    expect(page.read().contacts).toHaveLength(48);
+    expect(page.read().contacts).toHaveLength(113);
   });
 
   it("the building data hooks mount on the real seed: both buildings' rows, p1's selected with Saturno's suppliers, and a period row clicked becomes the app's", async () => {

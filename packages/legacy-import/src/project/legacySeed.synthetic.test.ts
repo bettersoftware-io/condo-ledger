@@ -8,6 +8,10 @@ import type {
   LegacySeedData,
   TableLink,
 } from "@cl/domain";
+import {
+  createCompanyContact,
+  createPersonContact,
+} from "@cl/domain/testing/createContacts.ts";
 
 import { buildDb } from "../db.ts";
 import type { Row, Tables } from "../loadRows.ts";
@@ -292,47 +296,10 @@ describe("projectLegacySeed on a small synthetic dump", () => {
         },
       ],
       coefficients: [{ tableId: "dt20", unitId: "u50", value: 380000 }],
-      contacts: [
-        {
-          id: "md81",
-          kind: "company",
-          name: "Acqua Srl",
-          status: "active",
-          code: "ACQUA",
-          category: "Fornitura acqua",
-          companyName: "Acqua Srl",
-          registeredOffice: null,
-          taxDomicile: null,
-          phone: null,
-          email: null,
-        },
-        {
-          id: "md80",
-          kind: "person",
-          name: "Rossi Anna",
-          status: "active",
-          code: "PRS1",
-          category: "Condòmino",
-          companyName: null,
-          registeredOffice: null,
-          taxDomicile: null,
-          phone: null,
-          email: null,
-        },
-        {
-          id: "md82",
-          kind: "person",
-          name: "Verdi Luca",
-          status: "archived",
-          code: null,
-          category: null,
-          companyName: null,
-          registeredOffice: null,
-          taxDomicile: null,
-          phone: null,
-          email: null,
-        },
-      ],
+      contacts: createSmallContacts(),
+      contactCategories: createSmallCategories(),
+      contactConnections: [],
+      salutations: [],
       supplierLinks: [{ buildingId: "c1", contactId: "md81" }],
     });
   });
@@ -497,7 +464,10 @@ describe("projectLegacySeed on a small synthetic dump", () => {
       unitGroups: [],
       tables: [],
       coefficients: [],
-      contacts: [],
+      contacts: createSmallContacts(),
+      contactCategories: createSmallCategories(),
+      contactConnections: [],
+      salutations: [],
       supplierLinks: [],
     });
   });
@@ -751,7 +721,7 @@ describe("projectLegacySeed's profiles, contacts and account roles", () => {
     ]);
   });
 
-  it("projects a company contact's two addresses and its first phone and email, leaving out a variation's", () => {
+  it("projects a company contact's two addresses and every row by its order, leaving out a variation's", () => {
     const tables = createSmallDump();
 
     tables.company = [
@@ -768,17 +738,20 @@ describe("projectLegacySeed's profiles, contacts and account roles", () => {
       createContactRow("2", "tel", "0432 111", "3"),
       createContactRow("3", "tel", "0432 222", "2"),
       createContactRow("4", "mail", "info@acqua.example", "4"),
-      createContactRow("5", "mail", "uffici@acqua.example", "5"),
+      createContactRow("5", "pec", "acqua@pec.example", "5"),
       {
         ...createContactRow("6", "mail", "old@acqua.example", "0"),
         masterDataVariationId: "9",
       },
     ];
 
-    const contact = projectLegacySeed(buildDb(tables)).contacts[0];
+    const contact = projectLegacySeed(buildDb(tables)).contacts.find((c) => {
+      return c.id === "md81";
+    });
 
     expect(contact).toMatchObject({
-      id: "md81",
+      kind: "company",
+      companyName: "Acqua Srl",
       registeredOffice: {
         street: "via dei Glicini, 4",
         postcode: "33017",
@@ -789,9 +762,240 @@ describe("projectLegacySeed's profiles, contacts and account roles", () => {
         postcode: "33045",
         city: "Nimis",
       },
-      phone: "0432 222",
-      email: "info@acqua.example",
+      rows: [
+        {
+          id: "mr1",
+          type: "web",
+          label: "web",
+          value: "www.acqua.example",
+          order: 1,
+        },
+        { id: "mr3", type: "phone", value: "0432 222", order: 2 },
+        { id: "mr2", type: "phone", value: "0432 111", order: 3 },
+        { id: "mr4", type: "email", value: "info@acqua.example", order: 4 },
+        { id: "mr5", type: "pec", value: "acqua@pec.example", order: 5 },
+      ],
     });
+  });
+
+  it("projects a person's names, gender, birth date and place, three addresses, postal address, language, salutation and notes", () => {
+    const tables = createSmallDump();
+
+    tables.person = [
+      {
+        masterDataId: "80",
+        lastName: "Rossi",
+        firstName: "Anna",
+        sex: "f",
+        birthDate: "1958-09-03",
+        birthPlace: BIRTH_PLACE_ADDRESS,
+        officeAddress: SATURNO_ADDRESS,
+        permanentAddress: POZZETTO_ADDRESS,
+        currentAddress: SATURNO_ADDRESS,
+      },
+      { masterDataId: "82", lastName: "Verdi", firstName: "Luca" },
+      { masterDataId: "83", lastName: "Neri", firstName: "Ugo" },
+    ];
+    tables.qualification = [{ id: "1", name: "Egregio Signore" }];
+    tables.masterData = (tables.masterData ?? []).map((row) => {
+      return row.id === "80"
+        ? {
+            ...row,
+            postalAddress: POZZETTO_ADDRESS,
+            preferredLocaleCode: "it_IT",
+            qualificationId: "1",
+            notes: "Prefers the mail",
+            taxCode: "RSSNNA58P43L483X",
+            vatNumber: "01234567890",
+          }
+        : row;
+    });
+
+    const person = projectLegacySeed(buildDb(tables)).contacts.find((c) => {
+      return c.id === "md80";
+    });
+
+    expect(person).toEqual({
+      id: "md80",
+      kind: "person",
+      status: "active",
+      code: "PRS1",
+      categoryId: "mc29",
+      salutation: "Egregio Signore",
+      taxCode: "RSSNNA58P43L483X",
+      vatNumber: "01234567890",
+      postalAddress: {
+        street: "Viale delle Querce, 8",
+        postcode: "33045",
+        city: "Nimis",
+      },
+      language: "it",
+      notes: "Prefers the mail",
+      rows: [],
+      firstName: "Anna",
+      lastName: "Rossi",
+      gender: "f",
+      birthDate: "1958-09-03",
+      birthPlace: "Udine - Italia",
+      officeAddress: {
+        street: "via dei Glicini, 4",
+        postcode: "33017",
+        city: "Tarcento",
+      },
+      residenceAddress: {
+        street: "Viale delle Querce, 8",
+        postcode: "33045",
+        city: "Nimis",
+      },
+      domicileAddress: {
+        street: "via dei Glicini, 4",
+        postcode: "33017",
+        city: "Tarcento",
+      },
+    });
+  });
+
+  it("reads a birth place's city through the city table, and none when the blob names no city", () => {
+    const tables = createSmallDump();
+
+    tables.person = [
+      {
+        masterDataId: "80",
+        lastName: "Rossi",
+        firstName: null,
+        birthPlace: `C:9:"AddressVO":1:{a:2:{s:8:"postCode";s:5:"33017";s:6:"cityId";i:41;}}`,
+      },
+      {
+        masterDataId: "82",
+        lastName: "Verdi",
+        birthPlace: `C:9:"AddressVO":1:{a:1:{s:8:"postCode";s:5:"33100";}}`,
+      },
+      { masterDataId: "83", lastName: "Neri" },
+    ];
+
+    const contacts = projectLegacySeed(buildDb(tables)).contacts;
+
+    expect(birthPlaceOf(contacts, "md80")).toBe("Tarcento");
+    expect(birthPlaceOf(contacts, "md82")).toBeNull();
+    expect(birthPlaceOf(contacts, "md83")).toBeNull();
+    expect(
+      contacts.find((c) => {
+        return c.id === "md80";
+      }),
+    ).toMatchObject({
+      firstName: null,
+      gender: null,
+    });
+  });
+
+  it("maps a legacy locale by its first two letters to it or en, else none", () => {
+    const tables = createSmallDump();
+
+    tables.masterData = (tables.masterData ?? []).map((row) => {
+      const locales: Record<string, string | null> = {
+        "80": "en_GB",
+        "81": "fr_FR",
+        "82": "IT",
+        "83": "e",
+      };
+
+      return { ...row, preferredLocaleCode: locales[String(row.id)] ?? null };
+    });
+
+    expect(
+      projectLegacySeed(buildDb(tables)).contacts.map((contact) => {
+        return [contact.id, contact.language];
+      }),
+    ).toEqual([
+      ["md81", null],
+      ["md84", null],
+      ["md83", null],
+      ["md80", "en"],
+      ["md82", "it"],
+    ]);
+  });
+
+  it("refuses a sex and a row type the domain does not know, naming the contact", () => {
+    const sex = createSmallDump();
+    sex.person = [{ masterDataId: "80", lastName: "Rossi", sex: "x" }];
+
+    expect(() => {
+      return projectLegacySeed(buildDb(sex));
+    }).toThrow(
+      "the contact md80 has the sex x, which the domain does not know",
+    );
+
+    const type = createSmallDump();
+    type.masterDataContact = [createContactRow("7", "fax", "0432 1", "1")];
+
+    expect(() => {
+      return projectLegacySeed(buildDb(type));
+    }).toThrow(
+      "the contact row 7 has the type fax, which the domain does not know",
+    );
+  });
+
+  it("projects every category by id, a connection on the contact the legacy row points to, and the salutations most used first", () => {
+    const tables = createSmallDump();
+
+    tables.masterDataCategory = [
+      { id: "19", name: "Fornitura gas" },
+      { id: "3", name: "Consulente" },
+    ];
+    tables.masterDataCrossRelation = [
+      {
+        id: "2",
+        fromMasterDataId: "83",
+        toMasterDataId: "80",
+        relation: "Impiegato",
+        order: "2",
+      },
+      {
+        id: "1",
+        fromMasterDataId: "84",
+        toMasterDataId: "81",
+        relation: "Socio",
+        order: "1",
+      },
+    ];
+    tables.qualification = [
+      { id: "1", name: "Spettabile" },
+      { id: "2", name: "Egregio Signore" },
+      { id: "3", name: "Contessa" },
+    ];
+    tables.masterData = (tables.masterData ?? []).map((row) => {
+      const used: Record<string, string> = { "80": "2", "81": "1", "83": "2" };
+
+      return { ...row, qualificationId: used[String(row.id)] ?? null };
+    });
+
+    const seed = projectLegacySeed(buildDb(tables));
+
+    expect(seed.contactCategories).toEqual([
+      { id: "mc3", name: "Consulente" },
+      { id: "mc19", name: "Fornitura gas" },
+    ]);
+    expect(seed.contactConnections).toEqual([
+      {
+        id: "cr1",
+        contactId: "md81",
+        connectedId: "md84",
+        relationship: "Socio",
+        order: 1,
+      },
+      {
+        id: "cr2",
+        contactId: "md80",
+        connectedId: "md83",
+        relationship: "Impiegato",
+        order: 2,
+      },
+    ]);
+    expect(seed.salutations).toEqual([
+      "Egregio Signore",
+      "Spettabile",
+      "Contessa",
+    ]);
   });
 
   it("reads an address with no street as none", () => {
@@ -1638,4 +1842,48 @@ function entry(
     installmentItemId: null,
     ...counterpart,
   };
+}
+
+const BIRTH_PLACE_ADDRESS = `C:9:"AddressVO":1:{a:3:{s:8:"cityName";s:5:"Udine";s:11:"countryName";s:6:"Italia";s:6:"street";N;}}`;
+
+function birthPlaceOf(
+  contacts: LegacySeedData["contacts"],
+  id: string,
+): string | null {
+  const contact = contacts.find((candidate) => {
+    return candidate.id === id;
+  });
+
+  return contact?.kind === "person" ? contact.birthPlace : null;
+}
+
+/** The small dump's five contacts, by name: what projectLegacySeed makes of them with nothing but the master data filled in. */
+function createSmallContacts(): LegacySeedData["contacts"] {
+  return [
+    createCompanyContact("md81", "Acqua Srl", {
+      code: "ACQUA",
+      categoryId: "mc17",
+    }),
+    createCompanyContact("md84", "Gas Spa", {
+      code: "GAS",
+      categoryId: "mc19",
+    }),
+    createPersonContact("md83", "Neri", "Ugo", {
+      code: "PRS3",
+      categoryId: "mc29",
+    }),
+    createPersonContact("md80", "Rossi", "Anna", {
+      code: "PRS1",
+      categoryId: "mc29",
+    }),
+    createPersonContact("md82", "Verdi", "Luca", { status: "archived" }),
+  ];
+}
+
+function createSmallCategories(): LegacySeedData["contactCategories"] {
+  return [
+    { id: "mc17", name: "Fornitura acqua" },
+    { id: "mc19", name: "Fornitura gas" },
+    { id: "mc29", name: "Condòmino" },
+  ];
 }

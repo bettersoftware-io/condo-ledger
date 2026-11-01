@@ -200,6 +200,26 @@ const EXACT: Readonly<Record<string, string>> = {
 
   // ---- Contact categories ----
   // "Assicurazione" (Insurance) is an account's name above too.
+  Consulente: "Consultant",
+  Fabbro: "Locksmith",
+  Geometra: "Surveyor",
+  Idraulico: "Plumber",
+  Imbianchino: "Painter",
+  Muratore: "Bricklayer",
+  Vetraio: "Glazier",
+  Avvocato: "Lawyer",
+  "Fornitura gasolio": "Heating oil supply",
+  Imposte: "Taxes",
+  "Istituto di credito": "Credit institution",
+  Lattoniere: "Tinsmith",
+  "Pulizia canne fumarie": "Flue cleaning",
+  "Pulizia cisterne gasolio": "Oil tank cleaning",
+  "Spurgo pozzi neri": "Septic tank emptying",
+  Commercialista: "Accountant",
+  Operatori: "Operators",
+  Condomìnio: "Condominium",
+  "Agenzia immobiliare": "Real estate agency",
+  Altro: "Other",
   Antennista: "Antenna technician",
   Antincendio: "Fire protection",
   "Amministrazione condominiale": "Condominium administration",
@@ -213,6 +233,29 @@ const EXACT: Readonly<Record<string, string>> = {
   Condòmino: "Owner",
   Ferramenta: "Hardware store",
   "Enti di certificazione": "Certification bodies",
+
+  // ---- Contact rows, salutations and relationships ----
+  // The three rows with test labels in the dump are kept as they are, as data.
+  Telefono: "Phone",
+  Cellulare: "Mobile",
+  "Numero verde": "Toll-free",
+  "Sito Web": "Website",
+  Fax: "Fax",
+  Email: "Email",
+  "Posta Elettronica Certificata": "Certified email",
+  sdfsd22: "sdfsd22",
+  sdf333: "sdf333",
+  sdfsd: "sdfsd",
+  "Egregio Signore": "Dear Sir",
+  Spettabile: "Dear Sir or Madam",
+  "Egregi Eredi": "Dear Heirs",
+  Contessa: "Countess",
+  "Distinti Signori": "Dear Sirs",
+  "Egregio Dottore": "Dear Doctor",
+  "Egregio Direttore": "Dear Director",
+  "Gentile Signora": "Dear Madam",
+  "Egregio Ingegnere": "Dear Engineer",
+  Impiegato: "Employee",
 
   // ---- Withholding taxes ----
   "Amm. di condomìnio senza P.IVA":

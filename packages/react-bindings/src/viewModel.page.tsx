@@ -69,7 +69,7 @@ import type {
   Building,
   BuildingRow,
   Cents,
-  Contact,
+  ContactView,
   JournalEntryView,
   Ledger,
   LegacySeed,
@@ -184,7 +184,7 @@ export interface Seen {
     OwnerDialogState,
     DialogIntents<OwnerDialogState["form"]>
   > | null;
-  contacts: Contact[];
+  contacts: ContactView[];
 }
 
 export interface ViewModelPage {

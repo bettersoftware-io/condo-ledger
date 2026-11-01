@@ -2,7 +2,7 @@ import type { ChangeEvent, ReactElement } from "react";
 
 import type { OwnerDialogState } from "@cl/client-core";
 import type {
-  Contact,
+  ContactView,
   PeriodDates,
   Rejected,
   ResidencyDraft,
@@ -196,7 +196,7 @@ function OwnerDialogBody({
 
 interface OwnerDialogBodyProps {
   state: OwnerDialogState;
-  contacts: Contact[];
+  contacts: ContactView[];
   period: PeriodDates;
   /** Why the units port refused the last save; null when it did not. */
   refusal: Rejected | null;

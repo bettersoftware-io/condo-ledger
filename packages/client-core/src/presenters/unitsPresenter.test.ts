@@ -437,7 +437,7 @@ describe("the units presenter", () => {
     const { units, stop } = createPresented("p1");
     const subscription = units.contacts$.subscribe();
 
-    expect(units.contacts$.getValue()).toHaveLength(48);
+    expect(units.contacts$.getValue()).toHaveLength(113);
 
     subscription.unsubscribe();
     stop();

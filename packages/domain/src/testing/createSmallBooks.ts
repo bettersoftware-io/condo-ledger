@@ -5,7 +5,6 @@ import type {
   AccountType,
 } from "../entities/account.ts";
 import { cents } from "../entities/cents.ts";
-import type { Contact } from "../entities/contact.ts";
 import type {
   Counterpart,
   EntryKind,
@@ -14,6 +13,7 @@ import type {
 } from "../entities/journal.ts";
 import type { Party } from "../entities/party.ts";
 import type { LegacySeed } from "../simulators/seed/legacySeed.ts";
+import { createCompanyContact, createPersonContact } from "./createContacts.ts";
 
 /** One period's books, small enough to work every figure out by hand. */
 export interface SmallBooks {
@@ -278,35 +278,18 @@ export function createSmallSeed(): LegacySeed {
     tables: [],
     coefficients: [],
     contacts: [
-      createContact("md1", "company", "Alfa s.n.c."),
-      createContact("md11", "person", "Bianchi Anna"),
-      createContact("md2", "company", "Beta S.p.A."),
-      createContact("md10", "person", "Rossi Mario"),
+      createCompanyContact("md1", "Alfa s.n.c."),
+      createPersonContact("md11", "Bianchi", "Anna"),
+      createCompanyContact("md2", "Beta S.p.A."),
+      createPersonContact("md10", "Rossi", "Mario"),
     ],
+    contactCategories: [],
+    contactConnections: [],
+    salutations: [],
     supplierLinks: [
       { buildingId: "c1", contactId: "md1" },
       { buildingId: "c1", contactId: "md2" },
     ],
-  };
-}
-
-function createContact(
-  id: string,
-  kind: Contact["kind"],
-  name: string,
-): Contact {
-  return {
-    id,
-    kind,
-    name,
-    status: "active",
-    code: null,
-    category: null,
-    companyName: kind === "company" ? name : null,
-    registeredOffice: null,
-    taxDomicile: null,
-    phone: null,
-    email: null,
   };
 }
 

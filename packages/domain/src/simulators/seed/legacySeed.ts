@@ -1,7 +1,12 @@
 import type { Account } from "#/entities/account.ts";
 import type { Building } from "#/entities/building.ts";
 import { cents } from "#/entities/cents.ts";
-import type { Contact, SupplierLink } from "#/entities/contact.ts";
+import type {
+  Contact,
+  ContactCategory,
+  ContactConnection,
+  SupplierLink,
+} from "#/entities/contact.ts";
 import type { Installment, InstallmentItem } from "#/entities/installment.ts";
 import { type Invoice, rate, type WithholdingTax } from "#/entities/invoice.ts";
 import type { Counterpart, JournalEntry } from "#/entities/journal.ts";
@@ -29,6 +34,10 @@ export interface LegacySeed {
   coefficients: Coefficient[];
   /** The contact of every resident and supplier of the seeded periods, by name. */
   contacts: Contact[];
+  contactCategories: ContactCategory[];
+  contactConnections: ContactConnection[];
+  /** The legacy salutations, the most used first, then by name. */
+  salutations: string[];
   /** Each seeded building's suppliers. */
   supplierLinks: SupplierLink[];
 }
@@ -100,6 +109,9 @@ export interface LegacySeedData {
   tables: ThousandthTable[];
   coefficients: Coefficient[];
   contacts: Contact[];
+  contactCategories: ContactCategory[];
+  contactConnections: ContactConnection[];
+  salutations: string[];
   supplierLinks: SupplierLink[];
 }
 
@@ -149,6 +161,9 @@ export function loadLegacySeed(data: LegacySeedData): LegacySeed {
     tables: data.tables,
     coefficients: data.coefficients,
     contacts: data.contacts,
+    contactCategories: data.contactCategories,
+    contactConnections: data.contactConnections,
+    salutations: data.salutations,
     supplierLinks: data.supplierLinks,
   };
 }

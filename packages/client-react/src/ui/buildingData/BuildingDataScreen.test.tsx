@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { type LegacySeed, loadLegacySeed } from "@cl/domain";
+import { type ContactView, type LegacySeed, loadLegacySeed } from "@cl/domain";
 import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
 
 import { mountBuildingData } from "./BuildingDataScreen.page.tsx";
@@ -144,9 +144,9 @@ describe("BuildingDataScreen", () => {
     expect(page.sheetValue("Contact type")).toBe("🏢 Company");
     expect(page.sheetValue("Status")).toBe("✓ Active");
     expect(page.sheetGroups()).toEqual(["COMPANY DATA", "CONTACTS"]);
-    expect(page.sheetValue("Company name")).toBe(first.companyName);
-    expect(page.sheetValue("Phone")).toBe(first.phone);
-    expect(first.phone).not.toBeNull();
+    expect(page.sheetValue("Company name")).toBe(first.name);
+    expect(page.sheetValue("Phone")).toBe(firstPhoneOf(first));
+    expect(firstPhoneOf(first)).not.toBeNull();
   });
 
   it("a supplier clicked shows its sheet; a person reads --- where a company has data", async () => {
@@ -325,4 +325,12 @@ function createSeedWithoutSaturnoSuppliers(): LegacySeed {
       return link.buildingId !== "c1";
     }),
   };
+}
+
+function firstPhoneOf(supplier: ContactView): string | null {
+  return (
+    supplier.contact.rows.find((row) => {
+      return row.type === "phone";
+    })?.value ?? null
+  );
 }

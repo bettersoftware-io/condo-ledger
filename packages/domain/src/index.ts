@@ -81,6 +81,10 @@ export {
   periodFiguresOf,
 } from "./useCases/buildingRows.ts";
 export * from "./useCases/collection.ts";
+export {
+  type ContactView,
+  contactViewsOf,
+} from "./useCases/contacts/contactViews.ts";
 export * from "./useCases/installments.ts";
 export * from "./useCases/invoice.ts";
 export * from "./useCases/journal.ts";

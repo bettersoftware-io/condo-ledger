@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { vi } from "vitest";
 
-import type { Contact } from "@cl/domain";
+import type { ContactView } from "@cl/domain";
+import { createPersonContact } from "@cl/domain/testing/createContacts.ts";
 
 import { ContactPicker, type ContactPickerProps } from "./ContactPicker.tsx";
 
@@ -29,19 +30,16 @@ export function mountContactPicker(
   };
 }
 
-export function createContact(id: string, name: string): Contact {
+export function createContactView(id: string, name: string): ContactView {
   return {
+    contact: createPersonContact(id, name, null),
     id,
     kind: "person",
     name,
     status: "active",
     code: null,
     category: null,
-    companyName: null,
-    registeredOffice: null,
-    taxDomicile: null,
-    phone: null,
-    email: null,
+    referenceAddress: null,
   };
 }
 

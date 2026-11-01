@@ -1,6 +1,6 @@
 import { BehaviorSubject, type Observable } from "rxjs";
 
-import type { Contact } from "#/entities/contact.ts";
+import { type Contact, nameOf } from "#/entities/contact.ts";
 import type { InstallmentItem } from "#/entities/installment.ts";
 import type { JournalEntry } from "#/entities/journal.ts";
 import type { OwnerParty } from "#/entities/party.ts";
@@ -594,7 +594,7 @@ function residencyFields(
 > {
   return {
     personId: contact.id,
-    name: contact.name,
+    name: nameOf(contact),
     startingBalance: draft.startingBalance,
     role: draft.role,
     restriction: draft.ownRestriction ?? unit.restriction,

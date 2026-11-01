@@ -1,6 +1,6 @@
 import { type ChangeEvent, type ReactElement, useId, useState } from "react";
 
-import type { Contact } from "@cl/domain";
+import type { ContactView } from "@cl/domain";
 
 import { CONTACT_KIND_LABELS } from "../contactLabels.ts";
 import { FormField } from "../FormField.tsx";
@@ -45,7 +45,7 @@ export function ContactPicker({
     }
   }
 
-  function choosing(contact: Contact): () => void {
+  function choosing(contact: ContactView): () => void {
     return (): void => {
       onChange(contact.id);
     };
@@ -101,7 +101,7 @@ export function ContactPicker({
 
 export interface ContactPickerProps {
   /** The contacts an owner can be linked to. */
-  contacts: Contact[];
+  contacts: ContactView[];
   /** The linked contact's id; null for none. */
   value: string | null;
   /** The contact cannot change: an owner being edited keeps theirs. */

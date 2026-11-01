@@ -79,7 +79,7 @@ import type {
   Building,
   BuildingRow,
   Cents,
-  Contact,
+  ContactView,
   EntryAdded,
   EntryKind,
   Firm,
@@ -322,7 +322,7 @@ export interface ViewModel {
     editing: string | null,
   ) => MachineView<OwnerDialogState, DialogIntents<OwnerDialogState["form"]>>;
   /** The contacts an owner can be linked to. */
-  useContacts: () => Contact[];
+  useContacts: () => ContactView[];
   useBuildingData: () => BuildingDataScreenView;
   /** The Building Data grid: which buildings are open. */
   useBuildingDataGrid: () => MachineView<
@@ -632,7 +632,7 @@ export function createViewModel(app: App): ViewModel {
         return app.machines.createOwnerDialog(editing);
       });
     },
-    useContacts: (): Contact[] => {
+    useContacts: (): ContactView[] => {
       return useStateObservable(units.contacts$);
     },
     useBuildingData: (): BuildingDataScreenView => {

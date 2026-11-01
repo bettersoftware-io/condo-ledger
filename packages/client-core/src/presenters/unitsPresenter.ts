@@ -12,8 +12,9 @@ import {
   type Added,
   type Building,
   type ClockPort,
-  type Contact,
   type ContactsPort,
+  type ContactView,
+  contactViewsOf,
   type GroupDraft,
   type OwnerParty,
   type OwnersRow,
@@ -81,7 +82,7 @@ export interface UnitsPresenter {
   /** The breadcrumb's last crumb: the selected unit's or resident's unit code, the selected group's code; null for the root and the rounding row. */
   crumb$: DefaultedStateObservable<string | null>;
   /** The contacts an owner can be linked to. */
-  contacts$: DefaultedStateObservable<Contact[]>;
+  contacts$: DefaultedStateObservable<ContactView[]>;
   /** The screen as it stands now; null while `view$` is. */
   snapshot: () => UnitsSnapshot | null;
   /** Selects a row of the list by its key. A period switch starts again on the first unit. */
@@ -197,7 +198,17 @@ export function createUnitsPresenter(
       ),
       null,
     ),
-    contacts$: state(ports.contacts.contacts(), []),
+    contacts$: state(
+      combineLatest([
+        ports.contacts.contacts(),
+        ports.contacts.categories(),
+      ]).pipe(
+        map(([contacts, categories]) => {
+          return contactViewsOf(contacts, categories);
+        }),
+      ),
+      [],
+    ),
     snapshot: (): UnitsSnapshot | null => {
       let held: UnitsSnapshot | null = null;
 

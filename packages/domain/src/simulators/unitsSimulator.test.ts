@@ -15,6 +15,7 @@ import type {
   UnitDraft,
 } from "#/useCases/validateUnits.ts";
 
+import { createPersonContact } from "../testing/createContacts.ts";
 import { createTablesSeed } from "../testing/createTablesSeed.ts";
 import { createUnitsSeed } from "../testing/createUnitsSeed.ts";
 import { createUnitsSimulator } from "./unitsSimulator.ts";
@@ -133,22 +134,7 @@ describe("units simulator", () => {
         return { start: "2013-01-01", end: "2013-06-30" };
       },
       contactsOf: (): Contact[] => {
-        return [
-          ...seed.contacts,
-          {
-            id: "md99",
-            kind: "person",
-            name: "Gialli Ugo",
-            status: "active",
-            code: null,
-            category: null,
-            companyName: null,
-            registeredOffice: null,
-            taxDomicile: null,
-            phone: null,
-            email: null,
-          },
-        ];
+        return [...seed.contacts, createPersonContact("md99", "Gialli", "Ugo")];
       },
     });
     const july = { from: "2013-07-01", to: null };
