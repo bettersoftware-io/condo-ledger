@@ -337,6 +337,9 @@ export function createContactsSimulator(
     contacts: (): Observable<Contact[]> => {
       return contacts$.asObservable();
     },
+    salutations: (): Observable<string[]> => {
+      return of(seed.salutations);
+    },
     categories: (): Observable<ContactCategory[]> => {
       return categories$.asObservable();
     },

@@ -20,6 +20,8 @@ export interface ContactsPortHarness {
   port: ContactsPort;
   /** What the port is expected to answer. */
   expected: Contact[];
+  /** The salutations it is expected to answer, most used first. */
+  expectedSalutations: string[];
   /** The categories it is expected to answer. */
   expectedCategories: ContactCategory[];
   /** Every connection it holds: at least two on one contact, out of order, and one on another. */
@@ -62,6 +64,18 @@ export function describeContactsPortContract(
       try {
         expect(await firstValueFrom(port.categories())).toEqual(
           expectedCategories,
+        );
+      } finally {
+        teardown();
+      }
+    });
+
+    it("lists the salutations, the most used first", async () => {
+      const { port, expectedSalutations, teardown } = createHarness();
+
+      try {
+        expect(await firstValueFrom(port.salutations())).toEqual(
+          expectedSalutations,
         );
       } finally {
         teardown();

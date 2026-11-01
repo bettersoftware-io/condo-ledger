@@ -19,6 +19,8 @@ import type { ContactDraft } from "#/useCases/contacts/validateContact.ts";
 export interface ContactsPort {
   contacts(): Observable<Contact[]>;
   categories(): Observable<ContactCategory[]>;
+  /** The salutations a contact can carry, the most used first. */
+  salutations(): Observable<string[]>;
   /** The contacts the contact is connected to, by their order; the connections show on this contact only. */
   connections(contactId: string): Observable<ContactConnection[]>;
   /** Where each contact is used; a contact used nowhere has no entry. */

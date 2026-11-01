@@ -7,6 +7,7 @@ import { createContactsSimulator } from "./contactsSimulator.ts";
 describeContactsPortContract("contacts simulator", () => {
   const seed = {
     ...createSmallSeed(),
+    salutations: ["Dear Sir", "Dear Madam"],
     contactCategories: [
       { id: "mc1", name: "Gardener" },
       { id: "mc2", name: "Electrician" },
@@ -17,6 +18,7 @@ describeContactsPortContract("contacts simulator", () => {
   return {
     port: createContactsSimulator(seed),
     expected: seed.contacts,
+    expectedSalutations: seed.salutations,
     expectedCategories: seed.contactCategories,
     connections: seed.contactConnections,
     usedContactId: "md1",

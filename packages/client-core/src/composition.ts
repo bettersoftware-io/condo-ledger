@@ -17,6 +17,9 @@ import {
   type BuildingsSimulator,
   type ClockPort,
   type Contact,
+  type ContactCategory,
+  type ContactConnection,
+  type ContactRowDraft,
   type ContactsPort,
   type ContactsSimulator,
   type ContactUsesById,
@@ -63,6 +66,20 @@ import {
   createPeriodDialog,
   type PeriodDialogState,
 } from "./machines/buildingDialogMachines.ts";
+import {
+  type CategoryDialogState,
+  type ConnectionDialogState,
+  type ContactDialogIntents,
+  type ContactDialogSpec,
+  type ContactDialogState,
+  type ContactRowDialogState,
+  createCategoryDialog,
+  createConnectionDialog,
+  createContactDialog,
+  createContactRowDialog,
+  createSupplierDialog,
+  type SupplierDialogState,
+} from "./machines/contactDialogMachines.ts";
 import type { DialogIntents } from "./machines/formDialog.ts";
 import {
   createInstallmentDialog,
@@ -317,6 +334,37 @@ interface AppMachines {
   createPeriodDialog: (
     periodId: string,
   ) => Machine<PeriodDialogState, DialogIntents<PeriodDialogState["form"]>>;
+  /** The New and Edit Person and Company dialog; a new contact's id goes to `onAdded` before the save answers. A date typed without a year is in the clock's. */
+  createContactDialog: (
+    spec: ContactDialogSpec,
+    onAdded: (id: string) => void,
+  ) => Machine<ContactDialogState, ContactDialogIntents>;
+  /** The Add and Edit Contact dialog on a row of a contact's form; it writes nothing, its save hands the row to `apply`. */
+  createContactRowDialog: (
+    row: ContactRowDraft | null,
+    nextOrder: number,
+    apply: (row: ContactRowDraft) => void,
+  ) => Machine<
+    ContactRowDialogState,
+    DialogIntents<ContactRowDialogState["form"]>
+  >;
+  /** The New and Edit Category dialog; a new category's id goes to `onAdded` before the save answers. */
+  createCategoryDialog: (
+    editing: ContactCategory | null,
+    onAdded: (id: string) => void,
+  ) => Machine<CategoryDialogState, DialogIntents<CategoryDialogState["form"]>>;
+  /** The Add and Edit Connected Contact dialog on a contact's connections. */
+  createConnectionDialog: (
+    contactId: string,
+    editing: ContactConnection | null,
+  ) => Machine<
+    ConnectionDialogState,
+    DialogIntents<ConnectionDialogState["form"]>
+  >;
+  /** The Add Supplier dialog on a building. */
+  createSupplierDialog: (
+    buildingId: string,
+  ) => Machine<SupplierDialogState, DialogIntents<SupplierDialogState["form"]>>;
   /** The Address dialog on `address`; its save hands the address to `apply`. */
   createAddressDialog: (
     address: Address | null,
@@ -855,6 +903,57 @@ export function createApp(ports: AppPorts): App {
           (draft) => {
             return buildingData.editPeriod(periodId, draft);
           },
+        );
+      },
+      createContactDialog: (
+        spec: ContactDialogSpec,
+        onAdded: (id: string) => void,
+      ): Machine<ContactDialogState, ContactDialogIntents> => {
+        return createContactDialog(
+          ports.contacts,
+          { year: Number(todayOf(ports.clock).slice(0, 4)) },
+          spec,
+          onAdded,
+        );
+      },
+      createContactRowDialog: (
+        row: ContactRowDraft | null,
+        nextOrder: number,
+        apply: (row: ContactRowDraft) => void,
+      ): Machine<
+        ContactRowDialogState,
+        DialogIntents<ContactRowDialogState["form"]>
+      > => {
+        return createContactRowDialog(row, nextOrder, apply);
+      },
+      createCategoryDialog: (
+        editing: ContactCategory | null,
+        onAdded: (id: string) => void,
+      ): Machine<
+        CategoryDialogState,
+        DialogIntents<CategoryDialogState["form"]>
+      > => {
+        return createCategoryDialog(ports.contacts, editing, onAdded);
+      },
+      createConnectionDialog: (
+        contactId: string,
+        editing: ContactConnection | null,
+      ): Machine<
+        ConnectionDialogState,
+        DialogIntents<ConnectionDialogState["form"]>
+      > => {
+        return createConnectionDialog(ports.contacts, contactId, editing);
+      },
+      createSupplierDialog: (
+        buildingId: string,
+      ): Machine<
+        SupplierDialogState,
+        DialogIntents<SupplierDialogState["form"]>
+      > => {
+        return createSupplierDialog(
+          ports.contacts,
+          ports.buildings,
+          buildingId,
         );
       },
       createAddressDialog: (

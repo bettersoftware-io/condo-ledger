@@ -98,6 +98,17 @@ export {
   type ContactView,
   contactViewsOf,
 } from "./useCases/contacts/contactViews.ts";
+export { validateCategory } from "./useCases/contacts/validateCategory.ts";
+export {
+  type ConnectionDraft,
+  validateConnection,
+} from "./useCases/contacts/validateConnection.ts";
+export {
+  type ContactDraft,
+  type ContactRowDraft,
+  validateContact,
+  validateContactRow,
+} from "./useCases/contacts/validateContact.ts";
 export * from "./useCases/installments.ts";
 export * from "./useCases/invoice.ts";
 export * from "./useCases/journal.ts";
@@ -118,6 +129,7 @@ export {
   validateAddress,
   validateBuilding,
   validatePeriod,
+  validateSupplier,
 } from "./useCases/validateBuilding.ts";
 export * from "./useCases/validateEntry.ts";
 export * from "./useCases/validateSchedule.ts";
