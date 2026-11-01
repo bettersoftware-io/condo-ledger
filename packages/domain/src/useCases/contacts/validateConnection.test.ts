@@ -53,6 +53,33 @@ describe("validateConnection", () => {
     ).toEqual({ ok: false, reason: "relationship-too-long" });
   });
 
+  it("refuses an order that is not a whole number from 1", () => {
+    expect(
+      validateConnection(
+        "md1",
+        createDraft({ connectedId: "md3", order: 0 }),
+        [],
+        null,
+      ),
+    ).toEqual({ ok: false, reason: "bad-order" });
+    expect(
+      validateConnection(
+        "md1",
+        createDraft({ connectedId: "md3", order: 1.5 }),
+        [],
+        null,
+      ),
+    ).toEqual({ ok: false, reason: "bad-order" });
+    expect(
+      validateConnection(
+        "md1",
+        createDraft({ connectedId: "md3", order: 1 }),
+        [],
+        null,
+      ),
+    ).toEqual({ ok: true });
+  });
+
   it("refuses the same contact with the same relationship, by case", () => {
     expect(
       validateConnection(

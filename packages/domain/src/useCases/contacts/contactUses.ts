@@ -1,5 +1,5 @@
 import type { Building } from "#/entities/building.ts";
-import type { Contact, SupplierLink } from "#/entities/contact.ts";
+import type { SupplierLink } from "#/entities/contact.ts";
 import type { Invoice } from "#/entities/invoice.ts";
 import type { JournalEntry } from "#/entities/journal.ts";
 import type { OwnerParty } from "#/entities/party.ts";
@@ -84,11 +84,9 @@ export function contactUsesOf(
 /**
  * Whether a contact may be deleted: not while it is a resident, a supplier,
  * on an invoice or in an entry. Checked in that order; the detail is the
- * name of the first building. The contact is in the signature for its
- * callers; the answer depends on its uses alone.
+ * name of the first building.
  */
 export function validateContactDelete(
-  _contact: Contact,
   uses: ContactUses | undefined,
   buildings: Building[],
 ): Result {

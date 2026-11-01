@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import type { Building } from "#/entities/building.ts";
-import type { Contact } from "#/entities/contact.ts";
 import type { Invoice } from "#/entities/invoice.ts";
 import type { JournalEntry, Posting } from "#/entities/journal.ts";
 import type { OwnerParty } from "#/entities/party.ts";
@@ -83,17 +82,17 @@ describe("contactUsesOf", () => {
 
 describe("validateContactDelete", () => {
   it("passes with no uses, and with empty lists", () => {
-    expect(validateContactDelete(contact, undefined, buildings)).toEqual({
+    expect(validateContactDelete(undefined, buildings)).toEqual({
       ok: true,
     });
-    expect(validateContactDelete(contact, createUses({}), buildings)).toEqual({
+    expect(validateContactDelete(createUses({}), buildings)).toEqual({
       ok: true,
     });
   });
 
   it("names the building by its id when the building is not listed", () => {
     expect(
-      validateContactDelete(contact, createUses({ supplierOf: ["c9"] }), []),
+      validateContactDelete(createUses({ supplierOf: ["c9"] }), []),
     ).toEqual({ ok: false, reason: "is-supplier", detail: "c9" });
   });
 
@@ -105,27 +104,22 @@ describe("validateContactDelete", () => {
       inEntriesOf: ["c2"],
     });
 
-    expect(validateContactDelete(contact, all, buildings)).toEqual({
+    expect(validateContactDelete(all, buildings)).toEqual({
       ok: false,
       reason: "is-resident",
       detail: "Saturno",
     });
     expect(
-      validateContactDelete(contact, { ...all, residentOf: [] }, buildings),
+      validateContactDelete({ ...all, residentOf: [] }, buildings),
     ).toEqual({ ok: false, reason: "is-supplier", detail: "Pozzetto" });
     expect(
       validateContactDelete(
-        contact,
         { ...all, residentOf: [], supplierOf: [] },
         buildings,
       ),
     ).toEqual({ ok: false, reason: "on-invoice", detail: "Pozzetto" });
     expect(
-      validateContactDelete(
-        contact,
-        createUses({ inEntriesOf: ["c1"] }),
-        buildings,
-      ),
+      validateContactDelete(createUses({ inEntriesOf: ["c1"] }), buildings),
     ).toEqual({ ok: false, reason: "in-entries", detail: "Saturno" });
   });
 
@@ -133,8 +127,6 @@ describe("validateContactDelete", () => {
     { id: "c1", name: "Saturno" },
     { id: "c2", name: "Pozzetto" },
   ] as Building[];
-
-  const contact = { id: "md1" } as Contact;
 });
 
 function createUses(over: Partial<ContactUses>): ContactUses {
