@@ -15,12 +15,17 @@ import type {
   BudgetInstallmentsForm,
   BudgetInstallmentsSummary,
   BuildingDialogState,
+  CategoryDialogState,
   CoefficientsGridState,
   CollectionForm,
   CollectionSummary,
   ColumnSpec,
   ColumnsIntents,
   ColumnsState,
+  ConnectionDialogState,
+  ContactDialogIntents,
+  ContactDialogState,
+  ContactRowDialogState,
   DialogIntents,
   DirectPaymentForm,
   DirectPaymentSummary,
@@ -69,7 +74,8 @@ import type {
   Building,
   BuildingRow,
   Cents,
-  Contact,
+  ContactRowDraft,
+  ContactView,
   JournalEntryView,
   Ledger,
   LegacySeed,
@@ -81,6 +87,7 @@ import type {
 import {
   type AllocationView,
   type BuildingDataScreenView,
+  type ContactsScreenView,
   createViewModel,
   type NoticesView,
   type ScheduleView,
@@ -184,7 +191,7 @@ export interface Seen {
     OwnerDialogState,
     DialogIntents<OwnerDialogState["form"]>
   > | null;
-  contacts: Contact[];
+  contacts: ContactView[];
 }
 
 export interface ViewModelPage {
@@ -321,6 +328,111 @@ export function mountBuildingData(): BuildingDataPage {
       });
     },
   };
+}
+
+/** What the Contacts reader got from its hooks on its latest render. */
+interface ContactsSeen {
+  screen: ContactsScreenView;
+  /** The New Category dialog. */
+  categoryDialog: MachineView<
+    CategoryDialogState,
+    DialogIntents<CategoryDialogState["form"]>
+  >;
+  /** The Add Connected Contact dialog on md12. */
+  connectionDialog: MachineView<
+    ConnectionDialogState,
+    DialogIntents<ConnectionDialogState["form"]>
+  >;
+  /** The New Person dialog; the ids of the contacts it added are in `added`. */
+  contactDialog: MachineView<ContactDialogState, ContactDialogIntents>;
+  added: string[];
+  /** The Add Contact dialog on a row starting on order 4; the rows it applied are in `applied`. */
+  contactRowDialog: MachineView<
+    ContactRowDialogState,
+    DialogIntents<ContactRowDialogState["form"]>
+  >;
+  applied: ContactRowDraft[];
+}
+
+export interface ContactsPage {
+  read: () => ContactsSeen;
+  send: (use: (seen: ContactsSeen) => unknown) => Promise<void>;
+}
+
+/** Mounts a reader of the Contacts hooks on the real application over the real seed. */
+export function mountContactsHooks(): ContactsPage {
+  const viewModel = createViewModel(createAppHarness().app);
+  const seen: ContactsSeen[] = [];
+  const added: string[] = [];
+  const applied: ContactRowDraft[] = [];
+
+  render(
+    <ViewModelProvider viewModel={viewModel}>
+      <ContactsReader seen={seen} added={added} applied={applied} />
+    </ViewModelProvider>,
+  );
+
+  function read(): ContactsSeen {
+    const entry = seen[0];
+
+    if (entry === undefined) {
+      throw new Error("missing: what the Contacts reader saw");
+    }
+
+    return entry;
+  }
+
+  return {
+    read,
+    send: async (use: (seen: ContactsSeen) => unknown): Promise<void> => {
+      await act(async () => {
+        await use(read());
+      });
+    },
+  };
+}
+
+interface ContactsReaderProps {
+  seen: ContactsSeen[];
+  added: string[];
+  applied: ContactRowDraft[];
+}
+
+function ContactsReader({ seen, added, applied }: ContactsReaderProps): null {
+  const {
+    useContactsScreen,
+    useCategoryDialog,
+    useConnectionDialog,
+    useContactDialog,
+    useContactRowDialog,
+  } = useViewModel();
+
+  function ignore(): void {
+    // The id of a category added is not what this reader looks at.
+  }
+
+  function noteAdded(id: string): void {
+    added.push(id);
+  }
+
+  function noteApplied(row: ContactRowDraft): void {
+    applied.push(row);
+  }
+
+  seen[0] = {
+    screen: useContactsScreen(),
+    categoryDialog: useCategoryDialog(null, ignore),
+    connectionDialog: useConnectionDialog("md12", null),
+    contactDialog: useContactDialog(
+      { kind: "person", editing: null },
+      noteAdded,
+    ),
+    added,
+    contactRowDialog: useContactRowDialog(null, 4, noteApplied),
+    applied,
+  };
+
+  return null;
 }
 
 /** Mounts the same component with no provider above it. React reports what the component threw. */

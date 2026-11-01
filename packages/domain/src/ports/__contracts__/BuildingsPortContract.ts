@@ -17,6 +17,11 @@ export interface BuildingsPortHarness {
   /** A building with a period and another building, and its supplier contacts' ids. */
   buildingId: string;
   suppliers: string[];
+  /** The name of the contact `suppliers[0]`. */
+  firstSupplierName: string;
+  /** A contact that is no supplier of buildingId. */
+  otherContactId: string;
+  unknownContactId: string;
   /** A building the port has no supplier link for. */
   unlinkedBuildingId: string;
   unknownBuildingId: string;
@@ -215,6 +220,142 @@ export function describeBuildingsPortContract(
       }
     });
 
+    it("adds a supplier to a building, and its suppliers emit again", async () => {
+      const { port, buildingId, suppliers, otherContactId, teardown } =
+        createHarness();
+      const emitted: string[][] = [];
+      const subscription = port.suppliers(buildingId).subscribe((next) => {
+        emitted.push(next);
+      });
+
+      try {
+        expect(await port.addSupplier(buildingId, otherContactId)).toEqual({
+          ok: true,
+        });
+        expect(emitted).toEqual([suppliers, [...suppliers, otherContactId]]);
+      } finally {
+        subscription.unsubscribe();
+        teardown();
+      }
+    });
+
+    it("adds to one building alone", async () => {
+      const {
+        port,
+        buildingId,
+        suppliers,
+        unlinkedBuildingId,
+        otherContactId,
+        teardown,
+      } = createHarness();
+
+      try {
+        await port.addSupplier(unlinkedBuildingId, otherContactId);
+
+        expect(await firstValueFrom(port.suppliers(buildingId))).toEqual(
+          suppliers,
+        );
+        expect(
+          await firstValueFrom(port.suppliers(unlinkedBuildingId)),
+        ).toEqual([otherContactId]);
+      } finally {
+        teardown();
+      }
+    });
+
+    it("refuses no contact, and a contact already a supplier by its name, emitting nothing", async () => {
+      const {
+        port,
+        buildingId,
+        suppliers,
+        firstSupplierName,
+        unlinkedBuildingId,
+        teardown,
+      } = createHarness();
+      const supplier = required(suppliers[0], "a supplier");
+      const emitted: string[][] = [];
+      const subscription = port.suppliers(buildingId).subscribe((next) => {
+        emitted.push(next);
+      });
+
+      try {
+        expect(await port.addSupplier(buildingId, null)).toEqual({
+          ok: false,
+          reason: "no-contact",
+        });
+        expect(await port.addSupplier(buildingId, supplier)).toEqual({
+          ok: false,
+          reason: "already-supplier",
+          detail: firstSupplierName,
+        });
+        expect(emitted).toEqual([suppliers]);
+        expect(await port.addSupplier(unlinkedBuildingId, supplier)).toEqual({
+          ok: true,
+        });
+      } finally {
+        subscription.unsubscribe();
+        teardown();
+      }
+    });
+
+    it("removes a supplier from a building, and its suppliers emit again", async () => {
+      const { port, buildingId, suppliers, unlinkedBuildingId, teardown } =
+        createHarness();
+      const removed = required(suppliers[0], "a supplier");
+      const emitted: string[][] = [];
+
+      await port.addSupplier(unlinkedBuildingId, removed);
+
+      const subscription = port.suppliers(buildingId).subscribe((next) => {
+        emitted.push(next);
+      });
+
+      try {
+        expect(await port.removeSupplier(buildingId, removed)).toEqual({
+          ok: true,
+        });
+        expect(emitted).toEqual([suppliers, suppliers.slice(1)]);
+        expect(
+          await firstValueFrom(port.suppliers(unlinkedBuildingId)),
+        ).toEqual([removed]);
+      } finally {
+        subscription.unsubscribe();
+        teardown();
+      }
+    });
+
+    it("rejects a supplier write for a building, a contact or a link it does not have", async () => {
+      const {
+        port,
+        buildingId,
+        suppliers,
+        otherContactId,
+        unknownBuildingId,
+        unknownContactId,
+        teardown,
+      } = createHarness();
+      const supplier = required(suppliers[0], "a supplier");
+
+      try {
+        await expect(
+          port.addSupplier(unknownBuildingId, supplier),
+        ).rejects.toThrow(`missing: the building ${unknownBuildingId}`);
+        await expect(
+          port.addSupplier(buildingId, unknownContactId),
+        ).rejects.toThrow(`missing: the contact ${unknownContactId}`);
+        await expect(
+          port.removeSupplier(unknownBuildingId, supplier),
+        ).rejects.toThrow(`missing: the building ${unknownBuildingId}`);
+        await expect(
+          port.removeSupplier(buildingId, otherContactId),
+        ).rejects.toThrow(
+          `missing: the supplier ${otherContactId} of ${buildingId}`,
+        );
+      } finally {
+        teardown();
+      }
+    });
+
     it("refuses a period edit with the reason, emitting nothing", async () => {
       const { port, periodId, otherPeriodName, teardown } = createHarness();
       const emitted: Building[][] = [];
@@ -246,6 +387,14 @@ export function describeBuildingsPortContract(
       }
     });
   });
+}
+
+function required<T>(value: T | undefined, what: string): T {
+  if (value === undefined) {
+    throw new Error(`the contract's harness has no ${what}`);
+  }
+
+  return value;
 }
 
 function find(buildings: Building[], buildingId: string): Building {

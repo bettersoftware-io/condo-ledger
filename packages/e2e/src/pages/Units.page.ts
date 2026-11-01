@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 
 import { TESTIDS } from "@cl/client-react/src/ui/testids.ts";
 
@@ -10,6 +10,8 @@ export interface UnitsPage {
   selectUnit: (code: string) => Promise<void>;
   /** Adds an owner to the selected unit through the Add Owner dialog: the contact found by what is typed, chosen by name, then + Add. Resolves when the dialog has closed. */
   addOwner: (typed: string, contact: string) => Promise<void>;
+  /** Adds an owner to the selected unit through the Add Owner dialog, making the contact in place: New person, its names, + Add there, then + Add on the owner. Resolves when both dialogs have closed. */
+  addOwnerAsNewPerson: (firstName: string, lastName: string) => Promise<void>;
 }
 
 export function createUnitsPage(page: Page): UnitsPage {
@@ -43,6 +45,26 @@ export function createUnitsPage(page: Page): UnitsPage {
         .getByTestId(TESTIDS.contactPickerOption)
         .filter({ hasText: contact })
         .click();
+      await dialog.getByTestId(TESTIDS.formDialogSave).click();
+      await dialog.waitFor({ state: "detached" });
+    },
+    addOwnerAsNewPerson: async (
+      firstName: string,
+      lastName: string,
+    ): Promise<void> => {
+      await page
+        .getByTestId(TESTIDS.unitTabs)
+        .getByRole("button", { name: "Add owner" })
+        .click();
+      await dialog.getByRole("button", { name: "New person" }).click();
+
+      // The person's dialog opens over the owner's, and is the last one.
+      const person = dialog.last();
+
+      await person.getByRole("textbox", { name: "First name" }).fill(firstName);
+      await person.getByRole("textbox", { name: "Last name" }).fill(lastName);
+      await person.getByTestId(TESTIDS.formDialogSave).click();
+      await expect(dialog).toHaveCount(1);
       await dialog.getByTestId(TESTIDS.formDialogSave).click();
       await dialog.waitFor({ state: "detached" });
     },

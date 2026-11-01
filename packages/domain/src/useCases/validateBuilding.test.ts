@@ -10,6 +10,7 @@ import {
   validateAddress,
   validateBuilding,
   validatePeriod,
+  validateSupplier,
 } from "./validateBuilding.ts";
 
 describe("validateBuilding", () => {
@@ -133,6 +134,32 @@ describe("validatePeriod", () => {
       ).name,
     });
   });
+});
+
+describe("validateSupplier", () => {
+  it("takes a contact that is no supplier of the building, a supplier of another included", () => {
+    expect(validateSupplier("c1", "md2", links, "Beta")).toEqual({ ok: true });
+  });
+
+  it("refuses no contact", () => {
+    expect(validateSupplier("c1", null, links, "")).toEqual({
+      ok: false,
+      reason: "no-contact",
+    });
+  });
+
+  it("refuses a supplier of the building, by its name", () => {
+    expect(validateSupplier("c1", "md1", links, "Alfa")).toEqual({
+      ok: false,
+      reason: "already-supplier",
+      detail: "Alfa",
+    });
+  });
+
+  const links = [
+    { buildingId: "c1", contactId: "md1" },
+    { buildingId: "c2", contactId: "md2" },
+  ];
 });
 
 describe("validateAddress", () => {

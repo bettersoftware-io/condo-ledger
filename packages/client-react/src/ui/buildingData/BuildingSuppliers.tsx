@@ -1,9 +1,9 @@
 import { type ReactElement, useEffect, useRef } from "react";
 
-import { addressTextOf, type Contact } from "@cl/domain";
+import { addressTextOf, type ContactRow, type ContactView } from "@cl/domain";
 import { must } from "@cl/domain/support/must.ts";
 
-import { CONTACT_KIND_LABELS } from "../contactLabels.ts";
+import { CONTACT_KIND_ICONS, CONTACT_KIND_LABELS } from "../contactLabels.ts";
 import { Fieldset } from "../Fieldset.tsx";
 import { Scheda } from "../Scheda.tsx";
 import { SheetField } from "../SheetField.tsx";
@@ -18,10 +18,10 @@ import "./BuildingSuppliers.css";
 /**
  * The Building Suppliers tab: the building's suppliers, `Name / Company |
  * Contact category`, beside the selected one's sheet (its kind, status and
- * code; COMPANY DATA; CONTACTS, the email in the accent), split by a
- * splitter whose ratio reaches the stylesheet as `--suppliers-split`,
- * written in an effect. A click selects a supplier. Read only: suppliers are
- * edited in Contacts. Takes only props, so the compiler memoizes it.
+ * code; COMPANY DATA; CONTACTS, every row of the contact by its order, the
+ * email in the accent), split by a splitter whose ratio reaches the
+ * stylesheet as `--suppliers-split`, written in an effect. A click selects a
+ * supplier. Takes only props, so the compiler memoizes it.
  */
 export function BuildingSuppliers({
   suppliers,
@@ -81,9 +81,9 @@ export function BuildingSuppliers({
 
 export interface BuildingSuppliersProps {
   /** The building's suppliers, by category, then name. */
-  suppliers: Contact[];
+  suppliers: ContactView[];
   /** The one whose sheet is shown; null with none. */
-  supplier: Contact | null;
+  supplier: ContactView | null;
   /** The list's grid-template-columns, from its columns machine. */
   template: string;
   /** The list's share of the width. */
@@ -95,17 +95,21 @@ export interface BuildingSuppliersProps {
 }
 
 interface SupplierSheetProps {
-  supplier: Contact;
+  supplier: ContactView;
 }
 
 function SupplierSheet({ supplier }: SupplierSheetProps): ReactElement {
   const active = supplier.status === "active";
+  const { contact } = supplier;
+  const registeredOffice =
+    contact.kind === "company" ? contact.registeredOffice : null;
+  const taxDomicile = contact.kind === "company" ? contact.taxDomicile : null;
 
   return (
     <Scheda>
       <SheetField
         label="Contact type"
-        value={`${supplier.kind === "company" ? "🏢" : "👤"} ${CONTACT_KIND_LABELS[supplier.kind]}`}
+        value={`${CONTACT_KIND_ICONS[supplier.kind]} ${CONTACT_KIND_LABELS[supplier.kind]}`}
       />
       <SheetField
         label="Status"
@@ -116,34 +120,48 @@ function SupplierSheet({ supplier }: SupplierSheetProps): ReactElement {
       />
       <SheetField label="Code" value={supplier.code} tone="mono" />
       <Fieldset legend="COMPANY DATA">
-        <SheetField label="Company name" value={supplier.companyName} />
+        <SheetField
+          label="Company name"
+          value={contact.kind === "company" ? contact.companyName : null}
+        />
         <SheetField
           label="Registered office"
           value={
-            supplier.registeredOffice === null
-              ? null
-              : addressTextOf(supplier.registeredOffice)
+            registeredOffice === null ? null : addressTextOf(registeredOffice)
           }
         />
         <SheetField
           label="Tax domicile"
-          value={
-            supplier.taxDomicile === null
-              ? null
-              : addressTextOf(supplier.taxDomicile)
-          }
+          value={taxDomicile === null ? null : addressTextOf(taxDomicile)}
         />
       </Fieldset>
-      <Fieldset legend="CONTACTS">
-        <SheetField label="Phone" value={supplier.phone} />
-        <SheetField label="Email" value={supplier.email} tone="accent" />
-      </Fieldset>
+      {contact.rows.length === 0 ? null : (
+        <Fieldset legend="CONTACTS">
+          {byOrder(contact.rows).map((row) => {
+            return (
+              <SheetField
+                key={row.id}
+                label={row.label}
+                value={row.value}
+                tone={row.type === "email" ? "accent" : undefined}
+              />
+            );
+          })}
+        </Fieldset>
+      )}
     </Scheda>
   );
 }
 
+/** The contact's rows by their order, the list itself left as it is. */
+function byOrder(rows: ContactRow[]): ContactRow[] {
+  return [...rows].sort((a, b) => {
+    return a.order - b.order;
+  });
+}
+
 function rowDataOf(
-  contact: Contact,
+  contact: ContactView,
   selectedId: string | null,
 ): TreeGridRowData {
   return {

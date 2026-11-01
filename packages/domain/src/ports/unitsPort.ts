@@ -1,18 +1,13 @@
 import type { Observable } from "rxjs";
 
 import type { OwnerParty } from "#/entities/party.ts";
-import type { Result, ResultOf } from "#/entities/result.ts";
+import type { Added, Result, ResultOf } from "#/entities/result.ts";
 import type { Unit, UnitGroup } from "#/entities/unit.ts";
 import type {
   GroupDraft,
   ResidencyDraft,
   UnitDraft,
 } from "#/useCases/validateUnits.ts";
-
-/** What adding a group, a unit or a resident answers: the id the port gave it. */
-export interface Added {
-  id: string;
-}
 
 /**
  * A period's units, the groups they sit in and the residents of each unit:

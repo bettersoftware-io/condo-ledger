@@ -1,0 +1,28 @@
+/* The sheet's lists of buildings: one per line, the 🏢 before its name; none reads dim. */
+.contact-building {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+}
+
+.contact-building[data-blank="true"] {
+  color: var(--txd);
+}
+
+.contact-blank {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--txd);
+}
+
+/* The notes as written, their line breaks kept; none reads `---`, dim. */
+.contact-notes {
+  margin: 0;
+  font-size: 12.5px;
+  white-space: pre-wrap;
+}
+
+.contact-notes[data-blank="true"] {
+  color: var(--txd);
+}

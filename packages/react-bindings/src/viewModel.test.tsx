@@ -14,6 +14,7 @@ import { createTwoPeriodSeed } from "@cl/domain/testing/createTwoPeriodSeed.ts";
 
 import {
   mountBuildingData,
+  mountContactsHooks,
   mountUnderProvider,
   mountWithoutProvider,
   type Seen,
@@ -560,7 +561,7 @@ describe("the view model", () => {
   it("lists the contacts an owner can be linked to", () => {
     const page = mountUnderProvider(loadLegacySeed(legacySeedData));
 
-    expect(page.read().contacts).toHaveLength(48);
+    expect(page.read().contacts).toHaveLength(113);
   });
 
   it("the building data hooks mount on the real seed: both buildings' rows, p1's selected with Saturno's suppliers, and a period row clicked becomes the app's", async () => {
@@ -631,6 +632,92 @@ describe("the view model", () => {
       }),
     ).toContainEqual(["", "2011 bis (Ordinary)"]);
     expect(page.read().data.view.building?.code).toBe("STN");
+  });
+
+  it("the contacts hooks: a category added, a connection added to md12 and selected, then deleted", async () => {
+    const page = mountContactsHooks();
+
+    await page.send((seen) => {
+      seen.screen.setPageSize(100);
+      seen.screen.select("md12");
+    });
+
+    expect(page.read().screen.view?.selected?.id).toBe("md12");
+    expect(page.read().screen.view?.connections).toHaveLength(1);
+    expect(page.read().connectionDialog.state.form.order).toBe("2");
+
+    await page.send((seen) => {
+      seen.categoryDialog.edit({ name: "Chimney sweep" });
+      seen.connectionDialog.edit({
+        connectedId: "md31",
+        relationship: "Plumber",
+      });
+    });
+    await page.send(async (seen) => {
+      expect((await seen.categoryDialog.save()).ok).toBe(true);
+      expect((await seen.connectionDialog.save()).ok).toBe(true);
+    });
+
+    expect(
+      page.read().screen.view?.categories.map(({ category }) => {
+        return category.name;
+      }),
+    ).toContain("Chimney sweep");
+    expect(page.read().screen.view?.connections).toHaveLength(2);
+
+    const added = must(
+      page.read().screen.view?.connections[1],
+      "the added connection",
+    );
+
+    await page.send((seen) => {
+      seen.screen.selectConnection(added.connection.id);
+    });
+
+    expect(page.read().screen.view?.selectedConnection?.connection.id).toBe(
+      added.connection.id,
+    );
+
+    await page.send(async (seen) => {
+      expect((await seen.screen.deleteConnection(added.connection.id)).ok).toBe(
+        true,
+      );
+    });
+
+    expect(page.read().screen.view?.connections).toHaveLength(1);
+  });
+
+  it("the contacts hooks: a person added with a row, then deleted", async () => {
+    const page = mountContactsHooks();
+
+    expect(page.read().contactRowDialog.state.form.order).toBe("4");
+
+    await page.send((seen) => {
+      seen.contactRowDialog.edit({ value: "0432 000 000" });
+    });
+    await page.send(async (seen) => {
+      expect((await seen.contactRowDialog.save()).ok).toBe(true);
+    });
+
+    expect(page.read().applied).toMatchObject([
+      { type: "phone", value: "0432 000 000", order: 4 },
+    ]);
+
+    await page.send((seen) => {
+      seen.contactDialog.edit({ lastName: "Zzyzx" });
+      seen.contactDialog.applyRow(null, must(page.read().applied[0], "a row"));
+    });
+    await page.send(async (seen) => {
+      expect((await seen.contactDialog.save()).ok).toBe(true);
+    });
+
+    const [id] = page.read().added;
+
+    expect(id).toBeDefined();
+
+    await page.send(async (seen) => {
+      expect((await seen.screen.deleteContact(id ?? "")).ok).toBe(true);
+    });
   });
 
   it("a wizard hook given an entry to edit shows that entry's form", () => {

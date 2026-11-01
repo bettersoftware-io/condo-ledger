@@ -1,4 +1,8 @@
 import type {
+  CategoryDialogState,
+  ConnectionDialogState,
+  ContactDialogState,
+  ContactRowDialogState,
   DirectPaymentKind,
   GenericLine,
   GroupDialogState,
@@ -8,11 +12,13 @@ import type {
   OwnerDialogState,
   PeriodDialogState,
   SettlementRow,
+  SupplierDialogState,
 } from "@cl/client-core";
 import {
   type AccountNature,
   type AllocationMode,
   type CellStatus,
+  type ContactFilter,
   cents,
   type EntryKind,
   type Language,
@@ -51,6 +57,8 @@ export interface Scenario extends Picture {
   drawerOpen?: boolean;
   /** Accounts given another name, by id: a label the seed does not have. */
   renamed?: Record<string, string>;
+  /** The module on screen, chosen as the person chooses it; Buildings when absent. */
+  module?: "contacts";
   /** The Buildings menu item on screen; Accounts when absent. */
   menu?:
     | "data"
@@ -125,7 +133,30 @@ export interface Scenario extends Picture {
   ownerForm?: Partial<OwnerDialogState["form"]>;
   /** What is typed in the Edit Management / Period dialog (`mount: "period-dialog"`), one field at a time in the order written. */
   periodForm?: Partial<PeriodDialogState["form"]>;
+  /** The contact selected on the Contacts screen, on the page that holds it, as a saved contact is (the page's first when absent); for `mount: "contact-picker"`, the contact linked. */
+  contactId?: string;
+  /** The Contacts screen's filter, applied through the presenter as the person applies it. */
+  contactFilter?: Partial<Omit<ContactFilter, "keyword">>;
+  /** The keyword typed in Filter Contacts and searched. */
+  keyword?: string;
+  /** The tab the Contacts screen's bottom panel shows, as a click on it chooses it; Contact Details when absent. */
+  contactTab?: "Contact Details" | "Connected Contacts";
+  /** The person or company dialog (`mount: "contact-dialog"`): the kind of a new contact, or the contact to edit, by id. */
+  contactDialog?: ContactDialogOpen;
+  /** What is typed in the person or company dialog, one field at a time in the order written. */
+  contactForm?: Partial<ContactDialogState["form"]>;
+  /** What is typed in the Add Contact dialog (`mount: "contact-row-dialog"`), one field at a time in the order written. */
+  rowForm?: Partial<ContactRowDialogState["form"]>;
+  /** What is typed in the New Category dialog (`mount: "category-dialog"`). */
+  categoryForm?: Partial<CategoryDialogState["form"]>;
+  /** What is typed in the Add Connected Contact dialog (`mount: "connection-dialog"`, on the contact `contactId` names), one field at a time in the order written. */
+  connectionForm?: Partial<ConnectionDialogState["form"]>;
+  /** What is typed in the Add Supplier dialog (`mount: "supplier-dialog"`, on the building of `periodId`). */
+  supplierForm?: Partial<SupplierDialogState["form"]>;
 }
+
+/** A person or company dialog: a new contact of a kind, or an edit of one contact. */
+type ContactDialogOpen = { kind: "person" | "company" } | { edit: string };
 
 /** The budget wizard on a step: the first due date typed on step 1, the other fields as they open, then moved on through its own Next. */
 interface BudgetInstallmentsStep {
@@ -1331,6 +1362,197 @@ export const scenarios: Record<string, Scenario> = {
     height: 720,
     mode: "light",
     periodId: "p1",
+  },
+
+  // Contacts. The registry has 113 contacts; the first page lists ten, and
+  // two are archived. Studio Bertoli (`md1`) is a company of five rows,
+  // Cattaruzzi (`md12`) a person connected to Energie del Ledra (`md15`).
+
+  // The whole screen with a company selected: the filter cards in the
+  // sidebar, the list over the sheet.
+  "contacts-1280-light": {
+    width: 1280,
+    height: 720,
+    mode: "light",
+    periodId: "p36",
+    module: "contacts",
+    contactId: "md1",
+  },
+  // The same at the full width, in the dark mode, on its Connected Contacts
+  // tab: a person and the company they work for.
+  "contacts-1920-dark": {
+    width: 1920,
+    height: 1080,
+    mode: "dark",
+    periodId: "p36",
+    module: "contacts",
+    contactId: "md12",
+    contactTab: "Connected Contacts",
+  },
+  // Filter Contacts with a keyword searched, Pozzetto chosen and only the
+  // active ones, companies and persons both ticked.
+  "contact-filters": {
+    level: "component",
+    mount: "contact-filters",
+    width: 300,
+    mode: "light",
+    periodId: "p36",
+    keyword: "Servizi",
+    contactFilter: { buildingId: "c19", status: "active" },
+  },
+  // Contact Categories with Water supply (`mc17`) chosen, so ✎ and − are on.
+  "contact-categories": {
+    level: "component",
+    mount: "contact-categories",
+    width: 300,
+    mode: "light",
+    periodId: "p36",
+    contactFilter: { categoryId: "mc17" },
+  },
+  // The list filtered to the archived contacts: the St. cell of each,
+  // the first selected.
+  "contacts-list-archived": {
+    level: "component",
+    mount: "contacts-panel",
+    width: 1000,
+    mode: "light",
+    periodId: "p36",
+    contactFilter: { status: "archived" },
+  },
+  // A person's sheet: personal data, the rows by order, the empty values as
+  // ---, and where the person is used.
+  "contact-details-person": {
+    level: "component",
+    mount: "contact-tabs",
+    width: 1000,
+    mode: "light",
+    periodId: "p36",
+    contactId: "md12",
+  },
+  // A company's sheet: its company data, four rows and the building it
+  // supplies.
+  "contact-details-company": {
+    level: "component",
+    mount: "contact-tabs",
+    width: 1000,
+    mode: "light",
+    periodId: "p36",
+    contactId: "md78",
+  },
+  // The Connected Contacts tab of Cattaruzzi: the company he is connected to,
+  // by order, with the relationship.
+  "connected-contacts": {
+    level: "component",
+    mount: "contact-tabs",
+    width: 1000,
+    mode: "light",
+    periodId: "p36",
+    contactId: "md12",
+    contactTab: "Connected Contacts",
+  },
+  // Edit Person on Cattaruzzi as it opens. Its viewport is 900 high so the
+  // card stays under its 90vh ceiling.
+  "contact-dialog-person": {
+    level: "component",
+    mount: "contact-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 900,
+    mode: "light",
+    periodId: "p36",
+    contactDialog: { edit: "md12" },
+  },
+  // Edit Company on a supplier with four rows.
+  "contact-dialog-company": {
+    level: "component",
+    mount: "contact-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 900,
+    mode: "light",
+    periodId: "p36",
+    contactDialog: { edit: "md78" },
+  },
+  // New Person with a last name and the code of another contact (Cattaruzzi's):
+  // the refusal, and + Add disabled.
+  "contact-dialog-refused": {
+    level: "component",
+    mount: "contact-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 900,
+    mode: "light",
+    periodId: "p36",
+    contactDialog: { kind: "person" },
+    contactForm: { lastName: "Bianchi", code: "TCATTA" },
+  },
+  // Add Contact (a row of a contact) with an email typed and its value left
+  // blank: the refusal.
+  "contact-row-dialog": {
+    level: "component",
+    mount: "contact-row-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p36",
+    rowForm: { type: "email", label: "Email" },
+  },
+  // New Category named as Plumber (`mc7`) is: the refusal.
+  "category-dialog-taken": {
+    level: "component",
+    mount: "category-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p36",
+    categoryForm: { name: "Plumber" },
+  },
+  // Add Connected Contact on Studio Bertoli, ready to add: a contact chosen,
+  // its relationship typed.
+  "connection-dialog": {
+    level: "component",
+    mount: "connection-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p36",
+    contactId: "md1",
+    connectionForm: { connectedId: "md12", relationship: "Accountant" },
+  },
+  // Add Supplier on Pozzetto with a contact chosen that is not one yet.
+  "supplier-dialog": {
+    level: "component",
+    mount: "supplier-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    periodId: "p36",
+    supplierForm: { contactId: "md1" },
+  },
+  // The picker with a contact linked: the box holds its name, and the
+  // buttons beside it are New company, New person, Edit contact and Clear.
+  "contact-picker-buttons": {
+    level: "component",
+    mount: "contact-picker",
+    width: 500,
+    mode: "light",
+    periodId: "p36",
+    contactId: "md1",
+  },
+  // Pozzetto's suppliers with Pontoni (`md82`) selected, four rows in the
+  // sheet's CONTACTS.
+  "building-suppliers-rows": {
+    level: "section",
+    mount: "building-tabs",
+    width: 1000,
+    mode: "light",
+    periodId: "p36",
+    buildingTab: "Building Suppliers",
+    supplierId: "md82",
   },
 
   // Sections: where the way parts sit together is what is pictured. The

@@ -2,6 +2,7 @@ import { firstValueFrom } from "rxjs";
 import { describe, expect, it } from "vitest";
 
 import {
+  type Added,
   type BuildingsPort,
   type Cents,
   cents,
@@ -12,11 +13,11 @@ import {
   loadLegacySeed,
   type ResultOf,
 } from "@cl/domain";
-import type { Added } from "@cl/domain/ports/unitsPort.ts";
 import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
 import { must } from "@cl/domain/support/must.ts";
 import { createSmallSeed } from "@cl/domain/testing/createSmallBooks.ts";
 import { createTwoPeriodSeed } from "@cl/domain/testing/createTwoPeriodSeed.ts";
+import type { ContactDraft } from "@cl/domain/useCases/contacts/validateContact.ts";
 import type { PeriodDraft } from "@cl/domain/useCases/validateBuilding.ts";
 import type {
   ResidencyDraft,
@@ -395,6 +396,41 @@ describe("the simulator ports' buildings and contacts", () => {
         }),
     );
   });
+
+  it("judges a contact's delete against the residents as they stand: a resident added refuses it, naming the building, and once removed it goes", async () => {
+    const { contacts, units, buildings } = createRealPorts();
+    const contactId = addedId(
+      await contacts.addContact(createPersonDraft("Lombardi")),
+    );
+
+    const unitId = addedId(
+      await units.addUnit("p36", null, createUnitDraft("A99")),
+    );
+
+    const residentId = addedId(
+      await units.addResident(unitId, createResidencyDraft(contactId)),
+    );
+
+    const building = must(
+      (await firstValueFrom(buildings.buildings())).find((candidate) => {
+        return candidate.periods.some((period) => {
+          return period.id === "p36";
+        });
+      }),
+      "the building of p36",
+    );
+
+    expect(
+      (await firstValueFrom(contacts.uses())).get(contactId)?.residentOf,
+    ).toEqual([building.id]);
+    expect(await contacts.deleteContact(contactId)).toEqual({
+      ok: false,
+      reason: "is-resident",
+      detail: building.name,
+    });
+    expect(await units.deleteResident(residentId)).toEqual({ ok: true });
+    expect(await contacts.deleteContact(contactId)).toEqual({ ok: true });
+  });
 });
 
 /** The simulator ports over the real seed, each built afresh. */
@@ -470,6 +506,30 @@ function addedId(result: ResultOf<Added>): string {
   }
 
   return result.value.id;
+}
+
+function createPersonDraft(lastName: string): ContactDraft {
+  return {
+    kind: "person",
+    status: "active",
+    code: null,
+    categoryId: null,
+    salutation: null,
+    taxCode: null,
+    vatNumber: null,
+    postalAddress: null,
+    language: null,
+    notes: null,
+    rows: [],
+    firstName: null,
+    lastName,
+    gender: null,
+    birthDate: null,
+    birthPlace: null,
+    officeAddress: null,
+    residenceAddress: null,
+    domicileAddress: null,
+  };
 }
 
 function createUnitDraft(code: string): UnitDraft {

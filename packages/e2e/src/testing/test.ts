@@ -5,6 +5,10 @@ import {
   createAccountsPage,
 } from "../pages/Accounts.page.ts";
 import {
+  type ContactsPage,
+  createContactsPage,
+} from "../pages/Contacts.page.ts";
+import {
   createInstallmentSchedulePage,
   type InstallmentSchedulePage,
 } from "../pages/InstallmentSchedule.page.ts";
@@ -16,6 +20,7 @@ interface PageObjects {
   shell: ShellPage;
   accounts: AccountsPage;
   journal: JournalPage;
+  contacts: ContactsPage;
   units: UnitsPage;
   schedule: InstallmentSchedulePage;
   /** Fails a test whose page threw. Every test has it, asked for or not. */
@@ -40,6 +45,13 @@ export const test = base.extend<PageObjects>({
 
   journal: async ({ page }: WithPage, use: Use<JournalPage>): Promise<void> => {
     await use(createJournalPage(page));
+  },
+
+  contacts: async (
+    { page }: WithPage,
+    use: Use<ContactsPage>,
+  ): Promise<void> => {
+    await use(createContactsPage(page));
   },
 
   units: async ({ page }: WithPage, use: Use<UnitsPage>): Promise<void> => {

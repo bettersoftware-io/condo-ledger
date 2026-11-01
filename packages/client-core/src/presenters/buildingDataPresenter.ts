@@ -18,8 +18,9 @@ import {
   type BuildingsPort,
   buildingRowsOf,
   type ClockPort,
-  type Contact,
   type ContactsPort,
+  type ContactView,
+  contactViewsOf,
   type OwnerParty,
   type Period,
   type PeriodDraft,
@@ -50,9 +51,9 @@ export interface BuildingDataView {
   /** The selected row's building. */
   building: Building | null;
   /** The building's suppliers, by category, then name. */
-  suppliers: Contact[];
+  suppliers: ContactView[];
   /** The supplier clicked, while the building has it; else its first. */
-  supplier: Contact | null;
+  supplier: ContactView | null;
 }
 
 /** What the Edit Management / Period dialog is judged against. */
@@ -68,6 +69,8 @@ export interface BuildingDataPresenter {
   /** Selects a row by its key; a period's row also makes it the app's period. */
   select: (key: string) => void;
   selectSupplier: (contactId: string) => void;
+  /** Unlinks a supplier from the building; the contact stays. */
+  removeSupplier: (buildingId: string, contactId: string) => Promise<Result>;
   editBuilding: (buildingId: string, draft: BuildingDraft) => Promise<Result>;
   editPeriod: (periodId: string, draft: PeriodDraft) => Promise<Result>;
   /** The period with its building, units and residents as they stand; throws for a period the tree does not hold. */
@@ -174,6 +177,12 @@ export function createBuildingDataPresenter(
     },
     selectSupplier: (contactId: string): void => {
       chosenSupplier$.next(contactId);
+    },
+    removeSupplier: (
+      buildingId: string,
+      contactId: string,
+    ): Promise<Result> => {
+      return ports.buildings.removeSupplier(buildingId, contactId);
     },
     editBuilding: (
       buildingId: string,
@@ -347,31 +356,33 @@ function rowKeyed(rows: BuildingRow[], key: string): BuildingRow | undefined {
 /** A building's suppliers, with the building they were read for. */
 interface HeldSuppliers {
   buildingId: string | null;
-  suppliers: Contact[];
+  suppliers: ContactView[];
 }
 
 /** The building's supplier contacts, by category (none last), then name. */
 function suppliersOf(
   ports: BuildingDataPresenterPorts,
   buildingId: string,
-): Observable<Contact[]> {
+): Observable<ContactView[]> {
   return combineLatest([
     ports.buildings.suppliers(buildingId),
     ports.contacts.contacts(),
+    ports.contacts.categories(),
   ]).pipe(
-    map(([contactIds, contacts]) => {
+    map(([contactIds, contacts, categories]) => {
       const ids = new Set(contactIds);
 
-      return contacts
-        .filter((contact) => {
+      return contactViewsOf(
+        contacts.filter((contact) => {
           return ids.has(contact.id);
-        })
-        .sort(byCategoryThenName);
+        }),
+        categories,
+      ).sort(byCategoryThenName);
     }),
   );
 }
 
-function byCategoryThenName(a: Contact, b: Contact): number {
+function byCategoryThenName(a: ContactView, b: ContactView): number {
   if (a.category !== b.category) {
     if (a.category === null) {
       return 1;

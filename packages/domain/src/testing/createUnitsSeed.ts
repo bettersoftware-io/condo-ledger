@@ -1,8 +1,8 @@
 import { cents } from "#/entities/cents.ts";
-import type { Contact } from "#/entities/contact.ts";
 import type { OwnerParty } from "#/entities/party.ts";
 import type { LegacySeed } from "#/simulators/seed/legacySeed.ts";
 
+import { createPersonContact } from "./createContacts.ts";
 import { createTablesSeed } from "./createTablesSeed.ts";
 
 /**
@@ -44,8 +44,8 @@ export function createUnitsSeed(): LegacySeed {
     ],
     contacts: [
       ...seed.contacts,
-      createPerson("md12", "Verdi Luca"),
-      createPerson("md13", "Neri Paolo"),
+      createPersonContact("md12", "Verdi", "Luca"),
+      createPersonContact("md13", "Neri", "Paolo"),
     ],
   };
 }
@@ -63,21 +63,5 @@ function createFourthResident(): OwnerParty {
     share: null,
     restriction: null,
     ownRestriction: null,
-  };
-}
-
-function createPerson(id: string, name: string): Contact {
-  return {
-    id,
-    kind: "person",
-    name,
-    status: "active",
-    code: null,
-    category: null,
-    companyName: null,
-    registeredOffice: null,
-    taxDomicile: null,
-    phone: null,
-    email: null,
   };
 }

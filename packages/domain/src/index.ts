@@ -23,7 +23,7 @@ export type {
 export type { EntryAdded, JournalPort } from "./ports/journalPort.ts";
 export type { SessionPort } from "./ports/sessionPort.ts";
 export type { TableAdded, TablesPort } from "./ports/tablesPort.ts";
-export type { Added, UnitsPort } from "./ports/unitsPort.ts";
+export type { UnitsPort } from "./ports/unitsPort.ts";
 export {
   type AccountsSimulator,
   createAccountsSimulator,
@@ -32,7 +32,10 @@ export {
   type BuildingsSimulator,
   createBuildingsSimulator,
 } from "./simulators/buildingsSimulator.ts";
-export { createContactsSimulator } from "./simulators/contactsSimulator.ts";
+export {
+  type ContactsSimulator,
+  createContactsSimulator,
+} from "./simulators/contactsSimulator.ts";
 export { fixedClock } from "./simulators/fixedClock.ts";
 export {
   createInstallmentsSimulator,
@@ -43,6 +46,7 @@ export {
   type JournalSimulator,
 } from "./simulators/journalSimulator.ts";
 export * from "./simulators/seed/legacySeed.ts";
+export { periodSuppliers } from "./simulators/seededParties.ts";
 export {
   createSessionSimulator,
   DESIGN_FIRM,
@@ -81,6 +85,31 @@ export {
   periodFiguresOf,
 } from "./useCases/buildingRows.ts";
 export * from "./useCases/collection.ts";
+export {
+  ALL_CONTACTS,
+  type ContactFilter,
+  filterContacts,
+  offerableContacts,
+} from "./useCases/contacts/contactFilter.ts";
+export {
+  type ContactUsesById,
+  contactUsesOf,
+} from "./useCases/contacts/contactUses.ts";
+export {
+  type ContactView,
+  contactViewsOf,
+} from "./useCases/contacts/contactViews.ts";
+export { validateCategory } from "./useCases/contacts/validateCategory.ts";
+export {
+  type ConnectionDraft,
+  validateConnection,
+} from "./useCases/contacts/validateConnection.ts";
+export {
+  type ContactDraft,
+  type ContactRowDraft,
+  validateContact,
+  validateContactRow,
+} from "./useCases/contacts/validateContact.ts";
 export * from "./useCases/installments.ts";
 export * from "./useCases/invoice.ts";
 export * from "./useCases/journal.ts";
@@ -101,6 +130,7 @@ export {
   validateAddress,
   validateBuilding,
   validatePeriod,
+  validateSupplier,
 } from "./useCases/validateBuilding.ts";
 export * from "./useCases/validateEntry.ts";
 export * from "./useCases/validateSchedule.ts";

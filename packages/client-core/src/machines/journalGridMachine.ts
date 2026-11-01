@@ -9,11 +9,16 @@ import {
 
 import type { JournalEntryView, PostingView } from "@cl/domain";
 
+import {
+  clampPage,
+  PAGE_SIZES,
+  type PageSize,
+  pageCountOf,
+  pageOfIndex,
+} from "../paging.ts";
 import type { Machine } from "./machine.ts";
 
-export type PageSize = 10 | 25 | 50 | 100;
-
-export const PAGE_SIZES: readonly PageSize[] = [10, 25, 50, 100];
+export { PAGE_SIZES, type PageSize };
 
 interface EntryRow {
   kind: "entry";
@@ -157,7 +162,7 @@ export function createJournalGridMachine(
         update({
           search,
           selectedId: id,
-          page: Math.floor(index / preferences$.getValue().pageSize) + 1,
+          page: pageOfIndex(index, preferences$.getValue().pageSize),
         });
       },
     },
@@ -175,8 +180,8 @@ function stateOf(
 ): JournalGridState {
   const found = matching(entries, preferences.search);
   const ids = new Set(found.map(idOf));
-  const pageCount = Math.max(1, Math.ceil(found.length / preferences.pageSize));
-  const page = Math.min(Math.max(1, preferences.page), pageCount);
+  const pageCount = pageCountOf(found.length, preferences.pageSize);
+  const page = clampPage(preferences.page, pageCount);
   const expanded = [...preferences.expanded].filter((id) => {
     return ids.has(id);
   });

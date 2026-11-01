@@ -157,7 +157,7 @@ describe("Sidebar", () => {
     expect(page.isDrawerOpen()).toBe(false);
   });
 
-  it("the main area shows the Accounts, Journal and Installment Schedule screens on their menu items, a placeholder elsewhere", async () => {
+  it("the main area shows the Accounts, Journal and Installment Schedule screens on their menu items, a placeholder on the Calendar", async () => {
     const page = mountSidebar();
 
     expect(page.screenTitle()).toBe("Accounts, Ledgers & Balance");
@@ -171,10 +171,15 @@ describe("Sidebar", () => {
     expect(page.screenTitle()).toBe("Installment Schedule");
     expect(page.showsPlaceholder()).toBe(false);
 
+    await page.clickModule("Calendar");
+
+    expect(page.screenTitle()).toBe("Calendar");
+    expect(page.showsPlaceholder()).toBe(true);
+
     await page.clickModule("Contacts");
 
-    expect(page.screenTitle()).toBe("Contacts");
-    expect(page.showsPlaceholder()).toBe(true);
+    expect(page.screenTitle()).toBe("Contact List");
+    expect(page.showsPlaceholder()).toBe(false);
   });
 
   it("maximizing the Accounts panel folds the sidebar, and the rail restores both", async () => {

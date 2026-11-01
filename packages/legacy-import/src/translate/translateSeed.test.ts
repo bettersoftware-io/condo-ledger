@@ -4,15 +4,18 @@ import type {
   AccountData,
   Building,
   Contact,
+  ContactRow,
   Installment,
   InvoiceData,
   JournalEntryData,
   LegacySeedData,
+  PersonContact,
   ThousandthTable,
   Unit,
   UnitGroup,
   WithholdingTaxData,
 } from "@cl/domain";
+import { createPersonContact } from "@cl/domain/testing/createContacts.ts";
 
 import { translateLegacySeed } from "./translateSeed.ts";
 
@@ -170,7 +173,7 @@ describe("translateLegacySeed", () => {
     });
   });
 
-  it("translates the notes of a building, a period, a unit and a group, and a contact's category, and keeps an empty one empty", () => {
+  it("translates the notes of a building, a period, a unit and a group, and keeps an empty one empty", () => {
     const seed = translateLegacySeed(
       createSeed({
         buildings: [createBuilding("Impresa di pulizie", "Giardiniere")],
@@ -178,10 +181,6 @@ describe("translateLegacySeed", () => {
         unitGroups: [
           createUnitGroup({ id: "ug1", notes: "Ferramenta" }),
           createUnitGroup({ id: "ug2", name: "Box", notes: null }),
-        ],
-        contacts: [
-          createContact({ id: "md1", category: "Condòmino" }),
-          createContact({ id: "md2", category: null }),
         ],
       }),
     );
@@ -193,16 +192,90 @@ describe("translateLegacySeed", () => {
       seed.unitGroups.map((group) => {
         return group.notes;
       }),
-      seed.contacts.map((contact) => {
-        return contact.category;
-      }),
     ]).toEqual([
       "Cleaning company",
       "Gardener",
       "note note note2",
       ["Hardware store", null],
-      ["Owner", null],
     ]);
+  });
+
+  it("translates a contact's salutation and row labels, the categories, the relationships and the salutations, leaving the test labels as data and a missing salutation missing", () => {
+    const seed = translateLegacySeed(
+      createSeed({
+        contacts: [
+          createContact({
+            id: "md1",
+            salutation: "Egregio Signore",
+            rows: [
+              createRow("mr1", "Telefono"),
+              createRow("mr2", "Sito Web"),
+              createRow("mr3", "sdfsd22"),
+            ],
+          }),
+          createContact({ id: "md2", salutation: null }),
+        ],
+        contactCategories: [{ id: "mc29", name: "Condòmino" }],
+        contactConnections: [
+          {
+            id: "cr1",
+            contactId: "md1",
+            connectedId: "md2",
+            relationship: "Impiegato",
+            order: 1,
+          },
+        ],
+        salutations: ["Egregio Signore", "Spettabile"],
+      }),
+    );
+
+    expect(seed.contacts[0]?.salutation).toBe("Dear Sir");
+    expect(seed.contacts[1]?.salutation).toBeNull();
+    expect(
+      seed.contacts[0]?.rows.map((row) => {
+        return row.label;
+      }),
+    ).toEqual(["Phone", "Website", "sdfsd22"]);
+    expect(seed.contactCategories).toEqual([{ id: "mc29", name: "Owner" }]);
+    expect(seed.contactConnections[0]?.relationship).toBe("Employee");
+    expect(seed.salutations).toEqual(["Dear Sir", "Dear Sir or Madam"]);
+  });
+
+  it("translates a contact's note, keeps an empty one empty, and stops on an unknown one naming the record", () => {
+    const seed = translateLegacySeed(
+      createSeed({
+        contacts: [
+          createContact({ id: "md1", notes: "cvd" }),
+          createContact({ id: "md2", notes: "" }),
+          createContact({ id: "md3", notes: null }),
+        ],
+      }),
+    );
+
+    expect(
+      seed.contacts.map((contact) => {
+        return contact.notes;
+      }),
+    ).toEqual(["cvd", "", null]);
+    expect(() => {
+      return translateLegacySeed(
+        createSeed({
+          contacts: [createContact({ id: "md9", notes: "Chiamare lunedì" })],
+        }),
+      );
+    }).toThrow(/contacts\.notes of md9.*Chiamare lunedì/);
+  });
+
+  it("stops on a row label it has no English for, naming the row", () => {
+    expect(() => {
+      return translateLegacySeed(
+        createSeed({
+          contacts: [
+            createContact({ id: "md1", rows: [createRow("mr7", "Telex")] }),
+          ],
+        }),
+      );
+    }).toThrow(/mr7.*Telex/);
   });
 
   it("refuses two sibling accounts whose different Italian names would read the same in English", () => {
@@ -251,6 +324,9 @@ function createSeed(records: Partial<LegacySeedData>): LegacySeedData {
     tables: [],
     coefficients: [],
     contacts: [],
+    contactCategories: [],
+    contactConnections: [],
+    salutations: [],
     supplierLinks: [],
     ...records,
   };
@@ -301,21 +377,12 @@ function createUnit(notes: string): Unit {
   };
 }
 
-function createContact(fields: Partial<Contact>): Contact {
-  return {
-    id: "md1",
-    kind: "person",
-    name: "Rossi Anna",
-    status: "active",
-    code: null,
-    category: null,
-    companyName: null,
-    registeredOffice: null,
-    taxDomicile: null,
-    phone: null,
-    email: null,
-    ...fields,
-  };
+function createContact(fields: Partial<PersonContact>): Contact {
+  return createPersonContact("md1", "Rossi", "Anna", fields);
+}
+
+function createRow(id: string, label: string): ContactRow {
+  return { id, type: "phone", label, value: "0432 111", order: 1 };
 }
 
 function createAccount(fields: Partial<AccountData>): AccountData {

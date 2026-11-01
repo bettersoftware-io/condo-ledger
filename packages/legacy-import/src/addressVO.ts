@@ -5,6 +5,7 @@ export interface AddressFields {
   streetName?: string;
   streetNumber?: string;
   cityName?: string;
+  countryName?: string;
   /** The id of the city in the dump's city table, when the blob names it by id. */
   cityId?: string;
 }
@@ -16,6 +17,7 @@ const WANTED_KEYS: ReadonlyArray<keyof AddressFields> = [
   "streetName",
   "streetNumber",
   "cityName",
+  "countryName",
 ];
 
 /**

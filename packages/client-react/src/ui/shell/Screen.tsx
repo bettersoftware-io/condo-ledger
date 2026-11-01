@@ -10,13 +10,14 @@ import type { MachineView } from "@cl/react-bindings";
 import { AccountsScreen } from "../accounts/AccountsScreen.tsx";
 import { TablesAllocationScreen } from "../allocation/TablesAllocationScreen.tsx";
 import { BuildingDataScreen } from "../buildingData/BuildingDataScreen.tsx";
+import { ContactsScreen } from "../contacts/ContactsScreen.tsx";
 import { InstallmentScheduleScreen } from "../installments/InstallmentScheduleScreen.tsx";
 import { JournalScreen } from "../journal/JournalScreen.tsx";
 import { UnitsScreen } from "../units/UnitsScreen.tsx";
 import { menuLabel, moduleLabel } from "./labels.tsx";
 import { Placeholder } from "./Placeholder.tsx";
 
-/** The main area's content for where the person is: the Building Data & Suppliers, Units, Thousandth Tables & Allocation, Accounts, Journal and Installment Schedule screens on their menu items, a placeholder for every screen not built yet. */
+/** The main area's content for where the person is: the Building Data & Suppliers, Units, Thousandth Tables & Allocation, Accounts, Journal and Installment Schedule screens on their menu items, the Contacts screen in its module, a placeholder for every screen not built yet. */
 export function Screen({ module, menu, maximize }: ScreenProps): ReactElement {
   if (module === "buildings" && menu === "data") {
     return <BuildingDataScreen maximize={maximize} />;
@@ -40,6 +41,10 @@ export function Screen({ module, menu, maximize }: ScreenProps): ReactElement {
 
   if (module === "buildings" && menu === "installments") {
     return <InstallmentScheduleScreen maximize={maximize} />;
+  }
+
+  if (module === "contacts") {
+    return <ContactsScreen maximize={maximize} />;
   }
 
   return (

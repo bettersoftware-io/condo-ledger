@@ -1,12 +1,24 @@
-import { BehaviorSubject, type Observable } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  distinctUntilChanged,
+  map,
+  type Observable,
+  of,
+} from "rxjs";
 
-import type { Contact } from "#/entities/contact.ts";
+import { type Contact, nameOf } from "#/entities/contact.ts";
 import type { InstallmentItem } from "#/entities/installment.ts";
 import type { JournalEntry } from "#/entities/journal.ts";
 import type { OwnerParty } from "#/entities/party.ts";
-import { accepted, type Result, type ResultOf } from "#/entities/result.ts";
+import {
+  type Added,
+  accepted,
+  type Result,
+  type ResultOf,
+} from "#/entities/result.ts";
 import type { Unit, UnitGroup } from "#/entities/unit.ts";
-import type { Added, UnitsPort } from "#/ports/unitsPort.ts";
+import type { UnitsPort } from "#/ports/unitsPort.ts";
 import { must } from "#/support/must.ts";
 import type { PeriodDates } from "#/useCases/schedule.ts";
 import {
@@ -39,6 +51,8 @@ export interface UnitsReaders {
   entriesOf(periodId: string): JournalEntry[];
   itemsOf(periodId: string): InstallmentItem[];
   contactsOf(): Contact[];
+  /** The contacts as they change: a resident is read under its contact's name. */
+  contacts$(): Observable<Contact[]>;
   periodOf(periodId: string): PeriodDates;
 }
 
@@ -118,6 +132,11 @@ export function createUnitsSimulator(
     }
 
     throw new Error(`missing: the unit ${unitId}`);
+  }
+
+  /** The period's residents as a reader sees them: a verdict names a person by the contact's name. */
+  function readResidents(state: PeriodUnits): OwnerParty[] {
+    return named(state.residents$.getValue(), readers.contactsOf());
   }
 
   function holderOfResident(residentId: string): PeriodUnits {
@@ -229,7 +248,7 @@ export function createUnitsSimulator(
     const verdict = validateUnit(
       draft,
       units,
-      state.residents$.getValue(),
+      readResidents(state),
       readers.periodOf(state.periodId),
       null,
     );
@@ -259,7 +278,7 @@ export function createUnitsSimulator(
     const verdict = validateUnit(
       draft,
       units,
-      state.residents$.getValue(),
+      readResidents(state),
       readers.periodOf(state.periodId),
       unitId,
     );
@@ -294,7 +313,7 @@ export function createUnitsSimulator(
     const residents = state.residents$.getValue();
     const verdict = validateUnitDelete(
       unitId,
-      residents,
+      readResidents(state),
       readers.entriesOf(state.periodId),
       readers.itemsOf(state.periodId),
     );
@@ -394,7 +413,7 @@ export function createUnitsSimulator(
   function deleteResident(state: PeriodUnits, residentId: string): Result {
     const residents = state.residents$.getValue();
     const verdict = validateResidencyDelete(
-      residentIn(residents, residentId),
+      residentIn(readResidents(state), residentId),
       readers.entriesOf(state.periodId),
       readers.itemsOf(state.periodId),
     );
@@ -430,7 +449,12 @@ export function createUnitsSimulator(
 
       return state === undefined
         ? missingPeriod(periodId)
-        : state.residents$.asObservable();
+        : combineLatest([state.residents$, readers.contacts$()]).pipe(
+            map(([residents, contacts]) => {
+              return named(residents, contacts);
+            }),
+            distinctUntilChanged(sameResidents),
+          );
     },
     addGroup: (
       periodId: string,
@@ -496,9 +520,45 @@ export function createUnitsSimulator(
       return stateOf(periodId).units$.getValue();
     },
     currentResidents: (periodId: string): OwnerParty[] => {
-      return stateOf(periodId).residents$.getValue();
+      return readResidents(stateOf(periodId));
     },
   };
+}
+
+/** The residents under their contacts' names; one whose contact is missing keeps the name it was held under. */
+function named(residents: OwnerParty[], contacts: Contact[]): OwnerParty[] {
+  const byId = new Map(
+    contacts.map((contact) => {
+      return [contact.id, contact];
+    }),
+  );
+
+  return residents.map((resident) => {
+    const contact = byId.get(resident.personId);
+
+    return contact === undefined || nameOf(contact) === resident.name
+      ? resident
+      : { ...resident, name: nameOf(contact) };
+  });
+}
+
+/** Whether two answers hold the same residents field for field: a write that changes no resident emits nothing more. */
+function sameResidents(before: OwnerParty[], after: OwnerParty[]): boolean {
+  return (
+    before.length === after.length &&
+    before.every((resident, index) => {
+      return sameFields(resident, after[index]);
+    })
+  );
+}
+
+function sameFields(left: OwnerParty, right: OwnerParty | undefined): boolean {
+  return (
+    right !== undefined &&
+    Object.entries(left).every(([key, value]) => {
+      return Object.is(value, Reflect.get(right, key));
+    })
+  );
 }
 
 /** The seed's journal, items, contacts and period dates: what the simulator judges against when nothing else is wired in. */
@@ -514,6 +574,9 @@ function seededReaders(seed: LegacySeed): UnitsReaders {
     },
     contactsOf: (): Contact[] => {
       return seed.contacts;
+    },
+    contacts$: (): Observable<Contact[]> => {
+      return of(seed.contacts);
     },
     periodOf: (periodId: string): PeriodDates => {
       const period = must(
@@ -594,7 +657,7 @@ function residencyFields(
 > {
   return {
     personId: contact.id,
-    name: contact.name,
+    name: nameOf(contact),
     startingBalance: draft.startingBalance,
     role: draft.role,
     restriction: draft.ownRestriction ?? unit.restriction,

@@ -26,23 +26,24 @@ import { missingPeriod } from "./missingPeriod.ts";
 import type { LegacySeed } from "./seed/legacySeed.ts";
 import { seededResidents, seededSuppliers } from "./seededParties.ts";
 
-/** The port, and what the installments simulator reads of it: a period's entries as they stand now. */
+/** The port, and what the other simulators read of it: a period's entries and invoices as they stand now. */
 export interface JournalSimulator extends JournalPort {
   /** In number order. Throws "missing: the period <id>" for a period the simulator does not have. */
   current(periodId: string): JournalEntry[];
+  /** Throws "missing: the period <id>" for a period the simulator does not have. */
+  currentInvoices(periodId: string): Invoice[];
 }
 
 /**
  * A period's journal and invoices, kept in memory (entries in number order),
- * and what a draft is checked against besides: the accounts, the building's
- * suppliers and the withholding catalogue.
+ * and what a draft is checked against besides: the accounts and the
+ * withholding catalogue.
  */
 interface PeriodJournal {
   periodId: string;
   entries$: BehaviorSubject<JournalEntry[]>;
   invoices$: BehaviorSubject<Invoice[]>;
   accounts: Account[];
-  suppliers: SupplierParty[];
   withholdingTaxes: WithholdingTax[];
 }
 
@@ -59,9 +60,9 @@ interface Held {
  * entry down one number. A registration writes its invoice with it, and a
  * delete of one removes it. A collection is judged against the period's
  * installment schedule as `scheduleOf` answers it now; left out, the seed's.
- * A draft's parties are the seed's suppliers, then the period's residents as
- * `residentsOf` answers them now; left out, the seed's residents. Throws on
- * an unknown id: it never answers empty for a wrong key.
+ * A draft's parties are the period's suppliers as `suppliersOf` answers them
+ * now, then its residents as `residentsOf` answers them now; each left out,
+ * the seed's. Throws on an unknown id: it never answers empty for a wrong key.
  */
 export function createJournalSimulator(
   seed: LegacySeed,
@@ -75,6 +76,11 @@ export function createJournalSimulator(
     periodId: string,
   ): OwnerParty[] => {
     return seededResidents(seed, periodId);
+  },
+  suppliersOf: (periodId: string) => SupplierParty[] = (
+    periodId: string,
+  ): SupplierParty[] => {
+    return seededSuppliers(seed, periodId);
   },
 ): JournalSimulator {
   const periods = new Map<string, PeriodJournal>();
@@ -102,7 +108,6 @@ export function createJournalSimulator(
         accounts: seed.accounts.filter((account) => {
           return account.periodId === period.id;
         }),
-        suppliers: seededSuppliers(seed, period.id),
         withholdingTaxes: seed.withholdingTaxes.filter((tax) => {
           return tax.periodId === period.id;
         }),
@@ -123,7 +128,10 @@ export function createJournalSimulator(
 
     return {
       accounts: journal.accounts,
-      parties: [...journal.suppliers, ...residentsOf(journal.periodId)],
+      parties: [
+        ...suppliersOf(journal.periodId),
+        ...residentsOf(journal.periodId),
+      ],
       withholdingTaxes: journal.withholdingTaxes,
       invoices: journal.invoices$.getValue(),
       entries: journal.entries$.getValue(),
@@ -310,6 +318,9 @@ export function createJournalSimulator(
     },
     current: (periodId: string): JournalEntry[] => {
       return periodJournalOf(periodId).entries$.getValue();
+    },
+    currentInvoices: (periodId: string): Invoice[] => {
+      return periodJournalOf(periodId).invoices$.getValue();
     },
   };
 }

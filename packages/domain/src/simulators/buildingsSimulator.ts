@@ -1,8 +1,9 @@
-import { BehaviorSubject, Observable } from "rxjs";
+import { BehaviorSubject, defer, map, type Observable } from "rxjs";
 
 import type { Building, Period } from "#/entities/building.ts";
+import { type Contact, nameOf, type SupplierLink } from "#/entities/contact.ts";
 import type { OwnerParty } from "#/entities/party.ts";
-import type { Result } from "#/entities/result.ts";
+import { ok, type Result } from "#/entities/result.ts";
 import type { Unit } from "#/entities/unit.ts";
 import type { BuildingsPort } from "#/ports/buildingsPort.ts";
 import type { ClockPort } from "#/ports/clockPort.ts";
@@ -14,26 +15,31 @@ import {
   validateAddress,
   validateBuilding,
   validatePeriod,
+  validateSupplier,
 } from "#/useCases/validateBuilding.ts";
 
 import type { LegacySeed } from "./seed/legacySeed.ts";
 import { seededResidents } from "./seededParties.ts";
 
-/** The port, and what the other simulators read of it: the buildings as they stand now. */
+/** The port, and what the other simulators read of it: the buildings and the supplier links as they stand now. */
 export interface BuildingsSimulator extends BuildingsPort {
   currentBuildings(): Building[];
+  currentLinks(): SupplierLink[];
+  /** Every building's links, and again whenever one changes. */
+  links$: Observable<SupplierLink[]>;
 }
 
-/** What a period edit is judged against, read when it asks: the period's units and residents. Each left out, the seed's. */
+/** What a write is judged against, read when it asks: the period's units and residents, and the contacts. Each left out, the seed's. */
 export interface BuildingsReaders {
   unitsOf(periodId: string): Unit[];
   residentsOf(periodId: string): OwnerParty[];
+  contactsOf(): Contact[];
 }
 
 /**
- * The seed's buildings with what is edited kept in memory. An accepted
- * building edit is stamped `modifiedOn` from the clock, on the Rome clock as
- * the seed's are.
+ * The seed's buildings and supplier links with what is edited kept in memory.
+ * An accepted building edit is stamped `modifiedOn` from the clock, on the
+ * Rome clock as the seed's are.
  */
 export function createBuildingsSimulator(
   seed: LegacySeed,
@@ -42,6 +48,7 @@ export function createBuildingsSimulator(
 ): BuildingsSimulator {
   const readers: BuildingsReaders = { ...seededReaders(seed), ...wired };
   const buildings$ = new BehaviorSubject<Building[]>(seed.buildings);
+  const links$ = new BehaviorSubject<SupplierLink[]>(seed.supplierLinks);
 
   function buildingOf(buildingId: string): Building {
     return must(
@@ -71,6 +78,22 @@ export function createBuildingsSimulator(
     );
   }
 
+  /** The contact's name for a refusal: none when no contact is chosen. */
+  function nameOfContact(contactId: string | null): string {
+    if (contactId === null) {
+      return "";
+    }
+
+    return nameOf(
+      must(
+        readers.contactsOf().find((contact) => {
+          return contact.id === contactId;
+        }),
+        `the contact ${contactId}`,
+      ),
+    );
+  }
+
   return {
     buildings: (): Observable<Building[]> => {
       return buildings$.asObservable();
@@ -78,26 +101,73 @@ export function createBuildingsSimulator(
     currentBuildings: (): Building[] => {
       return buildings$.getValue();
     },
+    currentLinks: (): SupplierLink[] => {
+      return links$.getValue();
+    },
+    links$: links$.asObservable(),
     suppliers: (buildingId: string): Observable<string[]> => {
-      return new Observable<string[]>((subscriber) => {
-        try {
-          buildingOf(buildingId);
-        } catch (error) {
-          subscriber.error(error);
+      return defer(() => {
+        buildingOf(buildingId);
 
-          return;
+        return links$.pipe(
+          map((links) => {
+            return links
+              .filter((link) => {
+                return link.buildingId === buildingId;
+              })
+              .map((link) => {
+                return link.contactId;
+              });
+          }),
+        );
+      });
+    },
+    addSupplier: (
+      buildingId: string,
+      contactId: string | null,
+    ): Promise<Result> => {
+      return Promise.resolve().then((): Result => {
+        buildingOf(buildingId);
+
+        const links = links$.getValue();
+        const verdict = validateSupplier(
+          buildingId,
+          contactId,
+          links,
+          nameOfContact(contactId),
+        );
+
+        if (verdict.ok && contactId !== null) {
+          links$.next([...links, { buildingId, contactId }]);
         }
 
-        subscriber.next(
-          seed.supplierLinks
-            .filter((link) => {
-              return link.buildingId === buildingId;
-            })
-            .map((link) => {
-              return link.contactId;
-            }),
+        return verdict;
+      });
+    },
+    removeSupplier: (
+      buildingId: string,
+      contactId: string,
+    ): Promise<Result> => {
+      return Promise.resolve().then((): Result => {
+        buildingOf(buildingId);
+
+        const links = links$.getValue();
+        const held = must(
+          links.find((link) => {
+            return (
+              link.buildingId === buildingId && link.contactId === contactId
+            );
+          }),
+          `the supplier ${contactId} of ${buildingId}`,
         );
-        subscriber.complete();
+
+        links$.next(
+          links.filter((link) => {
+            return link !== held;
+          }),
+        );
+
+        return ok();
       });
     },
     editBuilding: (
@@ -206,6 +276,9 @@ function seededReaders(seed: LegacySeed): BuildingsReaders {
     },
     residentsOf: (periodId: string): OwnerParty[] => {
       return seededResidents(seed, periodId);
+    },
+    contactsOf: (): Contact[] => {
+      return seed.contacts;
     },
   };
 }

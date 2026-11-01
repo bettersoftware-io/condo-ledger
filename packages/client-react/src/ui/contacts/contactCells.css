@@ -1,0 +1,46 @@
+/* README section 8: code mono 11px dim, type icon 13px, status check in --ok, the rest dim and cut with an ellipsis. */
+.contact-text {
+  display: block;
+  font-size: 11.5px;
+  color: var(--txd);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.contact-text[data-mono="true"] {
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.contact-type {
+  font-size: 13px;
+}
+
+.contact-status {
+  display: inline-flex;
+  align-items: center;
+  color: var(--ok);
+  font-weight: 700;
+}
+
+.contact-status[data-status="archived"] {
+  color: var(--warn);
+}
+
+.contact-language {
+  font-size: 12px;
+}
+
+/* The Connected Contacts grid's own two columns: the order, small and dim; the relationship, medium. */
+.contact-order {
+  display: block;
+  font-size: 11px;
+  color: var(--txd);
+}
+
+.contact-relationship {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+}

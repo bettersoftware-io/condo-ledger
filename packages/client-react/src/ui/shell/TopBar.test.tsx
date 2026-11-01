@@ -124,7 +124,9 @@ describe("TopBar", () => {
 
     await page.clickTab("Contacts");
 
-    expect(page.placeholderTitle()).toBe("Contacts");
+    expect(page.activeTab()).toBe("Contacts");
+    expect(page.hasSidebar()).toBe(true);
+    expect(page.placeholderTitle()).toBe("Contact List");
   });
 
   it("the module tabs are one stop for the Tab key: the active one", () => {
@@ -134,19 +136,22 @@ describe("TopBar", () => {
   });
 
   it.each([
-    ["ArrowRight", "Contacts"],
-    ["ArrowLeft", "Calendar"],
-    ["Home", "Calendar"],
-    ["End", "Contacts"],
-  ])("%s on the module tabs moves to %s and opens it", async (key, next) => {
-    const page = mountTopBar();
+    ["ArrowRight", "Contacts", "Contact List"],
+    ["ArrowLeft", "Calendar", "Calendar"],
+    ["Home", "Calendar", "Calendar"],
+    ["End", "Contacts", "Contact List"],
+  ])(
+    "%s on the module tabs moves to %s and opens it",
+    async (key, next, title) => {
+      const page = mountTopBar();
 
-    await page.pressOnActiveTab(key);
+      await page.pressOnActiveTab(key);
 
-    expect(page.focusedTab()).toBe(next);
-    expect(page.activeTab()).toBe(next);
-    expect(page.placeholderTitle()).toBe(next);
-  });
+      expect(page.focusedTab()).toBe(next);
+      expect(page.activeTab()).toBe(next);
+      expect(page.placeholderTitle()).toBe(title);
+    },
+  );
 
   it("the module tabs wrap: ArrowRight from the last opens the first", async () => {
     const page = mountTopBar();

@@ -1,0 +1,17 @@
+/* The ⊕ sits on the legend of the CONTACTS fieldset, to the right of its text. */
+.contact-rows-field {
+  position: relative;
+}
+
+.contact-rows-add {
+  position: absolute;
+  top: -16px;
+  left: 92px;
+  padding: 0 2px;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ok);
+  cursor: pointer;
+}

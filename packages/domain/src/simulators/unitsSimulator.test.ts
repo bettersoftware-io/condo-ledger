@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { BehaviorSubject, firstValueFrom } from "rxjs";
 import { describe, expect, it } from "vitest";
 
 import { cents } from "#/entities/cents.ts";
@@ -6,8 +6,7 @@ import type { Contact } from "#/entities/contact.ts";
 import type { InstallmentItem } from "#/entities/installment.ts";
 import type { JournalEntry } from "#/entities/journal.ts";
 import type { Restriction } from "#/entities/party.ts";
-import type { ResultOf } from "#/entities/result.ts";
-import type { Added } from "#/ports/unitsPort.ts";
+import type { Added, ResultOf } from "#/entities/result.ts";
 import type { PeriodDates } from "#/useCases/schedule.ts";
 import type {
   GroupDraft,
@@ -15,6 +14,7 @@ import type {
   UnitDraft,
 } from "#/useCases/validateUnits.ts";
 
+import { createPersonContact } from "../testing/createContacts.ts";
 import { createTablesSeed } from "../testing/createTablesSeed.ts";
 import { createUnitsSeed } from "../testing/createUnitsSeed.ts";
 import { createUnitsSimulator } from "./unitsSimulator.ts";
@@ -126,6 +126,78 @@ describe("units simulator", () => {
     ).toEqual(["r3", "r4"]);
   });
 
+  it("reads a resident under its contact's name as the contacts stand, and keeps the held name for a contact they lack", async () => {
+    const seed = createUnitsSeed();
+    const contacts$ = new BehaviorSubject<Contact[]>(seed.contacts);
+    const units = createUnitsSimulator(seed, {
+      contactsOf: (): Contact[] => {
+        return contacts$.getValue();
+      },
+      contacts$: () => {
+        return contacts$;
+      },
+    });
+    const emitted: string[][] = [];
+    const subscription = units.residents("p1").subscribe((residents) => {
+      emitted.push(
+        residents.map((resident) => {
+          return resident.name;
+        }),
+      );
+    });
+
+    contacts$.next(
+      contacts$.getValue().map((contact) => {
+        return contact.id === "md13"
+          ? createPersonContact("md13", "Neri", "Paola")
+          : contact;
+      }),
+    );
+    // A write that renames no resident emits nothing more.
+    contacts$.next([
+      ...contacts$.getValue(),
+      createPersonContact("md50", "Blu", null),
+    ]);
+
+    expect(emitted).toHaveLength(2);
+    expect(emitted.at(-1)?.at(-1)).toBe("Neri Paola");
+    expect(
+      units.currentResidents("p1").map((resident) => {
+        return resident.name;
+      }),
+    ).toEqual(emitted.at(-1));
+
+    contacts$.next([]);
+
+    expect(emitted.at(-1)?.at(-1)).toBe("Neri Paolo");
+
+    subscription.unsubscribe();
+  });
+
+  it("names a renamed resident by its contact's name when a delete is refused, for the resident and for its unit", async () => {
+    const seed = createUnitsSeed();
+    const units = createUnitsSimulator(seed, {
+      contactsOf: (): Contact[] => {
+        return seed.contacts.map((contact) => {
+          return contact.id === "md10"
+            ? createPersonContact("md10", "Verdi", "Luca")
+            : contact;
+        });
+      },
+    });
+
+    expect(await units.deleteResident("r1")).toEqual({
+      ok: false,
+      reason: "named-in-journal",
+      detail: "Verdi Luca",
+    });
+    expect(await units.deleteUnit("uA01")).toEqual({
+      ok: false,
+      reason: "named-in-journal",
+      detail: "Verdi Luca",
+    });
+  });
+
   it("judges dates against the period as the reader answers it, and names a resident from the reader's contacts", async () => {
     const seed = createUnitsSeed();
     const units = createUnitsSimulator(seed, {
@@ -133,22 +205,7 @@ describe("units simulator", () => {
         return { start: "2013-01-01", end: "2013-06-30" };
       },
       contactsOf: (): Contact[] => {
-        return [
-          ...seed.contacts,
-          {
-            id: "md99",
-            kind: "person",
-            name: "Gialli Ugo",
-            status: "active",
-            code: null,
-            category: null,
-            companyName: null,
-            registeredOffice: null,
-            taxDomicile: null,
-            phone: null,
-            email: null,
-          },
-        ];
+        return [...seed.contacts, createPersonContact("md99", "Gialli", "Ugo")];
       },
     });
     const july = { from: "2013-07-01", to: null };

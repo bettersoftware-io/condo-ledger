@@ -6,8 +6,14 @@ import type {
   App,
   BudgetInstallmentsForm,
   BudgetInstallmentsSummary,
+  CategoryDialogState,
   CollectionForm,
   CollectionSummary,
+  ConnectionDialogState,
+  ContactDialogIntents,
+  ContactDialogSpec,
+  ContactDialogState,
+  ContactRowDialogState,
   DialogIntents,
   DirectPaymentForm,
   DirectPaymentKind,
@@ -30,6 +36,7 @@ import type {
   PeriodDialogState,
   SidebarIntents,
   SidebarState,
+  SupplierDialogState,
   TableDialogIntents,
   TableDialogState,
   WizardIntents,
@@ -40,6 +47,9 @@ import {
   createAppHarness,
 } from "@cl/client-core/testing/appHarness.ts";
 import {
+  type ContactCategory,
+  type ContactConnection,
+  type ContactRowDraft,
   type EntryKind,
   type LegacySeed,
   loadLegacySeed,
@@ -49,6 +59,7 @@ import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.
 import { createScheduleSeed } from "@cl/domain/testing/createScheduleSeed.ts";
 
 import { BUILDING_TABS } from "#/ui/buildingData/labels.ts";
+import { CONTACT_TABS } from "#/ui/contacts/labels.ts";
 import { UNIT_TABS } from "#/ui/units/labels.ts";
 
 import type { HostClock, Seeded } from "./host/seeded.ts";
@@ -340,6 +351,69 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
 
         return dialog;
       },
+      // The Contacts dialogs hold the scenario's fields, typed.
+      createContactDialog: (
+        spec: ContactDialogSpec,
+        onAdded: (id: string) => void,
+      ): Machine<ContactDialogState, ContactDialogIntents> => {
+        const dialog = machines.createContactDialog(spec, onAdded);
+
+        typeInto(dialog, scenario.contactForm);
+
+        return dialog;
+      },
+      createContactRowDialog: (
+        row: ContactRowDraft | null,
+        nextOrder: number,
+        apply: (row: ContactRowDraft) => void,
+      ): Machine<
+        ContactRowDialogState,
+        DialogIntents<ContactRowDialogState["form"]>
+      > => {
+        const dialog = machines.createContactRowDialog(row, nextOrder, apply);
+
+        typeInto(dialog, scenario.rowForm);
+
+        return dialog;
+      },
+      createCategoryDialog: (
+        editing: ContactCategory | null,
+        onAdded: (id: string) => void,
+      ): Machine<
+        CategoryDialogState,
+        DialogIntents<CategoryDialogState["form"]>
+      > => {
+        const dialog = machines.createCategoryDialog(editing, onAdded);
+
+        typeInto(dialog, scenario.categoryForm);
+
+        return dialog;
+      },
+      createConnectionDialog: (
+        contactId: string,
+        editing: ContactConnection | null,
+      ): Machine<
+        ConnectionDialogState,
+        DialogIntents<ConnectionDialogState["form"]>
+      > => {
+        const dialog = machines.createConnectionDialog(contactId, editing);
+
+        typeInto(dialog, scenario.connectionForm);
+
+        return dialog;
+      },
+      createSupplierDialog: (
+        buildingId: string,
+      ): Machine<
+        SupplierDialogState,
+        DialogIntents<SupplierDialogState["form"]>
+      > => {
+        const dialog = machines.createSupplierDialog(buildingId);
+
+        typeInto(dialog, scenario.supplierForm);
+
+        return dialog;
+      },
       // The table dialog holds the scenario's name, typed.
       createTableDialog: (
         editing: string | null,
@@ -391,6 +465,11 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
       }
 
       seedScreens(harness, scenario);
+
+      // The module before the menu: a menu is the Buildings module's.
+      if (scenario.module !== undefined) {
+        harness.app.navigation.intents.selectModule(scenario.module);
+      }
 
       // The menu last: the Journal's dialog is built when it mounts, over
       // the period already chosen.
@@ -447,6 +526,37 @@ function seedScreens(harness: AppHarness, scenario: Scenario): void {
 
   if (scenario.supplierId !== undefined) {
     harness.app.presenters.buildingData.selectSupplier(scenario.supplierId);
+  }
+
+  seedContacts(harness, scenario);
+}
+
+/**
+ * The Contacts screen's state, each through its own intent and in the order
+ * a person gives it: the filter, the keyword searched, then the contact
+ * revealed on its page, as a saved one is (a filter drops the selection), and
+ * the tab chosen.
+ */
+function seedContacts(harness: AppHarness, scenario: Scenario): void {
+  const { contacts } = harness.app.presenters;
+
+  if (scenario.contactFilter !== undefined) {
+    contacts.setFilter(scenario.contactFilter);
+  }
+
+  if (scenario.keyword !== undefined) {
+    contacts.typeKeyword(scenario.keyword);
+    contacts.search();
+  }
+
+  if (scenario.contactId !== undefined && scenario.mount !== "contact-picker") {
+    contacts.reveal(scenario.contactId);
+  }
+
+  if (scenario.contactTab !== undefined) {
+    harness.app.screens
+      .bottomTab("contacts", CONTACT_TABS)
+      .intents.activate(scenario.contactTab);
   }
 }
 

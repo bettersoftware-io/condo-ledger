@@ -1,8 +1,9 @@
 import { render, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { vi } from "vitest";
 
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
-import type { BuildingRow, Contact, LegacySeed } from "@cl/domain";
+import type { BuildingRow, ContactView, LegacySeed } from "@cl/domain";
 import { createViewModel, ViewModelProvider } from "@cl/react-bindings";
 
 import { type PanelPage, panelIn } from "../allocation/panelGrid.page.tsx";
@@ -47,7 +48,7 @@ export interface BuildingDataScreenPage {
   /** The label of the grid's row with this key (a building or a period id). */
   labelOf: (key: string) => string;
   /** The selected building's supplier at this place in the list: a test never spells a name. */
-  supplierAt: (index: number) => Contact;
+  supplierAt: (index: number) => ContactView;
   toasts: () => string[];
   /** Which panel fills the screen: top or none. */
   maximized: () => string | null;
@@ -64,6 +65,25 @@ export interface BuildingDataScreenPage {
   dialog: FormDialogPage;
   /** The Address dialog over it. */
   addressDialog: FormDialogPage;
+  /** The person or company dialog over the Add Supplier dialog, or opened by ✎ on the screen. */
+  contactDialog: FormDialogPage;
+  /** The labels of the sheet's rows, in the order drawn. */
+  sheetLabels: () => string[];
+  /** The names of the building's suppliers, as listed. */
+  supplierNames: () => string[];
+  /** The names of the active contacts, the ones a picker offers. */
+  contactNames: () => string[];
+  /** Whether the contacts hold one with this name. */
+  hasContactNamed: (name: string) => boolean;
+  /** The question asked before a supplier is removed; null while none is. */
+  confirmText: () => string | null;
+  confirmYes: () => Promise<void>;
+  /** Why the removal was refused, under the question; null when nothing was. */
+  confirmError: () => string | null;
+  /** The buildings port refuses every removal of a supplier from now on, with this reason. */
+  refuseRemovals: (reason: string, detail: string) => void;
+  /** The tone the sheet's value of this label is drawn in; null for none. */
+  sheetTone: (label: string) => string | null;
 }
 
 /**
@@ -77,7 +97,7 @@ export function mountBuildingData(
   seed?: LegacySeed,
 ): BuildingDataScreenPage {
   const user = userEvent.setup();
-  const { app } = createAppHarness(seed);
+  const { app, ports } = createAppHarness(seed);
 
   app.presenters.buildings.selectPeriod(periodId);
   app.navigation.intents.selectMenu("data");
@@ -128,6 +148,19 @@ export function mountBuildingData(
     }
 
     return row;
+  }
+
+  // The simulator answers at once, whether or not the screen reads the contacts yet.
+  function contactsNow(): ContactView[] {
+    let contacts: ContactView[] = [];
+
+    app.presenters.units.contacts$
+      .subscribe((all) => {
+        contacts = all;
+      })
+      .unsubscribe();
+
+    return contacts;
   }
 
   function suppliers(): HTMLElement {
@@ -233,7 +266,7 @@ export function mountBuildingData(
 
       return found.label;
     },
-    supplierAt: (index: number): Contact => {
+    supplierAt: (index: number): ContactView => {
       const supplier =
         app.presenters.buildingData.view$.getValue().suppliers[index];
 
@@ -298,6 +331,64 @@ export function mountBuildingData(
       user,
       "stacked",
     ),
+    contactDialog: formDialogIn(
+      () => {
+        return rendered.container;
+      },
+      user,
+      "stacked",
+    ),
+    sheetLabels: (): string[] => {
+      return Array.from(tabs().querySelectorAll(".scheda-label")).map(
+        (label) => {
+          return label.textContent ?? "";
+        },
+      );
+    },
+    supplierNames: (): string[] => {
+      return app.presenters.buildingData.view$
+        .getValue()
+        .suppliers.map((supplier) => {
+          return supplier.name;
+        });
+    },
+    contactNames: (): string[] => {
+      return contactsNow()
+        .filter((contact) => {
+          return contact.status === "active";
+        })
+        .map((contact) => {
+          return contact.name;
+        });
+    },
+    hasContactNamed: (name: string): boolean => {
+      return contactsNow().some((contact) => {
+        return contact.name === name;
+      });
+    },
+    confirmText: (): string | null => {
+      return rendered.queryByTestId(TESTIDS.confirmText)?.textContent ?? null;
+    },
+    confirmError: (): string | null => {
+      return rendered.queryByTestId(TESTIDS.confirmError)?.textContent ?? null;
+    },
+    refuseRemovals: (reason: string, detail: string): void => {
+      vi.spyOn(ports.buildings, "removeSupplier").mockResolvedValue({
+        ok: false,
+        reason,
+        detail,
+      });
+    },
+    sheetTone: (label: string): string | null => {
+      return (
+        sheetRow(label)
+          .querySelector(".scheda-value")
+          ?.getAttribute("data-tone") ?? null
+      );
+    },
+    confirmYes: async (): Promise<void> => {
+      await user.click(rendered.getByTestId(TESTIDS.confirmYes));
+    },
   };
 }
 

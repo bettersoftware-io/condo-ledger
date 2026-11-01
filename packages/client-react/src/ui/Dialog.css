@@ -46,6 +46,11 @@
   max-width: 92vw;
 }
 
+.dialog-card[data-width="nested"] {
+  width: 460px;
+  max-width: 92vw;
+}
+
 .dialog-card[data-width="wizard"] {
   width: 680px;
 }

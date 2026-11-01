@@ -106,8 +106,8 @@ export function Dialog({
 
 export interface DialogProps {
   title: string;
-  /** 380px (`alert`), 560px (`default`) or 680px (`wizard`), as the README's dialogs. */
-  width?: "alert" | "default" | "wizard";
+  /** 380px (`alert`), 460px (`nested`), 560px (`default`) or 680px (`wizard`), as the README's dialogs. */
+  width?: "alert" | "nested" | "default" | "wizard";
   /** `alertdialog` for a question that interrupts the person and wants an answer. */
   role?: "dialog" | "alertdialog";
   /** The id of what the card says, read after its name (an alert's question). */

@@ -7,9 +7,9 @@ import { PATTERNS } from "./patterns.ts";
  * The seed with the legacy data's own words in English: account names and
  * abbreviations, entry descriptions, invoice reasons, installment, table,
  * unit group and withholding names, the notes of tables, buildings, periods,
- * units and groups, and contact categories. Ids, amounts, cadastral data and
- * the names of people, firms, buildings and periods are left as they are. A
- * string with no exact entry and no pattern stops the generator, naming the
+ * units and groups, contact notes, categories, salutations, row labels and
+ * relationships. Ids, amounts, cadastral data and the names of people, firms,
+ * buildings and periods are left as they are. A string with no exact entry and no pattern stops the generator, naming the
  * field and the record, so new legacy data is translated before it is
  * imported.
  */
@@ -50,12 +50,38 @@ export function translateLegacySeed(data: LegacySeedData): LegacySeedData {
     contacts: data.contacts.map((contact) => {
       return {
         ...contact,
-        category: englishOrNull(
-          contact.category,
-          "contacts.category",
+        notes: englishOrNull(contact.notes, "contacts.notes", contact.id),
+        salutation: englishOrNull(
+          contact.salutation,
+          "contacts.salutation",
           contact.id,
         ),
+        rows: contact.rows.map((row) => {
+          return {
+            ...row,
+            label: english(row.label, "contacts.rows.label", row.id),
+          };
+        }),
       };
+    }),
+    contactCategories: data.contactCategories.map((category) => {
+      return {
+        ...category,
+        name: english(category.name, "contactCategories.name", category.id),
+      };
+    }),
+    contactConnections: data.contactConnections.map((connection) => {
+      return {
+        ...connection,
+        relationship: english(
+          connection.relationship,
+          "contactConnections.relationship",
+          connection.id,
+        ),
+      };
+    }),
+    salutations: data.salutations.map((salutation) => {
+      return english(salutation, "salutations", salutation);
     }),
     accounts,
     entries: data.entries.map((entry) => {

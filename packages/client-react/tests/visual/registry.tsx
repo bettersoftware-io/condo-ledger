@@ -7,7 +7,9 @@ import {
 
 import type { SettlementRow, WizardState } from "@cl/client-core";
 import {
+  ALL_CONTACTS,
   type AllocationMode,
+  type ContactFilter,
   cents,
   ok,
   type Result,
@@ -39,7 +41,22 @@ import { BuildingTabs } from "#/ui/buildingData/BuildingTabs.tsx";
 import { SUPPLIERS_COLUMN_SPECS } from "#/ui/buildingData/columns.ts";
 import { BUILDING_TABS } from "#/ui/buildingData/labels.ts";
 import { PeriodDialog } from "#/ui/buildingData/PeriodDialog.tsx";
+import { SupplierDialog } from "#/ui/buildingData/SupplierDialog.tsx";
 import { ConfirmAlert } from "#/ui/ConfirmAlert.tsx";
+import { CategoryDialog } from "#/ui/contacts/CategoryDialog.tsx";
+import { ConnectionDialog } from "#/ui/contacts/ConnectionDialog.tsx";
+import { ContactCategories } from "#/ui/contacts/ContactCategories.tsx";
+import { ContactDialog } from "#/ui/contacts/ContactDialog.tsx";
+import { ContactFilters } from "#/ui/contacts/ContactFilters.tsx";
+import { ContactPicker } from "#/ui/contacts/ContactPicker.tsx";
+import { ContactRowDialog } from "#/ui/contacts/ContactRowDialog.tsx";
+import { ContactsPanel } from "#/ui/contacts/ContactsPanel.tsx";
+import { ContactTabs } from "#/ui/contacts/ContactTabs.tsx";
+import {
+  CONNECTIONS_COLUMN_SPECS,
+  CONTACTS_COLUMN_SPECS,
+} from "#/ui/contacts/columns.ts";
+import { CONTACT_TABS } from "#/ui/contacts/labels.ts";
 import { FormField } from "#/ui/FormField.tsx";
 import { InlineEditor } from "#/ui/InlineEditor.tsx";
 import { BudgetInstallmentsWizard } from "#/ui/installments/BudgetInstallmentsWizard.tsx";
@@ -454,7 +471,260 @@ const registry: Record<string, Entry> = {
   "address-dialog": (): ReactElement => {
     return <AddressDialogPart />;
   },
+  // The Contacts screen's sidebar cards, its list and its bottom panel, each
+  // read from the view model as the screen reads it: the contact the seeding
+  // selects, the filter it applies and the tab it chooses, through their own
+  // intents.
+  "contact-filters": (): ReactElement => {
+    return <ContactFiltersPart />;
+  },
+  "contact-categories": (): ReactElement => {
+    return <ContactCategoriesPart />;
+  },
+  "contacts-panel": (): ReactElement => {
+    return <ContactsPanelPart />;
+  },
+  "contact-tabs": (): ReactElement => {
+    return <ContactTabsPart />;
+  },
+  // The Contacts dialogs read their machines, which the seeding fills from
+  // the scenario.
+  "contact-dialog": (scenario: Scenario): ReactElement => {
+    return <ContactDialogPart scenario={scenario} />;
+  },
+  "contact-row-dialog": (): ReactElement => {
+    return (
+      <ContactRowDialog
+        row={null}
+        nextOrder={2}
+        onApply={ignoreClose}
+        onClose={ignoreClose}
+      />
+    );
+  },
+  "category-dialog": (): ReactElement => {
+    return (
+      <CategoryDialog
+        editing={null}
+        onAdded={ignoreClose}
+        onSaved={ignoreClose}
+        onCancel={ignoreClose}
+      />
+    );
+  },
+  "connection-dialog": (scenario: Scenario): ReactElement => {
+    return (
+      <ConnectionDialog
+        contactId={required(scenario, "contactId", scenario.contactId)}
+        editing={null}
+        onSaved={ignoreClose}
+        onCancel={ignoreClose}
+      />
+    );
+  },
+  "supplier-dialog": (): ReactElement => {
+    return <SupplierDialogPart />;
+  },
+  // The picker alone, on the contacts the app holds, with the contact the
+  // scenario links.
+  "contact-picker": (scenario: Scenario): ReactElement => {
+    return <ContactPickerPart contactId={scenario.contactId ?? null} />;
+  },
 };
+
+/** Filter Contacts as the sidebar hands it its props. */
+function ContactFiltersPart(): ReactElement {
+  const { useContactsScreen, useBuildingsTree } = useViewModel();
+  const { view, typeKeyword, search, setFilter, reset } = useContactsScreen();
+  const buildings = useBuildingsTree();
+
+  function setBuilding(buildingId: string | null): void {
+    setFilter({ buildingId });
+  }
+
+  function setStatus(status: ContactFilter["status"]): void {
+    setFilter({ status });
+  }
+
+  function setPersons(persons: boolean): void {
+    setFilter({ persons });
+  }
+
+  function setCompanies(companies: boolean): void {
+    setFilter({ companies });
+  }
+
+  return (
+    <ContactFilters
+      filter={view?.filter ?? ALL_CONTACTS}
+      typedKeyword={view?.typedKeyword ?? ""}
+      buildings={buildings}
+      onPersons={setPersons}
+      onCompanies={setCompanies}
+      onKeyword={typeKeyword}
+      onSearch={search}
+      onBuilding={setBuilding}
+      onStatus={setStatus}
+      onReset={reset}
+    />
+  );
+}
+
+/** Contact Categories as the sidebar hands it its props. */
+function ContactCategoriesPart(): ReactElement {
+  const { useContactsScreen } = useViewModel();
+  const { view } = useContactsScreen();
+
+  return (
+    <ContactCategories
+      categories={view?.categories ?? []}
+      allCount={view?.allCount ?? 0}
+      selectedId={view?.filter.categoryId ?? null}
+      onSelect={ignoreClose}
+      onAdd={ignoreClose}
+      onEdit={ignoreClose}
+      onDelete={ignoreClose}
+      onStub={ignoreClose}
+    />
+  );
+}
+
+/** The Contact List as the Contacts screen hands it its props. */
+function ContactsPanelPart(): ReactElement {
+  const { useContactsScreen, useColumns } = useViewModel();
+  const { view } = useContactsScreen();
+  const columns = useColumns("contacts", CONTACTS_COLUMN_SPECS);
+
+  return (
+    <ContactsPanel
+      contacts={view?.rows ?? []}
+      selectedId={view?.selected?.id ?? null}
+      page={view?.page ?? 1}
+      pageCount={view?.pageCount ?? 1}
+      pageSize={view?.pageSize ?? 10}
+      total={view?.total ?? 0}
+      template={columns.state.template}
+      maximized={false}
+      onSelect={ignoreClose}
+      onPage={ignoreClose}
+      onPageSize={ignoreClose}
+      onResize={ignoreClose}
+      onToggleMaximize={ignoreClose}
+      onStub={ignoreClose}
+    />
+  );
+}
+
+/** The Contacts screen's bottom panel as the screen hands it its props. */
+function ContactTabsPart(): ReactElement {
+  const { useContactsScreen, useColumns, useBottomTab } = useViewModel();
+  const { view } = useContactsScreen();
+  const connectionsColumns = useColumns(
+    "connections",
+    CONNECTIONS_COLUMN_SPECS,
+  );
+  const tabs = useBottomTab("contacts", CONTACT_TABS);
+
+  return (
+    <ContactTabs
+      active={tabs.state.active}
+      contact={view?.selected ?? null}
+      uses={view?.uses ?? null}
+      connections={view?.connections ?? []}
+      selectedConnectionId={view?.selectedConnection?.connection.id ?? null}
+      connectionsTemplate={connectionsColumns.state.template}
+      onActivate={ignoreClose}
+      onNewContact={ignoreClose}
+      onEditContact={ignoreClose}
+      onDeleteContact={ignoreClose}
+      onSelectConnection={ignoreClose}
+      onAddConnection={ignoreClose}
+      onEditConnection={ignoreClose}
+      onDeleteConnection={ignoreClose}
+      onResizeConnections={ignoreClose}
+      onStub={ignoreClose}
+    />
+  );
+}
+
+interface ContactDialogPartProps {
+  scenario: Scenario;
+}
+
+/** The New or Edit Person or Company dialog, on the contact the scenario names; nothing until the contacts are there. */
+function ContactDialogPart({
+  scenario,
+}: ContactDialogPartProps): ReactElement | null {
+  const { useContacts } = useViewModel();
+  const contacts = useContacts();
+  const wanted = required(scenario, "contactDialog", scenario.contactDialog);
+
+  if ("edit" in wanted) {
+    const editing = contacts.find((view) => {
+      return view.id === wanted.edit;
+    });
+
+    return editing === undefined ? null : (
+      <ContactDialog
+        spec={{ kind: editing.kind, editing: editing.contact }}
+        onAdded={ignoreClose}
+        onSaved={ignoreClose}
+        onCancel={ignoreClose}
+      />
+    );
+  }
+
+  return (
+    <ContactDialog
+      spec={{ kind: wanted.kind, editing: null }}
+      onAdded={ignoreClose}
+      onSaved={ignoreClose}
+      onCancel={ignoreClose}
+    />
+  );
+}
+
+/** Add Supplier on the building of the selected period; nothing until there is one. */
+function SupplierDialogPart(): ReactElement | null {
+  const { useBuildingData } = useViewModel();
+  const { building } = useBuildingData().view;
+
+  return building === null ? null : (
+    <SupplierDialog
+      buildingId={building.id}
+      onSaved={ignoreClose}
+      onCancel={ignoreClose}
+    />
+  );
+}
+
+interface ContactPickerPartProps {
+  contactId: string | null;
+}
+
+/** The picker over the contacts the app holds, with its New, Edit and Clear buttons. */
+function ContactPickerPart({
+  contactId,
+}: ContactPickerPartProps): ReactElement {
+  const { useContacts } = useViewModel();
+  const contacts = useContacts();
+
+  // The picker is laid out by the label column of the dialog it is in: the
+  // owner's, as Add Owner and Add Supplier have it.
+  return (
+    <div className="form-dialog" data-labels="owner">
+      <ContactPicker
+        contacts={contacts}
+        value={contactId}
+        fixed={false}
+        creating
+        onChange={ignoreClose}
+        onNew={ignoreClose}
+        onEdit={ignoreClose}
+      />
+    </div>
+  );
+}
 
 /** The Installment Schedule screen alone, with the shell's maximize machine. */
 function SchedulePart(): ReactElement {
@@ -555,8 +825,10 @@ function BuildingTabsPart(): ReactElement {
       onResizeSuppliers={ignoreClose}
       onSetSuppliersRatio={ignoreClose}
       onEditBuilding={ignoreClose}
+      onAddSupplier={ignoreClose}
+      onEditSupplier={ignoreClose}
+      onRemoveSupplier={ignoreClose}
       onStub={ignoreClose}
-      onSay={ignoreClose}
     />
   );
 }

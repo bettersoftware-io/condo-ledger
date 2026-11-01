@@ -47,17 +47,16 @@ interface PeriodState {
   installments$: BehaviorSubject<Installment[]>;
   items$: BehaviorSubject<InstallmentItem[]>;
   accounts: Account[];
-  suppliers: SupplierParty[];
 }
 
 /**
  * The seed's installment schedule, a period at a time, with what is written
  * kept in memory. A write is judged against the period's journal as
  * `entriesOf` answers it now; left out, the seed's entries. A batch is
- * planned for the period's residents as `residentsOf` answers them now; left
- * out, the seed's. New installments are `in-new-<n>` and new items
- * `ii-new-<n>`. Throws on an unknown id: it never answers empty for a wrong
- * key.
+ * planned over the period's suppliers and residents as `suppliersOf` and
+ * `residentsOf` answer them now; each left out, the seed's. New installments
+ * are `in-new-<n>` and new items `ii-new-<n>`. Throws on an unknown id: it
+ * never answers empty for a wrong key.
  */
 export function createInstallmentsSimulator(
   seed: LegacySeed,
@@ -72,6 +71,11 @@ export function createInstallmentsSimulator(
     periodId: string,
   ): OwnerParty[] => {
     return seededResidents(seed, periodId);
+  },
+  suppliersOf: (periodId: string) => SupplierParty[] = (
+    periodId: string,
+  ): SupplierParty[] => {
+    return seededSuppliers(seed, periodId);
   },
 ): InstallmentsSimulator {
   const periods = new Map<string, PeriodState>();
@@ -89,7 +93,6 @@ export function createInstallmentsSimulator(
         accounts: seed.accounts.filter((account) => {
           return account.periodId === period.id;
         }),
-        suppliers: seededSuppliers(seed, period.id),
       });
     }
   }
@@ -161,7 +164,10 @@ export function createInstallmentsSimulator(
     const planned = planBudgetInstallments(
       planInputOf(draft, {
         accounts: state.accounts,
-        parties: [...state.suppliers, ...residentsOf(state.periodId)],
+        parties: [
+          ...suppliersOf(state.periodId),
+          ...residentsOf(state.periodId),
+        ],
         entries: context.entries,
         installmentItems: context.items,
       }),

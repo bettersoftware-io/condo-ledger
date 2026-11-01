@@ -335,9 +335,7 @@ export function mountJournalScreen(
       await user.click(within(screen()).getByRole("menuitem", { name: label }));
     },
     pageText: (): string => {
-      return (
-        within(screen()).getByTestId(TESTIDS.journalPageText).textContent ?? ""
-      );
+      return within(screen()).getByTestId(TESTIDS.pageText).textContent ?? "";
     },
     pageSizeText: (): string => {
       return tool("Page size").textContent ?? "";

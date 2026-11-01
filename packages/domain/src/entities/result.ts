@@ -15,6 +15,11 @@ export interface Accepted<T> extends Ok {
   readonly value: T;
 }
 
+/** What adding a group, a unit, a resident, a contact or the like answers: the id the port gave it. */
+export interface Added {
+  id: string;
+}
+
 export type Result = Ok | Rejected;
 
 export type ResultOf<T> = Accepted<T> | Rejected;

@@ -39,6 +39,15 @@ export {
   type ColumnsState,
   columnSpecsFrom,
 } from "./machines/columnsMachine.ts";
+export type {
+  CategoryDialogState,
+  ConnectionDialogState,
+  ContactDialogIntents,
+  ContactDialogSpec,
+  ContactDialogState,
+  ContactRowDialogState,
+  SupplierDialogState,
+} from "./machines/contactDialogMachines.ts";
 export type { DialogIntents } from "./machines/formDialog.ts";
 export type {
   InstallmentDialogForm,
@@ -50,12 +59,10 @@ export type {
   JournalDialogState,
   WizardName,
 } from "./machines/journalDialogMachine.ts";
-export {
-  type JournalGridIntents,
-  type JournalGridRow,
-  type JournalGridState,
-  PAGE_SIZES,
-  type PageSize,
+export type {
+  JournalGridIntents,
+  JournalGridRow,
+  JournalGridState,
 } from "./machines/journalGridMachine.ts";
 export type { Machine } from "./machines/machine.ts";
 export type {
@@ -143,6 +150,7 @@ export type {
   WizardState,
 } from "./machines/wizards/wizard.ts";
 export type { Notice } from "./notices.ts";
+export { PAGE_SIZES, type PageSize } from "./paging.ts";
 export type {
   AccountDetails,
   AllocationTableRow,
@@ -150,6 +158,10 @@ export type {
 export type { TableView } from "./presenters/allocationPresenter.ts";
 export type { BuildingDataView } from "./presenters/buildingDataPresenter.ts";
 export type { PeriodSelection } from "./presenters/buildingsPresenter.ts";
+export type {
+  ContactsPresenter,
+  ContactsView,
+} from "./presenters/contactsPresenter.ts";
 export type { JournalContext } from "./presenters/journalPresenter.ts";
 export type { UnitsView } from "./presenters/unitsPresenter.ts";
 export type { GridName, SplitName, TabbedPanelName } from "./screens.ts";

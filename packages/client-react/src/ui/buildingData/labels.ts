@@ -36,7 +36,3 @@ export const STATUS_LABELS: Record<RecordStatus, string> = {
   active: "Active",
   archived: "Archived",
 };
-
-/** What the suppliers' tools say: a supplier is a contact, edited where contacts are. */
-export const SUPPLIERS_NOTICE =
-  "Suppliers are edited in Contacts, which is not yet available.";

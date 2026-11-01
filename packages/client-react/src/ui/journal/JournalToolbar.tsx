@@ -5,6 +5,7 @@ import type { PageSize, WizardName } from "@cl/client-core";
 import type { EntryKind, Result } from "@cl/domain";
 
 import { MenuItem } from "../MenuItem.tsx";
+import { Paging } from "../Paging.tsx";
 import { PDF_GLYPH, XLS_GLYPH } from "../shell/icons.tsx";
 import { Popover } from "../shell/Popover.tsx";
 import { Toolbar } from "../Toolbar.tsx";
@@ -12,7 +13,6 @@ import { ToolbarButton } from "../ToolbarButton.tsx";
 import { ToolbarDivider } from "../ToolbarDivider.tsx";
 import { ToolbarSearch } from "../ToolbarSearch.tsx";
 import { EntryIcon } from "./EntryIcon.tsx";
-import { JournalPaging } from "./JournalPaging.tsx";
 import { reasonText } from "./wizards/reasons.ts";
 
 import "./JournalScreen.css";
@@ -175,7 +175,7 @@ export function JournalToolbar({
         onClick={stubXls}
       />
       <span className="journal-toolbar-spacer" />
-      <JournalPaging
+      <Paging
         page={page}
         pageCount={pageCount}
         pageSize={pageSize}

@@ -1,4 +1,12 @@
-import { distinctUntilChanged, map } from "rxjs";
+import {
+  combineLatest,
+  defer,
+  distinctUntilChanged,
+  map,
+  type Observable,
+  of,
+  shareReplay,
+} from "rxjs";
 
 import {
   type AccountsPort,
@@ -9,7 +17,14 @@ import {
   type BuildingsPort,
   type BuildingsSimulator,
   type ClockPort,
+  type Contact,
+  type ContactCategory,
+  type ContactConnection,
+  type ContactRowDraft,
   type ContactsPort,
+  type ContactsSimulator,
+  type ContactUsesById,
+  contactUsesOf,
   createAccountsSimulator,
   createBuildingsSimulator,
   createContactsSimulator,
@@ -31,8 +46,10 @@ import {
   type OwnerParty,
   ok,
   type PeriodDates,
+  periodSuppliers,
   type Result,
   type SessionPort,
+  type SupplierParty,
   type TablesPort,
   type ThousandthTable,
   type Unit,
@@ -50,6 +67,20 @@ import {
   createPeriodDialog,
   type PeriodDialogState,
 } from "./machines/buildingDialogMachines.ts";
+import {
+  type CategoryDialogState,
+  type ConnectionDialogState,
+  type ContactDialogIntents,
+  type ContactDialogSpec,
+  type ContactDialogState,
+  type ContactRowDialogState,
+  createCategoryDialog,
+  createConnectionDialog,
+  createContactDialog,
+  createContactRowDialog,
+  createSupplierDialog,
+  type SupplierDialogState,
+} from "./machines/contactDialogMachines.ts";
 import type { DialogIntents } from "./machines/formDialog.ts";
 import {
   createInstallmentDialog,
@@ -167,6 +198,10 @@ import {
   createBuildingsPresenter,
 } from "./presenters/buildingsPresenter.ts";
 import {
+  type ContactsPresenter,
+  createContactsPresenter,
+} from "./presenters/contactsPresenter.ts";
+import {
   createInstallmentSchedulePresenter,
   type InstallmentSchedulePresenter,
   scheduleContextOf,
@@ -211,6 +246,7 @@ interface AppPresenters {
   schedule: InstallmentSchedulePresenter;
   allocation: AllocationPresenter;
   units: UnitsPresenter;
+  contacts: ContactsPresenter;
   buildingData: BuildingDataPresenter;
 }
 
@@ -299,6 +335,37 @@ interface AppMachines {
   createPeriodDialog: (
     periodId: string,
   ) => Machine<PeriodDialogState, DialogIntents<PeriodDialogState["form"]>>;
+  /** The New and Edit Person and Company dialog; a new contact's id goes to `onAdded` before the save answers. A date typed without a year is in the clock's. */
+  createContactDialog: (
+    spec: ContactDialogSpec,
+    onAdded: (id: string) => void,
+  ) => Machine<ContactDialogState, ContactDialogIntents>;
+  /** The Add and Edit Contact dialog on a row of a contact's form; it writes nothing, its save hands the row to `apply`. */
+  createContactRowDialog: (
+    row: ContactRowDraft | null,
+    nextOrder: number,
+    apply: (row: ContactRowDraft) => void,
+  ) => Machine<
+    ContactRowDialogState,
+    DialogIntents<ContactRowDialogState["form"]>
+  >;
+  /** The New and Edit Category dialog; a new category's id goes to `onAdded` before the save answers. */
+  createCategoryDialog: (
+    editing: ContactCategory | null,
+    onAdded: (id: string) => void,
+  ) => Machine<CategoryDialogState, DialogIntents<CategoryDialogState["form"]>>;
+  /** The Add and Edit Connected Contact dialog on a contact's connections. */
+  createConnectionDialog: (
+    contactId: string,
+    editing: ContactConnection | null,
+  ) => Machine<
+    ConnectionDialogState,
+    DialogIntents<ConnectionDialogState["form"]>
+  >;
+  /** The Add Supplier dialog on a building. */
+  createSupplierDialog: (
+    buildingId: string,
+  ) => Machine<SupplierDialogState, DialogIntents<SupplierDialogState["form"]>>;
   /** The Address dialog on `address`; its save hands the address to `apply`. */
   createAddressDialog: (
     address: Address | null,
@@ -343,6 +410,11 @@ export function createApp(ports: AppPorts): App {
     { units: ports.units, tables: ports.tables, contacts: ports.contacts },
     ports.clock,
   );
+
+  const contacts = createContactsPresenter({
+    contacts: ports.contacts,
+    buildings: ports.buildings,
+  });
 
   const buildingData = createBuildingDataPresenter(
     {
@@ -468,6 +540,7 @@ export function createApp(ports: AppPorts): App {
       schedule,
       allocation,
       units,
+      contacts,
       buildingData,
     },
     navigation: createNavigationMachine(),
@@ -833,6 +906,57 @@ export function createApp(ports: AppPorts): App {
           },
         );
       },
+      createContactDialog: (
+        spec: ContactDialogSpec,
+        onAdded: (id: string) => void,
+      ): Machine<ContactDialogState, ContactDialogIntents> => {
+        return createContactDialog(
+          ports.contacts,
+          { year: Number(todayOf(ports.clock).slice(0, 4)) },
+          spec,
+          onAdded,
+        );
+      },
+      createContactRowDialog: (
+        row: ContactRowDraft | null,
+        nextOrder: number,
+        apply: (row: ContactRowDraft) => void,
+      ): Machine<
+        ContactRowDialogState,
+        DialogIntents<ContactRowDialogState["form"]>
+      > => {
+        return createContactRowDialog(row, nextOrder, apply);
+      },
+      createCategoryDialog: (
+        editing: ContactCategory | null,
+        onAdded: (id: string) => void,
+      ): Machine<
+        CategoryDialogState,
+        DialogIntents<CategoryDialogState["form"]>
+      > => {
+        return createCategoryDialog(ports.contacts, editing, onAdded);
+      },
+      createConnectionDialog: (
+        contactId: string,
+        editing: ContactConnection | null,
+      ): Machine<
+        ConnectionDialogState,
+        DialogIntents<ConnectionDialogState["form"]>
+      > => {
+        return createConnectionDialog(ports.contacts, contactId, editing);
+      },
+      createSupplierDialog: (
+        buildingId: string,
+      ): Machine<
+        SupplierDialogState,
+        DialogIntents<SupplierDialogState["form"]>
+      > => {
+        return createSupplierDialog(
+          ports.contacts,
+          ports.buildings,
+          buildingId,
+        );
+      },
       createAddressDialog: (
         address: Address | null,
         apply: (address: Address) => void,
@@ -860,7 +984,9 @@ export function createApp(ports: AppPorts): App {
  * against the schedule as it stands and an installment a collection pays is
  * not deleted. Each reads another only when a write asks, after all are
  * built. A table is deleted only when no account, as the accounts simulator
- * holds it now, links to it.
+ * holds it now, links to it. A period's suppliers are `periodSuppliers` over
+ * the buildings' links, the journal and the contacts: the journal and the
+ * installments read them when a write asks, the accounts follow them.
  */
 export function createSimulatorPorts(
   seed: LegacySeed,
@@ -872,6 +998,12 @@ export function createSimulatorPorts(
     },
     itemsOf: (periodId: string): InstallmentItem[] => {
       return installments.current(periodId).items;
+    },
+    contactsOf: (): Contact[] => {
+      return contacts.currentContacts();
+    },
+    contacts$: (): Observable<Contact[]> => {
+      return contacts.contacts();
     },
     periodOf: (periodId: string): PeriodDates => {
       return datesOfPeriod(buildings.currentBuildings(), periodId);
@@ -885,6 +1017,9 @@ export function createSimulatorPorts(
     residentsOf: (periodId: string): OwnerParty[] => {
       return units.currentResidents(periodId);
     },
+    contactsOf: (): Contact[] => {
+      return contacts.currentContacts();
+    },
   });
 
   const journal: JournalSimulator = createJournalSimulator(
@@ -896,6 +1031,7 @@ export function createSimulatorPorts(
     (periodId) => {
       return units.currentResidents(periodId);
     },
+    suppliersNow,
   );
 
   const installments: InstallmentsSimulator = createInstallmentsSimulator(
@@ -906,14 +1042,56 @@ export function createSimulatorPorts(
     (periodId) => {
       return units.currentResidents(periodId);
     },
+    suppliersNow,
   );
+
+  const contacts: ContactsSimulator = createContactsSimulator(seed, {
+    uses$: usesOf(seed, buildings, units, journal).pipe(
+      // One watch of every period for all who read the uses, not one each.
+      shareReplay({ bufferSize: 1, refCount: true }),
+    ),
+    buildings: (): Building[] => {
+      return buildings.currentBuildings();
+    },
+  });
 
   const accounts: AccountsSimulator = createAccountsSimulator(
     seed,
     (periodId) => {
       return units.residents(periodId);
     },
+    (periodId) => {
+      const buildingId = buildingIdOfPeriod(seed, periodId);
+
+      return combineLatest([
+        buildings.links$,
+        journal.invoices(periodId),
+        journal.entries(periodId),
+        contacts.contacts(),
+      ]).pipe(
+        map(([links, invoices, entries, all]) => {
+          return periodSuppliers({
+            buildingId,
+            links,
+            invoices,
+            entries,
+            contacts: all,
+          });
+        }),
+      );
+    },
   );
+
+  /** A period's suppliers as everything stands now. */
+  function suppliersNow(periodId: string): SupplierParty[] {
+    return periodSuppliers({
+      buildingId: buildingIdOfPeriod(seed, periodId),
+      links: buildings.currentLinks(),
+      invoices: journal.currentInvoices(periodId),
+      entries: journal.current(periodId),
+      contacts: contacts.currentContacts(),
+    });
+  }
 
   return {
     session: createSessionSimulator({
@@ -921,7 +1099,7 @@ export function createSimulatorPorts(
       firm: DESIGN_FIRM,
     }),
     buildings,
-    contacts: createContactsSimulator(seed),
+    contacts,
     accounts,
     journal,
     installments,
@@ -937,6 +1115,55 @@ export function createSimulatorPorts(
     units,
     clock,
   };
+}
+
+/**
+ * Where each contact is used, as it stands: the buildings' supplier links, and
+ * each period's residents, invoices and entries as the units and the journal
+ * answer them. Emits again whenever one of them does.
+ */
+function usesOf(
+  seed: LegacySeed,
+  buildings: BuildingsSimulator,
+  units: UnitsPort,
+  journal: JournalPort,
+): Observable<ContactUsesById> {
+  return defer(() => {
+    const periods = seed.buildings.flatMap((building) => {
+      return building.periods.map((period) => {
+        return combineLatest([
+          units.residents(period.id),
+          journal.invoices(period.id),
+          journal.entries(period.id),
+        ]).pipe(
+          map(([residents, invoices, entries]) => {
+            return { buildingId: building.id, residents, invoices, entries };
+          }),
+        );
+      });
+    });
+
+    return combineLatest([
+      buildings.links$,
+      periods.length === 0 ? of([]) : combineLatest(periods),
+    ]).pipe(
+      map(([links, all]) => {
+        return contactUsesOf(links, all);
+      }),
+    );
+  });
+}
+
+/** The building that holds a period; a period never moves, so the seed answers. Throws for a period it does not hold. */
+function buildingIdOfPeriod(seed: LegacySeed, periodId: string): string {
+  return must(
+    seed.buildings.find((building) => {
+      return building.periods.some((period) => {
+        return period.id === periodId;
+      });
+    }),
+    `the period ${periodId}`,
+  ).id;
 }
 
 /** A period's dates as the buildings stand now; throws for a period they do not hold. */

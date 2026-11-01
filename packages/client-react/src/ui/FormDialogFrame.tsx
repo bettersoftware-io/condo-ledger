@@ -10,7 +10,9 @@ import "./FormDialog.css";
  * fields in a label column of 160px (148px for the owner), the reason in red
  * under them, and the footer's note, "+ Add" for a new record or "✎ Save"
  * for an edit, and Cancel. Enter in a text field presses the primary button
- * while it can go on. Takes only props.
+ * while it can go on. A dialog taller than the screen (`messageInFooter`)
+ * has the reason in the footer, where its scrolling body cannot hide it.
+ * Takes only props.
  */
 export function FormDialogFrame({
   title,
@@ -18,6 +20,8 @@ export function FormDialogFrame({
   canSave,
   message,
   labels = "wide",
+  width = "default",
+  messageInFooter = false,
   onSave,
   onCancel,
   children,
@@ -31,13 +35,23 @@ export function FormDialogFrame({
   return (
     <Dialog
       title={title}
+      width={width}
       onClose={onCancel}
       onEnter={pressPrimary}
       footer={
         <>
-          <span className="form-dialog-footnote">
-            Required fields are marked with *
-          </span>
+          {messageInFooter && message !== null ? (
+            <span
+              className="form-dialog-message"
+              data-testid={TESTIDS.formDialogMessage}
+            >
+              {message}
+            </span>
+          ) : (
+            <span className="form-dialog-footnote">
+              Required fields are marked with *
+            </span>
+          )}
           <span className="form-dialog-spacer" />
           <button
             type="button"
@@ -62,7 +76,7 @@ export function FormDialogFrame({
     >
       <div className="form-dialog" data-labels={labels}>
         {children}
-        {message === null ? null : (
+        {message === null || messageInFooter ? null : (
           <div
             className="form-dialog-message"
             data-testid={TESTIDS.formDialogMessage}
@@ -82,8 +96,12 @@ export interface FormDialogFrameProps {
   canSave: boolean;
   /** Why the dialog cannot save, in words; null when nothing stops it. */
   message: string | null;
-  /** The label column: 160px (`wide`) or the owner dialog's 148px (`owner`). */
-  labels?: "wide" | "owner";
+  /** The label column: 160px (`wide`), the owner dialog's 148px (`owner`) or the nested dialog's 130px (`nested`). */
+  labels?: "wide" | "owner" | "nested";
+  /** The card: 560px (`default`) or the nested dialog's 460px (`nested`). */
+  width?: "default" | "nested";
+  /** The reason is shown in the footer, in place of the note, where a body that scrolls cannot hide it; for a dialog taller than the screen. */
+  messageInFooter?: boolean;
   onSave: () => void;
   onCancel: () => void;
   children: ReactNode;

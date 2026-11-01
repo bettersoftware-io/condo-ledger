@@ -12,9 +12,21 @@ interface Pattern {
 }
 
 const DATE = String.raw`\d{2}/\d{2}/\d{4}`;
+const FIRE_SAFETY_FIRM_NOTE =
+  "Description: Our organisation offers inspection and maintenance of safety systems; sale, maintenance and rental of fire-fighting equipment, in accordance with DPR 27.04.55 no. 547 and UNI 9994/92; fire prevention consulting; sale of workplace safety supplies, warning signs and company signage; fire watch service; concierge, ticket office and cashier services; cleaning services. Product categories: Fire extinguishers - trade. Products: fire extinguishers, home fire extinguishers, hydrants, car fire extinguishers, office fire extinguishers, fire-fighting systems, boat fire extinguishers, portable fire extinguishers, fireproof clothing.";
+
 const INSTALLMENT = String.raw`Rata \d+ \(${DATE}\)`;
 
 export const PATTERNS: readonly Pattern[] = [
+  // A fire-safety firm's service description, a contact note of several paragraphs.
+  // The parser leaves its newlines as the letters "nn"; it is told by its opening alone.
+  {
+    pattern:
+      /^Descrizione:nnLa nostra organizzazione offre i servizi di verifica/,
+    english: () => {
+      return FIRE_SAFETY_FIRM_NOTE;
+    },
+  },
   // "Registrazione fattura Natisone Gas S.p.A. n. 7736 del 13/01/2013: spese gas dicembre '09"
   {
     pattern: new RegExp(
