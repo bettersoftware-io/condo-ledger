@@ -19,6 +19,9 @@ describeContactsPortContract("contacts simulator", () => {
     expected: seed.contacts,
     expectedCategories: seed.contactCategories,
     connections: seed.contactConnections,
+    usedContactId: "md1",
+    usedBuildingId: "c1",
+    usedBuildingName: "Pozzetto",
     teardown: (): void => {},
   };
 });

@@ -6,8 +6,7 @@ import type { Contact } from "#/entities/contact.ts";
 import type { InstallmentItem } from "#/entities/installment.ts";
 import type { JournalEntry } from "#/entities/journal.ts";
 import type { Restriction } from "#/entities/party.ts";
-import type { ResultOf } from "#/entities/result.ts";
-import type { Added } from "#/ports/unitsPort.ts";
+import type { Added, ResultOf } from "#/entities/result.ts";
 import type { PeriodDates } from "#/useCases/schedule.ts";
 import type {
   GroupDraft,

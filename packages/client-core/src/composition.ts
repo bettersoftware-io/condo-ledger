@@ -1,4 +1,11 @@
-import { distinctUntilChanged, map } from "rxjs";
+import {
+  combineLatest,
+  defer,
+  distinctUntilChanged,
+  map,
+  type Observable,
+  of,
+} from "rxjs";
 
 import {
   type AccountsPort,
@@ -9,7 +16,11 @@ import {
   type BuildingsPort,
   type BuildingsSimulator,
   type ClockPort,
+  type Contact,
   type ContactsPort,
+  type ContactsSimulator,
+  type ContactUsesById,
+  contactUsesOf,
   createAccountsSimulator,
   createBuildingsSimulator,
   createContactsSimulator,
@@ -873,6 +884,9 @@ export function createSimulatorPorts(
     itemsOf: (periodId: string): InstallmentItem[] => {
       return installments.current(periodId).items;
     },
+    contactsOf: (): Contact[] => {
+      return contacts.currentContacts();
+    },
     periodOf: (periodId: string): PeriodDates => {
       return datesOfPeriod(buildings.currentBuildings(), periodId);
     },
@@ -908,6 +922,13 @@ export function createSimulatorPorts(
     },
   );
 
+  const contacts: ContactsSimulator = createContactsSimulator(seed, {
+    uses$: usesOf(seed, units, journal),
+    buildings: (): Building[] => {
+      return buildings.currentBuildings();
+    },
+  });
+
   const accounts: AccountsSimulator = createAccountsSimulator(
     seed,
     (periodId) => {
@@ -921,7 +942,7 @@ export function createSimulatorPorts(
       firm: DESIGN_FIRM,
     }),
     buildings,
-    contacts: createContactsSimulator(seed),
+    contacts,
     accounts,
     journal,
     installments,
@@ -937,6 +958,39 @@ export function createSimulatorPorts(
     units,
     clock,
   };
+}
+
+/**
+ * Where each contact is used, as it stands: the seed's supplier links, and
+ * each period's residents, invoices and entries as the units and the journal
+ * answer them. Emits again whenever one of them does.
+ */
+function usesOf(
+  seed: LegacySeed,
+  units: UnitsPort,
+  journal: JournalPort,
+): Observable<ContactUsesById> {
+  return defer(() => {
+    const periods = seed.buildings.flatMap((building) => {
+      return building.periods.map((period) => {
+        return combineLatest([
+          units.residents(period.id),
+          journal.invoices(period.id),
+          journal.entries(period.id),
+        ]).pipe(
+          map(([residents, invoices, entries]) => {
+            return { buildingId: building.id, residents, invoices, entries };
+          }),
+        );
+      });
+    });
+
+    return (periods.length === 0 ? of([]) : combineLatest(periods)).pipe(
+      map((all) => {
+        return contactUsesOf(seed.supplierLinks, all);
+      }),
+    );
+  });
 }
 
 /** A period's dates as the buildings stand now; throws for a period they do not hold. */

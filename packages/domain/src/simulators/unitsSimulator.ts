@@ -4,9 +4,14 @@ import { type Contact, nameOf } from "#/entities/contact.ts";
 import type { InstallmentItem } from "#/entities/installment.ts";
 import type { JournalEntry } from "#/entities/journal.ts";
 import type { OwnerParty } from "#/entities/party.ts";
-import { accepted, type Result, type ResultOf } from "#/entities/result.ts";
+import {
+  type Added,
+  accepted,
+  type Result,
+  type ResultOf,
+} from "#/entities/result.ts";
 import type { Unit, UnitGroup } from "#/entities/unit.ts";
-import type { Added, UnitsPort } from "#/ports/unitsPort.ts";
+import type { UnitsPort } from "#/ports/unitsPort.ts";
 import { must } from "#/support/must.ts";
 import type { PeriodDates } from "#/useCases/schedule.ts";
 import {
