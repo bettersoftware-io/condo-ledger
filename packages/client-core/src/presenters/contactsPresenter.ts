@@ -10,6 +10,7 @@ import {
   shareReplay,
   startWith,
   switchMap,
+  tap,
 } from "rxjs";
 
 import {
@@ -76,6 +77,8 @@ export interface ContactsView {
   uses: ContactUsesView | null;
   /** The selected contact's connections, by order. */
   connections: ConnectionView[];
+  /** The connection chosen while the contact lists it; else the first row. Null with none. */
+  selectedConnection: ConnectionView | null;
 }
 
 export interface ContactsPresenter {
@@ -93,6 +96,10 @@ export interface ContactsPresenter {
   select: (id: string) => void;
   /** The page that holds the contact, selected: what a saved contact gets, since a rename moves it. A filter that hides it is reset first; unknown ids change nothing. */
   reveal: (id: string) => void;
+  /** Selects a connection of the selected contact; one it does not list leaves the first row. A change of contact starts on the first row. */
+  selectConnection: (id: string) => void;
+  /** Deletes the connection; the selection falls to the first row when it was the selected one. */
+  deleteConnection: (id: string) => Promise<Result>;
   /** Deletes the category; refused while a contact is in it. Deleting the one the list is filtered to takes the filter back to every category. */
   deleteCategory: (id: string) => Promise<Result>;
 }
@@ -132,7 +139,10 @@ interface Data {
 
 /** The view but for the connections, which come from the port, and the typed keyword. */
 interface Stage {
-  view: Omit<ContactsView, "connections" | "typedKeyword">;
+  view: Omit<
+    ContactsView,
+    "connections" | "selectedConnection" | "typedKeyword"
+  >;
   views: ContactView[];
 }
 
@@ -156,6 +166,7 @@ export function createContactsPresenter(
 ): ContactsPresenter {
   const preferences$ = new BehaviorSubject<Preferences>(INITIAL);
   const typed$ = new BehaviorSubject<string>("");
+  const connectionId$ = new BehaviorSubject<string | null>(null);
   const data$: Observable<Data> = combineLatest([
     ports.contacts.contacts(),
     ports.contacts.categories(),
@@ -202,6 +213,9 @@ export function createContactsPresenter(
       return stage.view.selected?.id ?? null;
     }),
     distinctUntilChanged(),
+    tap(() => {
+      connectionId$.next(null);
+    }),
     switchMap((contactId): Observable<Asked> => {
       if (contactId === null) {
         return of({ contactId, connections: [] });
@@ -230,17 +244,24 @@ export function createContactsPresenter(
 
   return {
     view$: state(
-      combineLatest([stage$, asked$, typed$]).pipe(
-        map(([stage, asked, typedKeyword]): ContactsView => {
-          const connections =
+      combineLatest([stage$, asked$, typed$, connectionId$]).pipe(
+        map(([stage, asked, typedKeyword, connectionId]): ContactsView => {
+          const asking =
             asked.contactId === stage.view.selected?.id
               ? asked.connections
               : [];
+          const connections = connectionViewsOf(asking, stage.views);
 
           return {
             ...stage.view,
             typedKeyword,
-            connections: connectionViewsOf(connections, stage.views),
+            connections,
+            selectedConnection:
+              connections.find((entry) => {
+                return entry.connection.id === connectionId;
+              }) ??
+              connections[0] ??
+              null,
           };
         }),
       ),
@@ -273,6 +294,12 @@ export function createContactsPresenter(
     },
     reveal: (id: string): void => {
       update({ pendingReveal: id });
+    },
+    selectConnection: (id: string): void => {
+      connectionId$.next(id);
+    },
+    deleteConnection: (id: string): Promise<Result> => {
+      return ports.contacts.deleteConnection(id);
     },
     deleteCategory: async (id: string): Promise<Result> => {
       const result = await ports.contacts.deleteCategory(id);

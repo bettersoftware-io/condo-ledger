@@ -109,6 +109,8 @@ interface TabsPage {
   connectedHeaders: () => string[];
   connectedRows: () => string[][];
   connectedEmpty: () => string | null;
+  /** The names of the selected Connected Contacts rows. */
+  connectedSelected: () => string[];
   /** Clicks the Connected Contacts row with this name. */
   clickConnectedRow: (label: string) => Promise<void>;
   clickLegend: () => Promise<void>;
@@ -122,7 +124,7 @@ export interface ContactsScreenPage {
   tabs: TabsPage;
   /** A contact's name, by its id: a test never spells a person's name. */
   contactName: (contactId: string) => string;
-  /** The dialog over the screen: the category dialog. */
+  /** The dialog over the screen: the category or connection dialog. */
   dialog: FormDialogPage;
   /** The question before a delete, and why it was refused. */
   confirmText: () => string | null;
@@ -587,6 +589,16 @@ export function mountContacts(seed?: LegacySeed): ContactsScreenPage {
         return (
           tabsPanel().querySelector(".tree-grid-empty")?.textContent ?? null
         );
+      },
+      connectedSelected: (): string[] => {
+        return within(tabsPanel())
+          .queryAllByTestId(TESTIDS.treeGridRow)
+          .filter((row) => {
+            return row.getAttribute("aria-selected") === "true";
+          })
+          .map((row) => {
+            return row.querySelector(".tree-grid-text")?.textContent ?? "";
+          });
       },
       clickConnectedRow: async (label: string): Promise<void> => {
         await user.click(rowOf(tabsPanel(), label));

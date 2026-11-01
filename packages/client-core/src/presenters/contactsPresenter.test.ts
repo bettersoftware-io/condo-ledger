@@ -588,6 +588,77 @@ describe("the contacts presenter", () => {
     stop();
   });
 
+  it("selects a connection by id, the first row until then, and the first row again on another contact", async () => {
+    const { contacts, harness, view, stop } = createPresented();
+
+    contacts.setPageSize(100);
+
+    const [owner, other] = view().rows.map(idOf);
+    const ownerId = must(owner, "a contact");
+    const otherId = must(other, "another contact");
+
+    contacts.select(ownerId);
+    expect(view().selectedConnection).toBeNull();
+
+    for (const [order, relationship] of [
+      [1, "Alpha"],
+      [2, "Beta"],
+    ] as const) {
+      await harness.ports.contacts.addConnection(ownerId, {
+        connectedId: otherId,
+        relationship,
+        order,
+      });
+    }
+
+    expect(view().selectedConnection?.connection.relationship).toBe("Alpha");
+
+    const second = must(view().connections[1], "the second connection");
+
+    contacts.selectConnection(second.connection.id);
+    expect(view().selectedConnection?.connection.id).toBe(second.connection.id);
+
+    contacts.selectConnection("cr-unknown");
+    expect(view().selectedConnection?.connection.relationship).toBe("Alpha");
+
+    contacts.selectConnection(second.connection.id);
+    contacts.select(otherId);
+    contacts.select(ownerId);
+    expect(view().selectedConnection?.connection.relationship).toBe("Alpha");
+
+    stop();
+  });
+
+  it("falls to the first row when the selected connection is deleted, and to none with no rows", async () => {
+    const { contacts, harness, view, stop } = createPresented();
+    const ownerId = must(view().selected, "a contact").id;
+    const otherId = must(view().rows[1], "another contact").id;
+
+    for (const [order, relationship] of [
+      [1, "Alpha"],
+      [2, "Beta"],
+    ] as const) {
+      await harness.ports.contacts.addConnection(ownerId, {
+        connectedId: otherId,
+        relationship,
+        order,
+      });
+    }
+
+    const [first, second] = view().connections;
+
+    contacts.selectConnection(must(second, "second").connection.id);
+    expect(
+      (await contacts.deleteConnection(second?.connection.id ?? "")).ok,
+    ).toBe(true);
+    expect(view().selectedConnection?.connection.id).toBe(first?.connection.id);
+
+    await contacts.deleteConnection(first?.connection.id ?? "");
+    expect(view().selectedConnection).toBeNull();
+
+    stop();
+  });
+
   it("gives a contact used nowhere empty lists", () => {
     const { contacts, harness, view, stop } = createPresented();
     const unused = must(

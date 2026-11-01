@@ -9,9 +9,10 @@ import { TESTIDS } from "../testids.ts";
 import "./ContactPicker.css";
 
 /**
- * The owner's Linked contact: a name typed into the box, and under it the
+ * A contact to link, the owner's Linked contact unless `label` says other: a name typed into the box, and under it the
  * contacts whose name holds what is typed, people and companies, each a
- * button that links that contact. The box shows the linked contact's name,
+ * button that links that contact. Only active contacts are offered; one
+ * already linked is shown whatever its status. The box shows the linked contact's name,
  * however it came to be linked. Typing again unlinks it and looks anew. A
  * fixed contact (an owner being edited) cannot change. What is typed is this
  * view's own state. Takes only props.
@@ -20,6 +21,7 @@ export function ContactPicker({
   contacts,
   value,
   fixed,
+  label = "Linked contact",
   onChange,
 }: ContactPickerProps): ReactElement {
   const listId = useId();
@@ -33,7 +35,10 @@ export function ContactPicker({
     chosen !== null || query === ""
       ? []
       : contacts.filter((contact) => {
-          return contact.name.toLowerCase().includes(query);
+          return (
+            contact.status === "active" &&
+            contact.name.toLowerCase().includes(query)
+          );
         });
   const open = chosen === null && query !== "";
 
@@ -53,10 +58,10 @@ export function ContactPicker({
 
   return (
     <div className="contact-picker">
-      <FormField label="Linked contact" required>
+      <FormField label={label} required>
         <input
           type="text"
-          aria-label="Linked contact"
+          aria-label={label}
           aria-required="true"
           aria-controls={open ? listId : undefined}
           placeholder="Type a name…"
@@ -106,5 +111,7 @@ export interface ContactPickerProps {
   value: string | null;
   /** The contact cannot change: an owner being edited keeps theirs. */
   fixed: boolean;
+  /** The field's name; the owner's "Linked contact" unless given. */
+  label?: string;
   onChange: (contactId: string | null) => void;
 }

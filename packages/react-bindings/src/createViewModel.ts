@@ -23,6 +23,7 @@ import type {
   ColumnSpec,
   ColumnsIntents,
   ColumnsState,
+  ConnectionDialogState,
   ContactsPresenter,
   ContactsView,
   DialogIntents,
@@ -83,6 +84,7 @@ import type {
   BuildingRow,
   Cents,
   ContactCategory,
+  ContactConnection,
   ContactView,
   EntryAdded,
   EntryKind,
@@ -198,7 +200,7 @@ export interface BuildingDataScreenView {
  * contacts are on their way. A keyword typed applies on `search`; any other
  * filter applies at once.
  */
-interface ContactsScreenView extends Omit<ContactsPresenter, "view$"> {
+export interface ContactsScreenView extends Omit<ContactsPresenter, "view$"> {
   view: ContactsView | null;
 }
 
@@ -345,6 +347,14 @@ export interface ViewModel {
   ) => MachineView<
     CategoryDialogState,
     DialogIntents<CategoryDialogState["form"]>
+  >;
+  /** Reads its arguments on the first render only: the Add Connected Contact dialog (null) on this contact, or the Edit one on the connection it opened on. */
+  useConnectionDialog: (
+    contactId: string,
+    editing: ContactConnection | null,
+  ) => MachineView<
+    ConnectionDialogState,
+    DialogIntents<ConnectionDialogState["form"]>
   >;
   useBuildingData: () => BuildingDataScreenView;
   /** The Building Data grid: which buildings are open. */
@@ -670,6 +680,8 @@ export function createViewModel(app: App): ViewModel {
         setPageSize: contacts.setPageSize,
         select: contacts.select,
         reveal: contacts.reveal,
+        selectConnection: contacts.selectConnection,
+        deleteConnection: contacts.deleteConnection,
         deleteCategory: contacts.deleteCategory,
       };
     },
@@ -682,6 +694,17 @@ export function createViewModel(app: App): ViewModel {
     > => {
       return useMachine(() => {
         return app.machines.createCategoryDialog(editing, onAdded);
+      });
+    },
+    useConnectionDialog: (
+      contactId: string,
+      editing: ContactConnection | null,
+    ): MachineView<
+      ConnectionDialogState,
+      DialogIntents<ConnectionDialogState["form"]>
+    > => {
+      return useMachine(() => {
+        return app.machines.createConnectionDialog(contactId, editing);
       });
     },
     useBuildingData: (): BuildingDataScreenView => {

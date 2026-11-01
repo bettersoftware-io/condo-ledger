@@ -14,6 +14,7 @@ import { createTwoPeriodSeed } from "@cl/domain/testing/createTwoPeriodSeed.ts";
 
 import {
   mountBuildingData,
+  mountContactsHooks,
   mountUnderProvider,
   mountWithoutProvider,
   type Seen,
@@ -631,6 +632,59 @@ describe("the view model", () => {
       }),
     ).toContainEqual(["", "2011 bis (Ordinary)"]);
     expect(page.read().data.view.building?.code).toBe("STN");
+  });
+
+  it("the contacts hooks: a category added, a connection added to md12 and selected, then deleted", async () => {
+    const page = mountContactsHooks();
+
+    await page.send((seen) => {
+      seen.screen.setPageSize(100);
+      seen.screen.select("md12");
+    });
+
+    expect(page.read().screen.view?.selected?.id).toBe("md12");
+    expect(page.read().screen.view?.connections).toHaveLength(1);
+    expect(page.read().connectionDialog.state.form.order).toBe("2");
+
+    await page.send((seen) => {
+      seen.categoryDialog.edit({ name: "Chimney sweep" });
+      seen.connectionDialog.edit({
+        connectedId: "md31",
+        relationship: "Plumber",
+      });
+    });
+    await page.send(async (seen) => {
+      expect((await seen.categoryDialog.save()).ok).toBe(true);
+      expect((await seen.connectionDialog.save()).ok).toBe(true);
+    });
+
+    expect(
+      page.read().screen.view?.categories.map(({ category }) => {
+        return category.name;
+      }),
+    ).toContain("Chimney sweep");
+    expect(page.read().screen.view?.connections).toHaveLength(2);
+
+    const added = must(
+      page.read().screen.view?.connections[1],
+      "the added connection",
+    );
+
+    await page.send((seen) => {
+      seen.screen.selectConnection(added.connection.id);
+    });
+
+    expect(page.read().screen.view?.selectedConnection?.connection.id).toBe(
+      added.connection.id,
+    );
+
+    await page.send(async (seen) => {
+      expect((await seen.screen.deleteConnection(added.connection.id)).ok).toBe(
+        true,
+      );
+    });
+
+    expect(page.read().screen.view?.connections).toHaveLength(1);
   });
 
   it("a wizard hook given an entry to edit shows that entry's form", () => {

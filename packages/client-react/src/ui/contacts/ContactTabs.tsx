@@ -34,8 +34,13 @@ export function ContactTabs({
   contact,
   uses,
   connections,
+  selectedConnectionId,
   connectionsTemplate,
   onActivate,
+  onSelectConnection,
+  onAddConnection,
+  onEditConnection,
+  onDeleteConnection,
   onResizeConnections,
   onStub,
 }: ContactTabsProps): ReactElement {
@@ -82,23 +87,23 @@ export function ContactTabs({
                   tone="ok"
                   iconOnly
                   disabled={noContact}
-                  onClick={stubbing("Add connection")}
+                  onClick={onAddConnection}
                 />
                 <ToolbarButton
                   label="Edit connection"
                   icon="✎"
                   tone="muted"
                   iconOnly
-                  disabled={noContact}
-                  onClick={stubbing("Edit connection")}
+                  disabled={selectedConnectionId === null}
+                  onClick={onEditConnection}
                 />
                 <ToolbarButton
                   label="Delete connection"
                   icon="−"
                   tone="neg"
                   iconOnly
-                  disabled={noContact}
-                  onClick={stubbing("Delete connection")}
+                  disabled={selectedConnectionId === null}
+                  onClick={onDeleteConnection}
                 />
               </>
             ) : (
@@ -176,7 +181,9 @@ export function ContactTabs({
             ) : connected ? (
               <ConnectedContacts
                 connections={connections}
+                selectedId={selectedConnectionId}
                 template={connectionsTemplate}
+                onSelect={onSelectConnection}
                 onResize={onResizeConnections}
               />
             ) : (
@@ -198,9 +205,15 @@ export interface ContactTabsProps {
   uses: ContactsView["uses"];
   /** Its connections, by order. */
   connections: ContactsView["connections"];
+  /** The selected connection's id; null with none. */
+  selectedConnectionId: string | null;
   /** The connections' grid-template-columns, from its columns machine. */
   connectionsTemplate: string;
   onActivate: (tab: string) => void;
+  onSelectConnection: (connectionId: string) => void;
+  onAddConnection: () => void;
+  onEditConnection: () => void;
+  onDeleteConnection: () => void;
   onResizeConnections: (index: number, px: number) => void;
   /** A tool that is not built yet, by name. */
   onStub: (label: string) => void;

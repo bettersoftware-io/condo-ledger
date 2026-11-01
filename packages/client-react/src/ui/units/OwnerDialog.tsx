@@ -10,6 +10,7 @@ import type {
 import { useViewModel } from "@cl/react-bindings";
 
 import { useLocale } from "../amountLocale.ts";
+import { ContactPicker } from "../contacts/ContactPicker.tsx";
 import { DateField } from "../DateField.tsx";
 import { Fieldset } from "../Fieldset.tsx";
 import { FormDialogFrame } from "../FormDialogFrame.tsx";
@@ -18,7 +19,6 @@ import { formatShare } from "../format.ts";
 import { TESTIDS } from "../testids.ts";
 import { useDialogWrite } from "../useDialogWrite.ts";
 import { type ValueOption, ValueSelect } from "../ValueSelect.tsx";
-import { ContactPicker } from "./ContactPicker.tsx";
 import { ROLE_LABELS } from "./labels.ts";
 import { unitsReasonText } from "./unitsReasons.ts";
 

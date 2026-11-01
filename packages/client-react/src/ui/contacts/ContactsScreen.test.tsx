@@ -3,7 +3,10 @@ import { describe, expect, it } from "vitest";
 import { type LegacySeed, loadLegacySeed } from "@cl/domain";
 import { legacySeedData } from "@cl/domain/simulators/seed/legacySeed.generated.ts";
 
-import { mountContacts } from "./ContactsScreen.page.tsx";
+import {
+  type ContactsScreenPage,
+  mountContacts,
+} from "./ContactsScreen.page.tsx";
 
 describe("Contacts screen", () => {
   it("lists the first ten of the registry, with the page and the total", () => {
@@ -609,6 +612,139 @@ describe("Contacts screen", () => {
     expect(page.list.selectedLabels()).toEqual([name]);
   });
 
+  it("selects a connected row, the first on opening, and disables ✎ and − with no rows", async () => {
+    const page = mountContacts();
+
+    await page.tabs.activate("Connected Contacts");
+
+    expect(page.tabs.isToolDisabled("Edit connection")).toBe(true);
+    expect(page.tabs.isToolDisabled("Delete connection")).toBe(true);
+    expect(page.tabs.isToolDisabled("Add connection")).toBe(false);
+
+    await openConnectedContact(page);
+
+    expect(page.tabs.connectedSelected()).toEqual([
+      page.contactName(CONNECTED),
+    ]);
+    expect(page.tabs.isToolDisabled("Edit connection")).toBe(false);
+    expect(page.tabs.isToolDisabled("Delete connection")).toBe(false);
+  });
+
+  it("adds a connection on the next free order, and shows it on this contact only", async () => {
+    const page = mountContacts();
+
+    await openConnectedContact(page);
+    await page.tabs.clickTool("Add connection");
+
+    expect(page.dialog.title()).toBe("Add Connected Contact");
+    expect(page.dialog.fieldValue("Order")).toBe("2");
+    expect(page.dialog.isSaveDisabled()).toBe(true);
+
+    await page.dialog.fill("Contact", page.contactName(COMPANY_UNUSED));
+    await page.dialog.chooseContact(page.contactName(COMPANY_UNUSED));
+    await page.dialog.fill("Relationship", "Plumber");
+    await page.dialog.save();
+
+    expect(page.dialog.isShown()).toBe(false);
+    expect(
+      page.tabs.connectedRows().map((row) => {
+        return row.slice(0, 3);
+      }),
+    ).toEqual([
+      ["1", "Employee", page.contactName(CONNECTED)],
+      ["2", "Plumber", page.contactName(COMPANY_UNUSED)],
+    ]);
+
+    const other = page.contactName(COMPANY_UNUSED);
+
+    await page.filters.typeKeyword(other);
+    await page.filters.search();
+    await page.list.clickRow(other);
+
+    expect(page.tabs.connectedEmpty()).toBe("No connected contacts.");
+  });
+
+  it("refuses a contact connected to itself, and the same relationship twice", async () => {
+    const page = mountContacts();
+
+    await openConnectedContact(page);
+    await page.tabs.clickTool("Add connection");
+    await page.dialog.fill("Contact", page.contactName(WITH_CONNECTION));
+    await page.dialog.chooseContact(page.contactName(WITH_CONNECTION));
+    await page.dialog.fill("Relationship", "Boss");
+
+    expect(page.dialog.message()).toBe(
+      "A contact cannot be connected to itself",
+    );
+    expect(page.dialog.isSaveDisabled()).toBe(true);
+
+    await page.dialog.cancel();
+    await page.tabs.clickTool("Add connection");
+    await page.dialog.fill("Contact", page.contactName(CONNECTED));
+    await page.dialog.chooseContact(page.contactName(CONNECTED));
+    await page.dialog.fill("Relationship", "Employee");
+
+    expect(page.dialog.message()).toBe(
+      `${page.contactName(CONNECTED)} already has this relationship`,
+    );
+    expect(page.dialog.isSaveDisabled()).toBe(true);
+  });
+
+  it("does not offer an archived contact to connect", async () => {
+    const page = mountContacts();
+
+    await openConnectedContact(page);
+    await page.tabs.clickTool("Add connection");
+    await page.dialog.fill("Contact", page.contactName(ARCHIVED));
+
+    expect(page.dialog.contactOptions()).toEqual([]);
+    expect(page.dialog.noContactMatches()).toBe(true);
+  });
+
+  it("edits the selected connection through ✎, keeping its contact", async () => {
+    const page = mountContacts();
+
+    await openConnectedContact(page);
+    await page.tabs.clickTool("Edit connection");
+
+    expect(page.dialog.title()).toBe("Edit Connected Contact");
+    expect(page.dialog.fieldValue("Contact")).toBe(page.contactName(CONNECTED));
+    expect(page.dialog.fieldValue("Relationship")).toBe("Employee");
+
+    await page.dialog.fill("Relationship", "Manager");
+    await page.dialog.fill("Order", "3");
+    await page.dialog.save();
+
+    expect(page.dialog.isShown()).toBe(false);
+    expect(page.tabs.connectedRows()[0]?.slice(0, 3)).toEqual([
+      "3",
+      "Manager",
+      page.contactName(CONNECTED),
+    ]);
+  });
+
+  it("asks before removing a connection, and removes it on Yes", async () => {
+    const page = mountContacts();
+
+    await openConnectedContact(page);
+    await page.tabs.clickTool("Delete connection");
+
+    expect(page.confirmText()).toBe(
+      `Remove ${page.contactName(CONNECTED)} from this contact?`,
+    );
+
+    await page.confirmNo();
+
+    expect(page.tabs.connectedRows()).toHaveLength(1);
+
+    await page.tabs.clickTool("Delete connection");
+    await page.confirmYes();
+
+    expect(page.confirmText()).toBeNull();
+    expect(page.tabs.connectedEmpty()).toBe("No connected contacts.");
+    expect(page.tabs.isToolDisabled("Edit connection")).toBe(true);
+  });
+
   it("keeps the tab in front while another contact is selected", async () => {
     const page = mountContacts();
 
@@ -726,3 +862,13 @@ const TABLE_HEADERS = [
   "Lng.",
   "Category",
 ];
+
+/** Finds the contact with a connection, selects it and opens the Connected Contacts tab. */
+async function openConnectedContact(page: ContactsScreenPage): Promise<void> {
+  const name = page.contactName(WITH_CONNECTION);
+
+  await page.tabs.activate("Connected Contacts");
+  await page.filters.typeKeyword(name.split(" ")[0] ?? "");
+  await page.filters.search();
+  await page.list.clickRow(name);
+}

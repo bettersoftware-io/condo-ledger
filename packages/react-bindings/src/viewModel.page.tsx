@@ -15,12 +15,14 @@ import type {
   BudgetInstallmentsForm,
   BudgetInstallmentsSummary,
   BuildingDialogState,
+  CategoryDialogState,
   CoefficientsGridState,
   CollectionForm,
   CollectionSummary,
   ColumnSpec,
   ColumnsIntents,
   ColumnsState,
+  ConnectionDialogState,
   DialogIntents,
   DirectPaymentForm,
   DirectPaymentSummary,
@@ -81,6 +83,7 @@ import type {
 import {
   type AllocationView,
   type BuildingDataScreenView,
+  type ContactsScreenView,
   createViewModel,
   type NoticesView,
   type ScheduleView,
@@ -321,6 +324,78 @@ export function mountBuildingData(): BuildingDataPage {
       });
     },
   };
+}
+
+/** What the Contacts reader got from its hooks on its latest render. */
+interface ContactsSeen {
+  screen: ContactsScreenView;
+  /** The New Category dialog. */
+  categoryDialog: MachineView<
+    CategoryDialogState,
+    DialogIntents<CategoryDialogState["form"]>
+  >;
+  /** The Add Connected Contact dialog on md12. */
+  connectionDialog: MachineView<
+    ConnectionDialogState,
+    DialogIntents<ConnectionDialogState["form"]>
+  >;
+}
+
+export interface ContactsPage {
+  read: () => ContactsSeen;
+  send: (use: (seen: ContactsSeen) => unknown) => Promise<void>;
+}
+
+/** Mounts a reader of the Contacts hooks on the real application over the real seed. */
+export function mountContactsHooks(): ContactsPage {
+  const viewModel = createViewModel(createAppHarness().app);
+  const seen: ContactsSeen[] = [];
+
+  render(
+    <ViewModelProvider viewModel={viewModel}>
+      <ContactsReader seen={seen} />
+    </ViewModelProvider>,
+  );
+
+  function read(): ContactsSeen {
+    const entry = seen[0];
+
+    if (entry === undefined) {
+      throw new Error("missing: what the Contacts reader saw");
+    }
+
+    return entry;
+  }
+
+  return {
+    read,
+    send: async (use: (seen: ContactsSeen) => unknown): Promise<void> => {
+      await act(async () => {
+        await use(read());
+      });
+    },
+  };
+}
+
+interface ContactsReaderProps {
+  seen: ContactsSeen[];
+}
+
+function ContactsReader({ seen }: ContactsReaderProps): null {
+  const { useContactsScreen, useCategoryDialog, useConnectionDialog } =
+    useViewModel();
+
+  function ignore(): void {
+    // The id of a category added is not what this reader looks at.
+  }
+
+  seen[0] = {
+    screen: useContactsScreen(),
+    categoryDialog: useCategoryDialog(null, ignore),
+    connectionDialog: useConnectionDialog("md12", null),
+  };
+
+  return null;
 }
 
 /** Mounts the same component with no provider above it. React reports what the component threw. */

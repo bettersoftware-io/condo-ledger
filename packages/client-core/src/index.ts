@@ -39,7 +39,10 @@ export {
   type ColumnsState,
   columnSpecsFrom,
 } from "./machines/columnsMachine.ts";
-export type { CategoryDialogState } from "./machines/contactDialogMachines.ts";
+export type {
+  CategoryDialogState,
+  ConnectionDialogState,
+} from "./machines/contactDialogMachines.ts";
 export type { DialogIntents } from "./machines/formDialog.ts";
 export type {
   InstallmentDialogForm,

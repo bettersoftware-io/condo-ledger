@@ -13,11 +13,13 @@ import "./contactCells.css";
  * The Connected Contacts tab: the contacts the selected one is connected to,
  * by order, each with what it is to the selected one (`Relationship`) and
  * the connected contact's own name, code, type, status, address, tax code and
- * VAT number. Read only. Takes only props, so the compiler memoizes it.
+ * VAT number. A click selects a row, which the tools act on. Takes only props, so the compiler memoizes it.
  */
 export function ConnectedContacts({
   connections,
+  selectedId,
   template,
+  onSelect,
   onResize,
 }: ConnectedContactsProps): ReactElement {
   return (
@@ -25,11 +27,12 @@ export function ConnectedContacts({
       <TreeGrid
         columns={CONNECTIONS_COLUMNS}
         template={template}
-        rows={connections.map(rowDataOf)}
+        rows={connections.map((entry) => {
+          return rowDataOf(entry, selectedId);
+        })}
         emptyMessage="No connected contacts."
-        // A connection is not selected until a tool acts on one.
-        onToggle={ignoreRow}
-        onSelect={ignoreRow}
+        onToggle={onSelect}
+        onSelect={onSelect}
         onResize={onResize}
       />
     </div>
@@ -39,13 +42,17 @@ export function ConnectedContacts({
 export interface ConnectedContactsProps {
   /** The selected contact's connections, by order. */
   connections: ContactsView["connections"];
+  /** The selected connection's id; null with none. */
+  selectedId: string | null;
   /** grid-template-columns, from the columns machine. */
   template: string;
+  onSelect: (connectionId: string) => void;
   onResize: (index: number, px: number) => void;
 }
 
 function rowDataOf(
   entry: ContactsView["connections"][number],
+  selectedId: string | null,
 ): TreeGridRowData {
   const { connection, connected } = entry;
 
@@ -54,7 +61,7 @@ function rowDataOf(
     depth: 0,
     hasChildren: false,
     expanded: false,
-    selected: false,
+    selected: connection.id === selectedId,
     emphasis: false,
     zebra: false,
     icon: null,
@@ -69,8 +76,4 @@ function rowDataOf(
     ],
     cells: contactCells(connected),
   };
-}
-
-function ignoreRow(): void {
-  // Nothing happens to a connection when its row is clicked.
 }
