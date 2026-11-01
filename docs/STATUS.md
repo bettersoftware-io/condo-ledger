@@ -52,17 +52,15 @@ Work that waits on a release, a decision or other work.
   "rounding" on the first resident (`budgetAllocationDraft.ts`). The draft
   must then refuse, or name the account, when a column's Roundings exceeds
   a rounding.
-- **The rest of the Buildings module for M2.** The groups the parent design
-  names that are not built yet, one spec each: Contacts and Calendar
+- **The rest of the Buildings module for M2.** The one group the parent
+  design names that is not built yet is Calendar, with its own spec
   ([2026-10-11-app-v2-design.md](superpowers/specs/2026-10-11-app-v2-design.md)).
-  Installments (M2d), Tables & Allocation (M2e) and Building Data & Units
-  (M2f) are built.
+  Installments (M2d), Tables & Allocation (M2e), Building Data & Units (M2f)
+  and Contacts (M2g) are built.
 - **New and deleted buildings and periods.** Building Data & Units edits
   what exists but cannot add or remove a building or a period. A new period
   starts from the previous one: its chart, units, residents and balances are
   carried over.
-- **Edit a building's suppliers.** Building Data shows the suppliers
-  read-only; editing them comes with Contacts.
 - **Tidy-ups left by the M2f reviews.** None changes what a person sees.
   `daysOf` could use `spanOf`. `same()` is repeated in
   `validateUnits.ts` and `validateBuilding.ts`, and the parse of a blank or
@@ -110,6 +108,14 @@ Work that waits on a release, a decision or other work.
   Period dialog judges against the units port's first answer, so it relies
   on a port that answers on subscribing, as the units presenter's dialogs
   do.
+  The Contacts screen (M2g) has three more. The contacts simulator's `uses$`
+  (`usesOf` in `composition.ts`) is built from every period's residents,
+  invoices and entries, so it recomputes on every change of any period's
+  books; a live adapter answers `uses()` with one query. The contact dialogs
+  read the salutations, categories, connections and suppliers when they open,
+  so a slow live adapter would leave a new contact with no salutation. And
+  the contact dialog does not judge its rows again: the row dialog and the
+  port do.
   The Building Data screen (M2f) has two more limits. One period's error (a
   port error in M3, or a period without a Liquidity or Funds account) breaks
   every building's Building Data rows until the page is reloaded; the fix in
@@ -128,6 +134,11 @@ A step or a decision an agent cannot take.
 
 ## Known limits
 
+- **Contacts of the nine unseeded buildings show no building and can be
+  deleted in the simulator.** The seed holds the supplier links of the two
+  seeded buildings only, so those contacts show "- None -", appear under no
+  Building filter, and nothing in the seed uses them. That is a limit of the
+  seed, not a rule.
 - **An account's default contra is not a contact yet.** The legacy app could
   name a contact as an account's default contra, and that link kept the contact
   from being deleted. The app's accounts have no such field (Account Details
