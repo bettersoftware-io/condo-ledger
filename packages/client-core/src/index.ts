@@ -50,12 +50,10 @@ export type {
   JournalDialogState,
   WizardName,
 } from "./machines/journalDialogMachine.ts";
-export {
-  type JournalGridIntents,
-  type JournalGridRow,
-  type JournalGridState,
-  PAGE_SIZES,
-  type PageSize,
+export type {
+  JournalGridIntents,
+  JournalGridRow,
+  JournalGridState,
 } from "./machines/journalGridMachine.ts";
 export type { Machine } from "./machines/machine.ts";
 export type {
@@ -143,6 +141,7 @@ export type {
   WizardState,
 } from "./machines/wizards/wizard.ts";
 export type { Notice } from "./notices.ts";
+export { PAGE_SIZES, type PageSize } from "./paging.ts";
 export type {
   AccountDetails,
   AllocationTableRow,

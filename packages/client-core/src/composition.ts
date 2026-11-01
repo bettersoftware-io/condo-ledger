@@ -180,6 +180,10 @@ import {
   createBuildingsPresenter,
 } from "./presenters/buildingsPresenter.ts";
 import {
+  type ContactsPresenter,
+  createContactsPresenter,
+} from "./presenters/contactsPresenter.ts";
+import {
   createInstallmentSchedulePresenter,
   type InstallmentSchedulePresenter,
   scheduleContextOf,
@@ -224,6 +228,7 @@ interface AppPresenters {
   schedule: InstallmentSchedulePresenter;
   allocation: AllocationPresenter;
   units: UnitsPresenter;
+  contacts: ContactsPresenter;
   buildingData: BuildingDataPresenter;
 }
 
@@ -357,6 +362,11 @@ export function createApp(ports: AppPorts): App {
     ports.clock,
   );
 
+  const contacts = createContactsPresenter({
+    contacts: ports.contacts,
+    buildings: ports.buildings,
+  });
+
   const buildingData = createBuildingDataPresenter(
     {
       accounts: ports.accounts,
@@ -481,6 +491,7 @@ export function createApp(ports: AppPorts): App {
       schedule,
       allocation,
       units,
+      contacts,
       buildingData,
     },
     navigation: createNavigationMachine(),

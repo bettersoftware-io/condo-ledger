@@ -86,6 +86,11 @@ export {
 } from "./useCases/buildingRows.ts";
 export * from "./useCases/collection.ts";
 export {
+  ALL_CONTACTS,
+  type ContactFilter,
+  filterContacts,
+} from "./useCases/contacts/contactFilter.ts";
+export {
   type ContactUsesById,
   contactUsesOf,
 } from "./useCases/contacts/contactUses.ts";

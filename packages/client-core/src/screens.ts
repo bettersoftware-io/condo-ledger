@@ -75,7 +75,9 @@ export type GridName =
   | "units"
   | "unitOwners"
   | "buildingData"
-  | "suppliers";
+  | "suppliers"
+  | "contacts"
+  | "connections";
 
 /** The splitters between two panels: the Accounts screen's, the Tables & Allocation screen's two, the Units screen's, the Building Data screen's, and the Building Suppliers tab's. */
 export type SplitName =
@@ -84,10 +86,15 @@ export type SplitName =
   | "allocationColumns"
   | "units"
   | "buildingData"
-  | "suppliers";
+  | "suppliers"
+  | "contacts";
 
 /** The panels with tabs. */
-export type TabbedPanelName = "accounts" | "units" | "buildingData";
+export type TabbedPanelName =
+  | "accounts"
+  | "units"
+  | "buildingData"
+  | "contacts";
 
 /**
  * What the screens show and how they are laid out, kept for the session: one
