@@ -67,6 +67,26 @@ Work that waits on a release, a decision or other work.
   a date in `formDialog.ts` and `invoiceWizard.ts`. `ValueSelect` repeats the wizards'
   select, and `createFormDialog` parallels `tableDialogMachine.ts`. A few
   test helpers are copied (`rowLabels`, `rowWithKey`, `flatten`, `watch`).
+- **Tidy-ups left by the M2g reviews.** None changes what a person sees today.
+  In the simulators: `deleteContact` does not look at the contact again after
+  its `await`, so two deletes of one id both answer ok; `rowsOf` keeps a draft
+  row's id unchecked; `connections()` emits for another contact's change, and
+  `suppliers()` for another building's. A caller that wires `contactsOf` into
+  `createUnitsSimulator` without `contacts$` gets `residents()` and
+  `currentResidents()` named from different lists; only the composition wires
+  it, and it wires both. In `contactsPresenter.ts`, `revealedBy` writes to
+  subjects inside a `map`, and a `tap` in `asked$` resets the connection
+  selection, which a second subscriber of `view$` would repeat. `SidebarFrame`
+  derives the scrim's name from `railLabel` beside a separate `railTitle`, and
+  `ContactPicker.css` hard-codes the 158px of the label column. In the tests:
+  the seed's "rows by their order" cannot fail on a contact with one row;
+  `notices.test.ts` keeps the removed suppliers notice as its sample;
+  `ConnectionDialog` has no page object of its own; the dialog footer's
+  refusal test had no mutation check. `isDate` reads a year below 100 as 19xx.
+  A new contact row's identity is its index, so removing one remounts those
+  below it. The category dialog passes an empty name to `contactReasonText`,
+  which no category reason uses. One comment line in `translateSeed.ts` is
+  still too long.
 - **Presenter robustness before the live adapters (M3).** `booksOf` skips a
   state whose postings name a supplier the parties lack, so a live adapter
   that breaks the `parties()` guarantee freezes the books with no error: M3's
