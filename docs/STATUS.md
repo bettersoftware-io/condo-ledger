@@ -111,8 +111,9 @@ Work that waits on a release, a decision or other work.
   The Contacts screen (M2g) has three more. The contacts simulator's `uses$`
   (`usesOf` in `composition.ts`) is built from every period's residents,
   invoices and entries, so it recomputes on every change of any period's
-  books; a live adapter answers `uses()` with one query. The contact dialogs
-  read the salutations, categories, connections and suppliers when they open,
+  residents, invoices or entries; a live adapter answers `uses()` with one
+  query. The contact, connection and supplier dialogs read the salutations,
+  categories, connections and suppliers when they open,
   so a slow live adapter would leave a new contact with no salutation. And
   the contact dialog does not judge its rows again: the row dialog and the
   port do.
@@ -134,10 +135,11 @@ A step or a decision an agent cannot take.
 
 ## Known limits
 
-- **Contacts of the nine unseeded buildings show no building and can be
-  deleted in the simulator.** The seed holds the supplier links of the two
-  seeded buildings only, so those contacts show "- None -", appear under no
-  Building filter, and nothing in the seed uses them. That is a limit of the
+- **Contacts with no use in the seed show no building and can be deleted in
+  the simulator.** The seed holds the supplier links of the two seeded
+  buildings only, so a contact of the nine unseeded buildings with no use in
+  the seed shows "- None -", appears under no Building filter, and nothing in
+  the seed uses it. That is a limit of the
   seed, not a rule.
 - **An account's default contra is not a contact yet.** The legacy app could
   name a contact as an account's default contra, and that link kept the contact

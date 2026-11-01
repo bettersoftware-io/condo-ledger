@@ -13,10 +13,10 @@ const RELATIONSHIP_MAX = 127;
 /**
  * Whether a connection shown on `contactId` may be saved: `editing` is its
  * id, null for a new one. The reasons are checked in this order: no contact,
- * the contact itself, a blank relationship, one over 127 characters, an order that is not a whole number from 1, and the
- * same contact with the same relationship already on `contactId` (the
- * detail is the connected contact's id). Relationships compare trimmed and
- * by case.
+ * the contact itself, a blank relationship, one over 127 characters, an order
+ * that is not a whole number from 1, and the same contact with the same
+ * relationship already on `contactId` (the detail is the connected contact's
+ * id). Relationships compare trimmed and by case.
  */
 export function validateConnection(
   contactId: string,

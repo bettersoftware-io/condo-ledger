@@ -27,7 +27,7 @@ export interface ContactsPort {
   uses(): Observable<ContactUsesById>;
   /** The new contact's id is the number after the highest held. A row of the draft with no id gets one. */
   addContact(draft: ContactDraft): Promise<ResultOf<Added>>;
-  /** The contact keeps its kind: a draft of the other kind is refused. Rows the draft leaves out are deleted. */
+  /** The contact keeps its kind: a draft of the other kind rejects. Rows the draft leaves out are deleted. */
   editContact(id: string, draft: ContactDraft): Promise<Result>;
   /** Takes the contact's rows and every connection on either end; refused while the contact is used. */
   deleteContact(id: string): Promise<Result>;

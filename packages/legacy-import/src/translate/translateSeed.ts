@@ -8,8 +8,8 @@ import { PATTERNS } from "./patterns.ts";
  * abbreviations, entry descriptions, invoice reasons, installment, table,
  * unit group and withholding names, the notes of tables, buildings, periods,
  * units and groups, contact notes, categories, salutations, row labels and
- * relationships. Ids, amounts, cadastral data and the names of people, firms, buildings and periods are left as they are. A
- * string with no exact entry and no pattern stops the generator, naming the
+ * relationships. Ids, amounts, cadastral data and the names of people, firms,
+ * buildings and periods are left as they are. A string with no exact entry and no pattern stops the generator, naming the
  * field and the record, so new legacy data is translated before it is
  * imported.
  */

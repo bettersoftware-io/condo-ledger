@@ -13,7 +13,12 @@ export function TextCell({ value, mono = false }: TextCellProps): ReactElement {
   }
 
   return (
-    <span className="contact-text" data-blank="false" data-mono={mono}>
+    <span
+      className="contact-text"
+      data-blank="false"
+      data-mono={mono}
+      title={value}
+    >
       {value}
     </span>
   );

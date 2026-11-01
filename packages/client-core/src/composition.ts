@@ -5,6 +5,7 @@ import {
   map,
   type Observable,
   of,
+  shareReplay,
 } from "rxjs";
 
 import {
@@ -1045,7 +1046,10 @@ export function createSimulatorPorts(
   );
 
   const contacts: ContactsSimulator = createContactsSimulator(seed, {
-    uses$: usesOf(seed, buildings, units, journal),
+    uses$: usesOf(seed, buildings, units, journal).pipe(
+      // One watch of every period for all who read the uses, not one each.
+      shareReplay({ bufferSize: 1, refCount: true }),
+    ),
     buildings: (): Building[] => {
       return buildings.currentBuildings();
     },

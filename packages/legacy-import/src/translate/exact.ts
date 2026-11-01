@@ -235,12 +235,10 @@ const EXACT: Readonly<Record<string, string>> = {
   "Enti di certificazione": "Certification bodies",
 
   // ---- Contact notes ----
-  // Two test notes stay as they are, as data. The firm's service description
-  // is keyed as the parser leaves it, newlines as the letters "nn".
+  // Two test notes stay as they are, as data. The firm's long service
+  // description is matched by a pattern in patterns.ts.
   dsfds: "dsfds",
   cvd: "cvd",
-  "Descrizione:nnLa nostra organizzazione offre i servizi di verifica e manutenzione di impianti di sicurezza; vendita, manutenzione e noleggio di apparecchiature antincendio, a norma DPR. 27.04.55 n. 547 a norma UNI 9994/92; consulenza e prevenzione incendi; vendita di materiale antinfortunistico, cartelli segnalatori e segnaletica aziendale; servizio di vigilanza antincendio; servizi di guardiania, biglietteria e cassa, portineria; servizi di pulizia.nnCategorie Merceologiche:nnEstintori - commercionnProdotti:nnestintorinestintori per la casanidrantinestintori per autonestintori per ufficionimpianti antincendionestintori per imbarcazioninestintori portatilinindumenti ignifughi":
-    "Description: Our organisation offers inspection and maintenance of safety systems; sale, maintenance and rental of fire-fighting equipment, in accordance with DPR 27.04.55 no. 547 and UNI 9994/92; fire prevention consulting; sale of workplace safety supplies, warning signs and company signage; fire watch service; concierge, ticket office and cashier services; cleaning services. Product categories: Fire extinguishers - trade. Products: fire extinguishers, home fire extinguishers, hydrants, car fire extinguishers, office fire extinguishers, fire-fighting systems, boat fire extinguishers, portable fire extinguishers, fireproof clothing.",
 
   // ---- Contact rows, salutations and relationships ----
   // The three rows with test labels in the dump are kept as they are, as data.
