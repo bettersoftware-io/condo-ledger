@@ -6,8 +6,26 @@ import {
   ALL_CONTACTS,
   type ContactFilter,
   filterContacts,
+  offerableContacts,
 } from "./contactFilter.ts";
 import type { ContactUses, ContactUsesById } from "./contactUses.ts";
+
+describe("offerableContacts", () => {
+  it("offers the active contacts whose name holds the text, ignoring case and accents", () => {
+    expect(offerableContacts(offerable, "citta")).toEqual([offerable[0]]);
+    expect(offerableContacts(offerable, "  MARIO ")).toEqual([offerable[2]]);
+  });
+
+  it("offers none for text that is blank", () => {
+    expect(offerableContacts(offerable, "   ")).toEqual([]);
+  });
+
+  const offerable = [
+    { name: "Città Verde", status: "active" as const },
+    { name: "Citta Vecchia", status: "archived" as const },
+    { name: "Rossi Mario", status: "active" as const },
+  ];
+});
 
 describe("filterContacts", () => {
   it("lists everyone with the default filter", () => {

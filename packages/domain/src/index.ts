@@ -89,6 +89,7 @@ export {
   ALL_CONTACTS,
   type ContactFilter,
   filterContacts,
+  offerableContacts,
 } from "./useCases/contacts/contactFilter.ts";
 export {
   type ContactUsesById,

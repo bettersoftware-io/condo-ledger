@@ -68,6 +68,25 @@ export function filterContacts(
   });
 }
 
+/**
+ * The contacts a picker offers for what is typed: the active ones whose name
+ * holds the text, ignoring case and accents as the keyword does. Blank text
+ * offers none.
+ */
+export function offerableContacts<
+  T extends { name: string; status: RecordStatus },
+>(contacts: T[], typed: string): T[] {
+  const text = fold(typed);
+
+  if (text === "") {
+    return [];
+  }
+
+  return contacts.filter((contact) => {
+    return contact.status === "active" && fold(contact.name).includes(text);
+  });
+}
+
 function keywordFields(contact: Contact): string[] {
   const own =
     contact.kind === "person"

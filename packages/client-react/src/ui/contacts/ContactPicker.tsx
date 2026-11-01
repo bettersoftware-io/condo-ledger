@@ -1,6 +1,6 @@
 import { type ChangeEvent, type ReactElement, useId, useState } from "react";
 
-import type { Contact, ContactView } from "@cl/domain";
+import { type Contact, type ContactView, offerableContacts } from "@cl/domain";
 
 import { CONTACT_KIND_ICONS, CONTACT_KIND_LABELS } from "../contactLabels.ts";
 import { FormField } from "../FormField.tsx";
@@ -10,7 +10,7 @@ import "./ContactPicker.css";
 
 /**
  * A contact to link, the owner's Linked contact unless `label` says other: a name typed into the box, and under it the
- * contacts whose name holds what is typed, people and companies, each a
+ * contacts whose name holds what is typed (the domain's `offerableContacts`), people and companies, each a
  * button that links that contact. Only active contacts are offered; one
  * already linked is shown whatever its status. The box shows the linked contact's name,
  * however it came to be linked. Typing again unlinks it and looks anew. A
@@ -36,17 +36,8 @@ export function ContactPicker({
       return contact.id === value;
     }) ?? null;
   const [typed, setTyped] = useState("");
-  const query = typed.trim().toLowerCase();
-  const offered =
-    chosen !== null || query === ""
-      ? []
-      : contacts.filter((contact) => {
-          return (
-            contact.status === "active" &&
-            contact.name.toLowerCase().includes(query)
-          );
-        });
-  const open = chosen === null && query !== "";
+  const offered = chosen === null ? offerableContacts(contacts, typed) : [];
+  const open = chosen === null && typed.trim() !== "";
 
   function type(event: ChangeEvent<HTMLInputElement>): void {
     setTyped(event.target.value);
