@@ -110,7 +110,7 @@ Ports carry raw period state, not derived views.
 | `AccountsPort` | chart of accounts with budgets and flags, functional account roles | edit account, set budget, configure functional accounts |
 | `JournalPort` | entries with postings | the ten wizards as commands, delete entry |
 | `InstallmentsPort` | installment plans and payments | create installments, set amount |
-| `ContactsPort` | contacts, categories, connected contacts, linked accounts (reads built in M2f; the Contacts screen is not built) | edit person, edit company, edit contact row |
+| `ContactsPort` | contacts (read built in M2f); categories and connected contacts arrive with M2g; linked accounts with M3 | add, edit and delete a person or a company with its contact rows, a category, a connected contact |
 | `CalendarPort` | layers, events | add, edit, remove deadline |
 
 Ports are built once per session in the composition root for a

@@ -12,7 +12,7 @@ One bullet for each entry: its name in bold, what is left, and a link to its
 plan when it has one. `AGENTS.md` says when an entry is added, moved and
 removed.
 
-**Last updated: 2026-10-31**
+**Last updated: 2026-11-01**
 
 ## In progress
 
@@ -34,6 +34,13 @@ Work that has started and is not finished.
 ## Planned, and held by something
 
 Work that waits on a release, a decision or other work.
+
+- **Linked Accounts on the Contacts screen.** Held by M3, because this is
+  real sign-in. The legacy tab lists a contact's logins with their status,
+  profile and permissions, and adds, edits, deletes and verifies them. With it
+  come the Account role filter in the Contacts sidebar and the refusal to
+  delete the contact you are signed in with. The legacy tables hold passwords
+  in clear text: none of them may reach a seed, a fixture or a log.
 
 ## Next, with no plan yet
 
@@ -118,6 +125,11 @@ A step or a decision an agent cannot take.
 
 ## Known limits
 
+- **An account's default contra is not a contact yet.** The legacy app could
+  name a contact as an account's default contra, and that link kept the contact
+  from being deleted. The app's accounts have no such field (Account Details
+  shows "from parent"), so the Contacts design cannot refuse a delete for it.
+  When the field arrives, the refusal comes with it.
 - **Successive owners depart from the legacy rule.** The legacy application
   split a unit's share among all the residents of the unit and role,
   whatever their dates. M2f splits it only among the residents whose dates
