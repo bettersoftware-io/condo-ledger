@@ -46,6 +46,7 @@ export {
   type JournalSimulator,
 } from "./simulators/journalSimulator.ts";
 export * from "./simulators/seed/legacySeed.ts";
+export { periodSuppliers } from "./simulators/seededParties.ts";
 export {
   createSessionSimulator,
   DESIGN_FIRM,

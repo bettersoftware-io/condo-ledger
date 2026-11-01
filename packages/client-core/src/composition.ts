@@ -42,8 +42,10 @@ import {
   type OwnerParty,
   ok,
   type PeriodDates,
+  periodSuppliers,
   type Result,
   type SessionPort,
+  type SupplierParty,
   type TablesPort,
   type ThousandthTable,
   type Unit,
@@ -871,7 +873,9 @@ export function createApp(ports: AppPorts): App {
  * against the schedule as it stands and an installment a collection pays is
  * not deleted. Each reads another only when a write asks, after all are
  * built. A table is deleted only when no account, as the accounts simulator
- * holds it now, links to it.
+ * holds it now, links to it. A period's suppliers are `periodSuppliers` over
+ * the buildings' links, the journal and the contacts: the journal and the
+ * installments read them when a write asks, the accounts follow them.
  */
 export function createSimulatorPorts(
   seed: LegacySeed,
@@ -902,6 +906,9 @@ export function createSimulatorPorts(
     residentsOf: (periodId: string): OwnerParty[] => {
       return units.currentResidents(periodId);
     },
+    contactsOf: (): Contact[] => {
+      return contacts.currentContacts();
+    },
   });
 
   const journal: JournalSimulator = createJournalSimulator(
@@ -913,6 +920,7 @@ export function createSimulatorPorts(
     (periodId) => {
       return units.currentResidents(periodId);
     },
+    suppliersNow,
   );
 
   const installments: InstallmentsSimulator = createInstallmentsSimulator(
@@ -923,10 +931,11 @@ export function createSimulatorPorts(
     (periodId) => {
       return units.currentResidents(periodId);
     },
+    suppliersNow,
   );
 
   const contacts: ContactsSimulator = createContactsSimulator(seed, {
-    uses$: usesOf(seed, units, journal),
+    uses$: usesOf(seed, buildings, units, journal),
     buildings: (): Building[] => {
       return buildings.currentBuildings();
     },
@@ -937,7 +946,38 @@ export function createSimulatorPorts(
     (periodId) => {
       return units.residents(periodId);
     },
+    (periodId) => {
+      const buildingId = buildingIdOfPeriod(seed, periodId);
+
+      return combineLatest([
+        buildings.links$,
+        journal.invoices(periodId),
+        journal.entries(periodId),
+        contacts.contacts(),
+      ]).pipe(
+        map(([links, invoices, entries, all]) => {
+          return periodSuppliers({
+            buildingId,
+            links,
+            invoices,
+            entries,
+            contacts: all,
+          });
+        }),
+      );
+    },
   );
+
+  /** A period's suppliers as everything stands now. */
+  function suppliersNow(periodId: string): SupplierParty[] {
+    return periodSuppliers({
+      buildingId: buildingIdOfPeriod(seed, periodId),
+      links: buildings.currentLinks(),
+      invoices: journal.currentInvoices(periodId),
+      entries: journal.current(periodId),
+      contacts: contacts.currentContacts(),
+    });
+  }
 
   return {
     session: createSessionSimulator({
@@ -964,12 +1004,13 @@ export function createSimulatorPorts(
 }
 
 /**
- * Where each contact is used, as it stands: the seed's supplier links, and
+ * Where each contact is used, as it stands: the buildings' supplier links, and
  * each period's residents, invoices and entries as the units and the journal
  * answer them. Emits again whenever one of them does.
  */
 function usesOf(
   seed: LegacySeed,
+  buildings: BuildingsSimulator,
   units: UnitsPort,
   journal: JournalPort,
 ): Observable<ContactUsesById> {
@@ -988,12 +1029,27 @@ function usesOf(
       });
     });
 
-    return (periods.length === 0 ? of([]) : combineLatest(periods)).pipe(
-      map((all) => {
-        return contactUsesOf(seed.supplierLinks, all);
+    return combineLatest([
+      buildings.links$,
+      periods.length === 0 ? of([]) : combineLatest(periods),
+    ]).pipe(
+      map(([links, all]) => {
+        return contactUsesOf(links, all);
       }),
     );
   });
+}
+
+/** The building that holds a period; a period never moves, so the seed answers. Throws for a period it does not hold. */
+function buildingIdOfPeriod(seed: LegacySeed, periodId: string): string {
+  return must(
+    seed.buildings.find((building) => {
+      return building.periods.some((period) => {
+        return period.id === periodId;
+      });
+    }),
+    `the period ${periodId}`,
+  ).id;
 }
 
 /** A period's dates as the buildings stand now; throws for a period they do not hold. */

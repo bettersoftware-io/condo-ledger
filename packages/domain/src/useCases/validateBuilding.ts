@@ -5,6 +5,7 @@ import type {
   PeriodType,
   RecordStatus,
 } from "../entities/building.ts";
+import type { SupplierLink } from "../entities/contact.ts";
 import type { OwnerParty, Restriction } from "../entities/party.ts";
 import { ok, type Result, rejected } from "../entities/result.ts";
 import type { Unit } from "../entities/unit.ts";
@@ -124,6 +125,24 @@ export function validatePeriod(
 /** Whether an address may be saved: it needs a street. */
 export function validateAddress(address: Address): Result {
   return address.street.trim() === "" ? rejected("blank-street") : ok();
+}
+
+/** Whether a contact may become a supplier of the building: it needs a contact that is not one yet, whose `name` is the refusal's detail. */
+export function validateSupplier(
+  buildingId: string,
+  contactId: string | null,
+  links: SupplierLink[],
+  name: string,
+): Result {
+  if (contactId === null) {
+    return rejected("no-contact");
+  }
+
+  const linked = links.some((link) => {
+    return link.buildingId === buildingId && link.contactId === contactId;
+  });
+
+  return linked ? rejected("already-supplier", name) : ok();
 }
 
 function same(left: string, right: string): boolean {

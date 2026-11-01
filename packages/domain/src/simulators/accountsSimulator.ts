@@ -1,4 +1,4 @@
-import { BehaviorSubject, map, type Observable, of } from "rxjs";
+import { BehaviorSubject, combineLatest, map, type Observable, of } from "rxjs";
 
 import type { Account } from "#/entities/account.ts";
 import type { Cents } from "#/entities/cents.ts";
@@ -13,10 +13,9 @@ import { missingPeriod } from "./missingPeriod.ts";
 import type { LegacySeed } from "./seed/legacySeed.ts";
 import { seededResidents, seededSuppliers } from "./seededParties.ts";
 
-/** A period's accounts, kept in memory, the building's suppliers and the period's withholding catalogue. */
+/** A period's accounts, kept in memory, and the period's withholding catalogue. */
 interface PeriodBooks {
   accounts$: BehaviorSubject<Account[]>;
-  suppliers: SupplierParty[];
   withholdingTaxes: WithholdingTax[];
 }
 
@@ -28,9 +27,9 @@ export interface AccountsSimulator extends AccountsPort {
 
 /**
  * The chart of accounts of every seeded period, with the budget edit kept in
- * memory. A period's parties are the seed's suppliers, then its residents as
- * `residentsOf` streams them; left out, the seed's residents. Throws on an
- * unknown id: it never answers empty for a wrong key.
+ * memory. A period's parties are its suppliers as `suppliersOf` streams them,
+ * then its residents as `residentsOf` streams them; each left out, the seed's.
+ * Throws on an unknown id: it never answers empty for a wrong key.
  */
 export function createAccountsSimulator(
   seed: LegacySeed,
@@ -38,6 +37,11 @@ export function createAccountsSimulator(
     periodId: string,
   ): Observable<OwnerParty[]> => {
     return of(seededResidents(seed, periodId));
+  },
+  suppliersOf: (periodId: string) => Observable<SupplierParty[]> = (
+    periodId: string,
+  ): Observable<SupplierParty[]> => {
+    return of(seededSuppliers(seed, periodId));
   },
 ): AccountsSimulator {
   const periods = new Map<string, PeriodBooks>();
@@ -50,7 +54,6 @@ export function createAccountsSimulator(
             return account.periodId === period.id;
           }),
         ),
-        suppliers: seededSuppliers(seed, period.id),
         withholdingTaxes: seed.withholdingTaxes.filter((tax) => {
           return tax.periodId === period.id;
         }),
@@ -71,9 +74,9 @@ export function createAccountsSimulator(
 
       return books === undefined
         ? missingPeriod(periodId)
-        : residentsOf(periodId).pipe(
-            map((residents) => {
-              return [...books.suppliers, ...residents];
+        : combineLatest([suppliersOf(periodId), residentsOf(periodId)]).pipe(
+            map(([suppliers, residents]) => {
+              return [...suppliers, ...residents];
             }),
           );
     },

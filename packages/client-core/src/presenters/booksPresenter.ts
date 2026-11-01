@@ -118,9 +118,9 @@ export function booksOf(
     ports.installments.installments(periodId),
     ports.installments.items(periodId),
   ]).pipe(
-    // The port writes a registration and its invoice one stream after the other: the half-written combination is skipped.
-    filter(([, , , entries, invoices]) => {
-      return agree(entries, invoices);
+    // The ports write a registration and its invoice, and a posting and the parties that follow it, one stream after the other: the half-written combination is skipped.
+    filter(([, parties, , entries, invoices]) => {
+      return agree(entries, invoices) && named(entries, parties);
     }),
     map(
       ([
@@ -171,6 +171,24 @@ function agree(entries: JournalEntry[], invoices: Invoice[]): boolean {
       return entry.invoiceId === null || invoiceIds.has(entry.invoiceId);
     })
   );
+}
+
+/** Every supplier a posting names is among the parties. */
+function named(entries: JournalEntry[], parties: Party[]): boolean {
+  const ids = new Set(
+    parties.map((party) => {
+      return party.id;
+    }),
+  );
+
+  return entries.every((entry) => {
+    return entry.postings.every((posting) => {
+      return (
+        posting.counterpart?.kind !== "supplier" ||
+        ids.has(posting.counterpart.id)
+      );
+    });
+  });
 }
 
 function datedOf(tree: Building[], periodId: string): DatedPeriod | null {

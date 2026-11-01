@@ -71,6 +71,25 @@ describe("installments simulator", () => {
     ).toEqual(["r31", "r31", "r32", "r32", "r33", "r33", "r-new-1", "r-new-1"]);
   });
 
+  it("plans a batch over the suppliers as the reader answers them now", async () => {
+    const seed = createScheduleSeed();
+    const asked: string[] = [];
+    const installments = createInstallmentsSimulator(
+      seed,
+      undefined,
+      undefined,
+      (periodId) => {
+        asked.push(periodId);
+
+        return [];
+      },
+    );
+
+    await installments.createInstallments("p3", createDraft(["A", "B"]));
+
+    expect(asked).toEqual(["p3"]);
+  });
+
   it("numbers a second batch among the installments it joins, by due date", async () => {
     const installments = createInstallmentsSimulator(createScheduleSeed());
 

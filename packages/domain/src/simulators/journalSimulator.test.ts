@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { cents } from "#/entities/cents.ts";
 import { type InvoiceTerms, rate } from "#/entities/invoice.ts";
 import type { EntryDraft, Posting } from "#/entities/journal.ts";
+import type { SupplierParty } from "#/entities/party.ts";
 import type { ClockPort } from "#/ports/clockPort.ts";
 
 import { createTwoPeriodSeed } from "../testing/createTwoPeriodSeed.ts";
@@ -35,6 +36,51 @@ describe("journal simulator", () => {
         return a - b;
       }),
     );
+  });
+
+  it("judges an invoice's supplier against the reader as it answers when the write asks", async () => {
+    const seed = createTwoPeriodSeed();
+    let suppliers: SupplierParty[] = [];
+    const journal = createJournalSimulator(
+      seed,
+      createClock(),
+      undefined,
+      undefined,
+      () => {
+        return suppliers;
+      },
+    );
+    const draft = createInvoiceDraft(createTerms());
+
+    expect(await journal.addEntry("p1", draft)).toEqual({
+      ok: false,
+      reason: "unknown-supplier",
+    });
+
+    suppliers = [{ kind: "supplier", id: "md1", name: "Alfa s.n.c." }];
+
+    expect(await journal.addEntry("p1", draft)).toMatchObject({ ok: true });
+  });
+
+  it("answers a period's invoices as they stand, and fails for a period it does not have", async () => {
+    const seed = createTwoPeriodSeed();
+    const journal = createJournalSimulator(seed, createClock());
+
+    expect(journal.currentInvoices("p1")).toEqual(
+      seed.invoices.filter((invoice) => {
+        return invoice.periodId === "p1";
+      }),
+    );
+
+    await journal.addEntry("p1", createInvoiceDraft(createTerms()));
+
+    expect(journal.currentInvoices("p1").at(-1)).toMatchObject({
+      supplierId: "md1",
+      number: createTerms().number,
+    });
+    expect(() => {
+      return journal.currentInvoices("p99");
+    }).toThrow("missing: the period p99");
   });
 
   it("leaves another period's entries out", async () => {

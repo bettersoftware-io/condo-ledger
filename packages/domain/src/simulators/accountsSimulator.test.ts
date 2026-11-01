@@ -2,7 +2,7 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 import { describe, expect, it } from "vitest";
 
 import { cents } from "#/entities/cents.ts";
-import type { OwnerParty } from "#/entities/party.ts";
+import type { OwnerParty, SupplierParty } from "#/entities/party.ts";
 
 import {
   createSmallBooks,
@@ -83,6 +83,33 @@ describe("accounts simulator", () => {
       ["md1", "md2"],
       ["md1", "md2", "r-new-1"],
     ]);
+  });
+
+  it("reads the suppliers from the reader, emitting the parties again whenever it does", () => {
+    const seed = createSmallSeed();
+    const suppliers$ = new BehaviorSubject<SupplierParty[]>([]);
+    const port = createAccountsSimulator(
+      seed,
+      () => {
+        return of([]);
+      },
+      () => {
+        return suppliers$;
+      },
+    );
+    const names: string[][] = [];
+    const subscription = port.parties("p1").subscribe((parties) => {
+      names.push(
+        parties.map((party) => {
+          return party.name;
+        }),
+      );
+    });
+
+    suppliers$.next([{ kind: "supplier", id: "md9", name: "Gamma s.r.l." }]);
+
+    expect(names).toEqual([[], ["Gamma s.r.l."]]);
+    subscription.unsubscribe();
   });
 
   it("answers no parties for a period the seed lists none for", async () => {
