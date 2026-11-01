@@ -11,6 +11,7 @@ import { type MachineView, useViewModel } from "@cl/react-bindings";
 
 import { ConfirmAlert } from "../ConfirmAlert.tsx";
 import { ContactDialog } from "../contacts/ContactDialog.tsx";
+import { contactReasonText } from "../contacts/contactReasons.ts";
 import { Splitter } from "../shell/Splitter.tsx";
 import { TESTIDS } from "../testids.ts";
 import { useDialogWrite } from "../useDialogWrite.ts";
@@ -111,6 +112,7 @@ export function BuildingDataScreen({
 
   /** The tab's −: it is enabled only with a supplier shown. */
   function askRemoveSupplier(): void {
+    removing.forget();
     setDialog({
       kind: "removeSupplier",
       buildingId: must(building, "the building").id,
@@ -118,7 +120,6 @@ export function BuildingDataScreen({
     });
   }
 
-  // The port refuses no removal: only a link it does not have makes it reject.
   function removalOf(buildingId: string, contactId: string): () => void {
     return (): void => {
       removing.run(() => {
@@ -205,7 +206,11 @@ export function BuildingDataScreen({
       {dialog?.kind === "removeSupplier" ? (
         <ConfirmAlert
           text={`Remove ${dialog.supplier.name} from this building's suppliers?`}
-          error={null}
+          error={
+            removing.refusal === null
+              ? null
+              : contactReasonText(removing.refusal, dialog.supplier.name)
+          }
           onYes={removalOf(dialog.buildingId, dialog.supplier.id)}
           onNo={closeDialog}
         />

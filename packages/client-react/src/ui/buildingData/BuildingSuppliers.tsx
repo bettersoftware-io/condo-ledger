@@ -135,18 +135,20 @@ function SupplierSheet({ supplier }: SupplierSheetProps): ReactElement {
           value={taxDomicile === null ? null : addressTextOf(taxDomicile)}
         />
       </Fieldset>
-      <Fieldset legend="CONTACTS">
-        {byOrder(contact.rows).map((row) => {
-          return (
-            <SheetField
-              key={row.id}
-              label={row.label}
-              value={row.value}
-              tone={row.type === "email" ? "accent" : undefined}
-            />
-          );
-        })}
-      </Fieldset>
+      {contact.rows.length === 0 ? null : (
+        <Fieldset legend="CONTACTS">
+          {byOrder(contact.rows).map((row) => {
+            return (
+              <SheetField
+                key={row.id}
+                label={row.label}
+                value={row.value}
+                tone={row.type === "email" ? "accent" : undefined}
+              />
+            );
+          })}
+        </Fieldset>
+      )}
     </Scheda>
   );
 }

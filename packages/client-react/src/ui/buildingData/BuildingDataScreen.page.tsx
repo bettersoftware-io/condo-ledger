@@ -1,5 +1,6 @@
 import { render, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { vi } from "vitest";
 
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
 import type { BuildingRow, ContactView, LegacySeed } from "@cl/domain";
@@ -77,6 +78,12 @@ export interface BuildingDataScreenPage {
   /** The question asked before a supplier is removed; null while none is. */
   confirmText: () => string | null;
   confirmYes: () => Promise<void>;
+  /** Why the removal was refused, under the question; null when nothing was. */
+  confirmError: () => string | null;
+  /** The buildings port refuses every removal of a supplier from now on, with this reason. */
+  refuseRemovals: (reason: string, detail: string) => void;
+  /** The tone the sheet's value of this label is drawn in; null for none. */
+  sheetTone: (label: string) => string | null;
 }
 
 /**
@@ -90,7 +97,7 @@ export function mountBuildingData(
   seed?: LegacySeed,
 ): BuildingDataScreenPage {
   const user = userEvent.setup();
-  const { app } = createAppHarness(seed);
+  const { app, ports } = createAppHarness(seed);
 
   app.presenters.buildings.selectPeriod(periodId);
   app.navigation.intents.selectMenu("data");
@@ -361,6 +368,23 @@ export function mountBuildingData(
     },
     confirmText: (): string | null => {
       return rendered.queryByTestId(TESTIDS.confirmText)?.textContent ?? null;
+    },
+    confirmError: (): string | null => {
+      return rendered.queryByTestId(TESTIDS.confirmError)?.textContent ?? null;
+    },
+    refuseRemovals: (reason: string, detail: string): void => {
+      vi.spyOn(ports.buildings, "removeSupplier").mockResolvedValue({
+        ok: false,
+        reason,
+        detail,
+      });
+    },
+    sheetTone: (label: string): string | null => {
+      return (
+        sheetRow(label)
+          .querySelector(".scheda-value")
+          ?.getAttribute("data-tone") ?? null
+      );
     },
     confirmYes: async (): Promise<void> => {
       await user.click(rendered.getByTestId(TESTIDS.confirmYes));

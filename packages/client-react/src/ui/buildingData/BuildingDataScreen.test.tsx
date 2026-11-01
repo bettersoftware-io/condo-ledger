@@ -201,10 +201,13 @@ describe("BuildingDataScreen", () => {
 
     await page.activateTab("Building Suppliers");
     await page.tabs.clickTool("Add supplier");
+
+    expect(page.dialog.title()).toBe("Add Supplier");
+
     await page.dialog.cancel();
     await page.tabs.clickTool("Edit supplier");
-    await page.dialog.cancel();
 
+    expect(page.dialog.title()).toMatch(/^Edit /);
     expect(page.toasts()).toEqual([]);
   });
 
@@ -316,7 +319,31 @@ describe("BuildingDataScreen", () => {
     expect(page.hasContactNamed(name)).toBe(true);
   });
 
-  it("the supplier's sheet shows every contact row, in order, a Fax among them, the email in the accent", async () => {
+  it("a refused removal keeps the question open and says why", async () => {
+    const page = mountBuildingData("p36");
+    const { name } = page.supplierAt(0);
+
+    page.refuseRemovals("on-invoice", "Pozzetto");
+    await page.activateTab("Building Suppliers");
+    await page.tabs.grid.clickRow(name);
+    await page.tabs.clickTool("Remove supplier");
+    await page.confirmYes();
+
+    expect(page.confirmError()).toBe(
+      `${name} is on an invoice of Pozzetto, so it cannot be deleted. Archive it instead.`,
+    );
+    expect(page.supplierNames()).toContain(name);
+  });
+
+  it("a supplier with no contact rows draws no CONTACTS fieldset", async () => {
+    const page = mountBuildingData("p36", createSeedWithSupplierRows([]));
+
+    await page.activateTab("Building Suppliers");
+
+    expect(page.sheetGroups()).not.toContain("CONTACTS");
+  });
+
+  it("the supplier's sheet shows every contact row, in order, a Fax among them, and the email's value in the accent", async () => {
     const page = mountBuildingData("p36", createSeedWithSupplierRows());
 
     await page.activateTab("Building Suppliers");
@@ -325,6 +352,8 @@ describe("BuildingDataScreen", () => {
     expect(page.sheetValue("Office")).toBe("0432 000001");
     expect(page.sheetValue("Fax")).toBe("0432 000002");
     expect(page.sheetValue("Email")).toBe("zzyzx@example.test");
+    expect(page.sheetTone("Email")).toBe("accent");
+    expect(page.sheetTone("Fax")).toBeNull();
   });
 
   it("+▾ offers New building and New period, which say so, as − does", async () => {
@@ -452,7 +481,13 @@ function createSeedWithoutSaturnoSuppliers(): LegacySeed {
 }
 
 /** The real seed, Pozzetto's first supplier given a fax between its phone and its email, listed out of order. */
-function createSeedWithSupplierRows(): LegacySeed {
+function createSeedWithSupplierRows(
+  rows: ContactRow[] = [
+    createRow("mr-t3", "email", "Email", "zzyzx@example.test", 3),
+    createRow("mr-t2", "phone", "Fax", "0432 000002", 2),
+    createRow("mr-t1", "phone", "Office", "0432 000001", 1),
+  ],
+): LegacySeed {
   const seed = loadLegacySeed(legacySeedData);
 
   return {
@@ -461,11 +496,7 @@ function createSeedWithSupplierRows(): LegacySeed {
       return contact.id === "md86"
         ? {
             ...contact,
-            rows: [
-              createRow("mr-t3", "email", "Email", "zzyzx@example.test", 3),
-              createRow("mr-t2", "phone", "Fax", "0432 000002", 2),
-              createRow("mr-t1", "phone", "Office", "0432 000001", 1),
-            ],
+            rows,
           }
         : contact;
     }),
