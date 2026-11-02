@@ -24,6 +24,94 @@ that reached the main branch before Monday 00:00 UTC. So
 The `Weekly tag` workflow creates the tag and opens an issue that asks for
 the entry.
 
+## 2026-W44 — 26 Oct – 1 Nov
+
+Three more screens of the Buildings module: thousandth tables and
+allocation, units and building data, and contacts. The demo data now reads
+in English. In between, the clean-ups STATUS had collected were cleared: the
+old allocation engine retired, grids that keep their state, keyboard and
+focus after the WAI-ARIA patterns, and the first browser tests.
+
+### Added
+
+- **Thousandth Tables & Allocation** [#39]. Tables, their coefficients and
+  the allocation of the budget or the final balance, with a Roundings row,
+  and the Journal's Budget allocation wizard. The allocation follows the
+  legacy algorithm and its rounding steps, and matches every resident of the
+  Saturno and Pozzetto reports to the cent.
+- **Units, owners and building data** [#49]. The Units grid with each
+  owner's previous balance, budget, actual, total due, paid, overdue and
+  adjustment, and the profile and owner tabs. Groups, units and owners can
+  be added, edited and deleted. The Building Data screen shows each period's
+  liquidity, funds and balances, and the building, period and address
+  dialogs. Both seeded periods match the legacy figures to the cent.
+- **Contacts** [#52]. Find, add, edit, archive and delete people and
+  companies, with their phones, emails, categories and connections. A
+  contact still in use cannot be deleted, and the screen says why. The
+  building's suppliers become editable, and the owner and supplier pickers
+  create or edit a contact in place. A renamed contact is right on every
+  screen at once. The seed holds all 113 contacts of the dump.
+
+### Changed
+
+- **The demo data reads in English** [#40]. The legacy database's account
+  names, entry descriptions, invoice reasons and table names are translated
+  once, at import. An unknown string stops the generator, so nothing slips
+  through in Italian. Names, codes, ids and amounts are untouched.
+- **Each grid keeps its state for the session** [#44]. Column widths, open
+  rows, splits and the bottom tab survive leaving a screen and coming back.
+  A period switch starts the open rows and the Journal's page again.
+- **Keyboard and focus** [#45]. Tabs, menu buttons and dialogs follow the
+  WAI-ARIA patterns: the arrow keys, Home and End, focus kept inside a
+  dialog and returned to whatever opened it. A confirmation puts focus on
+  "No". A 2px focus ring in the accent colour is readable in every theme.
+- **A selected row comes into view** in every grid, a long row label has a
+  tooltip, the contact picker shows the contact it links, and a refused
+  Journal delete says so in words [#51].
+- **Successive owners** of a unit each pay the whole share for their own
+  days [#49].
+
+### Fixed
+
+- **The Add transaction menu** no longer wraps its items [#37].
+- **A budget on a non-regular account** and **a counterpart of the wrong
+  kind** are refused by the domain's checks [#42].
+- **A unit date edit that cuts an owner's dates** is refused, instead of
+  crashing the app or over-allocating the unit [#49].
+
+### Decisions
+
+- **The legacy allocation algorithm, rounding included** [#39], not a
+  cleaner one. One hand-typed posting in the legacy books differs from it
+  by a few cents and stays as typed. The reasoning is in
+  [the M2e design](docs/superpowers/specs/2026-10-26-m2e-tables-allocation-design.md).
+- **The old allocation engine is retired** [#43], with the prototype's
+  40,000-line JSON seed. The app seed and both oracle fixtures came out
+  byte-identical without it.
+- **Overdue and Adjustment follow Danea's definitions** [#49], since the
+  legacy app never computed them. See
+  [the M2f design](docs/superpowers/specs/2026-10-29-m2f-building-data-units-design.md).
+- **A contact in use is archived, not deleted** [#52]. See
+  [the M2g design](docs/superpowers/specs/2026-11-01-m2g-contacts-design.md).
+
+### Under the hood
+
+- **Browser tests** [#46]. The end-to-end add-on drives the built client on
+  its simulator: the chart of accounts, a journal delete and dark mode.
+  Each spec was shown to fail on a mutant of the app.
+- **A flaky server test fixed** [#37]. A raw socket with no error listener
+  ended a run now and then.
+- **The tidy-ups** [#42] [#47]. Shared helpers in the simulators and the
+  wizard tests, one picker menu in the top bar, the Journal's blank-search
+  rule in the core.
+- **The dump folder in a worktree** [#38]. The ETL reads
+  `LEGACY_DUMP_DIR` everywhere, as the generator does.
+- **The kit and its add-ons** from bettersoftware-skills 0.24.2 and 0.25.0
+  [#38] [#46] [#54], with Biome 2.6.2.
+- **STATUS** gained what the reviews left and lost what was done [#33]
+  [#50] [#53]. The changelog for W42 and W43 [#41] [#48].
+- Dependency updates [#34] [#35].
+
 ## 2026-W43 — 19 Oct – 25 Oct
 
 Two new pieces of the Buildings module landed: owners' collections in the
@@ -167,3 +255,24 @@ invoices, payments and opening balances.
 [#30]: https://github.com/bettersoftware-io/condo-ledger/pull/30
 [#31]: https://github.com/bettersoftware-io/condo-ledger/pull/31
 [#32]: https://github.com/bettersoftware-io/condo-ledger/pull/32
+[#33]: https://github.com/bettersoftware-io/condo-ledger/pull/33
+[#34]: https://github.com/bettersoftware-io/condo-ledger/pull/34
+[#35]: https://github.com/bettersoftware-io/condo-ledger/pull/35
+[#37]: https://github.com/bettersoftware-io/condo-ledger/pull/37
+[#38]: https://github.com/bettersoftware-io/condo-ledger/pull/38
+[#39]: https://github.com/bettersoftware-io/condo-ledger/pull/39
+[#40]: https://github.com/bettersoftware-io/condo-ledger/pull/40
+[#41]: https://github.com/bettersoftware-io/condo-ledger/pull/41
+[#42]: https://github.com/bettersoftware-io/condo-ledger/pull/42
+[#43]: https://github.com/bettersoftware-io/condo-ledger/pull/43
+[#44]: https://github.com/bettersoftware-io/condo-ledger/pull/44
+[#45]: https://github.com/bettersoftware-io/condo-ledger/pull/45
+[#46]: https://github.com/bettersoftware-io/condo-ledger/pull/46
+[#47]: https://github.com/bettersoftware-io/condo-ledger/pull/47
+[#48]: https://github.com/bettersoftware-io/condo-ledger/pull/48
+[#49]: https://github.com/bettersoftware-io/condo-ledger/pull/49
+[#50]: https://github.com/bettersoftware-io/condo-ledger/pull/50
+[#51]: https://github.com/bettersoftware-io/condo-ledger/pull/51
+[#52]: https://github.com/bettersoftware-io/condo-ledger/pull/52
+[#53]: https://github.com/bettersoftware-io/condo-ledger/pull/53
+[#54]: https://github.com/bettersoftware-io/condo-ledger/pull/54
