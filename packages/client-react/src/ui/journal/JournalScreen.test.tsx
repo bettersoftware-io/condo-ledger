@@ -285,7 +285,7 @@ describe("JournalScreen", () => {
     ]);
     expect(await page.ledgerOf(["Spese generali", "Ascensore"])).toContainEqual(
       [
-        "14/10/2026 10:00",
+        "14/10/2027 10:00",
         "10",
         "Spesa ascensore",
         "Total › Costs › Spese generali › Ascensore",
@@ -516,14 +516,14 @@ describe("JournalScreen", () => {
     await record.next();
     await record.save();
 
-    const inFull = `Collection of installments from ${name}: Installment 9 (20/09/2013), Installment 10 (20/10/2013), Installment 11 (20/11/2013), Installment 12 (20/12/2013)`;
+    const inFull = `Collection of installments from ${name}: Installment 9 (20/09/2026), Installment 10 (20/10/2026), Installment 11 (20/11/2026), Installment 12 (20/12/2026)`;
 
     expect(page.isSelected(inFull)).toBe(true);
     expect(await ownerAfterReopening(page, name)).toBeNull();
 
     await editAmount(page, inFull, "539.92", "100");
 
-    const edited = `Collection of installments from ${name}: Installment 9 (20/09/2013)`;
+    const edited = `Collection of installments from ${name}: Installment 9 (20/09/2026)`;
 
     expect(page.dialogOpen()).toBe(false);
     expect(page.isSelected(edited)).toBe(true);

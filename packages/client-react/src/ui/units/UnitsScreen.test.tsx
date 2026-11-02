@@ -62,7 +62,7 @@ describe("UnitsScreen", () => {
     expect(visible).toEqual(keys.map(page.labelOf));
     expect(labels.at(-1)).toBe("Rounding error");
     expect(page.labelOf("root")).toBe(
-      "Saturno / 2011 (Piazza del Duomo, 39, 33033 Codroipo)",
+      "Saturno / 2023 (Piazza del Duomo, 39, 33033 Codroipo)",
     );
     expect(page.labelOf("group:ug1")).toMatch(/^A - /u);
     expect(page.labelOf("unit:u1")).toMatch(/^A1 - /u);
@@ -90,19 +90,19 @@ describe("UnitsScreen", () => {
     expect(page.iconOf("Rounding error")).toBe("");
   });
 
-  it("A1 is a shop on floor 1 for May 2011; the root carries the period and the books' totals", () => {
+  it("A1 is a shop on floor 1 for May 2023; the root carries the period and the books' totals", () => {
     const page = mountUnits("p1");
     const a1 = page.units.grid.rowTexts(page.labelOf("unit:u1"));
 
     expect(a1[1]).toBe("1");
     expect(a1[4]).toBe("Shop");
-    expect(a1[5]).toBe("01/05/2011 - 31/05/2011");
+    expect(a1[5]).toBe("01/05/2023 - 31/05/2023");
     expect(page.units.grid.rowTexts(page.labelOf("root")).slice(1)).toEqual([
       "",
       "",
       "",
       "",
-      "01/01/2011 - 31/12/2011",
+      "01/01/2023 - 31/12/2023",
       "288.92",
       "7,400.00",
       "2,455.19",
@@ -119,7 +119,7 @@ describe("UnitsScreen", () => {
 
     expect(page.units.grid.selectedLabels()).toEqual([page.labelOf("unit:u1")]);
     expect(page.breadcrumb()).toBe(
-      "Buildings › Saturno › 2011 (Ordinary) › Units, Owners & Personal Balance › A1",
+      "Buildings › Saturno › 2023 (Ordinary) › Units, Owners & Personal Balance › A1",
     );
 
     await page.units.grid.clickRow(b1);
@@ -178,8 +178,8 @@ describe("UnitsScreen", () => {
   it("shows A1's own dates on its profile", () => {
     const page = mountUnits("p1");
 
-    expect(page.profileValue("Start date")).toBe("01/05/2011");
-    expect(page.profileValue("End date")).toBe("31/05/2011");
+    expect(page.profileValue("Start date")).toBe("01/05/2023");
+    expect(page.profileValue("End date")).toBe("31/05/2023");
     expect(page.profileValue("Location")).toBe("Stairwell A");
   });
 
@@ -210,14 +210,14 @@ describe("UnitsScreen", () => {
 
     expect(staying.slice(2)).toEqual([
       "",
-      "19/01/2013 - end of FY",
+      "19/01/2026 - end of FY",
       "347/365",
       "100%",
       "0.950685",
     ]);
     expect(leaving.slice(2)).toEqual([
       "✓",
-      "start of FY - 18/01/2013",
+      "start of FY - 18/01/2026",
       "18/365",
       "100%",
       "0.049315",

@@ -153,7 +153,7 @@ describe("validateUnit", () => {
 
     expect(
       validateUnit(
-        { ...a04, restriction: { from: "2013-02-01", to: null } },
+        { ...a04, restriction: { from: "2026-02-01", to: null } },
         pozzettoUnits,
         pozzettoOwners,
         POZZETTO,
@@ -166,7 +166,7 @@ describe("validateUnit", () => {
     });
     expect(
       validateUnit(
-        { ...a04, restriction: { from: "2013-01-19", to: null } },
+        { ...a04, restriction: { from: "2026-01-19", to: null } },
         pozzettoUnits,
         pozzettoOwners,
         POZZETTO,
@@ -180,7 +180,7 @@ describe("validateUnit", () => {
   });
 
   it("judges only the edited unit's residents, and none for a new unit", () => {
-    const restriction = { from: "2013-02-01", to: null };
+    const restriction = { from: "2026-02-01", to: null };
 
     expect(
       validateUnit(
@@ -293,11 +293,11 @@ describe("validateResidency", () => {
     ).toEqual({ ok: false, reason: "outside-period" });
   });
 
-  it("refuses own dates outside the unit's, naming it: an owner of A1 (May 2011) from June", () => {
+  it("refuses own dates outside the unit's, naming it: an owner of A1 (May 2023) from June", () => {
     expect(
       validateResidency(
         createResidency({
-          ownRestriction: { from: "2011-06-01", to: "2011-12-31" },
+          ownRestriction: { from: "2023-06-01", to: "2023-12-31" },
         }),
         a1,
         residents,
@@ -308,7 +308,7 @@ describe("validateResidency", () => {
     expect(
       validateResidency(
         createResidency({
-          ownRestriction: { from: "2011-05-02", to: "2011-05-30" },
+          ownRestriction: { from: "2023-05-02", to: "2023-05-30" },
         }),
         a1,
         residents,
@@ -428,7 +428,7 @@ describe("validateUnitDelete", () => {
 });
 
 const seed = loadLegacySeed(legacySeedData);
-const SATURNO = { start: "2011-01-01", end: "2011-12-31" };
+const SATURNO = { start: "2023-01-01", end: "2023-12-31" };
 const saturnoGroups = seed.unitGroups.filter((group) => {
   return group.periodId === "p1";
 });
@@ -437,7 +437,7 @@ const saturnoUnits = seed.units.filter((unit) => {
   return unit.periodId === "p1";
 });
 
-const POZZETTO = { start: "2013-01-01", end: "2013-12-31" };
+const POZZETTO = { start: "2026-01-01", end: "2026-12-31" };
 const pozzettoUnits = seed.units.filter((unit) => {
   return unit.periodId === "p36";
 });

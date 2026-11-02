@@ -193,7 +193,7 @@ describe("scheduleOf on a small period", () => {
 
 describe("scheduleOf on the seed", () => {
   it("adds Pozzetto 2013's root up to the printed schedule, with a Roundings row of −0.54", () => {
-    const { root } = scheduleOf(seedInput("p36"), "2026-10-14");
+    const { root } = scheduleOf(seedInput("p36"), "2027-10-14");
 
     expect(amounts(root)).toEqual([
       -625099,
@@ -210,7 +210,7 @@ describe("scheduleOf on the seed", () => {
   });
 
   it("adds Saturno 2011's root up to the printed schedule, with a Roundings row of 0.01", () => {
-    const { root } = scheduleOf(seedInput("p1"), "2026-10-14");
+    const { root } = scheduleOf(seedInput("p1"), "2027-10-14");
 
     expect([
       root.previousBalance,
@@ -224,7 +224,7 @@ describe("scheduleOf on the seed", () => {
   });
 
   it("makes A04 a unit row with r167 then r166, in residency order, and their days", () => {
-    const { root } = scheduleOf(seedInput("p36"), "2026-10-14");
+    const { root } = scheduleOf(seedInput("p36"), "2027-10-14");
     const unit = nodeAt(root, "A04");
 
     expect(unit.kind).toBe("unit");
@@ -239,7 +239,7 @@ describe("scheduleOf on the seed", () => {
   });
 
   it("labels a one-resident unit by its code and the resident's name, in unit-code order", () => {
-    const { root } = scheduleOf(seedInput("p36"), "2026-10-14");
+    const { root } = scheduleOf(seedInput("p36"), "2027-10-14");
     const first = must(root.children[0], "the first row");
 
     expect(first.kind).toBe("resident");
@@ -255,7 +255,7 @@ describe("scheduleOf on the seed", () => {
   });
 
   it("puts Saturno's groups A and B under the root, each summing its units", () => {
-    const { root } = scheduleOf(seedInput("p1"), "2026-10-14");
+    const { root } = scheduleOf(seedInput("p1"), "2027-10-14");
     const groups = root.children.filter((child) => {
       return child.kind === "group";
     });
@@ -284,7 +284,7 @@ describe("scheduleOf on the seed", () => {
   });
 
   it("colours ii789 partial, and leaves a zero item uncoloured", () => {
-    const { root } = scheduleOf(seedInput("p36"), "2026-10-14");
+    const { root } = scheduleOf(seedInput("p36"), "2027-10-14");
     const zero = must(
       seed.installmentItems.find((item) => {
         return item.amount === 0 && item.installmentId === "in25";
@@ -298,8 +298,8 @@ describe("scheduleOf on the seed", () => {
   });
 
   it("keeps ii789 from being edited item-paid, and Saturno 2011's locked in1 installment-locked", () => {
-    const pozzetto = scheduleOf(seedInput("p36"), "2026-10-14").root;
-    const saturno = scheduleOf(seedInput("p1"), "2026-10-14").root;
+    const pozzetto = scheduleOf(seedInput("p36"), "2027-10-14").root;
+    const saturno = scheduleOf(seedInput("p1"), "2027-10-14").root;
     const lockedItem = must(
       seed.installmentItems.find((item) => {
         return item.installmentId === "in1";
@@ -317,14 +317,14 @@ describe("scheduleOf on the seed", () => {
     });
   });
 
-  it("finds nothing overdue on 1 December 2012, before Pozzetto 2013's first due date", () => {
-    const { root } = scheduleOf(seedInput("p36"), "2012-12-01");
+  it("finds nothing overdue on 1 December 2025, before Pozzetto 2013's first due date", () => {
+    const { root } = scheduleOf(seedInput("p36"), "2025-12-01");
 
     expect(root.overdue).toBe(0);
   });
 
   it("sums A04's residents into its cell for installment 1", () => {
-    const { root, installments } = scheduleOf(seedInput("p36"), "2026-10-14");
+    const { root, installments } = scheduleOf(seedInput("p36"), "2027-10-14");
     const first = must(installments[0], "installment 1");
     const unit = nodeAt(root, "A04");
     const [r167, r166] = unit.children.map((child) => {

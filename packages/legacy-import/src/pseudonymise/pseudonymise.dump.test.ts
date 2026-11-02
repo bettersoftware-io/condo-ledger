@@ -17,6 +17,7 @@ import {
 import { parseTables, type Tables } from "../loadRows.ts";
 import { projectAnagrafiche } from "../project/anagrafiche.ts";
 import { projectLegacySeed } from "../project/legacySeed.ts";
+import { SEED_YEAR_SHIFT, shiftLegacySeed } from "../shift/shiftSeed.ts";
 import { translateLegacySeed } from "../translate/translateSeed.ts";
 import { identifierReplacements } from "./freeText.ts";
 import { loadExtraEntries } from "./leftovers.ts";
@@ -94,7 +95,10 @@ function load(): Loaded {
     cached = {
       tables,
       pseudonymised,
-      seed: translateLegacySeed(projectLegacySeed(db)),
+      seed: shiftLegacySeed(
+        translateLegacySeed(projectLegacySeed(db)),
+        SEED_YEAR_SHIFT,
+      ),
       anagrafiche: projectAnagrafiche(db),
     };
   }

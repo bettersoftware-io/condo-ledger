@@ -15,6 +15,7 @@ import {
 import { parseTables } from "../loadRows.ts";
 import { loadExtraEntries } from "../pseudonymise/leftovers.ts";
 import { pseudonymiseTables } from "../pseudonymise/pseudonymise.ts";
+import { SEED_YEAR_SHIFT, shiftLegacySeed } from "../shift/shiftSeed.ts";
 import { translateLegacySeed } from "../translate/translateSeed.ts";
 import { projectLegacySeed } from "./legacySeed.ts";
 
@@ -198,8 +199,10 @@ describe.skipIf(!legacyDumpAvailable())(
       ).toHaveLength(47);
     });
 
-    it("is, its text in English, what the committed module holds", () => {
-      expect(translateLegacySeed(seed)).toEqual(legacySeedData);
+    it("is, its text in English and its dates moved, what the committed module holds", () => {
+      expect(
+        shiftLegacySeed(translateLegacySeed(seed), SEED_YEAR_SHIFT),
+      ).toEqual(legacySeedData);
     });
 
     let db: Db;

@@ -280,7 +280,7 @@ describe("the view model", () => {
     expect(page.read().schedule.schedule?.root.budget).toBe(740000);
     expect(page.read().installmentDialog?.state.form).toMatchObject({
       name: "Installment 2",
-      dueDate: "15/07/2011",
+      dueDate: "15/07/2023",
       locked: false,
     });
 
@@ -601,7 +601,7 @@ describe("the view model", () => {
     const answers: Result[] = [];
 
     expect(page.read().buildingDialog.state.form.code).toBe("SAT");
-    expect(page.read().periodDialog.state.form.start).toBe("01/01/2011");
+    expect(page.read().periodDialog.state.form.start).toBe("01/01/2023");
 
     await page.send((seen) => {
       seen.addressDialog.edit({ street: "Via Roma, 1" });

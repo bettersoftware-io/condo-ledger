@@ -17,7 +17,7 @@ describe("InstallmentScheduleScreen", () => {
       "Total budget",
       "Total due",
       ...Array.from({ length: 12 }, (_, index) => {
-        return `${index + 1} 20/${String(index + 1).padStart(2, "0")}/2013`;
+        return `${index + 1} 20/${String(index + 1).padStart(2, "0")}/2026`;
       }),
       "Total inst.",
       "Paid",
@@ -49,12 +49,12 @@ describe("InstallmentScheduleScreen", () => {
     expect(page.grid.childrenOf("A04")).toEqual([leaving, arriving]);
     expect(page.grid.rowTexts(leaving).slice(1, 4)).toEqual([
       "PR",
-      "start of FY - 18/01/2013",
+      "start of FY - 18/01/2026",
       "18/365",
     ]);
     expect(page.grid.rowTexts(arriving).slice(1, 4)).toEqual([
       "PR",
-      "19/01/2013 - end of FY",
+      "19/01/2026 - end of FY",
       "347/365",
     ]);
   });
@@ -63,25 +63,25 @@ describe("InstallmentScheduleScreen", () => {
     const page = mountInstallmentSchedule("p36");
     const r188 = page.labelOfResident("r188");
 
-    expect(page.grid.cell(r188, "9 20/09/2013").status()).toBe("partial");
-    expect(page.grid.cell(r188, "8 20/08/2013").status()).toBe("settled");
-    expect(page.grid.cell(r188, "10 20/10/2013").status()).toBe("unsettled");
+    expect(page.grid.cell(r188, "9 20/09/2026").status()).toBe("partial");
+    expect(page.grid.cell(r188, "8 20/08/2026").status()).toBe("settled");
+    expect(page.grid.cell(r188, "10 20/10/2026").status()).toBe("unsettled");
   });
 
   it("marks p1's locked installment in its header", () => {
     const page = mountInstallmentSchedule("p1");
 
     expect(page.grid.headers().slice(7, 10)).toEqual([
-      "1 🔒 15/03/2011",
-      "2 15/07/2011",
-      "3 15/12/2011",
+      "1 🔒 15/03/2023",
+      "2 15/07/2023",
+      "3 15/12/2023",
     ]);
   });
 
   it("an unpaid zero item edited to 10.00 shows it, and the row's Total inst. grows by it", async () => {
     const page = mountInstallmentSchedule("p36");
     const r162 = page.labelOfResident("r162");
-    const cell = page.grid.cell(r162, "1 20/01/2013");
+    const cell = page.grid.cell(r162, "1 20/01/2026");
     const totalAt = page.grid.headers().indexOf("Total inst.");
 
     expect(cell.text()).toBe("0.00");
@@ -98,7 +98,7 @@ describe("InstallmentScheduleScreen", () => {
 
   it("offers no edit on the paid item ii789, and its tooltip says why", () => {
     const page = mountInstallmentSchedule("p36");
-    const cell = page.grid.cell(page.labelOfResident("r188"), "9 20/09/2013");
+    const cell = page.grid.cell(page.labelOfResident("r188"), "9 20/09/2026");
 
     expect(cell.isEditable()).toBe(false);
     expect(cell.title()).toBe(
@@ -130,8 +130,8 @@ describe("InstallmentScheduleScreen", () => {
     await page.confirmYes();
 
     expect(page.confirmOpen()).toBe(false);
-    expect(page.grid.headers()).not.toContain("12 20/12/2013");
-    expect(page.grid.headers()).toContain("11 20/11/2013");
+    expect(page.grid.headers()).not.toContain("12 20/12/2026");
+    expect(page.grid.headers()).toContain("11 20/11/2026");
   });
 
   it("lays its columns out for the installments it has, a resized width kept for that count only", async () => {
@@ -165,7 +165,7 @@ describe("InstallmentScheduleScreen", () => {
     await page.confirmNo();
 
     expect(page.confirmOpen()).toBe(false);
-    expect(page.grid.headers()).toContain("1 20/01/2013");
+    expect(page.grid.headers()).toContain("1 20/01/2026");
   });
 
   it("advance, adjustment, print, export and refresh show the not-built-yet notice", async () => {
@@ -209,7 +209,7 @@ describe("InstallmentScheduleScreen", () => {
 
   it("offers no edit on a cell of p1's locked installment, and its tooltip says why", () => {
     const page = mountInstallmentSchedule("p1");
-    const cell = page.grid.cell(page.labelOfResident("r1"), "1 🔒 15/03/2011");
+    const cell = page.grid.cell(page.labelOfResident("r1"), "1 🔒 15/03/2023");
 
     expect(cell.isEditable()).toBe(false);
     expect(cell.title()).toBe("This installment is locked: unlock it first.");
@@ -228,7 +228,7 @@ describe("InstallmentScheduleScreen", () => {
     await record.next();
     await record.save();
 
-    const collection = `Collection of installments from ${name}: Installment 9 (20/09/2013), Installment 10 (20/10/2013), Installment 11 (20/11/2013), Installment 12 (20/12/2013)`;
+    const collection = `Collection of installments from ${name}: Installment 9 (20/09/2026), Installment 10 (20/10/2026), Installment 11 (20/11/2026), Installment 12 (20/12/2026)`;
     const schedule = await journal.openSchedule();
 
     await schedule.toolbar.clickTool("Delete installments");
@@ -241,7 +241,7 @@ describe("InstallmentScheduleScreen", () => {
 
     await schedule.confirmNo();
 
-    expect(schedule.grid.headers()).toContain("12 20/12/2013");
+    expect(schedule.grid.headers()).toContain("12 20/12/2026");
 
     await schedule.openJournal();
     await journal.search(name);
@@ -257,8 +257,8 @@ describe("InstallmentScheduleScreen", () => {
     await schedule.confirmYes();
 
     expect(schedule.confirmOpen()).toBe(false);
-    expect(schedule.grid.headers()).not.toContain("12 20/12/2013");
-    expect(schedule.grid.headers()).toContain("11 20/11/2013");
+    expect(schedule.grid.headers()).not.toContain("12 20/12/2026");
+    expect(schedule.grid.headers()).toContain("11 20/11/2026");
   });
 
   it("collapses a unit through its caret, and every node through the toolbar", async () => {

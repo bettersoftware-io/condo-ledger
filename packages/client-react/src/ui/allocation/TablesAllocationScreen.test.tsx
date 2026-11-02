@@ -81,7 +81,7 @@ describe("TablesAllocationScreen", () => {
     expect(page.coefficients.grid.isAggregate("A - Stairwell A")).toBe(true);
     expect(page.coefficients.grid.rowTexts(units[1] ?? "")).toEqual([
       units[1],
-      "27/05/2011 - end of FY",
+      "27/05/2023 - end of FY",
       "170.0000",
     ]);
   });
@@ -104,7 +104,7 @@ describe("TablesAllocationScreen", () => {
 
     expect(page.allocation.grid.rowTexts(root).slice(1)).toEqual([
       "",
-      "01/01/2011 - 31/12/2011",
+      "01/01/2023 - 31/12/2023",
       "",
       "2,800.00",
       "1,300.00",
@@ -360,12 +360,12 @@ describe("TablesAllocationScreen", () => {
     expect(page.allocation.grid.childrenOf("A04")).toEqual([leaving, arriving]);
     expect(page.allocation.grid.rowTexts(leaving).slice(1, 4)).toEqual([
       "PR",
-      "start of FY - 18/01/2013",
+      "start of FY - 18/01/2026",
       "18/365",
     ]);
     expect(page.allocation.grid.rowTexts(arriving).slice(1, 4)).toEqual([
       "PR",
-      "19/01/2013 - end of FY",
+      "19/01/2026 - end of FY",
       "347/365",
     ]);
   });

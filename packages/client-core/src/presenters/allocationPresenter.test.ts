@@ -54,7 +54,7 @@ describe("the allocation presenter", () => {
     const subscription = finalBalance.subscribe();
 
     expect(allocation()?.root.label).toBe(
-      "Saturno / 2011 (Piazza del Duomo, 39, 33033 Codroipo)",
+      "Saturno / 2023 (Piazza del Duomo, 39, 33033 Codroipo)",
     );
     expect(allocation()?.root.total).toBe(740000);
     expect(finalBalance.getValue()?.root.total).toBe(245519);
@@ -240,7 +240,7 @@ describe("the allocation presenter", () => {
 
     expect(tables()[0]?.table.id).toBe("dt14");
     expect(allocation()?.root.label).toBe(
-      "Pozzetto / 2013 (Piazza Libertà, 74, 33045 Nimis)",
+      "Pozzetto / 2026 (Piazza Libertà, 74, 33045 Nimis)",
     );
     expect(
       seen.flat().every((periodId) => {
@@ -355,7 +355,7 @@ describe("the allocation presenter", () => {
     expect(presenter.tables$.getValue()[0]?.table.id).toBe("dt14");
     expect(selection.state$.getValue()).toEqual({ tableId: "dt14" });
     expect(presenter.allocation$("budget").getValue()?.root.label).toBe(
-      "Pozzetto / 2013 (Piazza Libertà, 74, 33045 Nimis)",
+      "Pozzetto / 2026 (Piazza Libertà, 74, 33045 Nimis)",
     );
     expect(nodes.at(-1)?.[0]?.key).toBe("unit:u133");
 

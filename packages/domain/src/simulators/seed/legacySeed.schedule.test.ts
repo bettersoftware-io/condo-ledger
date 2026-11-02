@@ -9,8 +9,8 @@ import { loadLegacySeed } from "./legacySeed.ts";
 describe("the seed's residents: roles and period restrictions", () => {
   it("restricts Pozzetto 2013's A04 residents to either side of the owner change, and no other resident of p36", () => {
     const restricted = new Map<string, Restriction>([
-      ["r166", { from: "2013-01-19", to: null }],
-      ["r167", { from: null, to: "2013-01-18" }],
+      ["r166", { from: "2026-01-19", to: null }],
+      ["r167", { from: null, to: "2026-01-18" }],
     ]);
 
     expect(restrictionsOf("p36")).toEqual(
@@ -22,9 +22,9 @@ describe("the seed's residents: roles and period restrictions", () => {
 
   it("gives Saturno 2011's residents their unit's restriction: A1, A2 and A3, and no other unit", () => {
     const byUnit = new Map<string, Restriction>([
-      ["A1", { from: "2011-05-01", to: "2011-05-31" }],
-      ["A2", { from: "2011-05-27", to: null }],
-      ["A3", { from: null, to: "2011-05-27" }],
+      ["A1", { from: "2023-05-01", to: "2023-05-31" }],
+      ["A2", { from: "2023-05-27", to: null }],
+      ["A3", { from: null, to: "2023-05-27" }],
     ]);
 
     expect(restrictionsOf("p1")).toEqual(

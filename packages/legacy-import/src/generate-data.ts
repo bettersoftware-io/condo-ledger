@@ -9,6 +9,7 @@ import {
 } from "./project/legacySeed.ts";
 import { loadExtraEntries } from "./pseudonymise/leftovers.ts";
 import { pseudonymiseTables } from "./pseudonymise/pseudonymise.ts";
+import { SEED_YEAR_SHIFT, shiftLegacySeed } from "./shift/shiftSeed.ts";
 import { translateLegacySeed } from "./translate/translateSeed.ts";
 
 // old/db under the repository root, or the folder LEGACY_DUMP_DIR names (a
@@ -35,9 +36,15 @@ const db = buildDb(
 );
 
 // The simulators' seed, from the pseudonymised db, its text in
-// English (the dump stays Italian; see src/translate/).
+// English (the dump stays Italian; see src/translate/), its dates moved
+// forward so the latest period falls in this year (see src/shift/).
 writeFileSync(
   SEED_MODULE_URL,
-  renderLegacySeedModule(translateLegacySeed(projectLegacySeed(db))),
+  renderLegacySeedModule(
+    shiftLegacySeed(
+      translateLegacySeed(projectLegacySeed(db)),
+      SEED_YEAR_SHIFT,
+    ),
+  ),
 );
 console.log(`Wrote ${SEED_MODULE_URL.pathname}`);

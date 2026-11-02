@@ -45,14 +45,14 @@ describe("unitOwnersOf", () => {
         "r167",
         nameOf("p36", "r167"),
         true,
-        "start of FY - 18/01/2013",
+        "start of FY - 18/01/2026",
         "18/365",
       ],
       [
         "r166",
         nameOf("p36", "r166"),
         false,
-        "19/01/2013 - end of FY",
+        "19/01/2026 - end of FY",
         "347/365",
       ],
     ]);
@@ -95,7 +95,7 @@ describe("unitOwnersOf", () => {
     const head = ownersOf("p1", "A1");
 
     expect(head).toMatchObject({
-      restriction: "01/05/2011 - 31/05/2011",
+      restriction: "01/05/2023 - 31/05/2023",
       days: "31/31",
     });
     expect(head.children[0]?.children[0]).toMatchObject({
@@ -113,7 +113,7 @@ describe("unitOwnersOf", () => {
       ...input,
       residents: input.residents.map((resident) => {
         return resident.id === owner.id
-          ? { ...owner, ownRestriction: { from: "2011-05-11", to: null } }
+          ? { ...owner, ownRestriction: { from: "2023-05-11", to: null } }
           : resident;
       }),
     };
@@ -122,7 +122,7 @@ describe("unitOwnersOf", () => {
 
     expect(row).toMatchObject({
       out: false,
-      restriction: "11/05/2011 - end of FY",
+      restriction: "11/05/2023 - end of FY",
       days: "21/31",
     });
     expect(row?.coefficient).toBeCloseTo(21 / 31, 6);

@@ -72,7 +72,7 @@ describe("the Building Data screen's dialogs", () => {
     expect(page.sheetValue("Type")).toBe("🏘️ Residence");
     expect(page.sheetValue("Construction date")).toBe("01/03/1975");
     expect(page.sheetValue("Cadastral data")).toBe("Sheet 12");
-    expect(page.sheetValue("Modified on")).toBe("14/10/2026 10:00:00");
+    expect(page.sheetValue("Modified on")).toBe("14/10/2027 10:00:00");
     expect(page.profileNotes()).toBe("Lift renewed");
     expect(page.typeOf(page.labelOf("c19"))).toBe("Residence");
   });
@@ -142,26 +142,26 @@ describe("the Building Data screen's dialogs", () => {
 
     expect(page.dialog.title()).toBe("Edit Management / Period");
     expect(page.dialog.requiredUnannounced()).toEqual([]);
-    expect(page.dialog.fieldValue("Management name")).toBe("2011");
+    expect(page.dialog.fieldValue("Management name")).toBe("2023");
     expect(page.dialog.chosen("Type")).toBe("Ordinary");
     expect(page.dialog.chosen("Status")).toBe("Open");
     expect(page.dialog.legends()).toEqual(["COMPETENCE PERIOD", "NOTES"]);
-    expect(page.dialog.fieldValue("Start date")).toBe("01/01/2011");
-    expect(page.dialog.fieldValue("End date")).toBe("31/12/2011");
+    expect(page.dialog.fieldValue("Start date")).toBe("01/01/2023");
+    expect(page.dialog.fieldValue("End date")).toBe("31/12/2023");
   });
 
   it("Edit Management / Period refuses dates that cut A1's May, an end before the start, and a blank date", async () => {
     const page = mountBuildingData("p1");
 
     await page.data.clickTool("Edit");
-    await page.dialog.fill("Start date", "01/06/2011");
+    await page.dialog.fill("Start date", "01/06/2023");
 
     expect(page.dialog.message()).toBe(
       "A1 has dates outside these: change them first",
     );
     expect(page.dialog.isSaveDisabled()).toBe(true);
 
-    await page.dialog.fill("Start date", "01/01/2011");
+    await page.dialog.fill("Start date", "01/01/2023");
     await page.dialog.fill("End date", "01/01/2010");
 
     expect(page.dialog.message()).toBe("The end date is before the start date");
@@ -179,7 +179,7 @@ describe("the Building Data screen's dialogs", () => {
     await page.dialog.fill("Management name", "2011 bis");
     await page.dialog.choose("Type", "Extraordinary");
     await page.dialog.choose("Status", "Closed");
-    await page.dialog.fill("End date", "30/06/2011");
+    await page.dialog.fill("End date", "30/06/2023");
     await page.dialog.fill("Notes", "Closed early");
     await page.dialog.save();
 
@@ -187,7 +187,7 @@ describe("the Building Data screen's dialogs", () => {
     expect(page.closedOf("2011 bis (Extraordinary)")).toBe(true);
     expect(page.typeOf("2011 bis (Extraordinary)")).toBe("Extraordinary");
     expect(page.data.grid.rowTexts("2011 bis (Extraordinary)")[4]).toBe(
-      "01/01/2011 - 30/06/2011",
+      "01/01/2023 - 30/06/2023",
     );
     expect(page.sidebarPeriod()).toBe("2011 bis (Extraordinary)");
 
@@ -205,7 +205,7 @@ describe("the Building Data screen's dialogs", () => {
 
     expect(page.dialog.message()).toBe("Enter a name");
 
-    await page.dialog.fill("Management name", "2013");
+    await page.dialog.fill("Management name", "2026");
 
     expect(page.dialog.message()).toBeNull();
     expect(page.dialog.isSaveDisabled()).toBe(false);
@@ -217,7 +217,7 @@ describe("the Building Data screen's dialogs", () => {
     await page.clickSidebarEdit();
 
     expect(page.dialog.title()).toBe("Edit Management / Period");
-    expect(page.dialog.fieldValue("Management name")).toBe("2013");
+    expect(page.dialog.fieldValue("Management name")).toBe("2026");
 
     await page.dialog.cancel();
 

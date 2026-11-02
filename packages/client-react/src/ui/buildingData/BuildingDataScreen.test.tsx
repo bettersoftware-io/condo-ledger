@@ -39,24 +39,24 @@ describe("BuildingDataScreen", () => {
 
     expect(page.data.grid.rowLabels()).toEqual([
       "Pozzetto (Piazza Libertà, 74, 33045 Nimis)",
-      "2013 (Ordinary)",
+      "2026 (Ordinary)",
       "Saturno (Piazza del Duomo, 39, 33033 Codroipo)",
-      "2011 (Ordinary)",
+      "2023 (Ordinary)",
     ]);
     expect(page.isZebra(page.labelOf("c1"))).toBe(true);
-    expect(page.isZebra("2011 (Ordinary)")).toBe(false);
+    expect(page.isZebra("2023 (Ordinary)")).toBe(false);
     expect(page.data.grid.isAggregate(page.labelOf("c1"))).toBe(true);
     expect(page.typeOf(page.labelOf("c1"))).toBe("Building");
-    expect(page.typeOf("2011 (Ordinary)")).toBe("Ordinary");
-    expect(page.closedOf("2011 (Ordinary)")).toBe(false);
+    expect(page.typeOf("2023 (Ordinary)")).toBe("Ordinary");
+    expect(page.closedOf("2023 (Ordinary)")).toBe(false);
     expect(page.closedOf(page.labelOf("c1"))).toBeNull();
   });
 
   it("shows both periods' six figures and dates; the building rows leave them blank", () => {
     const page = mountBuildingData("p1");
 
-    expect(page.data.grid.rowTexts("2011 (Ordinary)").slice(4)).toEqual([
-      "01/01/2011 - 31/12/2011",
+    expect(page.data.grid.rowTexts("2023 (Ordinary)").slice(4)).toEqual([
+      "01/01/2023 - 31/12/2023",
       "2,954.14",
       "1,750.00",
       "7,400.00",
@@ -64,8 +64,8 @@ describe("BuildingDataScreen", () => {
       "288.92",
       "2,744.11",
     ]);
-    expect(page.data.grid.rowTexts("2013 (Ordinary)").slice(4)).toEqual([
-      "01/01/2013 - 31/12/2013",
+    expect(page.data.grid.rowTexts("2026 (Ordinary)").slice(4)).toEqual([
+      "01/01/2026 - 31/12/2026",
       "1,078.26",
       "0.00",
       "38,000.00",
@@ -82,13 +82,13 @@ describe("BuildingDataScreen", () => {
   it("starts on the app's period; clicking Saturno's period row makes it the sidebar's", async () => {
     const page = mountBuildingData("p36");
 
-    expect(page.data.grid.selectedLabels()).toEqual(["2013 (Ordinary)"]);
+    expect(page.data.grid.selectedLabels()).toEqual(["2026 (Ordinary)"]);
     expect(page.sheetValue("Name")).toBe("Pozzetto");
 
-    await page.data.grid.clickRow("2011 (Ordinary)");
+    await page.data.grid.clickRow("2023 (Ordinary)");
 
-    expect(page.sidebarPeriod()).toBe("2011 (Ordinary)");
-    expect(page.data.grid.selectedLabels()).toEqual(["2011 (Ordinary)"]);
+    expect(page.sidebarPeriod()).toBe("2023 (Ordinary)");
+    expect(page.data.grid.selectedLabels()).toEqual(["2023 (Ordinary)"]);
     expect(page.sheetValue("Name")).toBe("Saturno");
   });
 
@@ -99,7 +99,7 @@ describe("BuildingDataScreen", () => {
 
     expect(page.data.grid.selectedLabels()).toEqual([page.labelOf("c1")]);
     expect(page.sheetValue("Building code")).toBe("SAT");
-    expect(page.sidebarPeriod()).toBe("2013 (Ordinary)");
+    expect(page.sidebarPeriod()).toBe("2026 (Ordinary)");
   });
 
   it("shows Saturno's profile: its code, status, type, address and construction date, then OTHER and NOTES", () => {
@@ -118,8 +118,8 @@ describe("BuildingDataScreen", () => {
     expect(page.sheetGroups()).toEqual(["OTHER", "NOTES"]);
     expect(page.sheetValue("Cadastral data")).toBe("---");
     expect(page.sheetValue("System ID")).toBe("1");
-    expect(page.sheetValue("Created on")).toBe("14/04/2011 13:52:24");
-    expect(page.sheetValue("Modified on")).toBe("18/12/2012 15:41:01");
+    expect(page.sheetValue("Created on")).toBe("14/04/2023 13:52:24");
+    expect(page.sheetValue("Modified on")).toBe("18/12/2024 15:41:01");
     expect(page.profileNotes()).toBe("---");
   });
 
@@ -405,11 +405,11 @@ describe("BuildingDataScreen", () => {
 
     await page.data.grid.clickCaret(page.labelOf("c1"));
 
-    expect(page.data.grid.rowLabels()).not.toContain("2011 (Ordinary)");
+    expect(page.data.grid.rowLabels()).not.toContain("2023 (Ordinary)");
 
     await page.data.clickTool("Expand all");
 
-    expect(page.data.grid.rowLabels()).toContain("2011 (Ordinary)");
+    expect(page.data.grid.rowLabels()).toContain("2023 (Ordinary)");
 
     await page.data.clickTool("Collapse all");
 

@@ -63,7 +63,7 @@ describe("the Invoice payment wizard", () => {
       id: "li49",
       number: "2959",
       reason: invoiceOf(harness, "li49").reason,
-      date: "2013-12-01",
+      date: "2026-12-01",
       dueDate: null,
       supplier: supplierName(harness, "md78"),
       remaining: cents(37313),
@@ -409,9 +409,9 @@ describe("the Invoice payment wizard", () => {
         ...books,
         invoices: [
           ...books.invoices,
-          createInvoice(li19, "li901", "2026-10-13"),
-          createInvoice(li19, "li902", "2026-10-14"),
-          createInvoice(li19, "li903", "2027-01-01"),
+          createInvoice(li19, "li901", "2027-10-13"),
+          createInvoice(li19, "li902", "2027-10-14"),
+          createInvoice(li19, "li903", "2028-01-01"),
         ],
       },
       harness.ports.clock,
@@ -428,9 +428,9 @@ describe("the Invoice payment wizard", () => {
         return [row.id, row.dueDate, row.overdue];
       }),
     ).toEqual([
-      ["li901", "2026-10-13", true],
-      ["li902", "2026-10-14", false],
-      ["li903", "2027-01-01", false],
+      ["li901", "2027-10-13", true],
+      ["li902", "2027-10-14", false],
+      ["li903", "2028-01-01", false],
       ["li19", null, false],
     ]);
   });

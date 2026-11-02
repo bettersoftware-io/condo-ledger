@@ -133,7 +133,7 @@ describe("the Record owner collection wizard", () => {
         personId: "md89",
         accountId: "la156",
         amount: "539.92",
-        description: `Collection of installments from ${personName(harness, "md89")}: Installment 9 (20/09/2013), Installment 10 (20/10/2013), Installment 11 (20/11/2013), Installment 12 (20/12/2013)`,
+        description: `Collection of installments from ${personName(harness, "md89")}: Installment 9 (20/09/2026), Installment 10 (20/10/2026), Installment 11 (20/11/2026), Installment 12 (20/12/2026)`,
         edited: ["personId"],
       },
       summary: { person: personName(harness, "md89"), owed: 53992 },
@@ -145,12 +145,12 @@ describe("the Record owner collection wizard", () => {
 
     expect(machine.state$.getValue().form).toMatchObject({
       amount: "305.84",
-      description: `Collection of installments from ${personName(harness, "md104")}: Installment 10 (20/10/2013), Installment 11 (20/11/2013), Installment 12 (20/12/2013)`,
+      description: `Collection of installments from ${personName(harness, "md104")}: Installment 10 (20/10/2026), Installment 11 (20/11/2026), Installment 12 (20/12/2026)`,
     });
   });
 
   it("prefills only the items due by today, today's included", () => {
-    const harness = createP36Harness("2013-10-20T10:00:00Z");
+    const harness = createP36Harness("2026-10-20T10:00:00Z");
     const machine = createNewWizard(harness);
 
     machine.intents.edit({ personId: "md89" });
@@ -159,7 +159,7 @@ describe("the Record owner collection wizard", () => {
   });
 
   it("with nothing due yet, prefills the remaining of the person's first open item", () => {
-    const harness = createP36Harness("2012-12-01T10:00:00Z");
+    const harness = createP36Harness("2025-12-01T10:00:00Z");
     const machine = createNewWizard(harness);
 
     machine.intents.edit({ personId: "md96" });
@@ -176,17 +176,17 @@ describe("the Record owner collection wizard", () => {
     machine.intents.edit({ personId: "md89" });
 
     expect(machine.state$.getValue().summary.settlement).toEqual([
-      createRow("ii763", "Installment 9", "2013-09-20", 13498, 13498),
-      createRow("ii790", "Installment 10", "2013-10-20", 13498, 13498),
-      createRow("ii817", "Installment 11", "2013-11-20", 13498, 13498),
-      createRow("ii844", "Installment 12", "2013-12-20", 13498, 13498),
+      createRow("ii763", "Installment 9", "2026-09-20", 13498, 13498),
+      createRow("ii790", "Installment 10", "2026-10-20", 13498, 13498),
+      createRow("ii817", "Installment 11", "2026-11-20", 13498, 13498),
+      createRow("ii844", "Installment 12", "2026-12-20", 13498, 13498),
     ]);
 
     machine.intents.edit({ amount: "200" });
 
     expect(machine.state$.getValue().summary.settlement).toEqual([
-      createRow("ii763", "Installment 9", "2013-09-20", 13498, 13498),
-      createRow("ii790", "Installment 10", "2013-10-20", 13498, 6502),
+      createRow("ii763", "Installment 9", "2026-09-20", 13498, 13498),
+      createRow("ii790", "Installment 10", "2026-10-20", 13498, 6502),
     ]);
   });
 
@@ -261,14 +261,14 @@ describe("the Record owner collection wizard", () => {
         return [row.itemId, row.installment, row.unitCode, row.dueDate];
       }),
     ).toEqual([
-      ["ii41", "Installment 2", "A1", "2011-07-15"],
-      ["ii42", "Installment 2", "A2", "2011-07-15"],
-      ["ii46", "Installment 2", "B1", "2011-07-15"],
-      ["ii48", "Installment 2", "B2", "2011-07-15"],
-      ["ii51", "Installment 3", "A1", "2011-12-15"],
-      ["ii52", "Installment 3", "A2", "2011-12-15"],
-      ["ii56", "Installment 3", "B1", "2011-12-15"],
-      ["ii58", "Installment 3", "B2", "2011-12-15"],
+      ["ii41", "Installment 2", "A1", "2023-07-15"],
+      ["ii42", "Installment 2", "A2", "2023-07-15"],
+      ["ii46", "Installment 2", "B1", "2023-07-15"],
+      ["ii48", "Installment 2", "B2", "2023-07-15"],
+      ["ii51", "Installment 3", "A1", "2023-12-15"],
+      ["ii52", "Installment 3", "A2", "2023-12-15"],
+      ["ii56", "Installment 3", "B1", "2023-12-15"],
+      ["ii58", "Installment 3", "B2", "2023-12-15"],
     ]);
   });
 
@@ -352,7 +352,7 @@ describe("the Record owner collection wizard", () => {
     machine.intents.edit({ personId: "md89", amount: "200" });
 
     expect(machine.state$.getValue().form.description).toBe(
-      `Collection of installments from ${personName(harness, "md89")}: Installment 9 (20/09/2013), Installment 10 (20/10/2013)`,
+      `Collection of installments from ${personName(harness, "md89")}: Installment 9 (20/09/2026), Installment 10 (20/10/2026)`,
     );
 
     const elsewhere = await harness.ports.journal.addEntry(
@@ -366,15 +366,15 @@ describe("the Record owner collection wizard", () => {
       reason: "over-remaining-item",
     });
 
-    const description = `Collection of installments from ${personName(harness, "md89")}: Installment 10 (20/10/2013), Installment 11 (20/11/2013)`;
+    const description = `Collection of installments from ${personName(harness, "md89")}: Installment 10 (20/10/2026), Installment 11 (20/11/2026)`;
 
     expect(machine.state$.getValue()).toMatchObject({
       form: { amount: "200", description },
       summary: {
         owed: 53992 - 13498,
         settlement: [
-          createRow("ii790", "Installment 10", "2013-10-20", 13498, 13498),
-          createRow("ii817", "Installment 11", "2013-11-20", 13498, 6502),
+          createRow("ii790", "Installment 10", "2026-10-20", 13498, 13498),
+          createRow("ii817", "Installment 11", "2026-11-20", 13498, 6502),
         ],
       },
       verdict: { ok: true },
@@ -524,8 +524,8 @@ describe("editing a collection", () => {
     });
     expect(state.summary.owed).toBe(295116);
     expect(state.summary.settlement).toEqual([
-      createRow("ii5", "Installment 1", "2011-03-15", 96114, 92684, "A4"),
-      createRow("ii10", "Installment 1", "2011-03-15", 7402, 7316, "B4"),
+      createRow("ii5", "Installment 1", "2023-03-15", 96114, 92684, "A4"),
+      createRow("ii10", "Installment 1", "2023-03-15", 7402, 7316, "B4"),
     ]);
   });
 
@@ -564,7 +564,7 @@ describe("editing a collection", () => {
 
     expect(machine.state$.getValue()).toMatchObject({
       form: {
-        description: `Collection of installments from ${personName(harness, "md3")}: Installment 1 (15/03/2011), Installment 1 (15/03/2011), Installment 1 (15/03/2011), Installment 1 (15/03/2011)`,
+        description: `Collection of installments from ${personName(harness, "md3")}: Installment 1 (15/03/2023), Installment 1 (15/03/2023), Installment 1 (15/03/2023), Installment 1 (15/03/2023)`,
       },
       verdict: { ok: true },
     });
@@ -586,7 +586,7 @@ describe("editing a collection", () => {
     machine.intents.edit({ amount: "500" });
 
     expect(machine.state$.getValue().summary.settlement).toEqual([
-      createRow("ii5", "Installment 1", "2011-03-15", 96114, 50000, "A4"),
+      createRow("ii5", "Installment 1", "2023-03-15", 96114, 50000, "A4"),
     ]);
 
     machine.intents.edit({ amount: "1,000" });

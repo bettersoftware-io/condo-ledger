@@ -399,7 +399,7 @@ describe("editing an entry line by line", () => {
     expect(currentBooks(harness).entries).toHaveLength(before);
     expect(currentEntry(harness, "tx2")).toMatchObject({
       number: 2,
-      at: "2011-01-01T16:05:19",
+      at: "2023-01-01T16:05:19",
       kind: "generic",
     });
   });

@@ -280,7 +280,7 @@ describe("editing a bank purchase of several costs", () => {
     expect(currentBooks(harness).entries).toHaveLength(before);
     expect(currentEntry(harness, "tx4")).toMatchObject({
       number: 4,
-      at: "2011-03-13T14:07:00",
+      at: "2023-03-13T14:07:00",
       kind: "directPaymentBank",
     });
   });

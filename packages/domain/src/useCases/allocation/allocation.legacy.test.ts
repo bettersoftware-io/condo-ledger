@@ -100,11 +100,11 @@ describe("the allocation of Saturno 2011 (p1)", () => {
       }),
     ).toEqual(["group:ug1", "group:ug2", "roundings"]);
     expect(rowOf(allocation, "resident:r1")).toMatchObject({
-      restriction: "01/05/2011 - 31/05/2011",
+      restriction: "01/05/2023 - 31/05/2023",
       days: "31/365",
     });
     expect(rowOf(allocation, "unit:u2")).toMatchObject({
-      restriction: "27/05/2011 - end of FY",
+      restriction: "27/05/2023 - end of FY",
       days: "",
     });
   });

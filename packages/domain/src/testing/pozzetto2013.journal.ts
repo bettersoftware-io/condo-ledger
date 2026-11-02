@@ -35,7 +35,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 1,
     "kind": "openingBalances",
-    "at": "2013-01-10T11:09:01",
+    "at": "2026-01-10T11:09:01",
     "debit": 1429787,
     "credit": 1429787,
     "postings": [
@@ -164,7 +164,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 2,
     "kind": "invoice",
-    "at": "2013-01-10T15:59:29",
+    "at": "2026-01-10T15:59:29",
     "debit": 36018,
     "credit": 36018,
     "postings": [
@@ -191,7 +191,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 3,
     "kind": "invoicePayment",
-    "at": "2013-01-11T15:48:34",
+    "at": "2026-01-11T15:48:34",
     "debit": 34817,
     "credit": 34817,
     "postings": [
@@ -212,7 +212,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 4,
     "kind": "collection",
-    "at": "2013-01-18T15:36:16",
+    "at": "2026-01-18T15:36:16",
     "debit": 200000,
     "credit": 200000,
     "postings": [
@@ -233,7 +233,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 5,
     "kind": "collection",
-    "at": "2013-01-20T15:44:27",
+    "at": "2026-01-20T15:44:27",
     "debit": 50000,
     "credit": 50000,
     "postings": [
@@ -254,7 +254,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 6,
     "kind": "invoice",
-    "at": "2013-01-31T15:16:48",
+    "at": "2026-01-31T15:16:48",
     "debit": 47938,
     "credit": 47938,
     "postings": [
@@ -275,7 +275,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 7,
     "kind": "collection",
-    "at": "2013-01-31T15:37:21",
+    "at": "2026-01-31T15:37:21",
     "debit": 181979,
     "credit": 181979,
     "postings": [
@@ -296,7 +296,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 8,
     "kind": "invoice",
-    "at": "2013-02-05T12:30:07",
+    "at": "2026-02-05T12:30:07",
     "debit": 10739,
     "credit": 10739,
     "postings": [
@@ -317,7 +317,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 9,
     "kind": "invoice",
-    "at": "2013-02-09T14:31:02",
+    "at": "2026-02-09T14:31:02",
     "debit": 310566,
     "credit": 310566,
     "postings": [
@@ -344,7 +344,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 10,
     "kind": "invoicePayment",
-    "at": "2013-02-15T14:51:57",
+    "at": "2026-02-15T14:51:57",
     "debit": 10739,
     "credit": 10739,
     "postings": [
@@ -365,7 +365,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 11,
     "kind": "invoicePayment",
-    "at": "2013-02-15T15:08:39",
+    "at": "2026-02-15T15:08:39",
     "debit": 47938,
     "credit": 47938,
     "postings": [
@@ -386,7 +386,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 12,
     "kind": "invoicePayment",
-    "at": "2013-02-15T15:10:52",
+    "at": "2026-02-15T15:10:52",
     "debit": 100000,
     "credit": 100000,
     "postings": [
@@ -407,7 +407,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 13,
     "kind": "collection",
-    "at": "2013-02-15T16:00:36",
+    "at": "2026-02-15T16:00:36",
     "debit": 188304,
     "credit": 188304,
     "postings": [
@@ -428,7 +428,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 14,
     "kind": "budgetAllocation",
-    "at": "2013-02-18T10:47:00",
+    "at": "2026-02-18T10:47:00",
     "debit": 3800054,
     "credit": 3800054,
     "postings": [
@@ -767,7 +767,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 15,
     "kind": "collection",
-    "at": "2013-02-20T15:42:05",
+    "at": "2026-02-20T15:42:05",
     "debit": 270271,
     "credit": 270271,
     "postings": [
@@ -788,7 +788,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 16,
     "kind": "invoicePayment",
-    "at": "2013-02-21T15:11:16",
+    "at": "2026-02-21T15:11:16",
     "debit": 100000,
     "credit": 100000,
     "postings": [
@@ -809,7 +809,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 17,
     "kind": "invoice",
-    "at": "2013-02-28T12:20:20",
+    "at": "2026-02-28T12:20:20",
     "debit": 12000,
     "credit": 12000,
     "postings": [
@@ -836,7 +836,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 18,
     "kind": "collection",
-    "at": "2013-02-28T16:04:00",
+    "at": "2026-02-28T16:04:00",
     "debit": 44846,
     "credit": 44846,
     "postings": [
@@ -863,7 +863,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 19,
     "kind": "invoicePayment",
-    "at": "2013-03-04T15:50:24",
+    "at": "2026-03-04T15:50:24",
     "debit": 11600,
     "credit": 11600,
     "postings": [
@@ -884,7 +884,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 20,
     "kind": "collection",
-    "at": "2013-03-12T15:39:42",
+    "at": "2026-03-12T15:39:42",
     "debit": 25162,
     "credit": 25162,
     "postings": [
@@ -917,7 +917,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 21,
     "kind": "invoicePayment",
-    "at": "2013-03-15T15:11:35",
+    "at": "2026-03-15T15:11:35",
     "debit": 100214,
     "credit": 100214,
     "postings": [
@@ -938,7 +938,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 22,
     "kind": "invoice",
-    "at": "2013-03-15T16:21:47",
+    "at": "2026-03-15T16:21:47",
     "debit": 38600,
     "credit": 38600,
     "postings": [
@@ -965,7 +965,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 23,
     "kind": "invoice",
-    "at": "2013-03-15T16:52:47",
+    "at": "2026-03-15T16:52:47",
     "debit": 8400,
     "credit": 8400,
     "postings": [
@@ -992,7 +992,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 24,
     "kind": "collection",
-    "at": "2013-03-20T15:45:42",
+    "at": "2026-03-20T15:45:42",
     "debit": 50000,
     "credit": 50000,
     "postings": [
@@ -1025,7 +1025,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 25,
     "kind": "invoice",
-    "at": "2013-03-24T12:31:38",
+    "at": "2026-03-24T12:31:38",
     "debit": 8922,
     "credit": 8922,
     "postings": [
@@ -1046,7 +1046,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 26,
     "kind": "invoice",
-    "at": "2013-03-27T15:19:21",
+    "at": "2026-03-27T15:19:21",
     "debit": 65262,
     "credit": 65262,
     "postings": [
@@ -1067,7 +1067,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 27,
     "kind": "invoice",
-    "at": "2013-03-29T14:35:30",
+    "at": "2026-03-29T14:35:30",
     "debit": 313538,
     "credit": 313538,
     "postings": [
@@ -1094,7 +1094,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 28,
     "kind": "invoicePayment",
-    "at": "2013-04-01T16:52:53",
+    "at": "2026-04-01T16:52:53",
     "debit": 37313,
     "credit": 37313,
     "postings": [
@@ -1115,7 +1115,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 29,
     "kind": "invoice",
-    "at": "2013-04-02T13:24:39",
+    "at": "2026-04-02T13:24:39",
     "debit": 3720,
     "credit": 3720,
     "postings": [
@@ -1142,7 +1142,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 30,
     "kind": "invoicePayment",
-    "at": "2013-04-02T16:54:04",
+    "at": "2026-04-02T16:54:04",
     "debit": 8120,
     "credit": 8120,
     "postings": [
@@ -1163,7 +1163,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 31,
     "kind": "invoice",
-    "at": "2013-04-04T15:37:11",
+    "at": "2026-04-04T15:37:11",
     "debit": 327145,
     "credit": 327145,
     "postings": [
@@ -1190,7 +1190,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 32,
     "kind": "invoice",
-    "at": "2013-04-07T12:17:14",
+    "at": "2026-04-07T12:17:14",
     "debit": 47736,
     "credit": 47736,
     "postings": [
@@ -1217,7 +1217,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 33,
     "kind": "collection",
-    "at": "2013-04-10T16:33:08",
+    "at": "2026-04-10T16:33:08",
     "debit": 33598,
     "credit": 33598,
     "postings": [
@@ -1244,7 +1244,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 34,
     "kind": "invoicePayment",
-    "at": "2013-04-12T12:12:44",
+    "at": "2026-04-12T12:12:44",
     "debit": 303087,
     "credit": 303087,
     "postings": [
@@ -1265,7 +1265,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 35,
     "kind": "invoice",
-    "at": "2013-04-13T13:55:30",
+    "at": "2026-04-13T13:55:30",
     "debit": 74398,
     "credit": 74398,
     "postings": [
@@ -1292,7 +1292,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 36,
     "kind": "invoicePayment",
-    "at": "2013-04-13T16:55:16",
+    "at": "2026-04-13T16:55:16",
     "debit": 8922,
     "credit": 8922,
     "postings": [
@@ -1313,7 +1313,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 37,
     "kind": "invoicePayment",
-    "at": "2013-04-13T16:56:03",
+    "at": "2026-04-13T16:56:03",
     "debit": 65262,
     "credit": 65262,
     "postings": [
@@ -1334,7 +1334,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 38,
     "kind": "invoice",
-    "at": "2013-04-14T13:53:28",
+    "at": "2026-04-14T13:53:28",
     "debit": 74398,
     "credit": 74398,
     "postings": [
@@ -1361,7 +1361,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 39,
     "kind": "collection",
-    "at": "2013-04-17T16:38:00",
+    "at": "2026-04-17T16:38:00",
     "debit": 58272,
     "credit": 58272,
     "postings": [
@@ -1394,7 +1394,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 40,
     "kind": "invoice",
-    "at": "2013-04-19T15:39:23",
+    "at": "2026-04-19T15:39:23",
     "debit": 202548,
     "credit": 202548,
     "postings": [
@@ -1421,7 +1421,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 41,
     "kind": "generic",
-    "at": "2013-04-21T13:08:14",
+    "at": "2026-04-21T13:08:14",
     "debit": 3180,
     "credit": 3180,
     "postings": [
@@ -1442,7 +1442,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 42,
     "kind": "invoicePayment",
-    "at": "2013-04-22T16:56:44",
+    "at": "2026-04-22T16:56:44",
     "debit": 3596,
     "credit": 3596,
     "postings": [
@@ -1463,7 +1463,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 43,
     "kind": "collection",
-    "at": "2013-04-22T17:02:40",
+    "at": "2026-04-22T17:02:40",
     "debit": 20000,
     "credit": 20000,
     "postings": [
@@ -1520,7 +1520,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 44,
     "kind": "invoice",
-    "at": "2013-04-23T13:42:17",
+    "at": "2026-04-23T13:42:17",
     "debit": 11613,
     "credit": 11613,
     "postings": [
@@ -1541,7 +1541,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 45,
     "kind": "invoicePayment",
-    "at": "2013-04-24T16:57:33",
+    "at": "2026-04-24T16:57:33",
     "debit": 316240,
     "credit": 316240,
     "postings": [
@@ -1562,7 +1562,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 46,
     "kind": "invoicePayment",
-    "at": "2013-05-03T16:58:28",
+    "at": "2026-05-03T16:58:28",
     "debit": 39780,
     "credit": 39780,
     "postings": [
@@ -1583,7 +1583,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 47,
     "kind": "invoice",
-    "at": "2013-05-04T13:18:21",
+    "at": "2026-05-04T13:18:21",
     "debit": 19200,
     "credit": 19200,
     "postings": [
@@ -1610,7 +1610,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 48,
     "kind": "collection",
-    "at": "2013-05-12T16:58:04",
+    "at": "2026-05-12T16:58:04",
     "debit": 62915,
     "credit": 62915,
     "postings": [
@@ -1643,7 +1643,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 49,
     "kind": "invoicePayment",
-    "at": "2013-05-15T16:59:51",
+    "at": "2026-05-15T16:59:51",
     "debit": 100000,
     "credit": 100000,
     "postings": [
@@ -1664,7 +1664,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 50,
     "kind": "invoice",
-    "at": "2013-05-17T16:21:03",
+    "at": "2026-05-17T16:21:03",
     "debit": 51814,
     "credit": 51814,
     "postings": [
@@ -1685,7 +1685,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 51,
     "kind": "collection",
-    "at": "2013-05-20T16:40:40",
+    "at": "2026-05-20T16:40:40",
     "debit": 14378,
     "credit": 14378,
     "postings": [
@@ -1712,7 +1712,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 52,
     "kind": "collection",
-    "at": "2013-05-20T16:55:59",
+    "at": "2026-05-20T16:55:59",
     "debit": 70000,
     "credit": 70000,
     "postings": [
@@ -1763,7 +1763,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 53,
     "kind": "invoicePayment",
-    "at": "2013-05-27T17:01:37",
+    "at": "2026-05-27T17:01:37",
     "debit": 18560,
     "credit": 18560,
     "postings": [
@@ -1784,7 +1784,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 54,
     "kind": "invoice",
-    "at": "2013-06-03T15:41:09",
+    "at": "2026-06-03T15:41:09",
     "debit": 90354,
     "credit": 90354,
     "postings": [
@@ -1811,7 +1811,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 55,
     "kind": "invoice",
-    "at": "2013-06-06T13:34:12",
+    "at": "2026-06-06T13:34:12",
     "debit": 11399,
     "credit": 11399,
     "postings": [
@@ -1832,7 +1832,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 56,
     "kind": "invoice",
-    "at": "2013-06-07T16:32:43",
+    "at": "2026-06-07T16:32:43",
     "debit": 114400,
     "credit": 114400,
     "postings": [
@@ -1859,7 +1859,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 57,
     "kind": "collection",
-    "at": "2013-06-10T17:01:21",
+    "at": "2026-06-10T17:01:21",
     "debit": 121755,
     "credit": 121755,
     "postings": [
@@ -1904,7 +1904,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 58,
     "kind": "invoicePayment",
-    "at": "2013-06-14T17:03:04",
+    "at": "2026-06-14T17:03:04",
     "debit": 11399,
     "credit": 11399,
     "postings": [
@@ -1925,7 +1925,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 59,
     "kind": "invoicePayment",
-    "at": "2013-06-14T17:04:04",
+    "at": "2026-06-14T17:04:04",
     "debit": 51814,
     "credit": 51814,
     "postings": [
@@ -1946,7 +1946,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 60,
     "kind": "invoice",
-    "at": "2013-06-14T17:22:38",
+    "at": "2026-06-14T17:22:38",
     "debit": 38600,
     "credit": 38600,
     "postings": [
@@ -1973,7 +1973,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 61,
     "kind": "invoicePayment",
-    "at": "2013-06-15T17:00:33",
+    "at": "2026-06-15T17:00:33",
     "debit": 95796,
     "credit": 95796,
     "postings": [
@@ -1994,7 +1994,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 62,
     "kind": "collection",
-    "at": "2013-06-17T17:04:44",
+    "at": "2026-06-17T17:04:44",
     "debit": 71752,
     "credit": 71752,
     "postings": [
@@ -2033,7 +2033,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 63,
     "kind": "collection",
-    "at": "2013-06-19T14:46:43",
+    "at": "2026-06-19T14:46:43",
     "debit": 1673,
     "credit": 1673,
     "postings": [
@@ -2054,7 +2054,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 64,
     "kind": "invoicePayment",
-    "at": "2013-06-19T17:04:41",
+    "at": "2026-06-19T17:04:41",
     "debit": 87342,
     "credit": 87342,
     "postings": [
@@ -2075,7 +2075,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 65,
     "kind": "invoicePayment",
-    "at": "2013-06-20T17:05:15",
+    "at": "2026-06-20T17:05:15",
     "debit": 110587,
     "credit": 110587,
     "postings": [
@@ -2096,7 +2096,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 66,
     "kind": "invoice",
-    "at": "2013-06-30T15:42:45",
+    "at": "2026-06-30T15:42:45",
     "debit": 30701,
     "credit": 30701,
     "postings": [
@@ -2123,7 +2123,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 67,
     "kind": "invoicePayment",
-    "at": "2013-07-01T17:05:51",
+    "at": "2026-07-01T17:05:51",
     "debit": 37313,
     "credit": 37313,
     "postings": [
@@ -2144,7 +2144,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 68,
     "kind": "collection",
-    "at": "2013-07-03T16:34:00",
+    "at": "2026-07-03T16:34:00",
     "debit": 51558,
     "credit": 51558,
     "postings": [
@@ -2177,7 +2177,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 69,
     "kind": "invoice",
-    "at": "2013-07-12T12:29:49",
+    "at": "2026-07-12T12:29:49",
     "debit": 47736,
     "credit": 47736,
     "postings": [
@@ -2204,7 +2204,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 70,
     "kind": "invoicePayment",
-    "at": "2013-07-16T17:06:56",
+    "at": "2026-07-16T17:06:56",
     "debit": 29678,
     "credit": 29678,
     "postings": [
@@ -2225,7 +2225,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 71,
     "kind": "invoice",
-    "at": "2013-07-17T16:22:47",
+    "at": "2026-07-17T16:22:47",
     "debit": 26081,
     "credit": 26081,
     "postings": [
@@ -2246,7 +2246,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 72,
     "kind": "generic",
-    "at": "2013-07-20T13:10:09",
+    "at": "2026-07-20T13:10:09",
     "debit": 5000,
     "credit": 5000,
     "postings": [
@@ -2267,7 +2267,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 73,
     "kind": "collection",
-    "at": "2013-07-20T14:48:52",
+    "at": "2026-07-20T14:48:52",
     "debit": 13498,
     "credit": 13498,
     "postings": [
@@ -2288,7 +2288,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 74,
     "kind": "collection",
-    "at": "2013-07-20T16:54:29",
+    "at": "2026-07-20T16:54:29",
     "debit": 51846,
     "credit": 51846,
     "postings": [
@@ -2327,7 +2327,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 75,
     "kind": "collection",
-    "at": "2013-07-20T17:00:04",
+    "at": "2026-07-20T17:00:04",
     "debit": 19080,
     "credit": 19080,
     "postings": [
@@ -2354,7 +2354,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 76,
     "kind": "invoice",
-    "at": "2013-07-21T13:36:08",
+    "at": "2026-07-21T13:36:08",
     "debit": 10781,
     "credit": 10781,
     "postings": [
@@ -2375,7 +2375,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 77,
     "kind": "collection",
-    "at": "2013-07-22T16:57:24",
+    "at": "2026-07-22T16:57:24",
     "debit": 45194,
     "credit": 45194,
     "postings": [
@@ -2414,7 +2414,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 78,
     "kind": "invoice",
-    "at": "2013-07-27T15:44:25",
+    "at": "2026-07-27T15:44:25",
     "debit": 28475,
     "credit": 28475,
     "postings": [
@@ -2441,7 +2441,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 79,
     "kind": "collection",
-    "at": "2013-07-29T16:46:42",
+    "at": "2026-07-29T16:46:42",
     "debit": 88669,
     "credit": 88669,
     "postings": [
@@ -2486,7 +2486,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 80,
     "kind": "collection",
-    "at": "2013-07-29T16:48:18",
+    "at": "2026-07-29T16:48:18",
     "debit": 40000,
     "credit": 40000,
     "postings": [
@@ -2525,7 +2525,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 81,
     "kind": "invoicePayment",
-    "at": "2013-07-30T17:16:47",
+    "at": "2026-07-30T17:16:47",
     "debit": 39780,
     "credit": 39780,
     "postings": [
@@ -2546,7 +2546,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 82,
     "kind": "collection",
-    "at": "2013-08-01T16:38:49",
+    "at": "2026-08-01T16:38:49",
     "debit": 77696,
     "credit": 77696,
     "postings": [
@@ -2585,7 +2585,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 83,
     "kind": "collection",
-    "at": "2013-08-04T17:05:54",
+    "at": "2026-08-04T17:05:54",
     "debit": 50000,
     "credit": 50000,
     "postings": [
@@ -2618,7 +2618,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 84,
     "kind": "collection",
-    "at": "2013-08-05T16:43:15",
+    "at": "2026-08-05T16:43:15",
     "debit": 2611,
     "credit": 2611,
     "postings": [
@@ -2675,7 +2675,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 85,
     "kind": "invoicePayment",
-    "at": "2013-08-06T17:17:16",
+    "at": "2026-08-06T17:17:16",
     "debit": 10781,
     "credit": 10781,
     "postings": [
@@ -2696,7 +2696,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 86,
     "kind": "invoicePayment",
-    "at": "2013-08-06T17:27:50",
+    "at": "2026-08-06T17:27:50",
     "debit": 26081,
     "credit": 26081,
     "postings": [
@@ -2717,7 +2717,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 87,
     "kind": "collection",
-    "at": "2013-08-09T16:41:16",
+    "at": "2026-08-09T16:41:16",
     "debit": 21567,
     "credit": 21567,
     "postings": [
@@ -2750,7 +2750,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 88,
     "kind": "collection",
-    "at": "2013-08-10T16:31:31",
+    "at": "2026-08-10T16:31:31",
     "debit": 13498,
     "credit": 13498,
     "postings": [
@@ -2771,7 +2771,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 89,
     "kind": "collection",
-    "at": "2013-08-10T16:58:33",
+    "at": "2026-08-10T16:58:33",
     "debit": 85482,
     "credit": 85482,
     "postings": [
@@ -2804,7 +2804,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 90,
     "kind": "collection",
-    "at": "2013-08-11T17:03:14",
+    "at": "2026-08-11T17:03:14",
     "debit": 4134,
     "credit": 4134,
     "postings": [
@@ -2831,7 +2831,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 91,
     "kind": "invoicePayment",
-    "at": "2013-08-13T20:53:03",
+    "at": "2026-08-13T20:53:03",
     "debit": 27526,
     "credit": 27526,
     "postings": [
@@ -2852,7 +2852,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 92,
     "kind": "collection",
-    "at": "2013-08-20T16:48:54",
+    "at": "2026-08-20T16:48:54",
     "debit": 23103,
     "credit": 23103,
     "postings": [
@@ -2879,7 +2879,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 93,
     "kind": "collection",
-    "at": "2013-08-20T16:56:37",
+    "at": "2026-08-20T16:56:37",
     "debit": 44614,
     "credit": 44614,
     "postings": [
@@ -2912,7 +2912,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 94,
     "kind": "invoice",
-    "at": "2013-08-25T15:46:28",
+    "at": "2026-08-25T15:46:28",
     "debit": 39356,
     "credit": 39356,
     "postings": [
@@ -2939,7 +2939,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 95,
     "kind": "collection",
-    "at": "2013-08-28T16:59:15",
+    "at": "2026-08-28T16:59:15",
     "debit": 19255,
     "credit": 19255,
     "postings": [
@@ -2966,7 +2966,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 96,
     "kind": "collection",
-    "at": "2013-08-28T17:01:49",
+    "at": "2026-08-28T17:01:49",
     "debit": 48702,
     "credit": 48702,
     "postings": [
@@ -2993,7 +2993,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 97,
     "kind": "collection",
-    "at": "2013-09-01T16:34:50",
+    "at": "2026-09-01T16:34:50",
     "debit": 17186,
     "credit": 17186,
     "postings": [
@@ -3014,7 +3014,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 98,
     "kind": "invoice",
-    "at": "2013-09-02T13:25:49",
+    "at": "2026-09-02T13:25:49",
     "debit": 2640,
     "credit": 2640,
     "postings": [
@@ -3041,7 +3041,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 99,
     "kind": "invoice",
-    "at": "2013-09-10T13:22:19",
+    "at": "2026-09-10T13:22:19",
     "debit": 11500,
     "credit": 11500,
     "postings": [
@@ -3068,7 +3068,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 100,
     "kind": "invoice",
-    "at": "2013-09-11T16:23:47",
+    "at": "2026-09-11T16:23:47",
     "debit": 30126,
     "credit": 30126,
     "postings": [
@@ -3089,7 +3089,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 101,
     "kind": "invoicePayment",
-    "at": "2013-09-13T20:54:14",
+    "at": "2026-09-13T20:54:14",
     "debit": 38044,
     "credit": 38044,
     "postings": [
@@ -3110,7 +3110,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 102,
     "kind": "invoice",
-    "at": "2013-09-22T17:27:21",
+    "at": "2026-09-22T17:27:21",
     "debit": 38600,
     "credit": 38600,
     "postings": [
@@ -3137,7 +3137,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 103,
     "kind": "invoicePayment",
-    "at": "2013-09-23T20:54:51",
+    "at": "2026-09-23T20:54:51",
     "debit": 11117,
     "credit": 11117,
     "postings": [
@@ -3158,7 +3158,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 104,
     "kind": "invoicePayment",
-    "at": "2013-09-25T20:55:08",
+    "at": "2026-09-25T20:55:08",
     "debit": 2552,
     "credit": 2552,
     "postings": [
@@ -3179,7 +3179,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 105,
     "kind": "invoice",
-    "at": "2013-09-27T13:38:55",
+    "at": "2026-09-27T13:38:55",
     "debit": 11049,
     "credit": 11049,
     "postings": [
@@ -3200,7 +3200,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 106,
     "kind": "invoice",
-    "at": "2013-09-29T15:48:34",
+    "at": "2026-09-29T15:48:34",
     "debit": 29885,
     "credit": 29885,
     "postings": [
@@ -3227,7 +3227,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 107,
     "kind": "invoicePayment",
-    "at": "2013-10-01T20:56:32",
+    "at": "2026-10-01T20:56:32",
     "debit": 37313,
     "credit": 37313,
     "postings": [
@@ -3248,7 +3248,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 108,
     "kind": "invoicePayment",
-    "at": "2013-10-02T20:57:05",
+    "at": "2026-10-02T20:57:05",
     "debit": 11049,
     "credit": 11049,
     "postings": [
@@ -3269,7 +3269,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 109,
     "kind": "invoicePayment",
-    "at": "2013-10-02T20:57:34",
+    "at": "2026-10-02T20:57:34",
     "debit": 30126,
     "credit": 30126,
     "postings": [
@@ -3290,7 +3290,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 110,
     "kind": "generic",
-    "at": "2013-10-05T13:07:03",
+    "at": "2026-10-05T13:07:03",
     "debit": 34464,
     "credit": 34464,
     "postings": [
@@ -3311,7 +3311,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 111,
     "kind": "invoicePayment",
-    "at": "2013-10-14T20:58:26",
+    "at": "2026-10-14T20:58:26",
     "debit": 28889,
     "credit": 28889,
     "postings": [
@@ -3332,7 +3332,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 112,
     "kind": "invoice",
-    "at": "2013-10-17T12:31:07",
+    "at": "2026-10-17T12:31:07",
     "debit": 47736,
     "credit": 47736,
     "postings": [
@@ -3359,7 +3359,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 113,
     "kind": "invoice",
-    "at": "2013-10-17T13:57:18",
+    "at": "2026-10-17T13:57:18",
     "debit": 74398,
     "credit": 74398,
     "postings": [
@@ -3386,7 +3386,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 114,
     "kind": "generic",
-    "at": "2013-10-21T16:36:43",
+    "at": "2026-10-21T16:36:43",
     "debit": 120219,
     "credit": 120219,
     "postings": [
@@ -3407,7 +3407,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 115,
     "kind": "invoice",
-    "at": "2013-11-02T15:00:24",
+    "at": "2026-11-02T15:00:24",
     "debit": 12556,
     "credit": 12556,
     "postings": [
@@ -3434,7 +3434,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 116,
     "kind": "invoicePayment",
-    "at": "2013-11-02T19:58:43",
+    "at": "2026-11-02T19:58:43",
     "debit": 39780,
     "credit": 39780,
     "postings": [
@@ -3455,7 +3455,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 117,
     "kind": "generic",
-    "at": "2013-11-03T15:41:14",
+    "at": "2026-11-03T15:41:14",
     "debit": 37700,
     "credit": 37700,
     "postings": [
@@ -3476,7 +3476,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 118,
     "kind": "invoice",
-    "at": "2013-11-17T15:03:26",
+    "at": "2026-11-17T15:03:26",
     "debit": 76380,
     "credit": 76380,
     "postings": [
@@ -3503,7 +3503,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 119,
     "kind": "invoicePayment",
-    "at": "2013-11-21T19:59:22",
+    "at": "2026-11-21T19:59:22",
     "debit": 12137,
     "credit": 12137,
     "postings": [
@@ -3524,7 +3524,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 120,
     "kind": "generic",
-    "at": "2013-11-28T22:39:04",
+    "at": "2026-11-28T22:39:04",
     "debit": 1170,
     "credit": 1170,
     "postings": [
@@ -3551,7 +3551,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 121,
     "kind": "invoice",
-    "at": "2013-11-30T15:25:19",
+    "at": "2026-11-30T15:25:19",
     "debit": 40517,
     "credit": 40517,
     "postings": [
@@ -3572,7 +3572,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 122,
     "kind": "invoice",
-    "at": "2013-12-01T15:34:04",
+    "at": "2026-12-01T15:34:04",
     "debit": 117200,
     "credit": 117200,
     "postings": [
@@ -3599,7 +3599,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 123,
     "kind": "invoicePayment",
-    "at": "2013-12-04T20:00:01",
+    "at": "2026-12-04T20:00:01",
     "debit": 11613,
     "credit": 11613,
     "postings": [
@@ -3620,7 +3620,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 124,
     "kind": "invoicePayment",
-    "at": "2013-12-04T20:00:35",
+    "at": "2026-12-04T20:00:35",
     "debit": 40517,
     "credit": 40517,
     "postings": [
@@ -3641,7 +3641,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 125,
     "kind": "invoice",
-    "at": "2013-12-12T16:45:42",
+    "at": "2026-12-12T16:45:42",
     "debit": 38600,
     "credit": 38600,
     "postings": [
@@ -3668,7 +3668,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 126,
     "kind": "invoice",
-    "at": "2013-12-12T16:51:26",
+    "at": "2026-12-12T16:51:26",
     "debit": 6600,
     "credit": 6600,
     "postings": [
@@ -3695,7 +3695,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 127,
     "kind": "invoicePayment",
-    "at": "2013-12-12T20:01:09",
+    "at": "2026-12-12T20:01:09",
     "debit": 73834,
     "credit": 73834,
     "postings": [
@@ -3716,7 +3716,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 128,
     "kind": "invoicePayment",
-    "at": "2013-12-16T20:01:52",
+    "at": "2026-12-16T20:01:52",
     "debit": 60000,
     "credit": 60000,
     "postings": [
@@ -3737,7 +3737,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 129,
     "kind": "invoicePayment",
-    "at": "2013-12-20T20:02:22",
+    "at": "2026-12-20T20:02:22",
     "debit": 53293,
     "credit": 53293,
     "postings": [
@@ -3758,7 +3758,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 130,
     "kind": "invoice",
-    "at": "2013-12-26T18:08:00",
+    "at": "2026-12-26T18:08:00",
     "debit": 155314,
     "credit": 155314,
     "postings": [
@@ -3785,7 +3785,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 131,
     "kind": "generic",
-    "at": "2013-12-27T23:22:46",
+    "at": "2026-12-27T23:22:46",
     "debit": 213149,
     "credit": 213149,
     "postings": [
@@ -3806,7 +3806,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 132,
     "kind": "generic",
-    "at": "2013-12-27T23:41:16",
+    "at": "2026-12-27T23:41:16",
     "debit": 1226,
     "credit": 1226,
     "postings": [
@@ -3827,7 +3827,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 133,
     "kind": "generic",
-    "at": "2013-12-28T22:10:15",
+    "at": "2026-12-28T22:10:15",
     "debit": 27705,
     "credit": 27705,
     "postings": [
@@ -3950,7 +3950,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 134,
     "kind": "generic",
-    "at": "2013-12-28T22:33:10",
+    "at": "2026-12-28T22:33:10",
     "debit": 8799,
     "credit": 8799,
     "postings": [
@@ -4067,7 +4067,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 135,
     "kind": "generic",
-    "at": "2013-12-28T22:36:55",
+    "at": "2026-12-28T22:36:55",
     "debit": 11232,
     "credit": 11232,
     "postings": [
@@ -4094,7 +4094,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 136,
     "kind": "invoice",
-    "at": "2013-12-30T15:04:52",
+    "at": "2026-12-30T15:04:52",
     "debit": 202909,
     "credit": 202909,
     "postings": [
@@ -4121,7 +4121,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 137,
     "kind": "invoicePayment",
-    "at": "2013-12-30T20:06:42",
+    "at": "2026-12-30T20:06:42",
     "debit": 129428,
     "credit": 129428,
     "postings": [
@@ -4142,7 +4142,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 138,
     "kind": "invoice",
-    "at": "2014-01-10T12:59:57",
+    "at": "2027-01-10T12:59:57",
     "debit": 74398,
     "credit": 74398,
     "postings": [
@@ -4169,7 +4169,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 139,
     "kind": "invoice",
-    "at": "2014-01-10T13:03:29",
+    "at": "2027-01-10T13:03:29",
     "debit": 110000,
     "credit": 110000,
     "postings": [
@@ -4196,7 +4196,7 @@ export const POZZETTO_2013_JOURNAL: JournalOracleEntry[] = [
   {
     "number": 140,
     "kind": "closingBalances",
-    "at": "2014-01-11T10:42:06",
+    "at": "2027-01-11T10:42:06",
     "debit": 315181,
     "credit": 315181,
     "postings": [

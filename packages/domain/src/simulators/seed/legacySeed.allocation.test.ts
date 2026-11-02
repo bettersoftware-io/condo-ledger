@@ -105,8 +105,8 @@ describe("the seed's allocation data: Pozzetto 2013 (p36)", () => {
 
   it("gives r166 and r167 (A04) their own dates either side of the owner change, and no other owner of p36 any", () => {
     const own = new Map([
-      ["r166", { from: "2013-01-19", to: null }],
-      ["r167", { from: null, to: "2013-01-18" }],
+      ["r166", { from: "2026-01-19", to: null }],
+      ["r167", { from: null, to: "2026-01-18" }],
     ]);
 
     expect(

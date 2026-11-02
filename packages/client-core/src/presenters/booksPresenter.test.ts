@@ -66,8 +66,8 @@ describe("the books presenter", () => {
       }),
     ).toEqual(["1004:la166", "1019:la167", "1020:la168", "1040:la165"]);
     expect(latest()?.period).toEqual({
-      start: "2013-01-01",
-      end: "2013-12-31",
+      start: "2026-01-01",
+      end: "2026-12-31",
     });
 
     selected$.next({ buildingId: "c1", periodId: "p1" });
@@ -85,8 +85,8 @@ describe("the books presenter", () => {
       "la23",
     ]);
     expect(latest()?.period).toEqual({
-      start: "2011-01-01",
-      end: "2011-12-31",
+      start: "2023-01-01",
+      end: "2023-12-31",
     });
   });
 

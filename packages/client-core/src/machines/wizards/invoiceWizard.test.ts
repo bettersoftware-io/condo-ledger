@@ -40,7 +40,7 @@ describe("the New invoice wizard", () => {
         supplierId: null,
         number: "",
         reason: "",
-        date: "31/12/2013",
+        date: "31/12/2026",
         dueDate: "",
         costAccountId: null,
         taxable: "",
@@ -61,7 +61,7 @@ describe("the New invoice wizard", () => {
         paid: 0,
         duplicate: false,
         nonTaxableShown: false,
-        date: "2013-12-31",
+        date: "2026-12-31",
         dueDate: null,
       },
       preview: [],
@@ -74,7 +74,7 @@ describe("the New invoice wizard", () => {
     machine.intents.edit({ date: "23/4", dueDate: "5/6/2014" });
 
     expect(machine.state$.getValue().summary).toMatchObject({
-      date: "2013-04-23",
+      date: "2026-04-23",
       dueDate: "2014-06-05",
     });
 
@@ -244,24 +244,24 @@ describe("the New invoice wizard", () => {
   });
 
   it("with a clock inside the period, the date starts at today", () => {
-    const { machine } = createWizard(fixedClock("2013-05-10T08:00:00Z"));
+    const { machine } = createWizard(fixedClock("2026-05-10T08:00:00Z"));
 
-    expect(machine.state$.getValue().form.date).toBe("10/05/2013");
+    expect(machine.state$.getValue().form.date).toBe("10/05/2026");
   });
 
   it("the period's first and last days are inside it; the day before is not", () => {
     expect(
-      createWizard(fixedClock("2013-01-01T08:00:00Z")).machine.state$.getValue()
+      createWizard(fixedClock("2026-01-01T08:00:00Z")).machine.state$.getValue()
         .form.date,
-    ).toBe("01/01/2013");
+    ).toBe("01/01/2026");
     expect(
-      createWizard(fixedClock("2013-12-31T08:00:00Z")).machine.state$.getValue()
+      createWizard(fixedClock("2026-12-31T08:00:00Z")).machine.state$.getValue()
         .form.date,
-    ).toBe("31/12/2013");
+    ).toBe("31/12/2026");
     expect(
-      createWizard(fixedClock("2012-12-31T08:00:00Z")).machine.state$.getValue()
+      createWizard(fixedClock("2025-12-31T08:00:00Z")).machine.state$.getValue()
         .form.date,
-    ).toBe("31/12/2013");
+    ).toBe("31/12/2026");
   });
 
   it("taxable 2,588.05 with code 1019 is due 3,002.14 to the supplier, read as M2a's amounts are (Review Focus 1)", () => {
@@ -632,7 +632,7 @@ describe("the New invoice wizard", () => {
       supplierId: "md78",
       number: "4001",
       date: "23/4",
-      dueDate: "23/5/2013",
+      dueDate: "23/5/2026",
       taxable: "2,588.05",
     });
 
@@ -645,7 +645,7 @@ describe("the New invoice wizard", () => {
 
     expect(currentEntry(harness, id)).toMatchObject({
       number: 141,
-      at: "2026-10-14T10:00:00",
+      at: "2027-10-14T10:00:00",
       kind: "invoice",
       description: `Invoice 4001 — ${supplierName(harness, "md78")}: Elevator inspection`,
     });
@@ -660,8 +660,8 @@ describe("the New invoice wizard", () => {
     expect(invoice).toMatchObject({
       supplierId: "md78",
       number: "4001",
-      date: "2013-04-23",
-      dueDate: "2013-05-23",
+      date: "2026-04-23",
+      dueDate: "2026-05-23",
       costAccountId: "la219",
       taxable: 258805,
       socialSecurityRate: 0,
@@ -682,8 +682,8 @@ describe("the New invoice wizard", () => {
 
     track(edit);
     expect(edit.state$.getValue().form).toMatchObject({
-      date: "23/04/2013",
-      dueDate: "23/05/2013",
+      date: "23/04/2026",
+      dueDate: "23/05/2026",
       taxable: "2588.05",
     });
   });
@@ -725,7 +725,7 @@ describe("the New invoice wizard", () => {
     const machine = createInvoiceWizard(
       createAmountTexts(),
       null,
-      fixedClock("2013-05-10T08:00:00Z"),
+      fixedClock("2026-05-10T08:00:00Z"),
       () => {
         return Promise.resolve(accepted({ id: "never" }));
       },
@@ -756,7 +756,7 @@ describe("editing an invoice", () => {
         supplierId: "md76",
         number: "74",
         reason: invoice.reason,
-        date: "01/04/2013",
+        date: "01/04/2026",
         dueDate: "",
         costAccountId: "la174",
         taxable: "397.80",

@@ -22,6 +22,7 @@ import {
 } from "#/oracle/designJournal.ts";
 import { designOraclePath, parseDesignOracle } from "#/oracle/designOracle.ts";
 import { buildLabelMap } from "#/oracle/labelMap.ts";
+import { SEED_YEAR_SHIFT } from "#/shift/shiftSeed.ts";
 
 describe.skipIf(!journalOracleAvailable())(
   journalSuiteName(
@@ -160,12 +161,16 @@ function rowOf(path: string, labels: Map<string, string>): string | undefined {
   return undefined;
 }
 
-/** `2013-01-10T11:09:43` → `10/01/2013 11:09`, as the export prints a stamp. */
+/**
+ * `2026-01-10T11:09:43` → `10/01/2013 11:09`: as the export prints a stamp,
+ * moved back to the dump's own year (Pozzetto's dates are moved forward the
+ * whole `SEED_YEAR_SHIFT` years: its 2013 and 2026 are both 365 days long).
+ */
 function stampOf(at: string): string {
   const [date = "", time = ""] = at.split("T");
-  const [year, month, day] = date.split("-");
+  const [year = "", month, day] = date.split("-");
 
-  return `${day}/${month}/${year} ${time.slice(0, 5)}`;
+  return `${day}/${month}/${String(Number(year) - SEED_YEAR_SHIFT)} ${time.slice(0, 5)}`;
 }
 
 function expectSame(
