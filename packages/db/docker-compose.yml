@@ -1,11 +1,15 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     environment:
       POSTGRES_USER: condo
       POSTGRES_PASSWORD: condo
       POSTGRES_DB: condo
     ports: ["5432:5432"]
-    volumes: ["condo_pg:/var/lib/postgresql/data"]
+    # From 18 the image keeps its data in a folder named for the major version
+    # (/var/lib/postgresql/18/docker), so the volume holds /var/lib/postgresql.
+    # A new name: the old condo_pg volume holds Postgres 16 files, which 18
+    # cannot open. Its data is rebuilt from the dumps with `pnpm rebuild`.
+    volumes: ["condo_pg18:/var/lib/postgresql"]
 volumes:
-  condo_pg:
+  condo_pg18:
