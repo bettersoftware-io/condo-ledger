@@ -1,7 +1,7 @@
-# `@cl/db` — Legacy MySQL → PostgreSQL 16 migration (Module 0)
+# `@cl/db` — Legacy MySQL → PostgreSQL 18 migration (Module 0)
 
 This package migrates the legacy **`it-jtime-condominium`** MySQL database to
-**PostgreSQL 16**. It is **Module 0** of the larger condo-ledger project: a
+**PostgreSQL 18**. It is **Module 0** of the larger condo-ledger project: a
 structural migration only — it stands up the schema and loads the two sample
 condominiums, with no backend, no auth, and no behavioral logic (those come in
 later modules).
@@ -20,9 +20,11 @@ How it fits together:
 
 ## Prerequisites & setup
 
-- **PostgreSQL 16.** Either start the bundled one with `pnpm db:up` (see the
-  shipped `docker-compose.yml` → `postgres:16` on `localhost:5432`), or point at
-  an existing Postgres.
+- **PostgreSQL 18.** Either start the bundled one with `pnpm db:up` (see the
+  shipped `docker-compose.yml` → `postgres:18` on `localhost:5432`), or point at
+  an existing Postgres. A volume left by the earlier Postgres 16 container
+  (`condo_pg`) is not opened by 18: the compose file uses a new one, and
+  `pnpm rebuild` fills it from the dumps.
 - **`.env`** with `DATABASE_URL`. Copy the example and adjust:
 
   ```sh
@@ -41,7 +43,7 @@ How it fits together:
 
 | Script          | What it does                                                            |
 | --------------- | ----------------------------------------------------------------------- |
-| `pnpm db:up`    | Start the bundled Postgres 16 via Docker Compose.                       |
+| `pnpm db:up`    | Start the bundled Postgres 18 via Docker Compose.                       |
 | `pnpm migrate`  | Apply the generated migrations to the DB (`drizzle-kit migrate`).       |
 | `pnpm seed`     | Run the ETL: parse the legacy dumps and load tiers A → B → C.           |
 | `pnpm generate` | Regenerate migrations from the authored schema (`drizzle-kit generate`).|
