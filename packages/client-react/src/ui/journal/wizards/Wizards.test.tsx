@@ -36,7 +36,7 @@ describe("the journal wizards", () => {
     expect(page.entryLabels()).toHaveLength(10);
     expect(page.isSelected("Direct cash purchase")).toBe(true);
     expect(page.rowTexts()[9]).toEqual([
-      "14/10/2026 10:00",
+      "14/10/2027 10:00",
       "10",
       "Direct cash purchase",
       "23.50",
@@ -72,7 +72,7 @@ describe("the journal wizards", () => {
 
     expect(await page.ledgerOf(["Spese generali", "Ascensore"])).toContainEqual(
       [
-        "14/10/2026 10:00",
+        "14/10/2027 10:00",
         "10",
         "Direct purchase via bank account",
         "Total › Costs › Spese generali › Ascensore",
@@ -1106,7 +1106,7 @@ describe("the Record owner collection wizard", () => {
       "Record Owner Collection — Step 1: Choose an owner",
     );
     expect(wizard.contextLine()).toBe(
-      "Building / Period: Pozzetto (Piazza Libertà, 74, 33045 Nimis) / 2013",
+      "Building / Period: Pozzetto (Piazza Libertà, 74, 33045 Nimis) / 2026",
     );
     expect(wizard.owners()).toHaveLength(19);
 
@@ -1128,24 +1128,24 @@ describe("the Record owner collection wizard", () => {
       "The amount is allocated against the owner's outstanding installments, oldest first.",
     );
     expect(wizard.settlement()).toEqual([
-      ["Installment 9", "A01", "20/09/2013", "134.98", "134.98"],
-      ["Installment 10", "A01", "20/10/2013", "134.98", "134.98"],
-      ["Installment 11", "A01", "20/11/2013", "134.98", "134.98"],
-      ["Installment 12", "A01", "20/12/2013", "134.98", "134.98"],
+      ["Installment 9", "A01", "20/09/2026", "134.98", "134.98"],
+      ["Installment 10", "A01", "20/10/2026", "134.98", "134.98"],
+      ["Installment 11", "A01", "20/11/2026", "134.98", "134.98"],
+      ["Installment 12", "A01", "20/12/2026", "134.98", "134.98"],
     ]);
     expect(wizard.partialRows()).toEqual([]);
 
     await wizard.fill("Amount collected", "200");
 
     expect(wizard.settlement()).toEqual([
-      ["Installment 9", "A01", "20/09/2013", "134.98", "134.98"],
-      ["Installment 10", "A01", "20/10/2013", "134.98", "65.02"],
+      ["Installment 9", "A01", "20/09/2026", "134.98", "134.98"],
+      ["Installment 10", "A01", "20/10/2026", "134.98", "65.02"],
     ]);
     expect(wizard.partialRows()).toEqual([1]);
 
     await wizard.next();
 
-    const description = `Collection of installments from ${name}: Installment 9 (20/09/2013), Installment 10 (20/10/2013)`;
+    const description = `Collection of installments from ${name}: Installment 9 (20/09/2026), Installment 10 (20/10/2026)`;
 
     expect(wizard.title()).toBe(
       "Record Owner Collection — Step 3: Description",
@@ -1236,7 +1236,7 @@ describe("the Record owner collection wizard", () => {
     await page.collectElsewhere("r162", ["ii763"], 13498);
     await wizard.save();
 
-    const description = `Collection of installments from ${name}: Installment 10 (20/10/2013), Installment 11 (20/11/2013)`;
+    const description = `Collection of installments from ${name}: Installment 10 (20/10/2026), Installment 11 (20/11/2026)`;
 
     expect(page.dialogOpen()).toBe(true);
     expect(wizard.message()).toBe(
@@ -1295,8 +1295,8 @@ describe("the Record owner collection wizard", () => {
     expect(wizard.hasBack()).toBe(false);
     expect(wizard.fieldValue("Amount collected")).toBe("1000.00");
     expect(wizard.settlement()).toEqual([
-      ["Installment 1", "A4", "15/03/2011", "961.14", "926.84"],
-      ["Installment 1", "B4", "15/03/2011", "74.02", "73.16"],
+      ["Installment 1", "A4", "15/03/2023", "961.14", "926.84"],
+      ["Installment 1", "B4", "15/03/2023", "74.02", "73.16"],
     ]);
     expect(wizard.partialRows()).toEqual([0, 1]);
 

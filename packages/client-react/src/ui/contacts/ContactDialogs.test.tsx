@@ -67,7 +67,7 @@ describe("the person and company dialogs", () => {
     await page.dialog.fill("Last name", "Zzyzx");
     await page.dialog.fill("Birth date", "1/2");
 
-    expect(page.form.birthDateRead()).toBe("01/02/2026");
+    expect(page.form.birthDateRead()).toBe("01/02/2027");
 
     await page.dialog.fill("Birth date", "31/02/1980");
 

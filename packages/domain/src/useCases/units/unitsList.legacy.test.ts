@@ -59,8 +59,8 @@ describe("the Units grid of Saturno 2011 (p1)", () => {
   });
 
   it.each([
-    ["A2", "27/05/2011 - end of FY"],
-    ["A3", "start of FY - 27/05/2011"],
+    ["A2", "27/05/2023 - end of FY"],
+    ["A3", "start of FY - 27/05/2023"],
   ])("writes %s's own restricted period, %s", (code, restriction) => {
     expect(rowNamed("p1", code).restriction).toBe(restriction);
   });
@@ -133,7 +133,7 @@ const SATURNO_ROWS: [string, Money][] = [
 ];
 
 function listOf(periodId: string): UnitsList {
-  return unitsListOf(createSeedUnitsBooks(periodId), "2026-10-30");
+  return unitsListOf(createSeedUnitsBooks(periodId), "2027-10-30");
 }
 
 function moneyOf(row: UnitsRow): Money {
@@ -143,7 +143,7 @@ function moneyOf(row: UnitsRow): Money {
 /** "root", "group {code}", "{unit code}", or "{unit code} {role}" for one of a unit's residents. */
 function rowNamed(periodId: string, name: string): UnitsRow {
   const books = createSeedUnitsBooks(periodId);
-  const { root } = unitsListOf(books, "2026-10-30");
+  const { root } = unitsListOf(books, "2027-10-30");
 
   if (name === "root") {
     return root;

@@ -173,14 +173,14 @@ describe("the building data presenter", () => {
         ...createPeriodDraft(),
         name: "2013 bis",
         closed: true,
-        end: "2013-06-30",
+        end: "2026-06-30",
       }),
     ).toEqual({ ok: true });
 
     expect(rowOf(view(), "p36")).toMatchObject({
       label: "2013 bis (Ordinary)",
       closed: true,
-      dates: "01/01/2013 - 30/06/2013",
+      dates: "01/01/2026 - 30/06/2026",
       figures,
     });
     expect(
@@ -197,7 +197,7 @@ describe("the building data presenter", () => {
     expect(
       await buildingData.editPeriod("p36", {
         ...createPeriodDraft(),
-        start: "2013-01-19",
+        start: "2026-01-19",
       }),
     ).toEqual({
       ok: false,
@@ -207,7 +207,7 @@ describe("the building data presenter", () => {
     expect(
       await buildingData.editPeriod("p36", {
         ...createPeriodDraft(),
-        end: "2013-01-18",
+        end: "2026-01-18",
       }),
     ).toEqual({
       ok: false,
@@ -238,7 +238,7 @@ describe("the building data presenter", () => {
 
     expect(view().building).toMatchObject({
       name: "Saturno Nord",
-      modifiedOn: "2026-10-14 10:00:00",
+      modifiedOn: "2027-10-14 10:00:00",
     });
 
     stop();
@@ -254,7 +254,7 @@ describe("the building data presenter", () => {
       context.units.find((unit) => {
         return unit.code === "A1";
       })?.restriction,
-    ).toEqual({ from: "2011-05-01", to: "2011-05-31" });
+    ).toEqual({ from: "2023-05-01", to: "2023-05-31" });
     expect(context.residents.length).toBeGreaterThan(0);
     expect(() => {
       return buildingData.periodContext("p999");
@@ -339,11 +339,11 @@ function childKeys(row: BuildingRow): string[] {
 /** Pozzetto 2013 as the seed has it. */
 function createPeriodDraft(): PeriodDraft {
   return {
-    name: "2013",
+    name: "2026",
     type: "ordinary",
     closed: false,
-    start: "2013-01-01",
-    end: "2013-12-31",
+    start: "2026-01-01",
+    end: "2026-12-31",
     notes: null,
   };
 }

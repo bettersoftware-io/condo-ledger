@@ -21,6 +21,20 @@ string with neither stops the generator, naming the field and the record. The
 dump stays Italian, and so do these specs, which read the projection before it
 is translated.
 
+Last, the seed's dates are moved forward, at most `SEED_YEAR_SHIFT` years (13,
+in `src/shift/`), so the latest period, Pozzetto 2013, falls in 2026 and the
+app's books sit around today. Each building moves the most years that keep its
+periods' years as long as they were, since the books split a year by its days:
+Pozzetto moves 13 years, Saturno 12 (to 2023, not the leap year 2024). Entry
+stamps, invoice and due dates, period dates and names, record stamps and the
+years written in descriptions and reasons all move; birth and construction
+dates do not. These specs read the projection
+before the shift, so they compare the dump's own dates. The fixtures
+`gen:oracle-fixture` writes come from the shifted seed, and
+`journalFixture.test.ts` moves their stamps back before it compares them with
+the design's export. Move the number when the year turns, then run
+`gen:data` and `gen:oracle-fixture` again.
+
 ## What these tests actually exercise
 
 **The offline generator's projection layer** (`packages/legacy-import/src/`) — *not* the app

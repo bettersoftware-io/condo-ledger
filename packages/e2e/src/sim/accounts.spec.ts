@@ -12,7 +12,7 @@ test.describe("the chart of accounts, on the simulator", () => {
       .toEqual([
         "Buildings",
         "Saturno",
-        "2011 (Ordinary)",
+        "2023 (Ordinary)",
         "Accounts, Ledgers & Balance",
       ]);
     await expect.poll(accounts.total).toEqual({
@@ -32,7 +32,7 @@ test.describe("the chart of accounts, on the simulator", () => {
 
     const first = await accounts.total();
 
-    await shell.selectManagement("2013 (Ordinary)");
+    await shell.selectManagement("2026 (Ordinary)");
 
     await expect.poll(shell.breadcrumb).toContain("Pozzetto");
     await expect.poll(accounts.total).not.toEqual(first);

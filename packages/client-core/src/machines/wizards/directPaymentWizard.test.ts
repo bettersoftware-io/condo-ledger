@@ -279,7 +279,7 @@ describe("editing a direct payment", () => {
     expect(currentBooks(harness).entries).toHaveLength(before);
     expect(currentEntry(harness, "tx8")).toMatchObject({
       number: 8,
-      at: "2011-04-11T16:15:36",
+      at: "2023-04-11T16:15:36",
       kind: "directPaymentCash",
     });
   });

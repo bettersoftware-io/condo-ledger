@@ -22,7 +22,7 @@ describe("the seed's installments", () => {
       }),
     ).toEqual(
       Array.from({ length: 12 }, (_, index) => {
-        return [index + 1, `2013-${String(index + 1).padStart(2, "0")}-20`];
+        return [index + 1, `2026-${String(index + 1).padStart(2, "0")}-20`];
       }),
     );
   });
@@ -47,9 +47,9 @@ describe("the seed's installments", () => {
         return [installment.number, installment.dueDate];
       }),
     ).toEqual([
-      [1, "2011-03-15"],
-      [2, "2011-07-15"],
-      [3, "2011-12-15"],
+      [1, "2023-03-15"],
+      [2, "2023-07-15"],
+      [3, "2023-12-15"],
     ]);
   });
 

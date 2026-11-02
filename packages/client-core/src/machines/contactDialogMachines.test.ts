@@ -240,7 +240,7 @@ describe("the contact dialog", () => {
     expect(machine.state$.getValue().bornOn).toBeNull();
 
     machine.intents.edit({ birthDate: "1/2" });
-    expect(machine.state$.getValue().bornOn).toBe("2026-02-01");
+    expect(machine.state$.getValue().bornOn).toBe("2027-02-01");
 
     machine.intents.edit({ birthDate: "31/02/1980" });
     expect(machine.state$.getValue().bornOn).toBeNull();
@@ -262,7 +262,7 @@ describe("the contact dialog", () => {
     await machine.intents.save();
 
     expect(await contactIn(ports.contacts, "md10")).toMatchObject({
-      birthDate: "2026-02-01",
+      birthDate: "2027-02-01",
     });
   });
 

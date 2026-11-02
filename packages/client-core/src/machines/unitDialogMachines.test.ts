@@ -622,8 +622,8 @@ describe("the dialogs the application builds", () => {
     const owner = track(app.machines.createOwnerDialog(null));
 
     expect(owner.state$.getValue().unitDates).toEqual({
-      start: "2011-05-01",
-      end: "2011-05-31",
+      start: "2023-05-01",
+      end: "2023-05-31",
     });
     owner.intents.edit({ contactId: "md6", start: "1/6", end: "31/12" });
     expect(owner.state$.getValue().verdict).toEqual({

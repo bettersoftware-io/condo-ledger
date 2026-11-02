@@ -24,7 +24,7 @@ describe("unitsListOf on the seed", () => {
       kind: "root",
       label: books.buildingLabel,
       icon: "building",
-      restriction: "01/01/2011 - 31/12/2011",
+      restriction: "01/01/2023 - 31/12/2023",
       unitId: null,
       residentId: null,
       groupId: null,
@@ -75,7 +75,7 @@ describe("unitsListOf on the seed", () => {
       interior: "1",
       subUnit: "",
       type: "shop",
-      restriction: "01/05/2011 - 31/05/2011",
+      restriction: "01/05/2023 - 31/05/2023",
       children: [],
     });
   });
@@ -115,7 +115,7 @@ describe("unitsListOf on the seed", () => {
         `${r167.name} (PR 100%)`,
         "owner",
         "u137",
-        "start of FY - 18/01/2013",
+        "start of FY - 18/01/2026",
         null,
       ],
       [
@@ -124,7 +124,7 @@ describe("unitsListOf on the seed", () => {
         `${r166.name} (PR 100%)`,
         "owner",
         "u137",
-        "19/01/2013 - end of FY",
+        "19/01/2026 - end of FY",
         null,
       ],
     ]);
@@ -162,16 +162,16 @@ describe("unitsListOf on the seed", () => {
     const owner = residentNamed(books, "r5");
     const leaving: OwnerParty = {
       ...owner,
-      restriction: { from: null, to: "2011-06-30" },
-      ownRestriction: { from: null, to: "2011-06-30" },
+      restriction: { from: null, to: "2023-06-30" },
+      ownRestriction: { from: null, to: "2023-06-30" },
     };
 
     const arriving: OwnerParty = {
       ...owner,
       id: "r-new-1",
       startingBalance: cents(0),
-      restriction: { from: "2011-07-01", to: null },
-      ownRestriction: { from: "2011-07-01", to: null },
+      restriction: { from: "2023-07-01", to: null },
+      ownRestriction: { from: "2023-07-01", to: null },
     };
     const before = rowWithKey(unitsListOf(books, TODAY).root, "unit:u4");
     const after = rowWithKey(
@@ -301,7 +301,7 @@ describe("unitsListOf", () => {
   });
 });
 
-const TODAY = "2026-10-30";
+const TODAY = "2027-10-30";
 
 function rowWithKey(root: UnitsRow, key: string): UnitsRow {
   return must(

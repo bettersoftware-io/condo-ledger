@@ -13,16 +13,16 @@ describe("InstallmentDialog", () => {
     expect(dialog.title()).toBe("Edit Installment");
     expect(dialog.requiredUnannounced()).toEqual([]);
     expect(dialog.fieldValue("Name")).toBe("Installment 3");
-    expect(dialog.fieldValue("Due date")).toBe("20/03/2013");
+    expect(dialog.fieldValue("Due date")).toBe("20/03/2026");
     expect(dialog.isLocked()).toBe(false);
 
     await dialog.fill("Name", "Rata tre");
-    await dialog.fill("Due date", "25/03/2013");
+    await dialog.fill("Due date", "25/03/2026");
     await dialog.save();
 
     expect(dialog.isShown()).toBe(false);
-    expect(page.grid.headers()).toContain("3 25/03/2013");
-    expect(page.grid.headers()).not.toContain("3 20/03/2013");
+    expect(page.grid.headers()).toContain("3 25/03/2026");
+    expect(page.grid.headers()).not.toContain("3 20/03/2026");
 
     await page.toolbar.clickTool("Edit installments");
 
@@ -47,7 +47,7 @@ describe("InstallmentDialog", () => {
     expect(dialog.message()).toBe("An installment needs a name.");
 
     await dialog.fill("Name", "Installment 3");
-    await dialog.fill("Due date", "31/02/2013");
+    await dialog.fill("Due date", "31/02/2026");
 
     expect(dialog.message()).toBe("Enter a due date as day/month/year.");
     expect(dialog.isSaveDisabled()).toBe(true);
@@ -70,7 +70,7 @@ describe("InstallmentDialog", () => {
     await dialog.save();
 
     expect(dialog.isShown()).toBe(false);
-    expect(page.grid.headers()[7]).toBe("1 15/03/2011");
+    expect(page.grid.headers()[7]).toBe("1 15/03/2023");
 
     await page.toolbar.clickTool("Edit installments");
 
@@ -122,11 +122,11 @@ describe("InstallmentDialog", () => {
     const page = mountInstallmentSchedule("p36");
     const dialog = await openEdit(page, "Installment 3");
 
-    await dialog.fill("Due date", "25/03/2013");
+    await dialog.fill("Due date", "25/03/2026");
     await dialog.cancel();
 
     expect(dialog.isShown()).toBe(false);
-    expect(page.grid.headers()).toContain("3 20/03/2013");
+    expect(page.grid.headers()).toContain("3 20/03/2026");
   });
 });
 

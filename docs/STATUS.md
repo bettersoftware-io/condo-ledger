@@ -12,7 +12,7 @@ One bullet for each entry: its name in bold, what is left, and a link to its
 plan when it has one. `AGENTS.md` says when an entry is added, moved and
 removed.
 
-**Last updated: 2026-11-01**
+**Last updated: 2026-11-02**
 
 ## In progress
 
@@ -161,6 +161,12 @@ A step or a decision an agent cannot take.
 
 ## Known limits
 
+- **The seed's dates are moved a fixed number of years.** The generator moves
+  every date of the books forward, at most `SEED_YEAR_SHIFT` (13) years
+  (`packages/legacy-import/src/shift/shiftSeed.ts`), so Pozzetto's period
+  falls in 2026 (Saturno's in 2023: it moves 12, keeping its year's length). From 2027 the latest period is a year behind until someone
+  moves the number and runs `gen:data` and `gen:oracle-fixture` again; the
+  screenshots and the tests that name a seeded date move with it.
 - **Contacts with no use in the seed show no building and can be deleted in
   the simulator.** The seed holds the supplier links of the two seeded
   buildings only, so a contact of the nine unseeded buildings with no use in

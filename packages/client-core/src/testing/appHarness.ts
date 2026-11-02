@@ -21,8 +21,8 @@ export interface AppHarness {
   seed: LegacySeed;
 }
 
-/** The harness's clock: a fixed moment, so a stamp is the same in every test and golden. romeTime writes it as 2026-10-14T10:00:00. */
-const HARNESS_CLOCK: ClockPort = fixedClock("2026-10-14T08:00:00Z");
+/** The harness's clock: a fixed moment, so a stamp is the same in every test and golden. romeTime writes it as 2027-10-14T10:00:00. */
+const HARNESS_CLOCK: ClockPort = fixedClock("2027-10-14T08:00:00Z");
 
 /**
  * The real application on the simulators, over the real seed unless a test

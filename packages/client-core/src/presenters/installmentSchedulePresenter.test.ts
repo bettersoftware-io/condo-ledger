@@ -51,7 +51,7 @@ describe("the installment schedule presenter", () => {
     const { app, latest, stop } = createScheduled();
 
     expect(latest()?.root.label).toBe(
-      "Pozzetto / 2013 (Piazza Libertà, 74, 33045 Nimis)",
+      "Pozzetto / 2026 (Piazza Libertà, 74, 33045 Nimis)",
     );
 
     app.presenters.buildings.selectPeriod("p1");
@@ -128,7 +128,7 @@ describe("the installment schedule presenter", () => {
   });
 
   it("shows Overdue by the application's clock: nothing before the due dates, the balance after", () => {
-    const early = createScheduled(fixedClock("2012-12-01T10:00:00Z"));
+    const early = createScheduled(fixedClock("2025-12-01T10:00:00Z"));
     const late = createScheduled();
 
     expect(early.latest()?.root.overdue).toBe(0);

@@ -288,7 +288,7 @@ describe("the dialogs the application builds", () => {
       }),
     ).toMatchObject({
       name: "Saturno Nord",
-      modifiedOn: "2026-10-14 10:00:00",
+      modifiedOn: "2027-10-14 10:00:00",
     });
     expect(() => {
       return app.machines.createBuildingDialog("c999");
@@ -299,7 +299,7 @@ describe("the dialogs the application builds", () => {
     const { app } = createAppHarness();
     const machine = track(app.machines.createPeriodDialog("p1"));
 
-    machine.intents.edit({ start: "01/06/2011" });
+    machine.intents.edit({ start: "01/06/2023" });
 
     const refusal = { ok: false, reason: "period-excludes", detail: "A1" };
 
@@ -312,8 +312,8 @@ describe("the dialogs the application builds", () => {
     const { residents } = app.presenters.buildingData.periodContext("p36");
 
     for (const { patch, residentId } of [
-      { patch: { start: "19/01/2013" }, residentId: "r167" },
-      { patch: { end: "18/01/2013" }, residentId: "r166" },
+      { patch: { start: "19/01/2026" }, residentId: "r167" },
+      { patch: { end: "18/01/2026" }, residentId: "r166" },
     ]) {
       const machine = track(app.machines.createPeriodDialog("p36"));
       const refusal = {

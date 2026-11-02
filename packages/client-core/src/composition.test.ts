@@ -67,7 +67,7 @@ describe("the application", () => {
     expect(entries.at(-1)).toMatchObject({
       id: "new1",
       number: 10,
-      at: "2026-10-14T10:00:00",
+      at: "2027-10-14T10:00:00",
     });
 
     subscription.unsubscribe();
@@ -287,7 +287,7 @@ describe("the simulator ports over the real seed", () => {
     expect(
       await installments.createInstallments("p36", {
         installments: [
-          { name: "Extra", dueDate: "2013-12-15", percentage: 10000 },
+          { name: "Extra", dueDate: "2026-12-15", percentage: 10000 },
         ],
         wholeEuros: false,
       }),
@@ -344,7 +344,7 @@ describe("the simulator ports' buildings and contacts", () => {
     expect(
       await buildings.editPeriod("p1", {
         ...(await draftOfPeriod(buildings, "p1")),
-        start: "2011-06-01",
+        start: "2023-06-01",
       }),
     ).toEqual({ ok: false, reason: "period-excludes", detail: "A1" });
   });
@@ -371,12 +371,12 @@ describe("the simulator ports' buildings and contacts", () => {
     const { buildings, units } = createRealPorts();
     const draft = await draftOfPeriod(buildings, "p36");
     expect(
-      await buildings.editPeriod("p36", { ...draft, end: "2013-06-30" }),
+      await buildings.editPeriod("p36", { ...draft, end: "2026-06-30" }),
     ).toEqual({ ok: true });
     expect(
       await units.addUnit("p36", null, {
         ...createUnitDraft("A19"),
-        restriction: { from: "2013-01-01", to: "2013-12-31" },
+        restriction: { from: "2026-01-01", to: "2026-12-31" },
       }),
     ).toEqual({ ok: false, reason: "outside-period" });
   });

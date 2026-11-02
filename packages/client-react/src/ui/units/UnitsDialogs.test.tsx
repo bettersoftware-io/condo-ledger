@@ -71,15 +71,15 @@ describe("the Units screen's dialogs", () => {
 
     expect(page.dialog.message()).toBe("Enter a date as day/month/year");
 
-    await page.dialog.fill("Start date", "10/05/2011");
+    await page.dialog.fill("Start date", "10/05/2023");
     await page.dialog.fill("End date", "1/5");
 
     expect(page.dialog.message()).toBe("The end date is before the start date");
 
-    await page.dialog.fill("End date", "01/01/2012");
+    await page.dialog.fill("End date", "01/01/2024");
 
     expect(page.dialog.message()).toBe(
-      "The dates must lie within the period (01/01/2011 - 31/12/2011)",
+      "The dates must lie within the period (01/01/2023 - 31/12/2023)",
     );
     expect(page.dialog.isSaveDisabled()).toBe(true);
   });
@@ -93,8 +93,8 @@ describe("the Units screen's dialogs", () => {
     expect(page.dialog.fieldValue("Code")).toBe("A1");
     expect(page.dialog.fieldValue("Floor")).toBe("1");
     expect(page.dialog.chosen("Type")).toBe("Shop");
-    expect(page.dialog.fieldValue("Start date")).toBe("01/05/2011");
-    expect(page.dialog.fieldValue("End date")).toBe("31/05/2011");
+    expect(page.dialog.fieldValue("Start date")).toBe("01/05/2023");
+    expect(page.dialog.fieldValue("End date")).toBe("31/05/2023");
     expect(page.dialog.saveLabel()).toBe("✎ Save");
 
     await page.dialog.fill("Notes", "Corner shop");
@@ -296,7 +296,7 @@ describe("the Units screen's dialogs", () => {
     );
     expect(page.dialog.readOnlyValue("Co-ownership %")).toBe("100%");
     expect(page.dialog.legends()).toEqual(["RESTRICTED PERIOD"]);
-    expect(page.dialog.fieldValue("Start date")).toBe("19/01/2013");
+    expect(page.dialog.fieldValue("Start date")).toBe("19/01/2026");
     expect(page.dialog.saveLabel()).toBe("✎ Save");
     expect(page.dialog.isSaveDisabled()).toBe(false);
   });
@@ -308,7 +308,7 @@ describe("the Units screen's dialogs", () => {
     await page.units.clickTool("Edit");
 
     expect(page.dialog.title()).toBe("Edit Owner");
-    expect(page.dialog.fieldValue("End date")).toBe("18/01/2013");
+    expect(page.dialog.fieldValue("End date")).toBe("18/01/2026");
   });
 
   it("the contact picker filters by what is typed, and the owner chosen joins A3 in the grid", async () => {
@@ -345,18 +345,18 @@ describe("the Units screen's dialogs", () => {
     expect(page.dialog.contactOptions()).toEqual([]);
 
     await page.dialog.choose("Role", "Tenant (CO)");
-    await page.dialog.fill("Start date", "01/02/2012");
+    await page.dialog.fill("Start date", "01/02/2024");
 
     expect(page.dialog.message()).toBe(
-      "The dates must lie within the period (01/01/2011 - 31/12/2011)",
+      "The dates must lie within the period (01/01/2023 - 31/12/2023)",
     );
 
     await page.dialog.fill("Start date", "1/3");
-    await page.dialog.fill("End date", "31/12/2011");
+    await page.dialog.fill("End date", "31/12/2023");
 
     // A3 is there only until 27 May.
     expect(page.dialog.message()).toBe(
-      "The dates must lie within the unit's (01/01/2011 - 27/05/2011)",
+      "The dates must lie within the unit's (01/01/2023 - 27/05/2023)",
     );
 
     await page.dialog.fill("End date", "27/5");

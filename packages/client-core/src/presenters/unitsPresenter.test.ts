@@ -35,14 +35,14 @@ describe("the units presenter", () => {
     const { view, crumb, stop } = createPresented("p1");
 
     expect(view().list.root.label).toBe(
-      "Saturno / 2011 (Piazza del Duomo, 39, 33033 Codroipo)",
+      "Saturno / 2023 (Piazza del Duomo, 39, 33033 Codroipo)",
     );
     expect(view().list.unitCount).toBe(8);
     expect(view().selected?.key).toBe("unit:u1");
     expect(view().unit?.code).toBe("A1");
     expect(view().owners?.key).toBe("period:u1");
     expect(view().openingPosted).toBe(true);
-    expect(view().period).toEqual({ start: "2011-01-01", end: "2011-12-31" });
+    expect(view().period).toEqual({ start: "2023-01-01", end: "2023-12-31" });
     expect(view().resident?.id).toBe("r1");
     expect(view().group).toBeNull();
     expect(crumb()).toBe("A1");
@@ -312,7 +312,7 @@ describe("the units presenter", () => {
     expect(
       await units.editUnit("u137", {
         ...a04,
-        restriction: { from: "2013-02-01", to: null },
+        restriction: { from: "2026-02-01", to: null },
       }),
     ).toEqual({ ok: false, reason: "period-excludes", detail: name });
     expect(await units.editUnit("u137", { ...a04, floor: "9" })).toEqual({
@@ -340,7 +340,7 @@ describe("the units presenter", () => {
     expect(
       await units.addResident("u1", {
         ...createResidencyDraft("md6"),
-        ownRestriction: { from: "2011-06-01", to: "2011-12-31" },
+        ownRestriction: { from: "2023-06-01", to: "2023-12-31" },
       }),
     ).toEqual({ ok: false, reason: "outside-unit", detail: "A1" });
     expect(rowOf(view(), "unit:u1").budget).toBe(a1);

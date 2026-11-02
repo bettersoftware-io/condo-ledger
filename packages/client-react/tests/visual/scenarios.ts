@@ -1242,7 +1242,7 @@ export const scenarios: Record<string, Scenario> = {
     unitKey: "unit:u137",
     unitTab: "Unit Owners",
   },
-  // Saturno's A1 on Unit Profile: a shop let for May 2011 only, its
+  // Saturno's A1 on Unit Profile: a shop let for May 2023 only, its
   // restricted period, cadastral data and notes filled.
   "unit-profile-restricted": {
     level: "section",
@@ -1301,7 +1301,7 @@ export const scenarios: Record<string, Scenario> = {
     periodId: "p1",
     unitKey: "unit:u5",
   },
-  // Edit Owner on Pozzetto's first owner of A04 (`r167`, until 18/01/2013):
+  // Edit Owner on Pozzetto's first owner of A04 (`r167`, until 18/01/2026):
   // the opening entry is posted, so the previous balance (2697.11, as the
   // field writes it) is the journal's, locked, with the line that says where
   // to change it.
@@ -1351,7 +1351,7 @@ export const scenarios: Record<string, Scenario> = {
     height: 720,
     mode: "light",
     periodId: "p1",
-    periodForm: { start: "01/06/2011" },
+    periodForm: { start: "01/06/2023" },
   },
   // The Address dialog as Edit Building opens it on Saturno's address.
   "address-dialog": {
