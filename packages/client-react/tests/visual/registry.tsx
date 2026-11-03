@@ -5,12 +5,18 @@ import {
   useLayoutEffect,
 } from "react";
 
-import type { SettlementRow, WizardState } from "@cl/client-core";
+import type {
+  DeadlineNames,
+  SettlementRow,
+  WizardState,
+} from "@cl/client-core";
 import {
   ALL_CONTACTS,
   type AllocationMode,
   type ContactFilter,
   cents,
+  type Deadline,
+  manual,
   ok,
   type Result,
   rejected,
@@ -43,6 +49,12 @@ import { BUILDING_TABS } from "#/ui/buildingData/labels.ts";
 import { PeriodDialog } from "#/ui/buildingData/PeriodDialog.tsx";
 import { SupplierDialog } from "#/ui/buildingData/SupplierDialog.tsx";
 import { ConfirmAlert } from "#/ui/ConfirmAlert.tsx";
+import { CalendarsMenu } from "#/ui/calendar/CalendarsMenu.tsx";
+import { DayCell } from "#/ui/calendar/DayCell.tsx";
+import { DayList } from "#/ui/calendar/DayList.tsx";
+import { DeadlineDetails } from "#/ui/calendar/DeadlineDetails.tsx";
+import { DeadlineDialog } from "#/ui/calendar/DeadlineDialog.tsx";
+import { DeadlinesColumn } from "#/ui/calendar/DeadlinesColumn.tsx";
 import { CategoryDialog } from "#/ui/contacts/CategoryDialog.tsx";
 import { ConnectionDialog } from "#/ui/contacts/ConnectionDialog.tsx";
 import { ContactCategories } from "#/ui/contacts/ContactCategories.tsx";
@@ -91,7 +103,13 @@ import { UnitDialog } from "#/ui/units/UnitDialog.tsx";
 import { UnitsPanel } from "#/ui/units/UnitsPanel.tsx";
 import { UnitTabs } from "#/ui/units/UnitTabs.tsx";
 
-import type { AccountRowPicture, CellPicture, Scenario } from "./scenarios.ts";
+import type {
+  AccountRowPicture,
+  CellPicture,
+  DayCellPicture,
+  DeadlinePicture,
+  Scenario,
+} from "./scenarios.ts";
 
 // What a scenario's `mount` names: the parts of the UI that are pictured on
 // their own. This file is the project's. A new component gets an entry here,
@@ -519,7 +537,153 @@ const registry: Record<string, Entry> = {
   "contact-picker": (scenario: Scenario): ReactElement => {
     return <ContactPickerPart contactId={scenario.contactId ?? null} />;
   },
+  // Day cells side by side, from their props, as a week of the month lays
+  // them out: the scenario's today ringed, a cell's place its weekday.
+  "day-cells": (scenario: Scenario): ReactElement => {
+    const cells = required(scenario, "dayCells", scenario.dayCells);
+    const today = required(scenario, "today", scenario.today);
+
+    return (
+      <div className="month-week" style={dayRow(cells.length)}>
+        {cells.map((cell, index) => {
+          return (
+            <DayCell
+              // biome-ignore lint/suspicious/noArrayIndexKey: a picture's cells never move; two blank ones may be alike
+              key={index}
+              day={cell.day}
+              weekday={index}
+              deadlines={deadlinesOf(cell)}
+              today={today}
+              selected={cell.selected ?? false}
+              selectedId={cell.selectedId ?? null}
+              names={NAMES_UNUSED}
+              onSelectDay={ignoreClose}
+              onSelectDeadline={ignoreClose}
+            />
+          );
+        })}
+      </div>
+    );
+  },
+  // The Calendars menu, open, from its props: it hangs 31 pixels under the
+  // box its button sits in, flush with the box's left edge, over a fixed
+  // scrim, so it is pictured as a dialog is, in a viewport of its own size.
+  "calendars-menu": (scenario: Scenario): ReactElement => {
+    return (
+      <div className="calendars-filter" style={MENU_BOX}>
+        <CalendarsMenu
+          open
+          hidden={new Set(scenario.hiddenCalendars ?? [])}
+          onToggle={ignoreClose}
+          onAll={ignoreClose}
+          onNone={ignoreClose}
+          onClose={ignoreClose}
+        />
+      </div>
+    );
+  },
+  // The deadlines column's two panels' bodies, each read from the Calendar
+  // as the column reads it: the day and the deadline the seeding selects,
+  // judged against the scenario's today.
+  "day-list": (): ReactElement => {
+    return <DayListPart />;
+  },
+  "deadline-details": (): ReactElement => {
+    return <DeadlineDetailsPart />;
+  },
+  // The whole column as the shell mounts it beside the month, in a box of
+  // the height it has on the page at the full layout.
+  "deadlines-column": (): ReactElement => {
+    return (
+      <div style={COLUMN_BOX}>
+        <DeadlinesColumn maximized={false} onRestore={ignoreClose} />
+      </div>
+    );
+  },
+  // Add Deadline on the scenario's day, on Pozzetto as the Building filter
+  // would hand it, or Edit Deadline on the typed deadline the seeding
+  // selects; the seeding types the scenario's fields.
+  "deadline-dialog": (scenario: Scenario): ReactElement => {
+    return <DeadlineDialogPart scenario={scenario} />;
+  },
 };
+
+interface DeadlineDialogPartProps {
+  scenario: Scenario;
+}
+
+/** The dialog as the column opens it: Add on the day, or Edit on the selected typed deadline once the Calendar has answered. */
+function DeadlineDialogPart({
+  scenario,
+}: DeadlineDialogPartProps): ReactElement | null {
+  const { useCalendar } = useViewModel();
+  const view = useCalendar();
+  const day = required(scenario, "calendarDay", scenario.calendarDay);
+
+  if (scenario.deadlineId === undefined) {
+    return (
+      <DeadlineDialog
+        spec={{ mode: "add", day, buildingId: "c19" }}
+        onSaved={ignoreClose}
+        onCancel={ignoreClose}
+      />
+    );
+  }
+
+  const selected = view?.selected ?? null;
+
+  if (selected === null) {
+    return null;
+  }
+
+  if (selected.source !== "manual") {
+    throw new Error(
+      `Edit Deadline opens on a typed deadline, and ${selected.id} is worked out from the books`,
+    );
+  }
+
+  return (
+    <DeadlineDialog
+      spec={{ mode: "edit", deadline: selected }}
+      onSaved={ignoreClose}
+      onCancel={ignoreClose}
+    />
+  );
+}
+
+/** The selected day's deadlines as the column hands them to the list; nothing until the Calendar has answered. */
+function DayListPart(): ReactElement | null {
+  const { useCalendar } = useViewModel();
+  const view = useCalendar();
+
+  return view === null ? null : (
+    <div style={PANEL_SURFACE}>
+      <DayList
+        deadlines={view.dayDeadlines}
+        selectedId={view.selected?.id ?? null}
+        today={view.today}
+        names={view.names}
+        onSelect={ignoreClose}
+      />
+    </div>
+  );
+}
+
+/** The selected deadline as the column hands it to the details; nothing until the Calendar has answered. */
+function DeadlineDetailsPart(): ReactElement | null {
+  const { useCalendar } = useViewModel();
+  const view = useCalendar();
+
+  return view === null ? null : (
+    <div style={PANEL_SURFACE}>
+      <DeadlineDetails
+        deadline={view.selected}
+        today={view.today}
+        names={view.names}
+      />
+    </div>
+  );
+}
 
 /** Filter Contacts as the sidebar hands it its props. */
 function ContactFiltersPart(): ReactElement {
@@ -1000,6 +1164,22 @@ const ROW_TEMPLATE = { "--tree-grid-template": TEMPLATE } as CSSProperties;
 
 const POPOVER_BOX: CSSProperties = { position: "relative", margin: "0 12px" };
 
+/** The Calendars menu's box: the popover's own `.calendars-filter`, inset for its shadow. */
+const MENU_BOX: CSSProperties = { margin: "0 12px" };
+
+/** The deadlines column's box at 1280x720: the page's height less the top bar and the breadcrumb. */
+const COLUMN_BOX: CSSProperties = { display: "flex", height: 619 };
+
+/** The height of a day cell in a month of five weeks at 1280x720. */
+const DAY_HEIGHT = 96;
+
+/** A typed deadline's words need no name: its description is its own. */
+const NAMES_UNUSED: DeadlineNames = {
+  buildingName: unnamed,
+  periodName: unnamed,
+  supplierName: unnamed,
+};
+
 /** The surface of the panel a part sits on in the app: Account Details' sheet, under the mini-grid's rows and border. */
 const PANEL_SURFACE: CSSProperties = { background: "var(--panel)" };
 
@@ -1166,6 +1346,42 @@ function installmentOf(scenario: Scenario): string {
   }
 
   return scenario.installmentId;
+}
+
+/** The cells of a picture laid out as a week's: as many columns as cells, at a month's cell height. */
+function dayRow(count: number): CSSProperties {
+  return {
+    gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))`,
+    height: DAY_HEIGHT,
+  };
+}
+
+/** A cell's deadlines as the Calendar holds them: typed ones, on the cell's day. */
+function deadlinesOf(cell: DayCellPicture): Deadline[] {
+  const { day } = cell;
+
+  if (day === null) {
+    return [];
+  }
+
+  return cell.deadlines.map((picture: DeadlinePicture) => {
+    return manual({
+      id: picture.id,
+      date: day,
+      time: picture.time ?? null,
+      calendar: picture.calendar,
+      buildingId: null,
+      description: picture.description,
+      status: picture.status,
+      priority: picture.priority ?? "none",
+      notes: null,
+    });
+  });
+}
+
+/** An id is its own name: a typed deadline never asks. */
+function unnamed(id: string): string {
+  return id;
 }
 
 /** A reason in the words every wizard shares. */

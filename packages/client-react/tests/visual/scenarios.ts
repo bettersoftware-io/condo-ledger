@@ -3,6 +3,7 @@ import type {
   ConnectionDialogState,
   ContactDialogState,
   ContactRowDialogState,
+  DeadlineDialogState,
   DirectPaymentKind,
   GenericLine,
   GroupDialogState,
@@ -17,9 +18,13 @@ import type {
 import {
   type AccountNature,
   type AllocationMode,
+  type CalendarId,
   type CellStatus,
   type ContactFilter,
   cents,
+  type DeadlineDraft,
+  type DeadlinePriority,
+  type DeadlineStatus,
   type EntryKind,
   type Language,
   type NodeIcon,
@@ -53,12 +58,12 @@ export interface Scenario extends Picture {
   selectedKey?: string;
   /** The grid's open rows; the grid's own starting set when absent. */
   expanded?: string[];
-  /** Whether the sidebar is open as a drawer over the screen (compact widths). */
+  /** Whether the sidebar is open as a drawer over the screen (compact widths); on the Calendar, its deadlines column. */
   drawerOpen?: boolean;
   /** Accounts given another name, by id: a label the seed does not have. */
   renamed?: Record<string, string>;
   /** The module on screen, chosen as the person chooses it; Buildings when absent. */
-  module?: "contacts";
+  module?: "contacts" | "calendar";
   /** The Buildings menu item on screen; Accounts when absent. */
   menu?:
     | "data"
@@ -153,6 +158,38 @@ export interface Scenario extends Picture {
   connectionForm?: Partial<ConnectionDialogState["form"]>;
   /** What is typed in the Add Supplier dialog (`mount: "supplier-dialog"`, on the building of `periodId`). */
   supplierForm?: Partial<SupplierDialogState["form"]>;
+  /** Rome's today, ISO: the app's clock stands at 08:00 UTC on it. The Calendar opens on its month and judges overdue against it; for the day cells (`mount: "day-cells"`), the day ringed. The harness's own day (14 October 2027, after every seeded period) when absent. */
+  today?: string;
+  /** The day the Calendar selects, ISO, as a click on its cell selects it; today when absent. */
+  calendarDay?: string;
+  /** The deadline the Calendar selects on `calendarDay`, by id, as a click on its line selects it; the day's first when absent. */
+  deadlineId?: string;
+  /** A typed deadline added through the calendar port before the first render, as Add Deadline saves one: it takes the id after the seed's highest, `ce27`. */
+  addedDeadline?: DeadlineDraft;
+  /** The calendars hidden in the Calendars menu (`mount: "calendars-menu"`), as its props. */
+  hiddenCalendars?: CalendarId[];
+  /** Day cells side by side (`mount: "day-cells"`), each as its props, Monday first. */
+  dayCells?: DayCellPicture[];
+  /** What is typed in the deadline dialog (`mount: "deadline-dialog"`: Add Deadline on `calendarDay`, or Edit Deadline on `deadlineId`), one field at a time in the order written. */
+  deadlineForm?: Partial<DeadlineDialogState["form"]>;
+}
+
+/** A day cell as its props: its ISO day (null for a day of the months around), its deadlines in order, and whether it is the selected day, its selected deadline the one named. */
+export interface DayCellPicture {
+  day: string | null;
+  deadlines: DeadlinePicture[];
+  selected?: boolean;
+  selectedId?: string;
+}
+
+/** A typed deadline as a day cell draws it: the calendar's bar, the status, the time and the description. */
+export interface DeadlinePicture {
+  id: string;
+  calendar: CalendarId;
+  status: DeadlineStatus;
+  priority?: DeadlinePriority;
+  time?: string;
+  description: string;
 }
 
 /** A person or company dialog: a new contact of a kind, or an edit of one contact. */
@@ -353,6 +390,18 @@ const CASH_ROW: AccountRowPicture = {
  * their props or over the same period; and two sections of the Accounts
  * screen's bottom panel, each tab alone.
  */
+/** A typed deadline with a time, which no seeded one has: on 12 February 2026 at 09:30, still new. */
+const TIMED_DEADLINE: DeadlineDraft = {
+  date: "2026-02-12",
+  time: "09:30",
+  calendar: "fiscal",
+  buildingId: null,
+  description: "Withholding tax return",
+  status: "new",
+  priority: "critical",
+  notes: null,
+};
+
 /** What a locale's money column shows: 1.234.567,89 / -1.250,50 / 0,00 in it-IT. */
 const LOCALE_MONEYS: MoneyPicture[] = [
   { cents: 123456789, variant: "colored", emphasis: false },
@@ -1546,6 +1595,301 @@ export const scenarios: Record<string, Scenario> = {
     periodId: "p36",
     buildingTab: "Building Suppliers",
     supplierId: "md82",
+  },
+
+  // The Calendar. The harness's clock is after every seeded period, so each
+  // scenario names its today inside Pozzetto 2026: 14 February 2026, a
+  // Saturday, when the month holds deadlines closed, cancelled, overdue and
+  // new, and Installment 2 (20 February) is paid in full.
+
+  // The whole screen on today: the month of five weeks, today's typed
+  // deadline selected in the column, its notes wrapped, February's 12th cut
+  // to two lines and "+2 more".
+  "calendar-1280-light": {
+    width: 1280,
+    height: 720,
+    mode: "light",
+    periodId: "p36",
+    module: "calendar",
+    today: "2026-02-14",
+  },
+  // The same in the dark mode, on the 12th: its first invoice selected, so
+  // ✎ and − are disabled.
+  "calendar-1280-dark": {
+    width: 1280,
+    height: 720,
+    mode: "dark",
+    periodId: "p36",
+    module: "calendar",
+    today: "2026-02-14",
+    calendarDay: "2026-02-12",
+  },
+  // The compact layout with the deadlines column open as a drawer from the
+  // right edge, over the month, on a day with none: both panels say so, and
+  // with nothing selected ✎ and − are disabled.
+  "calendar-1100-drawer": {
+    width: 1100,
+    height: 720,
+    mode: "light",
+    periodId: "p36",
+    module: "calendar",
+    today: "2026-02-14",
+    calendarDay: "2026-02-03",
+    drawerOpen: true,
+  },
+  // A week of day cells, today the Thursday: an overdue deadline with its
+  // time, a closed one, a cancelled one, today's new one (ringed, not
+  // overdue), the Friday selected with its line selected and its description
+  // cut, the Saturday empty, and the Sunday of the next month blank.
+  "day-cells-statuses": {
+    level: "component",
+    mount: "day-cells",
+    width: 910,
+    mode: "light",
+    today: "2026-02-26",
+    dayCells: [
+      {
+        day: "2026-02-23",
+        deadlines: [
+          {
+            id: "d1",
+            calendar: "policies",
+            status: "new",
+            time: "09:30",
+            description: "Insurance policy renewal",
+          },
+        ],
+      },
+      {
+        day: "2026-02-24",
+        deadlines: [
+          {
+            id: "d2",
+            calendar: "fiscal",
+            status: "closed",
+            description: "Withholding tax payment",
+          },
+        ],
+      },
+      {
+        day: "2026-02-25",
+        deadlines: [
+          {
+            id: "d3",
+            calendar: "interventions",
+            status: "cancelled",
+            description: "Roof inspection",
+          },
+        ],
+      },
+      {
+        day: "2026-02-26",
+        deadlines: [
+          {
+            id: "d4",
+            calendar: "general",
+            status: "new",
+            time: "18:00",
+            description: "Condominium meeting",
+          },
+        ],
+      },
+      {
+        day: "2026-02-27",
+        selected: true,
+        selectedId: "d5",
+        deadlines: [
+          {
+            id: "d5",
+            calendar: "general",
+            status: "new",
+            description:
+              "Boiler service before the heating season, with the technician's report to file",
+          },
+        ],
+      },
+      { day: "2026-02-28", deadlines: [] },
+      { day: null, deadlines: [] },
+    ],
+  },
+  // Three lines fit a cell; a fourth leaves two and "+2 more".
+  "day-cells-more": {
+    level: "component",
+    mount: "day-cells",
+    width: 260,
+    mode: "light",
+    today: "2026-02-01",
+    dayCells: [
+      {
+        day: "2026-02-02",
+        deadlines: [
+          {
+            id: "d1",
+            calendar: "fiscal",
+            status: "new",
+            time: "09:00",
+            description: "VAT payment",
+          },
+          {
+            id: "d2",
+            calendar: "policies",
+            status: "new",
+            description: "Policy renewal",
+          },
+          {
+            id: "d3",
+            calendar: "general",
+            status: "new",
+            description: "Meeting notice",
+          },
+        ],
+      },
+      {
+        day: "2026-02-03",
+        deadlines: [
+          {
+            id: "d4",
+            calendar: "fiscal",
+            status: "new",
+            time: "09:00",
+            description: "VAT payment",
+          },
+          {
+            id: "d5",
+            calendar: "interventions",
+            status: "new",
+            time: "14:30",
+            description: "Lift repair",
+          },
+          {
+            id: "d6",
+            calendar: "policies",
+            status: "new",
+            description: "Policy renewal",
+          },
+          {
+            id: "d7",
+            calendar: "general",
+            status: "new",
+            description: "Meeting notice",
+          },
+        ],
+      },
+    ],
+  },
+  // The Calendars menu open with Invoices and General hidden: their boxes
+  // empty, All / None at its head. It opens with the focus on its first
+  // item, All, which the page, never touched by a pointer, draws as the
+  // keyboard's.
+  "calendars-menu": {
+    level: "component",
+    mount: "calendars-menu",
+    capture: "viewport",
+    width: 260,
+    height: 260,
+    mode: "light",
+    hiddenCalendars: ["invoices", "general"],
+  },
+  // 12 February's list: three invoices worked out from the books, paid, and
+  // a typed deadline of high priority, none with a time, then one at 09:30,
+  // overdue and selected; the long descriptions cut.
+  "day-list": {
+    level: "component",
+    mount: "day-list",
+    width: 396,
+    mode: "light",
+    today: "2026-02-14",
+    addedDeadline: TIMED_DEADLINE,
+    calendarDay: "2026-02-12",
+    deadlineId: "ce27",
+  },
+  // A day with none.
+  "day-list-empty": {
+    level: "component",
+    mount: "day-list",
+    width: 396,
+    mode: "light",
+    today: "2026-02-14",
+    calendarDay: "2026-02-03",
+  },
+  // Installment 8 (20 August), partly paid: new, its notes from the books.
+  "deadline-details-installment": {
+    level: "component",
+    mount: "deadline-details",
+    width: 396,
+    mode: "light",
+    today: "2026-02-14",
+    calendarDay: "2026-08-20",
+    deadlineId: "installment:in32",
+  },
+  // An invoice with no due date of its own, nothing paid: due 30 days after
+  // its date, and the notes say the date is assumed.
+  "deadline-details-invoice": {
+    level: "component",
+    mount: "deadline-details",
+    width: 396,
+    mode: "light",
+    today: "2026-02-14",
+    calendarDay: "2026-04-30",
+    deadlineId: "invoice:li19",
+  },
+  // A typed deadline past its day and still new: its date with its time,
+  // overdue, critical, tied to no building, with no notes.
+  "deadline-details-manual": {
+    level: "component",
+    mount: "deadline-details",
+    width: 396,
+    mode: "light",
+    today: "2026-02-14",
+    addedDeadline: TIMED_DEADLINE,
+    calendarDay: "2026-02-12",
+    deadlineId: "ce27",
+  },
+  // Nothing selected on a day with none.
+  "deadline-details-empty": {
+    level: "component",
+    mount: "deadline-details",
+    width: 396,
+    mode: "light",
+    today: "2026-02-14",
+    calendarDay: "2026-02-03",
+  },
+  // Add Deadline on today with a description and a time past 23:59: the
+  // refusal under the form, and + Add disabled.
+  "deadline-dialog-refused": {
+    level: "component",
+    mount: "deadline-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    today: "2026-02-14",
+    calendarDay: "2026-02-14",
+    deadlineForm: { description: "Lift inspection", time: "24:00" },
+  },
+  // Edit Deadline as it opens on a typed deadline of low priority, tied to
+  // no building, its notes in the box.
+  "deadline-dialog-edit": {
+    level: "component",
+    mount: "deadline-dialog",
+    capture: "viewport",
+    width: 800,
+    height: 720,
+    mode: "light",
+    today: "2026-02-14",
+    calendarDay: "2026-02-08",
+    deadlineId: "ce26",
+  },
+  // The deadlines column as a section, the list over the details: 20
+  // February, Installment 2 and a typed deadline; the first, worked out
+  // from the books, selected, so ✎ and − are disabled.
+  "deadlines-column": {
+    level: "section",
+    mount: "deadlines-column",
+    width: 412,
+    mode: "light",
+    today: "2026-02-14",
+    calendarDay: "2026-02-20",
   },
 
   // Sections: where the way parts sit together is what is pictured. The

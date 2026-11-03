@@ -5,6 +5,10 @@ import {
   createAccountsPage,
 } from "../pages/Accounts.page.ts";
 import {
+  type CalendarPage,
+  createCalendarPage,
+} from "../pages/Calendar.page.ts";
+import {
   type ContactsPage,
   createContactsPage,
 } from "../pages/Contacts.page.ts";
@@ -23,6 +27,7 @@ interface PageObjects {
   contacts: ContactsPage;
   units: UnitsPage;
   schedule: InstallmentSchedulePage;
+  calendar: CalendarPage;
   /** Fails a test whose page threw. Every test has it, asked for or not. */
   crashes: string[];
 }
@@ -63,6 +68,13 @@ export const test = base.extend<PageObjects>({
     use: Use<InstallmentSchedulePage>,
   ): Promise<void> => {
     await use(createInstallmentSchedulePage(page));
+  },
+
+  calendar: async (
+    { page }: WithPage,
+    use: Use<CalendarPage>,
+  ): Promise<void> => {
+    await use(createCalendarPage(page));
   },
 
   crashes: [
