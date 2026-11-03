@@ -16,6 +16,7 @@ describe("+ Add deadline", () => {
 
     expect(page.dialog.isShown()).toBe(true);
     expect(page.dialog.title()).toBe("Add Deadline");
+    expect(page.dialog.width()).toBe("nested");
     expect(page.dialog.saveLabel()).toBe("+ Add");
     expect(page.dialog.fieldValue("Description")).toBe("");
     expect(page.dialog.fieldValue("Date")).toBe("20/11/2026");
@@ -198,6 +199,7 @@ describe("✎ Edit deadline", () => {
     await page.clickDeadlineTool("Edit deadline");
 
     expect(page.dialog.title()).toBe("Edit Deadline");
+    expect(page.dialog.width()).toBe("nested");
     expect(page.dialog.saveLabel()).toBe("✎ Save");
     expect(page.dialog.fieldValue("Description")).toBe("Boiler check");
     expect(page.dialog.fieldValue("Date")).toBe("03/11/2026");

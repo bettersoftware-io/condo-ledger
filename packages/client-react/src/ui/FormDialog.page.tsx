@@ -10,6 +10,8 @@ type User = ReturnType<typeof userEvent.setup>;
 export interface FormDialogPage {
   isShown: () => boolean;
   title: () => string;
+  /** The card's width as the dialog names it: `default`, `nested`. */
+  width: () => string;
   /** The labels of the required fields not announced as required; empty when every one is. */
   requiredUnannounced: () => string[];
   /** The legends of the dialog's fieldsets, in order. */
@@ -135,6 +137,9 @@ export function formDialogIn(
       return (
         within(dialog()).getByTestId(TESTIDS.dialogTitle).textContent ?? ""
       );
+    },
+    width: (): string => {
+      return dialog().dataset.width ?? "";
     },
     requiredUnannounced: (): string[] => {
       return requiredFieldsUnannounced(dialog());

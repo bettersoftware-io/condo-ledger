@@ -152,6 +152,7 @@ function DeadlineDialogBody({
       title={state.editing === null ? "Add Deadline" : "Edit Deadline"}
       adding={state.editing === null}
       canSave={state.canSave && verdict.ok}
+      width="nested"
       message={reason === null ? null : reasonText(reason.reason)}
       onSave={onSave}
       onCancel={onCancel}
