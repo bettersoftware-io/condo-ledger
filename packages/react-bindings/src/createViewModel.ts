@@ -16,6 +16,8 @@ import type {
   BudgetInstallmentsSummary,
   BuildingDataView,
   BuildingDialogState,
+  CalendarIntents,
+  CalendarView,
   CategoryDialogState,
   CoefficientsGridState,
   CollectionForm,
@@ -410,6 +412,10 @@ export interface ViewModel {
     AddressDialogState,
     DialogIntents<AddressDialogState["form"]>
   >;
+  /** The Calendar: the month, the selected day and deadline, the filters. Null while the deadlines and the books are on their way. Today is read from the clock when it first opens. */
+  useCalendar: () => CalendarView | null;
+  /** What the Calendar may ask: the month, the day, the deadline, the filters. */
+  useCalendarIntents: () => CalendarIntents;
 }
 
 /** Built once at startup, in the composition root, from the application. */
@@ -424,6 +430,7 @@ export function createViewModel(app: App): ViewModel {
     units,
     buildingData,
     contacts,
+    calendar,
   } = app.presenters;
   const { screens } = app;
 
@@ -811,6 +818,23 @@ export function createViewModel(app: App): ViewModel {
       return useMachine(() => {
         return app.machines.createAddressDialog(address, apply);
       });
+    },
+    useCalendar: (): CalendarView | null => {
+      return useStateObservable(calendar.view$);
+    },
+    useCalendarIntents: (): CalendarIntents => {
+      return {
+        previousMonth: calendar.previousMonth,
+        nextMonth: calendar.nextMonth,
+        goToToday: calendar.goToToday,
+        selectDay: calendar.selectDay,
+        selectDeadline: calendar.selectDeadline,
+        toggleCalendar: calendar.toggleCalendar,
+        showAllCalendars: calendar.showAllCalendars,
+        showNoCalendars: calendar.showNoCalendars,
+        setBuilding: calendar.setBuilding,
+        reveal: calendar.reveal,
+      };
     },
   };
 }

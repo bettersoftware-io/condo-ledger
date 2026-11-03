@@ -14,6 +14,7 @@ import { createTwoPeriodSeed } from "@cl/domain/testing/createTwoPeriodSeed.ts";
 
 import {
   mountBuildingData,
+  mountCalendarHooks,
   mountContactsHooks,
   mountUnderProvider,
   mountWithoutProvider,
@@ -718,6 +719,44 @@ describe("the view model", () => {
     await page.send(async (seen) => {
       expect((await seen.screen.deleteContact(id ?? "")).ok).toBe(true);
     });
+  });
+
+  it("the calendar hooks: today's month, then the next one, a day and a hidden calendar", async () => {
+    const page = mountCalendarHooks();
+
+    expect(page.read().calendar).toMatchObject({
+      today: "2026-02-14",
+      month: "2026-02",
+      day: "2026-02-14",
+      selected: { id: "ce23" },
+    });
+
+    await page.send((seen) => {
+      seen.intents.nextMonth();
+    });
+
+    expect(page.read().calendar).toMatchObject({
+      month: "2026-03",
+      day: "2026-03-14",
+    });
+
+    await page.send((seen) => {
+      seen.intents.selectDay("2026-03-20");
+    });
+
+    expect(page.read().calendar?.selected?.id).toBe("installment:in27");
+
+    await page.send((seen) => {
+      seen.intents.toggleCalendar("installments");
+    });
+
+    expect(page.read().calendar?.selected).toBeNull();
+
+    await page.send((seen) => {
+      seen.intents.goToToday();
+    });
+
+    expect(page.read().calendar?.day).toBe("2026-02-14");
   });
 
   it("a wizard hook given an entry to edit shows that entry's form", () => {

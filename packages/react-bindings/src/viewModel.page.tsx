@@ -15,6 +15,8 @@ import type {
   BudgetInstallmentsForm,
   BudgetInstallmentsSummary,
   BuildingDialogState,
+  CalendarIntents,
+  CalendarView,
   CategoryDialogState,
   CoefficientsGridState,
   CollectionForm,
@@ -68,20 +70,21 @@ import type {
   WizardState,
 } from "@cl/client-core";
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
-import type {
-  AccountNode,
-  Address,
-  Building,
-  BuildingRow,
-  Cents,
-  ContactRowDraft,
-  ContactView,
-  JournalEntryView,
-  Ledger,
-  LegacySeed,
-  OwnersRow,
-  Result,
-  UnitsRow,
+import {
+  type AccountNode,
+  type Address,
+  type Building,
+  type BuildingRow,
+  type Cents,
+  type ContactRowDraft,
+  type ContactView,
+  fixedClock,
+  type JournalEntryView,
+  type Ledger,
+  type LegacySeed,
+  type OwnersRow,
+  type Result,
+  type UnitsRow,
 } from "@cl/domain";
 
 import {
@@ -431,6 +434,62 @@ function ContactsReader({ seen, added, applied }: ContactsReaderProps): null {
     contactRowDialog: useContactRowDialog(null, 4, noteApplied),
     applied,
   };
+
+  return null;
+}
+
+/** What the Calendar reader got from its hooks on its latest render. */
+interface CalendarSeen {
+  calendar: CalendarView | null;
+  intents: CalendarIntents;
+}
+
+export interface CalendarPage {
+  read: () => CalendarSeen;
+  send: (use: (seen: CalendarSeen) => unknown) => Promise<void>;
+}
+
+/** Mounts a reader of the Calendar hooks on the real application over the real seed, its clock at 09:00 on 14 February 2026 in Rome (inside Pozzetto 2026). */
+export function mountCalendarHooks(): CalendarPage {
+  const viewModel = createViewModel(
+    createAppHarness(undefined, fixedClock("2026-02-14T08:00:00Z")).app,
+  );
+  const seen: CalendarSeen[] = [];
+
+  render(
+    <ViewModelProvider viewModel={viewModel}>
+      <CalendarReader seen={seen} />
+    </ViewModelProvider>,
+  );
+
+  function read(): CalendarSeen {
+    const entry = seen[0];
+
+    if (entry === undefined) {
+      throw new Error("missing: what the Calendar reader saw");
+    }
+
+    return entry;
+  }
+
+  return {
+    read,
+    send: async (use: (seen: CalendarSeen) => unknown): Promise<void> => {
+      await act(async () => {
+        await use(read());
+      });
+    },
+  };
+}
+
+interface CalendarReaderProps {
+  seen: CalendarSeen[];
+}
+
+function CalendarReader({ seen }: CalendarReaderProps): null {
+  const { useCalendar, useCalendarIntents } = useViewModel();
+
+  seen[0] = { calendar: useCalendar(), intents: useCalendarIntents() };
 
   return null;
 }

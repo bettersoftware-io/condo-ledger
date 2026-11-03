@@ -87,6 +87,16 @@ export {
   type PeriodFigures,
   periodFiguresOf,
 } from "./useCases/buildingRows.ts";
+export { bookDeadlines } from "./useCases/calendar/bookDeadlines.ts";
+export {
+  addMonths,
+  deadlinesByDay,
+  deadlinesOfDay,
+  type MonthWeek,
+  sameDayIn,
+  weeksOf,
+} from "./useCases/calendar/month.ts";
+export type { CalendarFilters } from "./useCases/calendar/overdue.ts";
 export * from "./useCases/collection.ts";
 export {
   ALL_CONTACTS,

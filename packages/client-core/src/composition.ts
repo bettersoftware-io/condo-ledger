@@ -200,6 +200,10 @@ import {
   createBuildingsPresenter,
 } from "./presenters/buildingsPresenter.ts";
 import {
+  type CalendarPresenter,
+  createCalendarPresenter,
+} from "./presenters/calendarPresenter.ts";
+import {
   type ContactsPresenter,
   createContactsPresenter,
 } from "./presenters/contactsPresenter.ts";
@@ -251,6 +255,7 @@ interface AppPresenters {
   units: UnitsPresenter;
   contacts: ContactsPresenter;
   buildingData: BuildingDataPresenter;
+  calendar: CalendarPresenter;
 }
 
 /** Per-component state: each call builds a machine of its own, for a dialog, a wizard or the shell's parts, disposed when the component goes. */
@@ -419,6 +424,18 @@ export function createApp(ports: AppPorts): App {
     buildings: ports.buildings,
   });
 
+  const calendar = createCalendarPresenter(
+    {
+      calendar: ports.calendar,
+      buildings: ports.buildings,
+      installments: ports.installments,
+      journal: ports.journal,
+      accounts: ports.accounts,
+      contacts: ports.contacts,
+    },
+    ports.clock,
+  );
+
   const buildingData = createBuildingDataPresenter(
     {
       accounts: ports.accounts,
@@ -545,6 +562,7 @@ export function createApp(ports: AppPorts): App {
       units,
       contacts,
       buildingData,
+      calendar,
     },
     navigation: createNavigationMachine(),
     notices: createNotices(),

@@ -30,6 +30,16 @@ export interface ManualDeadline {
   notes: string | null;
 }
 
+/** Every calendar, in the order the Calendars popover lists them: the books' two, then the typed four. */
+export const CALENDARS: readonly CalendarId[] = [
+  "installments",
+  "invoices",
+  "fiscal",
+  "policies",
+  "interventions",
+  "general",
+];
+
 /** The calendars a person may type a deadline into: the other two are worked out from the books. */
 export const MANUAL_CALENDARS: readonly CalendarId[] = [
   "fiscal",

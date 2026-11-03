@@ -159,6 +159,10 @@ export type { TableView } from "./presenters/allocationPresenter.ts";
 export type { BuildingDataView } from "./presenters/buildingDataPresenter.ts";
 export type { PeriodSelection } from "./presenters/buildingsPresenter.ts";
 export type {
+  CalendarIntents,
+  CalendarView,
+} from "./presenters/calendarPresenter.ts";
+export type {
   ContactsPresenter,
   ContactsView,
 } from "./presenters/contactsPresenter.ts";
