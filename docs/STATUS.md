@@ -188,9 +188,6 @@ A step or a decision an agent cannot take.
 
 ## Known limits
 
-- **A Calendar day cell shows at most three lines.** It shows two deadlines
-  and "+N more" when there are more, a fixed count rather than what fits the
-  cell's height.
 - **The seed's dates are moved a fixed number of years.** The generator moves
   every date of the books forward, at most `SEED_YEAR_SHIFT` (13) years
   (`packages/legacy-import/src/shift/shiftSeed.ts`), so Pozzetto's period
