@@ -186,12 +186,6 @@ Work that waits on a release, a decision or other work.
 
 A step or a decision an agent cannot take.
 
-- **Trust the Codex subagent hooks.** A person runs `/hooks` in Codex in this
-  project and trusts the new `SubagentStart` and `SubagentStop` entries of
-  `.codex/hooks.json`. Codex skips a hook nobody has trusted, so until then it
-  behaves as before: the stop hook does not wait for a subagent, and nothing
-  judges what the last one leaves.
-
 ## Known limits
 
 - **A Calendar day cell shows at most three lines.** It shows two deadlines
