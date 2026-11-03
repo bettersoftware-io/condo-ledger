@@ -301,6 +301,7 @@ describe("projectLegacySeed on a small synthetic dump", () => {
       contactConnections: [],
       salutations: [],
       supplierLinks: [{ buildingId: "c1", contactId: "md81" }],
+      deadlines: [],
     });
   });
 
@@ -469,6 +470,7 @@ describe("projectLegacySeed on a small synthetic dump", () => {
       contactConnections: [],
       salutations: [],
       supplierLinks: [],
+      deadlines: [],
     });
   });
 

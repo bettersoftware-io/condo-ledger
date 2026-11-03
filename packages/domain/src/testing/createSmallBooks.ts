@@ -290,6 +290,7 @@ export function createSmallSeed(): LegacySeed {
       { buildingId: "c1", contactId: "md1" },
       { buildingId: "c1", contactId: "md2" },
     ],
+    deadlines: [],
   };
 }
 

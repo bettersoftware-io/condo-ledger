@@ -7,6 +7,7 @@ import type {
   ContactConnection,
   SupplierLink,
 } from "#/entities/contact.ts";
+import type { ManualDeadline } from "#/entities/deadline.ts";
 import type { Installment, InstallmentItem } from "#/entities/installment.ts";
 import { type Invoice, rate, type WithholdingTax } from "#/entities/invoice.ts";
 import type { Counterpart, JournalEntry } from "#/entities/journal.ts";
@@ -40,6 +41,8 @@ export interface LegacySeed {
   salutations: string[];
   /** Each seeded building's suppliers. */
   supplierLinks: SupplierLink[];
+  /** The legacy calendar's hand-entered deadlines, by id number. */
+  deadlines: ManualDeadline[];
 }
 
 /** A period's parties: the building's suppliers and the residencies that overlap the period. */
@@ -113,6 +116,7 @@ export interface LegacySeedData {
   contactConnections: ContactConnection[];
   salutations: string[];
   supplierLinks: SupplierLink[];
+  deadlines: ManualDeadline[];
 }
 
 /** Brands every amount. A fraction in the generated file fails here, once, instead of somewhere in a sum. */
@@ -165,6 +169,7 @@ export function loadLegacySeed(data: LegacySeedData): LegacySeed {
     contactConnections: data.contactConnections,
     salutations: data.salutations,
     supplierLinks: data.supplierLinks,
+    deadlines: data.deadlines,
   };
 }
 

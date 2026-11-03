@@ -3,6 +3,7 @@ export * from "./entities/address.ts";
 export * from "./entities/building.ts";
 export * from "./entities/cents.ts";
 export * from "./entities/contact.ts";
+export * from "./entities/deadline.ts";
 export * from "./entities/installment.ts";
 export * from "./entities/invoice.ts";
 export * from "./entities/journal.ts";

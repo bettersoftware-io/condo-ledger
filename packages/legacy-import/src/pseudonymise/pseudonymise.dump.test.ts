@@ -51,6 +51,23 @@ describe.skipIf(!legacyDumpAvailable())(
       expect(leaks).toEqual([]);
     });
 
+    it("leaves no original name, phone or code in a deadline's description or notes", () => {
+      const { tables, seed } = load();
+      const text = JSON.stringify(
+        seed.deadlines.map((deadline) => {
+          return [deadline.description, deadline.notes];
+        }),
+      );
+
+      const leaks = originalValues(tables).filter((value) => {
+        return wholeWord(value).test(text);
+      });
+
+      expect(seed.deadlines).toHaveLength(12);
+      expect(text).toMatch(/call 347-\d{8}/);
+      expect(leaks).toEqual([]);
+    });
+
     it("has the local list of extra names beside the dump", () => {
       // Without old/db/leftovers.json the hand-typed firm names would pass
       // through unseen; where the dump is, the list must be too.

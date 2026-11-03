@@ -17654,5 +17654,139 @@ export const legacySeedData: LegacySeedData = {
       "buildingId": "c19",
       "contactId": "md119"
     }
+  ],
+  "deadlines": [
+    {
+      "id": "ce1",
+      "date": "2026-02-05",
+      "time": null,
+      "calendar": "general",
+      "buildingId": null,
+      "description": "Insurance policy no. 059 expires",
+      "status": "new",
+      "priority": "critical",
+      "notes": null
+    },
+    {
+      "id": "ce8",
+      "date": "2026-02-27",
+      "time": null,
+      "calendar": "general",
+      "buildingId": null,
+      "description": "Boiler inspection - Luna condominium",
+      "status": "new",
+      "priority": "critical",
+      "notes": null
+    },
+    {
+      "id": "ce13",
+      "date": "2026-02-28",
+      "time": null,
+      "calendar": "general",
+      "buildingId": null,
+      "description": "End of the 2025-2026 management of Luna condominium",
+      "status": "new",
+      "priority": "high",
+      "notes": null
+    },
+    {
+      "id": "ce15",
+      "date": "2026-02-12",
+      "time": null,
+      "calendar": "general",
+      "buildingId": null,
+      "description": "Payment of withholding tax on the invoices paid in August",
+      "status": "closed",
+      "priority": "high",
+      "notes": null
+    },
+    {
+      "id": "ce18",
+      "date": "2026-02-18",
+      "time": null,
+      "calendar": "general",
+      "buildingId": null,
+      "description": "Roof renovation, Saturno condominium",
+      "status": "cancelled",
+      "priority": "low",
+      "notes": null
+    },
+    {
+      "id": "ce19",
+      "date": "2026-02-20",
+      "time": null,
+      "calendar": "general",
+      "buildingId": null,
+      "description": "Boiler inspection due, Solaris condominium",
+      "status": "new",
+      "priority": "medium",
+      "notes": null
+    },
+    {
+      "id": "ce20",
+      "date": "2026-02-22",
+      "time": null,
+      "calendar": "general",
+      "buildingId": null,
+      "description": "Pozzetto condominium meeting",
+      "status": "new",
+      "priority": "critical",
+      "notes": null
+    },
+    {
+      "id": "ce21",
+      "date": "2026-02-25",
+      "time": null,
+      "calendar": "general",
+      "buildingId": null,
+      "description": "Insurance policy no. 6040 Assicurazioni del Varmo S.p.A. expires",
+      "status": "new",
+      "priority": "critical",
+      "notes": null
+    },
+    {
+      "id": "ce23",
+      "date": "2026-02-14",
+      "time": null,
+      "calendar": "general",
+      "buildingId": null,
+      "description": "Electricity outage",
+      "status": "new",
+      "priority": "none",
+      "notes": "Please note that on Friday 14 September, from 10 to 11 o'clock, the electricity will be cut off while the systems are worked on."
+    },
+    {
+      "id": "ce24",
+      "date": "2026-08-13",
+      "time": null,
+      "calendar": "general",
+      "buildingId": null,
+      "description": "Closed for holidays",
+      "status": "new",
+      "priority": "low",
+      "notes": "Our office will be closed for holidays from 13/2 to 26/8. For urgent matters, call 347-43546518."
+    },
+    {
+      "id": "ce25",
+      "date": "2026-02-02",
+      "time": null,
+      "calendar": "general",
+      "buildingId": null,
+      "description": "Shared parking",
+      "status": "new",
+      "priority": "low",
+      "notes": "Some owners have complained about how some cars are parked in the shared spaces. Please, everyone, respect the road markings that delimit the spaces."
+    },
+    {
+      "id": "ce26",
+      "date": "2026-02-08",
+      "time": null,
+      "calendar": "general",
+      "buildingId": null,
+      "description": "Cleaning of shared spaces",
+      "status": "new",
+      "priority": "low",
+      "notes": "Please note that the firm that usually cleans the shared spaces cannot work this month. In this period it will be replaced by the firm Brillante Pulizie s.r.l.."
+    }
   ]
 };

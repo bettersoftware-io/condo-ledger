@@ -9,6 +9,7 @@ import type {
   InvoiceData,
   JournalEntryData,
   LegacySeedData,
+  ManualDeadline,
   PersonContact,
   ThousandthTable,
   Unit,
@@ -173,6 +174,50 @@ describe("translateLegacySeed", () => {
     });
   });
 
+  it("translates a deadline's description and notes, and keeps no notes as none", () => {
+    const seed = translateLegacySeed(
+      createSeed({
+        deadlines: [
+          createDeadline({
+            id: "ce26",
+            description: "Pulizie spazi comuni",
+            notes: null,
+          }),
+          createDeadline({
+            id: "ce24",
+            description: "Chiusura per ferie",
+            notes:
+              "Il ns. studio resterà chiuso per ferie dal 13/2 al 26/8.nPer urgenze, chiamare il 347-43546518.",
+          }),
+        ],
+      }),
+    );
+
+    expect(seed.deadlines).toEqual([
+      expect.objectContaining({
+        description: "Cleaning of shared spaces",
+        notes: null,
+      }),
+      expect.objectContaining({
+        description: "Closed for holidays",
+        notes:
+          "Our office will be closed for holidays from 13/2 to 26/8. For urgent matters, call 347-43546518.",
+      }),
+    ]);
+  });
+
+  it("refuses a deadline with no English, naming the field and the record", () => {
+    expect(() => {
+      return translateLegacySeed(
+        createSeed({
+          deadlines: [
+            createDeadline({ id: "ce99", description: "Scadenza mai vista" }),
+          ],
+        }),
+      );
+    }).toThrow(/deadlines\.description of ce99: "Scadenza mai vista"/);
+  });
+
   it("translates the notes of a building, a period, a unit and a group, and keeps an empty one empty", () => {
     const seed = translateLegacySeed(
       createSeed({
@@ -328,7 +373,23 @@ function createSeed(records: Partial<LegacySeedData>): LegacySeedData {
     contactConnections: [],
     salutations: [],
     supplierLinks: [],
+    deadlines: [],
     ...records,
+  };
+}
+
+function createDeadline(over: Partial<ManualDeadline>): ManualDeadline {
+  return {
+    id: "ce1",
+    date: "2013-02-05",
+    time: null,
+    calendar: "general",
+    buildingId: null,
+    description: "Chiusura per ferie",
+    status: "new",
+    priority: "none",
+    notes: null,
+    ...over,
   };
 }
 

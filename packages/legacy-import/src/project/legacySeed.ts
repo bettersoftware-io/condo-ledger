@@ -35,6 +35,7 @@ import type { Db } from "../db.ts";
 import type { Row } from "../loadRows.ts";
 import { reconcilePeriods } from "../reconcile.ts";
 import { unitTypeOf } from "../translate/exact.ts";
+import { projectDeadlines } from "./deadlines.ts";
 import {
   masterDataName,
   projectContactCategories,
@@ -224,6 +225,7 @@ export function projectLegacySeed(db: Db): LegacySeedData {
     supplierLinks: buildings.flatMap((building) => {
       return projectSupplierLinks(db, building.id);
     }),
+    deadlines: projectDeadlines(db),
   };
 }
 
