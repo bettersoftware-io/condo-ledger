@@ -88,6 +88,34 @@ Work that waits on a release, a decision or other work.
   below it. The category dialog passes an empty name to `contactReasonText`,
   which no category reason uses. One comment line in `translateSeed.ts` is
   still too long.
+- **Tidy-ups left by the M2h reviews.** None changes what a person sees today.
+  In the seed: ce13's English names its years already moved ("2025-2026"),
+  since the date shift does not move a year range, so it is right only while
+  `SEED_YEAR_SHIFT` is 13; `projectDeadlines` would write "null" for a missing
+  description rather than stop; two notes keep the dump's own quirks (a note's
+  day that disagrees with its date, and the parser's "n" for a newline). In
+  the domain: `validateDeadline` counts UTF-16 units and refuses years below
+  100 only by accident; a day's order has no last tiebreak by id, and invoice
+  numbers compare without the "it" locale. In the presenter:
+  `selectDeadline` with an id off the selected day does nothing; a deleted
+  deadline's id stays selected, so a new one that takes the same `ce<n>`
+  would be selected unasked; the buildings are sorted and the names rebuilt on
+  every selection; `samePeriods` is order-sensitive and resubscribes on a
+  reorder; `reveal` reads the deadline from the last view (a variable a `tap`
+  fills while the view is watched), so a live adapter that emits a save only
+  after it answers would lift no filter. In the UI:
+  `CalendarScreen` branches between `selectDeadline` and `reveal` where
+  `reveal` alone would do; `calendarWords.ts` takes `reasonText` from
+  `journal/wizards/reasons.ts`; `DayCell`'s comment says it takes only props
+  though it reads the locale; maximize does not hide a right-side splitter
+  (the Calendar has no maximize); the drawer hides the list/details splitter;
+  an open dialog's deadline follows the selection. In the tests: the
+  `monthGrid` and `dayNumber` test ids are unused; two page objects read
+  values by CSS class; `SidebarFrame` has no test of its own for the right
+  side; the deadline dialog's Cancel and Yes-delete tests assert little;
+  `scenarios.ts` puts `TIMED_DEADLINE` under the scenarios' comment; the
+  registry's column and day heights are fixed to 1280x720. One comment line
+  in `AppRoot.tsx` is too long.
 - **Presenter robustness before the live adapters (M3).** `booksOf` skips a
   state whose postings name a supplier the parties lack, so a live adapter
   that breaks the `parties()` guarantee freezes the books with no error: M3's
