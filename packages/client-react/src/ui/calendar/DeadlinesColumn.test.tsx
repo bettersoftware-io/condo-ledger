@@ -288,6 +288,19 @@ describe("the column's size and fold", () => {
     expect(page.columnWidth()).toBe(180);
   });
 
+  it("keeps its width while another module is shown", () => {
+    const page = mountCalendar();
+
+    page.dragColumn(-20);
+    page.showModule("contacts");
+
+    expect(page.hasColumn()).toBe(false);
+
+    page.showModule("calendar");
+
+    expect(page.columnWidth()).toBe(424);
+  });
+
   it("moves the split by the drag over the column's height, within a fifth to four fifths", () => {
     const page = mountCalendar();
 

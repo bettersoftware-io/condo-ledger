@@ -596,7 +596,7 @@ const registry: Record<string, Entry> = {
   "deadlines-column": (): ReactElement => {
     return (
       <div style={COLUMN_BOX}>
-        <DeadlinesColumn maximized={false} onRestore={ignoreClose} />
+        <DeadlinesColumnPart />
       </div>
     );
   },
@@ -647,6 +647,26 @@ function DeadlineDialogPart({
       spec={{ mode: "edit", deadline: selected }}
       onSaved={ignoreClose}
       onCancel={ignoreClose}
+    />
+  );
+}
+
+/** The column with the frame the shell holds for it: the deadlines column machine's width and drawer. */
+function DeadlinesColumnPart(): ReactElement {
+  const { useDeadlinesColumn } = useViewModel();
+  const column = useDeadlinesColumn();
+
+  return (
+    <DeadlinesColumn
+      frame={{
+        width: column.state.width,
+        open: column.state.open,
+        onResize: column.resize,
+        onOpen: column.open,
+        onClose: column.close,
+      }}
+      maximized={false}
+      onRestore={ignoreClose}
     />
   );
 }

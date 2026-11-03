@@ -16,16 +16,23 @@ import "./AppRoot.css";
 
 /**
  * The shell. Carries the person's theme and mode on its root element, where
- * the tokens read them, and hands their amount locale to everything inside. Holds the one sidebar and the one maximize machine
- * the shell shares: the sidebar keeps its width while another module is
+ * the tokens read them, and hands their amount locale to everything inside. Holds the one sidebar, the Calendar's deadlines column and the one maximize machine
+ * the shell shares: the sidebar and the column keep their width while another module is
  * shown, and the rail stands in for it while a panel of the main area is
  * maximized.
  */
 export function AppRoot(): ReactElement {
-  const { useSession, useNavigation, useSidebar, useMaximize } = useViewModel();
+  const {
+    useSession,
+    useNavigation,
+    useSidebar,
+    useDeadlinesColumn,
+    useMaximize,
+  } = useViewModel();
   const { preferences } = useSession();
   const navigation = useNavigation();
   const sidebar = useSidebar();
+  const deadlines = useDeadlinesColumn();
   const maximize = useMaximize();
   const maximized = maximize.state.maximized !== null;
   const frame = {
@@ -36,6 +43,14 @@ export function AppRoot(): ReactElement {
     onOpen: sidebar.open,
     onClose: sidebar.close,
     onRestore: maximize.restore,
+  };
+
+  const deadlinesFrame = {
+    width: deadlines.state.width,
+    open: deadlines.state.open,
+    onResize: deadlines.resize,
+    onOpen: deadlines.open,
+    onClose: deadlines.close,
   };
 
   return (
@@ -64,6 +79,7 @@ export function AppRoot(): ReactElement {
           </main>
           {navigation.state.module === "calendar" ? (
             <DeadlinesColumn
+              frame={deadlinesFrame}
               maximized={maximized}
               onRestore={maximize.restore}
             />

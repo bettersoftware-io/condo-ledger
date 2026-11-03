@@ -313,6 +313,43 @@ describe("the calendar presenter", () => {
     expect(view().selected?.id).toBe(id);
   });
 
+  it("reveal shows the calendar of a deadline that its filter hides", async () => {
+    const { view, calendar, harness } = createWatchedCalendar();
+    const id = await addedId(harness, createDraft({ calendar: "fiscal" }));
+
+    calendar.toggleCalendar("fiscal");
+    calendar.reveal(id, "2026-02-16");
+
+    expect(view().filters.hidden).toEqual(new Set());
+    expect(view().selected?.id).toBe(id);
+  });
+
+  it("reveal sets the Building filter to All when it is another building's", async () => {
+    const { view, calendar, harness } = createWatchedCalendar();
+    const id = await addedId(harness, createDraft({ buildingId: null }));
+
+    calendar.setBuilding("c1");
+    calendar.reveal(id, "2026-02-16");
+
+    expect(view().filters.buildingId).toBeNull();
+    expect(view().selected?.id).toBe(id);
+  });
+
+  it("reveal keeps the filters that already show the deadline", async () => {
+    const { view, calendar, harness } = createWatchedCalendar();
+    const id = await addedId(harness, createDraft({ buildingId: "c1" }));
+
+    calendar.toggleCalendar("policies");
+    calendar.setBuilding("c1");
+    calendar.reveal(id, "2026-02-16");
+
+    expect(view().filters).toEqual({
+      hidden: new Set(["policies"]),
+      buildingId: "c1",
+    });
+    expect(view().selected?.id).toBe(id);
+  });
+
   it("names a deadline's building, period and supplier", async () => {
     const { view, harness } = createWatchedCalendar();
     const contacts = await firstValueFrom(harness.ports.contacts.contacts());
@@ -450,6 +487,15 @@ function createMovingClock(iso: string): MovingClock {
       moment = new Date(next);
     },
   };
+}
+
+async function addedId(
+  harness: AppHarness,
+  draft: DeadlineDraft,
+): Promise<string> {
+  const added = await harness.ports.calendar.addDeadline(draft);
+
+  return must(added.ok ? added.value.id : null, "the added deadline's id");
 }
 
 function createDraft(patch: Partial<DeadlineDraft>): DeadlineDraft {

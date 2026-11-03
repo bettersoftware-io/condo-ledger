@@ -1,8 +1,9 @@
 import { act, render, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { vi } from "vitest";
 
 import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
-import { type DeadlineDraft, fixedClock } from "@cl/domain";
+import { type DeadlineDraft, fixedClock, rejected } from "@cl/domain";
 import { createViewModel, ViewModelProvider } from "@cl/react-bindings";
 
 import { type FormDialogPage, formDialogIn } from "../FormDialog.page.tsx";
@@ -159,6 +160,12 @@ export interface CalendarScreenPage {
   dialog: FormDialogPage;
   /** The label of the field the dialog marks invalid; null when none is. */
   invalidField: () => string | null;
+  /** The shell shows another module, as the top bar's menu does. */
+  showModule: (module: "buildings" | "contacts" | "calendar") => void;
+  /** From now on the calendar port refuses every delete, for this reason. */
+  refuseDeletes: (reason: string) => void;
+  /** The reason the delete question shows under its text; null when it shows none. */
+  deleteRefusal: () => string | null;
   /** The delete question's text; null when it is not asked. */
   deleteQuestion: () => string | null;
   answerYes: () => Promise<void>;
@@ -623,6 +630,19 @@ export function mountCalendar(): CalendarScreenPage {
           .querySelector("[aria-invalid='true']")
           ?.getAttribute("aria-label") ?? null
       );
+    },
+    showModule: (module: "buildings" | "contacts" | "calendar"): void => {
+      act(() => {
+        app.navigation.intents.selectModule(module);
+      });
+    },
+    refuseDeletes: (reason: string): void => {
+      vi.spyOn(ports.calendar, "deleteDeadline").mockResolvedValue(
+        rejected(reason),
+      );
+    },
+    deleteRefusal: (): string | null => {
+      return rendered.queryByTestId(TESTIDS.confirmError)?.textContent ?? null;
     },
     deleteQuestion: (): string | null => {
       return rendered.queryByTestId(TESTIDS.confirmText)?.textContent ?? null;

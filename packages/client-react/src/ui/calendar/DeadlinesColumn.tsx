@@ -27,14 +27,13 @@ import "./DeadlinesColumn.css";
  * the books, so only a typed one reaches them.
  */
 export function DeadlinesColumn({
+  frame,
   maximized,
   onRestore,
 }: DeadlinesColumnProps): ReactElement {
-  const { useCalendar, useCalendarIntents, useDeadlinesColumn, useSplit } =
-    useViewModel();
+  const { useCalendar, useCalendarIntents, useSplit } = useViewModel();
   const view = useCalendar();
   const { selectDeadline, deleteDeadline } = useCalendarIntents();
-  const column = useDeadlinesColumn();
   const split = useSplit("calendar");
   const [open, setOpen] = useState<OpenDialog>(null);
   const deletion = useDialogWrite(close, "the deadline was not deleted");
@@ -69,11 +68,13 @@ export function DeadlinesColumn({
   }
 
   function close(): void {
+    deletion.forget();
     setOpen(null);
   }
 
   function confirmDelete(): void {
     if (typed !== null) {
+      deletion.forget();
       deletion.run(() => {
         return deleteDeadline(typed.id);
       });
@@ -82,15 +83,15 @@ export function DeadlinesColumn({
 
   return (
     <SidebarFrame
-      width={column.state.width}
-      open={column.state.open}
+      width={frame.width}
+      open={frame.open}
       maximized={maximized}
       side="right"
       railLabel="DEADLINES"
       railTitle="Open deadlines"
-      onResize={column.resize}
-      onOpen={column.open}
-      onClose={column.close}
+      onResize={frame.onResize}
+      onOpen={frame.onOpen}
+      onClose={frame.onClose}
       onRestore={onRestore}
     >
       <div
@@ -153,6 +154,7 @@ export function DeadlinesColumn({
       {typed !== null && open === "delete" ? (
         <DeleteDeadline
           description={typed.description}
+          refusal={deletion.refusal}
           onYes={confirmDelete}
           onNo={close}
         />
@@ -165,7 +167,18 @@ export function DeadlinesColumn({
 type OpenDialog = "add" | "edit" | "delete" | null;
 
 export interface DeadlinesColumnProps {
+  /** The column's width and drawer, held by the shell so they last while another module is shown. */
+  frame: DeadlinesFrame;
   /** A panel of the main area fills the screen: the rail stands in for the column. */
   maximized: boolean;
   onRestore: () => void;
+}
+
+/** What the shell holds of the column: its width and drawer. */
+interface DeadlinesFrame {
+  width: number;
+  open: boolean;
+  onResize: (px: number) => void;
+  onOpen: () => void;
+  onClose: () => void;
 }

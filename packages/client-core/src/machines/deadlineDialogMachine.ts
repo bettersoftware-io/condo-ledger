@@ -3,6 +3,7 @@ import { BehaviorSubject, type Observable, type Subscription } from "rxjs";
 import {
   type Building,
   type BuildingsPort,
+  buildingsByName,
   type CalendarId,
   type CalendarPort,
   type DeadlineDraft,
@@ -143,7 +144,7 @@ export function createDeadlineDialog(
         editing: editing?.id ?? null,
         dateRead: dateOrNull(base.form.date, context.year),
         field: base.verdict.ok ? null : fieldOf(base.verdict.reason),
-        buildings: buildings.get(),
+        buildings: buildingsByName(buildings.get()),
       };
     },
     write,

@@ -36,6 +36,27 @@ describe("the deadline dialog", () => {
     expect(machine.state$.getValue().buildings.length).toBeGreaterThan(0);
   });
 
+  it("hands the buildings down by name", () => {
+    const { app } = createAppHarness(undefined, CLOCK);
+    const machine = track(
+      app.machines.createDeadlineDialog({
+        mode: "add",
+        day: "2026-02-20",
+        buildingId: null,
+      }),
+    );
+
+    const names = machine.state$.getValue().buildings.map((building) => {
+      return building.name;
+    });
+
+    expect(names).toEqual(
+      [...names].sort((a, b) => {
+        return a.localeCompare(b, "it");
+      }),
+    );
+  });
+
   it("tells the date the typed one reads as, and none while it does not read", () => {
     const { app } = createAppHarness(undefined, CLOCK);
     const machine = track(

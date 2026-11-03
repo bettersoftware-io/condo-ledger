@@ -10,6 +10,7 @@ import {
   of,
   shareReplay,
   switchMap,
+  tap,
 } from "rxjs";
 
 import {
@@ -18,6 +19,7 @@ import {
   type Building,
   type BuildingsPort,
   bookDeadlines,
+  buildingsByName,
   CALENDARS,
   type CalendarFilters,
   type CalendarId,
@@ -29,6 +31,7 @@ import {
   deadlinesByDay,
   deadlinesOfDay,
   type InstallmentsPort,
+  isShown,
   type JournalPort,
   type MonthWeek,
   manual,
@@ -84,7 +87,11 @@ export interface CalendarIntents {
   showNoCalendars: () => void;
   /** One building's deadlines and those tied to it; null for every deadline. */
   setBuilding: (id: string | null) => void;
-  /** Shows the day's month and selects the deadline on it: what a saved deadline gets. */
+  /**
+   * Shows the day's month and selects the deadline on it: what a saved
+   * deadline gets. A filter that hides the deadline is lifted: its calendar
+   * is shown, and a Building filter that is not its building becomes All.
+   */
   reveal: (id: string, day: string) => void;
   /** Deletes a typed deadline; the day's first shown deadline is then selected. Answered as the port answers. */
   deleteDeadline: (id: string) => Promise<Result>;
@@ -139,12 +146,18 @@ export function createCalendarPresenter(
     .buildings()
     .pipe(shareReplay({ bufferSize: 1, refCount: true }));
 
+  // The deadlines as last worked out, for `reveal` to find the one it shows.
+  let latest: Deadline[] = [];
+
   const deadlines$: Observable<Deadline[]> = combineLatest([
     ports.calendar.deadlines(),
     booksDeadlinesOf(ports, buildings$),
   ]).pipe(
     map(([typed, books]) => {
       return [...typed.map(manual), ...books];
+    }),
+    tap((deadlines) => {
+      latest = deadlines;
     }),
   );
 
@@ -244,11 +257,40 @@ export function createCalendarPresenter(
       update({ filters: { ...current().filters, buildingId: id } });
     },
     reveal: (id: string, day: string): void => {
-      update({ month: monthOf(day), day, selectedId: id });
+      const { filters } = current();
+      const revealed = latest.find((deadline) => {
+        return deadline.id === id;
+      });
+
+      update({
+        month: monthOf(day),
+        day,
+        selectedId: id,
+        filters:
+          revealed === undefined || isShown(revealed, filters)
+            ? filters
+            : unhiding(revealed, filters),
+      });
     },
     deleteDeadline: (id: string): Promise<Result> => {
       return ports.calendar.deleteDeadline(id);
     },
+  };
+}
+
+/** The filters with what hides the deadline lifted: its calendar shown, the Building filter at All if it is another building's. */
+function unhiding(
+  deadline: Deadline,
+  filters: CalendarFilters,
+): CalendarFilters {
+  const hidden = new Set(filters.hidden);
+
+  hidden.delete(deadline.calendar);
+
+  return {
+    hidden,
+    buildingId:
+      filters.buildingId === deadline.buildingId ? filters.buildingId : null,
   };
 }
 
@@ -274,9 +316,7 @@ function viewOf(
       dayDeadlines[0] ??
       null,
     filters: place.filters,
-    buildings: [...buildings].sort((a, b) => {
-      return a.name.localeCompare(b.name, "it") || a.id.localeCompare(b.id);
-    }),
+    buildings: buildingsByName(buildings),
     names: namesOf(buildings, contacts),
   };
 }

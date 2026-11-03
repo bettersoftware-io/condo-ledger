@@ -84,6 +84,35 @@ describe("+ Add deadline", () => {
     expect(page.dayListRows()).toEqual([]);
   });
 
+  it("with the Building filter on Saturno and the deadline saved with no building, shows it under All", async () => {
+    const page = mountCalendar();
+    await page.chooseBuilding("Saturno");
+    await page.clickDeadlineTool("Add deadline");
+    await page.dialog.fill("Description", "Phone the notary");
+    await page.dialog.choose("Building", "— None —");
+
+    await page.dialog.save();
+
+    expect(page.building()).toBe("— All —");
+    expect(listed(page)).toEqual(["Phone the notary"]);
+    expect(page.dayListRows()).toMatchObject([{ selected: true }]);
+  });
+
+  it("saved in a calendar that is hidden, shows that calendar", async () => {
+    const page = mountCalendar();
+    await page.openCalendars();
+    await page.toggleCalendar("Fiscal");
+    await page.closeCalendars();
+    await page.clickDeadlineTool("Add deadline");
+    await page.dialog.fill("Description", "VAT return");
+    await page.dialog.choose("Calendar", "Fiscal");
+
+    await page.dialog.save();
+
+    expect(listed(page)).toEqual(["VAT return"]);
+    expect(page.dayListRows()).toMatchObject([{ selected: true }]);
+  });
+
   it("names a date that does not read, in the words of the other dialogs", async () => {
     const page = mountCalendar();
     await page.clickDeadlineTool("Add deadline");
@@ -244,6 +273,27 @@ describe("− Delete deadline", () => {
     expect(page.deleteQuestion()).toBeNull();
     expect(listed(page)).toEqual(["Boiler check"]);
     expect(page.focusedName()).toBe("Delete deadline");
+  });
+
+  it("shows the port's refusal under the question, and leaves the deadline", async () => {
+    const page = mountCalendar();
+    await page.addDeadline(createDraft({ description: "Boiler check" }));
+    page.refuseDeletes("deadline-locked");
+
+    await page.clickDeadlineTool("Delete deadline");
+
+    expect(page.deleteRefusal()).toBeNull();
+
+    await page.answerYes();
+
+    expect(page.deleteQuestion()).not.toBeNull();
+    expect(page.deleteRefusal()).toBe("deadline-locked");
+    expect(listed(page)).toEqual(["Boiler check"]);
+
+    await page.answerNo();
+    await page.clickDeadlineTool("Delete deadline");
+
+    expect(page.deleteRefusal()).toBeNull();
   });
 
   it("Yes deletes it and selects the day's first", async () => {

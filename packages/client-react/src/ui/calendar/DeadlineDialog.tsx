@@ -1,11 +1,12 @@
 import type { ChangeEvent, ReactElement } from "react";
 
 import type { DeadlineDialogSpec, DeadlineDialogState } from "@cl/client-core";
-import type {
-  CalendarId,
-  DeadlinePriority,
-  DeadlineStatus,
-  Rejected,
+import {
+  type CalendarId,
+  type DeadlinePriority,
+  type DeadlineStatus,
+  MANUAL_CALENDARS,
+  type Rejected,
 } from "@cl/domain";
 import { useViewModel } from "@cl/react-bindings";
 
@@ -67,11 +68,11 @@ export interface DeadlineDialogProps {
 type DeadlineForm = DeadlineDialogState["form"];
 
 /** The calendars a typed deadline may be in: the books' two hold only what the books say. */
-const CALENDARS: readonly ValueOption<CalendarId>[] = (
-  ["fiscal", "policies", "interventions", "general"] as const
-).map((id) => {
-  return { value: id, label: calendarName(id) };
-});
+const CALENDARS: readonly ValueOption<CalendarId>[] = MANUAL_CALENDARS.map(
+  (id) => {
+    return { value: id, label: calendarName(id) };
+  },
+);
 
 const STATUSES: readonly ValueOption<DeadlineStatus>[] = (
   ["new", "closed", "cancelled"] as const
@@ -106,13 +107,9 @@ function DeadlineDialogBody({
   const field = reason === null || refusal !== null ? null : state.field;
   const buildings: readonly ValueOption<string>[] = [
     { value: NO_BUILDING, label: "— None —" },
-    ...[...state.buildings]
-      .sort((a, b) => {
-        return a.name.localeCompare(b.name, "it") || a.id.localeCompare(b.id);
-      })
-      .map((building) => {
-        return { value: building.id, label: building.name };
-      }),
+    ...state.buildings.map((building) => {
+      return { value: building.id, label: building.name };
+    }),
   ];
 
   function editText(

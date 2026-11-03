@@ -83,6 +83,7 @@ export * from "./useCases/budgetShares.ts";
 export {
   type BuildingRow,
   buildingRowsOf,
+  buildingsByName,
   PERIOD_TYPE_WORDS,
   type PeriodFigures,
   periodFiguresOf,
@@ -98,6 +99,7 @@ export {
 } from "./useCases/calendar/month.ts";
 export {
   type CalendarFilters,
+  isShown,
   type ShownStatus,
   shownStatus,
 } from "./useCases/calendar/overdue.ts";
