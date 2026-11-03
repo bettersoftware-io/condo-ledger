@@ -1,0 +1,230 @@
+/* The spec's "Deadlines for {d Month yyyy}" and "Selected deadline details": two panels sharing the column by --split-ratio (0.4 for the list at first). */
+.deadlines-column {
+  --split-ratio: 0.4;
+
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.deadlines-top,
+.deadlines-bottom {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.deadlines-top {
+  flex: calc(var(--split-ratio) * 100) 1 0;
+}
+
+.deadlines-bottom {
+  flex: calc((1 - var(--split-ratio)) * 100) 1 0;
+}
+
+.deadlines-top > .panel,
+.deadlines-bottom > .panel {
+  flex: 1;
+  min-height: 0;
+}
+
+.deadlines-top-body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.deadlines-toolbar {
+  flex: none;
+  display: flex;
+  gap: 4px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--bd2);
+}
+
+/* The day's list: Time | St. | Pr. | Description, the prototype's 54 34 34 widths. */
+.day-list {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.day-list-centred {
+  text-align: center;
+}
+
+.day-list-header,
+.day-list-row {
+  display: grid;
+  grid-template-columns: 54px 34px 34px minmax(0, 1fr);
+}
+
+.day-list-header {
+  flex: none;
+  background: var(--zebra);
+  border-bottom: 1px solid var(--bd2);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--txd);
+  letter-spacing: 0.03em;
+}
+
+.day-list-header > span {
+  padding: 5px 6px;
+}
+
+.day-list-header > .day-list-centred {
+  padding: 5px 4px;
+}
+
+.day-list-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.day-list-row {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: var(--tx);
+  text-align: left;
+  cursor: pointer;
+}
+
+.day-list-row:hover {
+  background: var(--hover);
+}
+
+.day-list-row[aria-pressed="true"] {
+  background: var(--sel);
+  box-shadow: inset 2px 0 0 var(--acc);
+}
+
+.day-list-row > span {
+  padding: 5px 6px;
+}
+
+.day-list-row > .day-list-centred {
+  padding: 5px 4px;
+}
+
+.day-list-time {
+  color: var(--txd);
+  font-variant-numeric: tabular-nums;
+}
+
+.day-list-text {
+  min-width: 0;
+  font-size: 11.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.day-list-empty {
+  padding: 24px 12px;
+  text-align: center;
+  color: var(--txd);
+  font-size: 12px;
+}
+
+/* The priority dot, 9px, in the priority's token. */
+.priority-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  vertical-align: middle;
+  background: var(--txd);
+}
+
+.priority-dot[data-priority="low"] {
+  background: var(--priority-low);
+}
+
+.priority-dot[data-priority="medium"] {
+  background: var(--priority-medium);
+}
+
+.priority-dot[data-priority="high"] {
+  background: var(--priority-high);
+}
+
+.priority-dot[data-priority="critical"] {
+  background: var(--priority-critical);
+}
+
+/* The selected deadline: rows on 84px 1fr, then the NOTES box. */
+.deadline-details {
+  height: 100%;
+  overflow: auto;
+  padding: 10px 12px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.deadline-details-empty {
+  align-items: center;
+  justify-content: center;
+  color: var(--txd);
+}
+
+.deadline-details-row {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 4px;
+}
+
+.deadline-details-label {
+  color: var(--txd);
+  font-weight: 600;
+}
+
+.deadline-details-value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.deadline-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.deadline-notes {
+  margin-top: 2px;
+  padding: 8px 10px;
+  background: var(--zebra);
+  border: 1px solid var(--bd2);
+  border-radius: 6px;
+}
+
+.deadline-notes-label {
+  margin-bottom: 5px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--txd);
+  letter-spacing: 0.04em;
+}
+
+.deadline-notes-text {
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--tx);
+  white-space: pre-line;
+}
+
+/* Compact (Sidebar.css's breakpoint): the panels keep their split, and the splitter between them is hidden. */
+@media (width <= 1179px) {
+  .deadlines-column > .splitter {
+    display: none;
+  }
+}

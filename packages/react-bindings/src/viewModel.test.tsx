@@ -14,6 +14,7 @@ import { createTwoPeriodSeed } from "@cl/domain/testing/createTwoPeriodSeed.ts";
 
 import {
   mountBuildingData,
+  mountCalendarHooks,
   mountContactsHooks,
   mountUnderProvider,
   mountWithoutProvider,
@@ -163,6 +164,7 @@ describe("the view model", () => {
       seen.journalGrid.toggle("e1");
       seen.maximize.toggle("top");
       seen.sidebar.open();
+      seen.deadlinesColumn.resize(300);
       seen.journalDialog.openDelete();
       seen.directPayment.edit({ amount: "1" });
       seen.multiCostPayment.edit({ amount: "2" });
@@ -179,6 +181,11 @@ describe("the view model", () => {
 
     expect(page.read(0).maximize.state).toEqual({ maximized: "top" });
     expect(page.read(0).sidebar.state.open).toBe(true);
+    expect(page.read(0).sidebar.state.width).toBe(272);
+    expect(page.read(0).deadlinesColumn.state).toEqual({
+      width: 300,
+      open: false,
+    });
     expect(page.read(0).journalDialog.state.open).toEqual({ kind: "delete" });
     expect(page.read(0).directPayment.state.form.amount).toBe("1");
     expect(page.read(0).multiCostPayment.state.form.amount).toBe("2");
@@ -720,6 +727,44 @@ describe("the view model", () => {
     });
   });
 
+  it("the calendar hooks: today's month, then the next one, a day and a hidden calendar", async () => {
+    const page = mountCalendarHooks();
+
+    expect(page.read().calendar).toMatchObject({
+      today: "2026-02-14",
+      month: "2026-02",
+      day: "2026-02-14",
+      selected: { id: "ce23" },
+    });
+
+    await page.send((seen) => {
+      seen.intents.nextMonth();
+    });
+
+    expect(page.read().calendar).toMatchObject({
+      month: "2026-03",
+      day: "2026-03-14",
+    });
+
+    await page.send((seen) => {
+      seen.intents.selectDay("2026-03-20");
+    });
+
+    expect(page.read().calendar?.selected?.id).toBe("installment:in27");
+
+    await page.send((seen) => {
+      seen.intents.toggleCalendar("installments");
+    });
+
+    expect(page.read().calendar?.selected).toBeNull();
+
+    await page.send((seen) => {
+      seen.intents.goToToday();
+    });
+
+    expect(page.read().calendar?.day).toBe("2026-02-14");
+  });
+
   it("a wizard hook given an entry to edit shows that entry's form", () => {
     const page = mountUnderProvider(createSmallSeed(), 1, "e6");
 
@@ -769,6 +814,7 @@ function ownStatesOf(seen: Seen): unknown[] {
   return [
     seen.maximize.state,
     seen.sidebar.state,
+    seen.deadlinesColumn.state,
     seen.journalDialog.state,
     seen.directPayment.state.form,
     seen.multiCostPayment.state.form,

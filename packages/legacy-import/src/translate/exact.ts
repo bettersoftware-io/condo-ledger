@@ -240,6 +240,37 @@ const EXACT: Readonly<Record<string, string>> = {
   dsfds: "dsfds",
   cvd: "cvd",
 
+  // ---- Hand-entered deadlines: descriptions and notes ----
+  // The parser leaves a newline as the letter "n" ("26/8.nPer"), so the
+  // English runs the two sentences together. The year range of the
+  // end-of-management deadline is written already moved: the shift step moves
+  // a year on its own, not one in a range.
+  "Scadenza polizza assicurativa n° 059": "Insurance policy no. 059 expires",
+  "Revisione Caldaia - Condominio Luna": "Boiler inspection - Luna condominium",
+  "Fine gestione 2012-2013 del condominio Luna":
+    "End of the 2025-2026 management of Luna condominium",
+  "Versamento R/A delle fatture pagate in agosto":
+    "Payment of withholding tax on the invoices paid in August",
+  "Rifacimento tetto condominio Saturno":
+    "Roof renovation, Saturno condominium",
+  "Scandenza revisione caldaia del condominio Solaris":
+    "Boiler inspection due, Solaris condominium",
+  "Assemblea del condominio Pozzetto": "Pozzetto condominium meeting",
+  "Scadenza polizza assicurativa n.6040 Assicurazioni del Varmo S.p.A.":
+    "Insurance policy no. 6040 Assicurazioni del Varmo S.p.A. expires",
+  "Interruzione dell'energia elettrica": "Electricity outage",
+  "Si segnala che venerdì 14 Settembre dalle ore 10 alle ore 11 ci sarà un'interruzione dell'energia elettrica per lavori di sistemazione degli impianti.":
+    "Please note that on Friday 14 September, from 10 to 11 o'clock, the electricity will be cut off while the systems are worked on.",
+  "Chiusura per ferie": "Closed for holidays",
+  "Il ns. studio resterà chiuso per ferie dal 13/2 al 26/8.nPer urgenze, chiamare il 347-43546518.":
+    "Our office will be closed for holidays from 13/2 to 26/8. For urgent matters, call 347-43546518.",
+  "Parcheggio comune": "Shared parking",
+  "Alcuni condòmini si sono lamentati per come vengono parcheggiate alcune vetture negli spazi comuni. Invito perciò tutti a rispettare la segnaletica orizzontale che delimita gli appositi spazi.":
+    "Some owners have complained about how some cars are parked in the shared spaces. Please, everyone, respect the road markings that delimit the spaces.",
+  "Pulizie spazi comuni": "Cleaning of shared spaces",
+  "Si avvisa che la ditta che usualmente si occupa delle pulizie negli spazi comuni questo mese non potrà operare. In questo periodo sarà sostituita dalla ditta Brillante Pulizie s.r.l..":
+    "Please note that the firm that usually cleans the shared spaces cannot work this month. In this period it will be replaced by the firm Brillante Pulizie s.r.l..",
+
   // ---- Contact rows, salutations and relationships ----
   // The three rows with test labels in the dump are kept as they are, as data.
   Telefono: "Phone",

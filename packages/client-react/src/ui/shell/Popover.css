@@ -39,6 +39,15 @@
   padding: 5px 9px 6px;
 }
 
+/* A label with items beside it: the label keeps its padding, the items sit right. */
+.popover-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding-right: 4px;
+}
+
 .popover-option {
   display: flex;
   align-items: center;

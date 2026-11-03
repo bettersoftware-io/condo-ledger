@@ -3,6 +3,7 @@ export * from "./entities/address.ts";
 export * from "./entities/building.ts";
 export * from "./entities/cents.ts";
 export * from "./entities/contact.ts";
+export * from "./entities/deadline.ts";
 export * from "./entities/installment.ts";
 export * from "./entities/invoice.ts";
 export * from "./entities/journal.ts";
@@ -14,6 +15,7 @@ export * from "./entities/table.ts";
 export * from "./entities/unit.ts";
 export type { AccountsPort } from "./ports/accountsPort.ts";
 export type { BuildingsPort } from "./ports/buildingsPort.ts";
+export type { CalendarPort } from "./ports/calendarPort.ts";
 export type { ClockPort } from "./ports/clockPort.ts";
 export type { ContactsPort } from "./ports/contactsPort.ts";
 export type {
@@ -32,6 +34,7 @@ export {
   type BuildingsSimulator,
   createBuildingsSimulator,
 } from "./simulators/buildingsSimulator.ts";
+export { createCalendarSimulator } from "./simulators/calendarSimulator.ts";
 export {
   type ContactsSimulator,
   createContactsSimulator,
@@ -80,10 +83,30 @@ export * from "./useCases/budgetShares.ts";
 export {
   type BuildingRow,
   buildingRowsOf,
+  buildingsByName,
   PERIOD_TYPE_WORDS,
   type PeriodFigures,
   periodFiguresOf,
 } from "./useCases/buildingRows.ts";
+export { bookDeadlines } from "./useCases/calendar/bookDeadlines.ts";
+export {
+  addMonths,
+  deadlinesByDay,
+  deadlinesOfDay,
+  type MonthWeek,
+  sameDayIn,
+  weeksOf,
+} from "./useCases/calendar/month.ts";
+export {
+  type CalendarFilters,
+  isShown,
+  type ShownStatus,
+  shownStatus,
+} from "./useCases/calendar/overdue.ts";
+export {
+  type DeadlineDraft,
+  validateDeadline,
+} from "./useCases/calendar/validateDeadline.ts";
 export * from "./useCases/collection.ts";
 export {
   ALL_CONTACTS,

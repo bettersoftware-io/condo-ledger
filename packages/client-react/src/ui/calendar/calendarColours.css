@@ -1,0 +1,53 @@
+/* The spec's "Calendars": each calendar's colour, set as --calendar-colour by its class, for a line's bar and a square. */
+.calendar-installments {
+  --calendar-colour: var(--calendar-installments);
+}
+
+.calendar-invoices {
+  --calendar-colour: var(--calendar-invoices);
+}
+
+.calendar-fiscal {
+  --calendar-colour: var(--calendar-fiscal);
+}
+
+.calendar-policies {
+  --calendar-colour: var(--calendar-policies);
+}
+
+.calendar-interventions {
+  --calendar-colour: var(--calendar-interventions);
+}
+
+.calendar-general {
+  --calendar-colour: var(--calendar-general);
+}
+
+/* The 9x9 square of a calendar's colour, in the popover and the details. */
+.calendar-square {
+  flex: none;
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--calendar-colour);
+}
+
+/* The spec's "Status marks": ✦ new, ✓ closed, ✕ cancelled, ! overdue. */
+.calendar-mark {
+  flex: none;
+  display: inline-flex;
+  justify-content: center;
+  width: 12px;
+  font-weight: 700;
+  color: var(--warn);
+}
+
+.calendar-mark[data-status="closed"] {
+  color: var(--ok);
+}
+
+.calendar-mark[data-status="cancelled"],
+.calendar-mark[data-status="overdue"] {
+  color: var(--neg);
+}

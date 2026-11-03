@@ -65,7 +65,8 @@ export function paidOn(invoiceId: string, entries: JournalEntry[]): Cents {
   return cents(paid);
 }
 
-function withholdingRateOf(
+/** The rate of the withholding tax an invoice names in its period's catalogue, or null when it names none. */
+export function withholdingRateOf(
   invoice: Invoice,
   withholdingTaxes: WithholdingTax[],
 ): Rate | null {

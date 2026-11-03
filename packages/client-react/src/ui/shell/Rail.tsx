@@ -4,10 +4,15 @@ import { TESTIDS } from "../testids.ts";
 
 import "./Sidebar.css";
 
-/** The folded sidebar: a narrow card reading its label (MANAGEMENT, FILTERS), which brings the sidebar back. */
-export function Rail({ label, title, onOpen }: RailProps): ReactElement {
+/** The folded sidebar (or column): a narrow card reading its label (MANAGEMENT, FILTERS), which brings the sidebar back. */
+export function Rail({
+  label,
+  title,
+  side = "left",
+  onOpen,
+}: RailProps): ReactElement {
   return (
-    <div className="rail">
+    <div className="rail" data-side={side}>
       <button
         type="button"
         className="rail-card"
@@ -17,7 +22,7 @@ export function Rail({ label, title, onOpen }: RailProps): ReactElement {
         onClick={onOpen}
       >
         <span className="rail-arrow" aria-hidden="true">
-          ›
+          {side === "left" ? "›" : "‹"}
         </span>
         <span className="rail-label" aria-hidden="true">
           {label}
@@ -32,5 +37,7 @@ export interface RailProps {
   label: string;
   /** Its tooltip and accessible name. */
   title: string;
+  /** The edge it stands at; its arrow points inward. Left by default. */
+  side?: "left" | "right";
   onOpen: () => void;
 }

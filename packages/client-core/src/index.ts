@@ -48,6 +48,10 @@ export type {
   ContactRowDialogState,
   SupplierDialogState,
 } from "./machines/contactDialogMachines.ts";
+export type {
+  DeadlineDialogSpec,
+  DeadlineDialogState,
+} from "./machines/deadlineDialogMachine.ts";
 export type { DialogIntents } from "./machines/formDialog.ts";
 export type {
   InstallmentDialogForm,
@@ -158,6 +162,11 @@ export type {
 export type { TableView } from "./presenters/allocationPresenter.ts";
 export type { BuildingDataView } from "./presenters/buildingDataPresenter.ts";
 export type { PeriodSelection } from "./presenters/buildingsPresenter.ts";
+export type {
+  CalendarIntents,
+  CalendarView,
+  DeadlineNames,
+} from "./presenters/calendarPresenter.ts";
 export type {
   ContactsPresenter,
   ContactsView,

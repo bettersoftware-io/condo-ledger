@@ -54,4 +54,12 @@ describe("the sidebar machine", () => {
 
     machine.dispose();
   });
+
+  it("starts at the width it is given", () => {
+    const machine = createSidebarMachine(404);
+
+    expect(machine.state$.getValue()).toEqual({ width: 404, open: false });
+
+    machine.dispose();
+  });
 });

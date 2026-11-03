@@ -21,6 +21,7 @@ export function Popover({
   open,
   label,
   width = "narrow",
+  action,
   onClose,
   children,
 }: PopoverProps): ReactElement | null {
@@ -80,9 +81,18 @@ export function Popover({
         tabIndex={-1}
         onKeyDown={moveOrClose}
       >
-        <div className="popover-label" aria-hidden="true">
-          {label}
-        </div>
+        {action === undefined ? (
+          <div className="popover-label" aria-hidden="true">
+            {label}
+          </div>
+        ) : (
+          <div className="popover-head">
+            <span className="popover-label" aria-hidden="true">
+              {label}
+            </span>
+            {action}
+          </div>
+        )}
         {children}
       </div>
     </>
@@ -98,6 +108,8 @@ export interface PopoverProps {
    * `wide` one grows to its longest item rather than wrap it.
    */
   width?: "narrow" | "wide";
+  /** Menu items drawn beside the label, at the head: the Calendars popover's All and None. */
+  action?: ReactNode;
   onClose: () => void;
   children: ReactNode;
 }

@@ -63,6 +63,9 @@ import type { TableView } from "./presenters/allocationPresenter.ts";
 import type { BuildingDataView } from "./presenters/buildingDataPresenter.ts";
 import type { UnitsView } from "./presenters/unitsPresenter.ts";
 
+/** The Calendar's deadlines list takes 40% of its column, as the prototype has it; the other stacked panels take half. */
+const CALENDAR_SPLIT_RATIO = 0.4;
+
 /** The grids whose columns a person resizes. */
 export type GridName =
   | "accounts"
@@ -87,7 +90,8 @@ export type SplitName =
   | "units"
   | "buildingData"
   | "suppliers"
-  | "contacts";
+  | "contacts"
+  | "calendar";
 
 /** The panels with tabs. */
 export type TabbedPanelName =
@@ -246,8 +250,10 @@ export function createScreens(sources: ScreenSources): AppScreens {
       },
     ),
     split: keyedByValue(
-      (_split: SplitName): Machine<SplitState, SplitIntents> => {
-        return createSplitMachine();
+      (split: SplitName): Machine<SplitState, SplitIntents> => {
+        return createSplitMachine(
+          split === "calendar" ? CALENDAR_SPLIT_RATIO : undefined,
+        );
       },
     ),
     bottomTab: keyedByValue(

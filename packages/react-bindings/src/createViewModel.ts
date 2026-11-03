@@ -16,6 +16,8 @@ import type {
   BudgetInstallmentsSummary,
   BuildingDataView,
   BuildingDialogState,
+  CalendarIntents,
+  CalendarView,
   CategoryDialogState,
   CoefficientsGridState,
   CollectionForm,
@@ -30,6 +32,8 @@ import type {
   ContactRowDialogState,
   ContactsPresenter,
   ContactsView,
+  DeadlineDialogSpec,
+  DeadlineDialogState,
   DialogIntents,
   DirectPaymentForm,
   DirectPaymentKind,
@@ -264,6 +268,8 @@ export interface ViewModel {
   ) => MachineView<BottomTabState, BottomTabIntents>;
   useMaximize: () => MachineView<MaximizeState, MaximizeIntents>;
   useSidebar: () => MachineView<SidebarState, SidebarIntents>;
+  /** The Calendar's deadlines column: its width and its drawer. */
+  useDeadlinesColumn: () => MachineView<SidebarState, SidebarIntents>;
   useJournalEntries: () => JournalEntryView[];
   useJournalContext: () => JournalContext | null;
   useDeleteEntry: () => (id: string) => Promise<Result>;
@@ -378,6 +384,13 @@ export interface ViewModel {
     ContactRowDialogState,
     DialogIntents<ContactRowDialogState["form"]>
   >;
+  /** Reads its argument on the first render only: the Add Deadline dialog on a day and building, or the Edit one on a deadline. */
+  useDeadlineDialog: (
+    spec: DeadlineDialogSpec,
+  ) => MachineView<
+    DeadlineDialogState,
+    DialogIntents<DeadlineDialogState["form"]>
+  >;
   /** Reads its argument on the first render only: the Add Supplier dialog on this building. */
   useSupplierDialog: (
     buildingId: string,
@@ -410,6 +423,10 @@ export interface ViewModel {
     AddressDialogState,
     DialogIntents<AddressDialogState["form"]>
   >;
+  /** The Calendar: the month, the selected day and deadline, the filters. Null while the deadlines and the books are on their way. Today is read from the clock when it first opens. */
+  useCalendar: () => CalendarView | null;
+  /** What the Calendar may ask: the month, the day, the deadline, the filters. */
+  useCalendarIntents: () => CalendarIntents;
 }
 
 /** Built once at startup, in the composition root, from the application. */
@@ -424,6 +441,7 @@ export function createViewModel(app: App): ViewModel {
     units,
     buildingData,
     contacts,
+    calendar,
   } = app.presenters;
   const { screens } = app;
 
@@ -509,6 +527,9 @@ export function createViewModel(app: App): ViewModel {
     },
     useSidebar: (): MachineView<SidebarState, SidebarIntents> => {
       return useMachine(app.machines.createSidebar);
+    },
+    useDeadlinesColumn: (): MachineView<SidebarState, SidebarIntents> => {
+      return useMachine(app.machines.createDeadlinesColumn);
     },
     useJournalEntries: (): JournalEntryView[] => {
       return useStateObservable(journal.entries$);
@@ -757,6 +778,16 @@ export function createViewModel(app: App): ViewModel {
         return app.machines.createConnectionDialog(contactId, editing);
       });
     },
+    useDeadlineDialog: (
+      spec: DeadlineDialogSpec,
+    ): MachineView<
+      DeadlineDialogState,
+      DialogIntents<DeadlineDialogState["form"]>
+    > => {
+      return useMachine(() => {
+        return app.machines.createDeadlineDialog(spec);
+      });
+    },
     useSupplierDialog: (
       buildingId: string,
     ): MachineView<
@@ -811,6 +842,24 @@ export function createViewModel(app: App): ViewModel {
       return useMachine(() => {
         return app.machines.createAddressDialog(address, apply);
       });
+    },
+    useCalendar: (): CalendarView | null => {
+      return useStateObservable(calendar.view$);
+    },
+    useCalendarIntents: (): CalendarIntents => {
+      return {
+        previousMonth: calendar.previousMonth,
+        nextMonth: calendar.nextMonth,
+        goToToday: calendar.goToToday,
+        selectDay: calendar.selectDay,
+        selectDeadline: calendar.selectDeadline,
+        toggleCalendar: calendar.toggleCalendar,
+        showAllCalendars: calendar.showAllCalendars,
+        showNoCalendars: calendar.showNoCalendars,
+        setBuilding: calendar.setBuilding,
+        reveal: calendar.reveal,
+        deleteDeadline: calendar.deleteDeadline,
+      };
     },
   };
 }

@@ -16,6 +16,7 @@ import {
   type Building,
   type BuildingsPort,
   type BuildingsSimulator,
+  type CalendarPort,
   type ClockPort,
   type Contact,
   type ContactCategory,
@@ -27,6 +28,7 @@ import {
   contactUsesOf,
   createAccountsSimulator,
   createBuildingsSimulator,
+  createCalendarSimulator,
   createContactsSimulator,
   createInstallmentsSimulator,
   createJournalSimulator,
@@ -81,6 +83,11 @@ import {
   createSupplierDialog,
   type SupplierDialogState,
 } from "./machines/contactDialogMachines.ts";
+import {
+  createDeadlineDialog,
+  type DeadlineDialogSpec,
+  type DeadlineDialogState,
+} from "./machines/deadlineDialogMachine.ts";
 import type { DialogIntents } from "./machines/formDialog.ts";
 import {
   createInstallmentDialog,
@@ -198,6 +205,10 @@ import {
   createBuildingsPresenter,
 } from "./presenters/buildingsPresenter.ts";
 import {
+  type CalendarPresenter,
+  createCalendarPresenter,
+} from "./presenters/calendarPresenter.ts";
+import {
   type ContactsPresenter,
   createContactsPresenter,
 } from "./presenters/contactsPresenter.ts";
@@ -222,12 +233,16 @@ import {
 import { type AppScreens, createScreens } from "./screens.ts";
 import { todayOf } from "./today.ts";
 
+/** The prototype's width for the Calendar's deadlines column, in pixels. */
+const DEADLINES_COLUMN_WIDTH = 404;
+
 /** Everything the application needs from the outside world. The client's
  * composition root decides what stands behind each port. */
 export interface AppPorts {
   session: SessionPort;
   buildings: BuildingsPort;
   contacts: ContactsPort;
+  calendar: CalendarPort;
   accounts: AccountsPort;
   journal: JournalPort;
   installments: InstallmentsPort;
@@ -248,12 +263,15 @@ interface AppPresenters {
   units: UnitsPresenter;
   contacts: ContactsPresenter;
   buildingData: BuildingDataPresenter;
+  calendar: CalendarPresenter;
 }
 
 /** Per-component state: each call builds a machine of its own, for a dialog, a wizard or the shell's parts, disposed when the component goes. */
 interface AppMachines {
   createMaximize: () => Machine<MaximizeState, MaximizeIntents>;
   createSidebar: () => Machine<SidebarState, SidebarIntents>;
+  /** The Calendar's deadlines column: the sidebar machine, starting at the prototype's 404 pixels. */
+  createDeadlinesColumn: () => Machine<SidebarState, SidebarIntents>;
   /** The dialog over the selected period's books as they stand when an intent asks: an edit opens only for an entry they hold. */
   createJournalDialog: () => Machine<JournalDialogState, JournalDialogIntents>;
   /**
@@ -362,6 +380,10 @@ interface AppMachines {
     ConnectionDialogState,
     DialogIntents<ConnectionDialogState["form"]>
   >;
+  /** The Add and Edit Deadline dialog; a saved deadline is revealed on the Calendar. A date typed without a year is in the clock's. */
+  createDeadlineDialog: (
+    spec: DeadlineDialogSpec,
+  ) => Machine<DeadlineDialogState, DialogIntents<DeadlineDialogState["form"]>>;
   /** The Add Supplier dialog on a building. */
   createSupplierDialog: (
     buildingId: string,
@@ -415,6 +437,18 @@ export function createApp(ports: AppPorts): App {
     contacts: ports.contacts,
     buildings: ports.buildings,
   });
+
+  const calendar = createCalendarPresenter(
+    {
+      calendar: ports.calendar,
+      buildings: ports.buildings,
+      installments: ports.installments,
+      journal: ports.journal,
+      accounts: ports.accounts,
+      contacts: ports.contacts,
+    },
+    ports.clock,
+  );
 
   const buildingData = createBuildingDataPresenter(
     {
@@ -542,6 +576,7 @@ export function createApp(ports: AppPorts): App {
       units,
       contacts,
       buildingData,
+      calendar,
     },
     navigation: createNavigationMachine(),
     notices: createNotices(),
@@ -564,6 +599,9 @@ export function createApp(ports: AppPorts): App {
     machines: {
       createMaximize: createMaximizeMachine,
       createSidebar: createSidebarMachine,
+      createDeadlinesColumn: (): Machine<SidebarState, SidebarIntents> => {
+        return createSidebarMachine(DEADLINES_COLUMN_WIDTH);
+      },
       createJournalDialog: (): Machine<
         JournalDialogState,
         JournalDialogIntents
@@ -945,6 +983,19 @@ export function createApp(ports: AppPorts): App {
       > => {
         return createConnectionDialog(ports.contacts, contactId, editing);
       },
+      createDeadlineDialog: (
+        spec: DeadlineDialogSpec,
+      ): Machine<
+        DeadlineDialogState,
+        DialogIntents<DeadlineDialogState["form"]>
+      > => {
+        return createDeadlineDialog(
+          { calendar: ports.calendar, buildings: ports.buildings },
+          { year: Number(todayOf(ports.clock).slice(0, 4)) },
+          spec,
+          calendar.reveal,
+        );
+      },
       createSupplierDialog: (
         buildingId: string,
       ): Machine<
@@ -1100,6 +1151,7 @@ export function createSimulatorPorts(
     }),
     buildings,
     contacts,
+    calendar: createCalendarSimulator(seed, buildings.currentBuildings),
     accounts,
     journal,
     installments,

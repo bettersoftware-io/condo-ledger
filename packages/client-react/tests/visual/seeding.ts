@@ -14,6 +14,8 @@ import type {
   ContactDialogSpec,
   ContactDialogState,
   ContactRowDialogState,
+  DeadlineDialogSpec,
+  DeadlineDialogState,
   DialogIntents,
   DirectPaymentForm,
   DirectPaymentKind,
@@ -47,10 +49,13 @@ import {
   createAppHarness,
 } from "@cl/client-core/testing/appHarness.ts";
 import {
+  type ClockPort,
   type ContactCategory,
   type ContactConnection,
   type ContactRowDraft,
+  type DeadlineDraft,
   type EntryKind,
+  fixedClock,
   type LegacySeed,
   loadLegacySeed,
   type Result,
@@ -90,8 +95,8 @@ import type { NewEntryDialog, Scenario } from "./scenarios.ts";
 /** The application and the deliveries of one scenario. Called once, before the first render. */
 export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
   // The seed is a port's memory, so a renamed account goes in before the
-  // harness is built.
-  const harness = createAppHarness(seedOf(scenario));
+  // harness is built; so does the clock, which the Calendar reads today from.
+  const harness = createAppHarness(seedOf(scenario), clockOf(scenario));
   const { machines } = harness.app;
   const { buildings, accounts } = harness.app.presenters;
 
@@ -149,6 +154,16 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
         }
 
         return sidebar;
+      },
+      // On the Calendar, the drawer is the deadlines column's.
+      createDeadlinesColumn: (): Machine<SidebarState, SidebarIntents> => {
+        const column = machines.createDeadlinesColumn();
+
+        if (scenario.drawerOpen === true) {
+          column.intents.open();
+        }
+
+        return column;
       },
       // The Journal's dialog starts open, through its own intent.
       createJournalDialog: (): Machine<
@@ -414,6 +429,19 @@ export function seedScenario(scenario: Scenario, clock: HostClock): Seeded {
 
         return dialog;
       },
+      // The deadline dialog holds the scenario's fields, typed.
+      createDeadlineDialog: (
+        spec: DeadlineDialogSpec,
+      ): Machine<
+        DeadlineDialogState,
+        DialogIntents<DeadlineDialogState["form"]>
+      > => {
+        const dialog = machines.createDeadlineDialog(spec);
+
+        typeInto(dialog, scenario.deadlineForm);
+
+        return dialog;
+      },
       // The table dialog holds the scenario's name, typed.
       createTableDialog: (
         editing: string | null,
@@ -529,6 +557,7 @@ function seedScreens(harness: AppHarness, scenario: Scenario): void {
   }
 
   seedContacts(harness, scenario);
+  seedCalendar(harness, scenario);
 }
 
 /**
@@ -557,6 +586,32 @@ function seedContacts(harness: AppHarness, scenario: Scenario): void {
     harness.app.screens
       .bottomTab("contacts", CONTACT_TABS)
       .intents.activate(scenario.contactTab);
+  }
+}
+
+/**
+ * The Calendar's deadline added, then its day and deadline, each through
+ * its own intent: the day selected as a click on its cell selects it, or
+ * the deadline on it as a click on its line does.
+ */
+function seedCalendar(harness: AppHarness, scenario: Scenario): void {
+  const { calendar } = harness.app.presenters;
+  const { calendarDay, deadlineId } = scenario;
+
+  if (scenario.addedDeadline !== undefined) {
+    addDeadline(harness, scenario.addedDeadline);
+  }
+
+  if (deadlineId !== undefined) {
+    if (calendarDay === undefined) {
+      throw new Error(
+        `the deadline ${deadlineId} is selected on its day, and the scenario names no \`calendarDay\``,
+      );
+    }
+
+    calendar.reveal(deadlineId, calendarDay);
+  } else if (calendarDay !== undefined) {
+    calendar.selectDay(calendarDay);
   }
 }
 
@@ -618,6 +673,13 @@ function pagePeriod(scenario: Scenario): string {
   }
 
   return scenario.periodId;
+}
+
+/** The app's clock on the scenario's today, at 08:00 UTC (the morning in Rome); the harness's own when it names none. */
+function clockOf(scenario: Scenario): ClockPort | undefined {
+  return scenario.today === undefined
+    ? undefined
+    : fixedClock(`${scenario.today}T08:00:00Z`);
 }
 
 /** The scenario's seed, with its accounts renamed. */
@@ -692,6 +754,19 @@ function deleteSeededOpening(harness: AppHarness, periodId: string): void {
 function deleteEntry(harness: AppHarness, entryId: string): void {
   void harness.ports.journal
     .deleteEntry(entryId)
+    .then(failOnRefusal)
+    .catch(reportOnThePage);
+}
+
+/**
+ * A typed deadline, added through the calendar port. The simulator holds it
+ * before the promise settles, so the Calendar lists it when the part or the
+ * screen mounts. Nothing may wait (the host's contract is synchronous); a
+ * refusal is rethrown on the page.
+ */
+function addDeadline(harness: AppHarness, draft: DeadlineDraft): void {
+  void harness.ports.calendar
+    .addDeadline(draft)
     .then(failOnRefusal)
     .catch(reportOnThePage);
 }

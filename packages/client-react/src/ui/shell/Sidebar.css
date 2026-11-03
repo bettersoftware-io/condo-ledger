@@ -299,3 +299,33 @@
     display: block;
   }
 }
+
+/* The frame on the right (the Calendar's deadlines column): the same parts, mirrored. */
+.rail[data-side="right"] {
+  padding: 6px 8px 6px 0;
+}
+
+.sidebar[data-side="right"] {
+  padding: 6px 8px 6px 0;
+}
+
+.app-body .splitter:has(+ .sidebar[data-side="right"]) {
+  margin-right: 0;
+  margin-left: -6px;
+}
+
+@media (width <= 1179px) {
+  .sidebar[data-side="right"] {
+    left: auto;
+    right: 0;
+    padding-right: 8px;
+    padding-left: 8px;
+    box-shadow: -8px 0 30px rgb(15 20 30 / 24%);
+    border-right: none;
+    border-left: 1px solid var(--bd);
+  }
+
+  .app-body .splitter:has(+ .sidebar[data-side="right"]) {
+    display: none;
+  }
+}

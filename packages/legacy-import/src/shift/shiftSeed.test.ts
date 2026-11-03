@@ -6,6 +6,7 @@ import type {
   InvoiceData,
   JournalEntryData,
   LegacySeedData,
+  ManualDeadline,
 } from "@cl/domain";
 import { createPersonContact } from "@cl/domain/testing/createContacts.ts";
 
@@ -213,6 +214,45 @@ describe("shiftLegacySeed", () => {
       "a record of contactCategories holds a date and belongs to no period",
     );
   });
+
+  it("moves a deadline tied to no building the whole way, its words too", () => {
+    const [deadline] = shiftLegacySeed(
+      createSeed({
+        deadlines: [
+          createDeadline({
+            date: "2013-02-05",
+            notes: "Payment of 20/01/2013 due",
+          }),
+        ],
+      }),
+      13,
+    ).deadlines;
+
+    expect(deadline).toMatchObject({
+      date: "2026-02-05",
+      notes: "Payment of 20/01/2026 due",
+    });
+  });
+
+  it("moves a deadline tied to a building with that building's years", () => {
+    const [deadline] = shiftLegacySeed(
+      createSeed({
+        deadlines: [createDeadline({ date: "2011-06-30", buildingId: "c1" })],
+      }),
+      13,
+    ).deadlines;
+
+    expect(deadline?.date).toBe("2023-06-30");
+  });
+
+  it("stops at a deadline tied to a building the seed does not hold", () => {
+    expect(() => {
+      return shiftLegacySeed(
+        createSeed({ deadlines: [createDeadline({ buildingId: "c9" })] }),
+        13,
+      );
+    }).toThrow("a deadline names building c9");
+  });
 });
 
 /** Saturno over p1 (2011) and Pozzetto over p36 (2013), and the records given. */
@@ -238,7 +278,23 @@ function createSeed(records: Partial<LegacySeedData>): LegacySeedData {
     contactConnections: [],
     salutations: [],
     supplierLinks: [],
+    deadlines: [],
     ...records,
+  };
+}
+
+function createDeadline(over: Partial<ManualDeadline>): ManualDeadline {
+  return {
+    id: "ce1",
+    date: "2013-02-05",
+    time: null,
+    calendar: "general",
+    buildingId: null,
+    description: "Policy expires",
+    status: "new",
+    priority: "none",
+    notes: null,
+    ...over,
   };
 }
 

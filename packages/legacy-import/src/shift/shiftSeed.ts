@@ -29,8 +29,11 @@ export function shiftLegacySeed(
   atMost: number,
 ): LegacySeedData {
   const byPeriod = new Map<string, number>();
+  const byBuilding = new Map<string, number>();
   const buildings = data.buildings.map((building) => {
     const years = yearsFor(building, atMost);
+
+    byBuilding.set(building.id, years);
 
     for (const period of building.periods) {
       byPeriod.set(period.id, years);
@@ -43,6 +46,15 @@ export function shiftLegacySeed(
     Object.entries(data).map(([collection, records]) => {
       if (collection === "buildings") {
         return [collection, buildings];
+      }
+
+      if (collection === "deadlines") {
+        return [
+          collection,
+          (records as unknown[]).map((record) => {
+            return shiftDeadline(record, byBuilding, atMost);
+          }),
+        ];
       }
 
       return [
@@ -129,6 +141,36 @@ function shiftRecord(
   if (years === undefined) {
     throw new Error(
       `shiftLegacySeed: ${collection} names period ${periodId}, which no building holds`,
+    );
+  }
+
+  return shiftValue(record, "", years);
+}
+
+/**
+ * A hand-entered deadline belongs to a day, not to a period: it moves with
+ * the building it is tied to, or the full `atMost` when it is tied to none
+ * (the dump's are all the firm's, and fall in the year of Pozzetto's books).
+ */
+function shiftDeadline(
+  record: unknown,
+  byBuilding: Map<string, number>,
+  atMost: number,
+): unknown {
+  const buildingId: unknown =
+    typeof record === "object" && record !== null
+      ? Reflect.get(record, "buildingId")
+      : undefined;
+
+  if (typeof buildingId !== "string") {
+    return shiftValue(record, "", atMost);
+  }
+
+  const years = byBuilding.get(buildingId);
+
+  if (years === undefined) {
+    throw new Error(
+      `shiftLegacySeed: a deadline names building ${buildingId}, which the seed does not hold`,
     );
   }
 

@@ -12,7 +12,7 @@ One bullet for each entry: its name in bold, what is left, and a link to its
 plan when it has one. `AGENTS.md` says when an entry is added, moved and
 removed.
 
-**Last updated: 2026-11-02**
+**Last updated: 2026-11-03**
 
 ## In progress
 
@@ -52,11 +52,12 @@ Work that waits on a release, a decision or other work.
   "rounding" on the first resident (`budgetAllocationDraft.ts`). The draft
   must then refuse, or name the account, when a column's Roundings exceeds
   a rounding.
-- **The rest of the Buildings module for M2.** The one group the parent
-  design names that is not built yet is Calendar, with its own spec
-  ([2026-10-11-app-v2-design.md](superpowers/specs/2026-10-11-app-v2-design.md)).
-  Installments (M2d), Tables & Allocation (M2e), Building Data & Units (M2f)
-  and Contacts (M2g) are built.
+- **Week and List views of the Calendar.** The Calendar (M2h) is built with
+  its Month view; the toolbar draws Week and List, switched off, as the
+  design does
+  ([2026-11-03-m2h-calendar-design.md](superpowers/specs/2026-11-03-m2h-calendar-design.md)).
+  With the Calendar built, every screen the parent design names for M2 is
+  built; what is left of the Buildings module is the entries below.
 - **New and deleted buildings and periods.** Building Data & Units edits
   what exists but cannot add or remove a building or a period. A new period
   starts from the previous one: its chart, units, residents and balances are
@@ -87,6 +88,34 @@ Work that waits on a release, a decision or other work.
   below it. The category dialog passes an empty name to `contactReasonText`,
   which no category reason uses. One comment line in `translateSeed.ts` is
   still too long.
+- **Tidy-ups left by the M2h reviews.** None changes what a person sees today.
+  In the seed: ce13's English names its years already moved ("2025-2026"),
+  since the date shift does not move a year range, so it is right only while
+  `SEED_YEAR_SHIFT` is 13; `projectDeadlines` would write "null" for a missing
+  description rather than stop; two notes keep the dump's own quirks (a note's
+  day that disagrees with its date, and the parser's "n" for a newline). In
+  the domain: `validateDeadline` counts UTF-16 units and refuses years below
+  100 only by accident; a day's order has no last tiebreak by id, and invoice
+  numbers compare without the "it" locale. In the presenter:
+  `selectDeadline` with an id off the selected day does nothing; a deleted
+  deadline's id stays selected, so a new one that takes the same `ce<n>`
+  would be selected unasked; the buildings are sorted and the names rebuilt on
+  every selection; `samePeriods` is order-sensitive and resubscribes on a
+  reorder; `reveal` reads the deadline from the last view (a variable a `tap`
+  fills while the view is watched), so a live adapter that emits a save only
+  after it answers would lift no filter. In the UI:
+  `CalendarScreen` branches between `selectDeadline` and `reveal` where
+  `reveal` alone would do; `calendarWords.ts` takes `reasonText` from
+  `journal/wizards/reasons.ts`; `DayCell`'s comment says it takes only props
+  though it reads the locale; maximize does not hide a right-side splitter
+  (the Calendar has no maximize); the drawer hides the list/details splitter;
+  an open dialog's deadline follows the selection. In the tests: the
+  `monthGrid` and `dayNumber` test ids are unused; two page objects read
+  values by CSS class; `SidebarFrame` has no test of its own for the right
+  side; the deadline dialog's Cancel and Yes-delete tests assert little;
+  `scenarios.ts` puts `TIMED_DEADLINE` under the scenarios' comment; the
+  registry's column and day heights are fixed to 1280x720. One comment line
+  in `AppRoot.tsx` is too long.
 - **Presenter robustness before the live adapters (M3).** `booksOf` skips a
   state whose postings name a supplier the parties lack, so a live adapter
   that breaks the `parties()` guarantee freezes the books with no error: M3's
@@ -137,6 +166,10 @@ Work that waits on a release, a decision or other work.
   so a slow live adapter would leave a new contact with no salutation. And
   the contact dialog does not judge its rows again: the row dialog and the
   port do.
+  The Calendar (M2h) reads every period's books in the client, to work out
+  the deadlines of every building; a
+  server may serve the computed deadlines, and M3 decides whether the client
+  keeps working them out.
   The Building Data screen (M2f) has two more limits. One period's error (a
   port error in M3, or a period without a Liquidity or Funds account) breaks
   every building's Building Data rows until the page is reloaded; the fix in
@@ -161,6 +194,9 @@ A step or a decision an agent cannot take.
 
 ## Known limits
 
+- **A Calendar day cell shows at most three lines.** It shows two deadlines
+  and "+N more" when there are more, a fixed count rather than what fits the
+  cell's height.
 - **The seed's dates are moved a fixed number of years.** The generator moves
   every date of the books forward, at most `SEED_YEAR_SHIFT` (13) years
   (`packages/legacy-import/src/shift/shiftSeed.ts`), so Pozzetto's period

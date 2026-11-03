@@ -15,6 +15,7 @@ export function DateField({
   label,
   required = false,
   disabled = false,
+  invalid = false,
   value,
   parsed,
   onChange,
@@ -32,6 +33,7 @@ export function DateField({
         type="text"
         aria-label={label}
         aria-required={required}
+        aria-invalid={invalid ? true : undefined}
         aria-describedby={showParsed ? parsedId : undefined}
         value={value}
         disabled={disabled}
@@ -55,6 +57,8 @@ export interface DateFieldProps {
   required?: boolean;
   /** The date cannot be changed while this holds. */
   disabled?: boolean;
+  /** The text is refused: announced as invalid. */
+  invalid?: boolean;
   /** The text as typed. */
   value: string;
   /** The ISO date the text reads as, or null when it reads as none. */

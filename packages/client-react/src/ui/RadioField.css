@@ -1,8 +1,9 @@
-/* README "Form field": a radio is 14px; checked, `border: 4px solid --acc`. */
+/* README "Form field": a radio is 14px; checked, `border: 4px solid --acc`. Choices that do not fit the row (Add Deadline's five priorities at 460px) wrap to the next line rather than run past the card. */
 .radio-field-options {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 14px;
+  gap: 6px 14px;
   font-size: 12px;
 }
 

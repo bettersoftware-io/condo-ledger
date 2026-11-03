@@ -18,10 +18,31 @@ import { createSeedUnitsBooks } from "#/testing/createSeedUnitsBooks.ts";
 import { type AccountNode, buildAccountTree, findNode } from "./accountTree.ts";
 import {
   buildingRowsOf,
+  buildingsByName,
   type PeriodFigures,
   periodFiguresOf,
 } from "./buildingRows.ts";
 import { type UnitsList, unitsListOf } from "./units/unitsList.ts";
+
+describe("buildingsByName", () => {
+  it("orders by name in Italian rules, then by id, without moving the list given", () => {
+    const given = [
+      createNamedBuilding("c3", "Saturno"),
+      createNamedBuilding("c2", "Èden"),
+      createNamedBuilding("c1", "Saturno"),
+      createNamedBuilding("c4", "Pozzetto"),
+    ];
+
+    const sorted = buildingsByName(given);
+
+    expect(
+      sorted.map((building) => {
+        return building.id;
+      }),
+    ).toEqual(["c2", "c4", "c1", "c3"]);
+    expect(given[0]?.id).toBe("c3");
+  });
+});
 
 describe("periodFiguresOf on the seed", () => {
   it.each([
@@ -319,3 +340,9 @@ function fundsKey(accounts: Account[]): string {
 }
 
 const TODAY = "2026-10-31";
+
+function createNamedBuilding(id: string, name: string): Building {
+  const [seeded] = loadLegacySeed(legacySeedData).buildings;
+
+  return { ...must(seeded, "a seeded building"), id, name };
+}

@@ -69,6 +69,13 @@ export function periodFiguresOf(
   };
 }
 
+/** The buildings by name, then by id: the order a choice of building is listed in. */
+export function buildingsByName(buildings: Building[]): Building[] {
+  return [...buildings].sort((a, b) => {
+    return a.name.localeCompare(b.name, "it") || a.id.localeCompare(b.id);
+  });
+}
+
 /**
  * The Building Data grid: buildings by name, labelled "{name} ({address})",
  * each over its periods by start, labelled "{name} ({type})".

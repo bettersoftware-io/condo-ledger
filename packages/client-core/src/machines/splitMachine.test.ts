@@ -35,6 +35,14 @@ describe("the split machine", () => {
     machine.dispose();
   });
 
+  it("starts at the ratio it is given", () => {
+    const machine = createSplitMachine(0.4);
+
+    expect(machine.state$.getValue()).toEqual({ ratio: 0.4 });
+
+    machine.dispose();
+  });
+
   it("ignores intents after it is disposed", () => {
     const machine = createSplitMachine();
     const seen: number[] = [];

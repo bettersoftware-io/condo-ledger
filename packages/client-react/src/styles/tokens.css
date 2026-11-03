@@ -176,6 +176,21 @@
   --alert-glyph: #e08a2b;
   --partial: #e0892b; /* an installment paid in part (settled is --ok) */
   --unsettled: #2a6fdb; /* an installment nothing has paid yet */
+  --calendar-installments: #9b59b6; /* the Calendar's six calendars */
+  --calendar-invoices: #2f6fed;
+  --calendar-fiscal: #16a085;
+  --calendar-policies: #e08a2b;
+  --calendar-interventions: #cc3a3a;
+  --calendar-general: #7f8c8d;
+  --priority-low: #2e9e5b; /* a deadline's priority dot; none is drawn for None */
+  --priority-medium: #e6b020;
+  --priority-high: #e08a2b;
+  --priority-critical: #d83a3a;
+  --saturday: #c98a2b; /* the month's Saturday column: its day numbers, header and tint */
+  --saturday-head: rgb(224 168 43 / 10%);
+  --saturday-tint: rgb(224 168 43 / 6%);
+  --sunday-head: rgb(204 58 58 / 8%); /* Sunday's numbers are --neg */
+  --sunday-tint: rgb(204 58 58 / 4.5%);
 
   /* typography */
   --font-sans: "IBM Plex Sans", system-ui, sans-serif;
