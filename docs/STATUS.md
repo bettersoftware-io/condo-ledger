@@ -288,11 +288,14 @@ A step or a decision an agent cannot take.
   review's chain-detection points, as open. The control that holds is the
   repository's ruleset on `main` (no force-push, no deletion, a pull
   request required); the hook and the rules only reduce prompts and slips.
-- **`ubuntu-latest` becomes Ubuntu 26 on 19 October 2026.** Every workflow
-  here uses the label, as the plugin's templates do, and each job installs
-  its own Node and pnpm (the Playwright jobs run in a container), so the
-  project moves with it rather than pinning `ubuntu-24.04`. Watch the first
-  runs of `main` after that date; a runner-image failure is not the change
+- **`ubuntu-latest` is still Ubuntu 24.** GitHub announced the move to
+  Ubuntu 26 for 19 October 2026, but on 2026-11-03 main's CI jobs still ran
+  on `Image: ubuntu-24.04` (runner image 20261021), so the switch is still
+  ahead. Every workflow here uses the label, as the plugin's templates do,
+  and each job installs its own Node and pnpm (the Playwright jobs run in a
+  container), so the project moves with it rather than pinning
+  `ubuntu-24.04`. When a job's "Set up job" log shows `ubuntu-26.04`, watch
+  the first runs of `main`; a runner-image failure then is not the change
   that merged. The plugin's own workflows passed on `ubuntu-26.04` on
   2026-10-16 (skills #40, skills-demo #13).
 - **A write that fails shows nothing in the Units and Building Data
