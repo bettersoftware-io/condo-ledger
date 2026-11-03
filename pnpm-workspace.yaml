@@ -57,3 +57,14 @@ overrides:
   # esbuild, the db package's migration tooling only; no dev server is run.
   # Drop when: drizzle-kit no longer depends on @esbuild-kit.
   "esbuild@<=0.24.2": ^0.25.12
+  # GHSA-g3hv-75wg-m249 (MODERATE, minimatch < 11.0.1: a crafted pattern
+  # grows its own parts, then is compared pair by pair). No 10.x release has
+  # the fix. ESLint calls only `new Minimatch(pattern, { dot: true }).match()`
+  # and `minimatch()`, which 11 keeps; what 11 removes (`makeRe`, `regexp`,
+  # `debug`) is not used.
+  # Reach: eslint, @eslint/config-array and @typescript-eslint/typescript-estree
+  # > minimatch, lint tooling only, on the project's own patterns; never the
+  # server and never a browser bundle.
+  # Drop when: eslint, @eslint/config-array and typescript-estree ask for
+  # minimatch >= 11.0.1 themselves.
+  "minimatch@<11.0.1": ^11.0.1
