@@ -10,48 +10,22 @@ import type { MachineView } from "@cl/react-bindings";
 import { AccountsScreen } from "../accounts/AccountsScreen.tsx";
 import { TablesAllocationScreen } from "../allocation/TablesAllocationScreen.tsx";
 import { BuildingDataScreen } from "../buildingData/BuildingDataScreen.tsx";
+import { CalendarScreen } from "../calendar/CalendarScreen.tsx";
 import { ContactsScreen } from "../contacts/ContactsScreen.tsx";
 import { InstallmentScheduleScreen } from "../installments/InstallmentScheduleScreen.tsx";
 import { JournalScreen } from "../journal/JournalScreen.tsx";
 import { UnitsScreen } from "../units/UnitsScreen.tsx";
-import { menuLabel, moduleLabel } from "./labels.tsx";
-import { Placeholder } from "./Placeholder.tsx";
 
-/** The main area's content for where the person is: the Building Data & Suppliers, Units, Thousandth Tables & Allocation, Accounts, Journal and Installment Schedule screens on their menu items, the Contacts screen in its module, a placeholder for every screen not built yet. */
+/** The main area's content for where the person is: the Calendar and Contacts screens in their modules, and in Buildings the screen of its menu item. */
 export function Screen({ module, menu, maximize }: ScreenProps): ReactElement {
-  if (module === "buildings" && menu === "data") {
-    return <BuildingDataScreen maximize={maximize} />;
+  switch (module) {
+    case "calendar":
+      return <CalendarScreen />;
+    case "contacts":
+      return <ContactsScreen maximize={maximize} />;
+    case "buildings":
+      return buildingsScreen(menu, maximize);
   }
-
-  if (module === "buildings" && menu === "units") {
-    return <UnitsScreen maximize={maximize} />;
-  }
-
-  if (module === "buildings" && menu === "thousandths") {
-    return <TablesAllocationScreen maximize={maximize} />;
-  }
-
-  if (module === "buildings" && menu === "accounts") {
-    return <AccountsScreen maximize={maximize} />;
-  }
-
-  if (module === "buildings" && menu === "journal") {
-    return <JournalScreen maximize={maximize} />;
-  }
-
-  if (module === "buildings" && menu === "installments") {
-    return <InstallmentScheduleScreen maximize={maximize} />;
-  }
-
-  if (module === "contacts") {
-    return <ContactsScreen maximize={maximize} />;
-  }
-
-  return (
-    <Placeholder
-      title={module === "buildings" ? menuLabel(menu) : moduleLabel(module)}
-    />
-  );
 }
 
 export interface ScreenProps {
@@ -59,4 +33,25 @@ export interface ScreenProps {
   menu: NavigationState["menu"];
   /** The shell's, so a screen's maximized panel folds the sidebar too. */
   maximize: MachineView<MaximizeState, MaximizeIntents>;
+}
+
+/** The Buildings module's screen for a menu item: Building Data & Suppliers, Units, Thousandth Tables & Allocation, Accounts, Journal or Installment Schedule. */
+function buildingsScreen(
+  menu: NavigationState["menu"],
+  maximize: MachineView<MaximizeState, MaximizeIntents>,
+): ReactElement {
+  switch (menu) {
+    case "data":
+      return <BuildingDataScreen maximize={maximize} />;
+    case "units":
+      return <UnitsScreen maximize={maximize} />;
+    case "thousandths":
+      return <TablesAllocationScreen maximize={maximize} />;
+    case "accounts":
+      return <AccountsScreen maximize={maximize} />;
+    case "journal":
+      return <JournalScreen maximize={maximize} />;
+    case "installments":
+      return <InstallmentScheduleScreen maximize={maximize} />;
+  }
 }

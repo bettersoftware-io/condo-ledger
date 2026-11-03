@@ -165,6 +165,7 @@ export type { PeriodSelection } from "./presenters/buildingsPresenter.ts";
 export type {
   CalendarIntents,
   CalendarView,
+  DeadlineNames,
 } from "./presenters/calendarPresenter.ts";
 export type {
   ContactsPresenter,

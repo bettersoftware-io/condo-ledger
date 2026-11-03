@@ -96,7 +96,11 @@ export {
   sameDayIn,
   weeksOf,
 } from "./useCases/calendar/month.ts";
-export type { CalendarFilters } from "./useCases/calendar/overdue.ts";
+export {
+  type CalendarFilters,
+  type ShownStatus,
+  shownStatus,
+} from "./useCases/calendar/overdue.ts";
 export {
   type DeadlineDraft,
   validateDeadline,

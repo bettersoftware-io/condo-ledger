@@ -1,0 +1,193 @@
+/* The spec's "The month" and the prototype's CALENDAR: a weekday header, then the weeks sharing the height. */
+.month-grid {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.month-weekdays,
+.month-week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.month-weekdays {
+  flex: none;
+  border-bottom: 1px solid var(--bd);
+}
+
+.month-weekday {
+  padding: 6px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--phf);
+  background: var(--ph);
+  border-right: 1px solid var(--bd2);
+}
+
+.month-weekday[data-weekday="5"] {
+  color: var(--saturday);
+  background: var(--saturday-head);
+}
+
+.month-weekday[data-weekday="6"] {
+  color: var(--neg);
+  background: var(--sunday-head);
+  border-right: none;
+}
+
+.month-weeks {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-auto-rows: minmax(0, 1fr);
+}
+
+.day-cell {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 4px 5px;
+  background: var(--panel);
+  border-right: 1px solid var(--bd2);
+  border-bottom: 1px solid var(--bd2);
+}
+
+.day-cell[data-weekday="5"] {
+  background: var(--saturday-tint);
+}
+
+.day-cell[data-weekday="6"] {
+  background: var(--sunday-tint);
+  border-right: none;
+}
+
+.day-cell[data-selected="true"] {
+  background: var(--sel);
+}
+
+/* Fills the cell under the lines: a click between the lines selects the day. */
+.day-cell-select {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 2px 6px 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.day-cell-select:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: -2px;
+}
+
+.day-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 3px;
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--txd);
+}
+
+.day-cell[data-weekday="5"] .day-number {
+  color: var(--saturday);
+}
+
+.day-cell[data-weekday="6"] .day-number {
+  color: var(--neg);
+}
+
+.day-cell[data-empty="true"] .day-number {
+  opacity: 0.55;
+}
+
+.day-cell[data-today="true"] .day-number {
+  border-color: var(--acc);
+}
+
+.day-cell[data-selected="true"] .day-number {
+  color: var(--acc);
+  font-weight: 700;
+  opacity: 1;
+}
+
+/* Above the cell's button, letting a click between them through to it. */
+.day-lines {
+  position: relative;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.day-line,
+.day-more {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 0 0 0 4px;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 10px;
+  line-height: 1.25;
+  text-align: left;
+  color: var(--acc);
+  cursor: pointer;
+}
+
+.day-line {
+  border-left: 2px solid var(--calendar-colour);
+}
+
+.day-line[aria-pressed="true"] {
+  background: var(--panel);
+  font-weight: 600;
+}
+
+.day-line .calendar-mark {
+  margin-right: 2px;
+}
+
+.day-line-time {
+  flex: none;
+  margin-right: 4px;
+  color: var(--txd);
+  font-variant-numeric: tabular-nums;
+}
+
+.day-line-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--acc) 30%, transparent);
+}
+
+.day-more {
+  color: var(--txd);
+  font-weight: 600;
+}
+
+.day-line:focus-visible,
+.day-more:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: -1px;
+}

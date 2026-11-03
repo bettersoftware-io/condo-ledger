@@ -120,13 +120,13 @@ describe("TopBar", () => {
 
     expect(page.activeTab()).toBe("Calendar");
     expect(page.hasSidebar()).toBe(false);
-    expect(page.placeholderTitle()).toBe("Calendar");
+    expect(page.screenTitle()).toBe("Calendar");
 
     await page.clickTab("Contacts");
 
     expect(page.activeTab()).toBe("Contacts");
     expect(page.hasSidebar()).toBe(true);
-    expect(page.placeholderTitle()).toBe("Contact List");
+    expect(page.screenTitle()).toBe("Contact List");
   });
 
   it("the module tabs are one stop for the Tab key: the active one", () => {
@@ -149,7 +149,7 @@ describe("TopBar", () => {
 
       expect(page.focusedTab()).toBe(next);
       expect(page.activeTab()).toBe(next);
-      expect(page.placeholderTitle()).toBe(title);
+      expect(page.screenTitle()).toBe(title);
     },
   );
 

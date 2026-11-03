@@ -37,7 +37,8 @@ export interface TopBarPage {
   rootMode: () => string | null;
   rootTheme: () => string | null;
   hasSidebar: () => boolean;
-  placeholderTitle: () => string | null;
+  /** The title of the main area's first panel: the screen the person is on. */
+  screenTitle: () => string | null;
   /** The texts of the chart of accounts' money cells, row by row. */
   accountAmounts: () => string[];
 }
@@ -184,11 +185,11 @@ export function mountTopBar(): TopBarPage {
           return cell.textContent ?? "";
         });
     },
-    placeholderTitle: (): string | null => {
+    screenTitle: (): string | null => {
       return (
-        within(rendered.getByTestId(TESTIDS.appMain)).queryByTestId(
+        within(rendered.getByTestId(TESTIDS.appMain)).queryAllByTestId(
           TESTIDS.panelTitle,
-        )?.textContent ?? null
+        )[0]?.textContent ?? null
       );
     },
   };

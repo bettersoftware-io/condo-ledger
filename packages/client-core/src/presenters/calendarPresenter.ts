@@ -40,7 +40,7 @@ import {
 import { todayOf } from "../today.ts";
 
 /** The names a deadline's words need, by id; an id they do not know is its own name. */
-interface DeadlineNames {
+export interface DeadlineNames {
   buildingName: (buildingId: string) => string;
   periodName: (periodId: string) => string;
   /** The supplier's contact's name. */

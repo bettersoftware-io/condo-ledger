@@ -1018,13 +1018,6 @@ export const scenarios: Record<string, Scenario> = {
       amounts: { la156: { debit: "6,25o.99", credit: "" } },
     },
   },
-  // A screen not built yet: its title, and when it comes.
-  placeholder: {
-    level: "component",
-    mount: "placeholder",
-    width: 800,
-    mode: "light",
-  },
   "invoice-wizard-duplicate-number": {
     level: "component",
     mount: "invoice-wizard",

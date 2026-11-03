@@ -75,8 +75,6 @@ import { WizardDialog } from "#/ui/journal/wizards/WizardDialog.tsx";
 import { MenuItem } from "#/ui/MenuItem.tsx";
 import { Money } from "#/ui/Money.tsx";
 import { SegmentedControl } from "#/ui/SegmentedControl.tsx";
-import { menuLabel } from "#/ui/shell/labels.tsx";
-import { Placeholder } from "#/ui/shell/Placeholder.tsx";
 import { Popover } from "#/ui/shell/Popover.tsx";
 import { ToastHost } from "#/ui/shell/ToastHost.tsx";
 import { TabbedPanel } from "#/ui/TabbedPanel.tsx";
@@ -326,15 +324,6 @@ const registry: Record<string, Entry> = {
         onSaved={ignoreClose}
         onCancel={ignoreClose}
       />
-    );
-  },
-  // A screen not built yet, in a box the height of a short main area: the
-  // placeholder fills the main area it is given.
-  placeholder: (): ReactElement => {
-    return (
-      <div style={PLACEHOLDER_BOX}>
-        <Placeholder title={menuLabel("units")} />
-      </div>
     );
   },
   // The menu hangs from the box its button sits in, 34 pixels under the
@@ -1013,12 +1002,6 @@ const POPOVER_BOX: CSSProperties = { position: "relative", margin: "0 12px" };
 
 /** The surface of the panel a part sits on in the app: Account Details' sheet, under the mini-grid's rows and border. */
 const PANEL_SURFACE: CSSProperties = { background: "var(--panel)" };
-
-const PLACEHOLDER_BOX: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  height: 240,
-};
 
 /** The building and period the wizard dialog's props name. */
 const PICTURED_CONTEXT = {
