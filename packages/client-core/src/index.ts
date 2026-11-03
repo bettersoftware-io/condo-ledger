@@ -48,6 +48,10 @@ export type {
   ContactRowDialogState,
   SupplierDialogState,
 } from "./machines/contactDialogMachines.ts";
+export type {
+  DeadlineDialogSpec,
+  DeadlineDialogState,
+} from "./machines/deadlineDialogMachine.ts";
 export type { DialogIntents } from "./machines/formDialog.ts";
 export type {
   InstallmentDialogForm,

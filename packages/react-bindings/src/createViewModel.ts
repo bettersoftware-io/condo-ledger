@@ -32,6 +32,8 @@ import type {
   ContactRowDialogState,
   ContactsPresenter,
   ContactsView,
+  DeadlineDialogSpec,
+  DeadlineDialogState,
   DialogIntents,
   DirectPaymentForm,
   DirectPaymentKind,
@@ -379,6 +381,13 @@ export interface ViewModel {
   ) => MachineView<
     ContactRowDialogState,
     DialogIntents<ContactRowDialogState["form"]>
+  >;
+  /** Reads its argument on the first render only: the Add Deadline dialog on a day and building, or the Edit one on a deadline. */
+  useDeadlineDialog: (
+    spec: DeadlineDialogSpec,
+  ) => MachineView<
+    DeadlineDialogState,
+    DialogIntents<DeadlineDialogState["form"]>
   >;
   /** Reads its argument on the first render only: the Add Supplier dialog on this building. */
   useSupplierDialog: (
@@ -762,6 +771,16 @@ export function createViewModel(app: App): ViewModel {
     > => {
       return useMachine(() => {
         return app.machines.createConnectionDialog(contactId, editing);
+      });
+    },
+    useDeadlineDialog: (
+      spec: DeadlineDialogSpec,
+    ): MachineView<
+      DeadlineDialogState,
+      DialogIntents<DeadlineDialogState["form"]>
+    > => {
+      return useMachine(() => {
+        return app.machines.createDeadlineDialog(spec);
       });
     },
     useSupplierDialog: (

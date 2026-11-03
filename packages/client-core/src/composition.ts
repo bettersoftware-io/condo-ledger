@@ -83,6 +83,11 @@ import {
   createSupplierDialog,
   type SupplierDialogState,
 } from "./machines/contactDialogMachines.ts";
+import {
+  createDeadlineDialog,
+  type DeadlineDialogSpec,
+  type DeadlineDialogState,
+} from "./machines/deadlineDialogMachine.ts";
 import type { DialogIntents } from "./machines/formDialog.ts";
 import {
   createInstallmentDialog,
@@ -370,6 +375,10 @@ interface AppMachines {
     ConnectionDialogState,
     DialogIntents<ConnectionDialogState["form"]>
   >;
+  /** The Add and Edit Deadline dialog; a saved deadline is revealed on the Calendar. A date typed without a year is in the clock's. */
+  createDeadlineDialog: (
+    spec: DeadlineDialogSpec,
+  ) => Machine<DeadlineDialogState, DialogIntents<DeadlineDialogState["form"]>>;
   /** The Add Supplier dialog on a building. */
   createSupplierDialog: (
     buildingId: string,
@@ -965,6 +974,19 @@ export function createApp(ports: AppPorts): App {
         DialogIntents<ConnectionDialogState["form"]>
       > => {
         return createConnectionDialog(ports.contacts, contactId, editing);
+      },
+      createDeadlineDialog: (
+        spec: DeadlineDialogSpec,
+      ): Machine<
+        DeadlineDialogState,
+        DialogIntents<DeadlineDialogState["form"]>
+      > => {
+        return createDeadlineDialog(
+          { calendar: ports.calendar, buildings: ports.buildings },
+          { year: Number(todayOf(ports.clock).slice(0, 4)) },
+          spec,
+          calendar.reveal,
+        );
       },
       createSupplierDialog: (
         buildingId: string,

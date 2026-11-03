@@ -97,6 +97,10 @@ export {
   weeksOf,
 } from "./useCases/calendar/month.ts";
 export type { CalendarFilters } from "./useCases/calendar/overdue.ts";
+export {
+  type DeadlineDraft,
+  validateDeadline,
+} from "./useCases/calendar/validateDeadline.ts";
 export * from "./useCases/collection.ts";
 export {
   ALL_CONTACTS,
