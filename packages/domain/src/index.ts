@@ -15,6 +15,7 @@ export * from "./entities/table.ts";
 export * from "./entities/unit.ts";
 export type { AccountsPort } from "./ports/accountsPort.ts";
 export type { BuildingsPort } from "./ports/buildingsPort.ts";
+export type { CalendarPort } from "./ports/calendarPort.ts";
 export type { ClockPort } from "./ports/clockPort.ts";
 export type { ContactsPort } from "./ports/contactsPort.ts";
 export type {
@@ -33,6 +34,7 @@ export {
   type BuildingsSimulator,
   createBuildingsSimulator,
 } from "./simulators/buildingsSimulator.ts";
+export { createCalendarSimulator } from "./simulators/calendarSimulator.ts";
 export {
   type ContactsSimulator,
   createContactsSimulator,

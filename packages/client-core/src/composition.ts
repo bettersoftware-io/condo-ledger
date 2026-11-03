@@ -16,6 +16,7 @@ import {
   type Building,
   type BuildingsPort,
   type BuildingsSimulator,
+  type CalendarPort,
   type ClockPort,
   type Contact,
   type ContactCategory,
@@ -27,6 +28,7 @@ import {
   contactUsesOf,
   createAccountsSimulator,
   createBuildingsSimulator,
+  createCalendarSimulator,
   createContactsSimulator,
   createInstallmentsSimulator,
   createJournalSimulator,
@@ -228,6 +230,7 @@ export interface AppPorts {
   session: SessionPort;
   buildings: BuildingsPort;
   contacts: ContactsPort;
+  calendar: CalendarPort;
   accounts: AccountsPort;
   journal: JournalPort;
   installments: InstallmentsPort;
@@ -1100,6 +1103,7 @@ export function createSimulatorPorts(
     }),
     buildings,
     contacts,
+    calendar: createCalendarSimulator(seed, buildings.currentBuildings),
     accounts,
     journal,
     installments,

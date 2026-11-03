@@ -1,5 +1,5 @@
 /** The calendars a deadline belongs to: two hold only what the books say, four hold what a person typed. */
-type CalendarId =
+export type CalendarId =
   | "installments"
   | "invoices"
   | "fiscal"
@@ -27,3 +27,11 @@ export interface ManualDeadline {
   priority: DeadlinePriority;
   notes: string | null;
 }
+
+/** The calendars a person may type a deadline into: the other two are worked out from the books. */
+export const MANUAL_CALENDARS: readonly CalendarId[] = [
+  "fiscal",
+  "policies",
+  "interventions",
+  "general",
+];
