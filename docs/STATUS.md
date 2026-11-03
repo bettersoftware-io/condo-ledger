@@ -12,7 +12,7 @@ One bullet for each entry: its name in bold, what is left, and a link to its
 plan when it has one. `AGENTS.md` says when an entry is added, moved and
 removed.
 
-**Last updated: 2026-11-02**
+**Last updated: 2026-11-03**
 
 ## In progress
 
@@ -52,11 +52,12 @@ Work that waits on a release, a decision or other work.
   "rounding" on the first resident (`budgetAllocationDraft.ts`). The draft
   must then refuse, or name the account, when a column's Roundings exceeds
   a rounding.
-- **The rest of the Buildings module for M2.** The one group the parent
-  design names that is not built yet is Calendar, with its own spec
-  ([2026-10-11-app-v2-design.md](superpowers/specs/2026-10-11-app-v2-design.md)).
-  Installments (M2d), Tables & Allocation (M2e), Building Data & Units (M2f)
-  and Contacts (M2g) are built.
+- **Week and List views of the Calendar.** The Calendar (M2h) is built with
+  its Month view; the toolbar draws Week and List, switched off, as the
+  design does
+  ([2026-11-03-m2h-calendar-design.md](superpowers/specs/2026-11-03-m2h-calendar-design.md)).
+  With the Calendar built, every screen the parent design names for M2 is
+  built; what is left of the Buildings module is the entries below.
 - **New and deleted buildings and periods.** Building Data & Units edits
   what exists but cannot add or remove a building or a period. A new period
   starts from the previous one: its chart, units, residents and balances are
@@ -137,6 +138,10 @@ Work that waits on a release, a decision or other work.
   so a slow live adapter would leave a new contact with no salutation. And
   the contact dialog does not judge its rows again: the row dialog and the
   port do.
+  The Calendar (M2h) reads every period's books in the client, to work out
+  the deadlines of every building; a
+  server may serve the computed deadlines, and M3 decides whether the client
+  keeps working them out.
   The Building Data screen (M2f) has two more limits. One period's error (a
   port error in M3, or a period without a Liquidity or Funds account) breaks
   every building's Building Data rows until the page is reloaded; the fix in
@@ -161,6 +166,9 @@ A step or a decision an agent cannot take.
 
 ## Known limits
 
+- **A Calendar day cell shows at most three lines.** It shows two deadlines
+  and "+N more" when there are more, a fixed count rather than what fits the
+  cell's height.
 - **The seed's dates are moved a fixed number of years.** The generator moves
   every date of the books forward, at most `SEED_YEAR_SHIFT` (13) years
   (`packages/legacy-import/src/shift/shiftSeed.ts`), so Pozzetto's period

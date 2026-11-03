@@ -79,3 +79,10 @@ be worth doing. Not how.
 - **Edit co-ownership percentages.** M2f shows them as seeded.
 - **Ownership scenarios and a second unit period.** Bare ownership and
   usufruct, leasing, and a unit that is held differently in a second period.
+- **Fiscal deadlines from the books.** The Calendar works out the deadlines
+  of installments and invoices only; the withholding payments (F24) could be
+  worked out from the books too. Nothing in the legacy app did it.
+- **Open the installment or invoice behind a deadline.** A computed deadline
+  could take a person to its installment or invoice on its own screen.
+- **Reminders, repeats and printing for the Calendar.** The legacy app had
+  none; worth doing if anyone asks.
