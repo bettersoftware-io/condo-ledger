@@ -122,6 +122,7 @@ export interface Seen {
   bottomTab: MachineView<BottomTabState, BottomTabIntents>;
   maximize: MachineView<MaximizeState, MaximizeIntents>;
   sidebar: MachineView<SidebarState, SidebarIntents>;
+  deadlinesColumn: MachineView<SidebarState, SidebarIntents>;
   journalEntries: JournalEntryView[];
   journalContext: JournalContext | null;
   deleteEntry: (id: string) => Promise<Result>;
@@ -547,6 +548,7 @@ function Reader({
     useBottomTab,
     useMaximize,
     useSidebar,
+    useDeadlinesColumn,
     useJournalEntries,
     useJournalContext,
     useDeleteEntry,
@@ -591,6 +593,7 @@ function Reader({
     bottomTab: useBottomTab("accounts", TABS),
     maximize: useMaximize(),
     sidebar: useSidebar(),
+    deadlinesColumn: useDeadlinesColumn(),
     journalEntries: useJournalEntries(),
     journalContext: useJournalContext(),
     deleteEntry: useDeleteEntry(),

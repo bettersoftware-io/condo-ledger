@@ -268,6 +268,8 @@ export interface ViewModel {
   ) => MachineView<BottomTabState, BottomTabIntents>;
   useMaximize: () => MachineView<MaximizeState, MaximizeIntents>;
   useSidebar: () => MachineView<SidebarState, SidebarIntents>;
+  /** The Calendar's deadlines column: its width and its drawer. */
+  useDeadlinesColumn: () => MachineView<SidebarState, SidebarIntents>;
   useJournalEntries: () => JournalEntryView[];
   useJournalContext: () => JournalContext | null;
   useDeleteEntry: () => (id: string) => Promise<Result>;
@@ -525,6 +527,9 @@ export function createViewModel(app: App): ViewModel {
     },
     useSidebar: (): MachineView<SidebarState, SidebarIntents> => {
       return useMachine(app.machines.createSidebar);
+    },
+    useDeadlinesColumn: (): MachineView<SidebarState, SidebarIntents> => {
+      return useMachine(app.machines.createDeadlinesColumn);
     },
     useJournalEntries: (): JournalEntryView[] => {
       return useStateObservable(journal.entries$);

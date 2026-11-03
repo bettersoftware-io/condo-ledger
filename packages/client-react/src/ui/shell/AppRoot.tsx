@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 import { useViewModel } from "@cl/react-bindings";
 
 import { AmountLocaleProvider } from "../AmountLocaleProvider.tsx";
+import { DeadlinesColumn } from "../calendar/DeadlinesColumn.tsx";
 import { FiltersSidebar } from "../contacts/FiltersSidebar.tsx";
 import { TESTIDS } from "../testids.ts";
 import { Breadcrumb } from "./Breadcrumb.tsx";
@@ -61,6 +62,12 @@ export function AppRoot(): ReactElement {
               maximize={maximize}
             />
           </main>
+          {navigation.state.module === "calendar" ? (
+            <DeadlinesColumn
+              maximized={maximized}
+              onRestore={maximize.restore}
+            />
+          ) : null}
         </div>
         <ToastHost />
       </div>

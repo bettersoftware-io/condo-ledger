@@ -6,6 +6,7 @@ import { type DeadlineDraft, fixedClock } from "@cl/domain";
 import { createViewModel, ViewModelProvider } from "@cl/react-bindings";
 
 import { AppRoot } from "../shell/AppRoot.tsx";
+import { dragSplitterElement } from "../shell/Splitter.page.tsx";
 import { TESTIDS } from "../testids.ts";
 
 /** A deadline's line in a day cell, as drawn. */
@@ -43,6 +44,37 @@ interface ViewShown {
   disabled: boolean;
   /** Its tooltip; null for none. */
   title: string | null;
+}
+
+/** A row of the selected day's list. */
+interface DayListRowShown {
+  /** The time, "" for a deadline with none. */
+  time: string;
+  mark: string;
+  status: string;
+  /** The priority word on the dot's tooltip; null when no dot is drawn. */
+  priority: string | null;
+  text: string;
+  tooltip: string;
+  selected: boolean;
+}
+
+/** The selected deadline's details, as drawn. */
+interface DetailsShown {
+  /** The rows by label, in order: Description, Date, Calendar, Building, Status, Priority. */
+  rows: { label: string; value: string }[];
+  /** The class that colours the Calendar row's square. */
+  calendarColourClass: string | null;
+  /** The NOTES box's text. */
+  notes: string;
+}
+
+/** A button of the deadlines panel's toolbar. */
+interface DeadlineToolShown {
+  /** Its accessible name: "Add deadline", "Edit deadline" or "Delete deadline". */
+  name: string;
+  disabled: boolean;
+  title: string;
 }
 
 /** What a test can do with, and ask of, the Calendar screen. */
@@ -92,6 +124,36 @@ export interface CalendarScreenPage {
   clickRefresh: () => Promise<void>;
   toasts: () => string[];
   views: () => ViewShown[];
+  /** The title of the column's first panel: "Deadlines for 3 November 2026". */
+  dayListTitle: () => string;
+  /** The list's header cells. */
+  dayListHeader: () => string[];
+  dayListRows: () => DayListRowShown[];
+  /** The sentence of a day with no deadline; null when the day has some. */
+  dayListEmpty: () => string | null;
+  /** Clicks the row whose description starts with this. */
+  clickDayListRow: (text: string) => Promise<void>;
+  deadlineTools: () => DeadlineToolShown[];
+  clickDeadlineTool: (name: string) => Promise<void>;
+  /** The details panel's title. */
+  detailsTitle: () => string;
+  /** The panel's sentence when no deadline is selected; null when one is. */
+  detailsEmpty: () => string | null;
+  details: () => DetailsShown;
+  /** The list's share of the column, as written for the stylesheet. */
+  splitRatio: () => number;
+  /** Drags the splitter between the list and the details by pixels, the column being this tall. */
+  dragSplit: (by: number, columnHeight: number) => void;
+  /** The column's width in pixels, as written for the stylesheet. */
+  columnWidth: () => number;
+  /** Drags the column's own splitter: a positive move is to the right. */
+  dragColumn: (by: number) => void;
+  hasColumn: () => boolean;
+  /** What the rail reads. */
+  railLabel: () => string;
+  clickRail: () => Promise<void>;
+  clickScrim: () => Promise<void>;
+  isDrawerOpen: () => boolean;
   /** Adds a deadline through the port, as the screen's own Add will. */
   addDeadline: (draft: DeadlineDraft) => Promise<void>;
 }
@@ -156,6 +218,36 @@ export function mountCalendar(): CalendarScreenPage {
 
   function textOf(element: Element | null): string {
     return element?.textContent ?? "";
+  }
+
+  function column(): HTMLElement {
+    return rendered.getByTestId(TESTIDS.deadlinesColumn);
+  }
+
+  function columnPanel(index: number): HTMLElement {
+    const panel = within(column()).getAllByTestId(TESTIDS.panel)[index];
+
+    if (panel === undefined) {
+      throw new Error(`No panel ${index} in the deadlines column`);
+    }
+
+    return panel;
+  }
+
+  function dayListRowButtons(): HTMLElement[] {
+    return within(column()).queryAllByTestId(TESTIDS.dayListRow);
+  }
+
+  function splitterOf(direction: string): HTMLElement {
+    const found = rendered.getAllByTestId(TESTIDS.splitter).find((splitter) => {
+      return splitter.getAttribute("data-direction") === direction;
+    });
+
+    if (found === undefined) {
+      throw new Error(`No ${direction} splitter`);
+    }
+
+    return found;
   }
 
   return {
@@ -369,6 +461,147 @@ export function mountCalendar(): CalendarScreenPage {
             title: option.getAttribute("title"),
           };
         });
+    },
+    dayListTitle: (): string => {
+      return textOf(
+        within(columnPanel(0)).getAllByTestId(TESTIDS.panelTitle)[0] ?? null,
+      );
+    },
+    dayListHeader: (): string[] => {
+      return Array.from(
+        within(column())
+          .getByTestId(TESTIDS.dayList)
+          .querySelector(".day-list-header")?.children ?? [],
+      ).map((cell) => {
+        return textOf(cell);
+      });
+    },
+    dayListRows: (): DayListRowShown[] => {
+      return dayListRowButtons().map((row) => {
+        const mark = within(row).getByTestId(TESTIDS.calendarMark);
+        const dot = within(row).queryByTestId(TESTIDS.priorityDot);
+
+        return {
+          time: textOf(row.querySelector(".day-list-time")),
+          mark: textOf(mark),
+          status: mark.dataset.status ?? "",
+          priority: dot === null ? null : dot.title,
+          text: textOf(row.querySelector(".day-list-text")),
+          tooltip:
+            row.querySelector<HTMLElement>(".day-list-text")?.title ?? "",
+          selected: row.getAttribute("aria-pressed") === "true",
+        };
+      });
+    },
+    dayListEmpty: (): string | null => {
+      const empty = within(column()).queryByTestId(TESTIDS.dayListEmpty);
+
+      return empty === null ? null : textOf(empty);
+    },
+    clickDayListRow: async (text: string): Promise<void> => {
+      const row = dayListRowButtons().find((candidate) => {
+        return textOf(candidate.querySelector(".day-list-text")).startsWith(
+          text,
+        );
+      });
+
+      if (row === undefined) {
+        throw new Error(`No row of the list starting ${text}`);
+      }
+
+      await user.click(row);
+    },
+    deadlineTools: (): DeadlineToolShown[] => {
+      return within(within(column()).getByTestId(TESTIDS.deadlinesToolbar))
+        .getAllByRole("button")
+        .map((button) => {
+          return {
+            name: button.getAttribute("aria-label") ?? "",
+            disabled: button instanceof HTMLButtonElement && button.disabled,
+            title: button.title,
+          };
+        });
+    },
+    clickDeadlineTool: async (name: string): Promise<void> => {
+      await user.click(within(column()).getByRole("button", { name }));
+    },
+    detailsTitle: (): string => {
+      return textOf(
+        within(columnPanel(1)).getAllByTestId(TESTIDS.panelTitle)[0] ?? null,
+      );
+    },
+    detailsEmpty: (): string | null => {
+      const details = within(column()).getByTestId(TESTIDS.deadlineDetails);
+
+      return details.classList.contains("deadline-details-empty")
+        ? textOf(details)
+        : null;
+    },
+    details: (): DetailsShown => {
+      const details = within(column()).getByTestId(TESTIDS.deadlineDetails);
+      const rows = within(details).getAllByTestId(TESTIDS.deadlineDetailsRow);
+
+      return {
+        rows: rows.map((row) => {
+          return {
+            label: textOf(row.querySelector(".deadline-details-label")),
+            value: textOf(row.querySelector(".deadline-details-value")),
+          };
+        }),
+        calendarColourClass:
+          [
+            ...(rows[2]?.querySelector(".deadline-value")?.classList ?? []),
+          ].find((name) => {
+            return name.startsWith("calendar-");
+          }) ?? null,
+        notes: textOf(
+          within(details)
+            .getByTestId(TESTIDS.deadlineNotes)
+            .querySelector(".deadline-notes-text"),
+        ),
+      };
+    },
+    splitRatio: (): number => {
+      return Number(column().style.getPropertyValue("--split-ratio"));
+    },
+    dragSplit: (by: number, columnHeight: number): void => {
+      // jsdom lays nothing out: the column is as tall as the test says.
+      column().getBoundingClientRect = (): DOMRect => {
+        return { height: columnHeight } as DOMRect;
+      };
+
+      dragSplitterElement(splitterOf("horizontal"), [by]);
+    },
+    columnWidth: (): number => {
+      return Number.parseInt(
+        rendered
+          .getByTestId(TESTIDS.sidebarRight)
+          .style.getPropertyValue("--sidebar-width"),
+        10,
+      );
+    },
+    dragColumn: (by: number): void => {
+      dragSplitterElement(splitterOf("vertical"), [by]);
+    },
+    hasColumn: (): boolean => {
+      return rendered.queryByTestId(TESTIDS.deadlinesColumn) !== null;
+    },
+    railLabel: (): string => {
+      return textOf(
+        rendered.getByTestId(TESTIDS.rail).querySelector(".rail-label"),
+      );
+    },
+    clickRail: async (): Promise<void> => {
+      await user.click(rendered.getByTestId(TESTIDS.rail));
+    },
+    clickScrim: async (): Promise<void> => {
+      await user.click(rendered.getByTestId(TESTIDS.drawerScrim));
+    },
+    isDrawerOpen: (): boolean => {
+      return (
+        rendered.getByTestId(TESTIDS.sidebarRight).getAttribute("data-open") ===
+        "true"
+      );
     },
     addDeadline: async (draft: DeadlineDraft): Promise<void> => {
       await act(async () => {

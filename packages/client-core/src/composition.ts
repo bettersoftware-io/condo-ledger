@@ -233,6 +233,9 @@ import {
 import { type AppScreens, createScreens } from "./screens.ts";
 import { todayOf } from "./today.ts";
 
+/** The prototype's width for the Calendar's deadlines column, in pixels. */
+const DEADLINES_COLUMN_WIDTH = 404;
+
 /** Everything the application needs from the outside world. The client's
  * composition root decides what stands behind each port. */
 export interface AppPorts {
@@ -267,6 +270,8 @@ interface AppPresenters {
 interface AppMachines {
   createMaximize: () => Machine<MaximizeState, MaximizeIntents>;
   createSidebar: () => Machine<SidebarState, SidebarIntents>;
+  /** The Calendar's deadlines column: the sidebar machine, starting at the prototype's 404 pixels. */
+  createDeadlinesColumn: () => Machine<SidebarState, SidebarIntents>;
   /** The dialog over the selected period's books as they stand when an intent asks: an edit opens only for an entry they hold. */
   createJournalDialog: () => Machine<JournalDialogState, JournalDialogIntents>;
   /**
@@ -594,6 +599,9 @@ export function createApp(ports: AppPorts): App {
     machines: {
       createMaximize: createMaximizeMachine,
       createSidebar: createSidebarMachine,
+      createDeadlinesColumn: (): Machine<SidebarState, SidebarIntents> => {
+        return createSidebarMachine(DEADLINES_COLUMN_WIDTH);
+      },
       createJournalDialog: (): Machine<
         JournalDialogState,
         JournalDialogIntents

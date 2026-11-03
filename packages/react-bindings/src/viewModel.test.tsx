@@ -164,6 +164,7 @@ describe("the view model", () => {
       seen.journalGrid.toggle("e1");
       seen.maximize.toggle("top");
       seen.sidebar.open();
+      seen.deadlinesColumn.resize(300);
       seen.journalDialog.openDelete();
       seen.directPayment.edit({ amount: "1" });
       seen.multiCostPayment.edit({ amount: "2" });
@@ -180,6 +181,11 @@ describe("the view model", () => {
 
     expect(page.read(0).maximize.state).toEqual({ maximized: "top" });
     expect(page.read(0).sidebar.state.open).toBe(true);
+    expect(page.read(0).sidebar.state.width).toBe(272);
+    expect(page.read(0).deadlinesColumn.state).toEqual({
+      width: 300,
+      open: false,
+    });
     expect(page.read(0).journalDialog.state.open).toEqual({ kind: "delete" });
     expect(page.read(0).directPayment.state.form.amount).toBe("1");
     expect(page.read(0).multiCostPayment.state.form.amount).toBe("2");
@@ -808,6 +814,7 @@ function ownStatesOf(seen: Seen): unknown[] {
   return [
     seen.maximize.state,
     seen.sidebar.state,
+    seen.deadlinesColumn.state,
     seen.journalDialog.state,
     seen.directPayment.state.form,
     seen.multiCostPayment.state.form,

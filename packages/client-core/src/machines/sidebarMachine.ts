@@ -19,7 +19,7 @@ type SidebarAction =
 
 const MIN_WIDTH = 180;
 const MAX_WIDTH = 440;
-const INITIAL: SidebarState = { width: 272, open: false };
+const DEFAULT_WIDTH = 272;
 
 export function reduceSidebar(
   current: SidebarState,
@@ -38,9 +38,13 @@ export function reduceSidebar(
   }
 }
 
-/** The side panel: how wide it is (never under 180 or over 440 pixels) and whether it is showing. */
-export function createSidebarMachine(): Machine<SidebarState, SidebarIntents> {
-  return createReducerMachine(INITIAL, reduceSidebar, (dispatch) => {
+/** The side panel: how wide it is (never under 180 or over 440 pixels) and whether it is showing. It starts `width` wide, 272 unless the panel says otherwise. */
+export function createSidebarMachine(
+  width: number = DEFAULT_WIDTH,
+): Machine<SidebarState, SidebarIntents> {
+  const initial: SidebarState = { width, open: false };
+
+  return createReducerMachine(initial, reduceSidebar, (dispatch) => {
     return {
       resize: (px: number): void => {
         dispatch({ type: "resize", px });
