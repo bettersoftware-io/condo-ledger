@@ -17,6 +17,7 @@ import {
   createFormDialog,
   type DialogIntents,
   dateOf,
+  dateOrNull,
   dateText,
   type FormDialogState,
   type Judgement,
@@ -50,6 +51,8 @@ export interface DeadlineDialogState
   extends FormDialogState<DeadlineDialogForm> {
   /** The id of the deadline the dialog edits; null for a new one. */
   editing: string | null;
+  /** The ISO date the typed one reads as; null while blank or unreadable. */
+  dateRead: string | null;
   /** The field the verdict's refusal belongs to; null when it accepts. */
   field: DeadlineDialogField | null;
   /** The buildings to choose from, as the port gives them. */
@@ -138,6 +141,7 @@ export function createDeadlineDialog(
       return {
         ...base,
         editing: editing?.id ?? null,
+        dateRead: dateOrNull(base.form.date, context.year),
         field: base.verdict.ok ? null : fieldOf(base.verdict.reason),
         buildings: buildings.get(),
       };

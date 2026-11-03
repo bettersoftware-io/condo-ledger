@@ -33,6 +33,7 @@ import {
   type MonthWeek,
   manual,
   nameOf,
+  type Result,
   sameDayIn,
   weeksOf,
 } from "@cl/domain";
@@ -85,6 +86,8 @@ export interface CalendarIntents {
   setBuilding: (id: string | null) => void;
   /** Shows the day's month and selects the deadline on it: what a saved deadline gets. */
   reveal: (id: string, day: string) => void;
+  /** Deletes a typed deadline; the day's first shown deadline is then selected. Answered as the port answers. */
+  deleteDeadline: (id: string) => Promise<Result>;
 }
 
 export interface CalendarPresenter extends CalendarIntents {
@@ -242,6 +245,9 @@ export function createCalendarPresenter(
     },
     reveal: (id: string, day: string): void => {
       update({ month: monthOf(day), day, selectedId: id });
+    },
+    deleteDeadline: (id: string): Promise<Result> => {
+      return ports.calendar.deleteDeadline(id);
     },
   };
 }

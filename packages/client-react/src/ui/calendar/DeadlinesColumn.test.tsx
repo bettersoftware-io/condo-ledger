@@ -263,23 +263,6 @@ describe("the + ✎ − buttons", () => {
   });
 });
 
-describe("the + ✎ − buttons' actions", () => {
-  it("say they are not yet available, until the deadline dialog is wired", async () => {
-    const page = mountCalendar();
-    await page.addDeadline(createDraft());
-
-    await page.clickDeadlineTool("Add deadline");
-    await page.clickDeadlineTool("Edit deadline");
-    await page.clickDeadlineTool("Delete deadline");
-
-    expect(page.toasts()).toEqual([
-      "Add deadline: not yet available",
-      "Edit deadline: not yet available",
-      "Delete deadline: not yet available",
-    ]);
-  });
-});
-
 describe("the column's size and fold", () => {
   it("starts 404 wide and splits 40% to the list", () => {
     const page = mountCalendar();

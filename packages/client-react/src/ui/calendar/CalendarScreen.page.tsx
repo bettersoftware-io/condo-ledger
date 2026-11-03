@@ -5,6 +5,7 @@ import { createAppHarness } from "@cl/client-core/testing/appHarness.ts";
 import { type DeadlineDraft, fixedClock } from "@cl/domain";
 import { createViewModel, ViewModelProvider } from "@cl/react-bindings";
 
+import { type FormDialogPage, formDialogIn } from "../FormDialog.page.tsx";
 import { AppRoot } from "../shell/AppRoot.tsx";
 import { dragSplitterElement } from "../shell/Splitter.page.tsx";
 import { TESTIDS } from "../testids.ts";
@@ -154,7 +155,17 @@ export interface CalendarScreenPage {
   clickRail: () => Promise<void>;
   clickScrim: () => Promise<void>;
   isDrawerOpen: () => boolean;
-  /** Adds a deadline through the port, as the screen's own Add will. */
+  /** The Add and Edit Deadline dialog. */
+  dialog: FormDialogPage;
+  /** The label of the field the dialog marks invalid; null when none is. */
+  invalidField: () => string | null;
+  /** The delete question's text; null when it is not asked. */
+  deleteQuestion: () => string | null;
+  answerYes: () => Promise<void>;
+  answerNo: () => Promise<void>;
+  /** The accessible name of the element with the focus: "Add deadline" after the dialog closes. */
+  focusedName: () => string;
+  /** Adds a deadline through the port, as a test needs one to start from. */
   addDeadline: (draft: DeadlineDraft) => Promise<void>;
 }
 
@@ -602,6 +613,28 @@ export function mountCalendar(): CalendarScreenPage {
         rendered.getByTestId(TESTIDS.sidebarRight).getAttribute("data-open") ===
         "true"
       );
+    },
+    dialog: formDialogIn(() => {
+      return rendered.container;
+    }, user),
+    invalidField: (): string | null => {
+      return (
+        rendered.container
+          .querySelector("[aria-invalid='true']")
+          ?.getAttribute("aria-label") ?? null
+      );
+    },
+    deleteQuestion: (): string | null => {
+      return rendered.queryByTestId(TESTIDS.confirmText)?.textContent ?? null;
+    },
+    answerYes: async (): Promise<void> => {
+      await user.click(rendered.getByTestId(TESTIDS.confirmYes));
+    },
+    answerNo: async (): Promise<void> => {
+      await user.click(rendered.getByTestId(TESTIDS.confirmNo));
+    },
+    focusedName: (): string => {
+      return document.activeElement?.getAttribute("aria-label") ?? "";
     },
     addDeadline: async (draft: DeadlineDraft): Promise<void> => {
       await act(async () => {

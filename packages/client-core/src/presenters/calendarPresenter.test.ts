@@ -246,12 +246,12 @@ describe("the calendar presenter", () => {
   });
 
   it("a deleted deadline lets the selection fall to the day's first", async () => {
-    const { view, calendar, harness } = createWatchedCalendar();
+    const { view, calendar } = createWatchedCalendar();
 
     calendar.selectDay("2026-02-20");
     calendar.selectDeadline("ce19");
 
-    expect((await harness.ports.calendar.deleteDeadline("ce19")).ok).toBe(true);
+    expect((await calendar.deleteDeadline("ce19")).ok).toBe(true);
 
     expect(view().selected?.id).toBe("installment:in26");
   });

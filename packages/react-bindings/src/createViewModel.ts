@@ -858,6 +858,7 @@ export function createViewModel(app: App): ViewModel {
         showNoCalendars: calendar.showNoCalendars,
         setBuilding: calendar.setBuilding,
         reveal: calendar.reveal,
+        deleteDeadline: calendar.deleteDeadline,
       };
     },
   };

@@ -23,6 +23,14 @@ export interface FormDialogPage {
   /** The choice a select shows, as drawn over it. */
   chosen: (label: string) => string;
   choose: (label: string, option: string) => Promise<void>;
+  /** Picks a radio of the group with this label. */
+  chooseRadio: (group: string, option: string) => Promise<void>;
+  /** The radio of the group that is picked. */
+  pickedRadio: (group: string) => string;
+  /** The options a select offers, in order. */
+  options: (label: string) => string[];
+  /** The date a DateField's text was read as, drawn beside it in full; null when none is drawn. */
+  readDate: () => string | null;
   /** The text of the read-only row with this label. */
   readOnlyValue: (label: string) => string;
   /** The reason the dialog shows in red, or null when it shows none. */
@@ -156,6 +164,32 @@ export function formDialogIn(
     },
     choose: async (label: string, option: string): Promise<void> => {
       await user.selectOptions(select(label), option);
+    },
+    chooseRadio: async (group: string, option: string): Promise<void> => {
+      await user.click(
+        within(
+          within(dialog()).getByRole("radiogroup", { name: group }),
+        ).getByRole("radio", { name: option }),
+      );
+    },
+    pickedRadio: (group: string): string => {
+      const picked = within(
+        within(dialog()).getByRole("radiogroup", { name: group }),
+      )
+        .getAllByRole<HTMLInputElement>("radio")
+        .find((radio) => {
+          return radio.checked;
+        });
+
+      return picked?.closest("label")?.textContent ?? "";
+    },
+    options: (label: string): string[] => {
+      return Array.from(select(label).options).map((option) => {
+        return option.textContent ?? "";
+      });
+    },
+    readDate: (): string | null => {
+      return optional(TESTIDS.dateFieldParsed);
     },
     readOnlyValue: (label: string): string => {
       return (

@@ -1,4 +1,4 @@
-import { type ReactElement, useEffect, useRef } from "react";
+import { type ReactElement, useEffect, useRef, useState } from "react";
 
 import { useViewModel } from "@cl/react-bindings";
 
@@ -6,10 +6,13 @@ import { Panel } from "../Panel.tsx";
 import { SidebarFrame } from "../shell/SidebarFrame.tsx";
 import { Splitter } from "../shell/Splitter.tsx";
 import { TESTIDS } from "../testids.ts";
+import { useDialogWrite } from "../useDialogWrite.ts";
 import { dayTitle } from "./calendarWords.ts";
 import { DayList } from "./DayList.tsx";
 import { DeadlineDetails } from "./DeadlineDetails.tsx";
+import { DeadlineDialog } from "./DeadlineDialog.tsx";
 import { DeadlinesToolbar } from "./DeadlinesToolbar.tsx";
+import { DeleteDeadline } from "./DeleteDeadline.tsx";
 
 import "./DeadlinesColumn.css";
 
@@ -18,26 +21,28 @@ import "./DeadlinesColumn.css";
  * selected day's deadlines over the selected deadline's details, sharing the
  * column by a split ratio (40% for the list at first). Reads the Calendar
  * and the column's own width and drawer, and hands plain props down. The
- * toolbar's + ✎ − are drawn here; their actions arrive with the dialog.
+ * toolbar's + opens the Add Deadline dialog on the selected day and the
+ * Building filter's building, ✎ the Edit one on the selected deadline, and −
+ * asks before deleting it. ✎ and − are disabled on a deadline worked out from
+ * the books, so only a typed one reaches them.
  */
 export function DeadlinesColumn({
   maximized,
   onRestore,
 }: DeadlinesColumnProps): ReactElement {
-  const {
-    useCalendar,
-    useCalendarIntents,
-    useDeadlinesColumn,
-    useSplit,
-    useNotices,
-  } = useViewModel();
+  const { useCalendar, useCalendarIntents, useDeadlinesColumn, useSplit } =
+    useViewModel();
   const view = useCalendar();
-  const { selectDeadline } = useCalendarIntents();
+  const { selectDeadline, deleteDeadline } = useCalendarIntents();
   const column = useDeadlinesColumn();
   const split = useSplit("calendar");
-  const { stub } = useNotices();
+  const [open, setOpen] = useState<OpenDialog>(null);
+  const deletion = useDialogWrite(close, "the deadline was not deleted");
   const body = useRef<HTMLDivElement>(null);
   const ratio = split.state.ratio;
+  // Only a typed deadline reaches ✎ and −: the buttons are disabled on the others.
+  const selected = view?.selected ?? null;
+  const typed = selected?.source === "manual" ? selected : null;
 
   useEffect(() => {
     body.current?.style.setProperty("--split-ratio", String(ratio));
@@ -52,15 +57,27 @@ export function DeadlinesColumn({
   }
 
   function add(): void {
-    stub("Add deadline");
+    setOpen("add");
   }
 
   function edit(): void {
-    stub("Edit deadline");
+    setOpen("edit");
   }
 
   function remove(): void {
-    stub("Delete deadline");
+    setOpen("delete");
+  }
+
+  function close(): void {
+    setOpen(null);
+  }
+
+  function confirmDelete(): void {
+    if (typed !== null) {
+      deletion.run(() => {
+        return deleteDeadline(typed.id);
+      });
+    }
   }
 
   return (
@@ -115,9 +132,37 @@ export function DeadlinesColumn({
           </>
         )}
       </div>
+      {view !== null && open === "add" ? (
+        <DeadlineDialog
+          spec={{
+            mode: "add",
+            day: view.day,
+            buildingId: view.filters.buildingId,
+          }}
+          onSaved={close}
+          onCancel={close}
+        />
+      ) : null}
+      {typed !== null && open === "edit" ? (
+        <DeadlineDialog
+          spec={{ mode: "edit", deadline: typed }}
+          onSaved={close}
+          onCancel={close}
+        />
+      ) : null}
+      {typed !== null && open === "delete" ? (
+        <DeleteDeadline
+          description={typed.description}
+          onYes={confirmDelete}
+          onNo={close}
+        />
+      ) : null}
     </SidebarFrame>
   );
 }
+
+/** Which dialog is open over the column; null for none. */
+type OpenDialog = "add" | "edit" | "delete" | null;
 
 export interface DeadlinesColumnProps {
   /** A panel of the main area fills the screen: the rail stands in for the column. */

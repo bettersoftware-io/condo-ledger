@@ -36,6 +36,27 @@ describe("the deadline dialog", () => {
     expect(machine.state$.getValue().buildings.length).toBeGreaterThan(0);
   });
 
+  it("tells the date the typed one reads as, and none while it does not read", () => {
+    const { app } = createAppHarness(undefined, CLOCK);
+    const machine = track(
+      app.machines.createDeadlineDialog({
+        mode: "add",
+        day: "2026-02-20",
+        buildingId: null,
+      }),
+    );
+
+    expect(machine.state$.getValue().dateRead).toBe("2026-02-20");
+
+    machine.intents.edit({ date: "5/3" });
+
+    expect(machine.state$.getValue().dateRead).toBe("2026-03-05");
+
+    machine.intents.edit({ date: "31/02/2026" });
+
+    expect(machine.state$.getValue().dateRead).toBeNull();
+  });
+
   it("opens an edit on the deadline as it stands", async () => {
     const { app, ports } = createAppHarness(undefined, CLOCK);
     const deadline = await firstDeadline(ports.calendar.deadlines());
